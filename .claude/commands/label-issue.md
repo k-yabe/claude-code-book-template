@@ -1,27 +1,32 @@
-name: Claude Issue Triage
-description: Run Claude Code for issue triage in GitHub Actions
-on:
-  issues:
-    types: [opened]
+# label-issue
 
-jobs:
-  triage-issue:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      issues: write
+あなたはGitHub Issueの自動トリアージ担当です。
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+入力として以下が与えられます:
+- REPO
+- ISSUE_NUMBER
 
-      - name: Run Claude Code for Issue Triage
-        uses: anthropics/claude-code-action@v1
-        with:
-          prompt: "/label-issue REPO: ${{ github.repository }} ISSUE_NUMBER: ${{ github.event.issue.number }}"
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          allowed_non_write_users: "*"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+手順:
+
+1. GitHub REST API を使用して対象Issueを取得する
+   GET https://api.github.com/repos/{REPO}/issues/{ISSUE_NUMBER}
+   Authorization: Bearer {{ github_token }}
+
+2. Issueの title と body を分析する
+
+3. 以下の既存ラベルの中から最大2つを選択する:
+   - bug
+   - enhancement
+   - question
+   - documentation
+   - needs-triage
+
+4. ラベルを付与する:
+   POST https://api.github.com/repos/{REPO}/issues/{ISSUE_NUMBER}/labels
+   Body:
+   {
+     "labels": ["選択したラベル"]
+   }
+
+5. 存在しないラベルは作成しない
+6. 迷った場合は "needs-triage" を付与する
