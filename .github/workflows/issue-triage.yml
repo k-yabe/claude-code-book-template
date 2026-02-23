@@ -1,5 +1,5 @@
 name: Claude Issue Triage
-description: Auto label issues using Claude
+description: Auto label issues using Claude (no gh / no WebFetch)
 
 on:
   issues:
@@ -8,21 +8,69 @@ on:
 jobs:
   triage-issue:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     permissions:
-      contents: read
       issues: write
+      contents: read
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run Claude Code for Issue Triage
+      - name: Decide labels by Claude
+        id: decide
         uses: anthropics/claude-code-action@v1
         with:
-          prompt: "/label-issue REPO: ${{ github.repository }} ISSUE_NUMBER: ${{ github.event.issue.number }}"
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           allowed_non_write_users: "*"
-          claude_args: "--allowed-tools WebFetch"
-          show_full_output: true
+
+          prompt: |
+            You are an issue triage assistant.
+            Choose 1-2 labels from this allowed list only:
+            - bug
+            - enhancement
+            - question
+            - documentation
+            - needs-triage
+
+            Return JSON only.
+
+            ISSUE_TITLE:
+            ${{ github.event.issue.title }}
+
+            ISSUE_BODY:
+            ${{ github.event.issue.body }}
+
+          claude_args: |
+            --json-schema '{
+              "type":"object",
+              "properties":{
+                "labels":{
+                  "type":"array",
+                  "items":{"type":"string"},
+                  "minItems":1,
+                  "maxItems":2
+                },
+                "reason":{
+                  "type":"string"
+                }
+              },
+              "required":["labels"]
+            }'
+            --disallowedTools Bash,WebFetch,WebSearch
+
+      - name: Apply labels
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const out = JSON.parse(`${{ toJSON(steps.decide.outputs.structured_output) }}`);
+            const labels = out.labels || [];
+            if (labels.length === 0) {
+              core.setFailed("No labels returned by Claude.");
+              return;
+            }
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels
+            });
+            core.info(`Applied labels: ${labels.join(", ")}`);
