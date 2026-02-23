@@ -1,9 +1,9 @@
 name: Claude Issue Triage
-description: Auto label issues using Claude (no gh / no WebFetch)
 
 on:
   issues:
-    types: [opened]
+    types:
+      - opened
 
 jobs:
   triage-issue:
@@ -20,6 +20,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           allowed_non_write_users: "*"
+          show_full_output: true
 
           prompt: |
             You are an issue triage assistant.
@@ -61,16 +62,35 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const out = JSON.parse(`${{ toJSON(steps.decide.outputs.structured_output) }}`);
-            const labels = out.labels || [];
-            if (labels.length === 0) {
-              core.setFailed("No labels returned by Claude.");
+            const raw = `${{ steps.decide.outputs.structured_output }}`.trim();
+
+            const start = raw.indexOf('{');
+            const end = raw.lastIndexOf('}');
+            if (start === -1 || end === -1 || end <= start) {
+              core.setFailed(`No JSON object found in structured_output. Raw:\n${raw}`);
               return;
             }
+
+            const jsonText = raw.slice(start, end + 1);
+            let out;
+            try {
+              out = JSON.parse(jsonText);
+            } catch (e) {
+              core.setFailed(`JSON.parse failed. Extracted:\n${jsonText}\n\nRaw:\n${raw}`);
+              return;
+            }
+
+            const labels = out.labels || [];
+            if (!Array.isArray(labels) || labels.length === 0) {
+              core.setFailed(`No labels returned. Parsed:\n${jsonText}`);
+              return;
+            }
+
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
               labels
             });
+
             core.info(`Applied labels: ${labels.join(", ")}`);
