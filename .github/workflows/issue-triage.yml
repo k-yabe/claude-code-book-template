@@ -1,99 +1,28 @@
-triage-issue
-Started 1m 13s ago
-Search logs
-2s
-0s
-1m 10s
-Run anthropics/claude-code-action@v1
-Run oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3
-Cache hit for: swrvKXH4hkDYFKcrNV+Kct676IY=
-Received 35242122 of 35242122 (100.0%), 56.9 MBs/sec
-Cache Size: ~34 MB (35242122 B)
-/usr/bin/tar -xf /home/runner/work/_temp/39dde0b7-28fb-4829-9f8b-c97a1dbfb86a/cache.tzst -P -C /home/runner/work/claude-code-book-template/claude-code-book-template --use-compress-program unzstd
-Cache restored successfully
-/home/runner/.bun/bin/bun --revision
-1.3.6+d530ed993
-Using a cached version of Bun: 1.3.6+d530ed993
-Run cd ${GITHUB_ACTION_PATH}
-bun install v1.3.6 (d530ed99)
-+ @actions/core@1.11.1
-+ @actions/github@6.0.1
-+ @anthropic-ai/claude-agent-sdk@0.2.49
-+ @modelcontextprotocol/sdk@1.16.0
-+ @octokit/graphql@8.2.2
-+ @octokit/rest@21.1.1
-+ @octokit/webhooks-types@7.6.1
-+ node-fetch@3.3.2
-+ shell-quote@1.8.3
-+ zod@3.25.76
-138 packages installed [1.52s]
-Run bun run ${GITHUB_ACTION_PATH}/src/entrypoints/run.ts
-Auto-detected mode: agent for event: issues
-Using provided GITHUB_TOKEN for authentication
-Checking permissions for actor: k-yabe
-Warning: ⚠️ SECURITY WARNING: Bypassing write permission check for k-yabe due to allowed_non_write_users='*'. This should only be used for workflows with very limited permissions.
-Mode: agent
-Context prompt: /label-issue REPO: k-yabe/claude-code-book-template ISSUE_NUMBER: 8
-Trigger result: true
-Preparing with mode: agent for event: issues
-Actor type: User
-Verified human actor: k-yabe
-Configuring git authentication for non-signing mode
-Configuring git user...
-Setting git user as claude[bot]...
-✓ Set git user as claude[bot]
-Removing existing git authentication headers...
-✓ Removed existing authentication headers
-Updating remote URL with authentication...
-✓ Updated remote URL with authentication token
-Git authentication configured successfully
-Installing Claude Code v2.1.49...
-Installation attempt 1...
-Setting up Claude Code...
-[?2026h
-Checkinginstallationstatus...
-[?2026l[?2026h
-Installing Clude Cde nive build2.1.49...
-[?2026l[?2026h
-Seting uplauncher and shellintegration. 
-[?2026l[?2026h
-✔ Claude Code successfully installed!       
-Version:2.1.49
-Location:~/.local/bin/claude
-Next:Runclaude--helptogetstarted
-[?2026l[?2026h
-[?2026l
-✅ Installation complete!
-Claude Code installed successfully
-Setting up Claude settings at: /home/runner/.claude/settings.json
-Creating .claude directory...
-No existing settings file found, creating new one
-Updated settings with enableAllProjectMcpServers: true
-Settings saved successfully
-No marketplaces specified, skipping marketplace setup
-No plugins specified, skipping plugins installation
-Running Claude Code via SDK (full output hidden for security)...
-Rerun in debug mode or enable `show_full_output: true` in your workflow file for full output.
-Running Claude with prompt from file: /home/runner/work/_temp/claude-prompts/claude-prompt.txt
-SDK options: {
-  "allowedTools": [
-    "WebFetch"
-  ],
-  "systemPrompt": {
-    "type": "preset",
-    "preset": "claude_code"
-  },
-  "pathToClaudeCodeExecutable": "",
-  "extraArgs": {},
-  "settingSources": [
-    "user",
-    "project",
-    "local"
-  ]
-}
-{
-  "type": "system",
-  "subtype": "init",
-  "message": "Claude Code initialized",
-  "model": "claude-sonnet-4-6"
-}
+name: Claude Issue Triage
+description: Auto label issues using Claude
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  triage-issue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Claude Code for Issue Triage
+        uses: anthropics/claude-code-action@v1
+        with:
+          prompt: "/label-issue REPO: ${{ github.repository }} ISSUE_NUMBER: ${{ github.event.issue.number }}"
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          allowed_non_write_users: "*"
+          claude_args: "--allowed-tools WebFetch"
+          show_full_output: true
