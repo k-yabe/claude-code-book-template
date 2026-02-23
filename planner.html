@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プランナー</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #5c6bc0;
+      --primary-dark: #4a58aa;
+      --bg: #f0f2f7;
+      --col-bg: #e4e6ea;
+      --white: #ffffff;
+      --text: #1a202c;
+      --muted: #718096;
+      --border: #dde1e7;
+      --danger: #e53e3e;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 14px rgba(0,0,0,0.15);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      color: var(--text);
+    }
+
+    /* ── Header ── */
+    .header {
+      background: var(--primary);
+      color: white;
+      height: 52px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .header h1 { font-size: 1.05rem; font-weight: 600; }
+    .header-subtitle {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 2px 10px;
+    }
+
+    /* ── Board ── */
+    .board {
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 16px 20px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .board::-webkit-scrollbar { height: 6px; }
+    .board::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
+
+    /* ── Column ── */
+    .column {
+      background: var(--col-bg);
+      border-radius: 12px;
+      width: 272px;
+      min-width: 272px;
+      max-height: calc(100vh - 90px);
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.2s;
+    }
+    .column.drag-over {
+      box-shadow: 0 0 0 2px var(--primary), var(--shadow-md);
+    }
+
+    .col-header {
+      padding: 10px 10px 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .col-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .col-title {
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      outline: none;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: inherit;
+      min-width: 0;
+    }
+    .col-title:focus {
+      background: white;
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+    .col-count {
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: rgba(0,0,0,0.08);
+      border-radius: 10px;
+      padding: 1px 7px;
+      flex-shrink: 0;
+    }
+    .col-menu-btn {
+      width: 26px; height: 26px;
+      border: none; background: transparent;
+      color: var(--muted);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .col-menu-btn:hover { background: rgba(0,0,0,0.08); color: var(--text); }
+
+    /* Progress bar */
+    .col-progress {
+      height: 3px;
+      background: rgba(0,0,0,0.1);
+      margin: 0 12px 6px;
+      border-radius: 2px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .col-progress-bar {
+      height: 100%;
+      background: #22c55e;
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+
+    /* Task list */
+    .task-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 32px;
+    }
+    .task-list::-webkit-scrollbar { width: 4px; }
+    .task-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 2px; }
+
+    /* Drop placeholder */
+    .drop-placeholder {
+      height: 60px;
+      border: 2px dashed var(--primary);
+      border-radius: 8px;
+      background: rgba(92,107,192,0.08);
+      flex-shrink: 0;
+    }
+
+    /* Add task */
+    .add-task-btn {
+      margin: 8px;
+      padding: 7px 10px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex; align-items: center; gap: 6px;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+      font-family: inherit;
+    }
+    .add-task-btn:hover { background: rgba(0,0,0,0.06); color: var(--text); }
+
+    /* Inline add */
+    .inline-add {
+      margin: 0 8px 8px;
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+    .inline-add input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 0.875rem;
+      color: var(--text);
+      font-family: inherit;
+      margin-bottom: 8px;
+    }
+    .inline-add-actions { display: flex; gap: 6px; }
+
+    /* ── Task Card ── */
+    .task-card {
+      background: var(--white);
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.15s, transform 0.15s, opacity 0.15s;
+      user-select: none;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .task-card:hover { box-shadow: var(--shadow-md); }
+    .task-card.dragging { opacity: 0.45; transform: rotate(2deg) scale(0.98); }
+    .task-card.completed { opacity: 0.6; }
+
+    .card-label-bar { height: 4px; }
+    .card-body { padding: 10px 12px; }
+    .card-title {
+      font-size: 0.875rem;
+      font-weight: 500;
+      line-height: 1.45;
+      color: var(--text);
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+    .task-card.completed .card-title {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .card-due {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      background: #f7fafc;
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+    .card-due.overdue { color: #e53e3e; background: #fff5f5; font-weight: 600; }
+    .card-due.soon    { color: #dd6b20; background: #fffaf0; }
+    .card-priority {
+      font-size: 0.68rem;
+      font-weight: 700;
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: white;
+      letter-spacing: 0.02em;
+    }
+    .card-check {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e0;
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem;
+      color: white;
+      transition: all 0.2s;
+      margin-left: auto;
+      background: transparent;
+    }
+    .card-check.checked { background: #22c55e; border-color: #22c55e; }
+
+    /* ── Add Column ── */
+    .add-column-btn {
+      background: rgba(255,255,255,0.45);
+      border: 2px dashed rgba(0,0,0,0.18);
+      border-radius: 12px;
+      width: 200px; min-width: 200px;
+      height: 52px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      color: rgba(0,0,0,0.38);
+      font-size: 0.875rem;
+      font-family: inherit;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      align-self: flex-start;
+    }
+    .add-column-btn:hover {
+      background: rgba(255,255,255,0.85);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* ── Dropdown ── */
+    .dropdown {
+      position: fixed;
+      background: white;
+      border-radius: 8px;
+      box-shadow: var(--shadow-md);
+      z-index: 600;
+      overflow: hidden;
+      min-width: 180px;
+      border: 1px solid var(--border);
+      animation: dropIn 0.12s ease;
+    }
+    @keyframes dropIn {
+      from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .dropdown-item {
+      padding: 9px 14px;
+      font-size: 0.84rem;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.1s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dropdown-item:hover { background: #f7fafc; }
+    .dropdown-item.danger { color: var(--danger); }
+    .dropdown-item.danger:hover { background: #fff5f5; }
+    .dropdown-sep { border-top: 1px solid var(--border); margin: 4px 0; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.hidden { display: none; }
+
+    .modal {
+      background: var(--white);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+      overflow: hidden;
+      animation: modalIn 0.18s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(-12px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-top-bar { height: 5px; }
+
+    .modal-header {
+      padding: 18px 20px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .modal-title {
+      flex: 1;
+      border: none;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+      padding: 0;
+      background: transparent;
+      font-family: inherit;
+    }
+    .modal-close {
+      width: 28px; height: 28px;
+      border: none;
+      background: var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s;
+      line-height: 1;
+    }
+    .modal-close:hover { background: #e2e8f0; color: var(--text); }
+
+    .modal-body {
+      padding: 14px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .form-select, .form-date, .form-textarea {
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.875rem;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      background: white;
+    }
+    .form-select:focus, .form-date:focus, .form-textarea:focus {
+      border-color: var(--primary);
+    }
+    .form-textarea { resize: vertical; min-height: 68px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Label picker */
+    .label-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+    .label-option {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: transform 0.15s, border-color 0.15s;
+      outline: none;
+      position: relative;
+    }
+    .label-option:hover { transform: scale(1.15); }
+    .label-option.selected { border-color: #1a202c; transform: scale(1.1); }
+    .label-option.selected::after {
+      content: '✓';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+
+    .modal-footer {
+      padding: 8px 20px 18px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .spacer { flex: 1; }
+
+    /* Buttons */
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-danger { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); }
+    .btn-danger:hover { background: #fff5f5; }
+    .btn-ghost { background: transparent; color: var(--muted); }
+    .btn-ghost:hover { background: var(--border); }
+    .btn-sm { padding: 5px 12px; font-size: 0.78rem; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <span style="font-size:1.4rem">📋</span>
+  <h1>プランナー</h1>
+  <span class="header-subtitle">カンバンボード</span>
+</header>
+
+<div class="board" id="board"></div>
+
+<!-- Task Modal -->
+<div class="modal-overlay hidden" id="modal">
+  <div class="modal">
+    <div class="modal-top-bar" id="mTopBar"></div>
+    <div class="modal-header">
+      <input class="modal-title" id="mTitle" type="text" placeholder="タスク名を入力...">
+      <button class="modal-close" id="mClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="mDesc">メモ</label>
+        <textarea class="form-textarea" id="mDesc" placeholder="説明を追加..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="mDue">期限</label>
+          <input class="form-date" id="mDue" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="mPriority">優先度</label>
+          <select class="form-select" id="mPriority">
+            <option value="none">なし</option>
+            <option value="low">低</option>
+            <option value="medium">中</option>
+            <option value="high">高</option>
+            <option value="urgent">緊急</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">ラベル</label>
+        <div class="label-picker" id="mLabelPicker"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="mDelete">削除</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" id="mCancel">キャンセル</button>
+      <button class="btn btn-primary btn-sm" id="mSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dropdown (appended to body dynamically) -->
+
+<script>
+  // ── Constants ──
+  const STORAGE_KEY = 'planner-v1';
+
+  const COLUMN_COLORS = [
+    '#6366f1', '#0ea5e9', '#22c55e', '#f59e0b',
+    '#ec4899', '#8b5cf6', '#ef4444', '#14b8a6',
+  ];
+
+  const PRIORITIES = {
+    none:   { label: 'なし', color: '#9ca3af' },
+    low:    { label: '低',   color: '#22c55e' },
+    medium: { label: '中',   color: '#3b82f6' },
+    high:   { label: '高',   color: '#f97316' },
+    urgent: { label: '緊急', color: '#ef4444' },
+  };
+
+  const LABEL_COLORS = {
+    red:    '#ef4444',
+    orange: '#f97316',
+    yellow: '#eab308',
+    green:  '#22c55e',
+    teal:   '#14b8a6',
+    blue:   '#3b82f6',
+    indigo: '#6366f1',
+    purple: '#8b5cf6',
+    pink:   '#ec4899',
+    none:   null,
+  };
+
+  // ── Default state ──
+  const DEFAULT_STATE = {
+    columns: [
+      { id: 1, title: 'To Do',  color: '#6366f1' },
+      { id: 2, title: '進行中', color: '#0ea5e9' },
+      { id: 3, title: '完了',   color: '#22c55e' },
+    ],
+    tasks: [
+      { id: 1, columnId: 1, title: 'プロジェクト計画を作成する', description: '', dueDate: '', priority: 'high', label: 'indigo', completed: false },
+      { id: 2, columnId: 1, title: 'デザインレビュー', description: 'UIデザインのレビューと修正点の確認', dueDate: '2026-02-25', priority: 'medium', label: 'purple', completed: false },
+      { id: 3, columnId: 2, title: 'API設計', description: 'RESTful APIのエンドポイント設計', dueDate: '2026-02-20', priority: 'urgent', label: 'red', completed: false },
+      { id: 4, columnId: 2, title: 'データベース設計', description: '', dueDate: '', priority: 'high', label: 'orange', completed: false },
+      { id: 5, columnId: 3, title: '要件定義', description: '顧客との要件確認完了', dueDate: '2026-02-10', priority: 'low', label: 'green', completed: true },
+    ],
+    nextColumnId: 4,
+    nextTaskId: 6,
+  };
+
+  // ── State ──
+  let S;
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) { S = JSON.parse(raw); return; }
+    } catch {}
+    S = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  }
+
+  function saveState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch {}
+  }
+
+  // ── Helpers ──
+  const getCol  = id => S.columns.find(c => c.id === id);
+  const getTask = id => S.tasks.find(t => t.id === id);
+  const colTasks = id => S.tasks.filter(t => t.columnId === id);
+
+  function esc(s) {
+    return String(s ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function fmtDate(ds) {
+    if (!ds) return null;
+    const d = new Date(ds + 'T00:00:00');
+    return `${d.getMonth() + 1}/${d.getDate()}`;
+  }
+
+  function dueCls(ds) {
+    if (!ds) return '';
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const due = new Date(ds + 'T00:00:00');
+    const diff = (due - today) / 86400000;
+    if (diff < 0) return 'overdue';
+    if (diff <= 3) return 'soon';
+    return '';
+  }
+
+  // ── Drag state ──
+  let dragId = null;
+
+  // ── Render ──
+  function render() {
+    const board = document.getElementById('board');
+    board.innerHTML = '';
+    S.columns.forEach(col => board.appendChild(mkCol(col)));
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'add-column-btn';
+    addBtn.innerHTML = '<span style="font-size:1.1rem">＋</span> バケットを追加';
+    addBtn.onclick = addColumn;
+    board.appendChild(addBtn);
+  }
+
+  function mkCol(col) {
+    const tasks = colTasks(col.id);
+    const done = tasks.filter(t => t.completed).length;
+    const pct = tasks.length ? (done / tasks.length * 100) : 0;
+
+    const el = document.createElement('div');
+    el.className = 'column';
+    el.dataset.colId = col.id;
+
+    el.innerHTML = `
+      <div class="col-header">
+        <span class="col-dot" style="background:${col.color}"></span>
+        <input class="col-title" value="${esc(col.title)}"
+          onblur="renameCol(${col.id}, this.value)"
+          onkeydown="if(event.key==='Enter')this.blur(); if(event.key==='Escape'){this.value=getCol(${col.id}).title;this.blur();}">
+        <span class="col-count">${tasks.length}</span>
+        <button class="col-menu-btn" data-col-id="${col.id}" title="メニュー">⋯</button>
+      </div>
+      <div class="col-progress">
+        <div class="col-progress-bar" style="width:${pct}%"></div>
+      </div>
+      <div class="task-list" id="tl-${col.id}"></div>
+      <button class="add-task-btn" data-add-col="${col.id}">
+        <span style="font-size:1rem;line-height:1">＋</span> タスクを追加
+      </button>
+    `;
+
+    const tl = el.querySelector('.task-list');
+    tasks.forEach(t => tl.appendChild(mkCard(t)));
+
+    // Column drag events
+    el.addEventListener('dragover', e => {
+      e.preventDefault();
+      el.classList.add('drag-over');
+      if (dragId !== null && !tl.querySelector('.drop-placeholder')) {
+        const ph = document.createElement('div');
+        ph.className = 'drop-placeholder';
+        tl.appendChild(ph);
+      }
+    });
+    el.addEventListener('dragleave', e => {
+      if (!el.contains(e.relatedTarget)) {
+        el.classList.remove('drag-over');
+        tl.querySelector('.drop-placeholder')?.remove();
+      }
+    });
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      el.classList.remove('drag-over');
+      tl.querySelector('.drop-placeholder')?.remove();
+      if (dragId !== null) {
+        const t = getTask(dragId);
+        if (t && t.columnId !== col.id) {
+          t.columnId = col.id;
+          saveState();
+          render();
+        }
+      }
+      dragId = null;
+    });
+
+    // Column menu button
+    el.querySelector('.col-menu-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      showColMenu(e, col.id);
+    });
+
+    // Add task button
+    el.querySelector('.add-task-btn').addEventListener('click', () => {
+      startInlineAdd(col.id);
+    });
+
+    return el;
+  }
+
+  function mkCard(task) {
+    const card = document.createElement('div');
+    card.className = `task-card${task.completed ? ' completed' : ''}`;
+    card.draggable = true;
+
+    card.addEventListener('dragstart', e => {
+      dragId = task.id;
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(() => card.classList.add('dragging'), 0);
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      dragId = null;
+      document.querySelectorAll('.drop-placeholder').forEach(el => el.remove());
+      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+    card.addEventListener('click', () => openModal(task.id));
+
+    const lc = LABEL_COLORS[task.label];
+    const pr = PRIORITIES[task.priority] ?? PRIORITIES.none;
+    const ds = fmtDate(task.dueDate);
+    const dc = dueCls(task.dueDate);
+
+    let meta = '';
+    if (ds) {
+      meta += `<span class="card-due ${dc}">
+        <svg width="9" height="9" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+        </svg>
+        ${esc(ds)}</span>`;
+    }
+    if (task.priority !== 'none') {
+      meta += `<span class="card-priority" style="background:${pr.color}">${esc(pr.label)}</span>`;
+    }
+
+    card.innerHTML = `
+      <div class="card-label-bar" style="background:${lc ?? 'transparent'}"></div>
+      <div class="card-body">
+        <div class="card-title">${esc(task.title)}</div>
+        <div class="card-meta">
+          ${meta}
+          <button class="card-check ${task.completed ? 'checked' : ''}"
+            title="${task.completed ? '未完了に戻す' : '完了にする'}"
+            data-check="${task.id}">${task.completed ? '✓' : ''}</button>
+        </div>
+      </div>
+    `;
+
+    card.querySelector('.card-check').addEventListener('click', e => {
+      e.stopPropagation();
+      toggleDone(task.id);
+    });
+
+    return card;
+  }
+
+  // ── Inline add ──
+  function startInlineAdd(colId) {
+    document.querySelectorAll('.inline-add').forEach(el => el.remove());
+    const col = document.querySelector(`[data-col-id="${colId}"]`);
+    if (!col) return;
+
+    const form = document.createElement('div');
+    form.className = 'inline-add';
+    const inputId = `ii-${colId}`;
+    form.innerHTML = `
+      <input type="text" id="${inputId}" placeholder="タスク名を入力..." autocomplete="off">
+      <div class="inline-add-actions">
+        <button class="btn btn-primary btn-sm" id="ic-${colId}">追加</button>
+        <button class="btn btn-ghost btn-sm" id="ix-${colId}">キャンセル</button>
+      </div>
+    `;
+
+    col.querySelector('.add-task-btn').before(form);
+    const inp = document.getElementById(inputId);
+    inp.focus();
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') confirmInline(colId);
+      if (e.key === 'Escape') cancelInline();
+    });
+    document.getElementById(`ic-${colId}`).onclick = () => confirmInline(colId);
+    document.getElementById(`ix-${colId}`).onclick = cancelInline;
+  }
+
+  function confirmInline(colId) {
+    const inp = document.getElementById(`ii-${colId}`);
+    const title = inp?.value.trim();
+    if (!title) { cancelInline(); return; }
+    S.tasks.push({
+      id: S.nextTaskId++, columnId: colId,
+      title, description: '', dueDate: '',
+      priority: 'none', label: 'none', completed: false,
+    });
+    saveState();
+    render();
+    startInlineAdd(colId);
+  }
+
+  function cancelInline() {
+    document.querySelectorAll('.inline-add').forEach(el => el.remove());
+  }
+
+  // ── Column ops ──
+  function addColumn() {
+    const color = COLUMN_COLORS[S.columns.length % COLUMN_COLORS.length];
+    const col = { id: S.nextColumnId++, title: `バケット ${S.columns.length + 1}`, color };
+    S.columns.push(col);
+    saveState();
+    render();
+    setTimeout(() => {
+      const inp = document.querySelector(`[data-col-id="${col.id}"] .col-title`);
+      inp?.select(); inp?.focus();
+    }, 40);
+  }
+
+  function renameCol(colId, val) {
+    const col = getCol(colId);
+    if (col && val.trim()) { col.title = val.trim(); saveState(); }
+  }
+
+  // ── Dropdown ──
+  let activeDD = null;
+  function closeDD() { activeDD?.remove(); activeDD = null; }
+
+  function showColMenu(e, colId) {
+    closeDD();
+    const dd = document.createElement('div');
+    dd.className = 'dropdown';
+    const tasks = colTasks(colId);
+    const doneCnt = tasks.filter(t => t.completed).length;
+    dd.style.cssText = `top:${e.clientY + 4}px;left:${Math.max(4, e.clientX - 180)}px`;
+    dd.innerHTML = `
+      <div class="dropdown-item" id="dd-clear">✓ 完了済みを削除（${doneCnt}件）</div>
+      <div class="dropdown-sep"></div>
+      <div class="dropdown-item danger" id="dd-del">🗑 バケットを削除（${tasks.length}件）</div>
+    `;
+    document.body.appendChild(dd);
+    activeDD = dd;
+
+    dd.querySelector('#dd-clear').onclick = () => {
+      closeDD();
+      S.tasks = S.tasks.filter(t => !(t.columnId === colId && t.completed));
+      saveState(); render();
+    };
+    dd.querySelector('#dd-del').onclick = () => {
+      closeDD();
+      const col = getCol(colId);
+      const n = colTasks(colId).length;
+      const msg = n > 0
+        ? `「${col.title}」とその中の ${n} 件のタスクを削除しますか？`
+        : `「${col.title}」を削除しますか？`;
+      if (confirm(msg)) {
+        S.tasks = S.tasks.filter(t => t.columnId !== colId);
+        S.columns = S.columns.filter(c => c.id !== colId);
+        saveState(); render();
+      }
+    };
+
+    setTimeout(() => {
+      document.addEventListener('click', closeDD, { once: true });
+    }, 0);
+  }
+
+  // ── Task ops ──
+  function toggleDone(taskId) {
+    const t = getTask(taskId);
+    if (t) { t.completed = !t.completed; saveState(); render(); }
+  }
+
+  // ── Modal ──
+  let modalTaskId = null;
+  let modalColId  = null;
+  let selLabel    = 'none';
+
+  function openModal(taskId) {
+    const task = getTask(taskId);
+    if (!task) return;
+    modalTaskId = taskId;
+    modalColId  = task.columnId;
+
+    document.getElementById('mTitle').value    = task.title;
+    document.getElementById('mDesc').value     = task.description;
+    document.getElementById('mDue').value      = task.dueDate;
+    document.getElementById('mPriority').value = task.priority;
+    document.getElementById('mDelete').style.display = '';
+
+    const pr = PRIORITIES[task.priority] ?? PRIORITIES.none;
+    document.getElementById('mTopBar').style.background = pr.color;
+
+    buildLabelPicker(task.label);
+    document.getElementById('modal').classList.remove('hidden');
+    document.getElementById('mTitle').focus();
+  }
+
+  function buildLabelPicker(cur) {
+    selLabel = cur;
+    const picker = document.getElementById('mLabelPicker');
+    picker.innerHTML = '';
+    Object.entries(LABEL_COLORS).forEach(([key, color]) => {
+      const btn = document.createElement('button');
+      btn.className = `label-option${key === cur ? ' selected' : ''}`;
+      btn.style.background = color ?? '#e5e7eb';
+      if (!color) btn.style.border = '2px dashed #aaa';
+      btn.title = key === 'none' ? 'なし' : key;
+      btn.addEventListener('click', () => {
+        selLabel = key;
+        picker.querySelectorAll('.label-option').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+      picker.appendChild(btn);
+    });
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.add('hidden');
+    modalTaskId = null;
+  }
+
+  function saveModal() {
+    const title = document.getElementById('mTitle').value.trim();
+    if (!title) { document.getElementById('mTitle').focus(); return; }
+    const data = {
+      title,
+      description: document.getElementById('mDesc').value,
+      dueDate:     document.getElementById('mDue').value,
+      priority:    document.getElementById('mPriority').value,
+      label:       selLabel,
+    };
+    const task = getTask(modalTaskId);
+    Object.assign(task, data);
+    saveState(); render(); closeModal();
+  }
+
+  function deleteModal() {
+    const task = getTask(modalTaskId);
+    if (!task) return;
+    if (confirm(`「${task.title}」を削除しますか？`)) {
+      S.tasks = S.tasks.filter(t => t.id !== modalTaskId);
+      saveState(); render(); closeModal();
+    }
+  }
+
+  // Update modal top bar color when priority changes
+  document.getElementById('mPriority').addEventListener('change', function() {
+    const pr = PRIORITIES[this.value] ?? PRIORITIES.none;
+    document.getElementById('mTopBar').style.background = pr.color;
+  });
+
+  // Modal button wiring
+  document.getElementById('mClose').onclick  = closeModal;
+  document.getElementById('mCancel').onclick = closeModal;
+  document.getElementById('mSave').onclick   = saveModal;
+  document.getElementById('mDelete').onclick = deleteModal;
+
+  // Close modal on overlay click
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal')) closeModal();
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal(); cancelInline(); closeDD(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') saveModal();
+  });
+
+  // ── Boot ──
+  loadState();
+  render();
+</script>
+</body>
+</html>
