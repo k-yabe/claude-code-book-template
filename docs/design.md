@@ -44,6 +44,7 @@
 | ブロック崩しゲーム | `index.html`, `main.js` | ✅ 完成 | 未作成 |
 | Todoアプリ | `todo.html` | ✅ 完成 | 未作成 |
 | プランナー（カンバン） | `planner.html` | ✅ 完成 | 未作成 |
+| テトリス | `tetris.html` | ✅ 完成 | 未作成 |
 
 ---
 
