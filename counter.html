@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文字数カウンター</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #f5f6fa;
+      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      color: #2d3436;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2d3436;
+      margin-bottom: 24px;
+      letter-spacing: 0.05em;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    textarea {
+      width: 100%;
+      height: 240px;
+      padding: 16px;
+      font-size: 1rem;
+      line-height: 1.7;
+      border: 2px solid #dfe6e9;
+      border-radius: 12px;
+      background: #fff;
+      color: #2d3436;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      border-color: #6c5ce7;
+    }
+
+    .clear-btn {
+      display: block;
+      margin: 8px 0 0 auto;
+      padding: 6px 16px;
+      font-size: 0.85rem;
+      color: #636e72;
+      background: none;
+      border: 1px solid #dfe6e9;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .clear-btn:hover {
+      background: #dfe6e9;
+      color: #2d3436;
+    }
+
+    /* カウンターグリッド */
+    .counts {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    @media (min-width: 480px) {
+      .counts { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .count-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      border: 2px solid #dfe6e9;
+    }
+
+    .count-card .label {
+      font-size: 0.75rem;
+      color: #636e72;
+      margin-bottom: 6px;
+    }
+
+    .count-card .value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #6c5ce7;
+    }
+
+    /* 制限ゲージ */
+    .limits {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .limit-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 2px solid #dfe6e9;
+      transition: border-color 0.2s;
+    }
+
+    .limit-item.over {
+      border-color: #d63031;
+      background: #fff5f5;
+    }
+
+    .limit-item.warn {
+      border-color: #e17055;
+      background: #fff9f5;
+    }
+
+    .limit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .limit-name { font-weight: 600; }
+
+    .limit-num {
+      font-weight: 700;
+      color: #636e72;
+    }
+
+    .limit-item.warn .limit-num { color: #e17055; }
+    .limit-item.over .limit-num { color: #d63031; }
+
+    .bar-track {
+      height: 6px;
+      background: #dfe6e9;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: #6c5ce7;
+      transition: width 0.15s, background 0.2s;
+    }
+
+    .limit-item.warn .bar-fill { background: #e17055; }
+    .limit-item.over .bar-fill { background: #d63031; }
+
+    .over-msg {
+      margin-top: 6px;
+      font-size: 0.78rem;
+      color: #d63031;
+      display: none;
+    }
+
+    .limit-item.over .over-msg { display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>文字数カウンター</h1>
+
+    <textarea id="input" placeholder="ここにテキストを貼り付けてください…"></textarea>
+    <button class="clear-btn" id="clearBtn">クリア</button>
+
+    <div class="counts">
+      <div class="count-card">
+        <div class="label">文字数</div>
+        <div class="value" id="countAll">0</div>
+      </div>
+      <div class="count-card">
+        <div class="label">スペース除く</div>
+        <div class="value" id="countNoSpace">0</div>
+      </div>
+      <div class="count-card">
+        <div class="label">単語数</div>
+        <div class="value" id="countWords">0</div>
+      </div>
+      <div class="count-card">
+        <div class="label">行数</div>
+        <div class="value" id="countLines">0</div>
+      </div>
+    </div>
+
+    <div class="limits">
+      <div class="limit-item" id="lim-email">
+        <div class="limit-header">
+          <span class="limit-name">メール件名</span>
+          <span class="limit-num" id="lim-email-num">0 / 35</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" id="lim-email-bar"></div></div>
+        <div class="over-msg" id="lim-email-msg"></div>
+      </div>
+      <div class="limit-item" id="lim-x">
+        <div class="limit-header">
+          <span class="limit-name">X（旧Twitter）</span>
+          <span class="limit-num" id="lim-x-num">0 / 140</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" id="lim-x-bar"></div></div>
+        <div class="over-msg" id="lim-x-msg"></div>
+      </div>
+      <div class="limit-item" id="lim-meta">
+        <div class="limit-header">
+          <span class="limit-name">メタディスクリプション</span>
+          <span class="limit-num" id="lim-meta-num">0 / 160</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" id="lim-meta-bar"></div></div>
+        <div class="over-msg" id="lim-meta-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById('input');
+
+    const limits = [
+      { id: 'email', label: 'メール件名',       max: 35  },
+      { id: 'x',     label: 'X（旧Twitter）',   max: 140 },
+      { id: 'meta',  label: 'メタディスクリプション', max: 160 },
+    ];
+
+    function update() {
+      const text = input.value;
+      const len  = text.length;
+
+      document.getElementById('countAll').textContent     = len;
+      document.getElementById('countNoSpace').textContent = text.replace(/\s/g, '').length;
+      document.getElementById('countWords').textContent   = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+      document.getElementById('countLines').textContent   = text === '' ? 0 : text.split('\n').length;
+
+      limits.forEach(({ id, max }) => {
+        const pct  = Math.min(len / max * 100, 100);
+        const over = len > max;
+        const warn = !over && len > max * 0.8;
+
+        document.getElementById(`lim-${id}-num`).textContent = `${len} / ${max}`;
+        document.getElementById(`lim-${id}-bar`).style.width = pct + '%';
+
+        const item = document.getElementById(`lim-${id}`);
+        item.classList.toggle('over', over);
+        item.classList.toggle('warn', warn);
+
+        const msg = document.getElementById(`lim-${id}-msg`);
+        msg.textContent = over ? `${len - max}文字オーバーしています` : '';
+      });
+    }
+
+    input.addEventListener('input', update);
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      input.value = '';
+      update();
+      input.focus();
+    });
+
+    update();
+  </script>
+</body>
+</html>
