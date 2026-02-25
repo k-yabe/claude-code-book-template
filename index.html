@@ -71,9 +71,91 @@
       color: #636e72;
       line-height: 1.5;
     }
+
+    /* ログイン画面 */
+    #login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    #login-screen h1 {
+      margin-bottom: 8px;
+    }
+
+    #login-screen .subtitle {
+      margin-bottom: 32px;
+    }
+
+    .login-box {
+      background: #fff;
+      border: 2px solid #dfe6e9;
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .login-box input {
+      padding: 12px 16px;
+      font-size: 1rem;
+      border: 2px solid #dfe6e9;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .login-box input:focus {
+      border-color: #6c5ce7;
+    }
+
+    .login-box button {
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      background: #6c5ce7;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .login-box button:hover {
+      background: #5a4bd1;
+    }
+
+    .login-error {
+      font-size: 0.85rem;
+      color: #d63031;
+      text-align: center;
+      min-height: 1.2em;
+    }
+
+    #app-screen { display: none; }
   </style>
 </head>
 <body>
+
+  <!-- ログイン画面 -->
+  <div id="login-screen">
+    <h1>アプリ一覧</h1>
+    <p class="subtitle">パスワードを入力してください</p>
+    <div class="login-box">
+      <input type="password" id="pw-input" placeholder="パスワード" />
+      <button id="pw-btn">ログイン</button>
+      <div class="login-error" id="pw-error"></div>
+    </div>
+  </div>
+
+  <!-- アプリ一覧（認証後に表示） -->
+  <div id="app-screen">
   <h1>アプリ一覧</h1>
   <p class="subtitle">使いたいアプリを選んでください</p>
 
@@ -99,5 +181,37 @@
       <div class="card-desc">タスクとスケジュールを管理する</div>
     </a>
   </div>
+  </div>
+
+  <script>
+    const PASSWORD = 'yabe';
+    const loginScreen = document.getElementById('login-screen');
+    const appScreen   = document.getElementById('app-screen');
+    const pwInput     = document.getElementById('pw-input');
+    const pwBtn       = document.getElementById('pw-btn');
+    const pwError     = document.getElementById('pw-error');
+
+    function showApp() {
+      loginScreen.style.display = 'none';
+      appScreen.style.display   = 'block';
+    }
+
+    // セッション中はスキップ
+    if (sessionStorage.getItem('auth') === '1') showApp();
+
+    function tryLogin() {
+      if (pwInput.value === PASSWORD) {
+        sessionStorage.setItem('auth', '1');
+        showApp();
+      } else {
+        pwError.textContent = 'パスワードが違います';
+        pwInput.value = '';
+        pwInput.focus();
+      }
+    }
+
+    pwBtn.addEventListener('click', tryLogin);
+    pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+  </script>
 </body>
 </html>
