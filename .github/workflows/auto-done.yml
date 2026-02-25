@@ -1,0 +1,58 @@
+name: Auto Done on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  auto-done:
+    # マージされた PR のみ実行（クローズだけは除外）
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # steering/ ファイルの更新をコミットするために必要
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract S番号 from PR title
+        id: extract
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+          S_NUM=$(echo "$TITLE" | grep -oP '\[S\d+\]' | grep -oP 'S\d+' | head -1)
+          echo "s_num=$S_NUM" >> $GITHUB_OUTPUT
+          if [ -n "$S_NUM" ]; then
+            echo "✅ S番号を検出: $S_NUM"
+          else
+            echo "ℹ️ PR タイトルに S番号なし。スキップします。"
+          fi
+
+      - name: Setup Node.js
+        if: steps.extract.outputs.s_num != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        if: steps.extract.outputs.s_num != ''
+        run: npx playwright install --with-deps chromium
+
+      - name: Run claude /done (headless)
+        if: steps.extract.outputs.s_num != ''
+        run: |
+          npx @anthropic-ai/claude-code -p "/done ${{ steps.extract.outputs.s_num }}" \
+            --allowedTools "Read,Write,Edit,Glob,Bash(npx playwright test),Task"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Commit updated steering file
+        if: steps.extract.outputs.s_num != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add steering/
+          git diff --cached --quiet || git commit -m "auto: /done ${{ steps.extract.outputs.s_num }} [skip ci]"
+          git push
