@@ -75,7 +75,7 @@
     }
 
     @media (min-width: 480px) {
-      .counts { grid-template-columns: repeat(4, 1fr); }
+      .counts { grid-template-columns: repeat(5, 1fr); }
     }
 
     .count-card {
@@ -193,6 +193,10 @@
         <div class="label">行数</div>
         <div class="value" id="countLines">0</div>
       </div>
+      <div class="count-card">
+        <div class="label">読了時間</div>
+        <div class="value" id="countRead" style="font-size:1.1rem;">—</div>
+      </div>
     </div>
 
     <div class="limits">
@@ -240,6 +244,11 @@
       document.getElementById('countNoSpace').textContent = text.replace(/\s/g, '').length;
       document.getElementById('countWords').textContent   = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
       document.getElementById('countLines').textContent   = text === '' ? 0 : text.split('\n').length;
+
+      const noSpace = text.replace(/\s/g, '').length;
+      const mins = noSpace / 500;
+      document.getElementById('countRead').textContent =
+        noSpace === 0 ? '—' : mins < 1 ? '1分未満' : `約${Math.round(mins)}分`;
 
       limits.forEach(({ id, max }) => {
         const pct  = Math.min(len / max * 100, 100);
