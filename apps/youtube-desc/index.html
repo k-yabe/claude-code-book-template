@@ -70,26 +70,6 @@
     }
     textarea:focus, input[type="text"]:focus { border-color: #001f33; }
 
-    /* Options toggle */
-    .options-toggle {
-      font-size: 0.82rem;
-      color: #636e72;
-      cursor: pointer;
-      margin-top: 4px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      user-select: none;
-    }
-    .options-toggle:hover { color: #2d3436; }
-
-    .options-body {
-      display: none;
-      margin-top: 16px;
-      padding-top: 20px;
-      border-top: 1.5px solid #f5f6fa;
-    }
-    .options-body.open { display: block; }
 
     .generate-btn {
       width: 100%;
@@ -193,36 +173,23 @@
   <!-- Input card -->
   <div class="card">
     <div class="field">
-      <label>動画タイトル <span class="hint">仮タイトルでもOK</span></label>
+      <label>動画タイトル</label>
       <input type="text" id="title" placeholder="例：AIがものづくりを変える：アジャイル開発の最前線" />
     </div>
 
     <div class="field">
-      <label>
-        動画の内容
-        <span class="hint">台本・メモ・テーマ・キーワードなど、なんでもOK</span>
-      </label>
-      <textarea id="content" rows="8" placeholder="例：
-・AIと製造業の未来について話す動画
-・ゲスト：○○さん（エンジニア）
-・アジャイル開発、デジタルツイン、AIの活用事例を紹介
-・視聴者は製造業に関わるビジネスパーソン向け"></textarea>
+      <label>動画の内容 <span style="color:#e17055; font-weight:400; font-size:0.8rem;">必須</span></label>
+      <textarea id="content" rows="8" placeholder="台本・メモ・テーマ・キーワードなど、なんでもOK&#10;&#10;例：&#10;・AIと製造業の未来について話す動画&#10;・ゲスト：○○さん（エンジニア）&#10;・アジャイル開発、デジタルツイン、AIの活用事例を紹介&#10;・視聴者は製造業に関わるビジネスパーソン向け"></textarea>
     </div>
 
     <div class="field">
-      <label>掲載するリンク <span class="hint">任意。1行に1つ記入（YouTube・HP・採用ページなど）</span></label>
-      <textarea id="links" rows="4" placeholder="公式サイト https://www.akkodis.com/ja&#10;採用情報 https://www.akkodis.com/ja/careers&#10;関連動画 https://www.youtube.com/watch?v=..."></textarea>
+      <label>掲載するリンク</label>
+      <textarea id="links" rows="3" placeholder="1行に1つ記入（YouTube動画・公式サイト・採用ページなど）&#10;例：公式サイト https://www.akkodis.com/ja&#10;　　採用情報 https://www.akkodis.com/ja/careers"></textarea>
     </div>
 
-    <!-- Options -->
-    <div class="options-toggle" onclick="toggleOptions(this)">
-      ▶ オプション（タイムスタンプ）
-    </div>
-    <div class="options-body" id="options-body">
-      <div class="field" style="margin-bottom:0;">
-        <label>タイムスタンプ</label>
-        <textarea id="timestamps" rows="3" placeholder="00:00 イントロ&#10;01:30 AIとは&#10;05:00 まとめ"></textarea>
-      </div>
+    <div class="field">
+      <label>タイムスタンプ</label>
+      <textarea id="timestamps" rows="3" placeholder="00:00 イントロ&#10;01:30 AIとは&#10;05:00 まとめ"></textarea>
     </div>
 
     <button class="generate-btn" onclick="generate()">プロンプトを生成する</button>
@@ -248,13 +215,7 @@
 </div>
 
 <script>
-  function toggleOptions(el) {
-    const body = document.getElementById('options-body');
-    const open = body.classList.toggle('open');
-    el.textContent = (open ? '▼' : '▶') + ' オプション（掲載リンク・関連動画・タイムスタンプ）';
-  }
-
-  const SNS = `▼SNS
+const SNS = `▼SNS
 Facebook▶ https://www.facebook.com/akkodisjapan/
 LinkedIn▶ https://www.linkedin.com/company/akkodis
 X▶ https://x.com/AkkodisJapan`;
