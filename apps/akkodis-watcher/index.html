@@ -12,257 +12,252 @@
       font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
       color: #2d3436;
       min-height: 100vh;
-      padding: 40px 16px;
+      padding: 32px 16px;
     }
 
     .header {
-      max-width: 860px;
-      margin: 0 auto 32px;
+      max-width: 1100px;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
-    .header h1 {
-      font-size: 1.6rem;
+    .header-left h1 {
+      font-size: 1.4rem;
       font-weight: 700;
-      margin-bottom: 6px;
     }
+
+    .back {
+      font-size: 0.82rem;
+      color: #636e72;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .back:hover { text-decoration: underline; }
 
     .meta {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: #636e72;
       display: flex;
-      align-items: center;
-      gap: 16px;
+      gap: 12px;
       flex-wrap: wrap;
+    }
+
+    .badge-new-global {
+      background: #e17055;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+
+    /* 3カラムグリッド */
+    .columns {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 760px) {
+      .columns { grid-template-columns: 1fr; }
+    }
+
+    .col {
+      background: #fff;
+      border: 2px solid #dfe6e9;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .col-header {
+      padding: 14px 16px 12px;
+      border-bottom: 2px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .col-label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #2d3436;
+    }
+
+    .col-count {
+      font-size: 0.75rem;
+      color: #b2bec3;
+      font-weight: 600;
+    }
+
+    .col-count .new-cnt {
+      color: #e17055;
+      font-weight: 700;
+    }
+
+    .item {
+      padding: 10px 16px;
+      border-bottom: 1px solid #f5f6fa;
+      transition: background 0.1s;
+    }
+    .item:last-child { border-bottom: none; }
+    .item:hover { background: #f8f9fa; }
+
+    .item.is-new {
+      border-left: 3px solid #e17055;
+      padding-left: 13px;
+    }
+
+    .item-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 3px;
+    }
+
+    .item-title a {
+      color: #2d3436;
+      text-decoration: none;
+    }
+    .item-title a:hover { color: #001f33; text-decoration: underline; }
+
+    .item-meta {
+      font-size: 0.73rem;
+      color: #b2bec3;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .badge-new {
       display: inline-block;
       background: #e17055;
       color: #fff;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 700;
-      padding: 2px 7px;
+      padding: 1px 6px;
       border-radius: 99px;
-      vertical-align: middle;
-      margin-left: 6px;
-    }
-
-    .section {
-      max-width: 860px;
-      margin: 0 auto 40px;
-    }
-
-    .section-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #636e72;
-      border-bottom: 2px solid #dfe6e9;
-      padding-bottom: 8px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .section-title .count {
-      font-size: 0.8rem;
-      background: #dfe6e9;
-      border-radius: 99px;
-      padding: 2px 8px;
-    }
-
-    .card {
-      background: #fff;
-      border: 2px solid #dfe6e9;
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 10px;
-      transition: all 0.15s;
-    }
-
-    .card:hover {
-      border-color: #00ffff;
-      box-shadow: 0 4px 16px rgba(108,92,231,0.1);
-    }
-
-    .card.is-new {
-      border-color: #e17055;
-      background: #fff8f7;
-    }
-
-    .card-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .card-title a {
-      color: #2d3436;
-      text-decoration: none;
-    }
-
-    .card-title a:hover { text-decoration: underline; }
-
-    .card-meta {
-      font-size: 0.78rem;
-      color: #636e72;
     }
 
     .empty {
+      padding: 32px 16px;
       text-align: center;
-      color: #636e72;
-      padding: 40px;
-      font-size: 0.9rem;
-    }
-
-    .back {
-      display: inline-block;
-      margin-bottom: 24px;
+      color: #b2bec3;
       font-size: 0.85rem;
-      color: #001f33;
-      text-decoration: none;
-    }
-    .back:hover { text-decoration: underline; }
-
-.is-hidden { display: none; }
-
-    .more-btn {
-      display: block;
-      width: 100%;
-      margin-top: 8px;
-      padding: 10px;
-      background: none;
-      border: 2px dashed #dfe6e9;
-      border-radius: 12px;
-      color: #636e72;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .more-btn:hover {
-      border-color: #00ffff;
-      color: #00ffff;
     }
   </style>
 </head>
 <body>
 
-
 <div class="header">
+  <div class="header-left">
     <a class="back" href="../../">← アプリ一覧へ</a>
     <h1>AKKODiS Global Antenna</h1>
-    <div class="meta">
-      <span id="last-scraped">読み込み中...</span>
-      <span id="new-count"></span>
-    </div>
   </div>
+  <div class="meta">
+    <span id="last-scraped">読み込み中...</span>
+    <span id="new-count"></span>
+  </div>
+</div>
 
-  <div id="content"></div>
+<div class="columns" id="columns"></div>
 
-  <script>
-const NEW_DAYS = 7; // 何日以内を NEW とみなすか
+<script>
+  const NEW_DAYS = 7;
 
-    function isNew(firstSeen) {
-      if (!firstSeen) return false;
-      const diff = Date.now() - new Date(firstSeen).getTime();
-      return diff < NEW_DAYS * 24 * 60 * 60 * 1000;
-    }
+  function isNew(firstSeen) {
+    if (!firstSeen) return false;
+    return Date.now() - new Date(firstSeen).getTime() < NEW_DAYS * 86400000;
+  }
 
-    function formatDate(iso) {
-      if (!iso) return '不明';
-      const d = new Date(iso);
-      return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
-    }
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
 
-    const INITIAL_SHOW = 5;
+  function renderColumn(label, articles) {
+    const newCount = articles.filter(a => isNew(a.first_seen)).length;
 
-    function renderSection(label, articles) {
-      if (articles.length === 0) return '';
-      const newCount = articles.filter(a => isNew(a.first_seen)).length;
-      const sectionId = `sec-${Math.random().toString(36).slice(2)}`;
-
-      const cards = articles.map((a, i) => {
-        const n = isNew(a.first_seen);
-        const hidden = i >= INITIAL_SHOW && !n;
-        const dateLabel = a.published_date
-          ? /^\d{4}$/.test(a.published_date)
-            ? `検出日: ${formatDate(a.first_seen)}`
-            : `公開日: ${formatDate(a.published_date)}`
-          : '—';
-        return `
-          <div class="card${n ? ' is-new' : ''}${hidden ? ' is-hidden' : ''}">
-            <div class="card-title">
-              <a href="${a.url}" target="_blank" rel="noopener">${a.title}</a>
-              ${n ? '<span class="badge-new">NEW</span>' : ''}
-            </div>
-            <div class="card-meta">${dateLabel}</div>
-          </div>`;
-      }).join('');
-
-      const hiddenCount = articles.filter((a, i) => i >= INITIAL_SHOW && !isNew(a.first_seen)).length;
-      const moreBtn = hiddenCount > 0
-        ? `<button class="more-btn" onclick="toggleMore('${sectionId}', this)">さらに ${hiddenCount} 件表示</button>`
-        : '';
-
+    const items = articles.map(a => {
+      const n = isNew(a.first_seen);
+      const dateStr = a.published_date
+        ? /^\d{4}$/.test(a.published_date)
+          ? formatDate(a.first_seen)
+          : formatDate(a.published_date)
+        : formatDate(a.first_seen);
       return `
-        <div class="section" id="${sectionId}">
-          <div class="section-title">
-            ${label}
-            <span class="count">${articles.length} 件${newCount > 0 ? ` / NEW ${newCount}` : ''}</span>
+        <div class="item${n ? ' is-new' : ''}">
+          <div class="item-title">
+            <a href="${a.url}" target="_blank" rel="noopener">${a.title}</a>
           </div>
-          ${cards}
-          ${moreBtn}
+          <div class="item-meta">
+            ${n ? '<span class="badge-new">NEW</span>' : ''}
+            <span>${dateStr}</span>
+          </div>
         </div>`;
-    }
+    }).join('');
 
-    function toggleMore(sectionId, btn) {
-      const section = document.getElementById(sectionId);
-      section.querySelectorAll('.card.is-hidden').forEach(el => el.classList.remove('is-hidden'));
-      btn.remove();
-    }
+    const countHtml = newCount > 0
+      ? `${articles.length}件 <span class="new-cnt">/ NEW ${newCount}</span>`
+      : `${articles.length}件`;
 
-    fetch('data/articles.json')
-      .then(r => r.json())
-      .then(data => {
-        // 最終スクレイピング日時
-        document.getElementById('last-scraped').textContent =
-          data.last_scraped
-            ? `最終更新: ${formatDate(data.last_scraped)}`
-            : '未スクレイピング（GitHub Actions が初回実行されるまでお待ちください）';
+    return `
+      <div class="col">
+        <div class="col-header">
+          <span class="col-label">${label}</span>
+          <span class="col-count">${countHtml}</span>
+        </div>
+        ${items || '<div class="empty">記事なし</div>'}
+      </div>`;
+  }
 
-        const articles = data.articles || [];
-        const totalNew = articles.filter(a => isNew(a.first_seen)).length;
-        if (totalNew > 0) {
-          document.getElementById('new-count').textContent = `NEW ${totalNew} 件`;
-        }
+  fetch('data/articles.json')
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('last-scraped').textContent =
+        data.last_scraped ? `更新: ${formatDate(data.last_scraped)}` : '未更新';
 
-        if (articles.length === 0) {
-          document.getElementById('content').innerHTML =
-            '<div class="empty">記事データがありません。GitHub Actions が実行されると自動で更新されます。</div>';
-          return;
-        }
+      const articles = data.articles || [];
+      const totalNew = articles.filter(a => isNew(a.first_seen)).length;
+      if (totalNew > 0) {
+        document.getElementById('new-count').innerHTML =
+          `<span class="badge-new-global">NEW ${totalNew}</span>`;
+      }
 
-        // source_id ごとにグループ化し、日付降順でソート
-        const groups = {};
-        articles.forEach(a => {
-          const key = a.source_id;
-          if (!groups[key]) groups[key] = { label: a.source_label, items: [] };
-          groups[key].items.push(a);
-        });
-        Object.values(groups).forEach(g => {
-          g.items.sort((a, b) => {
-            const da = new Date(a.published_date || a.first_seen);
-            const db = new Date(b.published_date || b.first_seen);
-            return db - da;
-          });
-        });
+      if (articles.length === 0) {
+        document.getElementById('columns').innerHTML =
+          '<div class="empty">記事データがありません</div>';
+        return;
+      }
 
-        document.getElementById('content').innerHTML =
-          Object.values(groups).map(g => renderSection(g.label, g.items)).join('');
-      })
-      .catch(() => {
-        document.getElementById('last-scraped').textContent = 'データ読み込みエラー';
+      // source_id ごとにグループ化・日付降順ソート
+      const groups = {};
+      articles.forEach(a => {
+        if (!groups[a.source_id]) groups[a.source_id] = { label: a.source_label, items: [] };
+        groups[a.source_id].items.push(a);
       });
-  </script>
+      Object.values(groups).forEach(g => {
+        g.items.sort((a, b) => {
+          const da = new Date(a.published_date || a.first_seen);
+          const db = new Date(b.published_date || b.first_seen);
+          return db - da;
+        });
+      });
+
+      document.getElementById('columns').innerHTML =
+        Object.values(groups).map(g => renderColumn(g.label, g.items)).join('');
+    })
+    .catch(() => {
+      document.getElementById('last-scraped').textContent = '読み込みエラー';
+    });
+</script>
 </body>
 </html>
