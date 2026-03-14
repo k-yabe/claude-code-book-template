@@ -158,7 +158,7 @@
       const newCount = articles.filter(a => isNew(a.first_seen)).length;
       const cards = articles.map(a => {
         const n = isNew(a.first_seen);
-        const dateLabel = formatDate(a.published_date || a.first_seen);
+        const dateLabel = a.published_date ? formatDate(a.published_date) : '—';
         return `
           <div class="card${n ? ' is-new' : ''}">
             <div class="card-title">
@@ -200,12 +200,19 @@
           return;
         }
 
-        // source_id ごとにグループ化
+        // source_id ごとにグループ化し、日付降順でソート
         const groups = {};
         articles.forEach(a => {
           const key = a.source_id;
           if (!groups[key]) groups[key] = { label: a.source_label, items: [] };
           groups[key].items.push(a);
+        });
+        Object.values(groups).forEach(g => {
+          g.items.sort((a, b) => {
+            const da = new Date(a.published_date || a.first_seen);
+            const db = new Date(b.published_date || b.first_seen);
+            return db - da;
+          });
         });
 
         document.getElementById('content').innerHTML =
