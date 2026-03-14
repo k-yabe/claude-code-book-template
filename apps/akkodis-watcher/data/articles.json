@@ -1,4 +1,122 @@
 {
-  "last_scraped": null,
-  "articles": []
+  "last_scraped": "2026-03-14T04:46:13Z",
+  "articles": [
+    {
+      "id": "why-most-ai-pilots-fail",
+      "title": "Why Most AI Pilots Fail: Real Constraints To AI Scale",
+      "url": "https://www.akkodis.com/blog/articles/why-most-ai-pilots-fail",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T04:44:28Z",
+      "published_date": null
+    },
+    {
+      "id": "federated-learning-ai-scalability",
+      "title": "Federated Learning Beyond Privacy: Smarter AI at Scale",
+      "url": "https://www.akkodis.com/blog/articles/federated-learning-ai-scalability",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T04:44:48Z",
+      "published_date": "2026-03-13T00:00:00Z"
+    },
+    {
+      "id": "federated-learning-critical-industries",
+      "title": "Federated Learning in Action Across Critical Industries",
+      "url": "https://www.akkodis.com/blog/articles/federated-learning-critical-industries",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T04:44:55Z",
+      "published_date": "2026-03-13T00:00:00Z"
+    },
+    {
+      "id": "edge-ai-federated-learning",
+      "title": "Moving AI to the Edge with Federated Learning",
+      "url": "https://www.akkodis.com/blog/articles/edge-ai-federated-learning",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T04:45:10Z",
+      "published_date": "2026-03-13T00:00:00Z"
+    },
+    {
+      "id": "edge-ai-federated-learning-architecture",
+      "title": "How AI Architecture Changes with Edge and Federated Learning",
+      "url": "https://www.akkodis.com/blog/articles/edge-ai-federated-learning-architecture",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T04:45:19Z",
+      "published_date": null
+    },
+    {
+      "id": "ai-sports-performance-rugby",
+      "title": "Stade Toulousain x Akkodis: Where AI Powers Performance",
+      "url": "https://www.akkodis.com/blog/articles/ai-sports-performance-rugby",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T04:45:39Z",
+      "published_date": "2026-02-18T00:00:00Z"
+    },
+    {
+      "id": "akkodis-thinkersandmakersvol32025",
+      "title": "download\nDownload",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers_and_makers_vol3_2025.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "first_seen": "2026-03-14T04:46:13Z",
+      "published_date": null
+    },
+    {
+      "id": "thinkersandmakersvol22025",
+      "title": "download\nDownload",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol2_2025.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "first_seen": "2026-03-14T04:46:13Z",
+      "published_date": null
+    },
+    {
+      "id": "thinkersandmakersvol12025",
+      "title": "download\nDownload",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol1_2025.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "first_seen": "2026-03-14T04:46:13Z",
+      "published_date": null
+    },
+    {
+      "id": "thinkers-and-makers-vol-3--2024",
+      "title": "download\nDownload",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-3-_-2024.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "first_seen": "2026-03-14T04:46:13Z",
+      "published_date": null
+    },
+    {
+      "id": "thinkers-and-makers-vol-2--2024",
+      "title": "download\nDownload",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-2-_-2024.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "first_seen": "2026-03-14T04:46:13Z",
+      "published_date": null
+    },
+    {
+      "id": "akkodis-thinkers-and-makersvol012024new",
+      "title": "download\nDownload",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers-and-makers_vol_01_2024new.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "first_seen": "2026-03-14T04:46:13Z",
+      "published_date": null
+    },
+    {
+      "id": "2024-0194-tag-tag-manifesto-v3-1",
+      "title": "TAG Manifesto",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/2024-0194-tag-tag-manifesto-v3-1.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "first_seen": "2026-03-14T04:46:13Z",
+      "published_date": null
+    }
+  ]
 }
