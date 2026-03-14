@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-03-14T11:45:59Z",
+  "last_scraped": "2026-03-14T11:57:06Z",
   "articles": [
     {
       "id": "why-most-ai-pilots-fail",
@@ -178,7 +178,7 @@
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers_and_makers_vol3_2025.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
-      "published_date": null,
+      "published_date": "2025",
       "first_seen": "2026-03-14T10:15:00Z"
     },
     {
@@ -187,7 +187,7 @@
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol2_2025.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
-      "published_date": null,
+      "published_date": "2025",
       "first_seen": "2026-03-14T10:15:00Z"
     },
     {
@@ -196,7 +196,7 @@
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol1_2025.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
-      "published_date": null,
+      "published_date": "2025",
       "first_seen": "2026-03-14T10:15:00Z"
     },
     {
@@ -205,7 +205,7 @@
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-3-_-2024.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
-      "published_date": null,
+      "published_date": "2024",
       "first_seen": "2026-03-14T10:15:00Z"
     },
     {
@@ -214,7 +214,7 @@
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-2-_-2024.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
-      "published_date": null,
+      "published_date": "2024",
       "first_seen": "2026-03-14T10:15:00Z"
     },
     {
@@ -223,7 +223,7 @@
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers-and-makers_vol_01_2024new.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
-      "published_date": null,
+      "published_date": "2024",
       "first_seen": "2026-03-14T10:15:00Z"
     },
     {

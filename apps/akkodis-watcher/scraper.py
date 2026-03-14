@@ -273,7 +273,9 @@ def main():
                     if item["id"] in existing:
                         # 既存データを引き継ぐ
                         item["first_seen"] = existing[item["id"]]["first_seen"]
-                        item["published_date"] = existing[item["id"]].get("published_date")
+                        # 既存がNullでスクレイパーが日付を持つ場合はスクレイパー値を優先
+                        existing_date = existing[item["id"]].get("published_date")
+                        item["published_date"] = existing_date if existing_date else item.get("published_date")
                     else:
                         item["first_seen"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                         # ブログ記事・Client Storiesは個別ページから公開日を取得
