@@ -18,24 +18,42 @@ MONTHS = {
     "september": 9, "october": 10, "november": 11, "december": 12,
 }
 
-def fetch_published_date(page, url: str) -> str | None:
-    """記事ページの "Posted On XX of Month, YYYY" から公開日を取得する"""
+MONTHS_ABBR = {
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4,
+    "may": 5, "jun": 6, "jul": 7, "aug": 8,
+    "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+
+def fetch_published_date(page, url: str):
+    """記事ページから公開日を取得する。2つの形式に対応:
+    - Blog: "Posted On 18th of February, 2026"
+    - Client Stories: "PublishedMar 27, 2025"
+    """
     try:
-        page.goto(url, wait_until="networkidle", timeout=20000)
-        # "Posted On" を含む段落を探す
+        page.goto(url, wait_until="domcontentloaded", timeout=30000)
+        page.wait_for_timeout(2000)
+
+        # Blog形式: "Posted On XX of Month, YYYY"
         el = page.query_selector("p:has-text('Posted On')")
-        if not el:
-            return None
-        text = el.inner_text()
-        # 例: "Posted On 18th of February, 2026"
-        m = re.search(r"(\d+)\w+\s+of\s+(\w+),?\s+(\d{4})", text, re.IGNORECASE)
-        if not m:
-            return None
-        day, month_str, year = int(m.group(1)), m.group(2).lower(), int(m.group(3))
-        month = MONTHS.get(month_str)
-        if not month:
-            return None
-        return datetime(year, month, day, tzinfo=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        if el:
+            text = el.inner_text()
+            m = re.search(r"(\d+)\w+\s+of\s+(\w+),?\s+(\d{4})", text, re.IGNORECASE)
+            if m:
+                day, month_str, year = int(m.group(1)), m.group(2).lower(), int(m.group(3))
+                month = MONTHS.get(month_str)
+                if month:
+                    return datetime(year, month, day, tzinfo=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        # Client Stories形式: "PublishedMar 27, 2025"
+        body = page.inner_text("body")
+        m = re.search(r"Published([A-Za-z]{3})\s+(\d{1,2}),?\s+(\d{4})", body)
+        if m:
+            month_abbr, day, year = m.group(1).lower(), int(m.group(2)), int(m.group(3))
+            month = MONTHS_ABBR.get(month_abbr)
+            if month:
+                return datetime(year, month, day, tzinfo=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        return None
     except Exception:
         return None
 
@@ -55,6 +73,12 @@ SOURCES = [
         "label": "Thinkers & Makers",
         "url": "https://www.akkodis.com/en/insights/thinkers-and-makers",
         "type": "thinkers",
+    },
+    {
+        "id": "client_stories",
+        "label": "Client Stories",
+        "url": "https://www.akkodis.com/en/blog/client-success",
+        "type": "client_stories",
     },
 ]
 
@@ -132,9 +156,43 @@ def scrape_thinkers(page, source: dict) -> list[dict]:
     return articles
 
 
+def scrape_client_stories(page, source: dict) -> list[dict]:
+    """Client Success Stories ページから記事リストを取得"""
+    page.goto(source["url"], wait_until="domcontentloaded", timeout=30000)
+    page.wait_for_timeout(2000)
+    articles = []
+
+    links = page.query_selector_all("a[href*='/blog/client-success/']")
+    seen = set()
+    for link in links:
+        href = link.get_attribute("href") or ""
+        if not href or href in seen:
+            continue
+        seen.add(href)
+
+        url = href if href.startswith("http") else f"https://www.akkodis.com{href}"
+        h2 = link.query_selector("h2")
+        title = (h2.inner_text() if h2 else link.inner_text()).strip()
+        # "View Client Stories" などのナビ文字を除外
+        if not title or len(title) < 10 or "View Client" in title:
+            continue
+
+        slug = re.sub(r"[^a-z0-9-]", "-", href.split("/")[-1].lower()).strip("-")
+        articles.append({
+            "id": slug,
+            "title": title,
+            "url": url,
+            "source_id": source["id"],
+            "source_label": source["label"],
+        })
+
+    return articles
+
+
 SCRAPER_MAP = {
     "blog": scrape_blog,
     "thinkers": scrape_thinkers,
+    "client_stories": scrape_client_stories,
 }
 
 
@@ -172,8 +230,8 @@ def main():
                         item["published_date"] = existing[item["id"]].get("published_date")
                     else:
                         item["first_seen"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-                        # ブログ記事は個別ページから公開日を取得
-                        if source["type"] == "blog":
+                        # ブログ記事・Client Storiesは個別ページから公開日を取得
+                        if source["type"] in ("blog", "client_stories"):
                             print(f"      公開日取得中: {item['url']}")
                             item["published_date"] = fetch_published_date(page, item["url"])
                         else:
