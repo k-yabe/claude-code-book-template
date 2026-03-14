@@ -172,9 +172,13 @@
 <script>
   const NEW_DAYS = 14;
 
-  function isNew(firstSeen) {
-    if (!firstSeen) return false;
-    return Date.now() - new Date(firstSeen).getTime() < NEW_DAYS * 86400000;
+  function isNew(article) {
+    // published_date がある場合はそちらを優先、なければ first_seen で判定
+    const base = (article.published_date && !/^\d{4}$/.test(article.published_date))
+      ? article.published_date
+      : article.first_seen;
+    if (!base) return false;
+    return Date.now() - new Date(base).getTime() < NEW_DAYS * 86400000;
   }
 
   function formatDate(iso) {
@@ -184,10 +188,10 @@
   }
 
   function renderColumn(label, articles) {
-    const newCount = articles.filter(a => isNew(a.first_seen)).length;
+    const newCount = articles.filter(a => isNew(a)).length;
 
     const items = articles.map(a => {
-      const n = isNew(a.first_seen);
+      const n = isNew(a);
       const dateStr = a.published_date
         ? /^\d{4}$/.test(a.published_date)
           ? formatDate(a.first_seen)
@@ -226,7 +230,7 @@
         data.last_scraped ? `更新: ${formatDate(data.last_scraped)}` : '未更新';
 
       const articles = data.articles || [];
-      const totalNew = articles.filter(a => isNew(a.first_seen)).length;
+      const totalNew = articles.filter(a => isNew(a)).length;
       if (totalNew > 0) {
         document.getElementById('new-count').innerHTML =
           `<span class="badge-new-global">NEW ${totalNew}</span>`;
