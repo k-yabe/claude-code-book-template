@@ -48,20 +48,9 @@
       margin-bottom: 8px;
       color: #2d3436;
     }
-    .required { font-size: 0.75rem; font-weight: 400; color: #e17055; margin-left: 6px; }
-
-    .section-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      border-radius: 6px;
-      display: inline-block;
-      margin-bottom: 16px;
-    }
-    .section-label.req { background: #ffeaea; color: #c0392b; }
-    .section-label.opt { background: #f0f0f0; color: #636e72; }
+    .required { font-size: 0.72rem; font-weight: 700; color: #c0392b; background: #ffeaea; padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+    .optional { font-size: 0.72rem; font-weight: 700; color: #636e72; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+    .field-hint { font-size: 0.82rem; color: #636e72; margin-bottom: 8px; margin-top: -4px; line-height: 1.5; }
 
     .divider {
       border: none;
@@ -207,27 +196,26 @@
 <body>
 <div class="wrap">
   <a class="back" href="../../">← アプリ一覧へ</a>
-  <h1>YouTube Description Generator</h1>
-  <p class="sub">動画情報を入力すると、説明文・タイトル・ハッシュタグを自動生成します</p>
+  <h1>YouTube説明文ジェネレーター</h1>
+  <p class="sub">動画の情報を入力するだけで、タイトル・説明文・ハッシュタグをAIが自動生成します</p>
 
   <div class="card">
-    <div class="section-label req">必須</div>
-
     <div class="field">
-      <label>動画タイトル</label>
+      <label>動画タイトル（仮） <span class="required">必須</span></label>
       <input type="text" id="title" placeholder="例：AIがものづくりを変える：アジャイル開発の最前線" />
     </div>
 
     <div class="field">
-      <label>動画の内容</label>
-      <textarea id="content" rows="8" placeholder="台本・原稿・LPの文章・メモ・キーワードなど、そのままペーストしてOK！&#10;AIが内容を読み取って説明文を生成します。&#10;&#10;例：&#10;・原稿やLPのテキストをそのままコピー&ペースト&#10;・「AIと製造業の未来について話す動画。ゲストは○○さん。」などの簡単なメモ&#10;・「アジャイル開発、デジタルツイン、AI活用事例、視聴者は製造業のビジネスパーソン」などのキーワード列挙"></textarea>
+      <label>動画の内容 <span class="required">必須</span></label>
+      <p class="field-hint">台本・原稿・LPの文章などをそのままペーストしてOK！短いメモやキーワード列挙でも生成できます。</p>
+      <textarea id="content" rows="8" placeholder="例1：原稿やLPのテキストをそのままコピー&ペースト&#10;例2：AIと製造業の未来について話す動画。ゲストは○○さん（エンジニア）。アジャイル開発、デジタルツイン、AI活用事例を紹介。&#10;例3：キーワード：準委任契約、偽装請負、厚労省QA、28年の実務経験"></textarea>
     </div>
 
     <hr class="divider">
-    <div class="section-label opt">任意</div>
 
     <div class="field">
-      <label>掲載するリンク</label>
+      <label>掲載するリンク <span class="optional">任意</span></label>
+      <p class="field-hint">説明文に載せたいリンクにチェックを入れてください。</p>
       <div class="link-options">
         <label class="check-item">
           <input type="checkbox" id="link-top">
@@ -238,12 +226,13 @@
           採用情報（https://www.akkodis.com/ja/careers）
         </label>
       </div>
-      <p class="free-link-label">その他のリンク（1行に1つ）</p>
-      <textarea id="links-free" rows="2" placeholder="関連動画 https://www.youtube.com/watch?v=...&#10;プレスリリース https://..."></textarea>
+      <p class="free-link-label">関連動画・プレスリリースなどその他のリンク（1行に1つ）</p>
+      <textarea id="links-free" rows="2" placeholder="https://www.youtube.com/watch?v=...&#10;https://prtimes.jp/..."></textarea>
     </div>
 
     <div class="field">
-      <label>タイムスタンプ</label>
+      <label>目次（タイムスタンプ） <span class="optional">任意</span></label>
+      <p class="field-hint">長い動画の場合は目次として掲載されます。不要な場合は空欄のままでOK。</p>
       <textarea id="timestamps" rows="3" placeholder="00:00 イントロ&#10;01:30 AIとは&#10;05:00 まとめ"></textarea>
     </div>
 
