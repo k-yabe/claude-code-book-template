@@ -210,13 +210,8 @@
     </div>
 
     <div class="field">
-      <label>掲載するリンク <span class="hint">任意。1行に1つ、ラベルとURLを書いてください</span></label>
-      <textarea id="links" rows="3" placeholder="公式サイト https://www.akkodis.com/ja&#10;採用情報 https://www.akkodis.com/ja/careers"></textarea>
-    </div>
-
-    <div class="field">
-      <label>関連動画・関連ページURL <span class="hint">任意</span></label>
-      <input type="text" id="related" placeholder="https://..." />
+      <label>掲載するリンク <span class="hint">任意。1行に1つ記入（YouTube・HP・採用ページなど）</span></label>
+      <textarea id="links" rows="4" placeholder="公式サイト https://www.akkodis.com/ja&#10;採用情報 https://www.akkodis.com/ja/careers&#10;関連動画 https://www.youtube.com/watch?v=..."></textarea>
     </div>
 
     <!-- Options -->
@@ -268,7 +263,6 @@ X▶ https://x.com/AkkodisJapan`;
     const title = document.getElementById('title').value.trim();
     const content = document.getElementById('content').value.trim();
     const links = document.getElementById('links').value.trim();
-    const related = document.getElementById('related').value.trim();
     const timestamps = document.getElementById('timestamps').value.trim();
 
     if (!content) {
@@ -292,15 +286,8 @@ ${content}
 
     if (links) {
       prompt += `
-【説明文に掲載するリンク（必ず含める）】
+【説明文に掲載するリンク（必ず含める。YouTubeのURLは関連動画として、HPなどは公式リンクとして適切に配置してください）】
 ${links}
-`;
-    }
-
-    if (related) {
-      prompt += `
-【関連動画・関連ページ】
-${related}
 `;
     }
 
@@ -326,7 +313,7 @@ ${SNS}
 （構成：
  1. 冒頭3文 ← YouTubeで「もっと見る」前に表示される重要な部分。キーワードを含め動画の価値を伝える
  2. 掲載リンク（提供されたもの）
- 3. 関連動画・ページ（提供された場合のみ）
+ 3. リンク（YouTubeは関連動画、HPなどは公式リンクとして適切に配置）
  4. 目次（タイムスタンプが提供された場合のみ）
  5. SNSリンク
  6. ハッシュタグ5つ）
