@@ -123,6 +123,26 @@
       text-decoration: none;
     }
     .back:hover { text-decoration: underline; }
+
+    .is-hidden { display: none; }
+
+    .more-btn {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+      padding: 10px;
+      background: none;
+      border: 2px dashed #dfe6e9;
+      border-radius: 12px;
+      color: #636e72;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .more-btn:hover {
+      border-color: #6c5ce7;
+      color: #6c5ce7;
+    }
   </style>
 </head>
 <body>
@@ -153,18 +173,23 @@
       return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
     }
 
+    const INITIAL_SHOW = 5;
+
     function renderSection(label, articles) {
       if (articles.length === 0) return '';
       const newCount = articles.filter(a => isNew(a.first_seen)).length;
-      const cards = articles.map(a => {
+      const sectionId = `sec-${Math.random().toString(36).slice(2)}`;
+
+      const cards = articles.map((a, i) => {
         const n = isNew(a.first_seen);
+        const hidden = i >= INITIAL_SHOW && !n;
         const dateLabel = a.published_date
           ? /^\d{4}$/.test(a.published_date)
-            ? `検出日: ${formatDate(a.first_seen)}`     // T&M: 検出日を常に表示
-            : `公開日: ${formatDate(a.published_date)}` // Blog: 実際の公開日を表示
+            ? `検出日: ${formatDate(a.first_seen)}`
+            : `公開日: ${formatDate(a.published_date)}`
           : '—';
         return `
-          <div class="card${n ? ' is-new' : ''}">
+          <div class="card${n ? ' is-new' : ''}${hidden ? ' is-hidden' : ''}">
             <div class="card-title">
               <a href="${a.url}" target="_blank" rel="noopener">${a.title}</a>
               ${n ? '<span class="badge-new">NEW</span>' : ''}
@@ -173,14 +198,26 @@
           </div>`;
       }).join('');
 
+      const hiddenCount = articles.filter((a, i) => i >= INITIAL_SHOW && !isNew(a.first_seen)).length;
+      const moreBtn = hiddenCount > 0
+        ? `<button class="more-btn" onclick="toggleMore('${sectionId}', this)">さらに ${hiddenCount} 件表示</button>`
+        : '';
+
       return `
-        <div class="section">
+        <div class="section" id="${sectionId}">
           <div class="section-title">
             ${label}
             <span class="count">${articles.length} 件${newCount > 0 ? ` / NEW ${newCount}` : ''}</span>
           </div>
           ${cards}
+          ${moreBtn}
         </div>`;
+    }
+
+    function toggleMore(sectionId, btn) {
+      const section = document.getElementById(sectionId);
+      section.querySelectorAll('.card.is-hidden').forEach(el => el.classList.remove('is-hidden'));
+      btn.remove();
     }
 
     fetch('data/articles.json')
