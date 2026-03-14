@@ -160,7 +160,9 @@
         const n = isNew(a.first_seen);
         const dateLabel = a.published_date
           ? /^\d{4}$/.test(a.published_date)
-            ? `${a.published_date}年`
+            ? isNew(a.first_seen)
+              ? formatDate(a.first_seen)   // 新規検出なら検出日を表示
+              : `${a.published_date}年`    // 既存は年のみ
             : formatDate(a.published_date)
           : '—';
         return `
