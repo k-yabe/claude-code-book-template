@@ -191,7 +191,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
   const SIZES = [
-    { id: 'ogp',    label: 'OGP',    w: 1200, h: 630 },
+    { id: 'ogp',    label: 'OGP',    w: 1200, h: 630, forcePng: true },
     { id: 'banner', label: 'バナー',  w: 800,  h: 446 },
     { id: 'list',   label: '一覧',    w: 350,  h: 200 },
   ];
@@ -245,7 +245,7 @@
       const item = document.createElement('div');
       item.className = 'preview-item';
       item.innerHTML = `
-        <div class="preview-name">${size.label}</div>
+        <div class="preview-name">${size.label}${size.forcePng ? ' <span style="font-size:0.7rem;color:#b2bec3;font-weight:400;text-transform:none;">PNG固定</span>' : ''}</div>
         <div class="preview-size">${size.w} × ${size.h}px</div>
         <div class="preview-canvas-wrap"></div>
         <button class="dl-btn" onclick="downloadSingle('${size.id}')">ダウンロード</button>
@@ -289,21 +289,22 @@
     return canvas;
   }
 
-  function getBlob(canvasId) {
+  function getBlob(canvasId, forcePng) {
     return new Promise(resolve => {
       const canvas = document.getElementById(canvasId);
-      const mimeType = format === 'webp' ? 'image/webp' : 'image/png';
+      const mimeType = (!forcePng && format === 'webp') ? 'image/webp' : 'image/png';
       canvas.toBlob(resolve, mimeType, 0.92);
     });
   }
 
   function downloadSingle(sizeId) {
     const size = SIZES.find(s => s.id === sizeId);
-    getBlob('canvas-' + sizeId).then(blob => {
+    const ext = size.forcePng ? 'png' : format;
+    getBlob('canvas-' + sizeId, size.forcePng).then(blob => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${filename}_${size.w}x${size.h}.${format}`;
+      a.download = `${filename}_${size.w}x${size.h}.${ext}`;
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -316,8 +317,9 @@
 
     const zip = new JSZip();
     for (const size of SIZES) {
-      const blob = await getBlob('canvas-' + size.id);
-      zip.file(`${filename}_${size.w}x${size.h}.${format}`, blob);
+      const ext = size.forcePng ? 'png' : format;
+      const blob = await getBlob('canvas-' + size.id, size.forcePng);
+      zip.file(`${filename}_${size.w}x${size.h}.${ext}`, blob);
     }
 
     const zipBlob = await zip.generateAsync({ type: 'blob' });
