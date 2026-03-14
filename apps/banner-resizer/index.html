@@ -211,6 +211,7 @@
     <div class="format-row">
       <span class="format-label">出力形式：</span>
       <button class="format-btn active" id="btn-png" onclick="setFormat('png')">PNG</button>
+      <button class="format-btn" id="btn-jpg" onclick="setFormat('jpg')">JPG</button>
       <button class="format-btn" id="btn-webp" onclick="setFormat('webp')">WebP</button>
     </div>
   </div>
@@ -249,6 +250,7 @@
   function setFormat(f) {
     format = f;
     document.getElementById('btn-png').classList.toggle('active', f === 'png');
+    document.getElementById('btn-jpg').classList.toggle('active', f === 'jpg');
     document.getElementById('btn-webp').classList.toggle('active', f === 'webp');
     if (sourceImage) renderAll();
   }
@@ -379,7 +381,7 @@
   function getBlob(canvasId, forcePng) {
     return new Promise(resolve => {
       const canvas = document.getElementById(canvasId);
-      const mimeType = (!forcePng && format === 'webp') ? 'image/webp' : 'image/png';
+      const mimeType = forcePng ? 'image/png' : format === 'webp' ? 'image/webp' : format === 'jpg' ? 'image/jpeg' : 'image/png';
       canvas.toBlob(resolve, mimeType, 0.92);
     });
   }
