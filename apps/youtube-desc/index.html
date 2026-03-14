@@ -285,8 +285,8 @@
     </div>
     <div class="options-body" id="options-body">
       <div class="field">
-        <label>関連動画URL</label>
-        <input type="text" id="related-video" placeholder="https://www.youtube.com/watch?v=..." />
+        <label>関連動画・関連ページURL</label>
+        <input type="text" id="related-video" placeholder="https://www.youtube.com/watch?v=... または https://..." />
       </div>
       <div class="field">
         <label>タイムスタンプ</label>
@@ -386,7 +386,7 @@
     if (linkTop) hpLinks.push(`▼公式HP\n${HP.top}`);
     if (linkCareers) hpLinks.push(`▼採用情報\n${HP.careers}`);
     if (hpLinks.length) ctx += `\n【HPリンク（必ず掲載）】\n${hpLinks.join('\n')}\n`;
-    if (relatedVideo) ctx += `\n【関連動画URL】\n${relatedVideo}\n`;
+    if (relatedVideo) ctx += `\n【関連動画・関連ページURL】\n${relatedVideo}\n`;
     if (timestamps) ctx += `\n【タイムスタンプ】\n${timestamps}\n`;
     ctx += `\n【SNSリンク（必ず掲載）】\n${SNS}`;
 
@@ -411,7 +411,7 @@
 【説明文の構成】
 1. 冒頭3文：YouTubeで展開前に表示される部分。キーワードを含み、動画の価値を伝える
 2. HPリンク：提供されたものを掲載
-3. 関連動画：URLが提供された場合のみ「▼関連動画」として追加
+3. 関連動画・関連ページ：URLが提供された場合のみ「▼関連動画」または「▼関連ページ」として適切に追加
 4. タイムスタンプ：提供された場合のみ「▼目次」として追加
 5. SNSリンク：必ず含める
 6. ハッシュタグ5つ（説明文末尾とhashtagsフィールド両方に記載）
