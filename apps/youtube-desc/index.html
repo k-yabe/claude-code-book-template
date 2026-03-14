@@ -30,67 +30,6 @@
     h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
     .sub { font-size: 0.85rem; color: #636e72; margin-bottom: 24px; }
 
-    /* API Key setup banner */
-    .setup-banner {
-      background: #fff8e1;
-      border: 2px solid #ffb81c;
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 16px;
-      font-size: 0.85rem;
-      line-height: 1.7;
-    }
-    .setup-banner strong { display: block; margin-bottom: 6px; font-size: 0.9rem; }
-    .setup-banner a { color: #001f33; }
-    .setup-banner.hidden { display: none; }
-
-    .key-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .key-row input {
-      flex: 1;
-      padding: 10px 12px;
-      border: 1.5px solid #dfe6e9;
-      border-radius: 8px;
-      font-size: 0.88rem;
-      font-family: inherit;
-      outline: none;
-    }
-    .key-row input:focus { border-color: #001f33; }
-    .key-save-btn {
-      padding: 10px 18px;
-      background: #001f33;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .key-save-btn:hover { opacity: 0.85; }
-
-    .key-saved {
-      display: none;
-      font-size: 0.8rem;
-      color: #636e72;
-      text-align: right;
-      margin-bottom: 12px;
-    }
-    .key-saved.on { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
-    .key-reset {
-      font-size: 0.78rem;
-      color: #636e72;
-      cursor: pointer;
-      text-decoration: underline;
-      background: none;
-      border: none;
-    }
-    .key-reset:hover { color: #2d3436; }
-
-    /* Card */
     .card {
       background: #fff;
       border: 2px solid #dfe6e9;
@@ -109,12 +48,7 @@
       margin-bottom: 8px;
       color: #2d3436;
     }
-    .required {
-      font-size: 0.75rem;
-      font-weight: 400;
-      color: #e17055;
-      margin-left: 6px;
-    }
+    .required { font-size: 0.75rem; font-weight: 400; color: #e17055; margin-left: 6px; }
 
     textarea, input[type="text"] {
       width: 100%;
@@ -131,6 +65,29 @@
       line-height: 1.6;
     }
     textarea:focus, input[type="text"]:focus { border-color: #001f33; }
+
+    /* Link checkboxes */
+    .link-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+    .check-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #001f33; }
+
+    .free-link-label {
+      font-size: 0.82rem;
+      color: #636e72;
+      margin-bottom: 6px;
+      margin-top: 4px;
+    }
 
     .generate-btn {
       width: 100%;
@@ -149,7 +106,6 @@
     .generate-btn:hover { opacity: 0.85; }
     .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Loading */
     .loading {
       display: none;
       text-align: center;
@@ -170,7 +126,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Error */
     .error {
       display: none;
       background: #fff5f5;
@@ -183,7 +138,6 @@
     }
     .error.on { display: block; }
 
-    /* Output */
     .output { display: none; }
     .output.on { display: block; }
 
@@ -237,23 +191,6 @@
   <h1>YouTube Description Generator</h1>
   <p class="sub">動画情報を入力すると、説明文・タイトル・ハッシュタグを自動生成します</p>
 
-  <!-- API Key setup (shown only when not set) -->
-  <div class="setup-banner" id="setup-banner">
-    <strong>🔑 初回設定：APIキーが必要です</strong>
-    <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> でAPIキーを発行し、下に貼り付けてください。一度設定すれば次回以降は不要です。
-    <div class="key-row">
-      <input type="password" id="api-key-input" placeholder="sk-ant-..." />
-      <button class="key-save-btn" onclick="saveKey()">保存</button>
-    </div>
-  </div>
-
-  <!-- API Key saved indicator -->
-  <div class="key-saved" id="key-saved">
-    ✓ APIキー設定済み
-    <button class="key-reset" onclick="resetKey()">変更する</button>
-  </div>
-
-  <!-- Input card -->
   <div class="card">
     <div class="field">
       <label>動画タイトル</label>
@@ -267,7 +204,18 @@
 
     <div class="field">
       <label>掲載するリンク</label>
-      <textarea id="links" rows="3" placeholder="1行に1つ記入（YouTube動画・公式サイト・採用ページなど）&#10;例：公式サイト https://www.akkodis.com/ja&#10;　　採用情報 https://www.akkodis.com/ja/careers"></textarea>
+      <div class="link-options">
+        <label class="check-item">
+          <input type="checkbox" id="link-top">
+          公式HP（https://www.akkodis.com/ja）
+        </label>
+        <label class="check-item">
+          <input type="checkbox" id="link-careers">
+          採用情報（https://www.akkodis.com/ja/careers）
+        </label>
+      </div>
+      <p class="free-link-label">その他のリンク（1行に1つ）</p>
+      <textarea id="links-free" rows="2" placeholder="関連動画 https://www.youtube.com/watch?v=...&#10;プレスリリース https://..."></textarea>
     </div>
 
     <div class="field">
@@ -279,12 +227,10 @@
     <div class="error" id="error"></div>
   </div>
 
-  <!-- Loading -->
   <div class="loading" id="loading">
     <span class="spinner"></span>生成中...
   </div>
 
-  <!-- Output -->
   <div class="card output" id="output">
     <div class="out-section">
       <div class="out-header">
@@ -313,36 +259,12 @@
 <script>
   const SNS = `▼SNS\nFacebook▶ https://www.facebook.com/akkodisjapan/\nLinkedIn▶ https://www.linkedin.com/company/akkodis\nX▶ https://x.com/AkkodisJapan`;
 
-  // API key management
-  function getKey() { return localStorage.getItem('yt_api_key') || ''; }
-
-  function updateKeyUI() {
-    const key = getKey();
-    document.getElementById('setup-banner').classList.toggle('hidden', !!key);
-    document.getElementById('key-saved').classList.toggle('on', !!key);
-  }
-
-  function saveKey() {
-    const val = document.getElementById('api-key-input').value.trim();
-    if (!val) return;
-    localStorage.setItem('yt_api_key', val);
-    updateKeyUI();
-  }
-
-  function resetKey() {
-    localStorage.removeItem('yt_api_key');
-    document.getElementById('api-key-input').value = '';
-    updateKeyUI();
-  }
-
-  updateKeyUI();
-
-  // Generate
   async function generate() {
-    const apiKey = getKey();
     const title = document.getElementById('title').value.trim();
     const content = document.getElementById('content').value.trim();
-    const links = document.getElementById('links').value.trim();
+    const linkTop = document.getElementById('link-top').checked;
+    const linkCareers = document.getElementById('link-careers').checked;
+    const linksFree = document.getElementById('links-free').value.trim();
     const timestamps = document.getElementById('timestamps').value.trim();
 
     const errorEl = document.getElementById('error');
@@ -351,30 +273,29 @@
     const btn = document.getElementById('gen-btn');
 
     errorEl.classList.remove('on');
-
-    if (!apiKey) { showErr('APIキーを設定してください。'); return; }
     if (!content) { showErr('動画の内容を入力してください。'); return; }
 
     btn.disabled = true;
     loadingEl.classList.add('on');
     outputEl.classList.remove('on');
 
+    // Build link list
+    const linkLines = [];
+    if (linkTop) linkLines.push('公式HP https://www.akkodis.com/ja');
+    if (linkCareers) linkLines.push('採用情報 https://www.akkodis.com/ja/careers');
+    if (linksFree) linkLines.push(linksFree);
+
     let userMsg = '';
     if (title) userMsg += `【動画タイトル（仮）】\n${title}\n\n`;
     userMsg += `【動画の内容・メモ】\n${content}\n`;
-    if (links) userMsg += `\n【掲載するリンク（必ず含める。YouTubeは関連動画として、HPは公式リンクとして配置）】\n${links}\n`;
+    if (linkLines.length) userMsg += `\n【掲載するリンク（必ず含める。YouTubeは関連動画、HPは公式リンクとして適切に配置）】\n${linkLines.join('\n')}\n`;
     if (timestamps) userMsg += `\n【タイムスタンプ（目次として掲載）】\n${timestamps}\n`;
     userMsg += `\n【SNSリンク（必ず含める）】\n${SNS}`;
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('/.netlify/functions/generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-opus-4-6',
           max_tokens: 2048,
