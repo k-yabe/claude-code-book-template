@@ -124,6 +124,69 @@
     }
     .back:hover { text-decoration: underline; }
 
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: #f5f6fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .login-box {
+      background: #fff;
+      border: 2px solid #dfe6e9;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+
+    .login-box h2 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+    }
+
+    .login-box p {
+      font-size: 0.85rem;
+      color: #636e72;
+      margin-bottom: 24px;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid #dfe6e9;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    .login-box input:focus { border-color: #6c5ce7; }
+
+    .login-box button {
+      width: 100%;
+      padding: 10px;
+      background: #6c5ce7;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .login-box button:hover { background: #5a4bd1; }
+
+    .login-error {
+      font-size: 0.8rem;
+      color: #e17055;
+      margin-top: 8px;
+      min-height: 1.2em;
+    }
+
     .is-hidden { display: none; }
 
     .more-btn {
@@ -147,6 +210,16 @@
 </head>
 <body>
 
+  <div class="login-overlay" id="login-overlay">
+    <div class="login-box">
+      <h2>AKKODiS Global Antenna</h2>
+      <p>パスワードを入力してください</p>
+      <input type="password" id="pw-input" placeholder="パスワード" />
+      <button onclick="doLogin()">ログイン</button>
+      <div class="login-error" id="login-error"></div>
+    </div>
+  </div>
+
   <div class="header">
     <a class="back" href="../../">← アプリ一覧へ</a>
     <h1>AKKODiS Global Antenna</h1>
@@ -159,6 +232,26 @@
   <div id="content"></div>
 
   <script>
+    const PASSWORD = 'marketing';
+
+    function doLogin() {
+      const val = document.getElementById('pw-input').value;
+      if (val === PASSWORD) {
+        sessionStorage.setItem('antenna_auth', '1');
+        document.getElementById('login-overlay').style.display = 'none';
+      } else {
+        document.getElementById('login-error').textContent = 'パスワードが違います';
+      }
+    }
+
+    document.getElementById('pw-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+
+    if (sessionStorage.getItem('antenna_auth') === '1') {
+      document.getElementById('login-overlay').style.display = 'none';
+    }
+
     const NEW_DAYS = 7; // 何日以内を NEW とみなすか
 
     function isNew(firstSeen) {
