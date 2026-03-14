@@ -84,33 +84,66 @@ SOURCES = [
 
 
 # ── スクレイパー ───────────────────────────────────────
-def scrape_blog(page, source: dict) -> list[dict]:
-    """ブログ一覧ページから記事リストを取得（1ページ目のみ）"""
+def scrape_blog(page, source: dict, existing: dict = None) -> list[dict]:
+    """ブログ一覧ページから記事リストを取得（直近1ヶ月分・ページネーション対応）"""
+    from datetime import timedelta
+    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+    MAX_PAGES = 5
+
     page.goto(source["url"], wait_until="networkidle", timeout=30000)
     articles = []
-
-    links = page.query_selector_all("a[href*='/blog/articles/']")
     seen = set()
-    for link in links:
-        href = link.get_attribute("href") or ""
-        if not href or href in seen:
-            continue
-        seen.add(href)
 
-        url = href if href.startswith("http") else f"https://www.akkodis.com{href}"
-        # タイトルはh2 or リンクテキスト
-        h2 = link.query_selector("h2")
-        title = (h2.inner_text() if h2 else link.inner_text()).strip()
-        if not title or not url:
-            continue
+    def collect_current_page():
+        """現在ページを収集。全記事が1ヶ月超なら True を返す（終了シグナル）"""
+        links = page.query_selector_all("a[href*='/blog/articles/']")
+        new_in_page = 0
+        old_in_page = 0
+        for link in links:
+            href = link.get_attribute("href") or ""
+            if not href or href in seen:
+                continue
+            seen.add(href)
+            url = href if href.startswith("http") else f"https://www.akkodis.com{href}"
+            h2 = link.query_selector("h2")
+            title = (h2.inner_text() if h2 else link.inner_text()).strip()
+            if not title:
+                continue
+            article_id = re.sub(r"[^a-z0-9-]", "", href.split("/")[-1])
 
-        articles.append({
-            "id": re.sub(r"[^a-z0-9-]", "", href.split("/")[-1]),
-            "title": title,
-            "url": url,
-            "source_id": source["id"],
-            "source_label": source["label"],
-        })
+            # 既存データの日付で古さ判定
+            if existing and article_id in existing:
+                pub = existing[article_id].get("published_date")
+                if pub and not re.match(r"^\d{4}$", pub):
+                    try:
+                        dt = datetime.fromisoformat(pub.replace("Z", "+00:00"))
+                        if dt < cutoff:
+                            old_in_page += 1
+                            continue  # 古い記事はスキップ
+                    except ValueError:
+                        pass
+
+            new_in_page += 1
+            articles.append({
+                "id": article_id,
+                "title": title,
+                "url": url,
+                "source_id": source["id"],
+                "source_label": source["label"],
+            })
+        # ページ上の全既知記事が古ければ終了シグナル
+        return old_in_page > 0 and new_in_page == 0
+
+    collect_current_page()
+
+    for page_num in range(2, MAX_PAGES + 1):
+        btn = page.query_selector(f"button:has-text('{page_num}')")
+        if not btn:
+            break
+        btn.click()
+        page.wait_for_timeout(1500)
+        if collect_current_page():
+            break
 
     return articles
 
@@ -157,34 +190,43 @@ def scrape_thinkers(page, source: dict) -> list[dict]:
 
 
 def scrape_client_stories(page, source: dict) -> list[dict]:
-    """Client Success Stories ページから記事リストを取得"""
+    """Client Success Stories ページから記事リストを取得（ページネーション対応）"""
     page.goto(source["url"], wait_until="domcontentloaded", timeout=30000)
     page.wait_for_timeout(2000)
     articles = []
-
-    links = page.query_selector_all("a[href*='/blog/client-success/']")
     seen = set()
-    for link in links:
-        href = link.get_attribute("href") or ""
-        if not href or href in seen:
-            continue
-        seen.add(href)
 
-        url = href if href.startswith("http") else f"https://www.akkodis.com{href}"
-        h2 = link.query_selector("h2")
-        title = (h2.inner_text() if h2 else link.inner_text()).strip()
-        # "View Client Stories" などのナビ文字を除外
-        if not title or len(title) < 10 or "View Client" in title:
-            continue
+    def collect_current_page():
+        links = page.query_selector_all("a[href*='/blog/client-success/']")
+        for link in links:
+            href = link.get_attribute("href") or ""
+            if not href or href in seen:
+                continue
+            seen.add(href)
+            url = href if href.startswith("http") else f"https://www.akkodis.com{href}"
+            h2 = link.query_selector("h2")
+            title = (h2.inner_text() if h2 else link.inner_text()).strip()
+            if not title or len(title) < 10 or "View Client" in title:
+                continue
+            slug = re.sub(r"[^a-z0-9-]", "-", href.split("/")[-1].lower()).strip("-")
+            articles.append({
+                "id": slug,
+                "title": title,
+                "url": url,
+                "source_id": source["id"],
+                "source_label": source["label"],
+            })
 
-        slug = re.sub(r"[^a-z0-9-]", "-", href.split("/")[-1].lower()).strip("-")
-        articles.append({
-            "id": slug,
-            "title": title,
-            "url": url,
-            "source_id": source["id"],
-            "source_label": source["label"],
-        })
+    collect_current_page()
+
+    # ページネーションボタンをクリックして全ページ収集
+    for page_num in range(2, 20):  # 最大19ページまで
+        btn = page.query_selector(f"button:has-text('{page_num}')")
+        if not btn:
+            break
+        btn.click()
+        page.wait_for_timeout(1500)
+        collect_current_page()
 
     return articles
 
@@ -220,8 +262,12 @@ def main():
                 continue
 
             try:
-                items = scraper(page, source)
+                kwargs = {"existing": existing} if source["type"] == "blog" else {}
+                items = scraper(page, source, **kwargs)
                 print(f"    {len(items)} 件取得")
+                from datetime import timedelta
+                blog_cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+                filtered = []
                 for item in items:
                     scraped_ids.append(item["id"])
                     if item["id"] in existing:
@@ -236,7 +282,20 @@ def main():
                             item["published_date"] = fetch_published_date(page, item["url"])
                         else:
                             item["published_date"] = None
-                all_articles.extend(items)
+
+                    # Blog記事: 公開日が1ヶ月超ならスキップ
+                    if source["type"] == "blog":
+                        pub = item.get("published_date")
+                        if pub and not re.match(r"^\d{4}$", pub):
+                            try:
+                                dt = datetime.fromisoformat(pub.replace("Z", "+00:00"))
+                                if dt < blog_cutoff:
+                                    print(f"      1ヶ月超のためスキップ: {item['title'][:40]}")
+                                    continue
+                            except ValueError:
+                                pass
+                    filtered.append(item)
+                all_articles.extend(filtered)
             except Exception as e:
                 print(f"    エラー: {e}")
 
