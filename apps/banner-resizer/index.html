@@ -221,6 +221,47 @@
     }
     .custom-row .add-btn:hover { opacity: 0.8; }
     .custom-row .sep { color: #b2bec3; font-size: 0.9rem; }
+
+    /* Crop preview */
+    .crop-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .crop-item {
+      border: 1.5px solid #dfe6e9;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .crop-item-header {
+      padding: 8px 12px 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .crop-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .crop-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #2d3436;
+    }
+    .crop-size-label {
+      font-size: 0.72rem;
+      color: #b2bec3;
+      margin-left: auto;
+    }
+    .crop-item canvas { width: 100%; height: auto; display: block; }
+    .crop-info {
+      padding: 6px 12px 8px;
+      font-size: 0.75rem;
+      color: #636e72;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -243,6 +284,12 @@
       <button class="format-btn" id="btn-png" onclick="setFormat('png')">PNG</button>
       <button class="format-btn" id="btn-jpg" onclick="setFormat('jpg')">JPG</button>
     </div>
+  </div>
+
+  <div class="card" id="crop-preview" style="display:none;">
+    <p class="section-title">セーフエリア確認</p>
+    <p style="font-size:0.8rem;color:#636e72;margin-bottom:14px;">暗い部分は切り捨てられます。色枠が実際の出力範囲です。</p>
+    <div class="crop-grid" id="crop-grid"></div>
   </div>
 
   <div class="previews" id="previews">
@@ -361,11 +408,100 @@
       const img = new Image();
       img.onload = () => {
         sourceImage = img;
+        renderCropPreview(img);
         renderAll();
       };
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+  }
+
+  // ── Crop Preview ──────────────────────────────────────
+  const CROP_COLORS = { ogp: '#0984e3', banner: '#00b894', list: '#e17055' };
+
+  function getCropRect(imgW, imgH, targetW, targetH) {
+    const srcRatio = imgW / imgH;
+    const dstRatio = targetW / targetH;
+    let sx, sy, sw, sh;
+    if (srcRatio > dstRatio) {
+      sh = imgH; sw = imgH * dstRatio;
+      sx = (imgW - sw) / 2; sy = 0;
+    } else {
+      sw = imgW; sh = imgW / dstRatio;
+      sx = 0; sy = (imgH - sh) / 2;
+    }
+    return { sx, sy, sw, sh };
+  }
+
+  function renderCropPreview(img) {
+    const grid = document.getElementById('crop-grid');
+    grid.innerHTML = '';
+    const PREVIEW_W = 200;
+    const PREVIEW_H = 130;
+
+    // Fit source image into fixed canvas (letterbox)
+    const fitScale = Math.min(PREVIEW_W / img.width, PREVIEW_H / img.height);
+    const fitW = img.width * fitScale;
+    const fitH = img.height * fitScale;
+    const fitX = (PREVIEW_W - fitW) / 2;
+    const fitY = (PREVIEW_H - fitH) / 2;
+
+    for (const size of SIZES) {
+      const color = CROP_COLORS[size.id] || '#636e72';
+      const { sx, sy, sw, sh } = getCropRect(img.width, img.height, size.w, size.h);
+      const cutX = Math.round((img.width - sw) / 2);
+      const cutY = Math.round((img.height - sh) / 2);
+      const cropInfo = cutX > 0 ? `左右各 ${cutX}px カット`
+                     : cutY > 0 ? `上下各 ${cutY}px カット`
+                     : 'トリミングなし';
+
+      const canvas = document.createElement('canvas');
+      canvas.width = PREVIEW_W;
+      canvas.height = PREVIEW_H;
+      const ctx = canvas.getContext('2d');
+
+      // Background
+      ctx.fillStyle = '#e0e0e0';
+      ctx.fillRect(0, 0, PREVIEW_W, PREVIEW_H);
+
+      // Source image fitted
+      ctx.drawImage(img, fitX, fitY, fitW, fitH);
+
+      // Crop rect in canvas coords
+      const cx = fitX + sx * fitScale;
+      const cy = fitY + sy * fitScale;
+      const cw = sw * fitScale;
+      const ch = sh * fitScale;
+
+      // Dark overlay outside crop (within image area only)
+      ctx.fillStyle = 'rgba(0,0,0,0.45)';
+      if (cx > fitX)                 ctx.fillRect(fitX, fitY, cx - fitX, fitH);
+      if (cx + cw < fitX + fitW)     ctx.fillRect(cx + cw, fitY, (fitX + fitW) - (cx + cw), fitH);
+      if (cy > fitY)                 ctx.fillRect(cx, fitY, cw, cy - fitY);
+      if (cy + ch < fitY + fitH)     ctx.fillRect(cx, cy + ch, cw, (fitY + fitH) - (cy + ch));
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cx + 1, cy + 1, cw - 2, ch - 2);
+
+      const item = document.createElement('div');
+      item.className = 'crop-item';
+      item.innerHTML = `
+        <div class="crop-item-header">
+          <span class="crop-dot" style="background:${color}"></span>
+          <span class="crop-name">${size.label}</span>
+          <span class="crop-size-label">${size.w}×${size.h}</span>
+        </div>
+      `;
+      item.appendChild(canvas);
+      const infoEl = document.createElement('div');
+      infoEl.className = 'crop-info';
+      infoEl.textContent = cropInfo;
+      item.appendChild(infoEl);
+      grid.appendChild(item);
+    }
+
+    document.getElementById('crop-preview').style.display = 'block';
   }
 
   // ── Render ────────────────────────────────────────────
