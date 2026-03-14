@@ -293,17 +293,17 @@
     loadingEl.classList.add('on');
     outputEl.classList.remove('on');
 
-    // Build link list
-    const linkLines = [];
-    if (linkTop) linkLines.push('公式HP https://www.akkodis.com/ja');
-    if (linkCareers) linkLines.push('採用情報 https://www.akkodis.com/ja/careers');
-    if (linksFree) linkLines.push(linksFree);
+    // Build HP link list
+    const hpLines = [];
+    if (linkTop) hpLines.push('TOPページ：　https://www.akkodis.com/ja');
+    if (linkCareers) hpLines.push('採用サイト：　https://www.akkodis.com/ja/careers');
 
     let userMsg = '';
-    if (title) userMsg += `【動画タイトル（仮）】\n${title}\n\n`;
+    if (title) userMsg += `【動画タイトル】\n${title}\n\n`;
     userMsg += `【動画の内容・メモ】\n${content}\n`;
-    if (linkLines.length) userMsg += `\n【掲載するリンク（必ず含める。YouTubeは関連動画、HPは公式リンクとして適切に配置）】\n${linkLines.join('\n')}\n`;
-    if (timestamps) userMsg += `\n【タイムスタンプ（目次として掲載）】\n${timestamps}\n`;
+    if (hpLines.length) userMsg += `\n【公式HPリンク（見出しなしでそのまま記載）】\n${hpLines.join('\n')}\n`;
+    if (linksFree) userMsg += `\n【その他のリンク（YouTubeのURLは「■関連動画はこちら」、それ以外は「■関連リンクはこちら」という見出しをつけて記載）】\n${linksFree}\n`;
+    if (timestamps) userMsg += `\n【タイムスタンプ（「【目次】」という見出しをつけて記載）】\n${timestamps}\n`;
     userMsg += `\n【SNSリンク（必ず含める）】\n${SNS}`;
 
     try {
