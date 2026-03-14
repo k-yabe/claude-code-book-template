@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AKKODiS GLOBAL 更新チェッカー</title>
+  <title>AKKODiS Global Antenna</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -129,7 +129,7 @@
 
   <div class="header">
     <a class="back" href="../../">← アプリ一覧へ</a>
-    <h1>AKKODiS GLOBAL 更新チェッカー</h1>
+    <h1>AKKODiS Global Antenna</h1>
     <div class="meta">
       <span id="last-scraped">読み込み中...</span>
       <span id="new-count"></span>
@@ -160,10 +160,8 @@
         const n = isNew(a.first_seen);
         const dateLabel = a.published_date
           ? /^\d{4}$/.test(a.published_date)
-            ? isNew(a.first_seen)
-              ? formatDate(a.first_seen)   // 新規検出なら検出日を表示
-              : `${a.published_date}年`    // 既存は年のみ
-            : formatDate(a.published_date)
+            ? `検出日: ${formatDate(a.first_seen)}`     // T&M: 検出日を常に表示
+            : `公開日: ${formatDate(a.published_date)}` // Blog: 実際の公開日を表示
           : '—';
         return `
           <div class="card${n ? ' is-new' : ''}">
