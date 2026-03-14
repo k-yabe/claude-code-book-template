@@ -1,6 +1,177 @@
 {
-  "last_scraped": "2026-03-14T12:04:37Z",
+  "last_scraped": "2026-03-14T12:17:37Z",
   "articles": [
+    {
+      "id": "why-most-ai-pilots-fail",
+      "title": "Why Most AI Pilots Fail: Real Constraints To AI Scale",
+      "url": "https://www.akkodis.com/blog/articles/why-most-ai-pilots-fail",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:14Z",
+      "published_date": "2026-02-18T00:00:00Z"
+    },
+    {
+      "id": "federated-learning-ai-scalability",
+      "title": "Federated Learning Beyond Privacy: Smarter AI at Scale",
+      "url": "https://www.akkodis.com/blog/articles/federated-learning-ai-scalability",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:16Z",
+      "published_date": "2026-03-13T00:00:00Z"
+    },
+    {
+      "id": "federated-learning-critical-industries",
+      "title": "Federated Learning in Action Across Critical Industries",
+      "url": "https://www.akkodis.com/blog/articles/federated-learning-critical-industries",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:18Z",
+      "published_date": "2026-03-13T00:00:00Z"
+    },
+    {
+      "id": "edge-ai-federated-learning",
+      "title": "Moving AI to the Edge with Federated Learning",
+      "url": "https://www.akkodis.com/blog/articles/edge-ai-federated-learning",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:21Z",
+      "published_date": "2026-03-13T00:00:00Z"
+    },
+    {
+      "id": "edge-ai-federated-learning-architecture",
+      "title": "How AI Architecture Changes with Edge and Federated Learning",
+      "url": "https://www.akkodis.com/blog/articles/edge-ai-federated-learning-architecture",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:23Z",
+      "published_date": "2026-03-06T00:00:00Z"
+    },
+    {
+      "id": "ai-sports-performance-rugby",
+      "title": "Stade Toulousain x Akkodis: Where AI Powers Performance",
+      "url": "https://www.akkodis.com/blog/articles/ai-sports-performance-rugby",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:25Z",
+      "published_date": "2026-02-18T00:00:00Z"
+    },
+    {
+      "id": "electric-mobility-energy-careers",
+      "title": "Driving the Future of Electric Mobility Careers in Energy",
+      "url": "https://www.akkodis.com/blog/articles/electric-mobility-energy-careers",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:29Z",
+      "published_date": "2026-03-06T00:00:00Z"
+    },
+    {
+      "id": "automotive-hvac-consulting-careers",
+      "title": "Driving Innovation in Automotive HVAC Engineering",
+      "url": "https://www.akkodis.com/blog/articles/automotive-hvac-consulting-careers",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:31Z",
+      "published_date": "2026-03-03T00:00:00Z"
+    },
+    {
+      "id": "ai-first-modernization-digital-transformation-not-enough",
+      "title": "AI-First Modernization: Digital Transformation Is Not Enough",
+      "url": "https://www.akkodis.com/blog/articles/ai-first-modernization-digital-transformation-not-enough",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:36Z",
+      "published_date": "2026-03-04T00:00:00Z"
+    },
+    {
+      "id": "space-ait-satellite-engineering",
+      "title": "Space AIT Engineering: Ensuring Satellite Mission Readiness",
+      "url": "https://www.akkodis.com/blog/articles/space-ait-satellite-engineering",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:38Z",
+      "published_date": "2026-03-03T00:00:00Z"
+    },
+    {
+      "id": "software-development-ai-careers",
+      "title": "Innovate, Code, Lead: A Career in Software Development",
+      "url": "https://www.akkodis.com/blog/articles/software-development-ai-careers",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:40Z",
+      "published_date": "2026-02-23T00:00:00Z"
+    },
+    {
+      "id": "driving-innovation-and-engineering-a-smarter-future-for-all",
+      "title": "Driving Innovation and Engineering a Smarter Future for All",
+      "url": "https://www.akkodis.com/blog/articles/driving-innovation-and-engineering-a-smarter-future-for-all",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:42Z",
+      "published_date": "2026-02-27T00:00:00Z"
+    },
+    {
+      "id": "from-digital-to-physical-ai",
+      "title": "From Digital to Physical AI When AI Leaves the Screen",
+      "url": "https://www.akkodis.com/blog/articles/from-digital-to-physical-ai",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:44Z",
+      "published_date": "2026-02-26T00:00:00Z"
+    },
+    {
+      "id": "ai-ev-charging-reliability",
+      "title": "AI-Driven Self-Diagnosing EV Charging Infrastructure",
+      "url": "https://www.akkodis.com/blog/articles/ai-ev-charging-reliability",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:46Z",
+      "published_date": "2026-02-13T00:00:00Z"
+    },
+    {
+      "id": "life-sciences-consulting-pharma-careers",
+      "title": "Life Sciences Consulting Careers: Innovation & Quality Leadership",
+      "url": "https://www.akkodis.com/blog/articles/life-sciences-consulting-pharma-careers",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:49Z",
+      "published_date": "2026-02-23T00:00:00Z"
+    },
+    {
+      "id": "copilots-agents-designing-enterprise-ai-adoption",
+      "title": "From Copilots to Agents: Designing Enterprise AI Adoption",
+      "url": "https://www.akkodis.com/blog/articles/copilots-agents-designing-enterprise-ai-adoption",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:51Z",
+      "published_date": "2026-02-26T00:00:00Z"
+    },
+    {
+      "id": "practical-ai-workplace-careers",
+      "title": "From Curiosity to Practical AI: Making Innovation Real",
+      "url": "https://www.akkodis.com/blog/articles/practical-ai-workplace-careers",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:53Z",
+      "published_date": "2026-02-17T00:00:00Z"
+    },
+    {
+      "id": "ai-customer-experience-innovation",
+      "title": "Shaping the Future of Customer Experience with AI",
+      "url": "https://www.akkodis.com/blog/articles/ai-customer-experience-innovation",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:57Z",
+      "published_date": "2026-02-17T00:00:00Z"
+    },
+    {
+      "id": "safety-on-the-open-road-architecture-revamp-motorcyclists",
+      "title": "Safety on the Open Road: Architecture Revamp Improves Safety Device for Motorcyclists",
+      "url": "https://www.akkodis.com/blog/articles/safety-on-the-open-road-architecture-revamp-motorcyclists",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:59Z",
+      "published_date": "2026-02-17T00:00:00Z"
+    },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
       "title": "Thinkers & Makers Vol.3 2025",
@@ -54,6 +225,105 @@
       "source_label": "Thinkers & Makers",
       "published_date": "2024",
       "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "integrated-sensor-technology-analytics-platform",
+      "title": "Integrated Sensor Analytics Platform for Fleet Efficiency",
+      "url": "https://www.akkodis.com/en/blog/client-success/integrated-sensor-technology-analytics-platform",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:16:21Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "automotive-education-program-adoption",
+      "title": "Automotive Education Program Transformation",
+      "url": "https://www.akkodis.com/en/blog/client-success/automotive-education-program-adoption",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:16:23Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "ai-battery-diagnostics-ev-fleets",
+      "title": "AI-Based Charging Solution Enhances Operational Use of Commercial E-Vehicles",
+      "url": "https://www.akkodis.com/en/blog/client-success/ai-battery-diagnostics-ev-fleets",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:16:25Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "retail-it-service-desk-modernization",
+      "title": "Modernizing IT Service Desk for Scalable Retail Growth",
+      "url": "https://www.akkodis.com/en/blog/client-success/retail-it-service-desk-modernization",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:16:27Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "3m-achieves-efficient-utilization-of-resources-with-akkodis-scalable-client-service-solution",
+      "title": "3M Achieves Efficient Utilization of Resources",
+      "url": "https://www.akkodis.com/en/blog/client-success/3m-achieves-efficient-utilization-of-resources-with-akkodis-scalable-client-service-solution",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:16:29Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "pdi-pilots-waste-management-project",
+      "title": "PDI Pilots Sustainable Waste Management Project with Akkodis",
+      "url": "https://www.akkodis.com/en/blog/client-success/pdi-pilots-waste-management-project",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:16:31Z",
+      "published_date": "2025-08-06T00:00:00Z"
+    },
+    {
+      "id": "grid-friendly-bidirectional-charging",
+      "title": "Developing Grid-Friendly Bidirectional Charging Solutions for the Future of Mobility",
+      "url": "https://www.akkodis.com/en/blog/client-success/grid-friendly-bidirectional-charging",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:16:33Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "genai-service-desk-healthcare",
+      "title": "Academic Medical Center Cuts Support Time by 30% with GenAI-Powered Service Desk",
+      "url": "https://www.akkodis.com/en/blog/client-success/genai-service-desk-healthcare",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:16:35Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "ai-powered-it-modernization",
+      "title": "AI-Powered IT Ops Boost Efficiency for Global Discrete Manufacturer",
+      "url": "https://www.akkodis.com/en/blog/client-success/ai-powered-it-modernization",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:16:38Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "medtech-remediation-managed-services",
+      "title": "Global MedTech Leader Partners with Akkodis to Expediate FDA GMP Remediation at Acquired Plant",
+      "url": "https://www.akkodis.com/en/blog/client-success/medtech-remediation-managed-services",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:16:40Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "akkodis-drives-insights-from-data-at-speed-to-empower-police-investigators-solve-crime-faster",
+      "title": "Akkodis Empowers Police Investigators to Solve Crime Faster",
+      "url": "https://www.akkodis.com/en/blog/client-success/akkodis-drives-insights-from-data-at-speed-to-empower-police-investigators-solve-crime-faster",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:16:52Z",
+      "published_date": "2025-03-27T00:00:00Z"
     }
   ]
 }

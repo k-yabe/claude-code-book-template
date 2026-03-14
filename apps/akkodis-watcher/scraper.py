@@ -90,7 +90,8 @@ def scrape_blog(page, source: dict, existing: dict = None) -> list[dict]:
     cutoff = datetime.now(timezone.utc) - timedelta(days=30)
     MAX_PAGES = 5
 
-    page.goto(source["url"], wait_until="networkidle", timeout=30000)
+    page.goto(source["url"], wait_until="domcontentloaded", timeout=30000)
+    page.wait_for_timeout(2000)
     articles = []
     seen = set()
 
@@ -140,7 +141,7 @@ def scrape_blog(page, source: dict, existing: dict = None) -> list[dict]:
         btn = page.query_selector(f"button:has-text('{page_num}')")
         if not btn:
             break
-        btn.click()
+        page.evaluate("btn => btn.click()", btn)
         page.wait_for_timeout(1500)
         if collect_current_page():
             break
@@ -224,7 +225,7 @@ def scrape_client_stories(page, source: dict) -> list[dict]:
         btn = page.query_selector(f"button:has-text('{page_num}')")
         if not btn:
             break
-        btn.click()
+        page.evaluate("btn => btn.click()", btn)
         page.wait_for_timeout(1500)
         collect_current_page()
 
