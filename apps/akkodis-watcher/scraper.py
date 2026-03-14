@@ -279,11 +279,10 @@ def main():
                     else:
                         item["first_seen"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                         # ブログ記事・Client Storiesは個別ページから公開日を取得
+                        # それ以外（Thinkers等）はスクレイパーが設定した値を維持
                         if source["type"] in ("blog", "client_stories"):
                             print(f"      公開日取得中: {item['url']}")
                             item["published_date"] = fetch_published_date(page, item["url"])
-                        else:
-                            item["published_date"] = None
 
                     # Blog記事: 公開日が1ヶ月超ならスキップ
                     if source["type"] == "blog":
