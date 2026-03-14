@@ -158,7 +158,11 @@
       const newCount = articles.filter(a => isNew(a.first_seen)).length;
       const cards = articles.map(a => {
         const n = isNew(a.first_seen);
-        const dateLabel = a.published_date ? formatDate(a.published_date) : '—';
+        const dateLabel = a.published_date
+          ? /^\d{4}$/.test(a.published_date)
+            ? `${a.published_date}年`
+            : formatDate(a.published_date)
+          : '—';
         return `
           <div class="card${n ? ' is-new' : ''}">
             <div class="card-title">

@@ -115,6 +115,10 @@ def scrape_thinkers(page, source: dict) -> list[dict]:
         else:
             title = filename.replace("_", " ").replace("-", " ").title()
 
+        # 年をファイル名から抽出して published_date に格納（精度: 年のみ）
+        year_m = re.search(r"(20\d{2})", filename)
+        published_date = f"{year_m.group(1)}" if year_m else None
+
         slug = re.sub(r"[^a-z0-9-]", "-", filename.lower()).strip("-")
         articles.append({
             "id": slug,
@@ -122,6 +126,7 @@ def scrape_thinkers(page, source: dict) -> list[dict]:
             "url": url,
             "source_id": source["id"],
             "source_label": source["label"],
+            "published_date": published_date,
         })
 
     return articles
