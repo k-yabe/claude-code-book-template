@@ -158,13 +158,16 @@
       const newCount = articles.filter(a => isNew(a.first_seen)).length;
       const cards = articles.map(a => {
         const n = isNew(a.first_seen);
+        const dateLabel = a.published_date
+          ? `公開日: ${formatDate(a.published_date)}`
+          : `検出日: ${formatDate(a.first_seen)}`;
         return `
           <div class="card${n ? ' is-new' : ''}">
             <div class="card-title">
               <a href="${a.url}" target="_blank" rel="noopener">${a.title}</a>
               ${n ? '<span class="badge-new">NEW</span>' : ''}
             </div>
-            <div class="card-meta">初回確認: ${formatDate(a.first_seen)}</div>
+            <div class="card-meta">${dateLabel}</div>
           </div>`;
       }).join('');
 

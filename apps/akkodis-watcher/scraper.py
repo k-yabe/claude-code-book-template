@@ -12,6 +12,33 @@ from datetime import datetime, timezone
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
+MONTHS = {
+    "january": 1, "february": 2, "march": 3, "april": 4,
+    "may": 5, "june": 6, "july": 7, "august": 8,
+    "september": 9, "october": 10, "november": 11, "december": 12,
+}
+
+def fetch_published_date(page, url: str) -> str | None:
+    """記事ページの "Posted On XX of Month, YYYY" から公開日を取得する"""
+    try:
+        page.goto(url, wait_until="networkidle", timeout=20000)
+        # "Posted On" を含む段落を探す
+        el = page.query_selector("p:has-text('Posted On')")
+        if not el:
+            return None
+        text = el.inner_text()
+        # 例: "Posted On 18th of February, 2026"
+        m = re.search(r"(\d+)\w+\s+of\s+(\w+),?\s+(\d{4})", text, re.IGNORECASE)
+        if not m:
+            return None
+        day, month_str, year = int(m.group(1)), m.group(2).lower(), int(m.group(3))
+        month = MONTHS.get(month_str)
+        if not month:
+            return None
+        return datetime(year, month, day, tzinfo=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    except Exception:
+        return None
+
 OUTPUT = Path(__file__).parent / "data" / "articles.json"
 
 # ── 監視対象リスト ─────────────────────────────────────
@@ -132,10 +159,17 @@ def main():
                 for item in items:
                     scraped_ids.append(item["id"])
                     if item["id"] in existing:
-                        # 既存データの first_seen を引き継ぐ
+                        # 既存データを引き継ぐ
                         item["first_seen"] = existing[item["id"]]["first_seen"]
+                        item["published_date"] = existing[item["id"]].get("published_date")
                     else:
                         item["first_seen"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+                        # ブログ記事は個別ページから公開日を取得
+                        if source["type"] == "blog":
+                            print(f"      公開日取得中: {item['url']}")
+                            item["published_date"] = fetch_published_date(page, item["url"])
+                        else:
+                            item["published_date"] = None
                 all_articles.extend(items)
             except Exception as e:
                 print(f"    エラー: {e}")
