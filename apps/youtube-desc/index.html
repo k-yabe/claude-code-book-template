@@ -209,21 +209,23 @@
 ・視聴者は製造業に関わるビジネスパーソン向け"></textarea>
     </div>
 
+    <div class="field">
+      <label>掲載するリンク <span class="hint">任意。1行に1つ、ラベルとURLを書いてください</span></label>
+      <textarea id="links" rows="3" placeholder="公式サイト https://www.akkodis.com/ja&#10;採用情報 https://www.akkodis.com/ja/careers"></textarea>
+    </div>
+
+    <div class="field">
+      <label>関連動画・関連ページURL <span class="hint">任意</span></label>
+      <input type="text" id="related" placeholder="https://..." />
+    </div>
+
     <!-- Options -->
     <div class="options-toggle" onclick="toggleOptions(this)">
-      ▶ オプション（掲載リンク・関連動画・タイムスタンプ）
+      ▶ オプション（タイムスタンプ）
     </div>
     <div class="options-body" id="options-body">
-      <div class="field">
-        <label>掲載するリンク <span class="hint">任意。1行に1つ、ラベルとURLを書いてください</span></label>
-        <textarea id="links" rows="3" placeholder="公式サイト https://www.akkodis.com/ja&#10;採用情報 https://www.akkodis.com/ja/careers"></textarea>
-      </div>
-      <div class="field">
-        <label>関連動画・関連ページURL <span class="hint">任意</span></label>
-        <input type="text" id="related" placeholder="https://..." />
-      </div>
       <div class="field" style="margin-bottom:0;">
-        <label>タイムスタンプ <span class="hint">任意</span></label>
+        <label>タイムスタンプ</label>
         <textarea id="timestamps" rows="3" placeholder="00:00 イントロ&#10;01:30 AIとは&#10;05:00 まとめ"></textarea>
       </div>
     </div>
