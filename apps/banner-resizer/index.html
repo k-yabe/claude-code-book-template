@@ -154,6 +154,44 @@
       margin-bottom: 16px;
       color: #2d3436;
     }
+
+    /* カスタムサイズ */
+    .custom-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 2px solid #f0f0f0;
+    }
+    .custom-row input[type="text"],
+    .custom-row input[type="number"] {
+      padding: 7px 10px;
+      border: 1.5px solid #dfe6e9;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #2d3436;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .custom-row input[type="number"] { width: 80px; }
+    .custom-row input[type="text"]   { width: 110px; }
+    .custom-row input:focus { border-color: #001f33; }
+    .custom-row .add-btn {
+      padding: 7px 16px;
+      background: #001f33;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .custom-row .add-btn:hover { opacity: 0.8; }
+    .custom-row .sep { color: #b2bec3; font-size: 0.9rem; }
   </style>
 </head>
 <body>
@@ -181,9 +219,16 @@
     <div class="card">
       <p class="section-title">プレビュー</p>
       <div class="preview-grid" id="preview-grid"></div>
+      <div class="custom-row">
+        <input type="text"   id="custom-name" placeholder="名前（任意）" />
+        <input type="number" id="custom-w" placeholder="幅" min="1" />
+        <span class="sep">×</span>
+        <input type="number" id="custom-h" placeholder="高さ" min="1" />
+        <button class="add-btn" onclick="addCustomSize()">＋ 追加</button>
+      </div>
     </div>
     <div class="card">
-      <button class="dl-all-btn" id="dl-all-btn" onclick="downloadAll()">📦 3サイズをまとめてダウンロード（ZIP）</button>
+      <button class="dl-all-btn" id="dl-all-btn" onclick="downloadAll()">📦 まとめてダウンロード（ZIP）</button>
     </div>
   </div>
 </div>
@@ -199,6 +244,7 @@
   let format = 'png';
   let sourceImage = null;
   let filename = 'banner';
+  let customSizes = []; // ユーザー追加サイズ
 
   function setFormat(f) {
     format = f;
@@ -239,7 +285,7 @@
     const grid = document.getElementById('preview-grid');
     grid.innerHTML = '';
 
-    SIZES.forEach(size => {
+    [...SIZES, ...customSizes].forEach(size => {
       const canvas = createResized(sourceImage, size.w, size.h);
 
       const item = document.createElement('div');
@@ -259,34 +305,75 @@
   }
 
   function createResized(img, targetW, targetH) {
-    const canvas = document.createElement('canvas');
-    canvas.width = targetW;
-    canvas.height = targetH;
-    const ctx = canvas.getContext('2d');
-
     // アスペクト比を保ちながら中心クロップ
     const srcRatio = img.width / img.height;
     const dstRatio = targetW / targetH;
 
     let sx, sy, sw, sh;
     if (srcRatio > dstRatio) {
-      // 横が余る → 横をクロップ
       sh = img.height;
       sw = img.height * dstRatio;
       sx = (img.width - sw) / 2;
       sy = 0;
     } else {
-      // 縦が余る → 縦をクロップ
       sw = img.width;
       sh = img.width / dstRatio;
       sx = 0;
       sy = (img.height - sh) / 2;
     }
 
+    // 多段階ダウンスケールで品質向上（縮小率が2倍以上の場合）
+    let srcCanvas = document.createElement('canvas');
+    srcCanvas.width = sw;
+    srcCanvas.height = sh;
+    const srcCtx = srcCanvas.getContext('2d');
+    srcCtx.imageSmoothingEnabled = true;
+    srcCtx.imageSmoothingQuality = 'high';
+    srcCtx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+
+    let curW = sw, curH = sh;
+    while (curW / targetW > 2 || curH / targetH > 2) {
+      const nextW = Math.max(Math.floor(curW / 2), targetW);
+      const nextH = Math.max(Math.floor(curH / 2), targetH);
+      const tmp = document.createElement('canvas');
+      tmp.width = nextW;
+      tmp.height = nextH;
+      const tmpCtx = tmp.getContext('2d');
+      tmpCtx.imageSmoothingEnabled = true;
+      tmpCtx.imageSmoothingQuality = 'high';
+      tmpCtx.drawImage(srcCanvas, 0, 0, nextW, nextH);
+      srcCanvas = tmp;
+      curW = nextW;
+      curH = nextH;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetW, targetH);
+    ctx.drawImage(srcCanvas, 0, 0, targetW, targetH);
     return canvas;
+  }
+
+  function addCustomSize() {
+    const nameEl = document.getElementById('custom-name');
+    const wEl = document.getElementById('custom-w');
+    const hEl = document.getElementById('custom-h');
+    const w = parseInt(wEl.value);
+    const h = parseInt(hEl.value);
+    if (!w || !h || w < 1 || h < 1) return;
+
+    const id = `custom-${Date.now()}`;
+    const label = nameEl.value.trim() || `${w}×${h}`;
+    customSizes.push({ id, label, w, h });
+
+    nameEl.value = '';
+    wEl.value = '';
+    hEl.value = '';
+
+    if (sourceImage) renderAll();
   }
 
   function getBlob(canvasId, forcePng) {
@@ -316,7 +403,7 @@
     btn.disabled = true;
 
     const zip = new JSZip();
-    for (const size of SIZES) {
+    for (const size of [...SIZES, ...customSizes]) {
       const ext = size.forcePng ? 'png' : format;
       const blob = await getBlob('canvas-' + size.id, size.forcePng);
       zip.file(`${filename}_${size.w}x${size.h}.${ext}`, blob);
