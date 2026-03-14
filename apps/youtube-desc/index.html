@@ -293,16 +293,33 @@
     loadingEl.classList.add('on');
     outputEl.classList.remove('on');
 
-    // Build HP link list
+    // Build link sections
     const hpLines = [];
     if (linkTop) hpLines.push('TOPページ：　https://www.akkodis.com/ja');
     if (linkCareers) hpLines.push('採用サイト：　https://www.akkodis.com/ja/careers');
 
+    const ytLines = [];
+    const otherLines = [...hpLines]; // HP links go into ■関連リンクはこちら
+    if (linksFree) {
+      linksFree.split('\n').forEach(line => {
+        line = line.trim();
+        if (!line) return;
+        if (line.includes('youtube.com') || line.includes('youtu.be')) {
+          ytLines.push(line);
+        } else {
+          otherLines.push(line);
+        }
+      });
+    }
+
+    let linkSections = '';
+    if (otherLines.length) linkSections += `■関連リンクはこちら\n${otherLines.join('\n')}\n`;
+    if (ytLines.length) linkSections += `■関連動画はこちら\n${ytLines.join('\n')}\n`;
+
     let userMsg = '';
     if (title) userMsg += `【動画タイトル】\n${title}\n\n`;
     userMsg += `【動画の内容・メモ】\n${content}\n`;
-    if (hpLines.length) userMsg += `\n【公式HPリンク（見出しなしでそのまま記載）】\n${hpLines.join('\n')}\n`;
-    if (linksFree) userMsg += `\n【その他のリンク（YouTubeのURLは「■関連動画はこちら」、それ以外は「■関連リンクはこちら」という見出しをつけて記載）】\n${linksFree}\n`;
+    if (linkSections) userMsg += `\n【説明文に含めるリンクセクション（以下をそのまま説明文に含める）】\n${linkSections}`;
     if (timestamps) userMsg += `\n【タイムスタンプ（「【目次】」という見出しをつけて記載）】\n${timestamps}\n`;
     userMsg += `\n【SNSリンク（必ず含める）】\n${SNS}`;
 
@@ -322,13 +339,7 @@
 【説明文の構成】
 1. 冒頭3文：キーワードを含め動画の価値を伝える（YouTubeの「もっと見る」前に表示される部分）
 
-2. 公式HPリンク：見出しなしで、提供されたリンクを以下の形式で記載（提供されたものだけ記載）
-TOPページ：　https://www.akkodis.com/ja
-採用サイト：　https://www.akkodis.com/ja/careers
-※「■AKKODiS Japan 公式HP」などの見出しは絶対に付けないこと
-
-3. 関連リンク：その他のリンクが提供された場合のみ追加。公式HPリンク（2.）とは別に独立したセクションとして必ず出力すること。YouTubeのURLの場合は「■関連動画はこちら」、それ以外のURLの場合は「■関連リンクはこちら」という見出しをつける
-[リンク]
+2. リンクセクション：【説明文に含めるリンクセクション】が提供された場合、その内容をそのまま説明文に含める（追加・変更・省略しないこと）
 
 4. 目次：タイムスタンプが提供された場合のみ以下の形式で追加
 【目次】
