@@ -12,14 +12,14 @@
       font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
       color: #2d3436;
       min-height: 100vh;
-      padding: 40px 16px;
+      padding: 48px 16px 64px;
     }
 
     .wrap { max-width: 800px; margin: 0 auto; }
 
     .back {
       display: inline-block;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       font-size: 0.85rem;
       color: #001f33;
       text-decoration: none;
@@ -27,8 +27,57 @@
     }
     .back:hover { text-decoration: underline; }
 
-    h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
-    .sub { font-size: 0.85rem; color: #636e72; margin-bottom: 24px; }
+    h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
+
+    .sub {
+      font-size: 0.88rem;
+      color: #636e72;
+      margin-bottom: 8px;
+      line-height: 1.7;
+    }
+
+    .size-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .size-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #fff;
+      border: 1.5px solid #dfe6e9;
+      border-radius: 99px;
+      padding: 3px 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #2d3436;
+    }
+    .size-chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .size-chip small {
+      font-weight: 400;
+      color: #b2bec3;
+      font-size: 0.72rem;
+    }
+
+    .recommend-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff8e6;
+      border: 1.5px solid #ffb81c;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      color: #7a5800;
+      margin-bottom: 28px;
+    }
+    .recommend-note strong { color: #5a4000; }
 
     .card {
       background: #fff;
@@ -268,7 +317,13 @@
 <div class="wrap">
   <a class="back" href="../../">← アプリ一覧へ</a>
   <h1>Banner Resizer</h1>
-  <p class="sub">バナー画像を1枚アップロードするだけで、OGP（1200×630）・MV（800×446）・index（350×200）を一括生成します。OGPはPNG固定。<strong>推奨アップロードサイズ：1200×669px</strong>（全サイズのトリミングを最小化）</p>
+  <p class="sub">1枚の画像をアップロードするだけで、用途別の3サイズを一括生成します。</p>
+  <div class="size-chips">
+    <span class="size-chip"><span class="size-chip-dot" style="background:#0984e3"></span>OGP <small>1200×630 / PNG固定</small></span>
+    <span class="size-chip"><span class="size-chip-dot" style="background:#00b894"></span>バナー（MV） <small>800×446</small></span>
+    <span class="size-chip"><span class="size-chip-dot" style="background:#e17055"></span>一覧（index） <small>350×200</small></span>
+  </div>
+  <div class="recommend-note">💡 <strong>推奨アップロードサイズ：1200×669px</strong>　全サイズのトリミングを最小化できます</div>
 
   <div class="card">
     <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
@@ -316,9 +371,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
   const SIZES = [
-    { id: 'ogp',    label: 'OGP',    w: 1200, h: 630, forcePng: true, aiUpscale: true },
-    { id: 'banner', label: 'バナー（MV）',   w: 800,  h: 446 },
-    { id: 'list',   label: '一覧（index）', w: 350,  h: 200 },
+    { id: 'ogp',    label: 'OGP',          w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp' },
+    { id: 'banner', label: 'バナー（MV）',   w: 800,  h: 446, dlName: 'img-mv' },
+    { id: 'list',   label: '一覧（index）', w: 350,  h: 200, dlName: 'img-index' },
   ];
 
   let format = 'webp';
@@ -645,7 +700,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${filename}_${size.w}x${size.h}.${ext}`;
+      a.download = `${size.dlName || `${filename}_${size.w}x${size.h}`}.${ext}`;
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -669,7 +724,7 @@
     for (const size of allSizes) {
       const ext = size.forcePng ? 'png' : format;
       const blob = await getBlob('canvas-' + size.id, size.forcePng);
-      if (blob) zip.file(`${filename}_${size.w}x${size.h}.${ext}`, blob);
+      if (blob) zip.file(`${size.dlName || `${filename}_${size.w}x${size.h}`}.${ext}`, blob);
     }
 
     const zipBlob = await zip.generateAsync({ type: 'blob' });
