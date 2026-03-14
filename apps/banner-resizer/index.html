@@ -584,7 +584,10 @@
         });
       }
 
-      // Crop border
+      // Crop border (white outline + color on top)
+      ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+      ctx.lineWidth = 5;
+      ctx.strokeRect(cx + 1.5, cy + 1.5, cw - 3, ch - 3);
       ctx.strokeStyle = color;
       ctx.lineWidth = 3;
       ctx.strokeRect(cx + 1.5, cy + 1.5, cw - 3, ch - 3);
