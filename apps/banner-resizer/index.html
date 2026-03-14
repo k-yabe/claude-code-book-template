@@ -113,12 +113,29 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      min-height: 60px;
     }
     .preview-canvas-wrap canvas {
       width: 100%;
       height: auto;
       display: block;
     }
+
+    /* AI loading indicator */
+    .ai-loading {
+      padding: 20px 12px;
+      font-size: 0.78rem;
+      color: #636e72;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .ai-loading-spinner {
+      display: inline-block;
+      margin-bottom: 4px;
+      animation: spin 1.2s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     .dl-btn {
       width: 100%;
       padding: 8px;
@@ -156,14 +173,26 @@
     }
 
     /* カスタムサイズ */
+    .custom-section-label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #2d3436;
+      margin-top: 20px;
+      margin-bottom: 4px;
+      padding-top: 16px;
+      border-top: 2px solid #f0f0f0;
+    }
+    .custom-section-desc {
+      font-size: 0.78rem;
+      color: #636e72;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
     .custom-row {
       display: flex;
       gap: 8px;
       align-items: center;
       flex-wrap: wrap;
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 2px solid #f0f0f0;
     }
     .custom-row input[type="text"],
     .custom-row input[type="number"] {
@@ -198,7 +227,7 @@
 <div class="wrap">
   <a class="back" href="../../">← アプリ一覧へ</a>
   <h1>Banner Resizer</h1>
-  <p class="sub">バナー画像を1枚アップロードするだけで、OGP（1200×630）・MV（800×446）・index（350×200）を一括生成します。OGPはPNG固定です。</p>
+  <p class="sub">バナー画像を1枚アップロードするだけで、OGP（1200×630）・MV（800×446）・index（350×200）を一括生成します。OGPはPNG固定です。小さい画像はAIで高品質にアップスケールします。</p>
 
   <div class="card">
     <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
@@ -220,6 +249,9 @@
     <div class="card">
       <p class="section-title">プレビュー</p>
       <div class="preview-grid" id="preview-grid"></div>
+
+      <p class="custom-section-label">カスタムサイズを追加</p>
+      <p class="custom-section-desc">上記以外のサイズが必要な場合は、幅・高さ（px）を入力して「＋ 追加」を押してください。名前は省略可能です。追加したサイズはZIPにも含まれます。</p>
       <div class="custom-row">
         <input type="text"   id="custom-name" placeholder="名前（任意）" />
         <input type="number" id="custom-w" placeholder="幅" min="1" />
@@ -237,7 +269,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
   const SIZES = [
-    { id: 'ogp',    label: 'OGP',    w: 1200, h: 630, forcePng: true },
+    { id: 'ogp',    label: 'OGP',    w: 1200, h: 630, forcePng: true, aiUpscale: true },
     { id: 'banner', label: 'バナー（MV）',   w: 800,  h: 446 },
     { id: 'list',   label: '一覧（index）', w: 350,  h: 200 },
   ];
@@ -245,8 +277,61 @@
   let format = 'webp';
   let sourceImage = null;
   let filename = 'banner';
-  let customSizes = []; // ユーザー追加サイズ
+  let customSizes = [];
 
+  // ── AI Upscale ────────────────────────────────────────
+  let _libsLoading = null;
+  let _upscaler = null;
+
+  function loadAILibs() {
+    if (_libsLoading) return _libsLoading;
+    _libsLoading = (async () => {
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = src;
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      }
+      await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/upscalerjs@1.0.0-beta.18/dist/browser/umd/upscaler.min.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/@upscalerjs/esrgan-slim@1.0.0-beta.16/dist/browser/umd/2x.min.js');
+    })();
+    return _libsLoading;
+  }
+
+  function loadImageFromSrc(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  async function createOgpWithAI(img, w, h) {
+    // No upscaling needed if source is already large enough
+    if (img.width >= w && img.height >= h) {
+      return createResized(img, w, h);
+    }
+    try {
+      await loadAILibs();
+      if (!_upscaler) {
+        const modelArg = window.ESRGANSlim ? window.ESRGANSlim['2x'] : undefined;
+        _upscaler = new Upscaler(modelArg ? { model: modelArg } : {});
+      }
+      const upscaledSrc = await _upscaler.upscale(img);
+      const upscaledImg = await loadImageFromSrc(upscaledSrc);
+      return createResized(upscaledImg, w, h);
+    } catch (e) {
+      console.warn('AI upscale failed, using standard resize:', e);
+      return createResized(img, w, h);
+    }
+  }
+
+  // ── Format selector ───────────────────────────────────
   function setFormat(f) {
     format = f;
     document.getElementById('btn-png').classList.toggle('active', f === 'png');
@@ -255,7 +340,7 @@
     if (sourceImage) renderAll();
   }
 
-  // Drag & Drop
+  // ── Drag & Drop ───────────────────────────────────────
   const dz = document.getElementById('dropzone');
   dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
   dz.addEventListener('dragleave', () => dz.classList.remove('over'));
@@ -283,31 +368,53 @@
     reader.readAsDataURL(file);
   }
 
-  function renderAll() {
+  // ── Render ────────────────────────────────────────────
+  async function renderAll() {
     const grid = document.getElementById('preview-grid');
     grid.innerHTML = '';
 
-    [...SIZES, ...customSizes].forEach(size => {
-      const canvas = createResized(sourceImage, size.w, size.h);
+    const allSizes = [...SIZES, ...customSizes];
 
+    // Build all cards first (with loading placeholder for AI items)
+    for (const size of allSizes) {
+      const needsAI = size.aiUpscale && (sourceImage.width < size.w || sourceImage.height < size.h);
       const item = document.createElement('div');
       item.className = 'preview-item';
       item.innerHTML = `
         <div class="preview-name">${size.label}${size.forcePng ? ' <span style="font-size:0.7rem;color:#b2bec3;font-weight:400;text-transform:none;">PNG固定</span>' : ''}</div>
         <div class="preview-size">${size.w} × ${size.h}px</div>
-        <div class="preview-canvas-wrap"></div>
+        <div class="preview-canvas-wrap" id="wrap-${size.id}">
+          ${needsAI ? '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AIアップスケール中...</div>' : ''}
+        </div>
         <button class="dl-btn" onclick="downloadSingle('${size.id}')">ダウンロード</button>
       `;
-      item.querySelector('.preview-canvas-wrap').appendChild(canvas);
-      canvas.id = 'canvas-' + size.id;
       grid.appendChild(item);
-    });
+
+      // Render non-AI items immediately
+      if (!needsAI) {
+        const canvas = createResized(sourceImage, size.w, size.h);
+        canvas.id = 'canvas-' + size.id;
+        document.getElementById('wrap-' + size.id).appendChild(canvas);
+      }
+    }
 
     document.getElementById('previews').classList.add('on');
+
+    // Process AI items asynchronously
+    for (const size of allSizes) {
+      if (!size.aiUpscale || sourceImage.width >= size.w && sourceImage.height >= size.h) continue;
+      const canvas = await createOgpWithAI(sourceImage, size.w, size.h);
+      canvas.id = 'canvas-' + size.id;
+      const wrap = document.getElementById('wrap-' + size.id);
+      if (wrap) {
+        wrap.innerHTML = '';
+        wrap.appendChild(canvas);
+      }
+    }
   }
 
   function createResized(img, targetW, targetH) {
-    // アスペクト比を保ちながら中心クロップ
+    // Center-crop to target aspect ratio
     const srcRatio = img.width / img.height;
     const dstRatio = targetW / targetH;
 
@@ -324,7 +431,7 @@
       sy = (img.height - sh) / 2;
     }
 
-    // 多段階ダウンスケールで品質向上（縮小率が2倍以上の場合）
+    // Multi-step downscale for quality (halve until within 2x of target)
     let srcCanvas = document.createElement('canvas');
     srcCanvas.width = sw;
     srcCanvas.height = sh;
@@ -381,15 +488,24 @@
   function getBlob(canvasId, forcePng) {
     return new Promise(resolve => {
       const canvas = document.getElementById(canvasId);
+      if (!canvas) { resolve(null); return; }
       const mimeType = forcePng ? 'image/png' : format === 'webp' ? 'image/webp' : format === 'jpg' ? 'image/jpeg' : 'image/png';
       canvas.toBlob(resolve, mimeType, 0.92);
     });
   }
 
   function downloadSingle(sizeId) {
-    const size = SIZES.find(s => s.id === sizeId);
+    const canvas = document.getElementById('canvas-' + sizeId);
+    if (!canvas) {
+      alert('処理中です。しばらくお待ちください。');
+      return;
+    }
+    const allSizes = [...SIZES, ...customSizes];
+    const size = allSizes.find(s => s.id === sizeId);
+    if (!size) return;
     const ext = size.forcePng ? 'png' : format;
     getBlob('canvas-' + sizeId, size.forcePng).then(blob => {
+      if (!blob) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -401,14 +517,23 @@
 
   async function downloadAll() {
     const btn = document.getElementById('dl-all-btn');
+
+    // Check if any AI item is still processing
+    const allSizes = [...SIZES, ...customSizes];
+    const stillProcessing = allSizes.some(s => !document.getElementById('canvas-' + s.id));
+    if (stillProcessing) {
+      alert('AIアップスケール処理中です。完了後に再度お試しください。');
+      return;
+    }
+
     btn.textContent = '⏳ 生成中...';
     btn.disabled = true;
 
     const zip = new JSZip();
-    for (const size of [...SIZES, ...customSizes]) {
+    for (const size of allSizes) {
       const ext = size.forcePng ? 'png' : format;
       const blob = await getBlob('canvas-' + size.id, size.forcePng);
-      zip.file(`${filename}_${size.w}x${size.h}.${ext}`, blob);
+      if (blob) zip.file(`${filename}_${size.w}x${size.h}.${ext}`, blob);
     }
 
     const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -419,7 +544,7 @@
     a.click();
     URL.revokeObjectURL(url);
 
-    btn.textContent = '📦 3サイズをまとめてダウンロード（ZIP）';
+    btn.textContent = '📦 まとめてダウンロード（ZIP）';
     btn.disabled = false;
   }
 </script>
