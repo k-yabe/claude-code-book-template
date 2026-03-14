@@ -199,9 +199,8 @@
 
     const items = articles.map(a => {
       const n = isNew(a);
-      const dateStr = a.published_date && !/^\d{4}$/.test(a.published_date)
-        ? formatDate(a.published_date)
-        : '公開日不明';
+      const hasDate = a.published_date && !/^\d{4}$/.test(a.published_date);
+      const dateStr = hasDate ? formatDate(a.published_date) : formatDate(a.first_seen);
       return `
         <div class="item${n ? ' is-new' : ''}">
           <div class="item-title">
@@ -257,8 +256,12 @@
       });
       Object.values(groups).forEach(g => {
         g.items.sort((a, b) => {
-          const da = new Date(a.published_date || a.first_seen);
-          const db = new Date(b.published_date || b.first_seen);
+          const aHasDate = a.published_date && !/^\d{4}$/.test(a.published_date);
+          const bHasDate = b.published_date && !/^\d{4}$/.test(b.published_date);
+          if (aHasDate && !bHasDate) return -1;
+          if (!aHasDate && bHasDate) return 1;
+          const da = new Date(aHasDate ? a.published_date : a.first_seen);
+          const db = new Date(bHasDate ? b.published_date : b.first_seen);
           return db - da;
         });
       });
