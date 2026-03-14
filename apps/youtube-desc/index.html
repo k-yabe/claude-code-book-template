@@ -28,8 +28,69 @@
     .back:hover { text-decoration: underline; }
 
     h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
-    .sub { font-size: 0.85rem; color: #636e72; margin-bottom: 32px; }
+    .sub { font-size: 0.85rem; color: #636e72; margin-bottom: 24px; }
 
+    /* API Key setup banner */
+    .setup-banner {
+      background: #fff8e1;
+      border: 2px solid #ffb81c;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+      line-height: 1.7;
+    }
+    .setup-banner strong { display: block; margin-bottom: 6px; font-size: 0.9rem; }
+    .setup-banner a { color: #001f33; }
+    .setup-banner.hidden { display: none; }
+
+    .key-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .key-row input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1.5px solid #dfe6e9;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      outline: none;
+    }
+    .key-row input:focus { border-color: #001f33; }
+    .key-save-btn {
+      padding: 10px 18px;
+      background: #001f33;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .key-save-btn:hover { opacity: 0.85; }
+
+    .key-saved {
+      display: none;
+      font-size: 0.8rem;
+      color: #636e72;
+      text-align: right;
+      margin-bottom: 12px;
+    }
+    .key-saved.on { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+    .key-reset {
+      font-size: 0.78rem;
+      color: #636e72;
+      cursor: pointer;
+      text-decoration: underline;
+      background: none;
+      border: none;
+    }
+    .key-reset:hover { color: #2d3436; }
+
+    /* Card */
     .card {
       background: #fff;
       border: 2px solid #dfe6e9;
@@ -43,14 +104,15 @@
 
     label {
       display: block;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 700;
       margin-bottom: 8px;
+      color: #2d3436;
     }
-    .hint {
-      font-size: 0.8rem;
+    .required {
+      font-size: 0.75rem;
       font-weight: 400;
-      color: #636e72;
+      color: #e17055;
       margin-left: 6px;
     }
 
@@ -70,7 +132,6 @@
     }
     textarea:focus, input[type="text"]:focus { border-color: #001f33; }
 
-
     .generate-btn {
       width: 100%;
       padding: 16px;
@@ -86,30 +147,54 @@
       margin-top: 8px;
     }
     .generate-btn:hover { opacity: 0.85; }
+    .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Step indicator */
-    .step-note {
-      background: #e8f4fd;
-      border: 1.5px solid #b3d9f7;
-      border-radius: 10px;
-      padding: 14px 18px;
-      font-size: 0.85rem;
-      color: #2d6a9f;
-      line-height: 1.7;
+    /* Loading */
+    .loading {
       display: none;
+      text-align: center;
+      padding: 32px;
+      color: #636e72;
+      font-size: 0.9rem;
     }
-    .step-note.on { display: block; }
-    .step-note strong { display: block; margin-bottom: 4px; font-size: 0.88rem; }
+    .loading.on { display: block; }
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 3px solid #dfe6e9;
+      border-top-color: #001f33;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error */
+    .error {
+      display: none;
+      background: #fff5f5;
+      border: 1.5px solid #ff7675;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: #d63031;
+      margin-top: 12px;
+    }
+    .error.on { display: block; }
 
     /* Output */
     .output { display: none; }
     .output.on { display: block; }
 
+    .out-section { margin-bottom: 20px; }
+    .out-section:last-child { margin-bottom: 0; }
+
     .out-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .out-label {
       font-size: 0.82rem;
@@ -118,23 +203,21 @@
       text-transform: uppercase;
       letter-spacing: 0.06em;
     }
-
     .copy-btn {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      color: #fff;
-      background: #001f33;
-      border: none;
-      border-radius: 8px;
-      padding: 6px 16px;
+      color: #001f33;
+      background: #f5f6fa;
+      border: 1.5px solid #dfe6e9;
+      border-radius: 6px;
+      padding: 4px 12px;
       cursor: pointer;
-      transition: opacity 0.15s;
+      transition: all 0.15s;
     }
-    .copy-btn:hover { opacity: 0.8; }
-    .copy-btn.done { background: #00b894; }
+    .copy-btn:hover { background: #001f33; color: #fff; border-color: #001f33; }
+    .copy-btn.done { background: #00b894; color: #fff; border-color: #00b894; }
 
     .out-text {
-      width: 100%;
       padding: 14px 16px;
       border: 1.5px solid #dfe6e9;
       border-radius: 10px;
@@ -146,29 +229,29 @@
       color: #2d3436;
       font-family: inherit;
     }
-
-    .open-claude {
-      display: block;
-      margin-top: 12px;
-      padding: 13px;
-      background: #f5f6fa;
-      border: 2px solid #dfe6e9;
-      border-radius: 10px;
-      text-align: center;
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #001f33;
-      text-decoration: none;
-      transition: all 0.15s;
-    }
-    .open-claude:hover { background: #dfe6e9; }
   </style>
 </head>
 <body>
 <div class="wrap">
   <a class="back" href="../../">← アプリ一覧へ</a>
   <h1>YouTube Description Generator</h1>
-  <p class="sub">動画の内容を入力するとClaude.ai用プロンプトを生成します。コピーしてClaude.aiに貼り付けるだけで完成。</p>
+  <p class="sub">動画情報を入力すると、説明文・タイトル・ハッシュタグを自動生成します</p>
+
+  <!-- API Key setup (shown only when not set) -->
+  <div class="setup-banner" id="setup-banner">
+    <strong>🔑 初回設定：APIキーが必要です</strong>
+    <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> でAPIキーを発行し、下に貼り付けてください。一度設定すれば次回以降は不要です。
+    <div class="key-row">
+      <input type="password" id="api-key-input" placeholder="sk-ant-..." />
+      <button class="key-save-btn" onclick="saveKey()">保存</button>
+    </div>
+  </div>
+
+  <!-- API Key saved indicator -->
+  <div class="key-saved" id="key-saved">
+    ✓ APIキー設定済み
+    <button class="key-reset" onclick="resetKey()">変更する</button>
+  </div>
 
   <!-- Input card -->
   <div class="card">
@@ -178,7 +261,7 @@
     </div>
 
     <div class="field">
-      <label>動画の内容 <span style="color:#e17055; font-weight:400; font-size:0.8rem;">必須</span></label>
+      <label>動画の内容<span class="required">必須</span></label>
       <textarea id="content" rows="8" placeholder="台本・メモ・テーマ・キーワードなど、なんでもOK&#10;&#10;例：&#10;・AIと製造業の未来について話す動画&#10;・ゲスト：○○さん（エンジニア）&#10;・アジャイル開発、デジタルツイン、AIの活用事例を紹介&#10;・視聴者は製造業に関わるビジネスパーソン向け"></textarea>
     </div>
 
@@ -192,106 +275,162 @@
       <textarea id="timestamps" rows="3" placeholder="00:00 イントロ&#10;01:30 AIとは&#10;05:00 まとめ"></textarea>
     </div>
 
-    <button class="generate-btn" onclick="generate()">プロンプトを生成する</button>
+    <button class="generate-btn" id="gen-btn" onclick="generate()">生成する</button>
+    <div class="error" id="error"></div>
   </div>
 
-  <!-- Step note -->
-  <div class="step-note" id="step-note">
-    <strong>① 下のプロンプトをコピー　② Claude.aiに貼り付けて送信</strong>
-    説明文・タイトル・ハッシュタグが生成されます。
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <span class="spinner"></span>生成中...
   </div>
 
   <!-- Output -->
   <div class="card output" id="output">
-    <div class="out-header">
-      <span class="out-label">Claude.ai 用プロンプト</span>
-      <button class="copy-btn" id="copy-btn" onclick="copyPrompt()">コピー</button>
+    <div class="out-section">
+      <div class="out-header">
+        <span class="out-label">タイトル</span>
+        <button class="copy-btn" onclick="copyEl('out-title', this)">コピー</button>
+      </div>
+      <div class="out-text" id="out-title"></div>
     </div>
-    <div class="out-text" id="out-prompt"></div>
-    <a class="open-claude" href="https://claude.ai" target="_blank" rel="noopener">
-      Claude.ai を開く →
-    </a>
+    <div class="out-section">
+      <div class="out-header">
+        <span class="out-label">説明文</span>
+        <button class="copy-btn" onclick="copyEl('out-desc', this)">コピー</button>
+      </div>
+      <div class="out-text" id="out-desc" style="min-height:160px;"></div>
+    </div>
+    <div class="out-section">
+      <div class="out-header">
+        <span class="out-label">ハッシュタグ</span>
+        <button class="copy-btn" onclick="copyEl('out-tags', this)">コピー</button>
+      </div>
+      <div class="out-text" id="out-tags"></div>
+    </div>
   </div>
 </div>
 
 <script>
-const SNS = `▼SNS
-Facebook▶ https://www.facebook.com/akkodisjapan/
-LinkedIn▶ https://www.linkedin.com/company/akkodis
-X▶ https://x.com/AkkodisJapan`;
+  const SNS = `▼SNS\nFacebook▶ https://www.facebook.com/akkodisjapan/\nLinkedIn▶ https://www.linkedin.com/company/akkodis\nX▶ https://x.com/AkkodisJapan`;
 
-  function generate() {
+  // API key management
+  function getKey() { return localStorage.getItem('yt_api_key') || ''; }
+
+  function updateKeyUI() {
+    const key = getKey();
+    document.getElementById('setup-banner').classList.toggle('hidden', !!key);
+    document.getElementById('key-saved').classList.toggle('on', !!key);
+  }
+
+  function saveKey() {
+    const val = document.getElementById('api-key-input').value.trim();
+    if (!val) return;
+    localStorage.setItem('yt_api_key', val);
+    updateKeyUI();
+  }
+
+  function resetKey() {
+    localStorage.removeItem('yt_api_key');
+    document.getElementById('api-key-input').value = '';
+    updateKeyUI();
+  }
+
+  updateKeyUI();
+
+  // Generate
+  async function generate() {
+    const apiKey = getKey();
     const title = document.getElementById('title').value.trim();
     const content = document.getElementById('content').value.trim();
     const links = document.getElementById('links').value.trim();
     const timestamps = document.getElementById('timestamps').value.trim();
 
-    if (!content) {
-      alert('動画の内容を入力してください。');
-      return;
+    const errorEl = document.getElementById('error');
+    const loadingEl = document.getElementById('loading');
+    const outputEl = document.getElementById('output');
+    const btn = document.getElementById('gen-btn');
+
+    errorEl.classList.remove('on');
+
+    if (!apiKey) { showErr('APIキーを設定してください。'); return; }
+    if (!content) { showErr('動画の内容を入力してください。'); return; }
+
+    btn.disabled = true;
+    loadingEl.classList.add('on');
+    outputEl.classList.remove('on');
+
+    let userMsg = '';
+    if (title) userMsg += `【動画タイトル（仮）】\n${title}\n\n`;
+    userMsg += `【動画の内容・メモ】\n${content}\n`;
+    if (links) userMsg += `\n【掲載するリンク（必ず含める。YouTubeは関連動画として、HPは公式リンクとして配置）】\n${links}\n`;
+    if (timestamps) userMsg += `\n【タイムスタンプ（目次として掲載）】\n${timestamps}\n`;
+    userMsg += `\n【SNSリンク（必ず含める）】\n${SNS}`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-opus-4-6',
+          max_tokens: 2048,
+          system: `あなたはAKKODiS JapanのYouTube担当アシスタントです。
+提供された動画情報をもとに、YouTube用のタイトル・説明文・ハッシュタグを日本語で生成してください。
+
+以下のJSON形式のみで回答してください（コードブロック不要）:
+{"title":"タイトル","description":"説明文","hashtags":"#タグ1 #タグ2 #タグ3 #タグ4 #タグ5"}
+
+【説明文の構成】
+1. 冒頭3文：YouTubeで「もっと見る」前に表示される部分。キーワードを含め動画の価値を伝える
+2. 掲載リンク：提供されたリンクを適切に配置
+3. 目次：タイムスタンプが提供された場合のみ「▼目次」として追加
+4. SNSリンク：必ず含める
+5. ハッシュタグ5つ（説明文末尾とhashtagsフィールド両方に記載）`,
+          messages: [{ role: 'user', content: userMsg }],
+        }),
+      });
+
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}));
+        throw new Error(e.error?.message || `エラー: ${res.status}`);
+      }
+
+      const data = await res.json();
+      const raw = data.content?.[0]?.text || '';
+      let parsed;
+      try {
+        const cleaned = raw.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim();
+        parsed = JSON.parse(cleaned);
+      } catch {
+        throw new Error('応答の解析に失敗しました。もう一度お試しください。');
+      }
+
+      document.getElementById('out-title').textContent = parsed.title || '';
+      document.getElementById('out-desc').textContent = parsed.description || '';
+      document.getElementById('out-tags').textContent = parsed.hashtags || '';
+      outputEl.classList.add('on');
+      outputEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch (err) {
+      showErr(err.message);
+    } finally {
+      btn.disabled = false;
+      loadingEl.classList.remove('on');
     }
-
-    let prompt = `あなたはAKKODiS JapanのYouTube担当アシスタントです。
-以下の動画情報をもとに、YouTube用のタイトル・説明文・ハッシュタグを日本語で作成してください。
-`;
-    if (title) {
-      prompt += `
-【動画タイトル（仮）】
-${title}
-`;
-    }
-    prompt += `
-【動画の内容・メモ】
-${content}
-`;
-
-    if (links) {
-      prompt += `
-【説明文に掲載するリンク（必ず含める。YouTubeのURLは関連動画として、HPなどは公式リンクとして適切に配置してください）】
-${links}
-`;
-    }
-
-    if (timestamps) {
-      prompt += `
-【タイムスタンプ（目次として含める）】
-${timestamps}
-`;
-    }
-
-    prompt += `
-【SNSリンク（必ず含める）】
-${SNS}
-
----
-【出力形式】
-以下の3つをそれぞれ出力してください。
-
-■ タイトル
-（SEOを意識した魅力的な動画タイトル）
-
-■ 説明文
-（構成：
- 1. 冒頭3文 ← YouTubeで「もっと見る」前に表示される重要な部分。キーワードを含め動画の価値を伝える
- 2. 掲載リンク（提供されたもの）
- 3. リンク（YouTubeは関連動画、HPなどは公式リンクとして適切に配置）
- 4. 目次（タイムスタンプが提供された場合のみ）
- 5. SNSリンク
- 6. ハッシュタグ5つ）
-
-■ ハッシュタグ
-（動画内容・業界・AKKODiSに関連する5つ）`;
-
-    document.getElementById('out-prompt').textContent = prompt;
-    document.getElementById('output').classList.add('on');
-    document.getElementById('step-note').classList.add('on');
-    document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function copyPrompt() {
-    const text = document.getElementById('out-prompt').textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.getElementById('copy-btn');
+  function showErr(msg) {
+    const el = document.getElementById('error');
+    el.textContent = msg;
+    el.classList.add('on');
+  }
+
+  function copyEl(id, btn) {
+    navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
       btn.textContent = 'コピー済み！';
       btn.classList.add('done');
       setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('done'); }, 2000);
