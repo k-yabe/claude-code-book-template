@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-03-14T04:46:13Z",
+  "last_scraped": "2026-03-14T10:15:34Z",
   "articles": [
     {
       "id": "why-most-ai-pilots-fail",
@@ -56,58 +56,112 @@
       "published_date": "2026-02-18T00:00:00Z"
     },
     {
-      "id": "akkodis-thinkers-and-makers-vol-3-2025",
+      "id": "akkodis-thinkers-and-makers-vol3-2025",
       "title": "Thinkers & Makers Vol.3 2025",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers_and_makers_vol3_2025.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
-      "first_seen": "2026-03-14T04:46:13Z",
-      "published_date": "2025"
+      "published_date": null,
+      "first_seen": "2026-03-14T10:15:00Z"
     },
     {
-      "id": "thinkers-and-makers-vol-2-2025",
+      "id": "thinkers-and-makers-vol2-2025",
       "title": "Thinkers & Makers Vol.2 2025",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol2_2025.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
-      "first_seen": "2026-03-14T04:46:13Z",
-      "published_date": "2025"
+      "published_date": null,
+      "first_seen": "2026-03-14T10:15:00Z"
     },
     {
-      "id": "thinkers-and-makers-vol-1-2025",
+      "id": "thinkers-and-makers-vol1-2025",
       "title": "Thinkers & Makers Vol.1 2025",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol1_2025.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
-      "first_seen": "2026-03-14T04:46:13Z",
-      "published_date": "2025"
+      "published_date": null,
+      "first_seen": "2026-03-14T10:15:00Z"
     },
     {
-      "id": "thinkers-and-makers-vol-3-2024",
-      "title": "Thinkers & Makers Vol.3 2024",
+      "id": "thinkers-and-makers-vol-3---2024",
+      "title": "Thinkers And Makers Vol 3   2024",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-3-_-2024.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
-      "first_seen": "2026-03-14T04:46:13Z",
-      "published_date": "2024"
+      "published_date": null,
+      "first_seen": "2026-03-14T10:15:00Z"
     },
     {
-      "id": "thinkers-and-makers-vol-2-2024",
-      "title": "Thinkers & Makers Vol.2 2024",
+      "id": "thinkers-and-makers-vol-2---2024",
+      "title": "Thinkers And Makers Vol 2   2024",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-2-_-2024.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
-      "first_seen": "2026-03-14T04:46:13Z",
-      "published_date": "2024"
+      "published_date": null,
+      "first_seen": "2026-03-14T10:15:00Z"
     },
     {
-      "id": "thinkers-and-makers-vol-1-2024",
+      "id": "akkodis-thinkers-and-makers-vol-01-2024new",
       "title": "Thinkers & Makers Vol.1 2024",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers-and-makers_vol_01_2024new.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
-      "first_seen": "2026-03-14T04:46:13Z",
-      "published_date": "2024"
+      "published_date": null,
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "integrated-sensor-technology-analytics-platform",
+      "title": "Integrated Sensor Analytics Platform for Fleet Efficiency",
+      "url": "https://www.akkodis.com/en/blog/client-success/integrated-sensor-technology-analytics-platform",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T10:15:03Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "automotive-education-program-adoption",
+      "title": "Automotive Education Program Transformation",
+      "url": "https://www.akkodis.com/en/blog/client-success/automotive-education-program-adoption",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T10:15:05Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "ai-battery-diagnostics-ev-fleets",
+      "title": "AI-Based Charging Solution Enhances Operational Use of Commercial E-Vehicles",
+      "url": "https://www.akkodis.com/en/blog/client-success/ai-battery-diagnostics-ev-fleets",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T10:15:07Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "retail-it-service-desk-modernization",
+      "title": "Modernizing IT Service Desk for Scalable Retail Growth",
+      "url": "https://www.akkodis.com/en/blog/client-success/retail-it-service-desk-modernization",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T10:15:09Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "3m-achieves-efficient-utilization-of-resources-with-akkodis-scalable-client-service-solution",
+      "title": "3M Achieves Efficient Utilization of Resources",
+      "url": "https://www.akkodis.com/en/blog/client-success/3m-achieves-efficient-utilization-of-resources-with-akkodis-scalable-client-service-solution",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T10:15:18Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "pdi-pilots-waste-management-project",
+      "title": "PDI Pilots Sustainable Waste Management Project with Akkodis",
+      "url": "https://www.akkodis.com/en/blog/client-success/pdi-pilots-waste-management-project",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T10:15:26Z",
+      "published_date": "2025-08-06T00:00:00Z"
     }
   ]
 }
