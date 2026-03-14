@@ -220,7 +220,7 @@
     const t = dateType(article);
     if (t === 'full') return formatDate(article.published_date);
     if (t === 'year') return `${article.published_date}年`;
-    return '公開日不明';
+    return formatDate(article.first_seen);
   }
 
   function sortArticles(items) {
