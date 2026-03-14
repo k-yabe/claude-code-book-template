@@ -199,11 +199,9 @@
 
     const items = articles.map(a => {
       const n = isNew(a);
-      const dateStr = a.published_date
-        ? /^\d{4}$/.test(a.published_date)
-          ? formatDate(a.first_seen)
-          : formatDate(a.published_date)
-        : formatDate(a.first_seen);
+      const dateStr = a.published_date && !/^\d{4}$/.test(a.published_date)
+        ? formatDate(a.published_date)
+        : '公開日不明';
       return `
         <div class="item${n ? ' is-new' : ''}">
           <div class="item-title">
