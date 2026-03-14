@@ -274,19 +274,21 @@
     /* Crop preview */
     .crop-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
+    @media (max-width: 600px) { .crop-grid { grid-template-columns: 1fr; } }
     .crop-item {
-      border: 1.5px solid #dfe6e9;
       border-radius: 10px;
       overflow: hidden;
+      border: 2px solid #dfe6e9;
     }
     .crop-item-header {
-      padding: 8px 12px 6px;
+      padding: 8px 12px 7px;
       display: flex;
       align-items: center;
       gap: 6px;
+      border-bottom: 1px solid #f0f2f5;
     }
     .crop-dot {
       width: 10px;
@@ -306,11 +308,13 @@
     }
     .crop-item canvas { width: 100%; height: auto; display: block; }
     .crop-info {
-      padding: 6px 12px 8px;
-      font-size: 0.75rem;
-      color: #636e72;
+      padding: 5px 12px 7px;
+      font-size: 0.76rem;
+      font-weight: 600;
       text-align: center;
     }
+    .crop-info.has-cut  { color: #c0392b; }
+    .crop-info.no-cut   { color: #27ae60; }
   </style>
 </head>
 <body>
@@ -319,9 +323,9 @@
   <h1>Banner Resizer</h1>
   <p class="sub">1枚の画像をアップロードするだけで、用途別の3サイズを一括生成します。</p>
   <div class="size-chips">
-    <span class="size-chip"><span class="size-chip-dot" style="background:#0984e3"></span>OGP <small>1200×630 / PNG固定</small></span>
-    <span class="size-chip"><span class="size-chip-dot" style="background:#00b894"></span>バナー（MV） <small>800×446</small></span>
-    <span class="size-chip"><span class="size-chip-dot" style="background:#e17055"></span>一覧（index） <small>350×200</small></span>
+    <span class="size-chip"><span class="size-chip-dot" style="background:#1C304B"></span>OGP <small>1200×630 / PNG固定</small></span>
+    <span class="size-chip"><span class="size-chip-dot" style="background:#ffb81c"></span>バナー（MV） <small>800×446</small></span>
+    <span class="size-chip"><span class="size-chip-dot" style="background:#3d7ab5"></span>一覧（index） <small>350×200</small></span>
   </div>
   <div class="recommend-note">💡 <strong>推奨アップロードサイズ：1200×669px</strong>　全サイズのトリミングを最小化できます</div>
 
@@ -472,7 +476,7 @@
   }
 
   // ── Crop Preview ──────────────────────────────────────
-  const CROP_COLORS = { ogp: '#0984e3', banner: '#00b894', list: '#e17055' };
+  const CROP_COLORS = { ogp: '#1C304B', banner: '#ffb81c', list: '#3d7ab5' };
 
   function getCropRect(imgW, imgH, targetW, targetH) {
     const srcRatio = imgW / imgH;
@@ -488,59 +492,119 @@
     return { sx, sy, sw, sh };
   }
 
+  function drawRoundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
   function renderCropPreview(img) {
     const grid = document.getElementById('crop-grid');
     grid.innerHTML = '';
-    const PREVIEW_W = 200;
-    const PREVIEW_H = 130;
+    const CW = 600, CH = 340;
 
-    // Fit source image into fixed canvas (letterbox)
-    const fitScale = Math.min(PREVIEW_W / img.width, PREVIEW_H / img.height);
+    const fitScale = Math.min(CW / img.width, CH / img.height);
     const fitW = img.width * fitScale;
     const fitH = img.height * fitScale;
-    const fitX = (PREVIEW_W - fitW) / 2;
-    const fitY = (PREVIEW_H - fitH) / 2;
+    const fitX = (CW - fitW) / 2;
+    const fitY = (CH - fitH) / 2;
+
+    // Diagonal stripe pattern for cut areas
+    const stripeCanvas = document.createElement('canvas');
+    stripeCanvas.width = 10; stripeCanvas.height = 10;
+    const sc = stripeCanvas.getContext('2d');
+    sc.strokeStyle = 'rgba(255,255,255,0.12)';
+    sc.lineWidth = 2;
+    [[-2,2,8,-2],[0,10,10,0],[8,12,12,8]].forEach(([x1,y1,x2,y2]) => {
+      sc.beginPath(); sc.moveTo(x1,y1); sc.lineTo(x2,y2); sc.stroke();
+    });
 
     for (const size of SIZES) {
       const color = CROP_COLORS[size.id] || '#636e72';
+      const badgeTextColor = color === '#ffb81c' ? '#1C304B' : '#fff';
       const { sx, sy, sw, sh } = getCropRect(img.width, img.height, size.w, size.h);
       const cutX = Math.round((img.width - sw) / 2);
       const cutY = Math.round((img.height - sh) / 2);
+      const hasCut = cutX > 0 || cutY > 0;
       const cropInfo = cutX > 0 ? `左右各 ${cutX}px カット`
                      : cutY > 0 ? `上下各 ${cutY}px カット`
                      : 'トリミングなし';
 
       const canvas = document.createElement('canvas');
-      canvas.width = PREVIEW_W;
-      canvas.height = PREVIEW_H;
+      canvas.width = CW; canvas.height = CH;
       const ctx = canvas.getContext('2d');
 
-      // Background
-      ctx.fillStyle = '#e0e0e0';
-      ctx.fillRect(0, 0, PREVIEW_W, PREVIEW_H);
-
-      // Source image fitted
+      // Background + image
+      ctx.fillStyle = '#c8cdd4';
+      ctx.fillRect(0, 0, CW, CH);
       ctx.drawImage(img, fitX, fitY, fitW, fitH);
 
-      // Crop rect in canvas coords
       const cx = fitX + sx * fitScale;
       const cy = fitY + sy * fitScale;
       const cw = sw * fitScale;
       const ch = sh * fitScale;
 
-      // Dark overlay outside crop (within image area only)
-      ctx.fillStyle = 'rgba(0,0,0,0.45)';
-      if (cx > fitX)                 ctx.fillRect(fitX, fitY, cx - fitX, fitH);
-      if (cx + cw < fitX + fitW)     ctx.fillRect(cx + cw, fitY, (fitX + fitW) - (cx + cw), fitH);
-      if (cy > fitY)                 ctx.fillRect(cx, fitY, cw, cy - fitY);
-      if (cy + ch < fitY + fitH)     ctx.fillRect(cx, cy + ch, cw, (fitY + fitH) - (cy + ch));
+      // Cut areas: dark overlay + stripe
+      const cuts = [
+        cx > fitX             ? [fitX, fitY, cx - fitX, fitH] : null,
+        cx + cw < fitX + fitW ? [cx + cw, fitY, (fitX + fitW) - (cx + cw), fitH] : null,
+        cy > fitY             ? [cx, fitY, cw, cy - fitY] : null,
+        cy + ch < fitY + fitH ? [cx, cy + ch, cw, (fitY + fitH) - (cy + ch)] : null,
+      ].filter(Boolean);
 
+      ctx.fillStyle = 'rgba(0,0,0,0.58)';
+      cuts.forEach(r => ctx.fillRect(...r));
+      ctx.fillStyle = ctx.createPattern(stripeCanvas, 'repeat');
+      cuts.forEach(r => ctx.fillRect(...r));
+
+      // Cut amount labels on the image
+      if (hasCut) {
+        ctx.font = 'bold 13px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const positions = cutX > 0
+          ? [[(fitX + cx) / 2, CH / 2], [cx + cw + ((fitX + fitW) - (cx + cw)) / 2, CH / 2]]
+          : [[(CW) / 2, (fitY + cy) / 2], [(CW) / 2, cy + ch + ((fitY + fitH) - (cy + ch)) / 2]];
+        const labelText = `${cutX > 0 ? cutX : cutY}px`;
+        positions.forEach(([lx, ly]) => {
+          const tw = ctx.measureText(labelText).width;
+          ctx.fillStyle = 'rgba(0,0,0,0.65)';
+          drawRoundRect(ctx, lx - tw/2 - 8, ly - 11, tw + 16, 22, 5);
+          ctx.fill();
+          ctx.fillStyle = '#fff';
+          ctx.fillText(labelText, lx, ly);
+        });
+      }
+
+      // Crop border
       ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(cx + 1, cy + 1, cw - 2, ch - 2);
+      ctx.lineWidth = 3;
+      ctx.strokeRect(cx + 1.5, cy + 1.5, cw - 3, ch - 3);
+
+      // Size badge inside crop area (top-left)
+      const badgeText = `${size.w}×${size.h}`;
+      ctx.font = 'bold 12px system-ui, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      const bw = ctx.measureText(badgeText).width + 14;
+      const bh = 20, bx = cx + 7, by = cy + 7;
+      ctx.fillStyle = color;
+      drawRoundRect(ctx, bx, by, bw, bh, 4);
+      ctx.fill();
+      ctx.fillStyle = badgeTextColor;
+      ctx.fillText(badgeText, bx + 7, by + bh / 2);
 
       const item = document.createElement('div');
       item.className = 'crop-item';
+      item.style.borderColor = color;
       item.innerHTML = `
         <div class="crop-item-header">
           <span class="crop-dot" style="background:${color}"></span>
@@ -550,8 +614,8 @@
       `;
       item.appendChild(canvas);
       const infoEl = document.createElement('div');
-      infoEl.className = 'crop-info';
-      infoEl.textContent = cropInfo;
+      infoEl.className = `crop-info ${hasCut ? 'has-cut' : 'no-cut'}`;
+      infoEl.textContent = hasCut ? `⚠ ${cropInfo}` : `✓ ${cropInfo}`;
       item.appendChild(infoEl);
       grid.appendChild(item);
     }
