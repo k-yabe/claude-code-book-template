@@ -75,6 +75,13 @@
       border: 2px solid #dfe6e9;
       border-radius: 14px;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .col-body {
+      overflow-y: auto;
+      max-height: 480px;
     }
 
     .col-header {
@@ -184,7 +191,7 @@
   function formatDate(iso) {
     if (!iso) return '';
     const d = new Date(iso);
-    return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric' });
+    return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' });
   }
 
   function renderColumn(label, articles) {
@@ -219,7 +226,9 @@
           <span class="col-label">${label}</span>
           <span class="col-count">${countHtml}</span>
         </div>
-        ${items || '<div class="empty">記事なし</div>'}
+        <div class="col-body">
+          ${items || '<div class="empty">記事なし</div>'}
+        </div>
       </div>`;
   }
 
