@@ -96,26 +96,29 @@ def scrape_thinkers(page, source: dict) -> list[dict]:
     page.goto(source["url"], wait_until="networkidle", timeout=30000)
     articles = []
 
-    links = page.query_selector_all("a[href*='.pdf']")
+    # thinkers-and-makers ドキュメントのみ対象（フッター等の無関係なPDFを除外）
+    links = page.query_selector_all("a[href*='thinkers']")
     seen = set()
     for link in links:
         href = link.get_attribute("href") or ""
-        if not href or href in seen:
+        if not href.endswith(".pdf") or href in seen:
             continue
         seen.add(href)
 
         url = href if href.startswith("http") else f"https://www.akkodis.com{href}"
-        title = link.inner_text().strip()
-        if not title:
-            # 親要素からタイトルを探す
-            parent = link.evaluate_handle("el => el.closest('section, article, div')")
-            title = parent.query_selector("h2, h3")
-            title = title.inner_text().strip() if title else href.split("/")[-1]
 
-        slug = re.sub(r"[^a-z0-9-]", "", href.split("/")[-1].replace(".pdf", "").lower())
+        # ファイル名からタイトルを生成（例: thinkers_and_makers_vol3_2025.pdf → Thinkers & Makers Vol.3 2025）
+        filename = href.split("/")[-1].replace(".pdf", "")
+        m = re.search(r"vol[_-]?0*(\d+)[_-]?(\d{4})", filename, re.IGNORECASE)
+        if m:
+            title = f"Thinkers & Makers Vol.{m.group(1)} {m.group(2)}"
+        else:
+            title = filename.replace("_", " ").replace("-", " ").title()
+
+        slug = re.sub(r"[^a-z0-9-]", "-", filename.lower()).strip("-")
         articles.append({
             "id": slug,
-            "title": title if isinstance(title, str) else slug,
+            "title": title,
             "url": url,
             "source_id": source["id"],
             "source_label": source["label"],

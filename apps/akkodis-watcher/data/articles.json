@@ -8,7 +8,7 @@
       "source_id": "blog",
       "source_label": "Akkodis Blog",
       "first_seen": "2026-03-14T04:44:28Z",
-      "published_date": null
+      "published_date": "2026-02-18T00:00:00Z"
     },
     {
       "id": "federated-learning-ai-scalability",
@@ -56,8 +56,8 @@
       "published_date": "2026-02-18T00:00:00Z"
     },
     {
-      "id": "akkodis-thinkersandmakersvol32025",
-      "title": "download\nDownload",
+      "id": "akkodis-thinkers-and-makers-vol-3-2025",
+      "title": "Thinkers & Makers Vol.3 2025",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers_and_makers_vol3_2025.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
@@ -65,8 +65,8 @@
       "published_date": null
     },
     {
-      "id": "thinkersandmakersvol22025",
-      "title": "download\nDownload",
+      "id": "thinkers-and-makers-vol-2-2025",
+      "title": "Thinkers & Makers Vol.2 2025",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol2_2025.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
@@ -74,8 +74,8 @@
       "published_date": null
     },
     {
-      "id": "thinkersandmakersvol12025",
-      "title": "download\nDownload",
+      "id": "thinkers-and-makers-vol-1-2025",
+      "title": "Thinkers & Makers Vol.1 2025",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol1_2025.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
@@ -83,8 +83,8 @@
       "published_date": null
     },
     {
-      "id": "thinkers-and-makers-vol-3--2024",
-      "title": "download\nDownload",
+      "id": "thinkers-and-makers-vol-3-2024",
+      "title": "Thinkers & Makers Vol.3 2024",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-3-_-2024.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
@@ -92,8 +92,8 @@
       "published_date": null
     },
     {
-      "id": "thinkers-and-makers-vol-2--2024",
-      "title": "download\nDownload",
+      "id": "thinkers-and-makers-vol-2-2024",
+      "title": "Thinkers & Makers Vol.2 2024",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-2-_-2024.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
@@ -101,18 +101,9 @@
       "published_date": null
     },
     {
-      "id": "akkodis-thinkers-and-makersvol012024new",
-      "title": "download\nDownload",
+      "id": "thinkers-and-makers-vol-1-2024",
+      "title": "Thinkers & Makers Vol.1 2024",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers-and-makers_vol_01_2024new.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "first_seen": "2026-03-14T04:46:13Z",
-      "published_date": null
-    },
-    {
-      "id": "2024-0194-tag-tag-manifesto-v3-1",
-      "title": "TAG Manifesto",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/2024-0194-tag-tag-manifesto-v3-1.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
       "first_seen": "2026-03-14T04:46:13Z",
