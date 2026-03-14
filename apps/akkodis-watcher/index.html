@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AKKODiS ウォッチャー</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #f5f6fa;
+      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      color: #2d3436;
+      min-height: 100vh;
+      padding: 40px 16px;
+    }
+
+    .header {
+      max-width: 860px;
+      margin: 0 auto 32px;
+    }
+
+    .header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .meta {
+      font-size: 0.85rem;
+      color: #636e72;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .badge-new {
+      display: inline-block;
+      background: #e17055;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+
+    .section {
+      max-width: 860px;
+      margin: 0 auto 40px;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #636e72;
+      border-bottom: 2px solid #dfe6e9;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title .count {
+      font-size: 0.8rem;
+      background: #dfe6e9;
+      border-radius: 99px;
+      padding: 2px 8px;
+    }
+
+    .card {
+      background: #fff;
+      border: 2px solid #dfe6e9;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      transition: all 0.15s;
+    }
+
+    .card:hover {
+      border-color: #6c5ce7;
+      box-shadow: 0 4px 16px rgba(108,92,231,0.1);
+    }
+
+    .card.is-new {
+      border-color: #e17055;
+      background: #fff8f7;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .card-title a {
+      color: #2d3436;
+      text-decoration: none;
+    }
+
+    .card-title a:hover { text-decoration: underline; }
+
+    .card-meta {
+      font-size: 0.78rem;
+      color: #636e72;
+    }
+
+    .empty {
+      text-align: center;
+      color: #636e72;
+      padding: 40px;
+      font-size: 0.9rem;
+    }
+
+    .back {
+      display: inline-block;
+      margin-bottom: 24px;
+      font-size: 0.85rem;
+      color: #6c5ce7;
+      text-decoration: none;
+    }
+    .back:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <a class="back" href="../../">← アプリ一覧へ</a>
+    <h1>AKKODiS ウォッチャー</h1>
+    <div class="meta">
+      <span id="last-scraped">読み込み中...</span>
+      <span id="new-count"></span>
+    </div>
+  </div>
+
+  <div id="content"></div>
+
+  <script>
+    const NEW_DAYS = 7; // 何日以内を NEW とみなすか
+
+    function isNew(firstSeen) {
+      if (!firstSeen) return false;
+      const diff = Date.now() - new Date(firstSeen).getTime();
+      return diff < NEW_DAYS * 24 * 60 * 60 * 1000;
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '不明';
+      const d = new Date(iso);
+      return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function renderSection(label, articles) {
+      if (articles.length === 0) return '';
+      const newCount = articles.filter(a => isNew(a.first_seen)).length;
+      const cards = articles.map(a => {
+        const n = isNew(a.first_seen);
+        return `
+          <div class="card${n ? ' is-new' : ''}">
+            <div class="card-title">
+              <a href="${a.url}" target="_blank" rel="noopener">${a.title}</a>
+              ${n ? '<span class="badge-new">NEW</span>' : ''}
+            </div>
+            <div class="card-meta">初回確認: ${formatDate(a.first_seen)}</div>
+          </div>`;
+      }).join('');
+
+      return `
+        <div class="section">
+          <div class="section-title">
+            ${label}
+            <span class="count">${articles.length} 件${newCount > 0 ? ` / NEW ${newCount}` : ''}</span>
+          </div>
+          ${cards}
+        </div>`;
+    }
+
+    fetch('data/articles.json')
+      .then(r => r.json())
+      .then(data => {
+        // 最終スクレイピング日時
+        document.getElementById('last-scraped').textContent =
+          data.last_scraped
+            ? `最終更新: ${formatDate(data.last_scraped)}`
+            : '未スクレイピング（GitHub Actions が初回実行されるまでお待ちください）';
+
+        const articles = data.articles || [];
+        const totalNew = articles.filter(a => isNew(a.first_seen)).length;
+        if (totalNew > 0) {
+          document.getElementById('new-count').textContent = `NEW ${totalNew} 件`;
+        }
+
+        if (articles.length === 0) {
+          document.getElementById('content').innerHTML =
+            '<div class="empty">記事データがありません。GitHub Actions が実行されると自動で更新されます。</div>';
+          return;
+        }
+
+        // source_id ごとにグループ化
+        const groups = {};
+        articles.forEach(a => {
+          const key = a.source_id;
+          if (!groups[key]) groups[key] = { label: a.source_label, items: [] };
+          groups[key].items.push(a);
+        });
+
+        document.getElementById('content').innerHTML =
+          Object.values(groups).map(g => renderSection(g.label, g.items)).join('');
+      })
+      .catch(() => {
+        document.getElementById('last-scraped').textContent = 'データ読み込みエラー';
+      });
+  </script>
+</body>
+</html>
