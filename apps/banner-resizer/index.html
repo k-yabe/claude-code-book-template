@@ -210,9 +210,9 @@
 
     <div class="format-row">
       <span class="format-label">出力形式：</span>
-      <button class="format-btn active" id="btn-png" onclick="setFormat('png')">PNG</button>
+      <button class="format-btn active" id="btn-webp" onclick="setFormat('webp')">WebP</button>
+      <button class="format-btn" id="btn-png" onclick="setFormat('png')">PNG</button>
       <button class="format-btn" id="btn-jpg" onclick="setFormat('jpg')">JPG</button>
-      <button class="format-btn" id="btn-webp" onclick="setFormat('webp')">WebP</button>
     </div>
   </div>
 
@@ -242,7 +242,7 @@
     { id: 'list',   label: '一覧（index）', w: 350,  h: 200 },
   ];
 
-  let format = 'png';
+  let format = 'webp';
   let sourceImage = null;
   let filename = 'banner';
   let customSizes = []; // ユーザー追加サイズ
