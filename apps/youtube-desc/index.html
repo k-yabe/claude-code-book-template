@@ -50,6 +50,25 @@
     }
     .required { font-size: 0.75rem; font-weight: 400; color: #e17055; margin-left: 6px; }
 
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+    .section-label.req { background: #ffeaea; color: #c0392b; }
+    .section-label.opt { background: #f0f0f0; color: #636e72; }
+
+    .divider {
+      border: none;
+      border-top: 2px solid #f0f0f0;
+      margin: 24px 0;
+    }
+
     textarea, input[type="text"] {
       width: 100%;
       padding: 12px 14px;
@@ -192,15 +211,20 @@
   <p class="sub">動画情報を入力すると、説明文・タイトル・ハッシュタグを自動生成します</p>
 
   <div class="card">
+    <div class="section-label req">必須</div>
+
     <div class="field">
       <label>動画タイトル</label>
       <input type="text" id="title" placeholder="例：AIがものづくりを変える：アジャイル開発の最前線" />
     </div>
 
     <div class="field">
-      <label>動画の内容<span class="required">必須</span></label>
+      <label>動画の内容</label>
       <textarea id="content" rows="8" placeholder="台本・メモ・テーマ・キーワードなど、なんでもOK&#10;&#10;例：&#10;・AIと製造業の未来について話す動画&#10;・ゲスト：○○さん（エンジニア）&#10;・アジャイル開発、デジタルツイン、AIの活用事例を紹介&#10;・視聴者は製造業に関わるビジネスパーソン向け"></textarea>
     </div>
+
+    <hr class="divider">
+    <div class="section-label opt">任意</div>
 
     <div class="field">
       <label>掲載するリンク</label>
@@ -273,6 +297,7 @@
     const btn = document.getElementById('gen-btn');
 
     errorEl.classList.remove('on');
+    if (!title) { showErr('動画タイトルを入力してください。'); return; }
     if (!content) { showErr('動画の内容を入力してください。'); return; }
 
     btn.disabled = true;
