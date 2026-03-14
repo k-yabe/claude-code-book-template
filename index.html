@@ -3,30 +3,143 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>アプリ一覧</title>
+  <title>AKKODiS Marketing Portal</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #f5f6fa;
       font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
       color: #2d3436;
+      min-height: 100vh;
+    }
+
+    /* ── ログイン画面 ── */
+    #login-screen {
+      background: #071428;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 400px;
+      padding: 0 8px;
+    }
+
+    .login-logo {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #f5c400;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    .login-logo span { color: #fff; }
+
+    .login-division {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #071428;
+      background: #f5c400;
+      padding: 3px 10px;
+      border-radius: 2px;
+      margin-bottom: 40px;
+    }
+
+    .login-box h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .login-tagline {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 28px;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 4px;
+      font-size: 0.95rem;
+      color: #fff;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .login-box input::placeholder { color: rgba(255,255,255,0.3); }
+    .login-box input:focus {
+      border-color: #f5c400;
+      background: rgba(255,255,255,0.09);
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 14px;
+      background: #f5c400;
+      color: #071428;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .login-box button:hover { opacity: 0.88; }
+    .login-box button:active { transform: scale(0.98); }
+
+    .login-error {
+      font-size: 0.8rem;
+      color: #ff7675;
+      margin-top: 10px;
+      min-height: 1.2em;
+    }
+
+    /* ── アプリ一覧 ── */
+    #app-screen {
+      display: none;
+      background: #f5f6fa;
       min-height: 100vh;
       padding: 40px 16px;
     }
 
-    h1 {
-      text-align: center;
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 8px;
+    .portal-header {
+      max-width: 800px;
+      margin: 0 auto 36px;
     }
 
-    .subtitle {
-      text-align: center;
-      font-size: 0.9rem;
+    .portal-logo {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #071428;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .portal-logo span { color: #f5c400; }
+
+    .portal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .portal-sub {
+      font-size: 0.85rem;
       color: #636e72;
-      margin-bottom: 40px;
     }
 
     .grid {
@@ -50,126 +163,49 @@
     }
 
     a.card:hover {
-      border-color: #6c5ce7;
+      border-color: #f5c400;
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(108,92,231,0.12);
+      box-shadow: 0 8px 24px rgba(245,196,0,0.15);
     }
 
-    .card-icon {
-      font-size: 2.4rem;
-      margin-bottom: 12px;
-    }
-
-    .card-name {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .card-desc {
-      font-size: 0.8rem;
-      color: #636e72;
-      line-height: 1.5;
-    }
-
-    /* ログイン画面 */
-    #login-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px;
-    }
-
-    #login-screen h1 {
-      margin-bottom: 8px;
-    }
-
-    #login-screen .subtitle {
-      margin-bottom: 32px;
-    }
-
-    .login-box {
-      background: #fff;
-      border: 2px solid #dfe6e9;
-      border-radius: 16px;
-      padding: 32px;
-      width: 100%;
-      max-width: 360px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .login-box input {
-      padding: 12px 16px;
-      font-size: 1rem;
-      border: 2px solid #dfe6e9;
-      border-radius: 10px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .login-box input:focus {
-      border-color: #6c5ce7;
-    }
-
-    .login-box button {
-      padding: 12px;
-      font-size: 1rem;
-      font-weight: 700;
-      color: #fff;
-      background: #6c5ce7;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .login-box button:hover {
-      background: #5a4bd1;
-    }
-
-    .login-error {
-      font-size: 0.85rem;
-      color: #d63031;
-      text-align: center;
-      min-height: 1.2em;
-    }
-
-    #app-screen { display: none; }
+    .card-icon { font-size: 2.4rem; margin-bottom: 12px; }
+    .card-name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .card-desc { font-size: 0.8rem; color: #636e72; line-height: 1.5; }
   </style>
 </head>
 <body>
 
   <!-- ログイン画面 -->
   <div id="login-screen">
-    <h1>アプリ一覧</h1>
-    <p class="subtitle">パスワードを入力してください</p>
     <div class="login-box">
-      <input type="password" id="pw-input" placeholder="パスワード" />
-      <button id="pw-btn">ログイン</button>
+      <div class="login-logo">AKKOD<span>i</span>S</div>
+      <div class="login-division">Marketing — Internal Portal</div>
+      <h2>ようこそ</h2>
+      <p class="login-tagline">マーケティング部専用ポータル</p>
+      <input type="password" id="pw-input" placeholder="Password" />
+      <button id="pw-btn">Sign In</button>
       <div class="login-error" id="pw-error"></div>
     </div>
   </div>
 
   <!-- アプリ一覧（認証後に表示） -->
   <div id="app-screen">
-  <h1>アプリ一覧</h1>
-  <p class="subtitle">使いたいアプリを選んでください</p>
-
-  <div class="grid">
-    <a class="card" href="apps/akkodis-watcher/">
-      <div class="card-icon">📡</div>
-      <div class="card-name">AKKODiS Global Antenna</div>
-      <div class="card-desc">AKKODiSサイトの新着記事を毎日チェック</div>
-    </a>
-  </div>
+    <div class="portal-header">
+      <div class="portal-logo">AKKOD<span>i</span>S</div>
+      <div class="portal-title">Marketing Portal</div>
+      <p class="portal-sub">使いたいアプリを選んでください</p>
+    </div>
+    <div class="grid">
+      <a class="card" href="apps/akkodis-watcher/">
+        <div class="card-icon">📡</div>
+        <div class="card-name">Global Antenna</div>
+        <div class="card-desc">AKKODiSグローバルサイトの新着記事を毎日チェック</div>
+      </a>
+    </div>
   </div>
 
   <script>
-    const PASSWORD = 'yabe';
+    const PASSWORD = 'marketing';
     const loginScreen = document.getElementById('login-screen');
     const appScreen   = document.getElementById('app-screen');
     const pwInput     = document.getElementById('pw-input');
@@ -181,7 +217,6 @@
       appScreen.style.display   = 'block';
     }
 
-    // セッション中はスキップ
     if (sessionStorage.getItem('auth') === '1') showApp();
 
     function tryLogin() {
