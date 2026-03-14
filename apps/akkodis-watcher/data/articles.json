@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-03-14T12:17:37Z",
+  "last_scraped": "2026-03-14T12:22:06Z",
   "articles": [
     {
       "id": "why-most-ai-pilots-fail",
@@ -317,6 +317,51 @@
       "published_date": "2025-03-27T00:00:00Z"
     },
     {
+      "id": "data-analytics-solutions-help-client-achieve-ag-tech-breakthroughs",
+      "title": "Data Analytics Solutions for AgTech Breakthrough",
+      "url": "https://www.akkodis.com/en/blog/client-success/data-analytics-solutions-help-client-achieve-ag-tech-breakthroughs",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:19:40Z",
+      "published_date": null
+    },
+    {
+      "id": "software-defined-vehicle-program",
+      "title": "Akkodis Reinforces Software-Defined Vehicle Program",
+      "url": "https://www.akkodis.com/en/blog/client-success/software-defined-vehicle-program",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:19:47Z",
+      "published_date": null
+    },
+    {
+      "id": "akkodis-optimizes-operational-use-of-commercial-e-vehicles",
+      "title": "Akkodis Research Develops AI-Based Charging Solution",
+      "url": "https://www.akkodis.com/en/blog/client-success/akkodis-optimizes-operational-use-of-commercial-e-vehicles",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:19:53Z",
+      "published_date": null
+    },
+    {
+      "id": "european-grid-operator-improves-power-transmission-services",
+      "title": "EU Grid Operator Improves Power Transmission Services",
+      "url": "https://www.akkodis.com/en/blog/client-success/european-grid-operator-improves-power-transmission-services",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:19:56Z",
+      "published_date": null
+    },
+    {
+      "id": "law-enforcement-bringing-positive-community-change-with-yarning",
+      "title": "Law Enforcement - Bringing positive community change with Yarning",
+      "url": "https://www.akkodis.com/en/blog/client-success/law-enforcement-bringing-positive-community-change-with-yarning",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:19:58Z",
+      "published_date": null
+    },
+    {
       "id": "akkodis-drives-insights-from-data-at-speed-to-empower-police-investigators-solve-crime-faster",
       "title": "Akkodis Empowers Police Investigators to Solve Crime Faster",
       "url": "https://www.akkodis.com/en/blog/client-success/akkodis-drives-insights-from-data-at-speed-to-empower-police-investigators-solve-crime-faster",
@@ -324,6 +369,186 @@
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:16:52Z",
       "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "akkodis-deploys-salesforce-net-zero-cloud-solution-to-enhance-clients-efficiency-of-carbon-reduction",
+      "title": "Akkodis Deploys Salesforce Net Zero Cloud Solution to Enhance Client’s Efficiency of Carbon Reduction",
+      "url": "https://www.akkodis.com/en/blog/client-success/akkodis-deploys-salesforce-net-zero-cloud-solution-to-enhance-clients-efficiency-of-carbon-reduction",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:20:04Z",
+      "published_date": null
+    },
+    {
+      "id": "automotive-company-speeds-up-education-programs-adoption",
+      "title": "Automotive Company’s Speeds Up Education Programs Adoption",
+      "url": "https://www.akkodis.com/en/blog/client-success/automotive-company-speeds-up-education-programs-adoption",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:20:11Z",
+      "published_date": null
+    },
+    {
+      "id": "crypto-gin-reimagines-nft-ownership",
+      "title": "Crypto-Gin Reimagines NFT Ownership with Akkodis’ DLT",
+      "url": "https://www.akkodis.com/en/blog/client-success/crypto-gin-reimagines-nft-ownership",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:20:18Z",
+      "published_date": null
+    },
+    {
+      "id": "life-sciences-and-healthcare-group-advances-customer-experience",
+      "title": "Life Sciences & Healthcare Group Advances Customer Experience",
+      "url": "https://www.akkodis.com/en/blog/client-success/life-sciences-and-healthcare-group-advances-customer-experience",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:20:23Z",
+      "published_date": null
+    },
+    {
+      "id": "akkodis-strategic-partner-of-choice-for-standard-life-talent-and-service-desk-management",
+      "title": "Akkodis - Strategic Partner of Choice for Standard Life",
+      "url": "https://www.akkodis.com/en/blog/client-success/akkodis-strategic-partner-of-choice-for-standard-life-talent-and-service-desk-management",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:20:30Z",
+      "published_date": null
+    },
+    {
+      "id": "japanese-automotive-manufacturer-employs-automation-tool",
+      "title": "Japanese Automotive Manufacturer Employs Automation Tool",
+      "url": "https://www.akkodis.com/en/blog/client-success/japanese-automotive-manufacturer-employs-automation-tool",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:20:32Z",
+      "published_date": null
+    },
+    {
+      "id": "akkodis-pioneers-energy-transformation-in-australia",
+      "title": "Akkodis pioneers energy transformation in Australia",
+      "url": "https://www.akkodis.com/en/blog/client-success/akkodis-pioneers-energy-transformation-in-australia",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:20:38Z",
+      "published_date": null
+    },
+    {
+      "id": "leading-aerospace-manufacturer-expands-business-development-opportunities",
+      "title": "Aerospace Manufacturer Expands Business Opportunities",
+      "url": "https://www.akkodis.com/en/blog/client-success/leading-aerospace-manufacturer-expands-business-development-opportunities",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:20:44Z",
+      "published_date": null
+    },
+    {
+      "id": "education-organization-makes-better-technology-and-learning-decisions-with-akkodis-analytics-tool",
+      "title": "Education Organization - Better Tech & Learning Decisions",
+      "url": "https://www.akkodis.com/en/blog/client-success/education-organization-makes-better-technology-and-learning-decisions-with-akkodis-analytics-tool",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:20:46Z",
+      "published_date": null
+    },
+    {
+      "id": "jury-management-service-for-court-services-victoria",
+      "title": "Jury Management Service for Court Services Victoria",
+      "url": "https://www.akkodis.com/en/blog/client-success/jury-management-service-for-court-services-victoria",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:20:53Z",
+      "published_date": null
+    },
+    {
+      "id": "client-drives-productivity-and-customer-experience",
+      "title": "Client Drives Productivity and Customer Experience",
+      "url": "https://www.akkodis.com/en/blog/client-success/client-drives-productivity-and-customer-experience",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:21:01Z",
+      "published_date": null
+    },
+    {
+      "id": "akkodis-supports-bmw-senior-experts-program",
+      "title": "Akkodis supports BMW’s Senior Experts Program",
+      "url": "https://www.akkodis.com/en/blog/client-success/akkodis-supports-bmw-senior-experts-program",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:21:08Z",
+      "published_date": null
+    },
+    {
+      "id": "akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
+      "title": "Akkodis Delivers Cost Efficiencies in EE’s SD Management",
+      "url": "https://www.akkodis.com/en/blog/client-success/akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:21:17Z",
+      "published_date": null
+    },
+    {
+      "id": "state-utility-regional-power-compliance",
+      "title": "Enhancing State Utility Regional Power Compliance",
+      "url": "https://www.akkodis.com/en/blog/client-success/state-utility-regional-power-compliance",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:21:23Z",
+      "published_date": null
+    },
+    {
+      "id": "world-leading-automotive-supplier-transforms-talent-skills",
+      "title": "World Leading Automotive Supplier Transforms Talent Skills",
+      "url": "https://www.akkodis.com/en/blog/client-success/world-leading-automotive-supplier-transforms-talent-skills",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:21:33Z",
+      "published_date": null
+    },
+    {
+      "id": "continuous-integration-for-the-department-of-transport-on-demand-transport-platform",
+      "title": "Continuous Integration and Delivery pipeline for the Department of Transport’s On-Demand Transport platform",
+      "url": "https://www.akkodis.com/en/blog/client-success/continuous-integration-for-the-department-of-transport-on-demand-transport-platform",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:21:40Z",
+      "published_date": null
+    },
+    {
+      "id": "inserm-consolidates-and-modernizes-applications-to-optimize-internal-processes",
+      "title": "INSERM Consolidates and Modernizes Applications",
+      "url": "https://www.akkodis.com/en/blog/client-success/inserm-consolidates-and-modernizes-applications-to-optimize-internal-processes",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:21:47Z",
+      "published_date": null
+    },
+    {
+      "id": "akkodis-sustains-adecco-app-project",
+      "title": "Akkodis Sustains Adecco' App Project",
+      "url": "https://www.akkodis.com/en/blog/client-success/akkodis-sustains-adecco-app-project",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:21:49Z",
+      "published_date": null
+    },
+    {
+      "id": "british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
+      "title": "British Airways Transforms Its IT Function",
+      "url": "https://www.akkodis.com/en/blog/client-success/british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:21:55Z",
+      "published_date": null
+    },
+    {
+      "id": "rbc-railway",
+      "title": "Ensuring Rail Software Safety: Akkodis Validation Services",
+      "url": "https://www.akkodis.com/en/blog/client-success/rbc-railway",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-14T12:21:58Z",
+      "published_date": null
     }
   ]
 }
