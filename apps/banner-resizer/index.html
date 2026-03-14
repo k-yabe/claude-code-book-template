@@ -130,7 +130,7 @@
 
     .preview-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
       gap: 16px;
     }
 
@@ -273,45 +273,58 @@
 
     /* Crop preview */
     .crop-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
+      flex-direction: column;
       gap: 12px;
     }
-    @media (max-width: 600px) { .crop-grid { grid-template-columns: 1fr; } }
     .crop-item {
+      display: flex;
+      align-items: stretch;
       border-radius: 10px;
       overflow: hidden;
       border: 2px solid #dfe6e9;
     }
-    .crop-item-header {
-      padding: 8px 12px 7px;
+    .crop-item canvas {
+      flex: 1;
+      min-width: 0;
+      display: block;
+      height: auto;
+    }
+    .crop-info-panel {
+      width: 180px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+      padding: 20px 20px;
+      background: #f8f9fa;
+      border-left: 1px solid #eee;
+    }
+    .crop-panel-header {
       display: flex;
       align-items: center;
-      gap: 6px;
-      border-bottom: 1px solid #f0f2f5;
+      gap: 7px;
     }
     .crop-dot {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       flex-shrink: 0;
     }
     .crop-name {
-      font-size: 0.82rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: #2d3436;
     }
     .crop-size-label {
-      font-size: 0.72rem;
-      color: #b2bec3;
-      margin-left: auto;
+      font-size: 0.75rem;
+      color: #aaa;
     }
-    .crop-item canvas { width: 100%; height: auto; display: block; }
     .crop-info {
-      padding: 5px 12px 7px;
-      font-size: 0.76rem;
-      font-weight: 600;
-      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1.5;
     }
     .crop-info.has-cut  { color: #c0392b; }
     .crop-info.no-cut   { color: #27ae60; }
@@ -509,7 +522,7 @@
   function renderCropPreview(img) {
     const grid = document.getElementById('crop-grid');
     grid.innerHTML = '';
-    const CW = 600, CH = 340;
+    const CW = 900, CH = 400;
 
     const fitScale = Math.min(CW / img.width, CH / img.height);
     const fitW = img.width * fitScale;
@@ -608,18 +621,18 @@
       const item = document.createElement('div');
       item.className = 'crop-item';
       item.style.borderColor = color;
-      item.innerHTML = `
-        <div class="crop-item-header">
+      item.appendChild(canvas);
+      const panel = document.createElement('div');
+      panel.className = 'crop-info-panel';
+      panel.innerHTML = `
+        <div class="crop-panel-header">
           <span class="crop-dot" style="background:${color}"></span>
           <span class="crop-name">${size.label}</span>
-          <span class="crop-size-label">${size.w}×${size.h}</span>
         </div>
+        <div class="crop-size-label">${size.w} × ${size.h}px</div>
+        <div class="crop-info ${hasCut ? 'has-cut' : 'no-cut'}">${hasCut ? `⚠ ${cropInfo}` : `✓ ${cropInfo}`}</div>
       `;
-      item.appendChild(canvas);
-      const infoEl = document.createElement('div');
-      infoEl.className = `crop-info ${hasCut ? 'has-cut' : 'no-cut'}`;
-      infoEl.textContent = hasCut ? `⚠ ${cropInfo}` : `✓ ${cropInfo}`;
-      item.appendChild(infoEl);
+      item.appendChild(panel);
       grid.appendChild(item);
     }
 
