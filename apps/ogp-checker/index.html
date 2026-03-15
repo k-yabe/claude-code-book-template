@@ -43,13 +43,13 @@
     .container {
       max-width: 900px;
       margin: 0 auto;
-      padding: 40px 40px 80px;
+      padding: 28px 40px 80px;
     }
 
-    h1 { font-size: 1.4rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
-    .subtitle { font-size: 0.85rem; color: #8a9bb0; margin-bottom: 32px; }
+    h1 { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .subtitle { font-size: 0.82rem; color: #8a9bb0; margin-bottom: 20px; }
 
-    .input-row { display: flex; gap: 12px; margin-bottom: 20px; }
+    .input-row { display: flex; gap: 12px; margin-bottom: 16px; }
 
     input[type="text"] {
       flex: 1;
@@ -111,61 +111,66 @@
     .score-card {
       background: #fff;
       border: 1.5px solid #e8ecf0;
-      padding: 20px 24px;
-      margin-bottom: 24px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
       display: none;
     }
     .score-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
+      gap: 16px;
+      margin-bottom: 12px;
     }
-    .score-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #8a9bb0; }
-    .score-badges { display: flex; gap: 8px; }
+    .score-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #b2bec3; white-space: nowrap; }
+    .score-badges { display: flex; gap: 6px; flex-wrap: wrap; }
     .badge {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      padding: 3px 10px;
+      padding: 4px 12px;
+      border-radius: 20px;
     }
-    .badge-ok    { background: #f0fdf8; color: #00695c; border: 1px solid #b2dfdb; }
-    .badge-warn  { background: #fffde7; color: #e65100; border: 1px solid #ffe082; }
-    .badge-error { background: #fff5f4; color: #c0392b; border: 1px solid #fab1a0; }
-    .val-list { display: flex; flex-direction: column; gap: 6px; }
+    .badge-ok    { background: #f0fdf8; color: #00695c; border: 1.5px solid #b2dfdb; }
+    .badge-warn  { background: #fffde7; color: #b45309; border: 1.5px solid #fcd34d; }
+    .badge-error { background: #fff5f4; color: #c0392b; border: 1.5px solid #fab1a0; }
+
+    .val-list { display: flex; flex-direction: column; gap: 4px; }
+    /* OK は小さくシンプルに */
     .val-item {
       display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 8px 12px;
-      font-size: 0.83rem;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 10px;
+      font-size: 0.82rem;
+      border-radius: 4px;
     }
-    .val-ok    { background: #f0fdf8; border: 1px solid #b2dfdb; color: #00695c; }
-    .val-warn  { background: #fffde7; border: 1px solid #ffe082; color: #e65100; }
-    .val-error { background: #fff5f4; border: 1px solid #fab1a0; color: #c0392b; }
-    .val-icon { flex-shrink: 0; }
-    .val-msg { line-height: 1.5; }
+    .val-ok    { background: #f8fffe; color: #2d7a6b; }
+    .val-warn  { background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; padding: 7px 10px; }
+    .val-error { background: #fff5f4; border: 1px solid #fab1a0; color: #c0392b; padding: 7px 10px; }
+    .val-icon { flex-shrink: 0; font-size: 0.85rem; }
+    .val-msg { line-height: 1.4; }
 
     /* ── タブ ── */
     .tabs {
       display: flex;
-      gap: 0;
-      border-bottom: 2px solid #e8ecf0;
-      margin-bottom: 24px;
+      gap: 4px;
+      margin-bottom: 20px;
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      padding: 6px;
     }
     .tab-btn {
-      padding: 10px 20px;
+      padding: 7px 16px;
       background: none;
       border: none;
-      font-size: 0.88rem;
+      font-size: 0.83rem;
       font-weight: 600;
       color: #8a9bb0;
       cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      transition: color 0.15s;
+      transition: all 0.15s;
+      border-radius: 2px;
     }
-    .tab-btn:hover { color: #2d3436; }
-    .tab-btn.active { color: #001f33; border-bottom-color: #ffb81c; }
+    .tab-btn:hover { color: #2d3436; background: #f0f2f5; }
+    .tab-btn.active { color: #001f33; background: #ffb81c; }
 
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
@@ -206,8 +211,8 @@
     .tag-table tr:last-child td { border-bottom: none; }
     .tag-table td { color: #2d3436; word-break: break-all; line-height: 1.5; }
     .tag-missing { color: #b2bec3; font-style: italic; }
-    .tag-ok   { color: #00695c; font-weight: 600; }
-    .tag-warn { color: #e65100; }
+    .tag-ok   { color: #2d3436; } /* 正常時はニュートラル */
+    .tag-warn { color: #b45309; font-weight: 600; background: #fffbeb; padding: 1px 6px; }
 
     /* ── SNSプレビュー ── */
     .preview-grid {
