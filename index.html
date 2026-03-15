@@ -158,6 +158,17 @@
       color: #636e72;
     }
 
+    .logout-btn {
+      margin-top: 8px;
+      background: none;
+      border: none;
+      font-size: 0.8rem;
+      color: #b2bec3;
+      cursor: pointer;
+      padding: 0;
+    }
+    .logout-btn:hover { color: #636e72; text-decoration: underline; }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -208,6 +219,7 @@
     <div class="portal-header">
       <div class="portal-title">Marketing Apps</div>
       <p class="portal-sub">使いたいアプリを選んでください</p>
+      <button class="logout-btn" id="logout-btn">Sign out</button>
     </div>
     <div class="grid">
       <a class="card" href="apps/akkodis-watcher/">
@@ -256,6 +268,13 @@
 
     pwBtn.addEventListener('click', tryLogin);
     pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      sessionStorage.removeItem('auth');
+      appScreen.style.display  = 'none';
+      loginScreen.style.display = 'flex';
+      pwInput.value = '';
+    });
   </script>
 </body>
 </html>
