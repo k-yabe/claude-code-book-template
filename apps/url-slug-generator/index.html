@@ -236,8 +236,8 @@
       </div>
 
       <div class="form-group">
-        <label>概要文 <span class="optional">任意</span></label>
-        <textarea id="desc-input" placeholder="ページの概要を入力すると、より精度の高い候補が生成されます"></textarea>
+        <label>ページ説明 <span class="optional">任意</span></label>
+        <textarea id="desc-input" placeholder="ページの説明を入力すると、より精度の高い候補が生成されます"></textarea>
       </div>
 
       <div class="form-group">
@@ -258,6 +258,7 @@
     <div class="output-section" id="output-section">
       <div class="output-header">URL候補</div>
       <div class="slug-list" id="slug-list"></div>
+      <button class="generate-btn" id="regenerate-btn" style="margin-top:16px">再生成する</button>
     </div>
   </div>
 
@@ -330,7 +331,28 @@
       errorMsg.style.display = 'none';
     }
 
-    generateBtn.addEventListener('click', async () => {
+    function renderSlugs(slugs) {
+      slugList.innerHTML = slugs.map(slug => `
+        <div class="slug-item">
+          <span class="slug-value">${slug}</span>
+          <button class="copy-btn" data-slug="${slug}">コピー</button>
+        </div>
+      `).join('');
+      slugList.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          navigator.clipboard.writeText(this.dataset.slug).then(() => {
+            this.textContent = 'コピーしました';
+            this.classList.add('copied');
+            setTimeout(() => {
+              this.textContent = 'コピー';
+              this.classList.remove('copied');
+            }, 2000);
+          });
+        });
+      });
+    }
+
+    async function generate() {
       hideError();
       const title = document.getElementById('title-input').value.trim();
       const desc = document.getElementById('desc-input').value.trim();
@@ -344,6 +366,8 @@
 
       generateBtn.disabled = true;
       generateBtn.innerHTML = '<span class="spinner"></span>生成中...';
+      const regenBtn = document.getElementById('regenerate-btn');
+      if (regenBtn) { regenBtn.disabled = true; regenBtn.innerHTML = '<span class="spinner"></span>生成中...'; }
       outputSection.style.display = 'none';
 
       try {
@@ -382,30 +406,12 @@
         const raw = data.content?.[0]?.text || '';
         const slugs = raw.split('\n')
           .map(l => l.trim().replace(/^[-\s\d.]+/, '').trim())
-          .filter(l => /^[a-z0-9-]+$/.test(l));
+          .filter(l => /^[a-z0-9-]+$/.test(l))
+          .slice(0, 3);
 
         if (slugs.length === 0) throw new Error('候補の生成に失敗しました。もう一度お試しください。');
 
-        slugList.innerHTML = slugs.map(slug => `
-          <div class="slug-item">
-            <span class="slug-value">${slug}</span>
-            <button class="copy-btn" data-slug="${slug}">コピー</button>
-          </div>
-        `).join('');
-
-        slugList.querySelectorAll('.copy-btn').forEach(btn => {
-          btn.addEventListener('click', function() {
-            navigator.clipboard.writeText(this.dataset.slug).then(() => {
-              this.textContent = 'コピーしました';
-              this.classList.add('copied');
-              setTimeout(() => {
-                this.textContent = 'コピー';
-                this.classList.remove('copied');
-              }, 2000);
-            });
-          });
-        });
-
+        renderSlugs(slugs);
         outputSection.style.display = 'block';
         outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -414,8 +420,13 @@
       } finally {
         generateBtn.disabled = false;
         generateBtn.textContent = '候補を生成する';
+        const regenBtn = document.getElementById('regenerate-btn');
+        if (regenBtn) { regenBtn.disabled = false; regenBtn.textContent = '再生成する'; }
       }
-    });
+    }
+
+    generateBtn.addEventListener('click', generate);
+    document.getElementById('regenerate-btn').addEventListener('click', generate);
   </script>
 
 </body>
