@@ -97,6 +97,45 @@
     }
     .recommend-note strong { color: #5a4000; }
 
+    .step {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      margin-bottom: 12px;
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 22px;
+      border-bottom: 1.5px solid #f0f2f5;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      background: #1C304B;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1C304B;
+      flex: 1;
+    }
+    .step-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+    }
+    .badge-required { background: #ffeaea; color: #c0392b; }
+    .badge-optional { background: #f0f0f0; color: #636e72; }
+    .step-body { padding: 20px 22px; }
+
     .card {
       background: #fff;
       border: 2px solid #dfe6e9;
@@ -351,11 +390,12 @@
 <body>
 <nav class="navbar">
   <div class="navbar-brand">
+    <a href="../../" class="back-btn">← アプリ一覧へ</a>
+    <div class="navbar-divider"></div>
     <img src="../../assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:22px;display:block;">
     <div class="navbar-divider"></div>
     <span class="navbar-title">Banner Resizer</span>
   </div>
-  <a href="../../" class="back-btn">← アプリ一覧へ</a>
 </nav>
 <div class="wrap">
   <h1>Banner Resizer</h1>
@@ -367,19 +407,37 @@
   </div>
   <div class="recommend-note">💡 <strong>推奨アップロードサイズ：1200×669px</strong>　全サイズのトリミングを最小化できます</div>
 
-  <div class="card">
-    <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
-      <div class="dropzone-icon">🖼️</div>
-      <div class="dropzone-text">画像をドロップ、またはクリックして選択</div>
-      <div class="dropzone-sub">PNG / JPG / WebP 対応</div>
-      <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp">
+  <!-- Step 1 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div class="step-title">画像をアップロード</div>
+      <span class="step-badge badge-required">必須</span>
     </div>
+    <div class="step-body">
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+        <div class="dropzone-icon">🖼️</div>
+        <div class="dropzone-text">画像をドロップ、またはクリックして選択</div>
+        <div class="dropzone-sub">PNG / JPG / WebP 対応</div>
+        <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp">
+      </div>
+    </div>
+  </div>
 
-    <div class="format-row">
-      <span class="format-label">出力形式：</span>
-      <button class="format-btn active" id="btn-webp" onclick="setFormat('webp')">WebP</button>
-      <button class="format-btn" id="btn-png" onclick="setFormat('png')">PNG</button>
-      <button class="format-btn" id="btn-jpg" onclick="setFormat('jpg')">JPG</button>
+  <!-- Step 2 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div class="step-title">出力形式を選択</div>
+      <span class="step-badge badge-optional">任意</span>
+    </div>
+    <div class="step-body">
+      <div class="format-row">
+        <span class="format-label">出力形式：</span>
+        <button class="format-btn active" id="btn-webp" onclick="setFormat('webp')">WebP</button>
+        <button class="format-btn" id="btn-png" onclick="setFormat('png')">PNG</button>
+        <button class="format-btn" id="btn-jpg" onclick="setFormat('jpg')">JPG</button>
+      </div>
     </div>
   </div>
 

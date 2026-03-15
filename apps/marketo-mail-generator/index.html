@@ -79,21 +79,44 @@
       margin-bottom: 32px;
     }
 
-    .card {
+    .step {
       background: #fff;
       border: 1.5px solid #e8ecf0;
-      padding: 28px 32px;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
-
-    .card h2 {
-      font-size: 0.85rem;
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 22px;
+      border-bottom: 1.5px solid #f0f2f5;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      background: #1C304B;
+      color: #fff;
+      font-size: 0.78rem;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #8a9bb0;
-      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
+    .step-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1C304B;
+      flex: 1;
+    }
+    .step-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+    }
+    .badge-required { background: #ffeaea; color: #c0392b; }
+    .badge-optional { background: #f0f0f0; color: #636e72; }
+    .step-body { padding: 20px 22px; }
 
     .form-row {
       display: flex;
@@ -245,37 +268,50 @@
 
   <nav class="navbar">
     <div class="navbar-brand">
+      <a href="../../" class="back-btn">← アプリ一覧へ</a>
+      <div class="navbar-divider"></div>
       <img src="../../assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:22px;display:block;">
       <div class="navbar-divider"></div>
       <span class="navbar-title">Marketo Mail Generator</span>
     </div>
-    <a href="../../" class="back-btn">← アプリ一覧へ</a>
   </nav>
 
   <div class="container">
     <h1>Marketo Mail Generator</h1>
     <p class="subtitle">メール本文を貼り付けてUTMパラメーターを付与し、テキスト版・HTML版を同時生成</p>
 
-    <!-- パラメーター入力 -->
-    <div class="card">
-      <h2>UTM Campaign</h2>
-      <div class="form-row">
-        <span class="param-prefix">utm_campaign=ak_clt_</span>
-        <input
-          type="text"
-          class="param-input"
-          id="campaign-input"
-          placeholder="20260312_seminar"
-          autocomplete="off"
-        />
+    <!-- Step 1: パラメーター入力 -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div class="step-title">UTM Campaign を入力</div>
+        <span class="step-badge badge-required">必須</span>
       </div>
-      <p class="param-hint">utm_source=marketo　utm_medium=email　は自動で付与。URLごとに01, 02... と連番が付きます</p>
+      <div class="step-body">
+        <div class="form-row">
+          <span class="param-prefix">utm_campaign=ak_clt_</span>
+          <input
+            type="text"
+            class="param-input"
+            id="campaign-input"
+            placeholder="20260312_seminar"
+            autocomplete="off"
+          />
+        </div>
+        <p class="param-hint">utm_source=marketo　utm_medium=email　は自動で付与。URLごとに01, 02... と連番が付きます</p>
+      </div>
     </div>
 
-    <!-- 本文入力 -->
-    <div class="card">
-      <h2>メール本文</h2>
-      <textarea id="body-input" placeholder="メール本文をここに貼り付けてください。本文中のURLに自動でパラメーターが付与されます。"></textarea>
+    <!-- Step 2: 本文入力 -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div class="step-title">メール本文を貼り付け</div>
+        <span class="step-badge badge-required">必須</span>
+      </div>
+      <div class="step-body">
+        <textarea id="body-input" placeholder="メール本文をここに貼り付けてください。本文中のURLに自動でパラメーターが付与されます。"></textarea>
+      </div>
     </div>
 
     <button class="generate-btn" id="generate-btn">生成する</button>

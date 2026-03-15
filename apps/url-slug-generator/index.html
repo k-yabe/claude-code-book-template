@@ -57,14 +57,44 @@
       margin-bottom: 16px;
     }
 
-    .card h2 {
-      font-size: 0.85rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #8a9bb0;
-      margin-bottom: 16px;
+    .step {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      margin-bottom: 12px;
     }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 22px;
+      border-bottom: 1.5px solid #f0f2f5;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      background: #1C304B;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1C304B;
+      flex: 1;
+    }
+    .step-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+    }
+    .badge-required { background: #ffeaea; color: #c0392b; }
+    .badge-optional { background: #f0f0f0; color: #636e72; }
+    .step-body { padding: 20px 22px; }
 
     label {
       display: block;
@@ -216,32 +246,50 @@
 
   <nav class="navbar">
     <div class="navbar-brand">
+      <a href="../../" class="back-btn">← アプリ一覧へ</a>
+      <div class="navbar-divider"></div>
       <img src="../../assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:22px;display:block;">
       <div class="navbar-divider"></div>
       <span class="navbar-title">URL Slug Generator</span>
     </div>
-    <a href="../../" class="back-btn">← アプリ一覧へ</a>
   </nav>
 
   <div class="container">
     <h1>URL Slug Generator</h1>
     <p class="subtitle">ページタイトルからURL候補をAIが自動生成</p>
 
-    <div class="card">
-      <h2>入力</h2>
-
-      <div class="form-group">
-        <label>ページタイトル</label>
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div class="step-title">ページタイトルを入力</div>
+        <span class="step-badge badge-required">必須</span>
+      </div>
+      <div class="step-body">
         <input type="text" id="title-input" placeholder="例：Azure AI で実現する次世代クラウド運用セミナー" autocomplete="off" />
       </div>
+    </div>
 
-      <div class="form-group">
-        <label>ページ説明 <span class="optional">任意</span></label>
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div class="step-title">ページ説明を入力</div>
+        <span class="step-badge badge-optional">任意</span>
+      </div>
+      <div class="step-body">
         <textarea id="desc-input" placeholder="ページの説明を入力すると、より精度の高い候補が生成されます"></textarea>
       </div>
+    </div>
 
-      <div class="form-group">
-        <label>PDF <span class="optional">任意</span></label>
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">3</div>
+        <div class="step-title">PDFをアップロード</div>
+        <span class="step-badge badge-optional">任意</span>
+      </div>
+      <div class="step-body">
         <div class="upload-area" id="upload-area">
           <input type="file" id="pdf-input" accept=".pdf" />
           <div class="upload-icon">📄</div>
