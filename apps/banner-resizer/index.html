@@ -12,20 +12,38 @@
       font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
       color: #2d3436;
       min-height: 100vh;
-      padding: 48px 16px 64px;
+      padding: 0 16px 64px;
     }
 
-    .wrap { max-width: 1100px; margin: 0 auto; }
-
-    .back {
-      display: inline-block;
-      margin-bottom: 20px;
-      font-size: 0.85rem;
-      color: #001f33;
+    .navbar {
+      background: #001f33;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      margin: 0 -16px;
+    }
+    .navbar-brand { display: flex; align-items: center; gap: 14px; }
+    .navbar-logo { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.2em; color: #ffb81c; }
+    .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+    .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+    .back-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.65);
+      cursor: pointer;
+      padding: 6px 14px;
       text-decoration: none;
-      font-weight: 600;
+      transition: all 0.15s;
     }
-    .back:hover { text-decoration: underline; }
+    .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding-top: 40px; }
 
     h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
 
@@ -331,8 +349,15 @@
   </style>
 </head>
 <body>
+<nav class="navbar">
+  <div class="navbar-brand">
+    <span class="navbar-logo">AKKODiS</span>
+    <div class="navbar-divider"></div>
+    <span class="navbar-title">Banner Resizer</span>
+  </div>
+  <a href="../../" class="back-btn">← アプリ一覧へ</a>
+</nav>
 <div class="wrap">
-  <a class="back" href="../../">← アプリ一覧へ</a>
   <h1>Banner Resizer</h1>
   <p class="sub">1枚の画像をアップロードするだけで、用途別の3サイズを一括生成します。</p>
   <div class="size-chips">

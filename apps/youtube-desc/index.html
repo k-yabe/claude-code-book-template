@@ -12,20 +12,37 @@
       font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
       color: #2d3436;
       min-height: 100vh;
-      padding: 40px 20px 60px;
+      padding: 0 0 60px;
     }
 
-    .wrap { max-width: 720px; margin: 0 auto; }
-
-    .back {
-      display: inline-block;
-      margin-bottom: 16px;
-      font-size: 0.85rem;
-      color: #1C304B;
+    .navbar {
+      background: #001f33;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .navbar-brand { display: flex; align-items: center; gap: 14px; }
+    .navbar-logo { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.2em; color: #ffb81c; }
+    .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+    .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+    .back-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.65);
+      cursor: pointer;
+      padding: 6px 14px;
       text-decoration: none;
-      font-weight: 600;
+      transition: all 0.15s;
     }
-    .back:hover { text-decoration: underline; }
+    .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+    .wrap { max-width: 720px; margin: 0 auto; padding: 40px 20px 0; }
 
     .page-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
     .page-sub { font-size: 0.85rem; color: #8a9bb0; margin-bottom: 28px; }
@@ -224,8 +241,15 @@
   </style>
 </head>
 <body>
+<nav class="navbar">
+  <div class="navbar-brand">
+    <span class="navbar-logo">AKKODiS</span>
+    <div class="navbar-divider"></div>
+    <span class="navbar-title">YouTube説明文ジェネレーター</span>
+  </div>
+  <a href="../../" class="back-btn">← アプリ一覧へ</a>
+</nav>
 <div class="wrap">
-  <a class="back" href="../../">← アプリ一覧へ</a>
   <p class="page-title">YouTube説明文ジェネレーター</p>
   <p class="page-sub">YouTubeアップ前の準備ツールです。台本・原稿を貼るだけで、説明文・ハッシュタグをAIが自動作成します。</p>
 
