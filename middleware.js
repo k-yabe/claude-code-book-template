@@ -1,20 +1,23 @@
-import { next } from '@vercel/edge';
-
 export const config = {
   matcher: '/:path*',
 };
 
 export default function middleware(request) {
+  const validPass = (process.env.AUTH_PASS || '').trim();
+
   const authHeader = request.headers.get('authorization');
 
-  if (authHeader && authHeader.startsWith('Basic ')) {
-    const decoded = atob(authHeader.slice(6));
-    // "username:password" 形式。パスワード部分のみ検証
-    const password = decoded.includes(':') ? decoded.split(':').slice(1).join(':') : decoded;
-    const validPass = process.env.AUTH_PASS;
+  if (validPass && authHeader && authHeader.startsWith('Basic ')) {
+    try {
+      const decoded = atob(authHeader.slice(6).trim());
+      const colonIndex = decoded.indexOf(':');
+      const password = colonIndex >= 0 ? decoded.slice(colonIndex + 1) : decoded;
 
-    if (validPass && password === validPass) {
-      return next(); // 認証成功 → 静的ファイルを通す
+      if (password === validPass) {
+        return; // 認証OK → そのまま通す
+      }
+    } catch (_) {
+      // base64デコード失敗 → 401へ
     }
   }
 
