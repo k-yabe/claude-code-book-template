@@ -545,7 +545,8 @@ X→ https://x.com/AkkodisJapan
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
       });
-      const data = await res.json();
+      let data;
+      try { data = await res.json(); } catch (_) { throw new Error('サーバーエラーが発生しました。しばらく待ってから再試行してください。'); }
       if (!res.ok) throw new Error(data.error || '取得に失敗しました');
 
       if (data.title && !document.getElementById('title').value.trim()) {

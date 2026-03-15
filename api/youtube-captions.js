@@ -1,5 +1,3 @@
-import { YoutubeTranscript } from 'youtube-transcript';
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
@@ -19,8 +17,10 @@ export default async function handler(req, res) {
     }
   } catch (_) {}
 
-  // 字幕は youtube-transcript パッケージで取得
+  // 字幕は dynamic import で youtube-transcript を使用
   try {
+    const { YoutubeTranscript } = await import('youtube-transcript');
+
     const transcripts = await YoutubeTranscript.fetchTranscript(videoId, { lang: 'ja' })
       .catch(() => YoutubeTranscript.fetchTranscript(videoId, { lang: 'en' }))
       .catch(() => YoutubeTranscript.fetchTranscript(videoId));
