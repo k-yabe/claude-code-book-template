@@ -13,7 +13,7 @@
       font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
       color: #2d3436;
       min-height: 100vh;
-      padding: 0 20px 48px;
+      padding: 0 0 60px;
     }
 
     .navbar {
@@ -26,10 +26,8 @@
       position: sticky;
       top: 0;
       z-index: 10;
-      margin: 0 -20px;
     }
     .navbar-brand { display: flex; align-items: center; gap: 14px; }
-    .navbar-logo { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.2em; color: #ffb81c; }
     .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
     .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
     .back-btn {
@@ -44,174 +42,118 @@
     }
     .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 
-    .header {
+    .page-header {
       max-width: 1100px;
-      margin: 28px auto 18px;
+      margin: 28px auto 16px;
+      padding: 0 20px;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 8px;
     }
-
-    .header-left h1 {
-      font-size: 1.2rem;
-      font-weight: 700;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .meta-text { font-size: 0.75rem; color: #aaa; }
-
+    .page-header h1 { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; margin-bottom: 2px; }
+    .page-subtitle { font-size: 0.8rem; color: #8a9bb0; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .meta-text { font-size: 0.75rem; color: #b2bec3; }
     .badge-new-global {
       background: #ffb81c;
-      color: #1C304B;
-      font-size: 0.68rem;
+      color: #001f33;
+      font-size: 0.72rem;
       font-weight: 700;
-      padding: 2px 10px;
-      border-radius: 99px;
+      padding: 3px 12px;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
     }
 
     .columns {
-      max-width: 1100px;
-      margin: 0 auto;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       align-items: start;
     }
-
-    @media (max-width: 760px) {
-      .columns { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 760px) { .columns { grid-template-columns: 1fr; } }
 
     .col {
       background: #fff;
-      border-radius: 0;
+      border: 1.5px solid #e8ecf0;
       overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0,0,0,.08);
     }
-
     .col-header {
-      padding: 11px 14px 10px;
+      padding: 11px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 2px solid var(--accent);
+      border-bottom: 2px solid #001f33;
+      background: #f8f9fb;
     }
-
-    .col { --accent: #1C304B; }
-
-    .col-label {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .col-count {
-      font-size: 0.7rem;
-      color: #ccc;
-      font-weight: 600;
-    }
+    .col-label { font-size: 0.88rem; font-weight: 700; color: #001f33; }
+    .col-count { font-size: 0.72rem; color: #b2bec3; font-weight: 600; }
     .col-count .new-cnt { color: #ffb81c; font-weight: 700; }
 
-    .col-body {
-      overflow-y: auto;
-      max-height: 540px;
-    }
+    .col-body { overflow-y: auto; max-height: 560px; }
     .col-body::-webkit-scrollbar { width: 3px; }
-    .col-body::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 3px; }
+    .col-body::-webkit-scrollbar-thumb { background: #e8ecf0; }
 
     .item {
-      padding: 8px 14px;
-      border-bottom: 1px solid #f5f6fa;
+      padding: 9px 14px;
+      border-bottom: 1px solid #f0f2f5;
       border-left: 3px solid transparent;
       transition: background 0.1s;
     }
     .item:last-child { border-bottom: none; }
     .item:hover { background: #fafbfc; }
-    .item.is-new { border-left-color: #ffb81c; padding-left: 11px; }
+    .item.is-new { border-left-color: #ffb81c; }
 
     .item-title {
       font-size: 0.82rem;
       font-weight: 600;
-      line-height: 1.4;
-      margin-bottom: 2px;
+      line-height: 1.45;
+      margin-bottom: 3px;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
     .item-title a { color: #2d3436; text-decoration: none; }
-    .item-title a:hover { color: #0984e3; }
+    .item-title a:hover { color: #001f33; text-decoration: underline; }
 
-    .item-meta {
-      font-size: 0.7rem;
-      color: #888;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+    .item-meta { font-size: 0.7rem; color: #b2bec3; display: flex; align-items: center; gap: 5px; }
 
     .badge-new {
       background: #ffb81c;
-      color: #1C304B;
-      font-size: 0.58rem;
+      color: #001f33;
+      font-size: 0.6rem;
       font-weight: 700;
-      padding: 1px 5px;
-      border-radius: 99px;
+      padding: 1px 6px;
     }
 
-    .empty {
-      padding: 24px 14px;
-      text-align: center;
-      color: #ccc;
-      font-size: 0.8rem;
-    }
+    .empty { padding: 28px 14px; text-align: center; color: #b2bec3; font-size: 0.82rem; }
 
     .info-bar {
       max-width: 1100px;
-      margin: 0 auto 16px;
-      background: #fff;
-      border-radius: 0;
-      padding: 14px 18px;
+      margin: 0 auto 14px;
+      padding: 0 20px;
+      font-size: 0.77rem;
+      color: #8a9bb0;
       display: flex;
-      align-items: flex-start;
-      gap: 20px;
+      gap: 16px;
       flex-wrap: wrap;
-      box-shadow: 0 1px 3px rgba(0,0,0,.06);
-      font-size: 0.8rem;
-      color: #555;
-      line-height: 1.6;
     }
-    .info-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-    }
-    .info-label {
-      font-weight: 700;
-      color: #1C304B;
-      white-space: nowrap;
-    }
-    .info-divider {
-      width: 1px;
-      background: #eee;
-      align-self: stretch;
-    }
+    .info-bar span { display: flex; align-items: center; gap: 4px; }
+    .info-bar strong { color: #636e72; }
 
     /* フィルター・リセット */
     .toolbar {
-      max-width: 1100px;
-      margin: 0 auto 12px;
       display: flex;
       gap: 10px;
       align-items: center;
       flex-wrap: wrap;
+      margin-bottom: 12px;
     }
     .filter-input {
       flex: 1;
@@ -253,9 +195,10 @@
   </div>
 </nav>
 
-<div class="header">
-  <div class="header-left">
+<div class="page-header">
+  <div>
     <h1>AKKODiS Global Antenna</h1>
+    <p class="page-subtitle">グローバルサイトの新着記事を自動収集・毎朝9時更新</p>
   </div>
   <div class="header-right">
     <span class="meta-text" id="last-scraped">読み込み中...</span>
@@ -263,28 +206,17 @@
   </div>
 </div>
 
-<div class="info-bar">
-  <div class="info-item">
-    <span class="info-label">監視対象</span>
-    <span>AKKODiSグローバルサイトの Blog・Thinkers &amp; Makers・Client Stories を自動収集</span>
+<div class="wrap">
+  <div class="info-bar">
+    <span><strong>監視対象</strong> Blog / Thinkers &amp; Makers / Client Stories</span>
+    <span><strong><span class="badge-new" style="vertical-align:middle;">NEW</span></strong> 公開から14日以内</span>
   </div>
-  <div class="info-divider"></div>
-  <div class="info-item">
-    <span class="info-label">更新頻度</span>
-    <span>毎朝9時（JST）に自動チェック</span>
+  <div class="toolbar">
+    <input class="filter-input" id="filter-input" type="text" placeholder="キーワードで絞り込む..." autocomplete="off" />
+    <button class="reset-read-btn" id="reset-read-btn">既読をリセット</button>
   </div>
-  <div class="info-divider"></div>
-  <div class="info-item">
-    <span class="info-label"><span class="badge-new" style="font-size:0.62rem;padding:1px 6px;border-radius:99px;background:#ffb81c;color:#1C304B;">NEW</span> の定義</span>
-    <span>公開日から14日以内の記事</span>
-  </div>
+  <div class="columns" id="columns"></div>
 </div>
-
-<div class="toolbar">
-  <input class="filter-input" id="filter-input" type="text" placeholder="キーワードで絞り込む..." autocomplete="off" />
-  <button class="reset-read-btn" id="reset-read-btn">既読をリセット</button>
-</div>
-<div class="columns" id="columns"></div>
 
 <script>
   const NEW_DAYS = 14;
