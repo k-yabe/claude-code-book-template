@@ -4,3 +4,14 @@
 node_modules/
 .env
 *.env
+
+# 機密情報・認証情報（絶対にコミットしないこと）
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+service-account*.json
+*_secret*
+*_private*
