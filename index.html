@@ -38,7 +38,7 @@
       max-width: 420px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 20px;
+      border-radius: 0;
       padding: 48px 44px;
       animation: loginFadeIn 0.5s ease both;
       box-shadow: 0 32px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
@@ -83,7 +83,7 @@
       padding: 14px 18px;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px;
+      border-radius: 0;
       font-size: 0.95rem;
       color: #fff;
       outline: none;
@@ -103,7 +103,7 @@
       background: #ffb81c;
       color: #001f33;
       border: none;
-      border-radius: 10px;
+      border-radius: 0;
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
@@ -172,7 +172,7 @@
     .logout-btn {
       background: none;
       border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 6px;
+      border-radius: 0;
       font-size: 0.78rem;
       color: rgba(255,255,255,0.65);
       cursor: pointer;
@@ -229,7 +229,7 @@
       align-items: center;
       background: #fff;
       border: 1.5px solid #e8ecf0;
-      border-radius: 16px;
+      border-radius: 0;
       padding: 32px 24px 24px;
       text-align: center;
       text-decoration: none;
@@ -274,7 +274,7 @@
     .card-icon-wrap {
       width: 60px;
       height: 60px;
-      border-radius: 14px;
+      border-radius: 0;
       background: #f4f6f9;
       display: flex;
       align-items: center;
@@ -318,7 +318,7 @@
       align-items: center;
       background: #fff;
       border: 2px solid #dfe6e9;
-      border-radius: 16px;
+      border-radius: 0;
       padding: 28px 20px;
       text-align: center;
       text-decoration: none;
@@ -460,9 +460,14 @@
         .then(r => r.json())
         .then(data => {
           const NEW_DAYS = 14;
+          const lastVisit = parseInt(localStorage.getItem('antennaLastVisit') || '0');
           const newCount = (data.articles || []).filter(a => {
             if (!a.published_date || /^\d{4}$/.test(a.published_date)) return false;
-            return Date.now() - new Date(a.published_date).getTime() < NEW_DAYS * 86400000;
+            if (Date.now() - new Date(a.published_date).getTime() >= NEW_DAYS * 86400000) return false;
+            if (lastVisit && a.first_seen) {
+              return new Date(a.first_seen).getTime() > lastVisit;
+            }
+            return true;
           }).length;
           if (newCount > 0) {
             const badge = document.createElement('span');

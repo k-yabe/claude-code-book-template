@@ -72,7 +72,7 @@
 
     .col {
       background: #fff;
-      border-radius: 10px;
+      border-radius: 0;
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(0,0,0,.08);
     }
@@ -158,7 +158,7 @@
       max-width: 1100px;
       margin: 0 auto 16px;
       background: #fff;
-      border-radius: 10px;
+      border-radius: 0;
       padding: 14px 18px;
       display: flex;
       align-items: flex-start;
@@ -221,6 +221,7 @@
 <script>
   const NEW_DAYS = 14;
   const THIS_YEAR = new Date().getFullYear();
+  localStorage.setItem('antennaLastVisit', Date.now());
 
   function dateType(article) {
     const p = article.published_date;
