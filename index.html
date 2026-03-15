@@ -239,6 +239,18 @@
       position: relative;
       overflow: hidden;
     }
+
+    .card-new-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #ffb81c;
+      color: #1C304B;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
     a.card::before {
       content: '';
       position: absolute;
@@ -374,7 +386,7 @@
       <p class="portal-sub">使いたいアプリを選んでください</p>
       <p class="drag-hint">ドラッグで並び替えできます</p>
       <div class="grid">
-        <a class="card" href="apps/akkodis-watcher/">
+        <a class="card" href="apps/akkodis-watcher/" id="card-antenna">
           <div class="card-icon-wrap">📡</div>
           <div class="card-name">Global Antenna</div>
           <div class="card-desc">AKKODiSグローバルサイトの新着記事を毎日チェック</div>
@@ -414,6 +426,7 @@
     function showApp() {
       loginScreen.style.display = 'none';
       appScreen.style.display   = 'block';
+      loadAntennaBadge();
     }
 
     if (sessionStorage.getItem('auth') === '1') showApp();
@@ -440,6 +453,26 @@
       loginScreen.style.display = 'flex';
       pwInput.value = '';
     });
+
+    // ── Global Antenna 新着バッジ ────────────────────────
+    function loadAntennaBadge() {
+      fetch('apps/akkodis-watcher/data/articles.json')
+        .then(r => r.json())
+        .then(data => {
+          const NEW_DAYS = 14;
+          const newCount = (data.articles || []).filter(a => {
+            if (!a.published_date || /^\d{4}$/.test(a.published_date)) return false;
+            return Date.now() - new Date(a.published_date).getTime() < NEW_DAYS * 86400000;
+          }).length;
+          if (newCount > 0) {
+            const badge = document.createElement('span');
+            badge.className = 'card-new-badge';
+            badge.textContent = `NEW ${newCount}`;
+            document.getElementById('card-antenna').appendChild(badge);
+          }
+        })
+        .catch(() => {});
+    }
 
     // ── ドラッグ＆ドロップ並び替え ──────────────────────
     const grid = document.querySelector('.grid');
