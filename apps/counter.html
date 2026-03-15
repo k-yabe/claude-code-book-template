@@ -203,7 +203,7 @@
       <div class="limit-item" id="lim-email">
         <div class="limit-header">
           <span class="limit-name">メール件名</span>
-          <span class="limit-num" id="lim-email-num">0 / 35</span>
+          <span class="limit-num" id="lim-email-num">0 / 50</span>
         </div>
         <div class="bar-track"><div class="bar-fill" id="lim-email-bar"></div></div>
         <div class="over-msg" id="lim-email-msg"></div>
@@ -211,7 +211,7 @@
       <div class="limit-item" id="lim-x">
         <div class="limit-header">
           <span class="limit-name">X（旧Twitter）</span>
-          <span class="limit-num" id="lim-x-num">0 / 140</span>
+          <span class="limit-num" id="lim-x-num">0 / 280</span>
         </div>
         <div class="bar-track"><div class="bar-fill" id="lim-x-bar"></div></div>
         <div class="over-msg" id="lim-x-msg"></div>
@@ -231,8 +231,8 @@
     const input = document.getElementById('input');
 
     const limits = [
-      { id: 'email', label: 'メール件名',       max: 35  },
-      { id: 'x',     label: 'X（旧Twitter）',   max: 140 },
+      { id: 'email', label: 'メール件名',           max: 50  },
+      { id: 'x',     label: 'X（旧Twitter）',       max: 280 },
       { id: 'meta',  label: 'メタディスクリプション', max: 160 },
     ];
 
