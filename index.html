@@ -20,120 +20,8 @@
       min-height: 100vh;
     }
 
-    /* ── ログイン画面 ── */
-    @keyframes loginFadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    #login-screen {
-      background-color: #040d17;
-      background-image:
-        radial-gradient(ellipse 700px 500px at 75% 10%, rgba(255,184,28,0.08) 0%, transparent 100%),
-        radial-gradient(ellipse 500px 500px at 10% 90%, rgba(0,80,160,0.12) 0%, transparent 100%),
-        radial-gradient(1px 1px at 50% 50%, rgba(255,255,255,0.04) 0%, transparent 100%);
-      background-size: cover, cover, 36px 36px;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .login-box {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 0;
-      padding: 48px 44px;
-      animation: loginFadeIn 0.5s ease both;
-      box-shadow: 0 32px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
-    }
-
-    .login-brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.7rem;
-      font-weight: 800;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: #ffb81c;
-      margin-bottom: 16px;
-    }
-    .login-brand::before {
-      content: '';
-      display: block;
-      width: 18px;
-      height: 2px;
-      background: #ffb81c;
-      border-radius: 2px;
-    }
-
-    .login-box h2 {
-      font-size: 1.9rem;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.02em;
-      margin-bottom: 6px;
-    }
-
-    .login-tagline {
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.32);
-      margin-bottom: 36px;
-    }
-
-    .login-box input {
-      width: 100%;
-      padding: 14px 18px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0;
-      font-size: 0.95rem;
-      color: #fff;
-      outline: none;
-      margin-bottom: 12px;
-      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-    }
-    .login-box input::placeholder { color: rgba(255,255,255,0.25); }
-    .login-box input:focus {
-      border-color: rgba(255,184,28,0.6);
-      background: rgba(255,255,255,0.08);
-      box-shadow: 0 0 0 3px rgba(255,184,28,0.1);
-    }
-
-    .login-box button {
-      width: 100%;
-      padding: 14px;
-      background: #ffb81c;
-      color: #001f33;
-      border: none;
-      border-radius: 0;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: 0.06em;
-      transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
-      box-shadow: 0 4px 20px rgba(255,184,28,0.3);
-    }
-    .login-box button:hover {
-      opacity: 0.92;
-      box-shadow: 0 6px 28px rgba(255,184,28,0.45);
-    }
-    .login-box button:active { transform: scale(0.98); }
-
-    .login-error {
-      font-size: 0.8rem;
-      color: #ff7675;
-      margin-top: 10px;
-      min-height: 1.2em;
-    }
-
     /* ── アプリ一覧 ── */
     #app-screen {
-      display: none;
       background: #f0f2f5;
       min-height: 100vh;
     }
@@ -349,22 +237,6 @@
 </head>
 <body>
 
-  <!-- ログイン画面 -->
-  <div id="login-screen">
-    <div class="login-box">
-      <div class="login-brand"><img src="assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:20px;display:block;"></div>
-      <h2>Marketing Apps</h2>
-      <p class="login-tagline">業務効率化ツール集</p>
-      <form id="login-form" autocomplete="on">
-        <input type="text" name="username" autocomplete="username" style="display:none" value="marketing-team" />
-        <input type="password" id="pw-input" name="password" placeholder="Password" autocomplete="current-password" />
-        <button type="submit" id="pw-btn">Sign In</button>
-      </form>
-      <div class="login-error" id="pw-error"></div>
-    </div>
-  </div>
-
-  <!-- アプリ一覧（認証後に表示） -->
   <div id="app-screen">
     <nav class="navbar">
       <div class="navbar-brand">
@@ -372,7 +244,7 @@
         <div class="navbar-divider"></div>
         <span class="navbar-title">Marketing Apps</span>
       </div>
-      <button class="logout-btn" id="logout-btn">Sign out</button>
+      <button class="logout-btn" id="logout-btn" onclick="location.href='/logout'" style="display:none">Sign out</button>
     </nav>
 
     <div class="portal-body">
@@ -429,45 +301,8 @@
   </div>
 
   <script>
-    const PASSWORD = 'teamgrowth';
-    const loginScreen = document.getElementById('login-screen');
-    const appScreen   = document.getElementById('app-screen');
-    const pwInput     = document.getElementById('pw-input');
-    const pwBtn       = document.getElementById('pw-btn');
-    const pwError     = document.getElementById('pw-error');
-
-    function showApp() {
-      loginScreen.style.display = 'none';
-      appScreen.style.display   = 'block';
-      loadAntennaBadge();
-    }
-
-    if (sessionStorage.getItem('auth') === '1') showApp();
-
-    function tryLogin() {
-      if (pwInput.value === PASSWORD) {
-        sessionStorage.setItem('auth', '1');
-        showApp();
-      } else {
-        pwError.textContent = 'パスワードが違います';
-        pwInput.value = '';
-        pwInput.focus();
-      }
-    }
-
-    document.getElementById('login-form').addEventListener('submit', e => {
-      e.preventDefault();
-      tryLogin();
-    });
-
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      sessionStorage.removeItem('auth');
-      appScreen.style.display  = 'none';
-      loginScreen.style.display = 'flex';
-      pwInput.value = '';
-    });
-
     // ── Global Antenna 新着バッジ ────────────────────────
+    loadAntennaBadge();
     function loadAntennaBadge() {
       fetch('apps/akkodis-watcher/data/articles.json')
         .then(r => r.json())
