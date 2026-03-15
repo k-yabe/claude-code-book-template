@@ -164,6 +164,60 @@
       "published_date": "2026-02-17T00:00:00Z"
     },
     {
+      "id": "akkodis-thinkers-and-makers-vol3-2025",
+      "title": "Thinkers & Makers Vol.3 2025",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers_and_makers_vol3_2025.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2025",
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "thinkers-and-makers-vol2-2025",
+      "title": "Thinkers & Makers Vol.2 2025",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol2_2025.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2025",
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "thinkers-and-makers-vol1-2025",
+      "title": "Thinkers & Makers Vol.1 2025",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol1_2025.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2025",
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "thinkers-and-makers-vol-3---2024",
+      "title": "Thinkers And Makers Vol 3   2024",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-3-_-2024.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2024",
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "thinkers-and-makers-vol-2---2024",
+      "title": "Thinkers And Makers Vol 2   2024",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-2-_-2024.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2024",
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "akkodis-thinkers-and-makers-vol-01-2024new",
+      "title": "Thinkers & Makers Vol.1 2024",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers-and-makers_vol_01_2024new.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2024",
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
       "id": "integrated-sensor-technology-analytics-platform",
       "title": "Integrated Sensor Analytics Platform for Fleet Efficiency",
       "url": "https://www.akkodis.com/en/blog/client-success/integrated-sensor-technology-analytics-platform",

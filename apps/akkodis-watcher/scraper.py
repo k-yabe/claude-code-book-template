@@ -266,6 +266,12 @@ def main():
                 kwargs = {"existing": existing} if source["type"] == "blog" else {}
                 items = scraper(page, source, **kwargs)
                 print(f"    {len(items)} 件取得")
+                if not items:
+                    existing_for_source = [v for v in existing.values() if v.get("source_id") == source["id"]]
+                    if existing_for_source:
+                        print(f"    0件のため既存データを引き継ぎ ({len(existing_for_source)} 件)")
+                        all_articles.extend(existing_for_source)
+                        continue
                 from datetime import timedelta
                 blog_cutoff = datetime.now(timezone.utc) - timedelta(days=30)
                 filtered = []
