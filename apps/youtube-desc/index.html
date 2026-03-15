@@ -30,12 +30,10 @@
     .page-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
     .page-sub { font-size: 0.85rem; color: #8a9bb0; margin-bottom: 28px; }
 
-    /* ステップカード */
     .step {
       background: #fff;
       border: 1.5px solid #e0e6ed;
       margin-bottom: 12px;
-      position: relative;
     }
     .step-header {
       display: flex;
@@ -56,7 +54,6 @@
       justify-content: center;
       flex-shrink: 0;
     }
-    .step-num.done { background: #ffb81c; color: #1C304B; }
     .step-title {
       font-size: 0.95rem;
       font-weight: 700;
@@ -96,36 +93,6 @@
     }
     textarea:focus, input[type="text"]:focus { border-color: #1C304B; }
 
-    /* URL取得行 */
-    .url-row {
-      display: flex;
-      gap: 8px;
-    }
-    .url-row input { flex: 1; }
-    .fetch-btn {
-      padding: 0 20px;
-      background: #1C304B;
-      color: #fff;
-      border: none;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: opacity 0.15s;
-    }
-    .fetch-btn:hover { opacity: 0.8; }
-    .fetch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .fetch-status {
-      font-size: 0.8rem;
-      margin-top: 8px;
-      min-height: 1.2em;
-      color: #8a9bb0;
-    }
-    .fetch-status.ok { color: #1a7a5e; font-weight: 600; }
-    .fetch-status.err { color: #d63031; }
-
-    /* リンクオプション */
     .link-checks {
       display: flex;
       flex-direction: column;
@@ -155,10 +122,7 @@
       margin: 14px 0 6px;
     }
 
-    /* 生成ボタン */
-    .generate-wrap {
-      margin-top: 16px;
-    }
+    .generate-wrap { margin-top: 16px; }
     .generate-btn {
       width: 100%;
       padding: 18px;
@@ -185,7 +149,6 @@
     }
     .error.on { display: block; }
 
-    /* ローディング */
     .loading {
       display: none;
       text-align: center;
@@ -206,7 +169,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* 出力 */
     .output { display: none; }
     .output.on { display: block; }
 
@@ -265,35 +227,18 @@
 <div class="wrap">
   <a class="back" href="../../">← アプリ一覧へ</a>
   <p class="page-title">YouTube説明文ジェネレーター</p>
-  <p class="page-sub">YouTubeにアップした動画のURLを貼るだけで、タイトル・説明文・ハッシュタグをAIが自動作成します。</p>
+  <p class="page-sub">台本・原稿を貼るだけで、タイトル・説明文・タイムスタンプ・ハッシュタグをAIが自動作成します。</p>
 
   <!-- STEP 1 -->
   <div class="step">
     <div class="step-header">
-      <div class="step-num" id="step1-num">1</div>
-      <div class="step-title">YouTube URLを貼り付ける</div>
+      <div class="step-num">1</div>
+      <div class="step-title">動画タイトルを入力する</div>
       <span class="step-badge badge-required">必須</span>
     </div>
     <div class="step-body">
-      <p class="field-hint">公開・限定公開どちらのURLでもOKです。URLを貼って「取得」を押すと、タイトルとタイムスタンプを自動で読み込みます。</p>
-      <p class="field-hint" style="margin-top:8px; padding:10px 14px; background:#fff8e1; border-left:3px solid #ffb81c; font-size:0.82rem; line-height:1.8;">
-        💡 <strong>タイムスタンプを自動生成するには、動画アップロード時に字幕設定が必要です。</strong><br>
-        <span style="display:inline-block; margin-top:4px;">
-          ① YouTube Studio で動画をアップロード<br>
-          ② 「動画の詳細」画面 →「その他のオプション」→「字幕」を <strong>日本語</strong> に設定<br>
-          ③ アップロード完了後、自動字幕が生成されるまで <strong>5〜10分待つ</strong><br>
-          ④ 字幕の準備ができたら、このページでURLを貼って「取得」
-        </span>
-      </p>
-      <div class="url-row">
-        <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
-        <button class="fetch-btn" id="fetch-btn" onclick="fetchCaptions()">取得</button>
-      </div>
-      <div class="fetch-status" id="fetch-status"></div>
-      <div id="timestamps-wrap" style="display:none; margin-top:16px;">
-        <div class="sub-label" id="timestamps-label">タイムスタンプ（自動取得済み・編集可）</div>
-        <textarea id="timestamps" rows="4" placeholder="例）&#10;00:00 オープニング&#10;01:30 テーマ紹介&#10;05:00 まとめ"></textarea>
-      </div>
+      <p class="field-hint">YouTubeにアップした際のタイトルをそのまま入力してください。</p>
+      <input type="text" id="title" placeholder="例：AIがものづくりを変える｜アジャイル開発の最前線" />
     </div>
   </div>
 
@@ -301,32 +246,19 @@
   <div class="step">
     <div class="step-header">
       <div class="step-num">2</div>
-      <div class="step-title">動画タイトルを確認・編集する</div>
+      <div class="step-title">台本・原稿を貼り付ける</div>
       <span class="step-badge badge-required">必須</span>
     </div>
     <div class="step-body">
-      <p class="field-hint">STEP 1で自動入力されたタイトルを確認してください。修正したい場合はそのまま編集できます。</p>
-      <input type="text" id="title" placeholder="例：AIがものづくりを変える｜アジャイル開発の最前線" />
+      <p class="field-hint">台本・原稿・LPのテキストをそのまま貼り付けてください。AIが内容を読んで説明文とタイムスタンプを自動生成します。走り書きやキーワードの羅列でも生成できます。</p>
+      <textarea id="content" rows="10" placeholder="例）&#10;・AIを活用したアジャイル開発の事例紹介&#10;・スピードと品質を両立させるチームの作り方&#10;・2025年のDX推進に向けた取り組みについて話します"></textarea>
     </div>
   </div>
 
-  <!-- STEP 3（字幕なし時のフォールバック） -->
-  <div class="step" id="step3-card" style="display:none;">
-    <div class="step-header">
-      <div class="step-num">3</div>
-      <div class="step-title">動画の内容を入力する</div>
-      <span class="step-badge badge-required">必須</span>
-    </div>
-    <div class="step-body">
-      <p class="field-hint" style="color:#d63031;">字幕が取得できなかったため、動画の内容を手動で入力してください。台本・原稿・LPのテキストをそのまま貼り付けるだけでOKです。</p>
-      <textarea id="content" rows="8" placeholder="例）&#10;・AIを活用したアジャイル開発の事例紹介&#10;・スピードと品質を両立させるチームの作り方&#10;・2025年のDX推進に向けた取り組みについて話します"></textarea>
-    </div>
-  </div>
-
-  <!-- STEP 3 or 4（リンク） -->
+  <!-- STEP 3 -->
   <div class="step">
     <div class="step-header">
-      <div class="step-num" id="link-step-num">3</div>
+      <div class="step-num">3</div>
       <div class="step-title">掲載するリンクを選ぶ</div>
       <span class="step-badge badge-optional">任意</span>
     </div>
@@ -395,15 +327,12 @@
 <script>
   const SNS = `▼SNS\nFacebook▶ https://www.facebook.com/akkodisjapan/\nLinkedIn▶ https://www.linkedin.com/company/akkodis\nX▶ https://x.com/AkkodisJapan`;
 
-  let capturedSegments = null;
-
   async function generate() {
     const title = document.getElementById('title').value.trim();
     const content = document.getElementById('content').value.trim();
     const linkTop = document.getElementById('link-top').checked;
     const linkCareers = document.getElementById('link-careers').checked;
     const linksFree = document.getElementById('links-free').value.trim();
-    const timestamps = document.getElementById('timestamps').value.trim();
 
     const errorEl = document.getElementById('error');
     const loadingEl = document.getElementById('loading');
@@ -411,16 +340,8 @@
     const btn = document.getElementById('gen-btn');
 
     errorEl.classList.remove('on');
-    if (!title) { showErr('STEP 2：動画タイトルを入力してください。'); return; }
-    if (!capturedSegments && !content) {
-      const step3Visible = document.getElementById('step3-card').style.display !== 'none';
-      if (step3Visible) {
-        showErr('STEP 3：動画の内容を入力してください。');
-      } else {
-        showErr('STEP 1：まずYouTube URLを貼り付けて「取得」を押してください。');
-      }
-      return;
-    }
+    if (!title) { showErr('STEP 1：動画タイトルを入力してください。'); return; }
+    if (!content) { showErr('STEP 2：台本・原稿を入力してください。'); return; }
 
     btn.disabled = true;
     loadingEl.classList.add('on');
@@ -445,12 +366,8 @@
     if (otherLines.length) linkSections += `■関連リンクはこちら\n${otherLines.join('\n')}\n`;
     if (ytLines.length) linkSections += `■関連動画はこちら\n${ytLines.join('\n')}\n`;
 
-    const contentSource = capturedSegments
-      ? `（以下は字幕データより自動取得）\n${capturedSegments}`
-      : content;
-    let userMsg = `【動画タイトル】\n${title}\n\n【動画の内容・メモ】\n${contentSource}\n`;
+    let userMsg = `【動画タイトル】\n${title}\n\n【台本・原稿】\n${content}\n`;
     if (linkSections) userMsg += `\n【説明文に含めるリンクセクション（以下をそのまま説明文に含める）】\n${linkSections}`;
-    if (timestamps) userMsg += `\n【タイムスタンプ（「【目次】」という見出しをつけて記載）】\n${timestamps}\n`;
     userMsg += `\n【SNSリンク（必ず含める）】\n${SNS}`;
 
     try {
@@ -461,7 +378,7 @@
           model: 'claude-opus-4-6',
           max_tokens: 2048,
           system: `あなたはAKKODiS JapanのYouTube担当アシスタントです。
-提供された動画情報をもとに、YouTube用のタイトル・説明文・ハッシュタグを日本語で生成してください。
+提供された台本・原稿をもとに、YouTube用のタイトル・説明文・ハッシュタグを日本語で生成してください。
 
 以下のJSON形式のみで回答してください（コードブロック不要）:
 {"title":"タイトル","description":"説明文","hashtags":"＃タグ1 ＃タグ2 ＃タグ3 ＃タグ4 ＃タグ5"}
@@ -471,17 +388,19 @@
 
 2. リンクセクション：【説明文に含めるリンクセクション】が提供された場合、その内容をそのまま説明文に含める（追加・変更・省略しないこと）
 
-3. 目次：タイムスタンプが提供された場合のみ以下の形式で追加
+3. 目次：台本・原稿の内容から自然なチャプター区切りを推定し、以下の形式で追加（動画が5分以上を想定した目安の時間で構わない）
 【目次】
-[タイムスタンプ]
+00:00 オープニング
+MM:SS チャプタータイトル
+...（5〜8個）
 
-5. SNSリンク：必ず以下の形式で含める
+4. SNSリンク：必ず以下の形式で含める
 ■AKKODiS公式SNSぜひチェックしてみてください！
 Facebook→ https://www.facebook.com/akkodisjapan/
 LinkedIn→ https://www.linkedin.com/company/akkodis
 X→ https://x.com/AkkodisJapan
 
-6. ＃ハッシュタグ5個（全角＃を使用）を説明文末尾に追加。hashtagsフィールドにも同じものを記載`,
+5. ＃ハッシュタグ5個（全角＃を使用）を説明文末尾に追加。hashtagsフィールドにも同じものを記載`,
           messages: [{ role: 'user', content: userMsg }],
         }),
       });
@@ -527,73 +446,6 @@ X→ https://x.com/AkkodisJapan
       btn.classList.add('done');
       setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('done'); }, 2000);
     });
-  }
-
-  async function fetchCaptions() {
-    const url = document.getElementById('yt-url').value.trim();
-    const statusEl = document.getElementById('fetch-status');
-    const btn = document.getElementById('fetch-btn');
-    if (!url) return;
-
-    btn.disabled = true;
-    statusEl.textContent = '動画情報を取得中...';
-    statusEl.className = 'fetch-status';
-
-    try {
-      const res = await fetch('/api/youtube-captions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      });
-      let data;
-      try { data = await res.json(); } catch (_) { throw new Error('サーバーエラーが発生しました。しばらく待ってから再試行してください。'); }
-      if (!res.ok) throw new Error(data.error || '取得に失敗しました');
-
-      if (data.title && !document.getElementById('title').value.trim()) {
-        document.getElementById('title').value = data.title;
-      }
-
-      if (!data.segments) {
-        document.getElementById('timestamps-label').textContent = 'タイムスタンプ（任意・手動入力）';
-        document.getElementById('timestamps-wrap').style.display = 'block';
-        document.getElementById('step3-card').style.display = 'block';
-        document.getElementById('link-step-num').textContent = '4';
-        document.getElementById('step1-num').classList.add('done');
-        document.getElementById('step1-num').textContent = '✓';
-        statusEl.textContent = 'タイトルを取得しました。この動画は字幕がないため、STEP 3で動画の内容を手動入力してください。';
-        statusEl.className = 'fetch-status ok';
-        return;
-      }
-
-      capturedSegments = data.segments;
-
-      statusEl.textContent = 'タイムスタンプを生成中...';
-
-      const claudeRes = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 512,
-          system: '以下はYouTube動画の字幕データです。自然な区切りでチャプターに分け「MM:SS チャプタータイトル」の形式のみで出力してください。チャプター数は5〜10個。タイトルは日本語で簡潔に。',
-          messages: [{ role: 'user', content: data.segments }],
-        }),
-      });
-      const claudeData = await claudeRes.json();
-      const timestamps = claudeData.content?.[0]?.text?.trim() || '';
-      document.getElementById('timestamps').value = timestamps;
-      document.getElementById('timestamps-wrap').style.display = 'block';
-
-      document.getElementById('step1-num').classList.add('done');
-      document.getElementById('step1-num').textContent = '✓';
-      statusEl.textContent = 'タイトルとタイムスタンプを取得しました。STEP 2・3へ進んでください。';
-      statusEl.className = 'fetch-status ok';
-    } catch (err) {
-      statusEl.textContent = `エラー: ${err.message}`;
-      statusEl.className = 'fetch-status err';
-    } finally {
-      btn.disabled = false;
-    }
   }
 </script>
 </body>
