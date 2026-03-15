@@ -272,7 +272,8 @@
       border-bottom: 1px solid #f4f5f7;
     }
     .cl-item:last-child { border-bottom: none; }
-    .cl-app { font-weight: 700; color: #2d3436; white-space: nowrap; flex-shrink: 0; width: 130px; }
+    .cl-icon { font-size: 0.9rem; flex-shrink: 0; width: 20px; text-align: center; }
+    .cl-app { font-weight: 700; color: #2d3436; white-space: nowrap; flex-shrink: 0; width: 140px; }
     .cl-desc { color: #8a9bb0; font-size: 0.72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 
     .grid {
@@ -555,11 +556,11 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
-      { app: 'OGP Checker',            desc: 'og:image確認・検索プレビュー追加' },
-      { app: 'URL Slug Generator',     desc: 'バッジ・一括コピー追加' },
-      { app: 'YouTube Generator',      desc: '文字数カウンター追加' },
-      { app: 'Marketo Mail Generator', desc: 'HTMLプレビュー・URLリスト追加' },
-      { app: 'Global Antenna',         desc: 'フィルター・UIリニューアル' },
+      { icon: '🔍', app: 'OGP Checker',            desc: 'og:image確認・検索プレビュー追加' },
+      { icon: '🔗', app: 'URL Slug Generator',     desc: 'バッジ・一括コピー追加' },
+      { icon: '🎬', app: 'YouTube Generator',      desc: '文字数カウンター追加' },
+      { icon: '✉️', app: 'Marketo Mail Generator', desc: 'HTMLプレビュー・URLリスト追加' },
+      { icon: '📡', app: 'Global Antenna',         desc: 'フィルター・UIリニューアル' },
     ];
 
     function initChangelog() {
@@ -574,6 +575,7 @@
         <div class="changelog-body">
           ${WHATS_NEW.map(w => `
             <div class="cl-item">
+              <span class="cl-icon">${w.icon}</span>
               <span class="cl-app">${w.app}</span>
               <span class="cl-desc">${w.desc}</span>
             </div>`).join('')}
