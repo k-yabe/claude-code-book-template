@@ -595,20 +595,41 @@
     }
 
     // ── 構造化データ描画 ──────────────────────────────────
-    function renderStructured(jsonLdList) {
+    function renderStructured(jsonLdList, microdataItems, hasH1) {
       const area = document.getElementById('structured-area');
-      if (jsonLdList.length === 0) {
-        area.innerHTML = '<div class="no-data">構造化データ（JSON-LD）が見つかりませんでした</div>';
+      const parts = [];
+
+      if (jsonLdList.length > 0) {
+        parts.push(jsonLdList.map((raw, i) => {
+          let pretty = raw;
+          try { pretty = JSON.stringify(JSON.parse(raw), null, 2); } catch {}
+          return `
+            <div class="section-label">JSON-LD${jsonLdList.length > 1 ? ` #${i + 1}` : ''}</div>
+            <div class="json-block">${escHtml(pretty)}</div>
+          `;
+        }).join(''));
+      }
+
+      if (microdataItems.length > 0) {
+        parts.push(`<div class="section-label">Microdata</div>`);
+        parts.push(microdataItems.map(item => {
+          const propsJson = JSON.stringify(item.props, null, 2);
+          return `
+            <div style="font-size:0.75rem;color:#8a9bb0;margin:4px 0 4px;font-family:'Courier New',monospace;">${escHtml(item.type)}</div>
+            <div class="json-block">${escHtml(propsJson)}</div>
+          `;
+        }).join(''));
+      }
+
+      if (parts.length === 0) {
+        const jsNote = !hasH1
+          ? '<br><span style="font-size:0.8rem;color:#b2bec3;">※ このページはJavaScriptでレンダリングされているため、静的取得では構造化データを確認できません</span>'
+          : '';
+        area.innerHTML = `<div class="no-data">構造化データ（JSON-LD / Microdata）が見つかりませんでした${jsNote}</div>`;
         return;
       }
-      area.innerHTML = jsonLdList.map((raw, i) => {
-        let pretty = raw;
-        try { pretty = JSON.stringify(JSON.parse(raw), null, 2); } catch {}
-        return `
-          <div class="section-label">JSON-LD ${jsonLdList.length > 1 ? `#${i + 1}` : ''}</div>
-          <div class="json-block">${escHtml(pretty)}</div>
-        `;
-      }).join('');
+
+      area.innerHTML = parts.join('');
     }
 
     // ── チェック履歴 ─────────────────────────────────────
@@ -731,9 +752,21 @@
           lang:      doc.querySelector('html')?.getAttribute('lang') || '',
         };
 
-        // 構造化データ
+        // 構造化データ（JSON-LD）
         const jsonLdList = [...doc.querySelectorAll('script[type="application/ld+json"]')]
           .map(el => el.textContent?.trim()).filter(Boolean);
+
+        // microdata（itemtype/itemprop）
+        const microdataItems = [...doc.querySelectorAll('[itemtype]')].map(el => {
+          const type = el.getAttribute('itemtype') || '';
+          const props = {};
+          el.querySelectorAll('[itemprop]').forEach(prop => {
+            const key = prop.getAttribute('itemprop');
+            const val = prop.getAttribute('content') || prop.getAttribute('href') || prop.textContent.trim();
+            if (key && val) props[key] = val;
+          });
+          return { type, props };
+        });
 
         // 履歴に保存
         saveHistory(url);
@@ -780,7 +813,7 @@
           seoTable.appendChild(note);
         }
 
-        renderStructured(jsonLdList);
+        renderStructured(jsonLdList, microdataItems, !!seo.h1);
         renderValidation(ogp, seo, imgSize);
 
         document.getElementById('result-area').style.display = 'block';
