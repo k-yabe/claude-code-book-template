@@ -330,12 +330,14 @@
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
-      // URLをリンクに変換（エスケープ後のURLを対象にマッチ）
-      return escaped.replace(URL_REGEX, url => {
+      // URLをリンクに変換
+      const linked = escaped.replace(URL_REGEX, url => {
         const fullUrl = appendParams(url, params);
         const displayUrl = stripParams(url);
         return `<a href="${fullUrl}">${displayUrl}</a>`;
       });
+      // 改行を <br> に変換
+      return linked.replace(/\n/g, '<br>\n');
     }
 
     function countUrls(body) {
