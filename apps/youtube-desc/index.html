@@ -252,6 +252,9 @@
     <div class="step-body">
       <p class="field-hint">台本・原稿・LPのテキストをそのまま貼り付けてください。AIが内容を読んで説明文とタイムスタンプを自動生成します。走り書きやキーワードの羅列でも生成できます。</p>
       <textarea id="content" rows="10" placeholder="例）&#10;・AIを活用したアジャイル開発の事例紹介&#10;・スピードと品質を両立させるチームの作り方&#10;・2025年のDX推進に向けた取り組みについて話します"></textarea>
+      <div class="sub-label">タイムスタンプ（任意・手動入力）</div>
+      <p class="field-hint">正確なタイムスタンプがわかる場合は入力してください。入力した内容がそのまま説明文に使われます。空欄の場合はAIが台本から自動推定します。</p>
+      <textarea id="timestamps" rows="4" placeholder="例）&#10;00:00 オープニング&#10;01:30 テーマ紹介&#10;05:00 まとめ"></textarea>
     </div>
   </div>
 
@@ -330,6 +333,7 @@
   async function generate() {
     const title = document.getElementById('title').value.trim();
     const content = document.getElementById('content').value.trim();
+    const timestamps = document.getElementById('timestamps').value.trim();
     const linkTop = document.getElementById('link-top').checked;
     const linkCareers = document.getElementById('link-careers').checked;
     const linksFree = document.getElementById('links-free').value.trim();
@@ -367,6 +371,7 @@
     if (ytLines.length) linkSections += `■関連動画はこちら\n${ytLines.join('\n')}\n`;
 
     let userMsg = `【動画タイトル】\n${title}\n\n【台本・原稿】\n${content}\n`;
+    if (timestamps) userMsg += `\n【タイムスタンプ（正確な値。「【目次】」見出しをつけてそのまま説明文に含める）】\n${timestamps}\n`;
     if (linkSections) userMsg += `\n【説明文に含めるリンクセクション（以下をそのまま説明文に含める）】\n${linkSections}`;
     userMsg += `\n【SNSリンク（必ず含める）】\n${SNS}`;
 
@@ -388,7 +393,7 @@
 
 2. リンクセクション：【説明文に含めるリンクセクション】が提供された場合、その内容をそのまま説明文に含める（追加・変更・省略しないこと）
 
-3. 目次：台本・原稿の内容から自然なチャプター区切りを推定し、以下の形式で追加（動画が5分以上を想定した目安の時間で構わない）
+3. 目次：【タイムスタンプ】が提供された場合はその値をそのまま使用。提供されない場合は台本・原稿から自然なチャプター区切りを推定して以下の形式で追加（目安の時間で構わない）
 【目次】
 00:00 オープニング
 MM:SS チャプタータイトル
