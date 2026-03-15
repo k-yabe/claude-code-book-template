@@ -3,59 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube Description Generator</title>
+  <title>YouTube説明文ジェネレーター</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #f5f6fa;
+      background: #f0f2f5;
       font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
       color: #2d3436;
       min-height: 100vh;
-      padding: 40px 16px;
+      padding: 40px 20px 60px;
     }
 
-    .wrap { max-width: 1000px; margin: 0 auto; }
+    .wrap { max-width: 720px; margin: 0 auto; }
 
     .back {
       display: inline-block;
       margin-bottom: 16px;
       font-size: 0.85rem;
-      color: #001f33;
+      color: #1C304B;
       text-decoration: none;
       font-weight: 600;
     }
     .back:hover { text-decoration: underline; }
 
-    h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
-    .sub { font-size: 0.85rem; color: #636e72; margin-bottom: 24px; }
+    .page-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+    .page-sub { font-size: 0.85rem; color: #8a9bb0; margin-bottom: 28px; }
 
-    .card {
+    /* ステップカード */
+    .step {
       background: #fff;
-      border: 2px solid #dfe6e9;
-      border-radius: 0;
-      padding: 28px;
-      margin-bottom: 16px;
+      border: 1.5px solid #e0e6ed;
+      margin-bottom: 12px;
+      position: relative;
     }
-
-    .field { margin-bottom: 20px; }
-    .field:last-child { margin-bottom: 0; }
-
-    label {
-      display: block;
-      font-size: 0.88rem;
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 22px;
+      border-bottom: 1.5px solid #f0f2f5;
+    }
+    .step-num {
+      width: 30px;
+      height: 30px;
+      background: #1C304B;
+      color: #fff;
+      font-size: 0.8rem;
       font-weight: 700;
-      margin-bottom: 8px;
-      color: #2d3436;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
-    .required { font-size: 0.72rem; font-weight: 700; color: #c0392b; background: #ffeaea; padding: 2px 6px; border-radius: 0; margin-left: 6px; vertical-align: middle; }
-    .optional { font-size: 0.72rem; font-weight: 700; color: #636e72; background: #f0f0f0; padding: 2px 6px; border-radius: 0; margin-left: 6px; vertical-align: middle; }
-    .field-hint { font-size: 0.82rem; color: #636e72; margin-bottom: 8px; margin-top: -4px; line-height: 1.5; }
+    .step-num.done { background: #ffb81c; color: #1C304B; }
+    .step-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1C304B;
+      flex: 1;
+    }
+    .step-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+    }
+    .badge-required { background: #ffeaea; color: #c0392b; }
+    .badge-optional { background: #f0f0f0; color: #636e72; }
 
-    .divider {
-      border: none;
-      border-top: 2px solid #f0f0f0;
-      margin: 24px 0;
+    .step-body { padding: 20px 22px; }
+
+    .field-hint {
+      font-size: 0.82rem;
+      color: #8a9bb0;
+      margin-bottom: 10px;
+      line-height: 1.6;
     }
 
     textarea, input[type="text"] {
@@ -72,48 +94,98 @@
       transition: border-color 0.15s;
       line-height: 1.6;
     }
-    textarea:focus, input[type="text"]:focus { border-color: #001f33; }
+    textarea:focus, input[type="text"]:focus { border-color: #1C304B; }
 
-    /* Link checkboxes */
-    .link-options {
+    /* URL取得行 */
+    .url-row {
+      display: flex;
+      gap: 8px;
+    }
+    .url-row input { flex: 1; }
+    .fetch-btn {
+      padding: 0 20px;
+      background: #1C304B;
+      color: #fff;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+    .fetch-btn:hover { opacity: 0.8; }
+    .fetch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .fetch-status {
+      font-size: 0.8rem;
+      margin-top: 8px;
+      min-height: 1.2em;
+      color: #8a9bb0;
+    }
+    .fetch-status.ok { color: #1a7a5e; font-weight: 600; }
+    .fetch-status.err { color: #d63031; }
+
+    /* リンクオプション */
+    .link-checks {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-bottom: 10px;
+      gap: 10px;
+      margin-bottom: 14px;
     }
     .check-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-size: 0.88rem;
       cursor: pointer;
+      padding: 10px 12px;
+      border: 1.5px solid #e0e6ed;
+      background: #fafbfc;
+      transition: border-color 0.15s;
     }
-    .check-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #001f33; }
+    .check-item:hover { border-color: #1C304B; }
+    .check-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #1C304B; }
+    .check-label-main { font-weight: 600; display: block; }
+    .check-label-url { font-size: 0.75rem; color: #8a9bb0; display: block; margin-top: 1px; }
 
-    .free-link-label {
-      font-size: 0.82rem;
+    .sub-label {
+      font-size: 0.8rem;
+      font-weight: 700;
       color: #636e72;
-      margin-bottom: 6px;
-      margin-top: 4px;
+      margin: 14px 0 6px;
     }
 
+    /* 生成ボタン */
+    .generate-wrap {
+      margin-top: 16px;
+    }
     .generate-btn {
       width: 100%;
-      padding: 16px;
-      background: #001f33;
+      padding: 18px;
+      background: #1C304B;
       color: #fff;
       border: none;
-      border-radius: 0;
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
+      letter-spacing: 0.05em;
       transition: opacity 0.15s;
-      letter-spacing: 0.04em;
-      margin-top: 8px;
     }
     .generate-btn:hover { opacity: 0.85; }
     .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    .error {
+      display: none;
+      background: #fff5f5;
+      border: 1.5px solid #ff7675;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: #d63031;
+      margin-top: 10px;
+    }
+    .error.on { display: block; }
+
+    /* ローディング */
     .loading {
       display: none;
       text-align: center;
@@ -126,7 +198,7 @@
       display: inline-block;
       width: 18px; height: 18px;
       border: 3px solid #dfe6e9;
-      border-top-color: #001f33;
+      border-top-color: #1C304B;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       margin-right: 8px;
@@ -134,176 +206,180 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .error {
-      display: none;
-      background: #fff5f5;
-      border: 1.5px solid #ff7675;
-      border-radius: 0;
-      padding: 12px 16px;
-      font-size: 0.85rem;
-      color: #d63031;
-      margin-top: 12px;
-    }
-    .error.on { display: block; }
-
+    /* 出力 */
     .output { display: none; }
     .output.on { display: block; }
 
-    .out-section { margin-bottom: 20px; }
+    .output-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1C304B;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ffb81c;
+    }
+
+    .out-section { margin-bottom: 16px; }
     .out-section:last-child { margin-bottom: 0; }
 
     .out-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .out-label {
-      font-size: 0.82rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      color: #636e72;
+      color: #8a9bb0;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
     }
     .copy-btn {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      color: #001f33;
-      background: #f5f6fa;
+      color: #1C304B;
+      background: #f0f2f5;
       border: 1.5px solid #dfe6e9;
-      border-radius: 0;
-      padding: 4px 12px;
+      padding: 3px 12px;
       cursor: pointer;
       transition: all 0.15s;
     }
-    .copy-btn:hover { background: #001f33; color: #fff; border-color: #001f33; }
-    .copy-btn.done { background: #00b894; color: #fff; border-color: #00b894; }
+    .copy-btn:hover { background: #1C304B; color: #fff; border-color: #1C304B; }
+    .copy-btn.done { background: #1a7a5e; color: #fff; border-color: #1a7a5e; }
 
     .out-text {
       padding: 14px 16px;
       border: 1.5px solid #dfe6e9;
-      border-radius: 0;
       font-size: 0.88rem;
-      background: #f8f9fa;
+      background: #fafbfc;
       line-height: 1.75;
       white-space: pre-wrap;
       word-break: break-word;
       color: #2d3436;
       font-family: inherit;
     }
-    .transcribe-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .transcribe-btn {
-      padding: 7px 16px;
-      background: #001f33;
-      color: #fff;
-      border: none;
-      border-radius: 0;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.15s;
-    }
-    .transcribe-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-    .transcribe-btn:not(:disabled):hover { opacity: 0.8; }
-    .transcribe-status {
-      font-size: 0.8rem;
-      color: #636e72;
-      margin-top: 6px;
-      min-height: 1.2em;
-    }
-    .transcribe-status.ok { color: #00897b; }
-    .transcribe-status.err { color: #d63031; }
   </style>
 </head>
 <body>
 <div class="wrap">
   <a class="back" href="../../">← アプリ一覧へ</a>
-  <h1>YouTube説明文ジェネレーター</h1>
-  <p class="sub">動画の情報を入力するだけで、タイトル・説明文・ハッシュタグをAIが自動生成します</p>
+  <p class="page-title">YouTube説明文ジェネレーター</p>
+  <p class="page-sub">以下の手順で入力するだけで、タイトル・説明文・ハッシュタグをAIが自動作成します。</p>
 
-  <div class="card">
-    <div class="field">
-      <label>YouTube URL <span class="optional">任意</span></label>
-      <p class="field-hint">アップ済みの動画URLを貼るとタイトル・タイムスタンプを自動取得します。</p>
-      <div class="transcribe-row">
-        <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=..." style="flex:1;padding:7px 10px;border:1.5px solid #dfe6e9;border-radius:0;font-size:0.85rem;outline:none;">
-        <button class="transcribe-btn" id="transcribe-btn" onclick="fetchCaptions()">取得</button>
+  <!-- STEP 1 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num" id="step1-num">1</div>
+      <div class="step-title">YouTube URLを貼り付ける</div>
+      <span class="step-badge badge-optional">任意</span>
+    </div>
+    <div class="step-body">
+      <p class="field-hint">すでにYouTubeにアップ済みの場合はURLを貼ると、動画タイトルとタイムスタンプを自動で取得します。まだアップしていない場合はスキップしてください。</p>
+      <div class="url-row">
+        <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
+        <button class="fetch-btn" id="fetch-btn" onclick="fetchCaptions()">自動取得</button>
       </div>
-      <div class="transcribe-status" id="transcribe-status"></div>
+      <div class="fetch-status" id="fetch-status"></div>
     </div>
+  </div>
 
-    <hr class="divider">
-
-    <div class="field">
-      <label>動画タイトル <span class="required">必須</span></label>
-      <input type="text" id="title" placeholder="例：AIがものづくりを変える：アジャイル開発の最前線" />
+  <!-- STEP 2 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div class="step-title">動画タイトルを入力する</div>
+      <span class="step-badge badge-required">必須</span>
     </div>
-
-    <div class="field">
-      <label>動画の内容 <span class="required">必須</span></label>
-      <p class="field-hint">台本・原稿・LPの文章などをそのままペーストしてOK！短いメモやキーワード列挙でも生成できます。</p>
-      <textarea id="content" rows="8" placeholder="原稿・台本・LPのテキストなどをそのまま貼り付けてください。箇条書きや走り書きでもOKです。"></textarea>
+    <div class="step-body">
+      <p class="field-hint">STEP 1でURLを取得した場合は自動入力されています。内容を確認・編集してください。</p>
+      <input type="text" id="title" placeholder="例：AIがものづくりを変える｜アジャイル開発の最前線" />
     </div>
+  </div>
 
-    <hr class="divider">
+  <!-- STEP 3 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div class="step-title">動画の内容を入力する</div>
+      <span class="step-badge badge-required">必須</span>
+    </div>
+    <div class="step-body">
+      <p class="field-hint">台本・原稿・LPのテキストをそのまま貼り付けるだけでOKです。走り書きやキーワードの羅列でも生成できます。</p>
+      <textarea id="content" rows="8" placeholder="例）&#10;・AIを活用したアジャイル開発の事例紹介&#10;・スピードと品質を両立させるチームの作り方&#10;・2025年のDX推進に向けた取り組みについて話します"></textarea>
+    </div>
+  </div>
 
-    <div class="field">
-      <label>掲載するリンク <span class="optional">任意</span></label>
-      <p class="field-hint">説明文に載せたいリンクにチェックを入れてください。</p>
-      <div class="link-options">
+  <!-- STEP 4 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">4</div>
+      <div class="step-title">リンク・タイムスタンプを設定する</div>
+      <span class="step-badge badge-optional">任意</span>
+    </div>
+    <div class="step-body">
+      <p class="field-hint">説明文に掲載したいリンクを選択してください。タイムスタンプはSTEP 1で自動取得済みの場合は入力不要です。</p>
+
+      <div class="link-checks">
         <label class="check-item">
           <input type="checkbox" id="link-top">
-          公式HP（https://www.akkodis.com/ja）
+          <div>
+            <span class="check-label-main">公式ホームページ</span>
+            <span class="check-label-url">https://www.akkodis.com/ja</span>
+          </div>
         </label>
         <label class="check-item">
           <input type="checkbox" id="link-careers">
-          採用情報（https://www.akkodis.com/ja/careers）
+          <div>
+            <span class="check-label-main">採用情報</span>
+            <span class="check-label-url">https://www.akkodis.com/ja/careers</span>
+          </div>
         </label>
       </div>
-      <p class="free-link-label">関連動画・プレスリリースなどその他のリンク（1行に1つ）</p>
-      <textarea id="links-free" rows="2" placeholder="https://www.youtube.com/watch?v=...&#10;https://prtimes.jp/..."></textarea>
-    </div>
 
-    <div class="field">
-      <label>目次（タイムスタンプ） <span class="optional">任意</span></label>
-      <p class="field-hint">URLから自動取得、または手入力。不要な場合は空欄のままでOK。</p>
+      <div class="sub-label">その他のリンク（関連動画・プレスリリースなど）</div>
+      <textarea id="links-free" rows="2" placeholder="1行に1つ入力してください&#10;例：https://www.youtube.com/watch?v=xxx"></textarea>
+
+      <div class="sub-label" style="margin-top:18px;">タイムスタンプ（目次）</div>
       <textarea id="timestamps" rows="3" placeholder="00:00 イントロ&#10;01:30 AIとは&#10;05:00 まとめ"></textarea>
     </div>
+  </div>
 
-    <button class="generate-btn" id="gen-btn" onclick="generate()">生成する</button>
+  <!-- 生成ボタン -->
+  <div class="generate-wrap">
+    <button class="generate-btn" id="gen-btn" onclick="generate()">説明文を生成する</button>
     <div class="error" id="error"></div>
   </div>
 
   <div class="loading" id="loading">
-    <span class="spinner"></span>生成中...
+    <span class="spinner"></span>AIが生成中です。少々お待ちください...
   </div>
 
-  <div class="card output" id="output">
-    <div class="out-section">
-      <div class="out-header">
-        <span class="out-label">タイトル</span>
-        <button class="copy-btn" onclick="copyEl('out-title', this)">コピー</button>
+  <!-- 出力 -->
+  <div class="step output" id="output" style="margin-top:16px;">
+    <div class="step-body">
+      <p class="output-title">生成完了 — 各テキストをコピーしてYouTubeに貼り付けてください</p>
+      <div class="out-section">
+        <div class="out-header">
+          <span class="out-label">タイトル</span>
+          <button class="copy-btn" onclick="copyEl('out-title', this)">コピー</button>
+        </div>
+        <div class="out-text" id="out-title"></div>
       </div>
-      <div class="out-text" id="out-title"></div>
-    </div>
-    <div class="out-section">
-      <div class="out-header">
-        <span class="out-label">説明文</span>
-        <button class="copy-btn" onclick="copyEl('out-desc', this)">コピー</button>
+      <div class="out-section">
+        <div class="out-header">
+          <span class="out-label">説明文</span>
+          <button class="copy-btn" onclick="copyEl('out-desc', this)">コピー</button>
+        </div>
+        <div class="out-text" id="out-desc" style="min-height:160px;"></div>
       </div>
-      <div class="out-text" id="out-desc" style="min-height:160px;"></div>
-    </div>
-    <div class="out-section">
-      <div class="out-header">
-        <span class="out-label">ハッシュタグ</span>
-        <button class="copy-btn" onclick="copyEl('out-tags', this)">コピー</button>
+      <div class="out-section">
+        <div class="out-header">
+          <span class="out-label">ハッシュタグ</span>
+          <button class="copy-btn" onclick="copyEl('out-tags', this)">コピー</button>
+        </div>
+        <div class="out-text" id="out-tags"></div>
       </div>
-      <div class="out-text" id="out-tags"></div>
     </div>
   </div>
 </div>
@@ -325,29 +401,25 @@
     const btn = document.getElementById('gen-btn');
 
     errorEl.classList.remove('on');
-    if (!title) { showErr('動画タイトルを入力してください。'); return; }
-    if (!content) { showErr('動画の内容を入力してください。'); return; }
+    if (!title) { showErr('STEP 2：動画タイトルを入力してください。'); return; }
+    if (!content) { showErr('STEP 3：動画の内容を入力してください。'); return; }
 
     btn.disabled = true;
     loadingEl.classList.add('on');
     outputEl.classList.remove('on');
 
-    // Build link sections
     const hpLines = [];
     if (linkTop) hpLines.push('公式ホームページ：https://www.akkodis.com/ja');
     if (linkCareers) hpLines.push('採用サイト：https://www.akkodis.com/ja/careers');
 
     const ytLines = [];
-    const otherLines = [...hpLines]; // HP links go into ■関連リンクはこちら
+    const otherLines = [...hpLines];
     if (linksFree) {
       linksFree.split('\n').forEach(line => {
         line = line.trim();
         if (!line) return;
-        if (line.includes('youtube.com') || line.includes('youtu.be')) {
-          ytLines.push(line);
-        } else {
-          otherLines.push(line);
-        }
+        if (line.includes('youtube.com') || line.includes('youtu.be')) ytLines.push(line);
+        else otherLines.push(line);
       });
     }
 
@@ -355,9 +427,7 @@
     if (otherLines.length) linkSections += `■関連リンクはこちら\n${otherLines.join('\n')}\n`;
     if (ytLines.length) linkSections += `■関連動画はこちら\n${ytLines.join('\n')}\n`;
 
-    let userMsg = '';
-    if (title) userMsg += `【動画タイトル】\n${title}\n\n`;
-    userMsg += `【動画の内容・メモ】\n${content}\n`;
+    let userMsg = `【動画タイトル】\n${title}\n\n【動画の内容・メモ】\n${content}\n`;
     if (linkSections) userMsg += `\n【説明文に含めるリンクセクション（以下をそのまま説明文に含める）】\n${linkSections}`;
     if (timestamps) userMsg += `\n【タイムスタンプ（「【目次】」という見出しをつけて記載）】\n${timestamps}\n`;
     userMsg += `\n【SNSリンク（必ず含める）】\n${SNS}`;
@@ -440,39 +510,36 @@ X→ https://x.com/AkkodisJapan
 
   async function fetchCaptions() {
     const url = document.getElementById('yt-url').value.trim();
-    const statusEl = document.getElementById('transcribe-status');
-    const btn = document.getElementById('transcribe-btn');
+    const statusEl = document.getElementById('fetch-status');
+    const btn = document.getElementById('fetch-btn');
     if (!url) return;
 
     btn.disabled = true;
-    statusEl.textContent = '字幕を取得中...';
-    statusEl.className = 'transcribe-status';
+    statusEl.textContent = '動画情報を取得中...';
+    statusEl.className = 'fetch-status';
 
     try {
-      // Step1: YouTubeから字幕取得
       const res = await fetch('/api/youtube-captions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || '字幕の取得に失敗しました');
+      if (!res.ok) throw new Error(data.error || '取得に失敗しました');
 
-      // タイトルを自動入力（空欄の場合のみ）
       if (data.title && !document.getElementById('title').value.trim()) {
         document.getElementById('title').value = data.title;
       }
 
-      statusEl.textContent = 'チャプター生成中...';
+      statusEl.textContent = 'タイムスタンプを生成中...';
 
-      // Step2: Claudeでチャプター化
       const claudeRes = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
           max_tokens: 512,
-          system: '以下はYouTube動画の字幕データ（タイムスタンプ付き）です。内容を読んで自然な区切りでチャプターに分け、「MM:SS チャプタータイトル」の形式のみで出力してください。チャプター数は5〜10個程度。タイトルは日本語で簡潔に。説明文は不要です。',
+          system: '以下はYouTube動画の字幕データです。自然な区切りでチャプターに分け「MM:SS チャプタータイトル」の形式のみで出力してください。チャプター数は5〜10個。タイトルは日本語で簡潔に。',
           messages: [{ role: 'user', content: data.segments }],
         }),
       });
@@ -480,11 +547,13 @@ X→ https://x.com/AkkodisJapan
       const timestamps = claudeData.content?.[0]?.text?.trim() || '';
       document.getElementById('timestamps').value = timestamps;
 
-      statusEl.textContent = 'タイムスタンプを自動入力しました。内容を確認・編集してください。';
-      statusEl.className = 'transcribe-status ok';
+      document.getElementById('step1-num').classList.add('done');
+      document.getElementById('step1-num').textContent = '✓';
+      statusEl.textContent = 'タイトルとタイムスタンプを取得しました。STEP 2以降を確認してください。';
+      statusEl.className = 'fetch-status ok';
     } catch (err) {
       statusEl.textContent = `エラー: ${err.message}`;
-      statusEl.className = 'transcribe-status err';
+      statusEl.className = 'fetch-status err';
     } finally {
       btn.disabled = false;
     }
