@@ -264,11 +264,11 @@
           type="text"
           class="param-input"
           id="campaign-input"
-          placeholder="20260312_seminar01"
+          placeholder="20260312_seminar"
           autocomplete="off"
         />
       </div>
-      <p class="param-hint">utm_source=marketo　utm_medium=email　は自動で付与されます</p>
+      <p class="param-hint">utm_source=marketo　utm_medium=email　は自動で付与。URLごとに01, 02... と連番が付きます</p>
     </div>
 
     <!-- 本文入力 -->
@@ -319,19 +319,25 @@
     }
 
     function generateText(body, campaign) {
-      const params = buildParams(campaign);
-      return body.replace(URL_REGEX, url => `[[${appendParams(url, params)}]]`);
+      let i = 0;
+      return body.replace(URL_REGEX, url => {
+        i++;
+        const params = buildParams(`${campaign}${String(i).padStart(2, '0')}`);
+        return `[[${appendParams(url, params)}]]`;
+      });
     }
 
     function generateHtml(body, campaign) {
-      const params = buildParams(campaign);
       // エスケープ
       const escaped = body
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
-      // URLをリンクに変換
+      // URLをリンクに変換（連番付き）
+      let i = 0;
       const linked = escaped.replace(URL_REGEX, url => {
+        i++;
+        const params = buildParams(`${campaign}${String(i).padStart(2, '0')}`);
         const fullUrl = appendParams(url, params);
         const displayUrl = stripParams(url);
         return `<a href="${fullUrl}">${displayUrl}</a>`;
