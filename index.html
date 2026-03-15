@@ -133,8 +133,11 @@
     }
 
     .portal-header {
-      max-width: 800px;
+      max-width: 1100px;
       margin: 0 auto 36px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
     }
 
     .portal-logo {
@@ -159,21 +162,24 @@
     }
 
     .logout-btn {
-      margin-top: 8px;
       background: none;
-      border: none;
+      border: 1.5px solid #dfe6e9;
+      border-radius: 8px;
       font-size: 0.8rem;
-      color: #b2bec3;
+      color: #636e72;
       cursor: pointer;
-      padding: 0;
+      padding: 6px 14px;
+      white-space: nowrap;
+      margin-top: 4px;
+      transition: all 0.15s;
     }
-    .logout-btn:hover { color: #636e72; text-decoration: underline; }
+    .logout-btn:hover { border-color: #b2bec3; color: #2d3436; }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 16px;
-      max-width: 800px;
+      max-width: 1100px;
       margin: 0 auto;
     }
 
@@ -217,8 +223,10 @@
   <!-- アプリ一覧（認証後に表示） -->
   <div id="app-screen">
     <div class="portal-header">
-      <div class="portal-title">Marketing Apps</div>
-      <p class="portal-sub">使いたいアプリを選んでください</p>
+      <div>
+        <div class="portal-title">Marketing Apps</div>
+        <p class="portal-sub">使いたいアプリを選んでください</p>
+      </div>
       <button class="logout-btn" id="logout-btn">Sign out</button>
     </div>
     <div class="grid">
