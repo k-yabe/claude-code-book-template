@@ -190,29 +190,97 @@
       color: #fff;
     }
 
+    /* ── ヒーローセクション ── */
+    .portal-hero {
+      background: #001f33;
+      background-image:
+        radial-gradient(ellipse 600px 300px at 80% 50%, rgba(255,184,28,0.07) 0%, transparent 100%),
+        radial-gradient(ellipse 400px 400px at 5% 100%, rgba(0,80,160,0.15) 0%, transparent 100%);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 48px 40px 44px;
+    }
+
+    .portal-hero-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .portal-hero-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #ffb81c;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .portal-hero-label::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: #ffb81c;
+      border-radius: 2px;
+    }
+
+    .portal-hero-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .portal-hero-sub {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.38);
+      letter-spacing: 0.01em;
+    }
+
+    /* ── コンテンツエリア ── */
     .portal-body {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 48px 40px 80px;
+      padding: 40px 40px 80px;
     }
 
-    .portal-heading {
-      margin-bottom: 6px;
-      font-size: 1.4rem;
+    .section-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .section-bar-title {
+      font-size: 0.7rem;
       font-weight: 700;
-      color: #1a1a2e;
-    }
-
-    .portal-sub {
-      font-size: 0.85rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       color: #8a9bb0;
-      margin-bottom: 32px;
     }
 
-    .drag-hint {
-      font-size: 0.75rem;
+    .section-bar-count {
+      font-size: 0.68rem;
+      font-weight: 700;
       color: #b2bec3;
-      margin-bottom: 16px;
+      background: #e8ecf0;
+      padding: 1px 7px;
+      border-radius: 99px;
+    }
+
+    .section-bar-line {
+      flex: 1;
+      height: 1px;
+      background: #e4e8ed;
+    }
+
+    .section-bar-drag {
+      font-size: 0.68rem;
+      color: #c0c8d4;
+      letter-spacing: 0.02em;
     }
 
     .grid {
@@ -221,10 +289,19 @@
       gap: 16px;
     }
 
+    /* ── フッター ── */
     .portal-footer {
-      margin-top: 56px;
-      font-size: 0.78rem;
-      color: #b2bec3;
+      background: #001f33;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .portal-footer-text {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.25);
     }
 
     a.card {
@@ -346,10 +423,22 @@
       </div>
       <button class="logout-btn" id="logout-btn">Sign out</button>
     </nav>
+
+    <div class="portal-hero">
+      <div class="portal-hero-inner">
+        <div class="portal-hero-label">Marketing Team</div>
+        <h1 class="portal-hero-title">Marketing Apps</h1>
+        <p class="portal-hero-sub">マーケティング業務を効率化するツール集</p>
+      </div>
+    </div>
+
     <div class="portal-body">
-      <h1 class="portal-heading">Apps</h1>
-      <p class="portal-sub">使いたいアプリを選んでください</p>
-      <p class="drag-hint">ドラッグで並び替えできます</p>
+      <div class="section-bar">
+        <span class="section-bar-title">All Apps</span>
+        <span class="section-bar-count">6</span>
+        <span class="section-bar-line"></span>
+        <span class="section-bar-drag">ドラッグで並び替え</span>
+      </div>
       <div class="grid">
         <a class="card" href="apps/url-slug-generator/">
           <div class="card-icon-wrap">🔗</div>
@@ -388,8 +477,12 @@
           <div class="card-tag">Microsoft Copilot Agent</div>
         </a>
       </div>
-      <p class="portal-footer">お問い合わせ：Kunito Yabe</p>
     </div>
+
+    <footer class="portal-footer">
+      <span class="portal-footer-text">お問い合わせ：Kunito Yabe</span>
+      <img src="assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:16px;opacity:0.2;display:block;">
+    </footer>
   </div>
 
   <script>
