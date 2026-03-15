@@ -153,6 +153,37 @@
       color: #ccc;
       font-size: 0.8rem;
     }
+
+    .info-bar {
+      max-width: 1100px;
+      margin: 0 auto 16px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      flex-wrap: wrap;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      font-size: 0.8rem;
+      color: #555;
+      line-height: 1.6;
+    }
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .info-label {
+      font-weight: 700;
+      color: #1C304B;
+      white-space: nowrap;
+    }
+    .info-divider {
+      width: 1px;
+      background: #eee;
+      align-self: stretch;
+    }
   </style>
 </head>
 <body>
@@ -165,6 +196,23 @@
   <div class="header-right">
     <span class="meta-text" id="last-scraped">読み込み中...</span>
     <span id="new-count"></span>
+  </div>
+</div>
+
+<div class="info-bar">
+  <div class="info-item">
+    <span class="info-label">監視対象</span>
+    <span>AKKODiSグローバルサイトの Blog・Thinkers &amp; Makers・Client Stories を自動収集</span>
+  </div>
+  <div class="info-divider"></div>
+  <div class="info-item">
+    <span class="info-label">更新頻度</span>
+    <span>毎朝9時（JST）に自動チェック</span>
+  </div>
+  <div class="info-divider"></div>
+  <div class="info-item">
+    <span class="info-label"><span class="badge-new" style="font-size:0.62rem;padding:1px 6px;border-radius:99px;background:#ffb81c;color:#1C304B;">NEW</span> の定義</span>
+    <span>公開日から14日以内の記事</span>
   </div>
 </div>
 
