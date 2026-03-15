@@ -289,6 +289,46 @@
     }
 
     .result-area { display: none; }
+
+    /* ── 履歴 ── */
+    .history-wrap {
+      display: none;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .history-label { font-size: 0.72rem; color: #b2bec3; font-weight: 600; white-space: nowrap; }
+    .history-chip {
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      color: #636e72;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .history-chip:hover { border-color: #ffb81c; color: #001f33; }
+
+    /* ── コピーボタン ── */
+    .copy-tags-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      background: #001f33;
+      color: #fff;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-bottom: 16px;
+      font-family: inherit;
+    }
+    .copy-tags-btn:hover { opacity: 0.8; }
+    .copy-tags-btn.copied { background: #00b894; }
   </style>
 </head>
 <body>
@@ -308,6 +348,10 @@
     <div class="input-row">
       <input type="text" id="url-input" placeholder="https://example.com/your-page" autocomplete="off" />
       <button class="check-btn" id="check-btn">チェック</button>
+    </div>
+    <div class="history-wrap" id="history-wrap">
+      <span class="history-label">履歴</span>
+      <div id="history-chips"></div>
     </div>
     <div class="error-msg" id="error-msg"></div>
 
@@ -337,6 +381,7 @@
 
       <!-- OGP / SNSタグ -->
       <div class="tab-pane" id="tab-ogp">
+        <button class="copy-tags-btn" id="copy-tags-btn">📋 メタタグをHTMLコピー</button>
         <div class="section-label">Open Graph</div>
         <div class="tag-card"><table class="tag-table" id="ogp-table"></table></div>
         <div class="section-label">Twitter Card</div>
@@ -424,7 +469,7 @@
     }
 
     // ── バリデーション ────────────────────────────────────
-    function renderValidation(ogp, seo) {
+    function renderValidation(ogp, seo, imgSize) {
       const items = [];
 
       const addItem = (type, msg) => items.push({ type, msg });
@@ -438,8 +483,18 @@
       else if (ogp.description.length > 155) addItem('warn', `og:description が ${ogp.description.length} 文字です（推奨155文字以内）`);
       else                               addItem('ok',    `og:description OK（${ogp.description.length} 文字）`);
 
-      if (!ogp.image)                    addItem('error', 'og:image が未設定です（SNSシェア時に画像が表示されません）');
-      else                               addItem('ok',    'og:image が設定されています');
+      if (!ogp.image) {
+        addItem('error', 'og:image が未設定です（SNSシェア時に画像が表示されません）');
+      } else if (imgSize) {
+        const { width, height } = imgSize;
+        if (width < 1200 || height < 630) {
+          addItem('warn', `og:image サイズが ${width}×${height}px です（推奨: 1200×630px 以上）`);
+        } else {
+          addItem('ok', `og:image OK（${width}×${height}px）`);
+        }
+      } else {
+        addItem('ok', 'og:image が設定されています（サイズ取得不可）');
+      }
 
 
       // SEO（og:titleと別の値の場合のみチェック）
@@ -556,6 +611,77 @@
       }).join('');
     }
 
+    // ── チェック履歴 ─────────────────────────────────────
+    const HISTORY_KEY = 'ogp_checker_history';
+    const HISTORY_MAX = 5;
+
+    function loadHistory() {
+      try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; }
+    }
+    function saveHistory(url) {
+      let history = loadHistory().filter(u => u !== url);
+      history.unshift(url);
+      history = history.slice(0, HISTORY_MAX);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+    function renderHistory() {
+      const history = loadHistory();
+      const wrap = document.getElementById('history-wrap');
+      const chips = document.getElementById('history-chips');
+      if (history.length === 0) { wrap.style.display = 'none'; return; }
+      wrap.style.display = 'flex';
+      chips.innerHTML = history.map(url => {
+        const label = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+        return `<button class="history-chip" title="${escHtml(url)}">${escHtml(trunc(label, 40))}</button>`;
+      }).join('');
+      chips.querySelectorAll('.history-chip').forEach((btn, i) => {
+        btn.addEventListener('click', () => {
+          document.getElementById('url-input').value = history[i];
+          check();
+        });
+      });
+    }
+
+    // ── og:image 実サイズチェック ─────────────────────────
+    function checkImageSize(imageUrl) {
+      return new Promise(resolve => {
+        if (!imageUrl) { resolve(null); return; }
+        const img = new Image();
+        const timeout = setTimeout(() => resolve(null), 8000);
+        img.onload = () => {
+          clearTimeout(timeout);
+          resolve({ width: img.naturalWidth, height: img.naturalHeight });
+        };
+        img.onerror = () => { clearTimeout(timeout); resolve(null); };
+        img.src = imageUrl;
+      });
+    }
+
+    // ── メタタグ HTML コピー ──────────────────────────────
+    let _lastOgp = null;
+    function copyMetaTags() {
+      if (!_lastOgp) return;
+      const o = _lastOgp;
+      const lines = [];
+      if (o.title)        lines.push(`<meta property="og:title" content="${o.title.replace(/"/g, '&quot;')}">`);
+      if (o.description)  lines.push(`<meta property="og:description" content="${o.description.replace(/"/g, '&quot;')}">`);
+      if (o.image)        lines.push(`<meta property="og:image" content="${o.image}">`);
+      if (o.url)          lines.push(`<meta property="og:url" content="${o.url}">`);
+      if (o.type)         lines.push(`<meta property="og:type" content="${o.type}">`);
+      if (o.siteName)     lines.push(`<meta property="og:site_name" content="${o.siteName.replace(/"/g, '&quot;')}">`);
+      if (o.twitterCard)  lines.push(`<meta name="twitter:card" content="${o.twitterCard}">`);
+      if (o.twitterTitle) lines.push(`<meta name="twitter:title" content="${o.twitterTitle.replace(/"/g, '&quot;')}">`);
+      if (o.twitterDesc)  lines.push(`<meta name="twitter:description" content="${o.twitterDesc.replace(/"/g, '&quot;')}">`);
+      if (o.twitterImage) lines.push(`<meta name="twitter:image" content="${o.twitterImage}">`);
+      const text = lines.join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-tags-btn');
+        btn.classList.add('copied');
+        btn.textContent = '✅ コピーしました';
+        setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 メタタグをHTMLコピー'; }, 2000);
+      }).catch(() => { alert('クリップボードへのコピーに失敗しました'); });
+    }
+
     // ── メイン処理 ────────────────────────────────────────
     async function check() {
       hideError();
@@ -609,6 +735,16 @@
         const jsonLdList = [...doc.querySelectorAll('script[type="application/ld+json"]')]
           .map(el => el.textContent?.trim()).filter(Boolean);
 
+        // 履歴に保存
+        saveHistory(url);
+        renderHistory();
+
+        // og:image 実サイズ取得
+        const imgSize = await checkImageSize(ogp.image);
+
+        // コピー用に保存
+        _lastOgp = ogp;
+
         // 描画
         renderPreviews(ogp, url);
 
@@ -645,7 +781,7 @@
         }
 
         renderStructured(jsonLdList);
-        renderValidation(ogp, seo);
+        renderValidation(ogp, seo, imgSize);
 
         document.getElementById('result-area').style.display = 'block';
         document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -672,6 +808,10 @@
     document.getElementById('url-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') check();
     });
+    document.getElementById('copy-tags-btn').addEventListener('click', copyMetaTags);
+
+    // 起動時に履歴を表示
+    renderHistory();
   </script>
 
 </body>
