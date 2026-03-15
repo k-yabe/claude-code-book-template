@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   const videoId = extractVideoId(url);
   if (!videoId) return res.status(400).json({ error: '有効なYouTube URLではありません' });
 
-  // タイトルは oEmbed で確実に取得（APIキー不要）
+  // タイトルは oEmbed で確実に取得
   let title = '';
   try {
     const oembedRes = await fetch(
@@ -15,40 +15,39 @@ export default async function handler(req, res) {
       const oembedData = await oembedRes.json();
       title = oembedData.title || '';
     }
-  } catch (_) { /* タイトル取得失敗は無視 */ }
+  } catch (_) {}
 
-  // 字幕はページスクレイピングで取得（失敗してもタイトルは返す）
+  // 字幕は InnerTube API で取得（スクレイピングよりbot判定されにくい）
   try {
-    const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+    const playerRes = await fetch('https://www.youtube.com/youtubei/v1/player', {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
-        'Cookie': 'CONSENT=YES+1; SOCS=CAESEwgDEgk0OTIxMzkxMjQaAmphIAEaBgiAo_CmBg==',
+        'X-YouTube-Client-Name': '1',
+        'X-YouTube-Client-Version': '2.20231121.09.00',
       },
+      body: JSON.stringify({
+        videoId,
+        context: {
+          client: {
+            clientName: 'WEB',
+            clientVersion: '2.20231121.09.00',
+            hl: 'ja',
+            gl: 'JP',
+          },
+        },
+      }),
     });
-    const html = await pageRes.text();
 
-    const marker = 'ytInitialPlayerResponse = ';
-    const startIdx = html.indexOf(marker);
-    if (startIdx === -1) {
-      // ページ取得失敗。タイトルだけ返す
+    if (!playerRes.ok) {
       return res.status(200).json({ segments: null, title });
     }
 
-    const jsonStart = startIdx + marker.length;
-    let depth = 0, i = jsonStart;
-    while (i < html.length) {
-      if (html[i] === '{') depth++;
-      else if (html[i] === '}') { depth--; if (depth === 0) break; }
-      i++;
-    }
-    const playerResponse = JSON.parse(html.slice(jsonStart, i + 1));
-    const tracks = playerResponse?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+    const playerData = await playerRes.json();
+    if (!title) title = playerData.videoDetails?.title || '';
 
-    // oEmbedで取れなかった場合はplayerResponseからも試みる
-    if (!title) title = playerResponse.videoDetails?.title || '';
-
+    const tracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
     if (!tracks || tracks.length === 0) {
       return res.status(200).json({ segments: null, title });
     }
@@ -75,7 +74,6 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ segments, title });
   } catch (err) {
-    // スクレイピング失敗。タイトルだけ返す
     return res.status(200).json({ segments: null, title });
   }
 }
