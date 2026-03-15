@@ -286,14 +286,14 @@
     <div class="step">
       <div class="step-header">
         <div class="step-num">3</div>
-        <div class="step-title">PDFをアップロード</div>
+        <div class="step-title">ファイルをアップロード</div>
         <span class="step-badge badge-optional">任意</span>
       </div>
       <div class="step-body">
         <div class="upload-area" id="upload-area">
-          <input type="file" id="pdf-input" accept=".pdf" />
+          <input type="file" id="pdf-input" accept=".pdf,.pptx,.docx,.txt,.md" />
           <div class="upload-icon">📄</div>
-          <div class="upload-text">PDFをドラッグ&ドロップ、またはクリックして選択</div>
+          <div class="upload-text">PDF / PPTX / DOCX / TXT をドラッグ&ドロップ、またはクリックして選択</div>
           <div class="upload-filename" id="upload-filename" style="display:none"></div>
         </div>
       </div>
@@ -311,6 +311,12 @@
   </div>
 
   <script>
+    // ── 対応拡張子 ─────────────────────────────────────
+    const ACCEPTED_EXTS = ['.pdf', '.pptx', '.docx', '.txt', '.md'];
+    function isAccepted(file) {
+      return ACCEPTED_EXTS.some(ext => file.name.toLowerCase().endsWith(ext));
+    }
+
     // ── PDF テキスト抽出（PDF.js） ──────────────────────
     async function extractPdfText(file) {
       return new Promise((resolve, reject) => {
@@ -336,6 +342,65 @@
       });
     }
 
+    // ── JSZip ロード（PPTX / DOCX 共用） ───────────────
+    let _jszipReady = null;
+    function loadJSZip() {
+      if (_jszipReady) return _jszipReady;
+      _jszipReady = new Promise(resolve => {
+        if (window.JSZip) { resolve(window.JSZip); return; }
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        s.onload = () => resolve(window.JSZip);
+        document.head.appendChild(s);
+      });
+      return _jszipReady;
+    }
+
+    // ── PPTX テキスト抽出 ──────────────────────────────
+    async function extractPptxText(file) {
+      const JSZip = await loadJSZip();
+      const zip = await JSZip.loadAsync(await file.arrayBuffer());
+      const slideFiles = Object.keys(zip.files)
+        .filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n))
+        .sort()
+        .slice(0, 5);
+      let text = '';
+      for (const name of slideFiles) {
+        const xml = await zip.files[name].async('string');
+        const matches = xml.match(/<a:t[^>]*>([^<]+)<\/a:t>/g) || [];
+        text += matches.map(m => m.replace(/<[^>]+>/g, '')).join(' ') + '\n';
+      }
+      return text.trim();
+    }
+
+    // ── DOCX テキスト抽出 ──────────────────────────────
+    async function extractDocxText(file) {
+      const JSZip = await loadJSZip();
+      const zip = await JSZip.loadAsync(await file.arrayBuffer());
+      const xml = await zip.files['word/document.xml'].async('string');
+      const matches = xml.match(/<w:t[^>]*>([^<]+)<\/w:t>/g) || [];
+      return matches.map(m => m.replace(/<[^>]+>/g, '')).join(' ').trim();
+    }
+
+    // ── テキストファイル抽出 ────────────────────────────
+    async function extractTextFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result.trim());
+        reader.onerror = reject;
+        reader.readAsText(file, 'UTF-8');
+      });
+    }
+
+    // ── ファイル種別ディスパッチ ────────────────────────
+    async function extractFileText(file) {
+      const name = file.name.toLowerCase();
+      if (name.endsWith('.pdf'))  return extractPdfText(file);
+      if (name.endsWith('.pptx')) return extractPptxText(file);
+      if (name.endsWith('.docx')) return extractDocxText(file);
+      return extractTextFile(file); // .txt / .md
+    }
+
     // ── ファイルアップロードUI ──────────────────────────
     const uploadArea = document.getElementById('upload-area');
     const pdfInput = document.getElementById('pdf-input');
@@ -355,7 +420,7 @@
       e.preventDefault();
       uploadArea.classList.remove('dragover');
       const file = e.dataTransfer.files[0];
-      if (file && file.type === 'application/pdf') {
+      if (file && isAccepted(file)) {
         const dt = new DataTransfer();
         dt.items.add(file);
         pdfInput.files = dt.files;
@@ -419,14 +484,14 @@
       outputSection.style.display = 'none';
 
       try {
-        let pdfText = '';
+        let fileText = '';
         if (pdfFile) {
-          pdfText = await extractPdfText(pdfFile);
+          fileText = await extractFileText(pdfFile);
         }
 
         let userMsg = `以下のページのURLスラッグ候補を5個生成してください。\n\n【ページタイトル】\n${title}`;
         if (desc) userMsg += `\n\n【概要】\n${desc}`;
-        if (pdfText) userMsg += `\n\n【PDF内容（抜粋）】\n${pdfText.slice(0, 1000)}`;
+        if (fileText) userMsg += `\n\n【ファイル内容（抜粋）】\n${fileText.slice(0, 1000)}`;
 
         const res = await fetch('/api/generate', {
           method: 'POST',

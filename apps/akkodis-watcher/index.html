@@ -249,6 +249,16 @@
   const THIS_YEAR = new Date().getFullYear();
   localStorage.setItem('antennaLastVisit', Date.now());
 
+  // ── 既読管理 ────────────────────────────────────────
+  const READ_KEY = 'antennaReadUrls';
+  const readUrls = new Set(JSON.parse(localStorage.getItem(READ_KEY) || '[]'));
+
+  function markRead(url) {
+    if (readUrls.has(url)) return;
+    readUrls.add(url);
+    localStorage.setItem(READ_KEY, JSON.stringify([...readUrls]));
+  }
+
   function dateType(article) {
     const p = article.published_date;
     if (!p) return 'none';
@@ -258,6 +268,7 @@
 
   function isNew(article) {
     if (dateType(article) !== 'full') return false;
+    if (readUrls.has(article.url)) return false;
     return Date.now() - new Date(article.published_date).getTime() < NEW_DAYS * 86400000;
   }
 
@@ -343,6 +354,18 @@
 
       document.getElementById('columns').innerHTML =
         Object.entries(groups).map(([id, g]) => renderColumn(id, g.label, g.items)).join('');
+
+      // クリックで既読化
+      document.getElementById('columns').addEventListener('click', e => {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+        const item = link.closest('.item');
+        if (!item || !item.classList.contains('is-new')) return;
+        markRead(link.href);
+        item.classList.remove('is-new');
+        const badge = item.querySelector('.badge-new');
+        if (badge) badge.remove();
+      });
     })
     .catch(() => {
       document.getElementById('last-scraped').textContent = '読み込みエラー';
