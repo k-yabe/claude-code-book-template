@@ -8,14 +8,31 @@ export default async function handler(req, res) {
   try {
     // YouTubeページから字幕トラックURLを取得
     const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-      headers: { 'Accept-Language': 'ja,en;q=0.9', 'User-Agent': 'Mozilla/5.0' },
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cookie': 'CONSENT=YES+1; SOCS=CAESEwgDEgk0OTIxMzkxMjQaAmphIAEaBgiAo_CmBg==',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Cache-Control': 'no-cache',
+      },
     });
     const html = await pageRes.text();
 
     // ytInitialPlayerResponse を抽出
     const marker = 'ytInitialPlayerResponse = ';
     const startIdx = html.indexOf(marker);
-    if (startIdx === -1) return res.status(400).json({ error: '動画情報を取得できませんでした' });
+    if (startIdx === -1) {
+      // 同意ページや別ページが返ってきた可能性
+      const isConsentPage = html.includes('consent.youtube.com') || html.includes('CONSENT');
+      return res.status(400).json({
+        error: '動画情報を取得できませんでした',
+        debug: { isConsentPage, htmlSnippet: html.slice(0, 200) },
+      });
+    }
 
     const jsonStart = startIdx + marker.length;
     let depth = 0, i = jsonStart;
@@ -30,8 +47,11 @@ export default async function handler(req, res) {
     const title = playerResponse.videoDetails?.title || '';
 
     if (!tracks || tracks.length === 0) {
-      // 字幕なしでもタイトルだけ返す
-      return res.status(200).json({ segments: null, title });
+      return res.status(200).json({
+        segments: null,
+        title,
+        debug: { tracksFound: 0, captionsKey: Object.keys(playerResponse?.captions || {}) },
+      });
     }
 
     // 日本語優先、なければ英語、なければ最初のトラック
@@ -55,7 +75,7 @@ export default async function handler(req, res) {
       .filter(Boolean)
       .join('\n');
 
-    return res.status(200).json({ segments, title: playerResponse.videoDetails?.title || '' });
+    return res.status(200).json({ segments, title });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
