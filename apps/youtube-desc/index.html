@@ -239,6 +239,16 @@
       color: #2d3436;
       font-family: inherit;
     }
+
+    /* 文字数カウンター */
+    .char-counter {
+      font-size: 0.73rem;
+      color: #b2bec3;
+      text-align: right;
+      margin-top: 4px;
+    }
+    .char-counter.warn { color: #e67e22; font-weight: 600; }
+    .char-counter.over { color: #e17055; font-weight: 700; }
   </style>
 </head>
 <body>
@@ -264,7 +274,8 @@
     </div>
     <div class="step-body">
       <p class="field-hint">YouTubeにつける予定のタイトルを入力してください。AIがタイトルを参考に説明文を生成します。</p>
-      <input type="text" id="title" placeholder="例：AIがものづくりを変える｜アジャイル開発の最前線" />
+      <input type="text" id="title" placeholder="例：AIがものづくりを変える｜アジャイル開発の最前線" oninput="updateTitleCounter()" />
+      <div class="char-counter" id="title-counter">0 / 100文字（検索表示は約70文字）</div>
     </div>
   </div>
 
@@ -348,6 +359,7 @@
           <button class="copy-btn" onclick="copyEl('out-desc', this)">コピー</button>
         </div>
         <div class="out-text" id="out-desc" style="min-height:160px;"></div>
+        <div class="char-counter" id="desc-counter"></div>
       </div>
       <div class="out-section">
         <div class="out-header">
@@ -361,6 +373,20 @@
 </div>
 
 <script>
+  function updateTitleCounter() {
+    const len = document.getElementById('title').value.length;
+    const el = document.getElementById('title-counter');
+    el.textContent = `${len} / 100文字（検索表示は約70文字）`;
+    el.className = 'char-counter' + (len > 100 ? ' over' : len > 70 ? ' warn' : '');
+  }
+
+  function updateDescCounter(text) {
+    const len = text.length;
+    const el = document.getElementById('desc-counter');
+    el.textContent = `${len.toLocaleString()} / 5,000文字`;
+    el.className = 'char-counter' + (len > 5000 ? ' over' : len > 4500 ? ' warn' : '');
+  }
+
   const SNS = `■AKKODiS公式SNS\nぜひチェックしてみてください！\nFacebook→ https://www.facebook.com/akkodisjapan/\nLinkedIn→ https://www.linkedin.com/company/akkodis\nX→ https://x.com/AkkodisJapan`;
 
   async function generate() {
@@ -460,7 +486,9 @@ X→ https://x.com/AkkodisJapan
       }
 
       document.getElementById('out-title').textContent = parsed.title || '';
-      document.getElementById('out-desc').textContent = parsed.description || '';
+      const desc = parsed.description || '';
+      document.getElementById('out-desc').textContent = desc;
+      updateDescCounter(desc);
       document.getElementById('out-tags').textContent = parsed.hashtags || '';
       outputEl.classList.add('on');
       outputEl.scrollIntoView({ behavior: 'smooth', block: 'start' });

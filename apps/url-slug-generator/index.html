@@ -232,6 +232,36 @@
     .copy-btn:hover { opacity: 0.8; }
     .copy-btn.copied { background: #00b894; }
 
+    .slug-meta { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+    .slug-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+      background: #f0f2f5;
+      color: #636e72;
+    }
+    .slug-badge.ok    { background: #f0fdf8; color: #00695c; }
+    .slug-badge.warn  { background: #fffde7; color: #b45309; }
+    .slug-badge.over  { background: #fff5f4; color: #c0392b; }
+
+    .copy-all-btn {
+      display: block;
+      width: 100%;
+      margin-top: 12px;
+      padding: 9px;
+      background: none;
+      border: 1.5px solid #e8ecf0;
+      color: #636e72;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .copy-all-btn:hover { border-color: #001f33; color: #001f33; }
+    .copy-all-btn.copied { border-color: #00b894; color: #00b894; }
+
     .error-msg {
       color: #e17055;
       font-size: 0.85rem;
@@ -308,7 +338,8 @@
     <div class="output-section" id="output-section">
       <div class="output-header">URL候補</div>
       <div class="slug-list" id="slug-list"></div>
-      <button class="generate-btn" id="regenerate-btn" style="margin-top:16px">再生成する</button>
+      <button class="copy-all-btn" id="copy-all-btn">全候補をまとめてコピー</button>
+      <button class="generate-btn" id="regenerate-btn" style="margin-top:12px">再生成する</button>
     </div>
   </div>
 
@@ -446,11 +477,25 @@
       errorMsg.style.display = 'none';
     }
 
+    function slugBadges(slug) {
+      const words = slug.split('-').filter(Boolean).length;
+      const chars = slug.length;
+      const wordCls = words >= 3 && words <= 5 ? 'ok' : words < 3 ? 'warn' : 'over';
+      const charCls = chars <= 60 ? 'ok' : chars <= 75 ? 'warn' : 'over';
+      return `<div class="slug-meta">
+        <span class="slug-badge ${wordCls}">${words}単語（推奨3〜5）</span>
+        <span class="slug-badge ${charCls}">${chars}文字（推奨60文字以内）</span>
+      </div>`;
+    }
+
     function renderSlugs(slugs) {
       slugList.innerHTML = slugs.map(slug => `
-        <div class="slug-item">
-          <span class="slug-value">${slug}</span>
-          <button class="copy-btn" data-slug="${slug}">コピー</button>
+        <div class="slug-item" style="flex-direction:column;align-items:flex-start;gap:6px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+            <span class="slug-value">${slug}</span>
+            <button class="copy-btn" data-slug="${slug}">コピー</button>
+          </div>
+          ${slugBadges(slug)}
         </div>
       `).join('');
       slugList.querySelectorAll('.copy-btn').forEach(btn => {
@@ -465,6 +510,19 @@
           });
         });
       });
+
+      // 一括コピー
+      const copyAllBtn = document.getElementById('copy-all-btn');
+      copyAllBtn.onclick = () => {
+        navigator.clipboard.writeText(slugs.join('\n')).then(() => {
+          copyAllBtn.textContent = '✅ コピーしました';
+          copyAllBtn.classList.add('copied');
+          setTimeout(() => {
+            copyAllBtn.textContent = '全候補をまとめてコピー';
+            copyAllBtn.classList.remove('copied');
+          }, 2000);
+        });
+      };
     }
 
     async function generate() {

@@ -263,6 +263,70 @@
       color: #b2bec3;
       padding: 8px 20px 12px;
     }
+
+    .preview-toggle {
+      padding: 4px 12px;
+      background: none;
+      border: 1.5px solid #e8ecf0;
+      color: #636e72;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .preview-toggle:hover { border-color: #001f33; color: #001f33; }
+    .preview-toggle.active { background: #001f33; color: #fff; border-color: #001f33; }
+
+    .html-preview-frame {
+      width: 100%;
+      min-height: 200px;
+      border: none;
+      display: none;
+      background: #fff;
+      padding: 20px;
+    }
+
+    .url-list {
+      display: none;
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      margin-bottom: 20px;
+    }
+    .url-list-header {
+      padding: 12px 20px;
+      border-bottom: 1.5px solid #e8ecf0;
+      background: #f8f9fb;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #636e72;
+    }
+    .url-list-body { padding: 12px 20px; }
+    .url-list-item {
+      display: flex;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f2f5;
+      font-size: 0.8rem;
+      align-items: flex-start;
+    }
+    .url-list-item:last-child { border-bottom: none; }
+    .url-num {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      background: #1C304B;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .url-original { color: #636e72; word-break: break-all; line-height: 1.4; }
+    .url-campaign { color: #b2bec3; font-family: monospace; font-size: 0.73rem; word-break: break-all; }
   </style>
 </head>
 <body>
@@ -332,10 +396,20 @@
       <div class="output-block">
         <div class="output-header">
           <span class="output-label">HTML版</span>
-          <button class="copy-btn" id="copy-html-btn">コピー</button>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="preview-toggle" id="preview-toggle">プレビュー</button>
+            <button class="copy-btn" id="copy-html-btn">コピー</button>
+          </div>
         </div>
         <div class="output-content html-view" id="html-output"></div>
+        <iframe class="html-preview-frame" id="html-preview-frame"></iframe>
         <div class="url-count" id="html-url-count"></div>
+      </div>
+
+      <!-- URL番号付きリスト -->
+      <div class="url-list" id="url-list">
+        <div class="url-list-header">URL 一覧</div>
+        <div class="url-list-body" id="url-list-body"></div>
       </div>
 
     </div>
@@ -418,6 +492,14 @@
       document.getElementById('text-url-count').textContent = countMsg;
       document.getElementById('html-url-count').textContent = countMsg;
 
+      // プレビューをリセット
+      previewMode = false;
+      document.getElementById('html-output').style.display = 'block';
+      document.getElementById('html-preview-frame').style.display = 'none';
+      document.getElementById('preview-toggle').classList.remove('active');
+      document.getElementById('preview-toggle').textContent = 'プレビュー';
+
+      renderUrlList(body, campaign);
       document.getElementById('output-section').style.display = 'block';
       document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -438,6 +520,52 @@
 
     setupCopyBtn('copy-text-btn', () => document.getElementById('text-output').textContent);
     setupCopyBtn('copy-html-btn', () => document.getElementById('html-output').textContent);
+
+    // HTMLプレビュートグル
+    let previewMode = false;
+    document.getElementById('preview-toggle').addEventListener('click', function() {
+      previewMode = !previewMode;
+      const codeEl = document.getElementById('html-output');
+      const frameEl = document.getElementById('html-preview-frame');
+      if (previewMode) {
+        const html = codeEl.textContent;
+        frameEl.srcdoc = `<style>body{font-family:'Segoe UI','Helvetica Neue',sans-serif;font-size:14px;line-height:1.7;color:#2d3436;padding:0;margin:0;}a{color:#001f33;}}</style>${html}`;
+        frameEl.style.display = 'block';
+        codeEl.style.display = 'none';
+        this.classList.add('active');
+        this.textContent = 'コード';
+        // iframeの高さをコンテンツに合わせる
+        frameEl.onload = () => {
+          try { frameEl.style.minHeight = frameEl.contentDocument.body.scrollHeight + 40 + 'px'; } catch {}
+        };
+      } else {
+        frameEl.style.display = 'none';
+        codeEl.style.display = 'block';
+        this.classList.remove('active');
+        this.textContent = 'プレビュー';
+      }
+    });
+
+    // URL一覧の描画
+    function renderUrlList(body, campaign) {
+      const matches = [...body.matchAll(new RegExp(URL_REGEX.source, 'g'))];
+      const listEl = document.getElementById('url-list');
+      const bodyEl = document.getElementById('url-list-body');
+      if (matches.length === 0) { listEl.style.display = 'none'; return; }
+      bodyEl.innerHTML = matches.map((m, i) => {
+        const num = String(i + 1).padStart(2, '0');
+        const utmContent = `utm_content=${num}`;
+        return `
+          <div class="url-list-item">
+            <div class="url-num">${i + 1}</div>
+            <div>
+              <div class="url-original">${m[0]}</div>
+              <div class="url-campaign">utm_campaign=ak_clt_${campaign}${num}</div>
+            </div>
+          </div>`;
+      }).join('');
+      listEl.style.display = 'block';
+    }
   </script>
 
 </body>
