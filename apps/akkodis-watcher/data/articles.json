@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-03-14T12:22:06Z",
+  "last_scraped": "2026-03-15T01:56:36Z",
   "articles": [
     {
       "id": "why-most-ai-pilots-fail",
@@ -119,15 +119,6 @@
       "published_date": "2026-02-26T00:00:00Z"
     },
     {
-      "id": "ai-ev-charging-reliability",
-      "title": "AI-Driven Self-Diagnosing EV Charging Infrastructure",
-      "url": "https://www.akkodis.com/blog/articles/ai-ev-charging-reliability",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:46Z",
-      "published_date": "2026-02-13T00:00:00Z"
-    },
-    {
       "id": "life-sciences-consulting-pharma-careers",
       "title": "Life Sciences Consulting Careers: Innovation & Quality Leadership",
       "url": "https://www.akkodis.com/blog/articles/life-sciences-consulting-pharma-careers",
@@ -171,60 +162,6 @@
       "source_label": "Akkodis Blog",
       "first_seen": "2026-03-14T12:15:59Z",
       "published_date": "2026-02-17T00:00:00Z"
-    },
-    {
-      "id": "akkodis-thinkers-and-makers-vol3-2025",
-      "title": "Thinkers & Makers Vol.3 2025",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers_and_makers_vol3_2025.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2025",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "thinkers-and-makers-vol2-2025",
-      "title": "Thinkers & Makers Vol.2 2025",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol2_2025.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2025",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "thinkers-and-makers-vol1-2025",
-      "title": "Thinkers & Makers Vol.1 2025",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol1_2025.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2025",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "thinkers-and-makers-vol-3---2024",
-      "title": "Thinkers And Makers Vol 3   2024",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-3-_-2024.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2024",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "thinkers-and-makers-vol-2---2024",
-      "title": "Thinkers And Makers Vol 2   2024",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-2-_-2024.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2024",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "akkodis-thinkers-and-makers-vol-01-2024new",
-      "title": "Thinkers & Makers Vol.1 2024",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers-and-makers_vol_01_2024new.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2024",
-      "first_seen": "2026-03-14T10:15:00Z"
     },
     {
       "id": "integrated-sensor-technology-analytics-platform",
@@ -380,6 +317,15 @@
       "published_date": null
     },
     {
+      "id": "zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
+      "title": "View\nkeyboard_arrow_right",
+      "url": "https://www.akkodis.com/en/blog/client-success/zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-15T01:56:06Z",
+      "published_date": null
+    },
+    {
       "id": "automotive-company-speeds-up-education-programs-adoption",
       "title": "Automotive Company’s Speeds Up Education Programs Adoption",
       "url": "https://www.akkodis.com/en/blog/client-success/automotive-company-speeds-up-education-programs-adoption",
@@ -479,6 +425,15 @@
       "published_date": null
     },
     {
+      "id": "personal-rekrutierung-fur-value-added-reseller",
+      "title": "View\nkeyboard_arrow_right",
+      "url": "https://www.akkodis.com/en/blog/client-success/personal-rekrutierung-fur-value-added-reseller",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-15T01:56:18Z",
+      "published_date": null
+    },
+    {
       "id": "akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
       "title": "Akkodis Delivers Cost Efficiencies in EE’s SD Management",
       "url": "https://www.akkodis.com/en/blog/client-success/akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
@@ -530,24 +485,6 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:21:49Z",
-      "published_date": null
-    },
-    {
-      "id": "british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
-      "title": "British Airways Transforms Its IT Function",
-      "url": "https://www.akkodis.com/en/blog/client-success/british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-14T12:21:55Z",
-      "published_date": null
-    },
-    {
-      "id": "rbc-railway",
-      "title": "Ensuring Rail Software Safety: Akkodis Validation Services",
-      "url": "https://www.akkodis.com/en/blog/client-success/rbc-railway",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-14T12:21:58Z",
       "published_date": null
     }
   ]
