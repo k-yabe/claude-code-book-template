@@ -425,31 +425,32 @@
       const addItem = (type, msg) => items.push({ type, msg });
 
       // OGP
-      if (!ogp.title)                   addItem('error', 'og:title が未設定です');
-      else if (ogp.title.length > 60)   addItem('warn',  `og:title ${ogp.title.length}文字（Twitter推奨60文字以内）`);
-      else                               addItem('ok',    `og:title OK（${ogp.title.length}文字）`);
+      if (!ogp.title)                    addItem('error', 'og:title が未設定です');
+      else if (ogp.title.length > 70)    addItem('warn',  `og:title が ${ogp.title.length} 文字です（Twitter/X は約70文字で切れます）`);
+      else                               addItem('ok',    `og:title OK（${ogp.title.length} 文字）`);
 
       if (!ogp.description)              addItem('error', 'og:description が未設定です');
-      else if (ogp.description.length > 155) addItem('warn', `og:description ${ogp.description.length}文字（推奨155文字以内）`);
-      else                               addItem('ok',    `og:description OK（${ogp.description.length}文字）`);
+      else if (ogp.description.length > 155) addItem('warn', `og:description が ${ogp.description.length} 文字です（推奨155文字以内）`);
+      else                               addItem('ok',    `og:description OK（${ogp.description.length} 文字）`);
 
-      if (!ogp.image)                    addItem('error', 'og:image が未設定です（SNSシェア時に画像なし）');
+      if (!ogp.image)                    addItem('error', 'og:image が未設定です（SNSシェア時に画像が表示されません）');
       else                               addItem('ok',    'og:image が設定されています');
 
-      if (!ogp.twitterCard)              addItem('warn',  'twitter:card が未設定（推奨: summary_large_image）');
+      if (!ogp.twitterCard)              addItem('warn',  'twitter:card が未設定です（推奨: summary_large_image）');
       else                               addItem('ok',    `twitter:card = ${ogp.twitterCard}`);
 
-      // SEO
-      if (!seo.title)                    addItem('error', '<title> タグが未設定です');
-      else if (seo.title.length > 60)    addItem('warn',  `<title> ${seo.title.length}文字（推奨60文字以内）`);
-      else                               addItem('ok',    `<title> OK（${seo.title.length}文字）`);
+      // SEO（og:titleと別の値の場合のみチェック）
+      if (seo.title && seo.title !== ogp.title) {
+        if (seo.title.length > 70) addItem('warn', `<title> が ${seo.title.length} 文字です（Google検索は約70文字で切れます）`);
+        else                       addItem('ok',   `<title> OK（${seo.title.length} 文字）`);
+      }
 
-      if (!seo.metaDesc)                 addItem('warn',  'meta description が未設定です');
-      else if (seo.metaDesc.length > 160) addItem('warn', `meta description ${seo.metaDesc.length}文字（推奨160文字以内）`);
-      else                               addItem('ok',    `meta description OK（${seo.metaDesc.length}文字）`);
+      if (!seo.metaDesc)                  addItem('warn',  'meta description が未設定です');
+      else if (seo.metaDesc.length > 160) addItem('warn',  `meta description が ${seo.metaDesc.length} 文字です（推奨160文字以内）`);
+      else                                addItem('ok',    `meta description OK（${seo.metaDesc.length} 文字）`);
 
-      if (!seo.canonical)                addItem('warn',  'canonical URL が未設定です');
-      else                               addItem('ok',    'canonical が設定されています');
+      if (!seo.canonical) addItem('warn', 'canonical URL が未設定です');
+      else                addItem('ok',   'canonical が設定されています');
 
       // カウント
       const ok    = items.filter(i => i.type === 'ok').length;
@@ -625,13 +626,20 @@
         ]);
 
         renderTable('seo-table', [
-          ['<title>',          seo.title,     seo.title.length > 60 ? 'tag-warn' : 'tag-ok'],
-          ['meta description', seo.metaDesc,  seo.metaDesc.length > 160 ? 'tag-warn' : 'tag-ok'],
+          ['&lt;title&gt;',    seo.title,     (seo.title || '').length > 70 ? 'tag-warn' : 'tag-ok'],
+          ['meta description', seo.metaDesc,  (seo.metaDesc || '').length > 160 ? 'tag-warn' : 'tag-ok'],
           ['canonical',        seo.canonical, 'tag-ok'],
           ['robots',           seo.robots,    ''],
           ['h1',               seo.h1,        ''],
           ['lang',             seo.lang,      seo.lang ? 'tag-ok' : ''],
         ]);
+        // h1・lang が空の場合はJSレンダリングの可能性を注記
+        if (!seo.h1) {
+          const seoTable = document.getElementById('seo-table');
+          const note = document.createElement('tr');
+          note.innerHTML = '<td colspan="2" style="padding:8px 14px;font-size:0.75rem;color:#b2bec3;font-style:italic;">※ h1・構造化データが空の場合、ページがJavaScriptでレンダリングされている可能性があります</td>';
+          seoTable.appendChild(note);
+        }
 
         renderStructured(jsonLdList);
         renderValidation(ogp, seo);
