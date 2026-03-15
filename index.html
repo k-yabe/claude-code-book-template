@@ -321,70 +321,74 @@
       background: #dde3ea;
     }
 
-    .card-update {
-      font-size: 0.68rem;
-      color: #ffb81c;
-      font-weight: 600;
-      margin-top: 10px;
-      margin-bottom: -4px;
-      line-height: 1.4;
+    .card-updated-dot {
+      position: absolute;
+      top: 11px;
+      right: 11px;
+      width: 7px;
+      height: 7px;
+      background: #ffb81c;
+      border-radius: 50%;
     }
 
-    /* ── What's New パネル ── */
+    /* ── What's New バー ── */
     .whats-new {
       background: #fff;
       border: 1.5px solid #e8ecf0;
+      border-left: 3px solid #ffb81c;
       margin-bottom: 20px;
     }
     .whats-new-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 9px 14px;
-      background: #f8f9fb;
-      border-bottom: 2px solid #001f33;
+      padding: 7px 12px 7px 14px;
     }
-    .whats-new-header-left { display: flex; align-items: center; gap: 10px; }
     .whats-new-label {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 800;
       letter-spacing: 0.12em;
       color: #001f33;
     }
-    .whats-new-date {
-      font-size: 0.7rem;
-      color: #b2bec3;
-    }
     .whats-new-close {
       background: none;
       border: none;
-      color: #b2bec3;
+      color: #c0c8d4;
       cursor: pointer;
-      font-size: 0.95rem;
+      font-size: 0.82rem;
       line-height: 1;
       padding: 2px 4px;
       font-family: inherit;
     }
-    .whats-new-close:hover { color: #636e72; }
+    .whats-new-close:hover { color: #8a9bb0; }
     .whats-new-body {
-      padding: 10px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      border-top: 1px solid #f0f2f5;
+      padding: 6px 14px 8px;
+      gap: 2px 20px;
     }
+    @media (max-width: 600px) { .whats-new-body { grid-template-columns: 1fr; } }
     .wn-item {
       display: flex;
       align-items: baseline;
-      gap: 12px;
-      font-size: 0.78rem;
+      gap: 8px;
+      padding: 3px 0;
+      font-size: 0.74rem;
     }
     .wn-app {
       font-weight: 700;
-      color: #1a1a2e;
+      color: #2d3436;
       white-space: nowrap;
-      min-width: 180px;
+      flex-shrink: 0;
     }
-    .wn-desc { color: #636e72; }
+    .wn-desc {
+      color: #8a9bb0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
   </style>
 </head>
 <body>
@@ -427,17 +431,17 @@
       <div id="whats-new" style="display:none"></div>
       <div class="grid">
         <a class="card" href="apps/ogp-checker/">
+          <div class="card-updated-dot"></div>
           <div class="card-icon-wrap">🔍</div>
           <div class="card-name">OGP Checker</div>
           <div class="card-desc">URLを入力してSNSシェア時の表示をプレビュー</div>
-          <div class="card-update">og:imageプレビュー・Google検索結果・履歴機能を追加</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/url-slug-generator/">
+          <div class="card-updated-dot"></div>
           <div class="card-icon-wrap">🔗</div>
           <div class="card-name">URL Slug Generator</div>
           <div class="card-desc">タイトルからURL候補をAIが自動生成</div>
-          <div class="card-update">単語数/文字数バッジ・一括コピーボタンを追加</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/banner-resizer/">
@@ -447,24 +451,24 @@
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/youtube-desc/">
+          <div class="card-updated-dot"></div>
           <div class="card-icon-wrap">🎬</div>
           <div class="card-name">YouTube Generator</div>
           <div class="card-desc">動画説明文・タイトル・ハッシュタグをAIで自動生成</div>
-          <div class="card-update">タイトル・説明文の文字数カウンターを追加</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/marketo-mail-generator/">
+          <div class="card-updated-dot"></div>
           <div class="card-icon-wrap">✉️</div>
           <div class="card-name">Marketo Mail Generator</div>
           <div class="card-desc">UTMパラメーター付与・テキスト版とHTML版を同時生成</div>
-          <div class="card-update">HTMLプレビュー・使用URLリストを追加</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/akkodis-watcher/" id="card-antenna">
+          <div class="card-updated-dot"></div>
           <div class="card-icon-wrap">📡</div>
           <div class="card-name">Global Antenna</div>
           <div class="card-desc">AKKODiSグローバルサイトの新着記事を毎日チェック</div>
-          <div class="card-update">キーワードフィルター・UIリニューアル</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="https://m365.cloud.microsoft/chat/?titleId=T_8aa0cc54-ad42-710e-b66b-a63fa397a14a&source=embedded-builder" target="_blank" rel="noopener">
@@ -497,11 +501,11 @@
 
     // ── What's New パネル ────────────────────────────────
     const WHATS_NEW = [
-      { app: 'OGP Checker',            desc: 'og:imageサイズ確認・Google検索プレビュー・チェック履歴を追加' },
-      { app: 'URL Slug Generator',     desc: '単語数/文字数バッジ・一括コピーボタンを追加' },
-      { app: 'YouTube Generator',      desc: 'タイトル・説明文の文字数カウンターを追加' },
-      { app: 'Marketo Mail Generator', desc: 'HTMLプレビュー・使用URLリストを追加' },
-      { app: 'Global Antenna',         desc: 'キーワードフィルター・UIリニューアル' },
+      { app: 'OGP Checker',            desc: 'og:image確認・検索プレビュー・履歴追加' },
+      { app: 'URL Slug Generator',     desc: 'バッジ・一括コピー追加' },
+      { app: 'YouTube Generator',      desc: '文字数カウンター追加' },
+      { app: 'Marketo Mail Generator', desc: 'HTMLプレビュー・URLリスト追加' },
+      { app: 'Global Antenna',         desc: 'フィルター・UIリニューアル' },
     ];
     const WN_KEY = 'wnDismissed_20260315';
 
@@ -510,10 +514,7 @@
       const el = document.getElementById('whats-new');
       el.innerHTML = `
         <div class="whats-new-header">
-          <div class="whats-new-header-left">
-            <span class="whats-new-label">WHAT'S NEW</span>
-            <span class="whats-new-date">2026-03-15</span>
-          </div>
+          <span class="whats-new-label">WHAT'S NEW · 2026-03-15</span>
           <button class="whats-new-close" id="wn-close">✕</button>
         </div>
         <div class="whats-new-body">
