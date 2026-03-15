@@ -291,8 +291,8 @@
       </div>
       <div class="fetch-status" id="fetch-status"></div>
       <div id="timestamps-wrap" style="display:none; margin-top:16px;">
-        <div class="sub-label">タイムスタンプ（自動取得済み・編集可）</div>
-        <textarea id="timestamps" rows="4"></textarea>
+        <div class="sub-label" id="timestamps-label">タイムスタンプ（自動取得済み・編集可）</div>
+        <textarea id="timestamps" rows="4" placeholder="例）&#10;00:00 オープニング&#10;01:30 テーマ紹介&#10;05:00 まとめ"></textarea>
       </div>
     </div>
   </div>
@@ -412,7 +412,15 @@
 
     errorEl.classList.remove('on');
     if (!title) { showErr('STEP 2：動画タイトルを入力してください。'); return; }
-    if (!capturedSegments && !content) { showErr('STEP 3：動画の内容を入力してください。'); return; }
+    if (!capturedSegments && !content) {
+      const step3Visible = document.getElementById('step3-card').style.display !== 'none';
+      if (step3Visible) {
+        showErr('STEP 3：動画の内容を入力してください。');
+      } else {
+        showErr('STEP 1：まずYouTube URLを貼り付けて「取得」を押してください。');
+      }
+      return;
+    }
 
     btn.disabled = true;
     loadingEl.classList.add('on');
@@ -463,7 +471,7 @@
 
 2. リンクセクション：【説明文に含めるリンクセクション】が提供された場合、その内容をそのまま説明文に含める（追加・変更・省略しないこと）
 
-4. 目次：タイムスタンプが提供された場合のみ以下の形式で追加
+3. 目次：タイムスタンプが提供された場合のみ以下の形式で追加
 【目次】
 [タイムスタンプ]
 
@@ -545,6 +553,7 @@ X→ https://x.com/AkkodisJapan
       }
 
       if (!data.segments) {
+        document.getElementById('timestamps-label').textContent = 'タイムスタンプ（任意・手動入力）';
         document.getElementById('timestamps-wrap').style.display = 'block';
         document.getElementById('step3-card').style.display = 'block';
         document.getElementById('link-step-num').textContent = '4';
