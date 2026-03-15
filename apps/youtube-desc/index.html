@@ -265,22 +265,26 @@
 <div class="wrap">
   <a class="back" href="../../">← アプリ一覧へ</a>
   <p class="page-title">YouTube説明文ジェネレーター</p>
-  <p class="page-sub">以下の手順で入力するだけで、タイトル・説明文・ハッシュタグをAIが自動作成します。</p>
+  <p class="page-sub">YouTubeにアップした動画のURLを貼るだけで、タイトル・説明文・ハッシュタグをAIが自動作成します。</p>
 
   <!-- STEP 1 -->
   <div class="step">
     <div class="step-header">
       <div class="step-num" id="step1-num">1</div>
       <div class="step-title">YouTube URLを貼り付ける</div>
-      <span class="step-badge badge-optional">任意</span>
+      <span class="step-badge badge-required">必須</span>
     </div>
     <div class="step-body">
-      <p class="field-hint">すでにYouTubeにアップ済みの場合はURLを貼ると、動画タイトルとタイムスタンプを自動で取得します。まだアップしていない場合はスキップしてください。</p>
+      <p class="field-hint">公開・限定公開どちらのURLでもOKです。URLを貼って「取得」を押すと、タイトルとタイムスタンプを自動で読み込みます。</p>
       <div class="url-row">
         <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
-        <button class="fetch-btn" id="fetch-btn" onclick="fetchCaptions()">自動取得</button>
+        <button class="fetch-btn" id="fetch-btn" onclick="fetchCaptions()">取得</button>
       </div>
       <div class="fetch-status" id="fetch-status"></div>
+      <div id="timestamps-wrap" style="display:none; margin-top:16px;">
+        <div class="sub-label">タイムスタンプ（自動取得済み・編集可）</div>
+        <textarea id="timestamps" rows="4"></textarea>
+      </div>
     </div>
   </div>
 
@@ -288,11 +292,11 @@
   <div class="step">
     <div class="step-header">
       <div class="step-num">2</div>
-      <div class="step-title">動画タイトルを入力する</div>
+      <div class="step-title">動画タイトルを確認・編集する</div>
       <span class="step-badge badge-required">必須</span>
     </div>
     <div class="step-body">
-      <p class="field-hint">STEP 1でURLを取得した場合は自動入力されています。内容を確認・編集してください。</p>
+      <p class="field-hint">STEP 1で自動入力されたタイトルを確認してください。修正したい場合はそのまま編集できます。</p>
       <input type="text" id="title" placeholder="例：AIがものづくりを変える｜アジャイル開発の最前線" />
     </div>
   </div>
@@ -314,12 +318,11 @@
   <div class="step">
     <div class="step-header">
       <div class="step-num">4</div>
-      <div class="step-title">リンク・タイムスタンプを設定する</div>
+      <div class="step-title">掲載するリンクを選ぶ</div>
       <span class="step-badge badge-optional">任意</span>
     </div>
     <div class="step-body">
-      <p class="field-hint">説明文に掲載したいリンクを選択してください。タイムスタンプはSTEP 1で自動取得済みの場合は入力不要です。</p>
-
+      <p class="field-hint">説明文に載せたいリンクがあればチェックしてください。不要な場合はそのまま次へ進めます。</p>
       <div class="link-checks">
         <label class="check-item">
           <input type="checkbox" id="link-top">
@@ -336,12 +339,8 @@
           </div>
         </label>
       </div>
-
       <div class="sub-label">その他のリンク（関連動画・プレスリリースなど）</div>
       <textarea id="links-free" rows="2" placeholder="1行に1つ入力してください&#10;例：https://www.youtube.com/watch?v=xxx"></textarea>
-
-      <div class="sub-label" style="margin-top:18px;">タイムスタンプ（目次）</div>
-      <textarea id="timestamps" rows="3" placeholder="00:00 イントロ&#10;01:30 AIとは&#10;05:00 まとめ"></textarea>
     </div>
   </div>
 
@@ -546,10 +545,11 @@ X→ https://x.com/AkkodisJapan
       const claudeData = await claudeRes.json();
       const timestamps = claudeData.content?.[0]?.text?.trim() || '';
       document.getElementById('timestamps').value = timestamps;
+      document.getElementById('timestamps-wrap').style.display = 'block';
 
       document.getElementById('step1-num').classList.add('done');
       document.getElementById('step1-num').textContent = '✓';
-      statusEl.textContent = 'タイトルとタイムスタンプを取得しました。STEP 2以降を確認してください。';
+      statusEl.textContent = 'タイトルとタイムスタンプを取得しました。STEP 2以降に進んでください。';
       statusEl.className = 'fetch-status ok';
     } catch (err) {
       statusEl.textContent = `エラー: ${err.message}`;
