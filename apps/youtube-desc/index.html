@@ -227,17 +227,17 @@
 <div class="wrap">
   <a class="back" href="../../">← アプリ一覧へ</a>
   <p class="page-title">YouTube説明文ジェネレーター</p>
-  <p class="page-sub">台本・原稿を貼るだけで、タイトル・説明文・タイムスタンプ・ハッシュタグをAIが自動作成します。</p>
+  <p class="page-sub">YouTubeアップ前の準備ツールです。台本・原稿を貼るだけで、説明文・ハッシュタグをAIが自動作成します。</p>
 
   <!-- STEP 1 -->
   <div class="step">
     <div class="step-header">
       <div class="step-num">1</div>
-      <div class="step-title">動画タイトルを入力する</div>
+      <div class="step-title">動画タイトルを決める</div>
       <span class="step-badge badge-required">必須</span>
     </div>
     <div class="step-body">
-      <p class="field-hint">YouTubeにアップした際のタイトルをそのまま入力してください。</p>
+      <p class="field-hint">YouTubeにつける予定のタイトルを入力してください。AIがタイトルを参考に説明文を生成します。</p>
       <input type="text" id="title" placeholder="例：AIがものづくりを変える｜アジャイル開発の最前線" />
     </div>
   </div>
@@ -250,10 +250,10 @@
       <span class="step-badge badge-required">必須</span>
     </div>
     <div class="step-body">
-      <p class="field-hint">台本・原稿・LPのテキストをそのまま貼り付けてください。AIが内容を読んで説明文とタイムスタンプを自動生成します。走り書きやキーワードの羅列でも生成できます。</p>
+      <p class="field-hint">動画の台本・原稿・LPのテキストをそのまま貼り付けてください。走り書きやキーワードの羅列でも生成できます。</p>
       <textarea id="content" rows="10" placeholder="例）&#10;・AIを活用したアジャイル開発の事例紹介&#10;・スピードと品質を両立させるチームの作り方&#10;・2025年のDX推進に向けた取り組みについて話します"></textarea>
-      <div class="sub-label">タイムスタンプ（任意・手動入力）</div>
-      <p class="field-hint">正確なタイムスタンプがわかる場合のみ入力してください。入力した内容がそのまま説明文に使われます。空欄の場合は目次なしで生成します。</p>
+      <div class="sub-label">タイムスタンプ（任意）</div>
+      <p class="field-hint">動画編集後に正確な時間がわかった場合のみ入力してください。入力した内容が説明文にそのまま使われます。空欄の場合は目次なしで生成します。</p>
       <textarea id="timestamps" rows="4" placeholder="例）&#10;00:00 オープニング&#10;01:30 テーマ紹介&#10;05:00 まとめ"></textarea>
     </div>
   </div>
