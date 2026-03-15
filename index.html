@@ -193,11 +193,8 @@
     /* ── ヒーローセクション ── */
     .portal-hero {
       background: #001f33;
-      background-image:
-        radial-gradient(ellipse 600px 300px at 80% 50%, rgba(255,184,28,0.07) 0%, transparent 100%),
-        radial-gradient(ellipse 400px 400px at 5% 100%, rgba(0,80,160,0.15) 0%, transparent 100%);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      padding: 28px 40px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 16px 40px;
     }
 
     .portal-hero-inner {
@@ -205,38 +202,9 @@
       margin: 0 auto;
     }
 
-    .portal-hero-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: #ffb81c;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .portal-hero-label::before {
-      content: '';
-      display: block;
-      width: 20px;
-      height: 2px;
-      background: #ffb81c;
-      border-radius: 2px;
-    }
-
-    .portal-hero-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
-      margin-bottom: 8px;
-    }
-
     .portal-hero-sub {
       font-size: 0.82rem;
-      color: rgba(255,255,255,0.38);
+      color: rgba(255,255,255,0.5);
       letter-spacing: 0.01em;
     }
 
@@ -292,7 +260,7 @@
     /* ── フッター ── */
     .portal-footer {
       background: #001f33;
-      border-top: 1px solid rgba(255,255,255,0.06);
+      border-top: 1px solid rgba(255,255,255,0.08);
       padding: 20px 40px;
       display: flex;
       align-items: center;
@@ -301,7 +269,7 @@
 
     .portal-footer-text {
       font-size: 0.75rem;
-      color: rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.55);
     }
 
     a.card {
@@ -403,7 +371,7 @@
     <div class="login-box">
       <div class="login-brand"><img src="assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:20px;display:block;"></div>
       <h2>Marketing Apps</h2>
-      <p class="login-tagline">For Marketing Team</p>
+      <p class="login-tagline">業務効率化ツール集</p>
       <form id="login-form" autocomplete="on">
         <input type="text" name="username" autocomplete="username" style="display:none" value="marketing-team" />
         <input type="password" id="pw-input" name="password" placeholder="Password" autocomplete="current-password" />
@@ -426,7 +394,6 @@
 
     <div class="portal-hero">
       <div class="portal-hero-inner">
-        <h1 class="portal-hero-title">Apps Portal</h1>
         <p class="portal-hero-sub">マーケティング業務を効率化するツール集</p>
       </div>
     </div>
