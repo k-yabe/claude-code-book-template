@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Slug Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      background: #f0f2f5;
+      color: #2d3436;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: #001f33;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .navbar-brand { display: flex; align-items: center; gap: 14px; }
+    .navbar-logo { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.2em; color: #ffb81c; }
+    .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+    .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+    .back-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.65);
+      cursor: pointer;
+      padding: 6px 14px;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 40px 80px;
+    }
+
+    h1 { font-size: 1.4rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .subtitle { font-size: 0.85rem; color: #8a9bb0; margin-bottom: 32px; }
+
+    .card {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      padding: 28px 32px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8a9bb0;
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #636e72;
+      margin-bottom: 8px;
+    }
+    label .optional {
+      font-weight: 400;
+      color: #b2bec3;
+      margin-left: 6px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e8ecf0;
+      background: #fff;
+      font-size: 0.95rem;
+      color: #2d3436;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]::placeholder, textarea::placeholder { color: #b2bec3; }
+    input[type="text"]:focus, textarea:focus {
+      border-color: #ffb81c;
+      box-shadow: 0 0 0 3px rgba(255,184,28,0.12);
+    }
+
+    textarea { min-height: 80px; resize: vertical; line-height: 1.6; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    .upload-area {
+      border: 2px dashed #d0d8e4;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .upload-area:hover { border-color: #ffb81c; background: #fffdf5; }
+    .upload-area.dragover { border-color: #ffb81c; background: #fffdf5; }
+    .upload-area.has-file { border-color: #00b894; border-style: solid; background: #f0fdf8; }
+    .upload-area input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .upload-icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .upload-text { font-size: 0.85rem; color: #8a9bb0; }
+    .upload-filename { font-size: 0.85rem; color: #00b894; font-weight: 600; margin-top: 6px; }
+
+    .generate-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: #ffb81c;
+      color: #001f33;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: opacity 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(255,184,28,0.25);
+      margin-bottom: 20px;
+    }
+    .generate-btn:hover { opacity: 0.92; box-shadow: 0 6px 28px rgba(255,184,28,0.4); }
+    .generate-btn:active { transform: scale(0.99); }
+    .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0,31,51,0.3);
+      border-top-color: #001f33;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .output-section { display: none; }
+
+    .output-header {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8a9bb0;
+      margin-bottom: 12px;
+    }
+
+    .slug-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .slug-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      padding: 14px 18px;
+    }
+
+    .slug-value {
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      color: #1a1a2e;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      flex-shrink: 0;
+      padding: 6px 16px;
+      background: #001f33;
+      color: #fff;
+      border: none;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .copy-btn:hover { opacity: 0.8; }
+    .copy-btn.copied { background: #00b894; }
+
+    .error-msg {
+      color: #e17055;
+      font-size: 0.85rem;
+      padding: 12px 16px;
+      background: #fff5f4;
+      border: 1.5px solid #fab1a0;
+      margin-bottom: 16px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="navbar-logo">AKKODiS</span>
+      <div class="navbar-divider"></div>
+      <span class="navbar-title">URL Slug Generator</span>
+    </div>
+    <a href="../../" class="back-btn">← Apps</a>
+  </nav>
+
+  <div class="container">
+    <h1>URL Slug Generator</h1>
+    <p class="subtitle">ページタイトルからURL候補をAIが自動生成</p>
+
+    <div class="card">
+      <h2>入力</h2>
+
+      <div class="form-group">
+        <label>ページタイトル</label>
+        <input type="text" id="title-input" placeholder="例：Azure AI で実現する次世代クラウド運用セミナー" autocomplete="off" />
+      </div>
+
+      <div class="form-group">
+        <label>概要文 <span class="optional">任意</span></label>
+        <textarea id="desc-input" placeholder="ページの概要を入力すると、より精度の高い候補が生成されます"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>PDF <span class="optional">任意</span></label>
+        <div class="upload-area" id="upload-area">
+          <input type="file" id="pdf-input" accept=".pdf" />
+          <div class="upload-icon">📄</div>
+          <div class="upload-text">PDFをドラッグ&ドロップ、またはクリックして選択</div>
+          <div class="upload-filename" id="upload-filename" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <button class="generate-btn" id="generate-btn">候補を生成する</button>
+
+    <div class="output-section" id="output-section">
+      <div class="output-header">URL候補</div>
+      <div class="slug-list" id="slug-list"></div>
+    </div>
+  </div>
+
+  <script>
+    // ── PDF テキスト抽出（PDF.js） ──────────────────────
+    async function extractPdfText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async e => {
+          try {
+            const pdfjsLib = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.mjs');
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.mjs';
+            const pdf = await pdfjsLib.getDocument({ data: e.target.result }).promise;
+            let text = '';
+            const maxPages = Math.min(pdf.numPages, 3);
+            for (let i = 1; i <= maxPages; i++) {
+              const page = await pdf.getPage(i);
+              const content = await page.getTextContent();
+              text += content.items.map(item => item.str).join(' ') + '\n';
+            }
+            resolve(text.trim());
+          } catch (err) {
+            reject(err);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    // ── ファイルアップロードUI ──────────────────────────
+    const uploadArea = document.getElementById('upload-area');
+    const pdfInput = document.getElementById('pdf-input');
+    const uploadFilename = document.getElementById('upload-filename');
+
+    pdfInput.addEventListener('change', () => {
+      if (pdfInput.files[0]) {
+        uploadFilename.textContent = pdfInput.files[0].name;
+        uploadFilename.style.display = 'block';
+        uploadArea.classList.add('has-file');
+      }
+    });
+
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type === 'application/pdf') {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        pdfInput.files = dt.files;
+        uploadFilename.textContent = file.name;
+        uploadFilename.style.display = 'block';
+        uploadArea.classList.add('has-file');
+      }
+    });
+
+    // ── 生成 ───────────────────────────────────────────
+    const generateBtn = document.getElementById('generate-btn');
+    const errorMsg = document.getElementById('error-msg');
+    const outputSection = document.getElementById('output-section');
+    const slugList = document.getElementById('slug-list');
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.style.display = 'block';
+    }
+    function hideError() {
+      errorMsg.style.display = 'none';
+    }
+
+    generateBtn.addEventListener('click', async () => {
+      hideError();
+      const title = document.getElementById('title-input').value.trim();
+      const desc = document.getElementById('desc-input').value.trim();
+      const pdfFile = pdfInput.files[0];
+
+      if (!title) {
+        document.getElementById('title-input').focus();
+        showError('ページタイトルを入力してください');
+        return;
+      }
+
+      generateBtn.disabled = true;
+      generateBtn.innerHTML = '<span class="spinner"></span>生成中...';
+      outputSection.style.display = 'none';
+
+      try {
+        let pdfText = '';
+        if (pdfFile) {
+          pdfText = await extractPdfText(pdfFile);
+        }
+
+        let userMsg = `以下のページのURLスラッグ候補を5個生成してください。\n\n【ページタイトル】\n${title}`;
+        if (desc) userMsg += `\n\n【概要】\n${desc}`;
+        if (pdfText) userMsg += `\n\n【PDF内容（抜粋）】\n${pdfText.slice(0, 1000)}`;
+
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 256,
+            system: `あなたはWebページのURLスラッグを生成する専門家です。
+以下のルールに従ってURLスラッグ候補を生成してください：
+- 小文字の英数字とハイフンのみ使用
+- 連番（01, 02など）は使わない
+- 短く・意味が伝わる・覚えやすいもの
+- 日本語タイトルは英訳してスラッグ化
+- 5個の候補を1行に1個ずつ出力（説明文や番号は不要）`,
+            messages: [{ role: 'user', content: userMsg }],
+          }),
+        });
+
+        if (!res.ok) {
+          const e = await res.json().catch(() => ({}));
+          throw new Error(e.error?.message || `エラー: ${res.status}`);
+        }
+
+        const data = await res.json();
+        const raw = data.content?.[0]?.text || '';
+        const slugs = raw.split('\n')
+          .map(l => l.trim().replace(/^[-\s\d.]+/, '').trim())
+          .filter(l => /^[a-z0-9-]+$/.test(l));
+
+        if (slugs.length === 0) throw new Error('候補の生成に失敗しました。もう一度お試しください。');
+
+        slugList.innerHTML = slugs.map(slug => `
+          <div class="slug-item">
+            <span class="slug-value">${slug}</span>
+            <button class="copy-btn" data-slug="${slug}">コピー</button>
+          </div>
+        `).join('');
+
+        slugList.querySelectorAll('.copy-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            navigator.clipboard.writeText(this.dataset.slug).then(() => {
+              this.textContent = 'コピーしました';
+              this.classList.add('copied');
+              setTimeout(() => {
+                this.textContent = 'コピー';
+                this.classList.remove('copied');
+              }, 2000);
+            });
+          });
+        });
+
+        outputSection.style.display = 'block';
+        outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.textContent = '候補を生成する';
+      }
+    });
+  </script>
+
+</body>
+</html>
