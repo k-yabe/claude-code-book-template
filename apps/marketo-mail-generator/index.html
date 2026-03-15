@@ -340,7 +340,7 @@
         const params = buildParams(`${campaign}${String(i).padStart(2, '0')}`);
         const fullUrl = appendParams(url, params);
         const displayUrl = stripParams(url);
-        return `<a href="${fullUrl}">${displayUrl}</a>`;
+        return `<a href="${fullUrl}" target="_blank">${displayUrl}</a>`;
       });
       // 改行を <br> に変換
       return linked.replace(/\n/g, '<br>\n');
