@@ -45,11 +45,13 @@ apps/akkodis-watcher/
 
 ## ステータス
 
-- [ ] scraper.py 実装
-- [ ] articles.json 初期データ作成
-- [ ] GitHub Actions ワークフロー実装
-- [ ] index.html（ダッシュボード）実装
-- [ ] apps/index.html にリンク追加
+完了（2026-03-15）
+
+- [x] scraper.py 実装
+- [x] articles.json 初期データ作成
+- [x] GitHub Actions ワークフロー実装
+- [x] index.html（ダッシュボード）実装
+- [x] apps/index.html にリンク追加
 
 ## 作業ログ
 

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketo Mail Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      background: #f0f2f5;
+      color: #2d3436;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: #001f33;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .navbar-logo {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      color: #ffb81c;
+    }
+    .navbar-divider {
+      width: 1px;
+      height: 16px;
+      background: rgba(255,255,255,0.15);
+    }
+    .navbar-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+    }
+    .back-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.65);
+      cursor: pointer;
+      padding: 6px 14px;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .back-btn:hover {
+      border-color: rgba(255,255,255,0.5);
+      color: #fff;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 40px 80px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 0.85rem;
+      color: #8a9bb0;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      padding: 28px 32px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8a9bb0;
+      margin-bottom: 16px;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .param-prefix {
+      font-size: 0.85rem;
+      color: #636e72;
+      white-space: nowrap;
+      font-family: monospace;
+      background: #f0f2f5;
+      padding: 10px 12px;
+      border: 1.5px solid #e8ecf0;
+    }
+
+    .param-input {
+      flex: 1;
+      min-width: 220px;
+      padding: 10px 14px;
+      border: 1.5px solid #e8ecf0;
+      font-size: 0.95rem;
+      color: #2d3436;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: monospace;
+    }
+    .param-input::placeholder { color: #b2bec3; }
+    .param-input:focus {
+      border-color: #ffb81c;
+      box-shadow: 0 0 0 3px rgba(255,184,28,0.12);
+    }
+
+    .param-hint {
+      font-size: 0.78rem;
+      color: #b2bec3;
+      margin-top: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 14px 16px;
+      border: 1.5px solid #e8ecf0;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: #2d3436;
+      resize: vertical;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    textarea::placeholder { color: #b2bec3; }
+    textarea:focus {
+      border-color: #ffb81c;
+      box-shadow: 0 0 0 3px rgba(255,184,28,0.12);
+    }
+
+    .generate-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: #ffb81c;
+      color: #001f33;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: opacity 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(255,184,28,0.25);
+      margin-bottom: 20px;
+    }
+    .generate-btn:hover {
+      opacity: 0.92;
+      box-shadow: 0 6px 28px rgba(255,184,28,0.4);
+    }
+    .generate-btn:active { transform: scale(0.99); }
+
+    .output-section { display: none; }
+
+    .output-block {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      margin-bottom: 20px;
+    }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1.5px solid #e8ecf0;
+      background: #f8f9fb;
+    }
+
+    .output-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #636e72;
+    }
+
+    .copy-btn {
+      padding: 6px 16px;
+      background: #001f33;
+      color: #fff;
+      border: none;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: opacity 0.2s;
+    }
+    .copy-btn:hover { opacity: 0.8; }
+    .copy-btn.copied {
+      background: #00b894;
+    }
+
+    .output-content {
+      padding: 20px;
+      font-size: 0.88rem;
+      line-height: 1.75;
+      color: #2d3436;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-family: inherit;
+      min-height: 100px;
+    }
+
+    .output-content.html-view {
+      font-family: monospace;
+      font-size: 0.82rem;
+      background: #fafbfc;
+    }
+
+    .url-count {
+      font-size: 0.78rem;
+      color: #b2bec3;
+      padding: 8px 20px 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="navbar-logo">AKKODiS</span>
+      <div class="navbar-divider"></div>
+      <span class="navbar-title">Marketo Mail Generator</span>
+    </div>
+    <a href="../../" class="back-btn">← Apps</a>
+  </nav>
+
+  <div class="container">
+    <h1>Marketo Mail Generator</h1>
+    <p class="subtitle">メール本文を貼り付けてUTMパラメーターを付与し、テキスト版・HTML版を同時生成</p>
+
+    <!-- パラメーター入力 -->
+    <div class="card">
+      <h2>UTM Campaign</h2>
+      <div class="form-row">
+        <span class="param-prefix">utm_campaign=ak_clt_</span>
+        <input
+          type="text"
+          class="param-input"
+          id="campaign-input"
+          placeholder="20260312_seminar01"
+          autocomplete="off"
+        />
+      </div>
+      <p class="param-hint">utm_source=marketo　utm_medium=email　は自動で付与されます</p>
+    </div>
+
+    <!-- 本文入力 -->
+    <div class="card">
+      <h2>メール本文</h2>
+      <textarea id="body-input" placeholder="メール本文をここに貼り付けてください。本文中のURLに自動でパラメーターが付与されます。"></textarea>
+    </div>
+
+    <button class="generate-btn" id="generate-btn">生成する</button>
+
+    <!-- 出力 -->
+    <div class="output-section" id="output-section">
+
+      <div class="output-block">
+        <div class="output-header">
+          <span class="output-label">テキスト版</span>
+          <button class="copy-btn" id="copy-text-btn">コピー</button>
+        </div>
+        <div class="output-content" id="text-output"></div>
+        <div class="url-count" id="text-url-count"></div>
+      </div>
+
+      <div class="output-block">
+        <div class="output-header">
+          <span class="output-label">HTML版</span>
+          <button class="copy-btn" id="copy-html-btn">コピー</button>
+        </div>
+        <div class="output-content html-view" id="html-output"></div>
+        <div class="url-count" id="html-url-count"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const URL_REGEX = /https?:\/\/[^\s\u3000\u3001\u3002\uff01\uff09\u300d\uff0c]+/g;
+
+    function buildParams(campaign) {
+      return `utm_source=marketo&utm_medium=email&utm_campaign=ak_clt_${campaign}`;
+    }
+
+    function appendParams(url, params) {
+      return url.includes('?') ? `${url}&${params}` : `${url}?${params}`;
+    }
+
+    function stripParams(url) {
+      return url.split('?')[0];
+    }
+
+    function generateText(body, campaign) {
+      const params = buildParams(campaign);
+      return body.replace(URL_REGEX, url => `[[${appendParams(url, params)}]]`);
+    }
+
+    function generateHtml(body, campaign) {
+      const params = buildParams(campaign);
+      // エスケープ
+      const escaped = body
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      // URLをリンクに変換（エスケープ後のURLを対象にマッチ）
+      return escaped.replace(URL_REGEX, url => {
+        const fullUrl = appendParams(url, params);
+        const displayUrl = stripParams(url);
+        return `<a href="${fullUrl}">${displayUrl}</a>`;
+      });
+    }
+
+    function countUrls(body) {
+      const matches = body.match(URL_REGEX);
+      return matches ? matches.length : 0;
+    }
+
+    document.getElementById('generate-btn').addEventListener('click', () => {
+      const campaign = document.getElementById('campaign-input').value.trim();
+      const body = document.getElementById('body-input').value;
+
+      if (!campaign) {
+        document.getElementById('campaign-input').focus();
+        document.getElementById('campaign-input').style.borderColor = '#e17055';
+        setTimeout(() => {
+          document.getElementById('campaign-input').style.borderColor = '';
+        }, 1500);
+        return;
+      }
+
+      if (!body.trim()) {
+        document.getElementById('body-input').focus();
+        return;
+      }
+
+      const urlCount = countUrls(body);
+      const textResult = generateText(body, campaign);
+      const htmlResult = generateHtml(body, campaign);
+
+      document.getElementById('text-output').textContent = textResult;
+      document.getElementById('html-output').textContent = htmlResult;
+
+      const countMsg = urlCount > 0 ? `${urlCount}件のURLにパラメーターを付与しました` : 'URLは検出されませんでした';
+      document.getElementById('text-url-count').textContent = countMsg;
+      document.getElementById('html-url-count').textContent = countMsg;
+
+      document.getElementById('output-section').style.display = 'block';
+      document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    function setupCopyBtn(btnId, getContent) {
+      document.getElementById(btnId).addEventListener('click', function() {
+        const content = getContent();
+        navigator.clipboard.writeText(content).then(() => {
+          this.textContent = 'コピーしました';
+          this.classList.add('copied');
+          setTimeout(() => {
+            this.textContent = 'コピー';
+            this.classList.remove('copied');
+          }, 2000);
+        });
+      });
+    }
+
+    setupCopyBtn('copy-text-btn', () => document.getElementById('text-output').textContent);
+    setupCopyBtn('copy-html-btn', () => document.getElementById('html-output').textContent);
+  </script>
+
+</body>
+</html>

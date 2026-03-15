@@ -2,5 +2,21 @@
   "enabledMcpjsonServers": [
     "playwright"
   ],
-  "enableAllProjectMcpServers": true
+  "enableAllProjectMcpServers": true,
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Read(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__playwright__*",
+      "mcp__ide__*",
+      "Agent(*)"
+    ]
+  }
 }
+
