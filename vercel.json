@@ -1,7 +1,7 @@
 {
   "functions": {
-    "api/transcribe.js": {
-      "maxDuration": 300
+    "api/youtube-captions.js": {
+      "maxDuration": 30
     }
   }
 }

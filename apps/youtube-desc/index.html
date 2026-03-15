@@ -197,20 +197,6 @@
       gap: 8px;
       margin-top: 10px;
     }
-    .file-pick-btn {
-      display: inline-block;
-      padding: 7px 14px;
-      border: 1.5px solid #dfe6e9;
-      border-radius: 0;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #2d3436;
-      background: #f5f6fa;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .file-pick-btn:hover { background: #e8ecf0; }
-    .file-pick-btn.has-file { border-color: #001f33; color: #001f33; }
     .transcribe-btn {
       padding: 7px 16px;
       background: #001f33;
@@ -276,13 +262,10 @@
       <p class="field-hint">長い動画の場合は目次として掲載されます。不要な場合は空欄のままでOK。</p>
       <textarea id="timestamps" rows="3" placeholder="00:00 イントロ&#10;01:30 AIとは&#10;05:00 まとめ"></textarea>
       <div class="transcribe-row">
-        <label class="transcribe-file-label">
-          <input type="file" id="audio-file" accept="audio/*,video/*" style="display:none" onchange="onFileSelected(this)">
-          <span class="file-pick-btn" id="file-pick-btn">🎵 音声・動画ファイルを選択</span>
-        </label>
-        <button class="transcribe-btn" id="transcribe-btn" onclick="transcribeAudio()" disabled>自動生成</button>
+        <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=..." style="flex:1;padding:7px 10px;border:1.5px solid #dfe6e9;border-radius:0;font-size:0.85rem;outline:none;">
+        <button class="transcribe-btn" id="transcribe-btn" onclick="fetchCaptions()">自動生成</button>
       </div>
-      <p class="field-hint" style="margin-top:4px;">音声・動画ファイルをアップロードするとAIが自動でタイムスタンプを生成します（mp3, m4a, mp4等・最大25MB）</p>
+      <p class="field-hint" style="margin-top:4px;">YouTubeにアップ済みの動画URLを貼ると、字幕からタイムスタンプを自動生成します（自動字幕が有効な動画のみ）</p>
       <div class="transcribe-status" id="transcribe-status"></div>
     </div>
 
@@ -449,67 +432,37 @@ X→ https://x.com/AkkodisJapan
     });
   }
 
-  function onFileSelected(input) {
-    const btn = document.getElementById('file-pick-btn');
-    const transcribeBtn = document.getElementById('transcribe-btn');
-    if (input.files && input.files[0]) {
-      btn.textContent = `🎵 ${input.files[0].name}`;
-      btn.classList.add('has-file');
-      transcribeBtn.disabled = false;
-    } else {
-      btn.textContent = '🎵 音声・動画ファイルを選択';
-      btn.classList.remove('has-file');
-      transcribeBtn.disabled = true;
-    }
-    document.getElementById('transcribe-status').textContent = '';
-    document.getElementById('transcribe-status').className = 'transcribe-status';
-  }
-
-  async function transcribeAudio() {
-    const file = document.getElementById('audio-file').files[0];
+  async function fetchCaptions() {
+    const url = document.getElementById('yt-url').value.trim();
     const statusEl = document.getElementById('transcribe-status');
     const btn = document.getElementById('transcribe-btn');
-    if (!file) return;
-
-    if (file.size > 25 * 1024 * 1024) {
-      statusEl.textContent = 'ファイルが25MBを超えています。mp3（32kbps）に変換してお試しください。';
-      statusEl.className = 'transcribe-status err';
-      return;
-    }
+    if (!url) return;
 
     btn.disabled = true;
-    statusEl.textContent = '文字起こし中...（1〜2分かかる場合があります）';
+    statusEl.textContent = '字幕を取得中...';
     statusEl.className = 'transcribe-status';
 
     try {
-      // Step1: Whisper文字起こし
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('model', 'whisper-1');
-      formData.append('response_format', 'verbose_json');
-
-      const res = await fetch('/api/transcribe', { method: 'POST', body: formData });
+      // Step1: YouTubeから字幕取得
+      const res = await fetch('/api/youtube-captions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || '文字起こしに失敗しました');
+      if (!res.ok) throw new Error(data.error || '字幕の取得に失敗しました');
 
       statusEl.textContent = 'チャプター生成中...';
 
-      // Step2: Claudeでチャプターにまとめてタイムスタンプ化
-      const segments = (data.segments || []).map(s => {
-        const t = Math.round(s.start);
-        const mm = String(Math.floor(t / 60)).padStart(2, '0');
-        const ss = String(t % 60).padStart(2, '0');
-        return `[${mm}:${ss}] ${s.text.trim()}`;
-      }).join('\n');
-
+      // Step2: Claudeでチャプター化
       const claudeRes = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
           max_tokens: 512,
-          system: '以下はYouTube動画の文字起こし（タイムスタンプ付き）です。内容を読んで、自然な区切りでチャプターに分け、「MM:SS チャプタータイトル」の形式で出力してください。チャプター数は5〜10個程度。タイトルは日本語で簡潔に。チャプター一覧のみ出力し、説明は不要です。',
-          messages: [{ role: 'user', content: segments }],
+          system: '以下はYouTube動画の字幕データ（タイムスタンプ付き）です。内容を読んで自然な区切りでチャプターに分け、「MM:SS チャプタータイトル」の形式のみで出力してください。チャプター数は5〜10個程度。タイトルは日本語で簡潔に。説明文は不要です。',
+          messages: [{ role: 'user', content: data.segments }],
         }),
       });
       const claudeData = await claudeRes.json();
