@@ -20,13 +20,12 @@
       height: 58px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
       padding: 0 40px;
+      gap: 14px;
       position: sticky;
       top: 0;
       z-index: 10;
     }
-    .navbar-brand { display: flex; align-items: center; gap: 14px; }
     .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
     .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
     .back-btn {
@@ -42,7 +41,7 @@
     .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 
     .container {
-      max-width: 860px;
+      max-width: 900px;
       margin: 0 auto;
       padding: 40px 40px 80px;
     }
@@ -50,11 +49,7 @@
     h1 { font-size: 1.4rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
     .subtitle { font-size: 0.85rem; color: #8a9bb0; margin-bottom: 32px; }
 
-    .input-row {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
+    .input-row { display: flex; gap: 12px; margin-bottom: 20px; }
 
     input[type="text"] {
       flex: 1;
@@ -86,14 +81,13 @@
       box-shadow: 0 4px 20px rgba(255,184,28,0.25);
       white-space: nowrap;
     }
-    .check-btn:hover { opacity: 0.88; box-shadow: 0 6px 28px rgba(255,184,28,0.4); }
+    .check-btn:hover { opacity: 0.88; }
     .check-btn:active { transform: scale(0.99); }
     .check-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
     .spinner {
       display: inline-block;
-      width: 14px;
-      height: 14px;
+      width: 14px; height: 14px;
       border: 2px solid rgba(0,31,51,0.3);
       border-top-color: #001f33;
       border-radius: 50%;
@@ -113,367 +107,417 @@
       display: none;
     }
 
-    .result-area { display: none; }
+    /* ── バリデーション スコアカード ── */
+    .score-card {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: none;
+    }
+    .score-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .score-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #8a9bb0; }
+    .score-badges { display: flex; gap: 8px; }
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+    }
+    .badge-ok    { background: #f0fdf8; color: #00695c; border: 1px solid #b2dfdb; }
+    .badge-warn  { background: #fffde7; color: #e65100; border: 1px solid #ffe082; }
+    .badge-error { background: #fff5f4; color: #c0392b; border: 1px solid #fab1a0; }
+    .val-list { display: flex; flex-direction: column; gap: 6px; }
+    .val-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 12px;
+      font-size: 0.83rem;
+    }
+    .val-ok    { background: #f0fdf8; border: 1px solid #b2dfdb; color: #00695c; }
+    .val-warn  { background: #fffde7; border: 1px solid #ffe082; color: #e65100; }
+    .val-error { background: #fff5f4; border: 1px solid #fab1a0; color: #c0392b; }
+    .val-icon { flex-shrink: 0; }
+    .val-msg { line-height: 1.5; }
 
-    .section-title {
-      font-size: 0.78rem;
+    /* ── タブ ── */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid #e8ecf0;
+      margin-bottom: 24px;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #8a9bb0;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s;
+    }
+    .tab-btn:hover { color: #2d3436; }
+    .tab-btn.active { color: #001f33; border-bottom-color: #ffb81c; }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* ── タグテーブル ── */
+    .section-label {
+      font-size: 0.75rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.1em;
       color: #8a9bb0;
-      margin-bottom: 12px;
-      margin-top: 32px;
+      margin-bottom: 10px;
+      margin-top: 24px;
     }
+    .section-label:first-child { margin-top: 0; }
 
-    /* OGP Tags Table */
-    .card {
+    .tag-card {
       background: #fff;
       border: 1.5px solid #e8ecf0;
-      margin-bottom: 8px;
+      margin-bottom: 16px;
     }
-
-    .tag-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+    .tag-table { width: 100%; border-collapse: collapse; }
     .tag-table th, .tag-table td {
-      padding: 10px 16px;
+      padding: 9px 14px;
       text-align: left;
-      font-size: 0.85rem;
+      font-size: 0.83rem;
       border-bottom: 1px solid #f0f2f5;
     }
     .tag-table th {
       background: #f8f9fb;
       font-weight: 700;
       color: #636e72;
-      width: 200px;
+      width: 210px;
       font-family: 'Courier New', monospace;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
     }
     .tag-table tr:last-child th,
     .tag-table tr:last-child td { border-bottom: none; }
-    .tag-table td { color: #2d3436; word-break: break-all; }
+    .tag-table td { color: #2d3436; word-break: break-all; line-height: 1.5; }
     .tag-missing { color: #b2bec3; font-style: italic; }
+    .tag-ok   { color: #00695c; font-weight: 600; }
+    .tag-warn { color: #e65100; }
 
-    /* Validation */
-    .validation-list { display: flex; flex-direction: column; gap: 8px; }
-    .val-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 10px 14px;
-      font-size: 0.85rem;
-    }
-    .val-ok    { background: #f0fdf8; border: 1.5px solid #b2dfdb; color: #00695c; }
-    .val-warn  { background: #fffde7; border: 1.5px solid #ffe082; color: #e65100; }
-    .val-error { background: #fff5f4; border: 1.5px solid #fab1a0; color: #c0392b; }
-    .val-icon { font-size: 0.95rem; flex-shrink: 0; }
-    .val-msg { line-height: 1.5; }
-
-    /* SNS Preview Grid */
+    /* ── SNSプレビュー ── */
     .preview-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 20px;
     }
-
-    .preview-card {
-      background: #fff;
-      border: 1.5px solid #e8ecf0;
-    }
+    .preview-card { background: #fff; border: 1.5px solid #e8ecf0; }
     .preview-card-header {
-      padding: 10px 16px;
-      font-size: 0.78rem;
+      padding: 9px 14px;
+      font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 0.06em;
       color: #636e72;
       border-bottom: 1.5px solid #e8ecf0;
       background: #f8f9fb;
     }
-    .preview-card-body { padding: 16px; }
+    .preview-card-body { padding: 14px; }
 
-    /* Twitter/X card */
-    .tw-card {
-      border: 1px solid #cfd9de;
-      border-radius: 12px;
-      overflow: hidden;
-      font-family: -apple-system, 'Segoe UI', sans-serif;
-    }
-    .tw-image {
-      width: 100%;
-      aspect-ratio: 600 / 314;
-      background: #e8ecf0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #b2bec3;
-      font-size: 0.78rem;
-      overflow: hidden;
-    }
+    /* Twitter/X */
+    .tw-card { border: 1px solid #cfd9de; border-radius: 12px; overflow: hidden; font-family: -apple-system, 'Segoe UI', sans-serif; }
+    .tw-image { width: 100%; aspect-ratio: 600/314; background: #e8ecf0; display: flex; align-items: center; justify-content: center; color: #b2bec3; font-size: 0.78rem; overflow: hidden; }
     .tw-image img { width: 100%; height: 100%; object-fit: cover; }
     .tw-info { padding: 10px 12px; }
-    .tw-domain { font-size: 0.73rem; color: #536471; margin-bottom: 4px; }
-    .tw-title { font-size: 0.88rem; font-weight: 700; color: #0f1419; line-height: 1.3; margin-bottom: 4px; }
+    .tw-domain { font-size: 0.73rem; color: #536471; margin-bottom: 3px; }
+    .tw-title { font-size: 0.88rem; font-weight: 700; color: #0f1419; line-height: 1.3; margin-bottom: 3px; }
     .tw-desc { font-size: 0.8rem; color: #536471; line-height: 1.4; }
 
-    /* Facebook card */
+    /* Facebook */
     .fb-card { font-family: Arial, sans-serif; }
-    .fb-image {
-      width: 100%;
-      aspect-ratio: 1200 / 628;
-      background: #e8ecf0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #b2bec3;
-      font-size: 0.78rem;
-      overflow: hidden;
-    }
+    .fb-image { width: 100%; aspect-ratio: 1200/628; background: #e8ecf0; display: flex; align-items: center; justify-content: center; color: #b2bec3; font-size: 0.78rem; overflow: hidden; }
     .fb-image img { width: 100%; height: 100%; object-fit: cover; }
     .fb-info { padding: 10px 12px; background: #f0f2f5; border-top: 1px solid #dadde1; }
-    .fb-domain { font-size: 0.72rem; color: #606770; text-transform: uppercase; margin-bottom: 4px; }
-    .fb-title { font-size: 0.88rem; font-weight: 600; color: #1d2129; line-height: 1.3; margin-bottom: 4px; }
+    .fb-domain { font-size: 0.72rem; color: #606770; text-transform: uppercase; margin-bottom: 3px; }
+    .fb-title { font-size: 0.88rem; font-weight: 600; color: #1d2129; line-height: 1.3; margin-bottom: 3px; }
     .fb-desc { font-size: 0.8rem; color: #606770; line-height: 1.4; }
 
-    /* LINE card */
-    .line-card {
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      overflow: hidden;
-      font-family: 'Helvetica Neue', sans-serif;
-      display: flex;
-    }
-    .line-thumb {
-      width: 90px;
-      flex-shrink: 0;
-      aspect-ratio: 1;
-      background: #e8ecf0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #b2bec3;
-      font-size: 0.72rem;
-      overflow: hidden;
-    }
+    /* LINE */
+    .line-card { border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; display: flex; }
+    .line-thumb { width: 90px; flex-shrink: 0; aspect-ratio: 1; background: #e8ecf0; display: flex; align-items: center; justify-content: center; color: #b2bec3; font-size: 0.72rem; overflow: hidden; }
     .line-thumb img { width: 100%; height: 100%; object-fit: cover; }
     .line-info { padding: 10px 12px; flex: 1; min-width: 0; }
-    .line-title { font-size: 0.85rem; font-weight: 700; color: #333; line-height: 1.3; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .line-title { font-size: 0.85rem; font-weight: 700; color: #333; line-height: 1.3; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .line-desc { font-size: 0.75rem; color: #888; line-height: 1.4; }
-    .line-domain { font-size: 0.7rem; color: #aaa; margin-top: 6px; }
+    .line-domain { font-size: 0.7rem; color: #aaa; margin-top: 5px; }
 
-    /* LinkedIn card */
-    .li-card {
-      border: 1px solid #e0e0e0;
-      border-radius: 2px;
-      overflow: hidden;
-      font-family: -apple-system, 'Segoe UI', sans-serif;
-      background: #fff;
-    }
-    .li-image {
-      width: 100%;
-      aspect-ratio: 1200 / 627;
-      background: #e8ecf0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #b2bec3;
-      font-size: 0.78rem;
-      overflow: hidden;
-    }
+    /* LinkedIn */
+    .li-card { border: 1px solid #e0e0e0; border-radius: 2px; overflow: hidden; background: #fff; }
+    .li-image { width: 100%; aspect-ratio: 1200/627; background: #e8ecf0; display: flex; align-items: center; justify-content: center; color: #b2bec3; font-size: 0.78rem; overflow: hidden; }
     .li-image img { width: 100%; height: 100%; object-fit: cover; }
     .li-info { padding: 10px 12px; background: #f3f2ef; border-top: 1px solid #e0e0e0; }
-    .li-title { font-size: 0.88rem; font-weight: 600; color: rgba(0,0,0,0.9); line-height: 1.3; margin-bottom: 4px; }
+    .li-title { font-size: 0.88rem; font-weight: 600; color: rgba(0,0,0,0.9); line-height: 1.3; margin-bottom: 3px; }
     .li-domain { font-size: 0.72rem; color: rgba(0,0,0,0.6); }
+
+    /* 構造化データ */
+    .json-block {
+      background: #1e2a35;
+      color: #a8d8a8;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      padding: 16px;
+      overflow-x: auto;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .no-data {
+      padding: 32px;
+      text-align: center;
+      color: #b2bec3;
+      font-size: 0.85rem;
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+    }
+
+    .result-area { display: none; }
   </style>
 </head>
 <body>
 
   <nav class="navbar">
-    <div class="navbar-brand">
-      <a href="../../" class="back-btn">← アプリ一覧へ</a>
-      <div class="navbar-divider"></div>
-      <img src="../../assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:22px;display:block;">
-      <div class="navbar-divider"></div>
-      <span class="navbar-title">OGP チェッカー</span>
-    </div>
+    <a href="../../" class="back-btn">← アプリ一覧へ</a>
+    <div class="navbar-divider"></div>
+    <img src="../../assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:22px;display:block;">
+    <div class="navbar-divider"></div>
+    <span class="navbar-title">OGP チェッカー</span>
   </nav>
 
   <div class="container">
     <h1>OGP チェッカー</h1>
-    <p class="subtitle">URLを入力してSNSシェア時の表示をプレビュー</p>
+    <p class="subtitle">URLを入力してSNS表示・OGP・SEO・構造化データを一括確認</p>
 
     <div class="input-row">
       <input type="text" id="url-input" placeholder="https://example.com/your-page" autocomplete="off" />
       <button class="check-btn" id="check-btn">チェック</button>
     </div>
-
     <div class="error-msg" id="error-msg"></div>
 
     <div class="result-area" id="result-area">
 
-      <div class="section-title">OGPタグ</div>
-      <div class="card">
-        <table class="tag-table" id="tag-table"></table>
+      <!-- バリデーション -->
+      <div class="score-card" id="score-card">
+        <div class="score-header">
+          <span class="score-label">バリデーション</span>
+          <div class="score-badges" id="score-badges"></div>
+        </div>
+        <div class="val-list" id="val-list"></div>
       </div>
 
-      <div class="section-title">バリデーション</div>
-      <div class="validation-list" id="validation-list"></div>
+      <!-- タブ -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="preview">SNSプレビュー</button>
+        <button class="tab-btn" data-tab="ogp">OGP / SNSタグ</button>
+        <button class="tab-btn" data-tab="seo">SEO</button>
+        <button class="tab-btn" data-tab="structured">構造化データ</button>
+      </div>
 
-      <div class="section-title">SNSプレビュー</div>
-      <div class="preview-grid" id="preview-grid"></div>
+      <!-- SNSプレビュー -->
+      <div class="tab-pane active" id="tab-preview">
+        <div class="preview-grid" id="preview-grid"></div>
+      </div>
+
+      <!-- OGP / SNSタグ -->
+      <div class="tab-pane" id="tab-ogp">
+        <div class="section-label">Open Graph</div>
+        <div class="tag-card"><table class="tag-table" id="ogp-table"></table></div>
+        <div class="section-label">Twitter Card</div>
+        <div class="tag-card"><table class="tag-table" id="tw-table"></table></div>
+      </div>
+
+      <!-- SEO -->
+      <div class="tab-pane" id="tab-seo">
+        <div class="tag-card"><table class="tag-table" id="seo-table"></table></div>
+      </div>
+
+      <!-- 構造化データ -->
+      <div class="tab-pane" id="tab-structured">
+        <div id="structured-area"></div>
+      </div>
 
     </div>
   </div>
 
   <script>
-    const PROXY = 'https://api.allorigins.win/get?url=';
+    // ── CORS プロキシ（フォールバック付き）────────────────
+    async function fetchPage(url) {
+      // 1st: corsproxy.io（生HTML返却）
+      try {
+        const res = await fetch('https://corsproxy.io/?' + encodeURIComponent(url), {
+          signal: AbortSignal.timeout(8000),
+        });
+        if (res.ok) return await res.text();
+      } catch {}
+      // 2nd: allorigins.win（JSON返却）
+      const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url), {
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!res.ok) throw new Error(`HTTPエラー: ${res.status}`);
+      const data = await res.json();
+      if (!data.contents) throw new Error('ページの取得に失敗しました');
+      return data.contents;
+    }
 
-    function getTag(doc, prop) {
+    // ── タグ取得ヘルパー ──────────────────────────────────
+    function getMeta(doc, prop) {
       const el = doc.querySelector(`meta[property="${prop}"]`) ||
                  doc.querySelector(`meta[name="${prop}"]`);
       return el ? (el.getAttribute('content') || '') : '';
     }
-
+    function getLink(doc, rel) {
+      const el = doc.querySelector(`link[rel="${rel}"]`);
+      return el ? (el.getAttribute('href') || '') : '';
+    }
     function getDomain(url) {
       try { return new URL(url).hostname; } catch { return url; }
     }
-
-    function truncate(str, n) {
-      if (!str) return '';
-      return str.length > n ? str.slice(0, n) + '…' : str;
+    function trunc(str, n) {
+      return str && str.length > n ? str.slice(0, n) + '…' : (str || '');
+    }
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
+    // ── エラー表示 ────────────────────────────────────────
     function showError(msg) {
       const el = document.getElementById('error-msg');
       el.textContent = msg;
       el.style.display = 'block';
     }
+    function hideError() { document.getElementById('error-msg').style.display = 'none'; }
 
-    function hideError() {
-      document.getElementById('error-msg').style.display = 'none';
-    }
-
-    function renderTags(ogp) {
-      const rows = [
-        ['og:title',        ogp.title],
-        ['og:description',  ogp.description],
-        ['og:image',        ogp.image],
-        ['og:url',          ogp.url],
-        ['og:type',         ogp.type],
-        ['twitter:card',    ogp.twitterCard],
-        ['twitter:title',   ogp.twitterTitle],
-      ];
-      document.getElementById('tag-table').innerHTML = rows.map(([key, val]) => `
+    // ── タグテーブル描画 ──────────────────────────────────
+    function renderTable(id, rows) {
+      document.getElementById(id).innerHTML = rows.map(([key, val, cls]) => `
         <tr>
           <th>${key}</th>
-          <td>${val ? val : '<span class="tag-missing">（未設定）</span>'}</td>
+          <td>${val
+            ? `<span class="${cls || ''}">${escHtml(val)}</span>`
+            : '<span class="tag-missing">（未設定）</span>'
+          }</td>
         </tr>
       `).join('');
     }
 
-    function renderValidation(ogp) {
+    // ── バリデーション ────────────────────────────────────
+    function renderValidation(ogp, seo) {
       const items = [];
 
-      if (!ogp.title) {
-        items.push({ type: 'error', msg: 'og:title が設定されていません' });
-      } else if (ogp.title.length > 60) {
-        items.push({ type: 'warn', msg: `og:title が ${ogp.title.length} 文字です（Twitter 推奨: 60 文字以内）` });
-      } else {
-        items.push({ type: 'ok', msg: `og:title OK（${ogp.title.length} 文字）` });
-      }
+      const addItem = (type, msg) => items.push({ type, msg });
 
-      if (!ogp.description) {
-        items.push({ type: 'error', msg: 'og:description が設定されていません' });
-      } else if (ogp.description.length > 155) {
-        items.push({ type: 'warn', msg: `og:description が ${ogp.description.length} 文字です（推奨: 155 文字以内）` });
-      } else {
-        items.push({ type: 'ok', msg: `og:description OK（${ogp.description.length} 文字）` });
-      }
+      // OGP
+      if (!ogp.title)                   addItem('error', 'og:title が未設定です');
+      else if (ogp.title.length > 60)   addItem('warn',  `og:title ${ogp.title.length}文字（Twitter推奨60文字以内）`);
+      else                               addItem('ok',    `og:title OK（${ogp.title.length}文字）`);
 
-      if (!ogp.image) {
-        items.push({ type: 'error', msg: 'og:image が設定されていません。シェア時に画像が表示されません' });
-      } else {
-        items.push({ type: 'ok', msg: 'og:image が設定されています' });
-      }
+      if (!ogp.description)              addItem('error', 'og:description が未設定です');
+      else if (ogp.description.length > 155) addItem('warn', `og:description ${ogp.description.length}文字（推奨155文字以内）`);
+      else                               addItem('ok',    `og:description OK（${ogp.description.length}文字）`);
 
-      if (!ogp.twitterCard) {
-        items.push({ type: 'warn', msg: 'twitter:card が未設定です（推奨: summary_large_image）' });
-      } else {
-        items.push({ type: 'ok', msg: `twitter:card = ${ogp.twitterCard}` });
-      }
+      if (!ogp.image)                    addItem('error', 'og:image が未設定です（SNSシェア時に画像なし）');
+      else                               addItem('ok',    'og:image が設定されています');
+
+      if (!ogp.twitterCard)              addItem('warn',  'twitter:card が未設定（推奨: summary_large_image）');
+      else                               addItem('ok',    `twitter:card = ${ogp.twitterCard}`);
+
+      // SEO
+      if (!seo.title)                    addItem('error', '<title> タグが未設定です');
+      else if (seo.title.length > 60)    addItem('warn',  `<title> ${seo.title.length}文字（推奨60文字以内）`);
+      else                               addItem('ok',    `<title> OK（${seo.title.length}文字）`);
+
+      if (!seo.metaDesc)                 addItem('warn',  'meta description が未設定です');
+      else if (seo.metaDesc.length > 160) addItem('warn', `meta description ${seo.metaDesc.length}文字（推奨160文字以内）`);
+      else                               addItem('ok',    `meta description OK（${seo.metaDesc.length}文字）`);
+
+      if (!seo.canonical)                addItem('warn',  'canonical URL が未設定です');
+      else                               addItem('ok',    'canonical が設定されています');
+
+      // カウント
+      const ok    = items.filter(i => i.type === 'ok').length;
+      const warn  = items.filter(i => i.type === 'warn').length;
+      const error = items.filter(i => i.type === 'error').length;
 
       const icons = { ok: '✅', warn: '⚠️', error: '❌' };
-      document.getElementById('validation-list').innerHTML = items.map(item => `
-        <div class="val-item val-${item.type}">
-          <span class="val-icon">${icons[item.type]}</span>
-          <span class="val-msg">${item.msg}</span>
+      document.getElementById('val-list').innerHTML = items.map(i => `
+        <div class="val-item val-${i.type}">
+          <span class="val-icon">${icons[i.type]}</span>
+          <span class="val-msg">${i.msg}</span>
         </div>
       `).join('');
+
+      document.getElementById('score-badges').innerHTML = `
+        <span class="badge badge-ok">✅ ${ok}</span>
+        <span class="badge badge-warn">⚠️ ${warn}</span>
+        <span class="badge badge-error">❌ ${error}</span>
+      `;
+      document.getElementById('score-card').style.display = 'block';
     }
 
+    // ── SNSプレビュー描画 ─────────────────────────────────
     function imgBlock(src, cls) {
       if (!src) return `<div class="${cls}">画像なし</div>`;
-      return `<div class="${cls}"><img src="${src}" alt="" onerror="this.parentElement.innerHTML='（画像を読み込めませんでした）'" /></div>`;
+      return `<div class="${cls}"><img src="${escHtml(src)}" alt="" onerror="this.parentElement.innerHTML='（画像読み込み失敗）'" /></div>`;
     }
 
     function renderPreviews(ogp, url) {
       const domain = getDomain(url);
-      const title = ogp.title || '（タイトルなし）';
-      const desc = ogp.description || '（説明なし）';
+      const title  = ogp.title || '（タイトルなし）';
+      const desc   = ogp.description || '（説明なし）';
 
       const previews = [
         {
           name: 'Twitter / X',
-          html: `
-            <div class="tw-card">
-              ${imgBlock(ogp.image, 'tw-image')}
-              <div class="tw-info">
-                <div class="tw-domain">${domain}</div>
-                <div class="tw-title">${truncate(title, 70)}</div>
-                <div class="tw-desc">${truncate(desc, 120)}</div>
-              </div>
-            </div>
-          `,
+          html: `<div class="tw-card">
+            ${imgBlock(ogp.image, 'tw-image')}
+            <div class="tw-info">
+              <div class="tw-domain">${escHtml(domain)}</div>
+              <div class="tw-title">${escHtml(trunc(title, 70))}</div>
+              <div class="tw-desc">${escHtml(trunc(desc, 120))}</div>
+            </div></div>`,
         },
         {
           name: 'Facebook',
-          html: `
-            <div class="fb-card">
-              ${imgBlock(ogp.image, 'fb-image')}
-              <div class="fb-info">
-                <div class="fb-domain">${domain}</div>
-                <div class="fb-title">${truncate(title, 90)}</div>
-                <div class="fb-desc">${truncate(desc, 150)}</div>
-              </div>
-            </div>
-          `,
+          html: `<div class="fb-card">
+            ${imgBlock(ogp.image, 'fb-image')}
+            <div class="fb-info">
+              <div class="fb-domain">${escHtml(domain)}</div>
+              <div class="fb-title">${escHtml(trunc(title, 90))}</div>
+              <div class="fb-desc">${escHtml(trunc(desc, 150))}</div>
+            </div></div>`,
         },
         {
           name: 'LINE',
-          html: `
-            <div class="line-card">
-              ${ogp.image
-                ? `<div class="line-thumb"><img src="${ogp.image}" alt="" onerror="this.parentElement.innerHTML=''" /></div>`
-                : '<div class="line-thumb">画像なし</div>'}
-              <div class="line-info">
-                <div class="line-title">${truncate(title, 50)}</div>
-                <div class="line-desc">${truncate(desc, 80)}</div>
-                <div class="line-domain">${domain}</div>
-              </div>
-            </div>
-          `,
+          html: `<div class="line-card">
+            ${ogp.image
+              ? `<div class="line-thumb"><img src="${escHtml(ogp.image)}" alt="" onerror="this.parentElement.innerHTML=''" /></div>`
+              : '<div class="line-thumb">画像なし</div>'}
+            <div class="line-info">
+              <div class="line-title">${escHtml(trunc(title, 50))}</div>
+              <div class="line-desc">${escHtml(trunc(desc, 80))}</div>
+              <div class="line-domain">${escHtml(domain)}</div>
+            </div></div>`,
         },
         {
           name: 'LinkedIn',
-          html: `
-            <div class="li-card">
-              ${imgBlock(ogp.image, 'li-image')}
-              <div class="li-info">
-                <div class="li-title">${truncate(title, 120)}</div>
-                <div class="li-domain">${domain}</div>
-              </div>
-            </div>
-          `,
+          html: `<div class="li-card">
+            ${imgBlock(ogp.image, 'li-image')}
+            <div class="li-info">
+              <div class="li-title">${escHtml(trunc(title, 120))}</div>
+              <div class="li-domain">${escHtml(domain)}</div>
+            </div></div>`,
         },
       ];
 
@@ -485,6 +529,24 @@
       `).join('');
     }
 
+    // ── 構造化データ描画 ──────────────────────────────────
+    function renderStructured(jsonLdList) {
+      const area = document.getElementById('structured-area');
+      if (jsonLdList.length === 0) {
+        area.innerHTML = '<div class="no-data">構造化データ（JSON-LD）が見つかりませんでした</div>';
+        return;
+      }
+      area.innerHTML = jsonLdList.map((raw, i) => {
+        let pretty = raw;
+        try { pretty = JSON.stringify(JSON.parse(raw), null, 2); } catch {}
+        return `
+          <div class="section-label">JSON-LD ${jsonLdList.length > 1 ? `#${i + 1}` : ''}</div>
+          <div class="json-block">${escHtml(pretty)}</div>
+        `;
+      }).join('');
+    }
+
+    // ── メイン処理 ────────────────────────────────────────
     async function check() {
       hideError();
       const url = document.getElementById('url-input').value.trim();
@@ -497,29 +559,71 @@
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span>取得中...';
       document.getElementById('result-area').style.display = 'none';
+      document.getElementById('score-card').style.display = 'none';
 
       try {
-        const res = await fetch(PROXY + encodeURIComponent(url), { cache: 'no-cache' });
-        if (!res.ok) throw new Error(`HTTPエラー: ${res.status}`);
-        const data = await res.json();
-        if (!data.contents) throw new Error('ページの取得に失敗しました');
-
+        const html = await fetchPage(url);
         const parser = new DOMParser();
-        const doc = parser.parseFromString(data.contents, 'text/html');
+        const doc = parser.parseFromString(html, 'text/html');
 
+        // OGP
         const ogp = {
-          title:        getTag(doc, 'og:title') || doc.querySelector('title')?.textContent?.trim() || '',
-          description:  getTag(doc, 'og:description') || getTag(doc, 'description'),
-          image:        getTag(doc, 'og:image'),
-          url:          getTag(doc, 'og:url') || url,
-          type:         getTag(doc, 'og:type'),
-          twitterCard:  getTag(doc, 'twitter:card'),
-          twitterTitle: getTag(doc, 'twitter:title'),
+          title:        getMeta(doc, 'og:title') || doc.querySelector('title')?.textContent?.trim() || '',
+          description:  getMeta(doc, 'og:description'),
+          image:        getMeta(doc, 'og:image'),
+          url:          getMeta(doc, 'og:url') || url,
+          type:         getMeta(doc, 'og:type'),
+          siteName:     getMeta(doc, 'og:site_name'),
+          twitterCard:  getMeta(doc, 'twitter:card'),
+          twitterTitle: getMeta(doc, 'twitter:title'),
+          twitterDesc:  getMeta(doc, 'twitter:description'),
+          twitterImage: getMeta(doc, 'twitter:image'),
         };
 
-        renderTags(ogp);
-        renderValidation(ogp);
+        // SEO
+        const seo = {
+          title:     doc.querySelector('title')?.textContent?.trim() || '',
+          metaDesc:  getMeta(doc, 'description'),
+          canonical: getLink(doc, 'canonical'),
+          robots:    getMeta(doc, 'robots'),
+          h1:        doc.querySelector('h1')?.textContent?.trim() || '',
+          lang:      doc.querySelector('html')?.getAttribute('lang') || '',
+        };
+
+        // 構造化データ
+        const jsonLdList = [...doc.querySelectorAll('script[type="application/ld+json"]')]
+          .map(el => el.textContent?.trim()).filter(Boolean);
+
+        // 描画
         renderPreviews(ogp, url);
+
+        renderTable('ogp-table', [
+          ['og:title',       ogp.title],
+          ['og:description', ogp.description],
+          ['og:image',       ogp.image],
+          ['og:url',         ogp.url],
+          ['og:type',        ogp.type],
+          ['og:site_name',   ogp.siteName],
+        ]);
+
+        renderTable('tw-table', [
+          ['twitter:card',        ogp.twitterCard],
+          ['twitter:title',       ogp.twitterTitle],
+          ['twitter:description', ogp.twitterDesc],
+          ['twitter:image',       ogp.twitterImage],
+        ]);
+
+        renderTable('seo-table', [
+          ['<title>',          seo.title,     seo.title.length > 60 ? 'tag-warn' : 'tag-ok'],
+          ['meta description', seo.metaDesc,  seo.metaDesc.length > 160 ? 'tag-warn' : 'tag-ok'],
+          ['canonical',        seo.canonical, 'tag-ok'],
+          ['robots',           seo.robots,    ''],
+          ['h1',               seo.h1,        ''],
+          ['lang',             seo.lang,      seo.lang ? 'tag-ok' : ''],
+        ]);
+
+        renderStructured(jsonLdList);
+        renderValidation(ogp, seo);
 
         document.getElementById('result-area').style.display = 'block';
         document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -531,6 +635,16 @@
         btn.textContent = 'チェック';
       }
     }
+
+    // ── タブ切り替え ──────────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
 
     document.getElementById('check-btn').addEventListener('click', check);
     document.getElementById('url-input').addEventListener('keydown', e => {
