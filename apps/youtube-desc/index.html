@@ -282,6 +282,13 @@
             <span class="check-label-url">https://www.akkodis.com/ja/careers</span>
           </div>
         </label>
+        <label class="check-item">
+          <input type="checkbox" id="link-seminars">
+          <div>
+            <span class="check-label-main">セミナー一覧</span>
+            <span class="check-label-url">https://www.akkodis.com/ja/trends/seminars</span>
+          </div>
+        </label>
       </div>
       <div class="sub-label">その他のリンク（関連動画・プレスリリースなど）</div>
       <textarea id="links-free" rows="2" placeholder="1行に1つ入力してください&#10;例：https://www.youtube.com/watch?v=xxx"></textarea>
@@ -351,9 +358,11 @@
     loadingEl.classList.add('on');
     outputEl.classList.remove('on');
 
+    const linkSeminars = document.getElementById('link-seminars').checked;
     const hpLines = [];
     if (linkTop) hpLines.push('公式ホームページ：https://www.akkodis.com/ja');
     if (linkCareers) hpLines.push('採用サイト：https://www.akkodis.com/ja/careers');
+    if (linkSeminars) hpLines.push('セミナー一覧：https://www.akkodis.com/ja/trends/seminars');
 
     const ytLines = [];
     const otherLines = [...hpLines];
