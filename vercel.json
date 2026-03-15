@@ -1,7 +1,1 @@
-{
-  "functions": {
-    "api/youtube-captions.js": {
-      "maxDuration": 30
-    }
-  }
-}
+{}
