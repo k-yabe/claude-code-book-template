@@ -209,6 +209,73 @@
       letter-spacing: 0.02em;
     }
 
+    /* ── 更新履歴ドロップダウン ── */
+    .changelog-wrap { position: relative; }
+
+    .changelog-btn {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #ffb81c;
+      background: none;
+      border: 1px solid rgba(255,184,28,0.35);
+      padding: 3px 10px;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .changelog-btn:hover {
+      background: rgba(255,184,28,0.08);
+      border-color: #ffb81c;
+    }
+
+    .changelog-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      border-top: 2px solid #ffb81c;
+      width: 320px;
+      z-index: 100;
+      box-shadow: 0 8px 24px rgba(0,31,51,0.1);
+    }
+    .changelog-dropdown.open { display: block; }
+
+    .changelog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      border-bottom: 1px solid #f0f2f5;
+    }
+    .changelog-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: #001f33;
+    }
+    .changelog-date { font-size: 0.7rem; color: #b2bec3; }
+
+    .changelog-body {
+      padding: 8px 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .cl-item {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 4px 0;
+      font-size: 0.74rem;
+      border-bottom: 1px solid #f8f9fb;
+    }
+    .cl-item:last-child { border-bottom: none; }
+    .cl-app { font-weight: 700; color: #2d3436; white-space: nowrap; flex-shrink: 0; width: 130px; }
+    .cl-desc { color: #8a9bb0; font-size: 0.72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -416,9 +483,12 @@
         <span class="section-bar-title">All Apps</span>
         <span class="section-bar-count">7</span>
         <span class="section-bar-line"></span>
+        <div class="changelog-wrap">
+          <button class="changelog-btn" id="changelog-btn">↑ 5件の更新</button>
+          <div class="changelog-dropdown" id="changelog-dropdown"></div>
+        </div>
         <span class="section-bar-drag">ドラッグで並び替え</span>
       </div>
-      <div id="whats-new" style="display:none"></div>
       <div class="grid">
         <a class="card" href="apps/ogp-checker/">
           <div class="card-icon-wrap">🔍</div>
@@ -484,7 +554,7 @@
       return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // ── What's New パネル ────────────────────────────────
+    // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
       { app: 'OGP Checker',            desc: 'og:image確認・検索プレビュー・履歴追加' },
       { app: 'URL Slug Generator',     desc: 'バッジ・一括コピー追加' },
@@ -492,35 +562,36 @@
       { app: 'Marketo Mail Generator', desc: 'HTMLプレビュー・URLリスト追加' },
       { app: 'Global Antenna',         desc: 'フィルター・UIリニューアル' },
     ];
-    const WN_KEY = 'wnDismissed_20260315';
 
-    function renderWhatsNew() {
-      if (localStorage.getItem(WN_KEY)) return;
-      const el = document.getElementById('whats-new');
-      el.innerHTML = `
-        <div class="whats-new-header">
-          <span class="whats-new-label">WHAT'S NEW · 2026-03-15</span>
-          <button class="whats-new-close" id="wn-close">✕</button>
+    function initChangelog() {
+      const btn = document.getElementById('changelog-btn');
+      const dropdown = document.getElementById('changelog-dropdown');
+
+      dropdown.innerHTML = `
+        <div class="changelog-header">
+          <span class="changelog-title">WHAT'S NEW</span>
+          <span class="changelog-date">2026-03-15</span>
         </div>
-        <div class="whats-new-body">
+        <div class="changelog-body">
           ${WHATS_NEW.map(w => `
-            <div class="wn-item">
-              <span class="wn-app">${w.app}</span>
-              <span class="wn-desc">${w.desc}</span>
+            <div class="cl-item">
+              <span class="cl-app">${w.app}</span>
+              <span class="cl-desc">${w.desc}</span>
             </div>`).join('')}
         </div>`;
-      el.style.display = '';
-      document.getElementById('wn-close').addEventListener('click', () => {
-        localStorage.setItem(WN_KEY, '1');
-        el.style.display = 'none';
+
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        dropdown.classList.toggle('open');
       });
+      document.addEventListener('click', () => dropdown.classList.remove('open'));
     }
 
     function showApp() {
       loginScreen.style.display = 'none';
       appScreen.style.display   = 'block';
       loadAntennaBadge();
-      renderWhatsNew();
+      initChangelog();
     }
 
     if (sessionStorage.getItem('auth') === '1') showApp();
