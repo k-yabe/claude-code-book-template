@@ -217,7 +217,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 16px;
     }
 
@@ -278,19 +278,25 @@
     }
 
     .card-icon-wrap {
-      font-size: 2.2rem;
-      margin-bottom: 16px;
+      font-size: 2rem;
+      margin-bottom: 14px;
       line-height: 1;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .card-name {
-      font-size: 1rem;
+      font-size: 0.92rem;
       font-weight: 700;
       color: #1a1a2e;
       margin-bottom: 6px;
+      line-height: 1.3;
     }
     .card-desc {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: #8a9bb0;
       line-height: 1.55;
       flex: 1;
@@ -298,55 +304,10 @@
     .card-tag {
       margin-top: 14px;
       display: inline-block;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 600;
       border-radius: 99px;
       padding: 3px 10px;
-    }
-    .card-tag-web {
-      color: #1C304B;
-      background: #dde3ea;
-    }
-    .card-tag:not(.card-tag-web) {
-      color: #1C304B;
-      background: #dde3ea;
-    }
-
-    a.card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #fff;
-      border: 2px solid #dfe6e9;
-      border-radius: 0;
-      padding: 28px 20px;
-      text-align: center;
-      text-decoration: none;
-      color: inherit;
-      transition: all 0.2s;
-    }
-
-    a.card:hover {
-      border-color: #ffb81c;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(245,196,0,0.15);
-    }
-
-    .card-icon { font-size: 2.4rem; margin-bottom: 12px; }
-    .card-name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
-    .card-desc {
-      font-size: 0.8rem;
-      color: #636e72;
-      line-height: 1.5;
-      flex: 1;
-    }
-    .card-tag {
-      margin-top: 12px;
-      display: inline-block;
-      font-size: 0.7rem;
-      font-weight: 600;
-      border-radius: 99px;
-      padding: 2px 10px;
     }
     .card-tag-web {
       color: #1C304B;
@@ -378,7 +339,11 @@
   <!-- アプリ一覧（認証後に表示） -->
   <div id="app-screen">
     <nav class="navbar">
-      <span class="navbar-title">Marketing Apps</span>
+      <div class="navbar-brand">
+        <img src="assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:22px;display:block;">
+        <div class="navbar-divider"></div>
+        <span class="navbar-title">Marketing Apps</span>
+      </div>
       <button class="logout-btn" id="logout-btn">Sign out</button>
     </nav>
     <div class="portal-body">
@@ -389,7 +354,7 @@
         <a class="card" href="apps/url-slug-generator/">
           <div class="card-icon-wrap">🔗</div>
           <div class="card-name">URL Slug Generator</div>
-          <div class="card-desc">ページタイトルやPDFからURLスラッグ候補をAIが自動生成</div>
+          <div class="card-desc">タイトルからURL候補をAIが自動生成</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/banner-resizer/">
@@ -407,7 +372,7 @@
         <a class="card" href="apps/marketo-mail-generator/">
           <div class="card-icon-wrap">✉️</div>
           <div class="card-name">Marketo Mail Generator</div>
-          <div class="card-desc">メール本文にUTMパラメーターを付与し、テキスト版・HTML版を同時生成</div>
+          <div class="card-desc">UTMパラメーター付与・テキスト版とHTML版を同時生成</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/akkodis-watcher/" id="card-antenna">
@@ -418,8 +383,8 @@
         </a>
         <a class="card" href="https://m365.cloud.microsoft/chat/?titleId=T_8aa0cc54-ad42-710e-b66b-a63fa397a14a&source=embedded-builder" target="_blank" rel="noopener">
           <div class="card-icon-wrap">🛡️</div>
-          <div class="card-name">ブランド・ガーディアン Pro</div>
-          <div class="card-desc">ブランドガイドラインに沿った表現をAIがチェック・サポート</div>
+          <div class="card-name">Brand Guardian Pro</div>
+          <div class="card-desc">ブランドガイドラインに沿った表現をAIがサポート</div>
           <div class="card-tag">Microsoft Copilot Agent</div>
         </a>
       </div>
