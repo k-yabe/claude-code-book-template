@@ -12,38 +12,45 @@ export default async function handler(req, res) {
       `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
     );
     if (oembedRes.ok) {
-      const oembedData = await oembedRes.json();
-      title = oembedData.title || '';
+      const d = await oembedRes.json();
+      title = d.title || '';
     }
   } catch (_) {}
 
-  // 字幕は dynamic import で youtube-transcript を使用
-  try {
-    const { YoutubeTranscript } = await import('youtube-transcript');
+  // 字幕は timedtext API を直接叩く（パッケージ不要）
+  // ja自動生成 → ja手動 → en自動生成 → en手動 の順で試みる
+  const candidates = [
+    `https://www.youtube.com/api/timedtext?v=${videoId}&lang=ja&kind=asr&fmt=json3`,
+    `https://www.youtube.com/api/timedtext?v=${videoId}&lang=ja&fmt=json3`,
+    `https://www.youtube.com/api/timedtext?v=${videoId}&lang=en&kind=asr&fmt=json3`,
+    `https://www.youtube.com/api/timedtext?v=${videoId}&lang=en&fmt=json3`,
+  ];
 
-    const transcripts = await YoutubeTranscript.fetchTranscript(videoId, { lang: 'ja' })
-      .catch(() => YoutubeTranscript.fetchTranscript(videoId, { lang: 'en' }))
-      .catch(() => YoutubeTranscript.fetchTranscript(videoId));
+  for (const captionUrl of candidates) {
+    try {
+      const r = await fetch(captionUrl);
+      if (!r.ok) continue;
+      const data = await r.json();
+      const events = data.events || [];
+      if (events.length === 0) continue;
 
-    if (!transcripts || transcripts.length === 0) {
-      return res.status(200).json({ segments: null, title });
-    }
+      const segments = events
+        .filter(e => e.segs)
+        .map(e => {
+          const t = Math.round((e.tStartMs || 0) / 1000);
+          const mm = String(Math.floor(t / 60)).padStart(2, '0');
+          const ss = String(t % 60).padStart(2, '0');
+          const text = e.segs.map(s => s.utf8 || '').join('').replace(/\n/g, ' ').trim();
+          return text ? `[${mm}:${ss}] ${text}` : null;
+        })
+        .filter(Boolean)
+        .join('\n');
 
-    const segments = transcripts
-      .map(item => {
-        const t = Math.round((item.offset || 0) / 1000);
-        const mm = String(Math.floor(t / 60)).padStart(2, '0');
-        const ss = String(t % 60).padStart(2, '0');
-        const text = (item.text || '').replace(/\n/g, ' ').trim();
-        return text ? `[${mm}:${ss}] ${text}` : null;
-      })
-      .filter(Boolean)
-      .join('\n');
-
-    return res.status(200).json({ segments, title });
-  } catch (_) {
-    return res.status(200).json({ segments: null, title });
+      if (segments) return res.status(200).json({ segments, title });
+    } catch (_) {}
   }
+
+  return res.status(200).json({ segments: null, title });
 }
 
 function extractVideoId(url) {
