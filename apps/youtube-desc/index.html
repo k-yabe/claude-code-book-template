@@ -191,6 +191,47 @@
       color: #2d3436;
       font-family: inherit;
     }
+    .transcribe-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .file-pick-btn {
+      display: inline-block;
+      padding: 7px 14px;
+      border: 1.5px solid #dfe6e9;
+      border-radius: 0;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #2d3436;
+      background: #f5f6fa;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .file-pick-btn:hover { background: #e8ecf0; }
+    .file-pick-btn.has-file { border-color: #001f33; color: #001f33; }
+    .transcribe-btn {
+      padding: 7px 16px;
+      background: #001f33;
+      color: #fff;
+      border: none;
+      border-radius: 0;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .transcribe-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .transcribe-btn:not(:disabled):hover { opacity: 0.8; }
+    .transcribe-status {
+      font-size: 0.8rem;
+      color: #636e72;
+      margin-top: 6px;
+      min-height: 1.2em;
+    }
+    .transcribe-status.ok { color: #00897b; }
+    .transcribe-status.err { color: #d63031; }
   </style>
 </head>
 <body>
@@ -234,6 +275,15 @@
       <label>目次（タイムスタンプ） <span class="optional">任意</span></label>
       <p class="field-hint">長い動画の場合は目次として掲載されます。不要な場合は空欄のままでOK。</p>
       <textarea id="timestamps" rows="3" placeholder="00:00 イントロ&#10;01:30 AIとは&#10;05:00 まとめ"></textarea>
+      <div class="transcribe-row">
+        <label class="transcribe-file-label">
+          <input type="file" id="audio-file" accept="audio/*,video/*" style="display:none" onchange="onFileSelected(this)">
+          <span class="file-pick-btn" id="file-pick-btn">🎵 音声・動画ファイルを選択</span>
+        </label>
+        <button class="transcribe-btn" id="transcribe-btn" onclick="transcribeAudio()" disabled>自動生成</button>
+      </div>
+      <p class="field-hint" style="margin-top:4px;">音声・動画ファイルをアップロードするとAIが自動でタイムスタンプを生成します（mp3, m4a, mp4等・最大25MB）</p>
+      <div class="transcribe-status" id="transcribe-status"></div>
     </div>
 
     <button class="generate-btn" id="gen-btn" onclick="generate()">生成する</button>
@@ -397,6 +447,83 @@ X→ https://x.com/AkkodisJapan
       btn.classList.add('done');
       setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('done'); }, 2000);
     });
+  }
+
+  function onFileSelected(input) {
+    const btn = document.getElementById('file-pick-btn');
+    const transcribeBtn = document.getElementById('transcribe-btn');
+    if (input.files && input.files[0]) {
+      btn.textContent = `🎵 ${input.files[0].name}`;
+      btn.classList.add('has-file');
+      transcribeBtn.disabled = false;
+    } else {
+      btn.textContent = '🎵 音声・動画ファイルを選択';
+      btn.classList.remove('has-file');
+      transcribeBtn.disabled = true;
+    }
+    document.getElementById('transcribe-status').textContent = '';
+    document.getElementById('transcribe-status').className = 'transcribe-status';
+  }
+
+  async function transcribeAudio() {
+    const file = document.getElementById('audio-file').files[0];
+    const statusEl = document.getElementById('transcribe-status');
+    const btn = document.getElementById('transcribe-btn');
+    if (!file) return;
+
+    if (file.size > 25 * 1024 * 1024) {
+      statusEl.textContent = 'ファイルが25MBを超えています。mp3（32kbps）に変換してお試しください。';
+      statusEl.className = 'transcribe-status err';
+      return;
+    }
+
+    btn.disabled = true;
+    statusEl.textContent = '文字起こし中...（1〜2分かかる場合があります）';
+    statusEl.className = 'transcribe-status';
+
+    try {
+      // Step1: Whisper文字起こし
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('model', 'whisper-1');
+      formData.append('response_format', 'verbose_json');
+
+      const res = await fetch('/api/transcribe', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || '文字起こしに失敗しました');
+
+      statusEl.textContent = 'チャプター生成中...';
+
+      // Step2: Claudeでチャプターにまとめてタイムスタンプ化
+      const segments = (data.segments || []).map(s => {
+        const t = Math.round(s.start);
+        const mm = String(Math.floor(t / 60)).padStart(2, '0');
+        const ss = String(t % 60).padStart(2, '0');
+        return `[${mm}:${ss}] ${s.text.trim()}`;
+      }).join('\n');
+
+      const claudeRes = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 512,
+          system: '以下はYouTube動画の文字起こし（タイムスタンプ付き）です。内容を読んで、自然な区切りでチャプターに分け、「MM:SS チャプタータイトル」の形式で出力してください。チャプター数は5〜10個程度。タイトルは日本語で簡潔に。チャプター一覧のみ出力し、説明は不要です。',
+          messages: [{ role: 'user', content: segments }],
+        }),
+      });
+      const claudeData = await claudeRes.json();
+      const timestamps = claudeData.content?.[0]?.text?.trim() || '';
+      document.getElementById('timestamps').value = timestamps;
+
+      statusEl.textContent = 'タイムスタンプを自動入力しました。内容を確認・編集してください。';
+      statusEl.className = 'transcribe-status ok';
+    } catch (err) {
+      statusEl.textContent = `エラー: ${err.message}`;
+      statusEl.className = 'transcribe-status err';
+    } finally {
+      btn.disabled = false;
+    }
   }
 </script>
 </body>
