@@ -330,6 +330,58 @@
     .copy-tags-btn:hover { opacity: 0.8; }
     .copy-tags-btn.copied { background: #00b894; }
 
+    /* ── Google検索プレビュー ── */
+    .google-preview-card {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      padding: 20px 24px;
+    }
+    .gp-site {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .gp-favicon {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #e8ecf0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: #8a9bb0; flex-shrink: 0;
+      overflow: hidden;
+    }
+    .gp-favicon img { width: 100%; height: 100%; object-fit: cover; }
+    .gp-domain { font-size: 0.82rem; color: #202124; line-height: 1.3; }
+    .gp-breadcrumb { font-size: 0.78rem; color: #4d5156; }
+    .gp-title {
+      font-size: 1.1rem;
+      color: #1a0dab;
+      font-family: arial, sans-serif;
+      line-height: 1.3;
+      margin-bottom: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .gp-title.over { color: #c0392b; }
+    .gp-desc {
+      font-size: 0.85rem;
+      color: #4d5156;
+      font-family: arial, sans-serif;
+      line-height: 1.58;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .gp-char-hint {
+      margin-top: 6px;
+      font-size: 0.73rem;
+      color: #b2bec3;
+    }
+    .gp-char-over { color: #e17055; font-weight: 600; }
+
     /* ── Markdownコピーボタン ── */
     .copy-md-btn {
       margin-left: auto;
@@ -408,6 +460,9 @@
 
       <!-- SEO -->
       <div class="tab-pane" id="tab-seo">
+        <div class="section-label">Google 検索プレビュー</div>
+        <div class="google-preview-card" id="google-preview"></div>
+        <div class="section-label" style="margin-top:20px;">SEO タグ</div>
         <div class="tag-card"><table class="tag-table" id="seo-table"></table></div>
       </div>
 
@@ -611,6 +666,43 @@
           <div class="preview-card-body">${p.html}</div>
         </div>
       `).join('');
+    }
+
+    // ── Google検索プレビュー描画 ──────────────────────────
+    function renderGooglePreview(seo, url) {
+      const el = document.getElementById('google-preview');
+      const title = seo.title || '（タイトルなし）';
+      const desc  = seo.metaDesc || '（meta descriptionなし）';
+      const titleOver = title.length > 70;
+      const descOver  = desc.length > 160;
+
+      let domain = '';
+      let breadcrumb = '';
+      try {
+        const u = new URL(url);
+        domain = u.hostname;
+        const path = u.pathname.replace(/\/$/, '').split('/').filter(Boolean);
+        breadcrumb = path.length > 0 ? u.hostname + ' › ' + path.join(' › ') : u.hostname;
+      } catch {}
+
+      el.innerHTML = `
+        <div class="gp-site">
+          <div class="gp-favicon">
+            <img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32" alt=""
+                 onerror="this.parentElement.textContent='G'">
+          </div>
+          <div>
+            <div class="gp-domain">${escHtml(domain)}</div>
+            <div class="gp-breadcrumb">${escHtml(breadcrumb)}</div>
+          </div>
+        </div>
+        <div class="gp-title ${titleOver ? 'over' : ''}">${escHtml(title)}</div>
+        <div class="gp-desc">${escHtml(desc)}</div>
+        <div class="gp-char-hint">
+          タイトル: <span class="${titleOver ? 'gp-char-over' : ''}">${title.length}文字</span>（推奨70文字以内）
+          説明文: <span class="${descOver ? 'gp-char-over' : ''}">${desc.length}文字</span>（推奨160文字以内）
+        </div>
+      `;
     }
 
     // ── 構造化データ描画 ──────────────────────────────────
@@ -879,6 +971,7 @@
           seoTable.appendChild(note);
         }
 
+        renderGooglePreview(seo, url);
         renderStructured(jsonLdList, microdataItems, !!seo.h1);
         renderValidation(ogp, seo, imgSize);
 
