@@ -352,19 +352,29 @@
   </div>
 
   <script>
-    // ── CORS プロキシ（並列レース）─────────────────────────
+    // ── フェッチ（自前APIルート → 公開プロキシのフォールバック）──
     async function fetchPage(url) {
       const enc = encodeURIComponent(url);
-      const timeout = AbortSignal.timeout(15000);
 
-      const via_corsproxy = fetch('https://corsproxy.io/?' + enc, { signal: timeout })
-        .then(r => { if (!r.ok) throw new Error(); return r.text(); });
+      // 1st: 自前 Vercel API（ブラウザ風ヘッダーで取得）
+      try {
+        const res = await fetch('/api/ogp?url=' + enc, {
+          signal: AbortSignal.timeout(12000),
+        });
+        if (res.ok) {
+          const html = await res.text();
+          if (html.trim().startsWith('<') || html.includes('<html')) return html;
+        }
+      } catch {}
 
-      const via_allorigins = fetch('https://api.allorigins.win/get?url=' + enc, { signal: timeout })
-        .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-        .then(d => { if (!d.contents) throw new Error(); return d.contents; });
-
-      return Promise.any([via_corsproxy, via_allorigins]);
+      // 2nd: allorigins.win（フォールバック）
+      const res = await fetch('https://api.allorigins.win/get?url=' + enc, {
+        signal: AbortSignal.timeout(12000),
+      });
+      if (!res.ok) throw new Error(`HTTPエラー: ${res.status}`);
+      const data = await res.json();
+      if (!data.contents) throw new Error('ページの取得に失敗しました');
+      return data.contents;
     }
 
     // ── タグ取得ヘルパー ──────────────────────────────────
