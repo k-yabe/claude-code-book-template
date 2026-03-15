@@ -276,6 +276,10 @@
     </div>
     <div class="step-body">
       <p class="field-hint">公開・限定公開どちらのURLでもOKです。URLを貼って「取得」を押すと、タイトルとタイムスタンプを自動で読み込みます。</p>
+      <p class="field-hint" style="margin-top:8px; padding:10px 12px; background:#fff8e1; border-left:3px solid #ffb81c; font-size:0.82rem; line-height:1.6;">
+        💡 タイムスタンプを自動生成するには、YouTube Studio で自動字幕が有効になっている必要があります。アップロード直後は字幕生成に数分かかるため、少し待ってから取得してください。<br>
+        <strong>設定場所：</strong> YouTube Studio → 動画の詳細 → 字幕タブ → 自動生成字幕が表示されていればOK
+      </p>
       <div class="url-row">
         <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
         <button class="fetch-btn" id="fetch-btn" onclick="fetchCaptions()">取得</button>
@@ -528,6 +532,15 @@ X→ https://x.com/AkkodisJapan
 
       if (data.title && !document.getElementById('title').value.trim()) {
         document.getElementById('title').value = data.title;
+      }
+
+      if (!data.segments) {
+        document.getElementById('timestamps-wrap').style.display = 'block';
+        document.getElementById('step1-num').classList.add('done');
+        document.getElementById('step1-num').textContent = '✓';
+        statusEl.textContent = 'タイトルを取得しました。この動画は字幕がないためタイムスタンプの自動生成はできませんでした。手動で入力するか空欄のままSTEP 2へ進んでください。';
+        statusEl.className = 'fetch-status ok';
+        return;
       }
 
       statusEl.textContent = 'タイムスタンプを生成中...';

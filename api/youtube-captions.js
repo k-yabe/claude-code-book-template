@@ -27,8 +27,11 @@ export default async function handler(req, res) {
     const playerResponse = JSON.parse(html.slice(jsonStart, i + 1));
     const tracks = playerResponse?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
 
+    const title = playerResponse.videoDetails?.title || '';
+
     if (!tracks || tracks.length === 0) {
-      return res.status(400).json({ error: '字幕が見つかりません。自動字幕が有効な動画のみ対応しています。' });
+      // 字幕なしでもタイトルだけ返す
+      return res.status(200).json({ segments: null, title });
     }
 
     // 日本語優先、なければ英語、なければ最初のトラック
