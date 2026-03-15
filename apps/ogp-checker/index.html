@@ -330,6 +330,26 @@
     .copy-tags-btn:hover { opacity: 0.8; }
     .copy-tags-btn.copied { background: #00b894; }
 
+    /* ── og:image サムネイル ── */
+    .ogimage-thumb-wrap {
+      margin-top: 12px;
+      border-top: 1px solid #f0f2f5;
+      padding-top: 12px;
+    }
+    .ogimage-thumb-wrap img {
+      max-width: 100%;
+      max-height: 200px;
+      object-fit: contain;
+      border: 1px solid #e8ecf0;
+      background: #f8f9fb;
+      display: block;
+    }
+    .ogimage-thumb-label {
+      font-size: 0.72rem;
+      color: #b2bec3;
+      margin-top: 5px;
+    }
+
     /* ── Google検索プレビュー ── */
     .google-preview-card {
       background: #fff;
@@ -434,6 +454,7 @@
           <button class="copy-md-btn" id="copy-md-btn">📄 Markdownでコピー</button>
         </div>
         <div class="val-list" id="val-list"></div>
+        <div id="ogimage-preview" style="display:none;"></div>
       </div>
 
       <!-- タブ -->
@@ -603,6 +624,20 @@
       `;
       document.getElementById('score-card').style.display = 'block';
       _lastValidationItems = items;
+
+      // og:image サムネイル
+      const imgPreview = document.getElementById('ogimage-preview');
+      if (ogp.image) {
+        imgPreview.innerHTML = `
+          <div class="ogimage-thumb-wrap">
+            <img src="${escHtml(ogp.image)}" alt="og:image"
+                 onerror="this.parentElement.innerHTML='<span style=\'color:#b2bec3;font-size:0.78rem;\'>（画像読み込み失敗）</span>'" />
+            <div class="ogimage-thumb-label">og:image プレビュー</div>
+          </div>`;
+        imgPreview.style.display = 'block';
+      } else {
+        imgPreview.style.display = 'none';
+      }
     }
 
     // ── SNSプレビュー描画 ─────────────────────────────────
