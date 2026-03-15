@@ -228,6 +228,18 @@
 
   <div class="card">
     <div class="field">
+      <label>YouTube URL <span class="optional">任意</span></label>
+      <p class="field-hint">アップ済みの動画URLを貼るとタイトル・タイムスタンプを自動取得します。</p>
+      <div class="transcribe-row">
+        <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=..." style="flex:1;padding:7px 10px;border:1.5px solid #dfe6e9;border-radius:0;font-size:0.85rem;outline:none;">
+        <button class="transcribe-btn" id="transcribe-btn" onclick="fetchCaptions()">取得</button>
+      </div>
+      <div class="transcribe-status" id="transcribe-status"></div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="field">
       <label>動画タイトル <span class="required">必須</span></label>
       <input type="text" id="title" placeholder="例：AIがものづくりを変える：アジャイル開発の最前線" />
     </div>
@@ -259,14 +271,8 @@
 
     <div class="field">
       <label>目次（タイムスタンプ） <span class="optional">任意</span></label>
-      <p class="field-hint">長い動画の場合は目次として掲載されます。不要な場合は空欄のままでOK。</p>
+      <p class="field-hint">URLから自動取得、または手入力。不要な場合は空欄のままでOK。</p>
       <textarea id="timestamps" rows="3" placeholder="00:00 イントロ&#10;01:30 AIとは&#10;05:00 まとめ"></textarea>
-      <div class="transcribe-row">
-        <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=..." style="flex:1;padding:7px 10px;border:1.5px solid #dfe6e9;border-radius:0;font-size:0.85rem;outline:none;">
-        <button class="transcribe-btn" id="transcribe-btn" onclick="fetchCaptions()">自動生成</button>
-      </div>
-      <p class="field-hint" style="margin-top:4px;">YouTubeにアップ済みの動画URLを貼ると、字幕からタイムスタンプを自動生成します（自動字幕が有効な動画のみ）</p>
-      <div class="transcribe-status" id="transcribe-status"></div>
     </div>
 
     <button class="generate-btn" id="gen-btn" onclick="generate()">生成する</button>
@@ -451,6 +457,11 @@ X→ https://x.com/AkkodisJapan
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || '字幕の取得に失敗しました');
+
+      // タイトルを自動入力（空欄の場合のみ）
+      if (data.title && !document.getElementById('title').value.trim()) {
+        document.getElementById('title').value = data.title;
+      }
 
       statusEl.textContent = 'チャプター生成中...';
 
