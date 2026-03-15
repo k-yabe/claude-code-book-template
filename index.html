@@ -495,35 +495,6 @@
       return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    function showApp() {
-      loginScreen.style.display = 'none';
-      appScreen.style.display   = 'block';
-      loadAntennaBadge();
-      renderWhatsNew();
-    }
-
-    if (sessionStorage.getItem('auth') === '1') showApp();
-
-    document.getElementById('login-form').addEventListener('submit', async e => {
-      e.preventDefault();
-      const hash = await hashPassword(pwInput.value);
-      if (hash === PW_HASH) {
-        sessionStorage.setItem('auth', '1');
-        showApp();
-      } else {
-        pwError.textContent = 'パスワードが違います';
-        pwInput.value = '';
-        pwInput.focus();
-      }
-    });
-
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      sessionStorage.removeItem('auth');
-      appScreen.style.display   = 'none';
-      loginScreen.style.display = 'flex';
-      pwInput.value = '';
-    });
-
     // ── What's New パネル ────────────────────────────────
     const WHATS_NEW = [
       { app: 'OGP Checker',            desc: 'og:imageサイズ確認・Google検索プレビュー・チェック履歴を追加' },
@@ -558,6 +529,35 @@
         el.style.display = 'none';
       });
     }
+
+    function showApp() {
+      loginScreen.style.display = 'none';
+      appScreen.style.display   = 'block';
+      loadAntennaBadge();
+      renderWhatsNew();
+    }
+
+    if (sessionStorage.getItem('auth') === '1') showApp();
+
+    document.getElementById('login-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const hash = await hashPassword(pwInput.value);
+      if (hash === PW_HASH) {
+        sessionStorage.setItem('auth', '1');
+        showApp();
+      } else {
+        pwError.textContent = 'パスワードが違います';
+        pwInput.value = '';
+        pwInput.focus();
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      sessionStorage.removeItem('auth');
+      appScreen.style.display   = 'none';
+      loginScreen.style.display = 'flex';
+      pwInput.value = '';
+    });
 
     // ── Global Antenna 新着バッジ ────────────────────────
     function loadAntennaBadge() {
