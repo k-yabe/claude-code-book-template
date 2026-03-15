@@ -1,5 +1,8 @@
 {
   "name": "marketing-apps",
   "version": "1.0.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@vercel/edge": "^1.0.0"
+  }
 }
