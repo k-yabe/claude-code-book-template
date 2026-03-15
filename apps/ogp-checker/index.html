@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OGP チェッカー</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      background: #f0f2f5;
+      color: #2d3436;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: #001f33;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .navbar-brand { display: flex; align-items: center; gap: 14px; }
+    .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+    .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+    .back-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.65);
+      cursor: pointer;
+      padding: 6px 14px;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 40px 80px;
+    }
+
+    h1 { font-size: 1.4rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .subtitle { font-size: 0.85rem; color: #8a9bb0; margin-bottom: 32px; }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1.5px solid #e8ecf0;
+      background: #fff;
+      font-size: 0.95rem;
+      color: #2d3436;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]::placeholder { color: #b2bec3; }
+    input[type="text"]:focus {
+      border-color: #ffb81c;
+      box-shadow: 0 0 0 3px rgba(255,184,28,0.12);
+    }
+
+    .check-btn {
+      padding: 12px 28px;
+      background: #ffb81c;
+      color: #001f33;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: opacity 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(255,184,28,0.25);
+      white-space: nowrap;
+    }
+    .check-btn:hover { opacity: 0.88; box-shadow: 0 6px 28px rgba(255,184,28,0.4); }
+    .check-btn:active { transform: scale(0.99); }
+    .check-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0,31,51,0.3);
+      border-top-color: #001f33;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      color: #e17055;
+      font-size: 0.85rem;
+      padding: 12px 16px;
+      background: #fff5f4;
+      border: 1.5px solid #fab1a0;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .result-area { display: none; }
+
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #8a9bb0;
+      margin-bottom: 12px;
+      margin-top: 32px;
+    }
+
+    /* OGP Tags Table */
+    .card {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      margin-bottom: 8px;
+    }
+
+    .tag-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .tag-table th, .tag-table td {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #f0f2f5;
+    }
+    .tag-table th {
+      background: #f8f9fb;
+      font-weight: 700;
+      color: #636e72;
+      width: 200px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+    }
+    .tag-table tr:last-child th,
+    .tag-table tr:last-child td { border-bottom: none; }
+    .tag-table td { color: #2d3436; word-break: break-all; }
+    .tag-missing { color: #b2bec3; font-style: italic; }
+
+    /* Validation */
+    .validation-list { display: flex; flex-direction: column; gap: 8px; }
+    .val-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+    }
+    .val-ok    { background: #f0fdf8; border: 1.5px solid #b2dfdb; color: #00695c; }
+    .val-warn  { background: #fffde7; border: 1.5px solid #ffe082; color: #e65100; }
+    .val-error { background: #fff5f4; border: 1.5px solid #fab1a0; color: #c0392b; }
+    .val-icon { font-size: 0.95rem; flex-shrink: 0; }
+    .val-msg { line-height: 1.5; }
+
+    /* SNS Preview Grid */
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .preview-card {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+    }
+    .preview-card-header {
+      padding: 10px 16px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: #636e72;
+      border-bottom: 1.5px solid #e8ecf0;
+      background: #f8f9fb;
+    }
+    .preview-card-body { padding: 16px; }
+
+    /* Twitter/X card */
+    .tw-card {
+      border: 1px solid #cfd9de;
+      border-radius: 12px;
+      overflow: hidden;
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+    }
+    .tw-image {
+      width: 100%;
+      aspect-ratio: 600 / 314;
+      background: #e8ecf0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #b2bec3;
+      font-size: 0.78rem;
+      overflow: hidden;
+    }
+    .tw-image img { width: 100%; height: 100%; object-fit: cover; }
+    .tw-info { padding: 10px 12px; }
+    .tw-domain { font-size: 0.73rem; color: #536471; margin-bottom: 4px; }
+    .tw-title { font-size: 0.88rem; font-weight: 700; color: #0f1419; line-height: 1.3; margin-bottom: 4px; }
+    .tw-desc { font-size: 0.8rem; color: #536471; line-height: 1.4; }
+
+    /* Facebook card */
+    .fb-card { font-family: Arial, sans-serif; }
+    .fb-image {
+      width: 100%;
+      aspect-ratio: 1200 / 628;
+      background: #e8ecf0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #b2bec3;
+      font-size: 0.78rem;
+      overflow: hidden;
+    }
+    .fb-image img { width: 100%; height: 100%; object-fit: cover; }
+    .fb-info { padding: 10px 12px; background: #f0f2f5; border-top: 1px solid #dadde1; }
+    .fb-domain { font-size: 0.72rem; color: #606770; text-transform: uppercase; margin-bottom: 4px; }
+    .fb-title { font-size: 0.88rem; font-weight: 600; color: #1d2129; line-height: 1.3; margin-bottom: 4px; }
+    .fb-desc { font-size: 0.8rem; color: #606770; line-height: 1.4; }
+
+    /* LINE card */
+    .line-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      font-family: 'Helvetica Neue', sans-serif;
+      display: flex;
+    }
+    .line-thumb {
+      width: 90px;
+      flex-shrink: 0;
+      aspect-ratio: 1;
+      background: #e8ecf0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #b2bec3;
+      font-size: 0.72rem;
+      overflow: hidden;
+    }
+    .line-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .line-info { padding: 10px 12px; flex: 1; min-width: 0; }
+    .line-title { font-size: 0.85rem; font-weight: 700; color: #333; line-height: 1.3; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .line-desc { font-size: 0.75rem; color: #888; line-height: 1.4; }
+    .line-domain { font-size: 0.7rem; color: #aaa; margin-top: 6px; }
+
+    /* LinkedIn card */
+    .li-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 2px;
+      overflow: hidden;
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      background: #fff;
+    }
+    .li-image {
+      width: 100%;
+      aspect-ratio: 1200 / 627;
+      background: #e8ecf0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #b2bec3;
+      font-size: 0.78rem;
+      overflow: hidden;
+    }
+    .li-image img { width: 100%; height: 100%; object-fit: cover; }
+    .li-info { padding: 10px 12px; background: #f3f2ef; border-top: 1px solid #e0e0e0; }
+    .li-title { font-size: 0.88rem; font-weight: 600; color: rgba(0,0,0,0.9); line-height: 1.3; margin-bottom: 4px; }
+    .li-domain { font-size: 0.72rem; color: rgba(0,0,0,0.6); }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a href="../../" class="back-btn">← アプリ一覧へ</a>
+      <div class="navbar-divider"></div>
+      <img src="../../assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:22px;display:block;">
+      <div class="navbar-divider"></div>
+      <span class="navbar-title">OGP チェッカー</span>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>OGP チェッカー</h1>
+    <p class="subtitle">URLを入力してSNSシェア時の表示をプレビュー</p>
+
+    <div class="input-row">
+      <input type="text" id="url-input" placeholder="https://example.com/your-page" autocomplete="off" />
+      <button class="check-btn" id="check-btn">チェック</button>
+    </div>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <div class="result-area" id="result-area">
+
+      <div class="section-title">OGPタグ</div>
+      <div class="card">
+        <table class="tag-table" id="tag-table"></table>
+      </div>
+
+      <div class="section-title">バリデーション</div>
+      <div class="validation-list" id="validation-list"></div>
+
+      <div class="section-title">SNSプレビュー</div>
+      <div class="preview-grid" id="preview-grid"></div>
+
+    </div>
+  </div>
+
+  <script>
+    const PROXY = 'https://api.allorigins.win/get?url=';
+
+    function getTag(doc, prop) {
+      const el = doc.querySelector(`meta[property="${prop}"]`) ||
+                 doc.querySelector(`meta[name="${prop}"]`);
+      return el ? (el.getAttribute('content') || '') : '';
+    }
+
+    function getDomain(url) {
+      try { return new URL(url).hostname; } catch { return url; }
+    }
+
+    function truncate(str, n) {
+      if (!str) return '';
+      return str.length > n ? str.slice(0, n) + '…' : str;
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error-msg');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('error-msg').style.display = 'none';
+    }
+
+    function renderTags(ogp) {
+      const rows = [
+        ['og:title',        ogp.title],
+        ['og:description',  ogp.description],
+        ['og:image',        ogp.image],
+        ['og:url',          ogp.url],
+        ['og:type',         ogp.type],
+        ['twitter:card',    ogp.twitterCard],
+        ['twitter:title',   ogp.twitterTitle],
+      ];
+      document.getElementById('tag-table').innerHTML = rows.map(([key, val]) => `
+        <tr>
+          <th>${key}</th>
+          <td>${val ? val : '<span class="tag-missing">（未設定）</span>'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderValidation(ogp) {
+      const items = [];
+
+      if (!ogp.title) {
+        items.push({ type: 'error', msg: 'og:title が設定されていません' });
+      } else if (ogp.title.length > 60) {
+        items.push({ type: 'warn', msg: `og:title が ${ogp.title.length} 文字です（Twitter 推奨: 60 文字以内）` });
+      } else {
+        items.push({ type: 'ok', msg: `og:title OK（${ogp.title.length} 文字）` });
+      }
+
+      if (!ogp.description) {
+        items.push({ type: 'error', msg: 'og:description が設定されていません' });
+      } else if (ogp.description.length > 155) {
+        items.push({ type: 'warn', msg: `og:description が ${ogp.description.length} 文字です（推奨: 155 文字以内）` });
+      } else {
+        items.push({ type: 'ok', msg: `og:description OK（${ogp.description.length} 文字）` });
+      }
+
+      if (!ogp.image) {
+        items.push({ type: 'error', msg: 'og:image が設定されていません。シェア時に画像が表示されません' });
+      } else {
+        items.push({ type: 'ok', msg: 'og:image が設定されています' });
+      }
+
+      if (!ogp.twitterCard) {
+        items.push({ type: 'warn', msg: 'twitter:card が未設定です（推奨: summary_large_image）' });
+      } else {
+        items.push({ type: 'ok', msg: `twitter:card = ${ogp.twitterCard}` });
+      }
+
+      const icons = { ok: '✅', warn: '⚠️', error: '❌' };
+      document.getElementById('validation-list').innerHTML = items.map(item => `
+        <div class="val-item val-${item.type}">
+          <span class="val-icon">${icons[item.type]}</span>
+          <span class="val-msg">${item.msg}</span>
+        </div>
+      `).join('');
+    }
+
+    function imgBlock(src, cls) {
+      if (!src) return `<div class="${cls}">画像なし</div>`;
+      return `<div class="${cls}"><img src="${src}" alt="" onerror="this.parentElement.innerHTML='（画像を読み込めませんでした）'" /></div>`;
+    }
+
+    function renderPreviews(ogp, url) {
+      const domain = getDomain(url);
+      const title = ogp.title || '（タイトルなし）';
+      const desc = ogp.description || '（説明なし）';
+
+      const previews = [
+        {
+          name: 'Twitter / X',
+          html: `
+            <div class="tw-card">
+              ${imgBlock(ogp.image, 'tw-image')}
+              <div class="tw-info">
+                <div class="tw-domain">${domain}</div>
+                <div class="tw-title">${truncate(title, 70)}</div>
+                <div class="tw-desc">${truncate(desc, 120)}</div>
+              </div>
+            </div>
+          `,
+        },
+        {
+          name: 'Facebook',
+          html: `
+            <div class="fb-card">
+              ${imgBlock(ogp.image, 'fb-image')}
+              <div class="fb-info">
+                <div class="fb-domain">${domain}</div>
+                <div class="fb-title">${truncate(title, 90)}</div>
+                <div class="fb-desc">${truncate(desc, 150)}</div>
+              </div>
+            </div>
+          `,
+        },
+        {
+          name: 'LINE',
+          html: `
+            <div class="line-card">
+              ${ogp.image
+                ? `<div class="line-thumb"><img src="${ogp.image}" alt="" onerror="this.parentElement.innerHTML=''" /></div>`
+                : '<div class="line-thumb">画像なし</div>'}
+              <div class="line-info">
+                <div class="line-title">${truncate(title, 50)}</div>
+                <div class="line-desc">${truncate(desc, 80)}</div>
+                <div class="line-domain">${domain}</div>
+              </div>
+            </div>
+          `,
+        },
+        {
+          name: 'LinkedIn',
+          html: `
+            <div class="li-card">
+              ${imgBlock(ogp.image, 'li-image')}
+              <div class="li-info">
+                <div class="li-title">${truncate(title, 120)}</div>
+                <div class="li-domain">${domain}</div>
+              </div>
+            </div>
+          `,
+        },
+      ];
+
+      document.getElementById('preview-grid').innerHTML = previews.map(p => `
+        <div class="preview-card">
+          <div class="preview-card-header">${p.name}</div>
+          <div class="preview-card-body">${p.html}</div>
+        </div>
+      `).join('');
+    }
+
+    async function check() {
+      hideError();
+      const url = document.getElementById('url-input').value.trim();
+      if (!url || !/^https?:\/\//.test(url)) {
+        showError('有効なURLを入力してください（http:// または https://）');
+        return;
+      }
+
+      const btn = document.getElementById('check-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>取得中...';
+      document.getElementById('result-area').style.display = 'none';
+
+      try {
+        const res = await fetch(PROXY + encodeURIComponent(url), { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`HTTPエラー: ${res.status}`);
+        const data = await res.json();
+        if (!data.contents) throw new Error('ページの取得に失敗しました');
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data.contents, 'text/html');
+
+        const ogp = {
+          title:        getTag(doc, 'og:title') || doc.querySelector('title')?.textContent?.trim() || '',
+          description:  getTag(doc, 'og:description') || getTag(doc, 'description'),
+          image:        getTag(doc, 'og:image'),
+          url:          getTag(doc, 'og:url') || url,
+          type:         getTag(doc, 'og:type'),
+          twitterCard:  getTag(doc, 'twitter:card'),
+          twitterTitle: getTag(doc, 'twitter:title'),
+        };
+
+        renderTags(ogp);
+        renderValidation(ogp);
+        renderPreviews(ogp, url);
+
+        document.getElementById('result-area').style.display = 'block';
+        document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      } catch (err) {
+        showError('取得エラー: ' + err.message + '（CORSポリシーやサイトの設定により取得できない場合があります）');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'チェック';
+      }
+    }
+
+    document.getElementById('check-btn').addEventListener('click', check);
+    document.getElementById('url-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') check();
+    });
+  </script>
+
+</body>
+</html>
