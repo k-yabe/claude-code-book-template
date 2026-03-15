@@ -310,23 +310,23 @@
     </div>
   </div>
 
-  <!-- STEP 3 -->
-  <div class="step">
+  <!-- STEP 3（字幕なし時のフォールバック） -->
+  <div class="step" id="step3-card" style="display:none;">
     <div class="step-header">
       <div class="step-num">3</div>
       <div class="step-title">動画の内容を入力する</div>
       <span class="step-badge badge-required">必須</span>
     </div>
     <div class="step-body">
-      <p class="field-hint">台本・原稿・LPのテキストをそのまま貼り付けるだけでOKです。走り書きやキーワードの羅列でも生成できます。</p>
+      <p class="field-hint" style="color:#d63031;">字幕が取得できなかったため、動画の内容を手動で入力してください。台本・原稿・LPのテキストをそのまま貼り付けるだけでOKです。</p>
       <textarea id="content" rows="8" placeholder="例）&#10;・AIを活用したアジャイル開発の事例紹介&#10;・スピードと品質を両立させるチームの作り方&#10;・2025年のDX推進に向けた取り組みについて話します"></textarea>
     </div>
   </div>
 
-  <!-- STEP 4 -->
+  <!-- STEP 3 or 4（リンク） -->
   <div class="step">
     <div class="step-header">
-      <div class="step-num">4</div>
+      <div class="step-num" id="link-step-num">3</div>
       <div class="step-title">掲載するリンクを選ぶ</div>
       <span class="step-badge badge-optional">任意</span>
     </div>
@@ -395,6 +395,8 @@
 <script>
   const SNS = `▼SNS\nFacebook▶ https://www.facebook.com/akkodisjapan/\nLinkedIn▶ https://www.linkedin.com/company/akkodis\nX▶ https://x.com/AkkodisJapan`;
 
+  let capturedSegments = null;
+
   async function generate() {
     const title = document.getElementById('title').value.trim();
     const content = document.getElementById('content').value.trim();
@@ -410,7 +412,7 @@
 
     errorEl.classList.remove('on');
     if (!title) { showErr('STEP 2：動画タイトルを入力してください。'); return; }
-    if (!content) { showErr('STEP 3：動画の内容を入力してください。'); return; }
+    if (!capturedSegments && !content) { showErr('STEP 3：動画の内容を入力してください。'); return; }
 
     btn.disabled = true;
     loadingEl.classList.add('on');
@@ -435,7 +437,10 @@
     if (otherLines.length) linkSections += `■関連リンクはこちら\n${otherLines.join('\n')}\n`;
     if (ytLines.length) linkSections += `■関連動画はこちら\n${ytLines.join('\n')}\n`;
 
-    let userMsg = `【動画タイトル】\n${title}\n\n【動画の内容・メモ】\n${content}\n`;
+    const contentSource = capturedSegments
+      ? `（以下は字幕データより自動取得）\n${capturedSegments}`
+      : content;
+    let userMsg = `【動画タイトル】\n${title}\n\n【動画の内容・メモ】\n${contentSource}\n`;
     if (linkSections) userMsg += `\n【説明文に含めるリンクセクション（以下をそのまま説明文に含める）】\n${linkSections}`;
     if (timestamps) userMsg += `\n【タイムスタンプ（「【目次】」という見出しをつけて記載）】\n${timestamps}\n`;
     userMsg += `\n【SNSリンク（必ず含める）】\n${SNS}`;
@@ -541,12 +546,16 @@ X→ https://x.com/AkkodisJapan
 
       if (!data.segments) {
         document.getElementById('timestamps-wrap').style.display = 'block';
+        document.getElementById('step3-card').style.display = 'block';
+        document.getElementById('link-step-num').textContent = '4';
         document.getElementById('step1-num').classList.add('done');
         document.getElementById('step1-num').textContent = '✓';
-        statusEl.textContent = 'タイトルを取得しました。この動画は字幕がないためタイムスタンプの自動生成はできませんでした。手動で入力するか空欄のままSTEP 2へ進んでください。';
+        statusEl.textContent = 'タイトルを取得しました。この動画は字幕がないため、STEP 3で動画の内容を手動入力してください。';
         statusEl.className = 'fetch-status ok';
         return;
       }
+
+      capturedSegments = data.segments;
 
       statusEl.textContent = 'タイムスタンプを生成中...';
 
@@ -567,7 +576,7 @@ X→ https://x.com/AkkodisJapan
 
       document.getElementById('step1-num').classList.add('done');
       document.getElementById('step1-num').textContent = '✓';
-      statusEl.textContent = 'タイトルとタイムスタンプを取得しました。STEP 2以降に進んでください。';
+      statusEl.textContent = 'タイトルとタイムスタンプを取得しました。STEP 2・3へ進んでください。';
       statusEl.className = 'fetch-status ok';
     } catch (err) {
       statusEl.textContent = `エラー: ${err.message}`;
