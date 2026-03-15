@@ -352,23 +352,19 @@
   </div>
 
   <script>
-    // ── CORS プロキシ（フォールバック付き）────────────────
+    // ── CORS プロキシ（並列レース）─────────────────────────
     async function fetchPage(url) {
-      // 1st: corsproxy.io（生HTML返却）
-      try {
-        const res = await fetch('https://corsproxy.io/?' + encodeURIComponent(url), {
-          signal: AbortSignal.timeout(8000),
-        });
-        if (res.ok) return await res.text();
-      } catch {}
-      // 2nd: allorigins.win（JSON返却）
-      const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url), {
-        signal: AbortSignal.timeout(10000),
-      });
-      if (!res.ok) throw new Error(`HTTPエラー: ${res.status}`);
-      const data = await res.json();
-      if (!data.contents) throw new Error('ページの取得に失敗しました');
-      return data.contents;
+      const enc = encodeURIComponent(url);
+      const timeout = AbortSignal.timeout(10000);
+
+      const via_corsproxy = fetch('https://corsproxy.io/?' + enc, { signal: timeout })
+        .then(r => { if (!r.ok) throw new Error(); return r.text(); });
+
+      const via_allorigins = fetch('https://api.allorigins.win/get?url=' + enc, { signal: timeout })
+        .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+        .then(d => { if (!d.contents) throw new Error(); return d.contents; });
+
+      return Promise.any([via_corsproxy, via_allorigins]);
     }
 
     // ── タグ取得ヘルパー ──────────────────────────────────
