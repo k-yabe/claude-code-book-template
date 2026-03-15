@@ -355,7 +355,7 @@
     // ── CORS プロキシ（並列レース）─────────────────────────
     async function fetchPage(url) {
       const enc = encodeURIComponent(url);
-      const timeout = AbortSignal.timeout(10000);
+      const timeout = AbortSignal.timeout(15000);
 
       const via_corsproxy = fetch('https://corsproxy.io/?' + enc, { signal: timeout })
         .then(r => { if (!r.ok) throw new Error(); return r.text(); });
@@ -558,7 +558,12 @@
       document.getElementById('score-card').style.display = 'none';
 
       try {
-        const html = await fetchPage(url);
+        let html;
+        try {
+          html = await fetchPage(url);
+        } catch (e) {
+          throw new Error('プロキシ経由での取得に失敗しました。サイトがプロキシをブロックしているか、URLが正しくない可能性があります。');
+        }
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
@@ -625,7 +630,7 @@
         document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       } catch (err) {
-        showError('取得エラー: ' + err.message + '（CORSポリシーやサイトの設定により取得できない場合があります）');
+        showError(err.message);
       } finally {
         btn.disabled = false;
         btn.textContent = 'チェック';
