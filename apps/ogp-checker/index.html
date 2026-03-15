@@ -329,6 +329,23 @@
     }
     .copy-tags-btn:hover { opacity: 0.8; }
     .copy-tags-btn.copied { background: #00b894; }
+
+    /* ── Markdownコピーボタン ── */
+    .copy-md-btn {
+      margin-left: auto;
+      padding: 4px 12px;
+      background: none;
+      border: 1.5px solid #e8ecf0;
+      color: #8a9bb0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .copy-md-btn:hover { border-color: #001f33; color: #001f33; }
+    .copy-md-btn.copied { border-color: #00b894; color: #00b894; }
   </style>
 </head>
 <body>
@@ -362,6 +379,7 @@
         <div class="score-header">
           <span class="score-label">バリデーション</span>
           <div class="score-badges" id="score-badges"></div>
+          <button class="copy-md-btn" id="copy-md-btn">📄 Markdownでコピー</button>
         </div>
         <div class="val-list" id="val-list"></div>
       </div>
@@ -529,6 +547,7 @@
         <span class="badge badge-error">❌ ${error}</span>
       `;
       document.getElementById('score-card').style.display = 'block';
+      _lastValidationItems = items;
     }
 
     // ── SNSプレビュー描画 ─────────────────────────────────
@@ -678,6 +697,51 @@
       });
     }
 
+    // ── Markdownレポートコピー ────────────────────────────
+    let _lastValidationItems = [];
+    let _lastCheckedUrl = '';
+    let _lastSeo = null;
+
+    function copyMarkdown() {
+      if (!_lastOgp || !_lastCheckedUrl) return;
+      const o = _lastOgp;
+      const s = _lastSeo;
+      const icons = { ok: '✅', warn: '⚠️', error: '❌' };
+      const lines = [];
+
+      lines.push(`# OGP チェック結果`);
+      lines.push(`**URL:** ${_lastCheckedUrl}`);
+      lines.push(`**日時:** ${new Date().toLocaleString('ja-JP')}`);
+      lines.push('');
+      lines.push('## バリデーション');
+      _lastValidationItems.forEach(i => lines.push(`- ${icons[i.type]} ${i.msg}`));
+      lines.push('');
+      lines.push('## OGP タグ');
+      lines.push('| タグ | 値 |');
+      lines.push('|------|-----|');
+      [['og:title', o.title], ['og:description', o.description], ['og:image', o.image],
+       ['og:url', o.url], ['og:type', o.type], ['og:site_name', o.siteName]].forEach(([k, v]) => {
+        lines.push(`| \`${k}\` | ${v || '（未設定）'} |`);
+      });
+      if (s) {
+        lines.push('');
+        lines.push('## SEO');
+        lines.push('| 項目 | 値 |');
+        lines.push('|------|-----|');
+        [['title', s.title], ['meta description', s.metaDesc], ['canonical', s.canonical],
+         ['robots', s.robots], ['h1', s.h1], ['lang', s.lang]].forEach(([k, v]) => {
+          lines.push(`| ${k} | ${v || '（未設定）'} |`);
+        });
+      }
+
+      navigator.clipboard.writeText(lines.join('\n')).then(() => {
+        const btn = document.getElementById('copy-md-btn');
+        btn.classList.add('copied');
+        btn.textContent = '✅ コピーしました';
+        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '📄 Markdownでコピー'; }, 2000);
+      }).catch(() => alert('クリップボードへのコピーに失敗しました'));
+    }
+
     // ── メタタグ HTML コピー ──────────────────────────────
     let _lastOgp = null;
     function copyMetaTags() {
@@ -777,6 +841,8 @@
 
         // コピー用に保存
         _lastOgp = ogp;
+        _lastSeo = seo;
+        _lastCheckedUrl = url;
 
         // 描画
         renderPreviews(ogp, url);
@@ -842,6 +908,7 @@
       if (e.key === 'Enter') check();
     });
     document.getElementById('copy-tags-btn').addEventListener('click', copyMetaTags);
+    document.getElementById('copy-md-btn').addEventListener('click', copyMarkdown);
 
     // 起動時に履歴を表示
     renderHistory();
