@@ -436,8 +436,6 @@
       if (!ogp.image)                    addItem('error', 'og:image が未設定です（SNSシェア時に画像が表示されません）');
       else                               addItem('ok',    'og:image が設定されています');
 
-      if (!ogp.twitterCard)              addItem('warn',  'twitter:card が未設定です（推奨: summary_large_image）');
-      else                               addItem('ok',    `twitter:card = ${ogp.twitterCard}`);
 
       // SEO（og:titleと別の値の場合のみチェック）
       if (seo.title && seo.title !== ogp.title) {
