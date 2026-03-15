@@ -354,8 +354,11 @@
       <div class="login-brand">AKKODiS</div>
       <h2>Marketing Apps</h2>
       <p class="login-tagline">For Marketing Team</p>
-      <input type="password" id="pw-input" placeholder="Password" />
-      <button id="pw-btn">Sign In</button>
+      <form id="login-form" autocomplete="on">
+        <input type="text" name="username" autocomplete="username" style="display:none" value="marketing-team" />
+        <input type="password" id="pw-input" name="password" placeholder="Password" autocomplete="current-password" />
+        <button type="submit" id="pw-btn">Sign In</button>
+      </form>
       <div class="login-error" id="pw-error"></div>
     </div>
   </div>
@@ -426,8 +429,10 @@
       }
     }
 
-    pwBtn.addEventListener('click', tryLogin);
-    pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+    document.getElementById('login-form').addEventListener('submit', e => {
+      e.preventDefault();
+      tryLogin();
+    });
 
     document.getElementById('logout-btn').addEventListener('click', () => {
       sessionStorage.removeItem('auth');
