@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-03-15T01:56:36Z",
+  "last_scraped": "2026-03-16T01:57:31Z",
   "articles": [
     {
       "id": "why-most-ai-pilots-fail",
@@ -371,15 +371,6 @@
       "published_date": null
     },
     {
-      "id": "zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
-      "title": "View\nkeyboard_arrow_right",
-      "url": "https://www.akkodis.com/en/blog/client-success/zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-15T01:56:06Z",
-      "published_date": null
-    },
-    {
       "id": "automotive-company-speeds-up-education-programs-adoption",
       "title": "Automotive Company’s Speeds Up Education Programs Adoption",
       "url": "https://www.akkodis.com/en/blog/client-success/automotive-company-speeds-up-education-programs-adoption",
@@ -479,15 +470,6 @@
       "published_date": null
     },
     {
-      "id": "personal-rekrutierung-fur-value-added-reseller",
-      "title": "View\nkeyboard_arrow_right",
-      "url": "https://www.akkodis.com/en/blog/client-success/personal-rekrutierung-fur-value-added-reseller",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-15T01:56:18Z",
-      "published_date": null
-    },
-    {
       "id": "akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
       "title": "Akkodis Delivers Cost Efficiencies in EE’s SD Management",
       "url": "https://www.akkodis.com/en/blog/client-success/akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
@@ -539,6 +521,24 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:21:49Z",
+      "published_date": null
+    },
+    {
+      "id": "british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
+      "title": "British Airways Transforms Its IT Function",
+      "url": "https://www.akkodis.com/en/blog/client-success/british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-16T01:57:15Z",
+      "published_date": null
+    },
+    {
+      "id": "rbc-railway",
+      "title": "Ensuring Rail Software Safety: Akkodis Validation Services",
+      "url": "https://www.akkodis.com/en/blog/client-success/rbc-railway",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-16T01:57:22Z",
       "published_date": null
     }
   ]
