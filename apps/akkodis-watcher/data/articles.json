@@ -1,6 +1,15 @@
 {
-  "last_scraped": "2026-03-16T01:57:31Z",
+  "last_scraped": "2026-03-17T01:45:30Z",
   "articles": [
+    {
+      "id": "driving-innovation-and-engineering-a-smarter-future-for-all",
+      "title": "Driving Innovation and Engineering a Smarter Future for All",
+      "url": "https://www.akkodis.com/blog/articles/driving-innovation-and-engineering-a-smarter-future-for-all",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:42Z",
+      "published_date": "2026-02-27T00:00:00Z"
+    },
     {
       "id": "why-most-ai-pilots-fail",
       "title": "Why Most AI Pilots Fail: Real Constraints To AI Scale",
@@ -99,15 +108,6 @@
       "source_label": "Akkodis Blog",
       "first_seen": "2026-03-14T12:15:40Z",
       "published_date": "2026-02-23T00:00:00Z"
-    },
-    {
-      "id": "driving-innovation-and-engineering-a-smarter-future-for-all",
-      "title": "Driving Innovation and Engineering a Smarter Future for All",
-      "url": "https://www.akkodis.com/blog/articles/driving-innovation-and-engineering-a-smarter-future-for-all",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:42Z",
-      "published_date": "2026-02-27T00:00:00Z"
     },
     {
       "id": "from-digital-to-physical-ai",
