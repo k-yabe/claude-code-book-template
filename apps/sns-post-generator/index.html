@@ -157,8 +157,8 @@
     .post-textarea {
       width: 100%; font-size: 0.9rem; line-height: 1.85; color: #2d3436;
       border: 1.5px solid #ffb81c; padding: 10px 14px; font-family: inherit;
-      resize: vertical; outline: none; min-height: 120px; box-sizing: border-box;
-      word-break: break-word; margin-bottom: 16px;
+      resize: vertical; outline: none; min-height: 80px; box-sizing: border-box;
+      word-break: break-word; margin-bottom: 16px; overflow: hidden;
     }
     .post-text { cursor: text; }
     .post-text:hover { border-left-color: #ffb81c; }
@@ -353,8 +353,8 @@
     let styleRule, platformRule;
     if (platform === 'chatter') {
       styleRule = `各パターンで以下の構成テンプレートに従うこと。
-1行目: 記事タイトル「${article.title}」を必ず含め、前後に読みたくなる一言を添えた魅力的な一文にすること（タイトル自体は改変しない。【】で囲む必要はない。例: 📢 ついに公開！${article.title} / 📢 ${article.title}— 読まないと損です） / 2行目: #ハッシュタグ5〜8個 / 空行 / 本文リード2〜3文 / 空行 / ▼か■の見出し+箇条書き2〜4個 / 空行 / 記事URL / 空行 / 🎯こんな方におすすめ（3点） / 空行 / 最後に一言（🚀は任意。パターンごとに切り口を変えること。定型文・毎回同じ書き出し禁止。例: 今週ぜひ読んでみてください / あなたのチームにも参考になるはずです / まずは概要だけでも目を通してみてください）
-禁止: **太字**記法・✅記号・AIっぽい常套句・：（全角コロン）・ですます調での箇条書き見出し`;
+1行目: 記事タイトル「${article.title}」を必ず含め、前後に読みたくなる一言を添えた魅力的な一文にすること（タイトル自体は改変しない。【】で囲む必要はない。例: 📢 ついに公開！${article.title} / 📢 ${article.title}— 読まないと損です） / 2行目: #ハッシュタグ5〜8個 / 空行 / 本文リード2〜3文 / 空行 / 絵文字+見出し（📌📖💡🔍✨など内容に合うもの）+箇条書き2〜4個 / 空行 / 記事URL / 空行 / 🎯こんな方におすすめ（3点） / 空行 / 最後に一言（絵文字1つ+パターンごとに切り口を変えること。定型文・毎回同じ書き出し禁止。お客様・取引先への紹介を意識したニュアンスで締めること。例: 💬 お客様との会話のきっかけにぜひ / 👀 担当のお客様にも共有してみてください / 📩 興味のあるお客様がいれば、ぜひこの記事を起点にご紹介を）
+禁止: **太字**記法・✅記号・AIっぽい常套句・：（全角コロン）・ですます調での箇条書き見出し・▼・■（絵文字で代替すること）`;
       platformRule = `各パターン${limit}文字以内。ハッシュタグ5〜8個。記事URLを必ず含める。`;
     } else if (platform === 'linkedin') {
       styleRule = `自然な人間の文体。**太字**不可。装飾記号不可。絵文字は1〜2個まで。箇条書きは「・」で3行まで。AIっぽい定型句は使わない。`;
@@ -425,7 +425,13 @@ ${styleRule}
     ta.className = 'post-textarea';
     ta.value = postText.textContent;
     postText.replaceWith(ta);
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
     ta.focus();
+    ta.addEventListener('input', () => {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    });
 
     ta.addEventListener('input', () => {
       const len = ta.value.length;
