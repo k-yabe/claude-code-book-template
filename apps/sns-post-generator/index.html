@@ -353,8 +353,8 @@
     let styleRule, platformRule;
     if (platform === 'chatter') {
       styleRule = `各パターンで以下の構成テンプレートに従うこと。
-1行目: 記事タイトル「${article.title}」を必ず含め、前後に読みたくなる一言を添えた魅力的な一文にすること（タイトル自体は改変しない。【】で囲む必要はない。例: 📢 ついに公開！${article.title} / 📢 ${article.title}— ここが注目ポイントです） / 2行目: #ハッシュタグ5〜8個 / 空行 / 本文リード2〜3文 / 空行 / ▼か■の見出し+箇条書き2〜4個 / 空行 / 記事URL / 空行 / 🎯こんな方におすすめ（3点） / 空行 / 🚀社員の皆さまへ（1〜2文）
-禁止: **太字**記法・✅記号・AIっぽい常套句`;
+1行目: 記事タイトル「${article.title}」を必ず含め、前後に読みたくなる一言を添えた魅力的な一文にすること（タイトル自体は改変しない。【】で囲む必要はない。例: 📢 ついに公開！${article.title} / 📢 ${article.title}— 読まないと損です） / 2行目: #ハッシュタグ5〜8個 / 空行 / 本文リード2〜3文 / 空行 / ▼か■の見出し+箇条書き2〜4個 / 空行 / 記事URL / 空行 / 🎯こんな方におすすめ（3点） / 空行 / 最後に一言（🚀は任意。パターンごとに切り口を変えること。定型文・毎回同じ書き出し禁止。例: 今週ぜひ読んでみてください / あなたのチームにも参考になるはずです / まずは概要だけでも目を通してみてください）
+禁止: **太字**記法・✅記号・AIっぽい常套句・：（全角コロン）・ですます調での箇条書き見出し`;
       platformRule = `各パターン${limit}文字以内。ハッシュタグ5〜8個。記事URLを必ず含める。`;
     } else if (platform === 'linkedin') {
       styleRule = `自然な人間の文体。**太字**不可。装飾記号不可。絵文字は1〜2個まで。箇条書きは「・」で3行まで。AIっぽい定型句は使わない。`;
@@ -561,7 +561,7 @@ ${styleRule}
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
-          max_tokens: 2000,
+          max_tokens: platform === 'x' ? 1000 : platform === 'chatter' ? 3500 : 4000,
           messages: [{ role: 'user', content: buildPrompt(articleCache[url], url) }],
         }),
       });
