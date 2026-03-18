@@ -164,6 +164,17 @@
   fetch('refs.json').then(r => r.json()).then(d => { linkedinRefs = d; }).catch(() => {});
   fetch('chatter_refs.json').then(r => r.json()).then(d => { chatterRefs = d; }).catch(() => {});
 
+  // ── テキストクリーニング ──────────────────────────────
+  function cleanText(text) {
+    return text
+      .replace(/\*\*(.+?)\*\*/g, '$1')   // **太字** → テキストのみ
+      .replace(/\*(.+?)\*/g, '$1')        // *斜体* → テキストのみ
+      .replace(/^#{1,6}\s+/gm, '')        // ## 見出し → 削除
+      .replace(/^---+$/gm, '')            // --- 区切り線 → 削除
+      .replace(/\n{3,}/g, '\n\n')         // 3行以上の空行 → 2行に
+      .trim();
+  }
+
   // ── プラットフォーム ─────────────────────────────────
   document.querySelectorAll('.platform-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -345,6 +356,9 @@ ${articlesText}
       }
 
       if (!fullText) throw new Error('生成に失敗しました。もう一度お試しください。');
+      fullText = cleanText(fullText);
+      outputEl.textContent = fullText;
+      updateCharCount();
     } catch (err) {
       errEl.textContent = err.message;
     } finally {
