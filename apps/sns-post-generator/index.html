@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SNS Post Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; }
+
+    .navbar {
+      background: #001f33; height: 58px; display: flex; align-items: center;
+      padding: 0 40px; gap: 14px; position: sticky; top: 0; z-index: 10;
+    }
+    .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+    .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+    .back-btn {
+      background: none; border: 1px solid rgba(255,255,255,0.2); font-size: 0.78rem;
+      color: rgba(255,255,255,0.65); cursor: pointer; padding: 6px 14px;
+      text-decoration: none; transition: all 0.15s;
+    }
+    .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 28px 40px 80px; }
+
+    h1 { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .subtitle { font-size: 0.82rem; color: #8a9bb0; margin-bottom: 28px; }
+
+    /* ── ステップ ── */
+    .step { background: #fff; border: 1.5px solid #e8ecf0; margin-bottom: 16px; }
+    .step-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; border-bottom: 1px solid #f0f2f5;
+    }
+    .step-num {
+      width: 24px; height: 24px; background: #001f33; color: #fff;
+      font-size: 0.72rem; font-weight: 800; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .step-title { font-size: 0.88rem; font-weight: 700; color: #1a1a2e; flex: 1; }
+    .step-badge {
+      font-size: 0.65rem; font-weight: 700; padding: 2px 8px; letter-spacing: 0.06em;
+    }
+    .badge-required { background: #001f33; color: #fff; }
+    .badge-optional { background: #e8ecf0; color: #8a9bb0; }
+    .step-body { padding: 18px 20px; }
+
+    label { display: block; font-size: 0.78rem; font-weight: 700; color: #636e72; margin-bottom: 6px; }
+    input[type="text"], textarea, select {
+      width: 100%; padding: 10px 14px; border: 1.5px solid #e8ecf0; font-size: 0.88rem;
+      color: #2d3436; font-family: inherit; outline: none; background: #fff;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus { border-color: #ffb81c; }
+    textarea { resize: vertical; line-height: 1.6; }
+    .field-hint { font-size: 0.75rem; color: #b2bec3; margin-top: 6px; }
+
+    /* プラットフォーム選択 */
+    .platform-btns { display: flex; gap: 10px; }
+    .platform-btn {
+      flex: 1; padding: 10px; border: 1.5px solid #e8ecf0; background: #fff;
+      font-size: 0.82rem; font-weight: 700; color: #8a9bb0; cursor: pointer;
+      font-family: inherit; transition: all 0.15s; text-align: center;
+    }
+    .platform-btn.active { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
+    .platform-btn:hover:not(.active) { border-color: #d0d8e0; color: #2d3436; }
+
+    /* 参考投稿 */
+    .ref-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .ref-item {
+      border: 1.5px solid #e8ecf0; padding: 10px 14px; position: relative;
+      font-size: 0.8rem; color: #636e72; line-height: 1.5;
+      white-space: pre-wrap; word-break: break-all;
+      max-height: 80px; overflow: hidden;
+    }
+    .ref-item-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .ref-item-num { font-size: 0.68rem; font-weight: 700; color: #ffb81c; }
+    .ref-delete-btn {
+      background: none; border: none; color: #c0c8d4; cursor: pointer;
+      font-size: 0.78rem; padding: 0 2px; transition: color 0.15s; line-height: 1;
+    }
+    .ref-delete-btn:hover { color: #e17055; }
+    .ref-add-area { display: flex; flex-direction: column; gap: 8px; }
+    .ref-add-btn {
+      padding: 8px 16px; background: none; border: 1.5px dashed #d0d8e0;
+      font-size: 0.78rem; color: #8a9bb0; cursor: pointer; font-family: inherit;
+      transition: all 0.15s; text-align: left;
+    }
+    .ref-add-btn:hover { border-color: #ffb81c; color: #001f33; }
+    .ref-input-wrap { display: none; flex-direction: column; gap: 8px; }
+    .ref-input-wrap.open { display: flex; }
+    .ref-save-btn {
+      padding: 8px 16px; background: #ffb81c; border: none; color: #001f33;
+      font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit;
+      align-self: flex-start; transition: opacity 0.15s;
+    }
+    .ref-save-btn:hover { opacity: 0.85; }
+
+    /* 生成ボタン */
+    .generate-btn {
+      width: 100%; padding: 14px; background: #ffb81c; border: none; color: #001f33;
+      font-size: 0.95rem; font-weight: 800; cursor: pointer; font-family: inherit;
+      letter-spacing: 0.04em; transition: opacity 0.2s; margin-top: 8px;
+    }
+    .generate-btn:hover { opacity: 0.9; }
+    .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* 出力 */
+    .output-section { display: none; }
+    .output-card { background: #fff; border: 1.5px solid #e8ecf0; margin-bottom: 16px; }
+    .output-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-bottom: 1px solid #f0f2f5;
+    }
+    .output-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; color: #001f33; }
+    .output-meta { display: flex; align-items: center; gap: 12px; }
+    .char-count { font-size: 0.75rem; color: #8a9bb0; }
+    .char-count.over { color: #e17055; font-weight: 700; }
+    .copy-btn {
+      padding: 6px 14px; background: #001f33; border: none; color: #fff;
+      font-size: 0.75rem; font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: opacity 0.15s;
+    }
+    .copy-btn:hover { opacity: 0.8; }
+    .output-body { padding: 18px 20px; }
+    .output-text {
+      font-size: 0.88rem; line-height: 1.75; color: #2d3436;
+      white-space: pre-wrap; word-break: break-word;
+    }
+
+    .error-msg { font-size: 0.82rem; color: #e17055; margin-top: 10px; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="back-btn" href="../../">← アプリ一覧へ</a>
+  <img src="../../assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:20px;display:block;">
+  <div class="navbar-divider"></div>
+  <span class="navbar-title">SNS Post Generator</span>
+</nav>
+
+<div class="container">
+  <h1>SNS Post Generator</h1>
+  <p class="subtitle">記事の内容からLinkedIn / X用の投稿文をAIで生成します</p>
+
+  <!-- STEP 1: プラットフォーム -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div class="step-title">投稿先を選択</div>
+      <span class="step-badge badge-required">必須</span>
+    </div>
+    <div class="step-body">
+      <div class="platform-btns">
+        <button class="platform-btn active" data-platform="linkedin">🔗 LinkedIn</button>
+        <button class="platform-btn" data-platform="x">✦ X (Twitter)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: 記事情報 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div class="step-title">記事情報を入力</div>
+      <span class="step-badge badge-required">必須</span>
+    </div>
+    <div class="step-body">
+      <label>記事タイトル</label>
+      <input type="text" id="article-title" placeholder="例: AIが変えるB2Bマーケティングの未来" autocomplete="off">
+      <label style="margin-top:14px;">記事の内容・要点（箇条書きでもOK）</label>
+      <textarea id="article-body" rows="5" placeholder="例:&#10;・AIを活用した需要予測で営業効率が30%改善&#10;・パーソナライズメールの開封率が2倍に&#10;・今後のB2Bマーケでは自動化が必須に"></textarea>
+      <label style="margin-top:14px;">記事URL（任意）</label>
+      <input type="text" id="article-url" placeholder="https://www.akkodis.com/..." autocomplete="off">
+    </div>
+  </div>
+
+  <!-- STEP 3: 参考投稿 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div class="step-title">参考投稿を登録（スタイル学習用）</div>
+      <span class="step-badge badge-optional">任意・保存済み</span>
+    </div>
+    <div class="step-body">
+      <p class="field-hint" style="margin-bottom:12px;">過去のLinkedIn / X投稿文をここに登録しておくと、そのトーン・構成を参考にして生成します。最大5件まで。</p>
+      <div class="ref-list" id="ref-list"></div>
+      <div class="ref-add-area">
+        <button class="ref-add-btn" id="ref-add-btn">＋ 参考投稿を追加</button>
+        <div class="ref-input-wrap" id="ref-input-wrap">
+          <textarea id="ref-input" rows="5" placeholder="参考にしたい投稿文をここに貼り付けてください"></textarea>
+          <button class="ref-save-btn" id="ref-save-btn">保存する</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="generate-btn" id="generate-btn">投稿文を生成する</button>
+  <div class="error-msg" id="error-msg"></div>
+
+  <!-- 出力 -->
+  <div class="output-section" id="output-section">
+    <div class="output-card">
+      <div class="output-header">
+        <span class="output-label" id="output-label">LINKEDIN</span>
+        <div class="output-meta">
+          <span class="char-count" id="char-count"></span>
+          <button class="copy-btn" id="copy-btn">コピー</button>
+        </div>
+      </div>
+      <div class="output-body">
+        <div class="output-text" id="output-text"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'snsgen_refs';
+  const LIMITS = { linkedin: 1300, x: 140 };
+
+  let platform = 'linkedin';
+  let refs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+  // ── プラットフォーム切替 ────────────────────────────
+  document.querySelectorAll('.platform-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      platform = btn.dataset.platform;
+      updateCharCount();
+    });
+  });
+
+  // ── 参考投稿 ────────────────────────────────────────
+  function renderRefs() {
+    const list = document.getElementById('ref-list');
+    list.innerHTML = refs.map((r, i) => `
+      <div class="ref-item">
+        <div class="ref-item-header">
+          <span class="ref-item-num">参考 ${i + 1}</span>
+          <button class="ref-delete-btn" onclick="deleteRef(${i})">✕</button>
+        </div>
+        <div>${r.slice(0, 120).replace(/</g, '&lt;')}${r.length > 120 ? '…' : ''}</div>
+      </div>`).join('');
+
+    const addBtn = document.getElementById('ref-add-btn');
+    addBtn.style.display = refs.length >= 5 ? 'none' : '';
+  }
+
+  function deleteRef(i) {
+    refs.splice(i, 1);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(refs));
+    renderRefs();
+  }
+
+  document.getElementById('ref-add-btn').addEventListener('click', () => {
+    document.getElementById('ref-input-wrap').classList.add('open');
+    document.getElementById('ref-add-btn').style.display = 'none';
+    document.getElementById('ref-input').focus();
+  });
+
+  document.getElementById('ref-save-btn').addEventListener('click', () => {
+    const val = document.getElementById('ref-input').value.trim();
+    if (!val) return;
+    refs.push(val);
+    if (refs.length > 5) refs = refs.slice(-5);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(refs));
+    document.getElementById('ref-input').value = '';
+    document.getElementById('ref-input-wrap').classList.remove('open');
+    renderRefs();
+  });
+
+  renderRefs();
+
+  // ── 文字数カウント ───────────────────────────────────
+  function updateCharCount() {
+    const text = document.getElementById('output-text').textContent;
+    if (!text) return;
+    const limit = LIMITS[platform];
+    const el = document.getElementById('char-count');
+    el.textContent = `${text.length} / ${limit}文字`;
+    el.className = 'char-count' + (text.length > limit ? ' over' : '');
+  }
+
+  // ── 生成 ─────────────────────────────────────────────
+  document.getElementById('generate-btn').addEventListener('click', generate);
+
+  async function generate() {
+    const title = document.getElementById('article-title').value.trim();
+    const body  = document.getElementById('article-body').value.trim();
+    const url   = document.getElementById('article-url').value.trim();
+    const errEl = document.getElementById('error-msg');
+
+    if (!title && !body) {
+      errEl.textContent = '記事タイトルまたは内容を入力してください。';
+      return;
+    }
+    errEl.textContent = '';
+
+    const btn = document.getElementById('generate-btn');
+    btn.disabled = true;
+    btn.textContent = '生成中...';
+    document.getElementById('output-section').style.display = 'none';
+
+    const platformLabel = platform === 'linkedin' ? 'LinkedIn' : 'X (Twitter)';
+    const limit = LIMITS[platform];
+    const refSection = refs.length > 0
+      ? `\n\n【参考投稿（トーン・構成を参考にすること）】\n${refs.map((r, i) => `--- 参考${i+1} ---\n${r}`).join('\n')}`
+      : '';
+
+    const prompt = `あなたはB2Bマーケターです。以下の記事情報をもとに、${platformLabel}用の投稿文を1つ生成してください。
+
+【条件】
+- ${limit}文字以内（厳守）
+- ${platform === 'linkedin' ? '改行を活用し読みやすく、ハッシュタグを3〜5個末尾に付ける' : 'シンプルで端的に、ハッシュタグを1〜2個'}
+- AKKODiSブランドのプロフェッショナルなトーン
+- 読者が「もっと読みたい」と思う書き出し
+${url ? `- 末尾にURLを含める: ${url}` : ''}
+
+【記事タイトル】
+${title}
+
+【記事内容・要点】
+${body}${refSection}
+
+投稿文のみを出力してください。説明や前置きは不要です。`;
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1024,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message || '生成に失敗しました');
+      const text = data?.content?.[0]?.text?.trim() || '';
+      if (!text) throw new Error('生成に失敗しました。もう一度お試しください。');
+
+      document.getElementById('output-label').textContent = platformLabel.toUpperCase();
+      document.getElementById('output-text').textContent = text;
+      document.getElementById('output-section').style.display = 'block';
+      updateCharCount();
+      document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      errEl.textContent = err.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '投稿文を生成する';
+    }
+  }
+
+  // ── コピー ───────────────────────────────────────────
+  document.getElementById('copy-btn').addEventListener('click', () => {
+    const text = document.getElementById('output-text').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = 'コピーしました';
+      setTimeout(() => { btn.textContent = 'コピー'; }, 2000);
+    });
+  });
+</script>
+</body>
+</html>
