@@ -119,8 +119,8 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    .item-title a { color: #2d3436; text-decoration: none; }
-    .item-title a:hover { color: #001f33; text-decoration: underline; }
+    .item-title { cursor: pointer; }
+    .item-title:hover { color: #001f33; }
 
     .item-meta { font-size: 0.7rem; color: #b2bec3; display: flex; align-items: center; gap: 5px; }
 
@@ -442,7 +442,7 @@
              data-article-date="${dateStr}"
              data-article-source="${a.source_label || ''}">
           <div class="item-title">
-            ${n ? '<span class="badge-new">NEW</span> ' : ''}<a href="${a.url}" target="_blank" rel="noopener">${a.title}</a>
+            ${n ? '<span class="badge-new">NEW</span> ' : ''}${a.title}
           </div>
           ${dateStr ? `<div class="item-meta"><span>${dateStr}</span></div>` : ''}
         </div>`;
@@ -578,7 +578,6 @@
       }
 
       document.getElementById('columns').addEventListener('click', e => {
-        if (e.target.closest('a[href]')) return; // リンククリックはモーダル不要
         const item = e.target.closest('.item[data-article-url]');
         if (!item) return;
         openModal(item);
