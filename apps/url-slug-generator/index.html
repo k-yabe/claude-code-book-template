@@ -547,21 +547,21 @@
       if (wordCount >= 3 && wordCount <= 5 && allLower && !hasNumber) {
         return {
           grade: 'S',
-          label: '✅ 最適',
+          label: '90点',
           tooltip: '単語数3〜5、小文字英字のみ、ハイフン区切り、数字なし',
           cls: 'score-s',
         };
       } else if (wordCount >= 2 && wordCount <= 6 && mainlyLower) {
         return {
           grade: 'A',
-          label: '👍 良好',
+          label: '65点',
           tooltip: '単語数2〜6、小文字英字メイン',
           cls: 'score-a',
         };
       }
       return {
         grade: 'B',
-        label: '⚠️ 要改善',
+        label: '40点',
         tooltip: '単語数・文字種がSEO推奨範囲外',
         cls: 'score-b',
       };
@@ -688,9 +688,12 @@
         if (slugs.length === 0) throw new Error('候補の生成に失敗しました。もう一度お試しください。');
 
         _currentSlugs = slugs;
-        _isSorted = false;
+        _isSorted = true;
         const sortBtn = document.getElementById('sort-btn');
-        if (sortBtn) { sortBtn.classList.remove('active'); sortBtn.textContent = 'スコア順にソート'; }
+        if (sortBtn) { sortBtn.classList.add('active'); sortBtn.textContent = '元の順序に戻す'; }
+        slugs = [...slugs].sort((a, b) =>
+          SCORE_ORDER[calcSeoScore(a).grade] - SCORE_ORDER[calcSeoScore(b).grade]
+        );
         renderSlugs(slugs);
         outputSection.style.display = 'block';
         outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
