@@ -439,27 +439,6 @@
       </div>
     </div>
 
-    <!-- Step 1b: utm_content -->
-    <div class="step">
-      <div class="step-header">
-        <div class="step-num" style="background:#8a9bb0;">+</div>
-        <div class="step-title">utm_content を入力（任意）</div>
-        <span class="step-badge badge-optional">任意</span>
-      </div>
-      <div class="step-body">
-        <div class="form-row">
-          <span class="param-prefix">utm_content=</span>
-          <input
-            type="text"
-            class="param-input"
-            id="content-input"
-            placeholder="例: hero-cta"
-            autocomplete="off"
-          />
-        </div>
-        <p class="param-hint">入力するとすべてのURLに <code style="background:#f0f2f5;padding:1px 5px;font-size:0.82em;">&amp;utm_content=値</code> が付与されます</p>
-      </div>
-    </div>
 
     <!-- Step 2: 本文入力 -->
     <div class="step">
@@ -516,12 +495,8 @@
     let urlItems = [];
     let currentBody = '';
     let currentCampaign = '';
-    let currentContent = '';
-
-    function buildParams(campaign, content) {
-      let p = `utm_source=marketo&utm_medium=email&utm_campaign=ak_clt_${campaign}`;
-      if (content) p += `&utm_content=${encodeURIComponent(content)}`;
-      return p;
+    function buildParams(campaign) {
+      return `utm_source=marketo&utm_medium=email&utm_campaign=ak_clt_${campaign}`;
     }
 
     function appendParams(url, params) {
@@ -548,7 +523,7 @@
         if (item.deleted) return originalUrl; // 削除済みは元URLをそのまま残す
         activeNum++;
         const num = String(activeNum).padStart(2, '0');
-        const params = buildParams(`${currentCampaign}${num}`, currentContent);
+        const params = buildParams(`${currentCampaign}${num}`);
         return `[[${appendParams(item.editedUrl, params)}]]`;
       });
 
@@ -565,7 +540,7 @@
         if (item.deleted) return escapeHtml(originalUrl); // 削除済みは元URLテキストを残す
         activeNum2++;
         const num = String(activeNum2).padStart(2, '0');
-        const params = buildParams(`${currentCampaign}${num}`, currentContent);
+        const params = buildParams(`${currentCampaign}${num}`);
         const fullUrl = appendParams(item.editedUrl, params);
         const displayUrl = stripParams(item.editedUrl);
         return `<a href="${fullUrl}" target="_blank">${displayUrl}</a>`;
@@ -589,7 +564,6 @@
 
     document.getElementById('generate-btn').addEventListener('click', () => {
       const campaign = document.getElementById('campaign-input').value.trim();
-      const content = document.getElementById('content-input').value.trim();
       const body = document.getElementById('body-input').value;
 
       if (!campaign) {
@@ -608,7 +582,6 @@
 
       currentBody = body;
       currentCampaign = campaign;
-      currentContent = content;
 
       // urlItems を初期化
       const matches = [...body.matchAll(new RegExp(URL_REGEX.source, 'g'))];
@@ -680,13 +653,12 @@
         if (item.deleted) return '';
         activeNum++;
         const num = String(activeNum).padStart(2, '0');
-        const contentPart = currentContent ? `&utm_content=${currentContent}` : '';
         return `
           <div class="url-list-item" data-index="${i}">
             <div class="url-num">${activeNum}</div>
             <div class="url-item-main">
               <div class="url-original url-display">${escapeHtml(item.editedUrl)}</div>
-              <div class="url-campaign">utm_campaign=ak_clt_${currentCampaign}${num}${contentPart}</div>
+              <div class="url-campaign">utm_campaign=ak_clt_${currentCampaign}${num}</div>
             </div>
             <div class="url-actions">
               <button class="url-edit-btn" onclick="startEdit(${i})">編集</button>
