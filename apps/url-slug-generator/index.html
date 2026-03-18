@@ -691,10 +691,10 @@
         _isSorted = true;
         const sortBtn = document.getElementById('sort-btn');
         if (sortBtn) { sortBtn.classList.add('active'); sortBtn.textContent = '元の順序に戻す'; }
-        slugs = [...slugs].sort((a, b) =>
+        const sortedSlugs = [...slugs].sort((a, b) =>
           SCORE_ORDER[calcSeoScore(a).grade] - SCORE_ORDER[calcSeoScore(b).grade]
         );
-        renderSlugs(slugs);
+        renderSlugs(sortedSlugs);
         outputSection.style.display = 'block';
         outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
