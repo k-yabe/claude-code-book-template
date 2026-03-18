@@ -98,7 +98,7 @@ export default async function handler(req, res) {
     const relatedIdx = text.search(/最新コラム|関連記事|関連コンテンツ|おすすめ記事|Related/);
     if (relatedIdx > 500) text = text.slice(0, relatedIdx).trim();
 
-    text = text.slice(0, 4000);
+    text = text.slice(0, 2000);
 
     // og:description が本文に含まれていなければ先頭に補足
     const descInText = ogDesc && text.includes(ogDesc.slice(0, 30));
