@@ -547,21 +547,21 @@
       if (wordCount >= 3 && wordCount <= 5 && allLower && !hasNumber) {
         return {
           grade: 'S',
-          label: '90点',
+          label: '★★★',
           tooltip: '単語数3〜5、小文字英字のみ、ハイフン区切り、数字なし',
           cls: 'score-s',
         };
       } else if (wordCount >= 2 && wordCount <= 6 && mainlyLower) {
         return {
           grade: 'A',
-          label: '65点',
+          label: '★★☆',
           tooltip: '単語数2〜6、小文字英字メイン',
           cls: 'score-a',
         };
       }
       return {
         grade: 'B',
-        label: '40点',
+        label: '★☆☆',
         tooltip: '単語数・文字種がSEO推奨範囲外',
         cls: 'score-b',
       };
