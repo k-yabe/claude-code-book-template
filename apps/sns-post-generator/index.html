@@ -152,8 +152,7 @@
     return text
       .replace(/\*\*(.+?)\*\*/g, '$1')   // **太字** → テキストのみ
       .replace(/\*(.+?)\*/g, '$1')        // *斜体* → テキストのみ
-      .replace(/^#{1,6}\s+/gm, '')        // ## 見出し → 削除
-      .replace(/^---+$/gm, '')            // --- 区切り線 → 削除
+      .replace(/^#{2,6}\s+/gm, '')        // ## 見出し → 削除（#1つはハッシュタグのため除外）
       .replace(/\n{3,}/g, '\n\n')         // 3行以上の空行 → 2行に
       .trim();
   }
@@ -269,7 +268,7 @@ ${article.text}
       if (!res.ok) throw new Error('生成に失敗しました');
 
       const reader = res.body.getReader();
-      const decoder = new TextDecoder();
+      const decoder = new TextDecoder('utf-8', { stream: true });
       const outputEl = document.getElementById('output-text');
       let fullText = '';
 
