@@ -19,7 +19,11 @@ export default async function handler(req, res) {
       body: JSON.stringify(req.body),
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try { data = JSON.parse(text); } catch {
+      return res.status(500).json({ error: { message: 'APIエラーが発生しました。しばらく待ってから再試行してください。' } });
+    }
     return res.status(response.status).json(data);
   } catch (err) {
     return res.status(500).json({ error: { message: err.message } });

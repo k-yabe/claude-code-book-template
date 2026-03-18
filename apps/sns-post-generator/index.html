@@ -175,6 +175,26 @@
     }
     .regen-btn:hover { border-color: #ffb81c; color: #001f33; }
 
+    /* パターン個別修正 */
+    .patch-row {
+      display: flex; gap: 8px; margin-top: 14px; padding-top: 14px;
+      border-top: 1px solid #f0f2f5;
+    }
+    .patch-input {
+      flex: 1; padding: 8px 12px; border: 1.5px solid #e2e8f0; font-size: 0.82rem;
+      font-family: inherit; color: #2d3436; outline: none; min-width: 0;
+      transition: border-color 0.15s;
+    }
+    .patch-input:focus { border-color: #ffb81c; }
+    .patch-input::placeholder { color: #c8d0da; }
+    .patch-btn {
+      padding: 8px 16px; background: #001f33; border: none; color: #fff;
+      font-size: 0.77rem; font-weight: 700; cursor: pointer; font-family: inherit;
+      white-space: nowrap; transition: opacity 0.15s; flex-shrink: 0;
+    }
+    .patch-btn:hover { opacity: 0.75; }
+    .patch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
     /* 補足インプット */
     .supp-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
     .supp-tab {
@@ -653,6 +673,10 @@ ${styleRule}
         <div class="panel-footer">
           <span class="char-count${over ? ' over' : ''}">${charLen} / ${limit}文字</span>
           <button class="copy-btn" data-text="${escAttr(text)}">コピー</button>
+        </div>
+        <div class="patch-row">
+          <input class="patch-input" type="text" placeholder="修正指示を入力（例: もっと短く / 1行目を変えて）">
+          <button class="patch-btn">修正して再生成</button>
         </div>`;
 
       panel.querySelector('.copy-btn').addEventListener('click', function () {
@@ -660,6 +684,46 @@ ${styleRule}
           this.textContent = 'コピーしました';
           setTimeout(() => { this.textContent = 'コピー'; }, 2000);
         });
+      });
+
+      // パターン個別修正
+      const patchBtn = panel.querySelector('.patch-btn');
+      const patchInput = panel.querySelector('.patch-input');
+      patchBtn.addEventListener('click', async () => {
+        const instruction = patchInput.value.trim();
+        if (!instruction) { patchInput.focus(); return; }
+        const currentText = panel.querySelector('.post-text, .post-textarea')?.textContent || panel.querySelector('.copy-btn').dataset.text;
+        patchBtn.disabled = true;
+        patchBtn.textContent = '修正中...';
+        try {
+          const prompt = `以下の投稿文を指示に従って修正してください。出力は修正後の投稿文のみ（余分な説明不要）。\n\n【修正指示】${instruction}\n\n【現在の投稿文】\n${currentText}`;
+          const r = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] }),
+          });
+          const txt = await r.text();
+          let data;
+          try { data = JSON.parse(txt); } catch { throw new Error('サーバーエラーが発生しました'); }
+          if (!r.ok) throw new Error(data.error?.message || '修正に失敗しました');
+          const newText = cleanText(data.content?.[0]?.text || '');
+          if (!newText) throw new Error('修正に失敗しました');
+
+          // 表示更新
+          const postEl = panel.querySelector('.post-text, .post-textarea');
+          if (postEl) postEl.textContent = newText;
+          panel.querySelector('.copy-btn').dataset.text = newText;
+          const len = newText.length;
+          const charCountEl = panel.querySelector('.char-count');
+          charCountEl.textContent = `${len} / ${limit}文字`;
+          charCountEl.className = 'char-count' + (len > limit ? ' over' : '');
+          patchInput.value = '';
+        } catch (err) {
+          alert(err.message);
+        } finally {
+          patchBtn.disabled = false;
+          patchBtn.textContent = '修正して再生成';
+        }
       });
 
       panelsEl.appendChild(panel);
@@ -730,7 +794,9 @@ ${styleRule}
           messages,
         }),
       });
-      const data = await r.json();
+      const text = await r.text();
+      let data;
+      try { data = JSON.parse(text); } catch { throw new Error('サーバーエラーが発生しました。しばらく待ってから再試行してください。'); }
       if (!r.ok) throw new Error(data.error?.message || '生成に失敗しました');
 
       const raw = data.content?.[0]?.text || '';
