@@ -189,23 +189,31 @@
 
       const platformLabel = platform === 'linkedin' ? 'LinkedIn' : 'X (Twitter)';
       const limit = LIMITS[platform];
-      const refSection = refs.length > 0
-        ? `\n\n【参考投稿（トーン・構成・ハッシュタグスタイルを参考にすること）】\n${refs.slice(0, 4).map((r, i) => `--- 参考${i+1} ---\n${r}`).join('\n')}`
-        : '';
+      const prompt = `あなたはAKKODiS JapanのSNS担当マーケターです。以下の記事をもとに${platformLabel}用の投稿文を1つ書いてください。
 
-      const prompt = `あなたはAKKODiS JapanのB2Bマーケターです。以下の記事をもとに${platformLabel}用の投稿文を1つ生成してください。
+【文体ルール（厳守）】
+- 普通の人間が書いたような自然な文体にする
+- **太字** は絶対に使わない
+- 「：」「✅」「💡」などの装飾記号は使わない（絵文字は文脈に合う場合のみ1〜2個まで）
+- 箇条書きを多用しない（使うなら「・」で最大3行まで）
+- 「〜をお知らせします」「〜を実現します」「〜な世界へ」などのAIっぽい決まり文句は使わない
+- 文末は体言止めや短い一文で締める
 
-【条件】
+【投稿条件】
 - ${limit}文字以内（厳守）
-- ${platform === 'linkedin' ? '改行を活用して読みやすく、末尾に日本語ハッシュタグを3〜5個' : '端的でキャッチーに、ハッシュタグ1〜2個'}
-- AKKODiSブランドらしいプロフェッショナルなトーン
+- ${platform === 'linkedin' ? '末尾に日本語ハッシュタグを3〜5個' : '端的でキャッチーに、ハッシュタグ1〜2個'}
 - 記事リンクを末尾に含める: ${url}
+
+【参考にすべき文体・構成】
+${refs.slice(0, 3).map(r => r).join('\n\n---\n\n')}
+
+---
 
 【記事タイトル】
 ${lastArticle.title}
 
 【記事内容】
-${lastArticle.text}${refSection}
+${lastArticle.text}
 
 投稿文のみを出力してください。`;
 
