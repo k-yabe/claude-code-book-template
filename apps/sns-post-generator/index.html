@@ -22,7 +22,7 @@
     }
     .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 
-    .container { max-width: 760px; margin: 0 auto; padding: 28px 40px 80px; }
+    .container { max-width: 800px; margin: 0 auto; padding: 28px 40px 80px; }
 
     h1 { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
     .subtitle { font-size: 0.82rem; color: #8a9bb0; margin-bottom: 28px; }
@@ -60,35 +60,79 @@
 
     /* 出力エリア */
     .output-section { display: none; }
-    .output-card { background: #fff; border: 1.5px solid #e8ecf0; }
+
+    /* おすすめ理由 */
+    .reason-box {
+      background: #fffbf0; border: 1.5px solid #ffb81c; padding: 14px 18px;
+      margin-bottom: 16px; font-size: 0.84rem; line-height: 1.7; color: #4a3800;
+    }
+    .reason-label {
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em;
+      color: #b8860b; margin-bottom: 6px;
+    }
+
+    /* 出力カード */
+    .output-cards { display: flex; flex-direction: column; gap: 12px; }
+    .output-card {
+      background: #fff; border: 1.5px solid #e8ecf0; transition: border-color 0.15s;
+    }
+    .output-card.recommended { border-color: #ffb81c; }
 
     .output-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 20px; border-bottom: 1px solid #f0f2f5;
+      padding: 11px 18px; border-bottom: 1px solid #f0f2f5; gap: 10px;
     }
-    .output-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; color: #001f33; }
-    .output-meta { display: flex; align-items: center; gap: 12px; }
-    .char-count { font-size: 0.75rem; color: #8a9bb0; }
+    .output-header-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+
+    .rec-badge {
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.05em;
+      background: #ffb81c; color: #001f33; padding: 3px 9px; white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .pattern-label {
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; color: #001f33;
+      white-space: nowrap;
+    }
+    .angle-label {
+      font-size: 0.75rem; color: #8a9bb0; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .output-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .char-count { font-size: 0.74rem; color: #8a9bb0; white-space: nowrap; }
     .char-count.over { color: #e17055; font-weight: 700; }
 
     .copy-btn {
-      padding: 6px 16px; background: #001f33; border: none; color: #fff;
-      font-size: 0.75rem; font-weight: 700; cursor: pointer; font-family: inherit;
-      transition: opacity 0.15s;
+      padding: 5px 14px; background: #001f33; border: none; color: #fff;
+      font-size: 0.74rem; font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: opacity 0.15s; white-space: nowrap;
     }
     .copy-btn:hover { opacity: 0.8; }
 
-    .output-body { padding: 20px; }
+    .output-body { padding: 18px 20px; }
     .output-text {
       font-size: 0.9rem; line-height: 1.8; color: #2d3436;
-      white-space: pre-wrap; word-break: break-word; min-height: 60px;
+      white-space: pre-wrap; word-break: break-word;
     }
+
+    /* 再生成 */
+    .regen-row { margin-top: 20px; }
     .regen-btn {
-      margin-top: 12px; padding: 8px 18px; background: none; border: 1.5px solid #e8ecf0;
+      padding: 8px 18px; background: none; border: 1.5px solid #e8ecf0;
       font-size: 0.78rem; color: #636e72; cursor: pointer; font-family: inherit;
       transition: all 0.15s;
     }
     .regen-btn:hover { border-color: #ffb81c; color: #001f33; }
+
+    /* ローディング */
+    .loading-msg {
+      text-align: center; padding: 40px 20px; background: #fff;
+      border: 1.5px solid #e8ecf0; color: #8a9bb0; font-size: 0.88rem;
+    }
+    .loading-dot { animation: blink 1.2s ease-in-out infinite; }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100% { opacity: 0; } 40% { opacity: 1; } }
   </style>
 </head>
 <body>
@@ -102,7 +146,7 @@
 
 <div class="container">
   <h1>Post Generator</h1>
-  <p class="subtitle">記事URLを入力するだけでChatter / LinkedIn / X用の投稿文を自動生成します</p>
+  <p class="subtitle">記事URLを入力するだけでChatter / LinkedIn / X用の投稿文を3パターン自動生成します</p>
 
   <div class="card">
     <div class="platform-btns">
@@ -110,24 +154,26 @@
       <button class="platform-btn" data-platform="linkedin">🔗 LinkedIn</button>
       <button class="platform-btn" data-platform="x">✦ X (Twitter)</button>
     </div>
-
     <input class="url-input" id="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off">
-    <button class="generate-btn" id="generate-btn">生成する</button>
+    <button class="generate-btn" id="generate-btn">3パターン生成する</button>
     <div class="error-msg" id="error-msg"></div>
   </div>
 
   <div class="output-section" id="output-section">
-    <div class="output-card">
-      <div class="output-header">
-        <span class="output-label" id="output-label">CHATTER</span>
-        <div class="output-meta">
-          <span class="char-count" id="char-count"></span>
-          <button class="copy-btn" id="copy-btn">コピー</button>
-        </div>
+    <div id="loading-area" class="loading-msg" style="display:none;">
+      生成中<span class="loading-dot">．</span><span class="loading-dot">．</span><span class="loading-dot">．</span>
+    </div>
+
+    <div id="results-area" style="display:none;">
+      <div class="reason-box" id="reason-box" style="display:none;">
+        <div class="reason-label">★ おすすめの理由</div>
+        <div id="reason-text"></div>
       </div>
-      <div class="output-body">
-        <div class="output-text" id="output-text"></div>
-        <button class="regen-btn" id="regen-btn">↺ 再生成</button>
+
+      <div class="output-cards" id="output-cards"></div>
+
+      <div class="regen-row">
+        <button class="regen-btn" id="regen-btn">↺ 再生成（3パターン）</button>
       </div>
     </div>
   </div>
@@ -135,6 +181,7 @@
 
 <script>
   const LIMITS = { chatter: 1000, linkedin: 1300, x: 140 };
+  const ANGLES = ['数字・データ軸', '読者の共感軸', '意外性・問いかけ軸'];
 
   let platform = 'chatter';
   let linkedinRefs = [];
@@ -144,17 +191,14 @@
   fetch('refs.json').then(r => r.json()).then(d => { linkedinRefs = d; }).catch(() => {});
   fetch('chatter_refs.json').then(r => r.json()).then(d => { chatterRefs = d; }).catch(() => {});
 
-  // プラットフォーム切替
   document.querySelectorAll('.platform-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       platform = btn.dataset.platform;
-      updateCharCount();
     });
   });
 
-  // Markdown記法除去
   function cleanText(text) {
     return text
       .replace(/\*\*(.+?)\*\*/g, '$1')
@@ -164,7 +208,24 @@
       .trim();
   }
 
-  // プロンプト生成
+  function parseOutput(raw) {
+    const sections = {};
+    const regex = /===(\w+)===([\s\S]*?)(?====\w+===|$)/g;
+    let m;
+    while ((m = regex.exec(raw)) !== null) {
+      sections[m[1].trim()] = m[2].trim();
+    }
+    return {
+      patterns: [
+        sections['PATTERN1'] || '',
+        sections['PATTERN2'] || '',
+        sections['PATTERN3'] || '',
+      ].map(p => cleanText(p)),
+      recommend: Math.max(0, parseInt(sections['RECOMMEND'] || '1') - 1),
+      reason: sections['REASON'] || '',
+    };
+  }
+
   function buildPrompt(article, url) {
     const platformLabel = platform === 'linkedin' ? 'LinkedIn' : platform === 'x' ? 'X (Twitter)' : 'Salesforce Chatter';
     const limit = LIMITS[platform];
@@ -173,62 +234,56 @@
     let styleRule, platformRule;
 
     if (platform === 'chatter') {
-      styleRule = `以下の【構成テンプレート】に必ず従うこと。
+      styleRule = `各パターンで以下の構成テンプレートに従うこと。
 
 【構成テンプレート】
-1行目: 📢【タイトル（記事・セミナー・イベント名を簡潔に）】
-2行目: #ハッシュタグ（5〜8個、記事内容に関連した具体的なものを選ぶ）
+1行目: 📢【タイトル（記事・イベント名を簡潔に）】
+2行目: #ハッシュタグ（5〜8個、記事に関連した具体的なもの）
 空行
-本文リード（2〜3文）: 記事の中で最も「え、そうなの？」と思わせる数字・事実・視点から書き始める。「〜について」「〜をご紹介します」で始めない
+本文リード（2〜3文）
 空行
 ▼ または ■ で始まる見出し + 箇条書き「・」で主要ポイントを2〜4個
 空行
 記事URL
 空行
 🎯 こんな方におすすめ
-・[具体的なターゲット1]
-・[具体的なターゲット2]
-・[具体的なターゲット3]
+・[ターゲット1]・[ターゲット2]・[ターゲット3]
 空行
-🚀 社員の皆さまへ：
-[活用イメージを1〜2文で]
+🚀 社員の皆さまへ：[活用イメージを1〜2文]
 
 【禁止事項】
-- **太字** 記法を使わない
-- ✅ などのチェックマーク記号を使わない
-- 「〜をお知らせします」「〜な世界へ」等のAI的常套句は使わない
-- 記事に書かれていない事実・数字・主張を作らない`;
-      platformRule = `ハッシュタグは5〜8個。末尾URLを必ず含める。`;
+- **太字** 記法を使わない / ✅ チェックマークを使わない / AIっぽい常套句は使わない`;
+      platformRule = `各パターン${limit}文字以内。ハッシュタグ5〜8個。記事URLを必ず含める。`;
     } else if (platform === 'linkedin') {
-      styleRule = `- 冒頭1〜2文で読み手の「あるある」や意外な事実を突く（記事の内容から引用）
-- 普通の人間が書いたような自然な文体にする
-- **太字** は絶対に使わない
-- 「：」「✅」「💡」などの装飾記号は使わない（絵文字は文脈に合う場合のみ1〜2個まで）
-- 箇条書きを多用しない（使うなら「・」で最大3行まで）
-- AIっぽい決まり文句は使わない
-- 記事に書かれていない事実・数字・主張を作らない`;
-      platformRule = `末尾に日本語ハッシュタグを3〜5個。末尾に記事URLを含める。`;
+      styleRule = `- 普通の人間が書いたような自然な文体
+- **太字** 不可 / 装飾記号不可（絵文字は1〜2個まで）
+- 箇条書きは「・」で最大3行まで
+- AIっぽい決まり文句は使わない`;
+      platformRule = `各パターン${limit}文字以内。末尾に日本語ハッシュタグ3〜5個と記事URLを含める。`;
     } else {
-      styleRule = `- 記事の中で最も驚きや共感を生む一点だけに絞って書く
-- 普通の人間が書いたような自然な文体にする
-- **太字** や装飾記号は使わない
-- 文末は体言止めや短い一文で締める
-- 記事に書かれていない事実・数字・主張を作らない`;
-      platformRule = `端的でキャッチーに。ハッシュタグ1〜2個。末尾に記事URLを含める。`;
+      styleRule = `- 端的で人間らしい自然な文体
+- **太字** ・装飾記号不可
+- 文末は体言止めか短い一文`;
+      platformRule = `各パターン${limit}文字以内。ハッシュタグ1〜2個と記事URLを含める。`;
     }
 
     const refText = refs.length > 0
-      ? `【参考投稿（文体・構成・絵文字の使い方を参考にすること）】\n${refs.slice(0, 3).join('\n\n---\n\n')}\n\n---\n\n`
+      ? `【参考投稿（文体・構成を参考にすること）】\n${refs.slice(0, 2).join('\n\n---\n\n')}\n\n---\n\n`
       : '';
 
-    return `あなたはAKKODiS Japanの${platform === 'chatter' ? '社内広報' : 'SNS担当'}マーケターです。以下の記事をもとに${platformLabel}用の投稿文を1つ書いてください。
+    return `あなたはAKKODiS Japanの${platform === 'chatter' ? '社内広報' : 'SNS担当'}マーケターです。以下の記事をもとに${platformLabel}用の投稿文を【3パターン】書いてください。
 
-${refText}【文体・構成ルール（厳守）】
+${refText}【3パターンの切り口（厳守）】
+- PATTERN1（数字・データ軸）: 記事中の具体的な数字・実績・データを冒頭に持ってきて興味を引く
+- PATTERN2（読者の共感軸）: 読み手が「あるある」と感じる課題や状況から入り、記事がその答えになる流れ
+- PATTERN3（意外性・問いかけ軸）: 意外な事実や問いかけで始め、読み手に「続きが気になる」と思わせる
+
+【文体・構成ルール（厳守）】
 ${styleRule}
 
 【投稿条件】
-- ${limit}文字以内（厳守）
 - ${platformRule}
+- 記事の内容から読み取れる事実のみ使うこと。推測・誇張・架空の数字は禁止
 - 記事URL: ${url}
 
 【記事タイトル】
@@ -237,10 +292,76 @@ ${article.title}
 【記事内容】
 ${article.text}
 
-投稿文のみを出力してください。説明・コメント・前置きは不要。`;
+【出力フォーマット（厳守）】
+以下のフォーマットで出力すること。各セクションの区切りは必ず ===SECTION=== の形式を使うこと。
+
+===PATTERN1===
+（PATTERN1の投稿文）
+===PATTERN2===
+（PATTERN2の投稿文）
+===PATTERN3===
+（PATTERN3の投稿文）
+===RECOMMEND===
+（おすすめパターンの番号。1か2か3のみ）
+===REASON===
+（おすすめの理由を1〜2文で。なぜそのパターンが最も読まれやすいか）`;
   }
 
-  // 生成メイン
+  function renderResults({ patterns, recommend, reason }) {
+    const limit = LIMITS[platform];
+    const platformLabel = platform === 'linkedin' ? 'LINKEDIN' : platform === 'x' ? 'X (TWITTER)' : 'CHATTER';
+
+    const container = document.getElementById('output-cards');
+    container.innerHTML = '';
+
+    patterns.forEach((text, i) => {
+      if (!text) return;
+      const isRec = i === recommend;
+      const card = document.createElement('div');
+      card.className = 'output-card' + (isRec ? ' recommended' : '');
+
+      const charLen = text.length;
+      const overLimit = charLen > limit;
+
+      card.innerHTML = `
+        <div class="output-header">
+          <div class="output-header-left">
+            ${isRec ? '<span class="rec-badge">★ おすすめ</span>' : ''}
+            <span class="pattern-label">${platformLabel} ${i + 1}</span>
+            <span class="angle-label">— ${ANGLES[i]}</span>
+          </div>
+          <div class="output-meta">
+            <span class="char-count${overLimit ? ' over' : ''}">${charLen} / ${limit}文字</span>
+            <button class="copy-btn">コピー</button>
+          </div>
+        </div>
+        <div class="output-body">
+          <div class="output-text">${escHtml(text)}</div>
+        </div>`;
+
+      card.querySelector('.copy-btn').addEventListener('click', function () {
+        navigator.clipboard.writeText(text).then(() => {
+          this.textContent = 'コピーしました';
+          setTimeout(() => { this.textContent = 'コピー'; }, 2000);
+        });
+      });
+
+      container.appendChild(card);
+    });
+
+    const reasonBox = document.getElementById('reason-box');
+    if (reason) {
+      document.getElementById('reason-text').textContent = reason;
+      reasonBox.style.display = 'block';
+    } else {
+      reasonBox.style.display = 'none';
+    }
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
   async function generate() {
     const url = document.getElementById('url-input').value.trim();
     const errEl = document.getElementById('error-msg');
@@ -255,8 +376,16 @@ ${article.text}
     btn.disabled = true;
     btn.textContent = '取得中...';
 
+    const outputSection = document.getElementById('output-section');
+    const loadingArea = document.getElementById('loading-area');
+    const resultsArea = document.getElementById('results-area');
+
+    outputSection.style.display = 'block';
+    loadingArea.style.display = 'block';
+    resultsArea.style.display = 'none';
+    outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
     try {
-      // 記事取得（キャッシュあれば再利用）
       if (!articleCache[url]) {
         const r = await fetch('/api/fetch-article', {
           method: 'POST',
@@ -270,57 +399,36 @@ ${article.text}
 
       btn.textContent = '生成中...';
 
-      const prompt = buildPrompt(articleCache[url], url);
-
       const r = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
-          max_tokens: 2048,
-          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 4096,
+          messages: [{ role: 'user', content: buildPrompt(articleCache[url], url) }],
         }),
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error?.message || '生成に失敗しました');
 
-      const text = cleanText(data.content?.[0]?.text || '');
-      if (!text) throw new Error('生成に失敗しました。もう一度お試しください。');
+      const raw = data.content?.[0]?.text || '';
+      if (!raw) throw new Error('生成に失敗しました。もう一度お試しください。');
 
-      const platformLabel = platform === 'linkedin' ? 'LINKEDIN' : platform === 'x' ? 'X (TWITTER)' : 'CHATTER';
-      document.getElementById('output-label').textContent = platformLabel;
-      document.getElementById('output-text').textContent = text;
-      document.getElementById('output-section').style.display = 'block';
-      document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      updateCharCount();
+      const parsed = parseOutput(raw);
+      if (parsed.patterns.every(p => !p)) throw new Error('出力の解析に失敗しました。再生成してください。');
+
+      renderResults(parsed);
+      loadingArea.style.display = 'none';
+      resultsArea.style.display = 'block';
 
     } catch (err) {
       errEl.textContent = err.message;
+      outputSection.style.display = 'none';
     } finally {
       btn.disabled = false;
-      btn.textContent = '生成する';
+      btn.textContent = '3パターン生成する';
     }
   }
-
-  // 文字数カウント
-  function updateCharCount() {
-    const text = document.getElementById('output-text').textContent;
-    if (!text) return;
-    const limit = LIMITS[platform];
-    const el = document.getElementById('char-count');
-    el.textContent = `${text.length} / ${limit}文字`;
-    el.className = 'char-count' + (text.length > limit ? ' over' : '');
-  }
-
-  // コピー
-  document.getElementById('copy-btn').addEventListener('click', () => {
-    const text = document.getElementById('output-text').textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.getElementById('copy-btn');
-      btn.textContent = 'コピーしました';
-      setTimeout(() => { btn.textContent = 'コピー'; }, 2000);
-    });
-  });
 
   document.getElementById('generate-btn').addEventListener('click', generate);
   document.getElementById('regen-btn').addEventListener('click', generate);
