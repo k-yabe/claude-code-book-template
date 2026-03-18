@@ -249,6 +249,9 @@
       }));
 
       btn.textContent = '生成中...';
+      document.getElementById('output-text').textContent = '';
+      document.getElementById('output-section').style.display = 'block';
+      document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       const articles = urls.map(u => articleCache[u]);
       const platformLabel = platform === 'linkedin' ? 'LinkedIn' : platform === 'x' ? 'X (Twitter)' : 'Salesforce Chatter';
@@ -308,25 +311,40 @@ ${articlesText}
 
 投稿文のみを出力してください。`;
 
-      const res = await fetch('/api/generate', {
+      document.getElementById('output-label').textContent = platformLabel.toUpperCase();
+
+      const res = await fetch('/api/generate-stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
+          model: 'claude-sonnet-4-6',
           max_tokens: 1024,
           messages: [{ role: 'user', content: prompt }],
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error?.message || '生成に失敗しました');
-      const text = data?.content?.[0]?.text?.trim() || '';
-      if (!text) throw new Error('生成に失敗しました。もう一度お試しください。');
+      if (!res.ok) throw new Error('生成に失敗しました');
 
-      document.getElementById('output-label').textContent = platformLabel.toUpperCase();
-      document.getElementById('output-text').textContent = text;
-      document.getElementById('output-section').style.display = 'block';
-      updateCharCount();
-      document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      const outputEl = document.getElementById('output-text');
+      let fullText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        for (const line of decoder.decode(value).split('\n')) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') break;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.error) throw new Error(parsed.error);
+            if (parsed.text) { fullText += parsed.text; outputEl.textContent = fullText; updateCharCount(); }
+          } catch (e) { if (e.message !== 'Unexpected end of JSON input') throw e; }
+        }
+      }
+
+      if (!fullText) throw new Error('生成に失敗しました。もう一度お試しください。');
     } catch (err) {
       errEl.textContent = err.message;
     } finally {
