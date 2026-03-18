@@ -276,14 +276,14 @@
     .seo-score-badge {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      width: 26px;
-      height: 26px;
-      font-size: 0.78rem;
-      font-weight: 800;
+      gap: 4px;
+      padding: 2px 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
       flex-shrink: 0;
       cursor: default;
       position: relative;
+      white-space: nowrap;
     }
     .seo-score-badge.score-s { background: #ffb81c; color: #001f33; }
     .seo-score-badge.score-a { background: #001f33; color: #fff; }
@@ -547,22 +547,22 @@
       if (wordCount >= 3 && wordCount <= 5 && allLower && !hasNumber) {
         return {
           grade: 'S',
-          label: 'S（優秀）',
+          label: '✅ 最適',
           tooltip: '単語数3〜5、小文字英字のみ、ハイフン区切り、数字なし',
           cls: 'score-s',
         };
       } else if (wordCount >= 2 && wordCount <= 6 && mainlyLower) {
         return {
           grade: 'A',
-          label: 'A（良好）',
+          label: '👍 良好',
           tooltip: '単語数2〜6、小文字英字メイン',
           cls: 'score-a',
         };
       }
       return {
         grade: 'B',
-        label: 'B（普通）',
-        tooltip: 'S・A基準を満たさない',
+        label: '⚠️ 要改善',
+        tooltip: '単語数・文字種がSEO推奨範囲外',
         cls: 'score-b',
       };
     }
@@ -590,8 +590,8 @@
           <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px;">
             <div style="display:flex;align-items:center;gap:10px;min-width:0;">
               <span class="seo-score-badge ${score.cls}">
-                ${score.grade}
-                <span class="tooltip">${score.label}：${score.tooltip}</span>
+                ${score.label}
+                <span class="tooltip">${score.tooltip}</span>
               </span>
               <span class="slug-value">${slug}</span>
             </div>

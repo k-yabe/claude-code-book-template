@@ -251,29 +251,7 @@
     .char-counter.warn { color: #e67e22; font-weight: 600; }
     .char-counter.over { color: #e17055; font-weight: 700; }
 
-    /* ハッシュタグスライダー */
-    .slider-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-top: 6px;
-    }
-    .slider-row input[type="range"] {
-      flex: 1;
-      height: 4px;
-      border: none;
-      padding: 0;
-      accent-color: #ffb81c;
-      cursor: pointer;
-      background: transparent;
-    }
-    .slider-val {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #001f33;
-      min-width: 24px;
-      text-align: center;
-    }
+
 
     /* YouTubeプレビュー */
     .yt-preview {
@@ -375,12 +353,6 @@
       <div class="sub-label">タイムスタンプ（任意）</div>
       <p class="field-hint">動画編集後に正確な時間がわかった場合のみ入力してください。入力した内容が説明文にそのまま使われます。空欄の場合は目次なしで生成します。</p>
       <textarea id="timestamps" rows="4" placeholder="例）&#10;00:00 オープニング&#10;01:30 テーマ紹介&#10;05:00 まとめ"></textarea>
-      <div class="sub-label" style="margin-top:18px;">ハッシュタグの数</div>
-      <p class="field-hint">生成するハッシュタグの個数を選んでください。</p>
-      <div class="slider-row">
-        <input type="range" id="hashtag-count" min="3" max="10" value="5" oninput="updateSlider()">
-        <span class="slider-val" id="hashtag-val">5</span><span style="font-size:0.82rem;color:#8a9bb0;">個</span>
-      </div>
     </div>
   </div>
 
@@ -475,11 +447,6 @@
 </div>
 
 <script>
-  /* ---- スライダー ---- */
-  function updateSlider() {
-    const val = document.getElementById('hashtag-count').value;
-    document.getElementById('hashtag-val').textContent = val;
-  }
 
   /* ---- YouTubeプレビュー ---- */
   let ytExpanded = false;
@@ -572,13 +539,11 @@
     if (otherLines.length) linkSections += `■関連リンクはこちら\n${otherLines.join('\n')}\n`;
     if (ytLines.length) linkSections += `■関連動画はこちら\n${ytLines.join('\n')}\n`;
 
-    const hashtagCount = document.getElementById('hashtag-count').value;
-
     let userMsg = `【動画タイトル】\n${title}\n\n【台本・原稿】\n${content}\n`;
     if (timestamps) userMsg += `\n【タイムスタンプ（正確な値。「【目次】」見出しをつけてそのまま説明文に含める）】\n${timestamps}\n`;
     if (linkSections) userMsg += `\n【説明文に含めるリンクセクション（以下をそのまま説明文に含める）】\n${linkSections}`;
     userMsg += `\n【SNSリンク（必ず含める）】\n${SNS}`;
-    userMsg += `\n\nハッシュタグを${hashtagCount}個生成してください。`;
+    userMsg += `\n\nハッシュタグを5個生成してください。`;
 
     try {
       const res = await fetch('/api/generate', {
