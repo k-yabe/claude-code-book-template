@@ -152,6 +152,41 @@
       transition: all 0.15s;
     }
     .regen-btn:hover { border-color: #ffb81c; color: #001f33; }
+
+    /* インライン編集 */
+    .post-textarea {
+      width: 100%; font-size: 0.9rem; line-height: 1.85; color: #2d3436;
+      border: 1.5px solid #ffb81c; padding: 10px 14px; font-family: inherit;
+      resize: vertical; outline: none; min-height: 120px; box-sizing: border-box;
+      word-break: break-word; margin-bottom: 16px;
+    }
+    .post-text { cursor: text; }
+    .post-text:hover { border-left-color: #ffb81c; }
+    .edit-hint { font-size: 0.68rem; color: #c8d0da; margin-bottom: 6px; }
+
+    /* URL履歴ドロップダウン */
+    .url-wrapper { position: relative; flex: 1; min-width: 0; }
+    .url-history-dropdown {
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: #fff; border: 1.5px solid #ffb81c; border-top: none;
+      z-index: 100; max-height: 220px; overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none;
+    }
+    .url-history-dropdown.open { display: block; }
+    .url-history-item {
+      display: flex; align-items: center; padding: 8px 12px;
+      font-size: 0.81rem; color: #2d3436; cursor: pointer;
+      border-bottom: 1px solid #f0f2f5; gap: 8px;
+    }
+    .url-history-item:last-child { border-bottom: none; }
+    .url-history-item:hover { background: #fffbf0; }
+    .url-history-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .url-history-delete {
+      background: none; border: none; color: #c8d0da; cursor: pointer;
+      font-size: 0.85rem; padding: 2px 6px; flex-shrink: 0; transition: color 0.15s;
+    }
+    .url-history-delete:hover { color: #e17055; }
+    .url-history-empty { padding: 10px 12px; font-size: 0.8rem; color: #a0aab4; text-align: center; }
   </style>
 </head>
 <body>
@@ -176,7 +211,10 @@
       <button class="platform-tab" data-platform="x">✦ X (Twitter)</button>
     </div>
     <div class="input-row">
-      <input class="url-input" id="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off">
+      <div class="url-wrapper">
+        <input class="url-input" id="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off" style="width:100%;">
+        <div class="url-history-dropdown" id="url-history-dropdown"></div>
+      </div>
       <button class="generate-btn" id="generate-btn">生成する</button>
     </div>
     <div class="error-msg" id="error-msg"></div>
@@ -207,6 +245,64 @@
 <script>
   const LIMITS = { chatter: 1000, linkedin: 1300, x: 140 };
   const ANGLES = ['数字・データ軸', '読者の共感軸', '意外性・問いかけ軸'];
+  const HISTORY_KEY = 'post-gen-url-history';
+  const HISTORY_MAX = 10;
+
+  // URL履歴
+  function loadUrlHistory() {
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
+  }
+  function saveUrlHistory(url) {
+    const list = loadUrlHistory().filter(u => u !== url);
+    list.unshift(url);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, HISTORY_MAX)));
+  }
+  function deleteUrlHistory(url) {
+    const list = loadUrlHistory().filter(u => u !== url);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+  }
+
+  // ドロップダウン描画
+  function renderDropdown() {
+    const dropdown = document.getElementById('url-history-dropdown');
+    const list = loadUrlHistory();
+    if (list.length === 0) {
+      dropdown.innerHTML = '<div class="url-history-empty">履歴なし</div>';
+    } else {
+      dropdown.innerHTML = list.map(url => `
+        <div class="url-history-item" data-url="${escAttr(url)}">
+          <span class="url-history-text">${escHtml(url)}</span>
+          <button class="url-history-delete" data-del="${escAttr(url)}" title="削除">×</button>
+        </div>`).join('');
+    }
+  }
+
+  // ドロップダウン開閉
+  const urlInput = document.getElementById('url-input');
+  const dropdown = document.getElementById('url-history-dropdown');
+
+  urlInput.addEventListener('focus', () => {
+    renderDropdown();
+    dropdown.classList.add('open');
+  });
+  document.addEventListener('mousedown', e => {
+    if (!dropdown.contains(e.target) && e.target !== urlInput) {
+      dropdown.classList.remove('open');
+    }
+  });
+  dropdown.addEventListener('mousedown', e => {
+    const item = e.target.closest('.url-history-item');
+    const delBtn = e.target.closest('.url-history-delete');
+    if (delBtn) {
+      e.preventDefault();
+      deleteUrlHistory(delBtn.dataset.del);
+      renderDropdown();
+    } else if (item) {
+      e.preventDefault();
+      urlInput.value = item.dataset.url;
+      dropdown.classList.remove('open');
+    }
+  });
 
   let platform = 'chatter';
   let linkedinRefs = [];
@@ -316,6 +412,36 @@ ${styleRule}
 （おすすめの理由を1〜2文。なぜそのパターンが最も読まれやすいか）`;
   }
 
+  // インライン編集（event delegation）
+  document.getElementById('pattern-panels').addEventListener('click', e => {
+    const postText = e.target.closest('.post-text');
+    if (!postText) return;
+    const panel = postText.closest('.pattern-panel');
+    const copyBtn = panel.querySelector('.copy-btn');
+    const charCountEl = panel.querySelector('.char-count');
+    const lim = LIMITS[platform];
+
+    const ta = document.createElement('textarea');
+    ta.className = 'post-textarea';
+    ta.value = postText.textContent;
+    postText.replaceWith(ta);
+    ta.focus();
+
+    ta.addEventListener('input', () => {
+      const len = ta.value.length;
+      charCountEl.textContent = `${len} / ${lim}文字`;
+      charCountEl.className = 'char-count' + (len > lim ? ' over' : '');
+      copyBtn.dataset.text = ta.value;
+    });
+    ta.addEventListener('blur', () => {
+      const newDiv = document.createElement('div');
+      newDiv.className = 'post-text';
+      newDiv.textContent = ta.value;
+      ta.replaceWith(newDiv);
+      copyBtn.dataset.text = ta.value;
+    });
+  });
+
   function renderResults({ patterns, merits, demerits, recommend, reason }) {
     const limit = LIMITS[platform];
     const tabsEl = document.getElementById('pattern-tabs');
@@ -350,7 +476,8 @@ ${styleRule}
 
       panel.innerHTML = `
         <div style="font-size:0.71rem;font-weight:800;letter-spacing:0.07em;color:#9aa5b4;margin-bottom:10px;">${ANGLES[i].toUpperCase()}</div>
-        <div class="post-text">${escHtml(text)}</div>
+        <div class="edit-hint">クリックして編集できます</div>
+        <div class="post-text" data-idx="${i}">${escHtml(text)}</div>
         <div class="merit-demerit">
           <div class="merit-box">
             <div class="md-label">メリット</div>
@@ -447,6 +574,7 @@ ${styleRule}
       const parsed = parseOutput(raw);
       if (parsed.patterns.every(p => !p)) throw new Error('出力の解析に失敗しました。再生成してください。');
 
+      saveUrlHistory(url);
       renderResults(parsed);
       loadingArea.style.display = 'none';
       resultsArea.style.display = 'block';
