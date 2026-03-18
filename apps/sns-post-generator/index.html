@@ -343,14 +343,14 @@
 
   // 補足インプット
   let supplementType = null;
-  let pdfBase64 = null;
+  let pdfExtractedText = null;
 
   document.querySelectorAll('.supp-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       const type = btn.dataset.supp;
       if (supplementType === type) {
         supplementType = null;
-        pdfBase64 = null;
+        pdfExtractedText = null;
         document.getElementById('pdf-name').textContent = '';
         document.getElementById('pdf-input').value = '';
         document.getElementById('supp-text-input').value = '';
@@ -366,18 +366,33 @@
     });
   });
 
-  document.getElementById('pdf-input').addEventListener('change', e => {
+  document.getElementById('pdf-input').addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 3 * 1024 * 1024) {
-      document.getElementById('error-msg').textContent = 'PDFのサイズが大きすぎます（上限3MB）。圧縮するかテキスト貼り付けをお試しください。';
+    const nameEl = document.getElementById('pdf-name');
+    const errEl = document.getElementById('error-msg');
+    errEl.textContent = '';
+    nameEl.textContent = `${file.name}　テキスト抽出中...`;
+    try {
+      if (typeof pdfjsLib === 'undefined') throw new Error('PDF読み込みに失敗しました。テキスト貼り付けをお試しください。');
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let text = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(item => item.str).join(' ') + '\n';
+      }
+      text = text.trim();
+      if (text.length < 100) throw new Error('テキストを抽出できませんでした（スキャンPDFの可能性があります）。テキスト貼り付けをお試しください。');
+      pdfExtractedText = text.slice(0, 8000);
+      nameEl.textContent = `${file.name}　✓ テキスト抽出完了`;
+    } catch (err) {
+      errEl.textContent = err.message;
+      pdfExtractedText = null;
       e.target.value = '';
-      return;
+      nameEl.textContent = '';
     }
-    document.getElementById('pdf-name').textContent = file.name;
-    const reader = new FileReader();
-    reader.onload = () => { pdfBase64 = reader.result.split(',')[1]; };
-    reader.readAsDataURL(file);
   });
 
   // URL履歴
@@ -684,12 +699,9 @@ ${styleRule}
       const pastedText = document.getElementById('supp-text-input').value.trim();
 
       let messages;
-      if (supplementType === 'pdf' && pdfBase64) {
+      if (supplementType === 'pdf' && pdfExtractedText) {
         btn.textContent = '生成中...';
-        messages = [{ role: 'user', content: [
-          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } },
-          { type: 'text', text: buildPrompt({ title: '', text: '' }, url) }
-        ]}];
+        messages = [{ role: 'user', content: buildPrompt({ title: '', text: pdfExtractedText }, url) }];
       } else if (supplementType === 'text' && pastedText) {
         btn.textContent = '生成中...';
         messages = [{ role: 'user', content: buildPrompt({ title: '', text: pastedText }, url) }];
@@ -745,6 +757,12 @@ ${styleRule}
   document.getElementById('url-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') generate();
   });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
 </script>
 </body>
 </html>
