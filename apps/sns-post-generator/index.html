@@ -107,6 +107,7 @@
     <div class="platform-btns">
       <button class="platform-btn active" data-platform="linkedin">🔗 LinkedIn</button>
       <button class="platform-btn" data-platform="x">✦ X (Twitter)</button>
+      <button class="platform-btn" data-platform="chatter">☁ Chatter</button>
     </div>
 
     <!-- URL入力 + 生成ボタン -->
@@ -136,7 +137,7 @@
 </div>
 
 <script>
-  const LIMITS = { linkedin: 1300, x: 140 };
+  const LIMITS = { linkedin: 1300, x: 140, chatter: 1000 };
 
   let platform = 'linkedin';
   let refs = [];
@@ -187,8 +188,13 @@
 
       btn.textContent = '生成中...';
 
-      const platformLabel = platform === 'linkedin' ? 'LinkedIn' : 'X (Twitter)';
+      const platformLabel = platform === 'linkedin' ? 'LinkedIn' : platform === 'x' ? 'X (Twitter)' : 'Salesforce Chatter';
       const limit = LIMITS[platform];
+      const platformRule = platform === 'linkedin'
+        ? '末尾に日本語ハッシュタグを3〜5個'
+        : platform === 'x'
+        ? '端的でキャッチーに、ハッシュタグ1〜2個'
+        : '社内向けの親しみやすいトーンで、ハッシュタグ不要。要点を簡潔に伝える';
       const prompt = `あなたはAKKODiS JapanのSNS担当マーケターです。以下の記事をもとに${platformLabel}用の投稿文を1つ書いてください。
 
 【文体ルール（厳守）】
@@ -201,7 +207,7 @@
 
 【投稿条件】
 - ${limit}文字以内（厳守）
-- ${platform === 'linkedin' ? '末尾に日本語ハッシュタグを3〜5個' : '端的でキャッチーに、ハッシュタグ1〜2個'}
+- ${platformRule}
 - 記事リンクを末尾に含める: ${url}
 
 【参考にすべき文体・構成】
