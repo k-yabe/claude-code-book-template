@@ -484,7 +484,7 @@
         <span class="section-bar-count">7</span>
         <span class="section-bar-line"></span>
         <div class="changelog-wrap">
-          <button class="changelog-btn" id="changelog-btn">↑ 5件の更新</button>
+          <button class="changelog-btn" id="changelog-btn">↑ 6件の更新</button>
           <div class="changelog-dropdown" id="changelog-dropdown"></div>
         </div>
         <span class="section-bar-drag">ドラッグで並び替え</span>
@@ -556,11 +556,12 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
-      { icon: '🔍', app: 'OGP Checker',            desc: 'og:image確認・検索プレビュー追加' },
-      { icon: '🔗', app: 'URL Slug Generator',     desc: 'バッジ・一括コピー追加' },
-      { icon: '🎬', app: 'YouTube Generator',      desc: '文字数カウンター追加' },
-      { icon: '✉️', app: 'Marketo Mail Generator', desc: 'HTMLプレビュー・URLリスト追加' },
-      { icon: '📡', app: 'Global Antenna',         desc: 'フィルター・UIリニューアル' },
+      { icon: '🔍', app: 'OGP Checker',            desc: '結果を1クリックでコピー' },
+      { icon: '✉️', app: 'Marketo Mail',           desc: 'utm_content・URL削除/編集追加' },
+      { icon: '🔗', app: 'URL Slug Generator',     desc: 'SEOスコアバッジ・ソート追加' },
+      { icon: '🎬', app: 'YouTube Generator',      desc: 'プレビュー・ハッシュタグ数調整' },
+      { icon: '🖼️', app: 'Banner Resizer',         desc: 'カスタムサイズ削除・アップスケール選択' },
+      { icon: '📡', app: 'Global Antenna',         desc: 'ソース別フィルター・詳細モーダル' },
     ];
 
     function initChangelog() {
@@ -570,7 +571,7 @@
       dropdown.innerHTML = `
         <div class="changelog-header">
           <span class="changelog-title">WHAT'S NEW</span>
-          <span class="changelog-date">2026-03-15</span>
+          <span class="changelog-date">2026-03-18</span>
         </div>
         <div class="changelog-body">
           ${WHATS_NEW.map(w => `

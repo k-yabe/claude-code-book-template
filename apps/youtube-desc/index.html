@@ -250,6 +250,88 @@
     }
     .char-counter.warn { color: #e67e22; font-weight: 600; }
     .char-counter.over { color: #e17055; font-weight: 700; }
+
+    /* ハッシュタグスライダー */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 6px;
+    }
+    .slider-row input[type="range"] {
+      flex: 1;
+      height: 4px;
+      border: none;
+      padding: 0;
+      accent-color: #ffb81c;
+      cursor: pointer;
+      background: transparent;
+    }
+    .slider-val {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #001f33;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    /* YouTubeプレビュー */
+    .yt-preview {
+      margin-top: 16px;
+    }
+    .yt-preview-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .yt-preview-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #8a9bb0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .yt-preview-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: #ff0000;
+      color: #fff;
+      padding: 2px 7px;
+      letter-spacing: 0.04em;
+    }
+    .yt-preview-box {
+      background: #0f0f0f;
+      border: 1.5px solid #272727;
+      padding: 16px 18px;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: #aaaaaa;
+      font-family: 'Roboto', 'Segoe UI', sans-serif;
+      word-break: break-word;
+    }
+    .yt-preview-text {
+      white-space: pre-wrap;
+    }
+    .yt-preview-text .yt-link {
+      color: #3ea6ff;
+    }
+    .yt-preview-text .yt-hash {
+      color: #3ea6ff;
+    }
+    .yt-toggle-btn {
+      display: inline-block;
+      margin-top: 8px;
+      background: none;
+      border: none;
+      color: #aaaaaa;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0;
+      letter-spacing: 0.01em;
+    }
+    .yt-toggle-btn:hover { color: #fff; }
   </style>
 </head>
 <body>
@@ -293,6 +375,12 @@
       <div class="sub-label">タイムスタンプ（任意）</div>
       <p class="field-hint">動画編集後に正確な時間がわかった場合のみ入力してください。入力した内容が説明文にそのまま使われます。空欄の場合は目次なしで生成します。</p>
       <textarea id="timestamps" rows="4" placeholder="例）&#10;00:00 オープニング&#10;01:30 テーマ紹介&#10;05:00 まとめ"></textarea>
+      <div class="sub-label" style="margin-top:18px;">ハッシュタグの数</div>
+      <p class="field-hint">生成するハッシュタグの個数を選んでください。</p>
+      <div class="slider-row">
+        <input type="range" id="hashtag-count" min="3" max="10" value="5" oninput="updateSlider()">
+        <span class="slider-val" id="hashtag-val">5</span><span style="font-size:0.82rem;color:#8a9bb0;">個</span>
+      </div>
     </div>
   </div>
 
@@ -362,6 +450,19 @@
         <div class="out-text" id="out-desc" style="min-height:160px;"></div>
         <div class="char-counter" id="desc-counter"></div>
       </div>
+
+      <!-- YouTubeプレビュー -->
+      <div class="out-section yt-preview" id="yt-preview-section">
+        <div class="yt-preview-header">
+          <span class="yt-preview-label">YouTubeプレビュー</span>
+          <span class="yt-preview-badge">YouTube風</span>
+        </div>
+        <div class="yt-preview-box">
+          <div class="yt-preview-text" id="yt-preview-text"></div>
+          <button class="yt-toggle-btn" id="yt-toggle-btn" onclick="toggleYtPreview()">...もっと見る</button>
+        </div>
+      </div>
+
       <div class="out-section">
         <div class="out-header">
           <span class="out-label">ハッシュタグ</span>
@@ -374,6 +475,45 @@
 </div>
 
 <script>
+  /* ---- スライダー ---- */
+  function updateSlider() {
+    const val = document.getElementById('hashtag-count').value;
+    document.getElementById('hashtag-val').textContent = val;
+  }
+
+  /* ---- YouTubeプレビュー ---- */
+  let ytExpanded = false;
+  const YT_PREVIEW_LINES = 3; // 折りたたみ時に表示する行数
+
+  function renderYtPreview(text) {
+    // URL・ハッシュタグをスパンで色付け
+    function highlight(str) {
+      return str
+        .replace(/https?:\/\/[^\s]+/g, m => `<span class="yt-link">${m}</span>`)
+        .replace(/(＃|#)(\S+)/g, (m, p1, p2) => `<span class="yt-hash">${p1}${p2}</span>`);
+    }
+    const lines = text.split('\n');
+    const previewEl = document.getElementById('yt-preview-text');
+    const toggleBtn = document.getElementById('yt-toggle-btn');
+
+    if (ytExpanded || lines.length <= YT_PREVIEW_LINES) {
+      previewEl.innerHTML = highlight(text);
+      toggleBtn.style.display = lines.length <= YT_PREVIEW_LINES ? 'none' : 'inline-block';
+      toggleBtn.textContent = '折りたたむ';
+    } else {
+      const preview = lines.slice(0, YT_PREVIEW_LINES).join('\n');
+      previewEl.innerHTML = highlight(preview);
+      toggleBtn.style.display = 'inline-block';
+      toggleBtn.textContent = '...もっと見る';
+    }
+  }
+
+  function toggleYtPreview() {
+    ytExpanded = !ytExpanded;
+    const desc = document.getElementById('out-desc').textContent;
+    renderYtPreview(desc);
+  }
+
   function updateTitleCounter() {
     const len = document.getElementById('title').value.length;
     const el = document.getElementById('title-counter');
@@ -432,10 +572,13 @@
     if (otherLines.length) linkSections += `■関連リンクはこちら\n${otherLines.join('\n')}\n`;
     if (ytLines.length) linkSections += `■関連動画はこちら\n${ytLines.join('\n')}\n`;
 
+    const hashtagCount = document.getElementById('hashtag-count').value;
+
     let userMsg = `【動画タイトル】\n${title}\n\n【台本・原稿】\n${content}\n`;
     if (timestamps) userMsg += `\n【タイムスタンプ（正確な値。「【目次】」見出しをつけてそのまま説明文に含める）】\n${timestamps}\n`;
     if (linkSections) userMsg += `\n【説明文に含めるリンクセクション（以下をそのまま説明文に含める）】\n${linkSections}`;
     userMsg += `\n【SNSリンク（必ず含める）】\n${SNS}`;
+    userMsg += `\n\nハッシュタグを${hashtagCount}個生成してください。`;
 
     try {
       const res = await fetch('/api/generate', {
@@ -466,7 +609,7 @@ Facebook→ https://www.facebook.com/akkodisjapan/
 LinkedIn→ https://www.linkedin.com/company/akkodis
 X→ https://x.com/AkkodisJapan
 
-5. ＃ハッシュタグ5個（全角＃を使用）を説明文末尾に追加。hashtagsフィールドにも同じものを記載`,
+5. ＃ハッシュタグ${hashtagCount}個（全角＃を使用）を説明文末尾に追加。hashtagsフィールドにも同じものを記載`,
           messages: [{ role: 'user', content: userMsg }],
         }),
       });
@@ -491,6 +634,9 @@ X→ https://x.com/AkkodisJapan
       document.getElementById('out-desc').textContent = desc;
       updateDescCounter(desc);
       document.getElementById('out-tags').textContent = parsed.hashtags || '';
+      // YouTubeプレビューを更新
+      ytExpanded = false;
+      renderYtPreview(desc);
       outputEl.classList.add('on');
       outputEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 

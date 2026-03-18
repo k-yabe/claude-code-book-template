@@ -418,6 +418,24 @@
     }
     .copy-md-btn:hover { border-color: #001f33; color: #001f33; }
     .copy-md-btn.copied { border-color: #00b894; color: #00b894; }
+
+    /* ── 結果コピーボタン ── */
+    .copy-result-btn {
+      display: none;
+      padding: 7px 16px;
+      background: #ffb81c;
+      color: #001f33;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+      margin-top: 14px;
+    }
+    .copy-result-btn:hover { opacity: 0.85; }
+    .copy-result-btn.copied { background: #00b894; color: #fff; }
   </style>
 </head>
 <body>
@@ -454,6 +472,7 @@
           <button class="copy-md-btn" id="copy-md-btn">📄 Markdownでコピー</button>
         </div>
         <div class="val-list" id="val-list"></div>
+        <button class="copy-result-btn" id="copy-result-btn">📋 結果をコピー</button>
         <div id="ogimage-preview" style="display:none;"></div>
       </div>
 
@@ -623,6 +642,7 @@
         <span class="badge badge-error">❌ ${error}</span>
       `;
       document.getElementById('score-card').style.display = 'block';
+      document.getElementById('copy-result-btn').style.display = 'inline-block';
       _lastValidationItems = items;
 
       // og:image サムネイル
@@ -824,10 +844,43 @@
       });
     }
 
-    // ── Markdownレポートコピー ────────────────────────────
+    // ── チェック結果プレーンテキストコピー ───────────────
     let _lastValidationItems = [];
     let _lastCheckedUrl = '';
     let _lastSeo = null;
+
+    function copyResult() {
+      if (!_lastCheckedUrl || !_lastValidationItems.length) return;
+      const icons = { ok: '[OK]', warn: '[警告]', error: '[エラー]' };
+      const ok    = _lastValidationItems.filter(i => i.type === 'ok').length;
+      const warn  = _lastValidationItems.filter(i => i.type === 'warn').length;
+      const error = _lastValidationItems.filter(i => i.type === 'error').length;
+
+      const lines = [];
+      lines.push('OGP チェック結果');
+      lines.push('================');
+      lines.push(`URL   : ${_lastCheckedUrl}`);
+      lines.push(`日時  : ${new Date().toLocaleString('ja-JP')}`);
+      lines.push('');
+      lines.push(`スコア: OK ${ok}件 / 警告 ${warn}件 / エラー ${error}件`);
+      lines.push('');
+      lines.push('--- チェック項目 ---');
+      _lastValidationItems.forEach(i => {
+        lines.push(`${icons[i.type]} ${i.msg}`);
+      });
+
+      navigator.clipboard.writeText(lines.join('\n')).then(() => {
+        const btn = document.getElementById('copy-result-btn');
+        btn.classList.add('copied');
+        btn.textContent = '✅ コピーしました';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.textContent = '📋 結果をコピー';
+        }, 2000);
+      }).catch(() => alert('クリップボードへのコピーに失敗しました'));
+    }
+
+    // ── Markdownレポートコピー ────────────────────────────
 
     function copyMarkdown() {
       if (!_lastOgp || !_lastCheckedUrl) return;
@@ -1037,6 +1090,7 @@
     });
     document.getElementById('copy-tags-btn').addEventListener('click', copyMetaTags);
     document.getElementById('copy-md-btn').addEventListener('click', copyMarkdown);
+    document.getElementById('copy-result-btn').addEventListener('click', copyResult);
 
     // 起動時に履歴を表示
     renderHistory();

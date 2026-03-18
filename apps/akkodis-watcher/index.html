@@ -182,6 +182,135 @@
       transition: all 0.15s;
     }
     .reset-read-btn:hover { border-color: #e17055; color: #e17055; }
+
+    /* ソース別フィルターボタン */
+    .source-filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .source-filter-btn {
+      padding: 6px 14px;
+      background: #e8ecf0;
+      border: 1.5px solid #e8ecf0;
+      color: #8a9bb0;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: all 0.15s;
+      border-radius: 0;
+    }
+    .source-filter-btn:hover {
+      background: #d8dde6;
+      border-color: #d8dde6;
+    }
+    .source-filter-btn.active {
+      background: #ffb81c;
+      border-color: #ffb81c;
+      color: #001f33;
+    }
+
+    /* 記事詳細モーダル */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 31, 51, 0.6);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .modal-header {
+      background: #001f33;
+      padding: 14px 18px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .modal-header-source {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #ffb81c;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .modal-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.45;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .modal-close:hover { color: #fff; }
+    .modal-body {
+      padding: 18px;
+    }
+    .modal-meta {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .modal-meta-item {
+      font-size: 0.75rem;
+      color: #8a9bb0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .modal-meta-item strong { color: #636e72; }
+    .modal-description {
+      font-size: 0.85rem;
+      color: #4a5568;
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .modal-description.empty-desc {
+      color: #b2bec3;
+      font-style: italic;
+    }
+    .modal-open-btn {
+      display: inline-block;
+      background: #ffb81c;
+      color: #001f33;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 10px 22px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .modal-open-btn:hover { background: #f0aa00; }
   </style>
 </head>
 <body>
@@ -211,11 +340,39 @@
     <span><strong>監視対象</strong> Blog / Thinkers &amp; Makers / Client Stories</span>
     <span><strong><span class="badge-new" style="vertical-align:middle;">NEW</span></strong> 公開から14日以内</span>
   </div>
+  <div class="source-filters" id="source-filters">
+    <button class="source-filter-btn active" data-source="all">すべて</button>
+    <button class="source-filter-btn" data-source="blog">Blog</button>
+    <button class="source-filter-btn" data-source="thinkers">Thinkers &amp; Makers</button>
+    <button class="source-filter-btn" data-source="client">Client Stories</button>
+  </div>
   <div class="toolbar">
     <input class="filter-input" id="filter-input" type="text" placeholder="キーワードで絞り込む..." autocomplete="off" />
     <button class="reset-read-btn" id="reset-read-btn">既読をリセット</button>
   </div>
   <div class="columns" id="columns"></div>
+</div>
+
+<!-- 記事詳細モーダル -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-header-source" id="modal-source"></div>
+        <div class="modal-title" id="modal-title"></div>
+      </div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta">
+        <div class="modal-meta-item" id="modal-date-wrap">
+          <strong>公開日</strong><span id="modal-date"></span>
+        </div>
+      </div>
+      <div class="modal-description" id="modal-description"></div>
+      <a class="modal-open-btn" id="modal-link" href="#" target="_blank" rel="noopener">記事を開く →</a>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -277,8 +434,13 @@
     const items = sorted.map(a => {
       const n = isNew(a);
       const dateStr = getDateStr(a);
+      const desc = (a.description || '').replace(/"/g, '&quot;');
       return `
-        <div class="item${n ? ' is-new' : ''}">
+        <div class="item${n ? ' is-new' : ''}" data-article-url="${a.url}"
+             data-article-title="${(a.title || '').replace(/"/g, '&quot;')}"
+             data-article-desc="${desc}"
+             data-article-date="${dateStr}"
+             data-article-source="${a.source_label || ''}">
           <div class="item-title">
             ${n ? '<span class="badge-new">NEW</span> ' : ''}<a href="${a.url}" target="_blank" rel="noopener">${a.title}</a>
           </div>
@@ -341,13 +503,93 @@
         if (badge) badge.remove();
       });
 
-      // キーワードフィルター
-      document.getElementById('filter-input').addEventListener('input', function() {
-        const q = this.value.trim().toLowerCase();
+      // キーワードフィルター（ソースフィルターとの組み合わせ対応）
+      let activeSource = 'all';
+
+      function applyFilters() {
+        const q = document.getElementById('filter-input').value.trim().toLowerCase();
         document.querySelectorAll('.item').forEach(item => {
           const title = item.querySelector('.item-title')?.textContent.toLowerCase() || '';
-          item.style.display = (!q || title.includes(q)) ? '' : 'none';
+          const matchKeyword = !q || title.includes(q);
+          item.style.display = matchKeyword ? '' : 'none';
         });
+        document.querySelectorAll('.col').forEach(col => {
+          const sid = col.dataset.source || '';
+          if (activeSource === 'all') {
+            col.style.display = '';
+          } else {
+            col.style.display = sid === activeSource ? '' : 'none';
+          }
+        });
+      }
+
+      document.getElementById('filter-input').addEventListener('input', applyFilters);
+
+      // ソース別フィルター
+      const sourceMap = {
+        'all': 'all',
+        'blog': 'blog',
+        'thinkers': 'thinkers',
+        'client': 'client_stories'
+      };
+
+      document.getElementById('source-filters').addEventListener('click', e => {
+        const btn = e.target.closest('.source-filter-btn');
+        if (!btn) return;
+        document.querySelectorAll('.source-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeSource = sourceMap[btn.dataset.source] || 'all';
+        applyFilters();
+      });
+
+      // 記事詳細モーダル
+      const overlay = document.getElementById('modal-overlay');
+      const modal = document.getElementById('modal');
+
+      function openModal(item) {
+        document.getElementById('modal-title').textContent = item.dataset.articleTitle || '';
+        document.getElementById('modal-source').textContent = item.dataset.articleSource || '';
+        const dateEl = document.getElementById('modal-date');
+        const dateWrap = document.getElementById('modal-date-wrap');
+        const dateStr = item.dataset.articleDate || '';
+        if (dateStr) {
+          dateEl.textContent = dateStr;
+          dateWrap.style.display = '';
+        } else {
+          dateWrap.style.display = 'none';
+        }
+        const desc = item.dataset.articleDesc || '';
+        const descEl = document.getElementById('modal-description');
+        if (desc) {
+          descEl.textContent = desc;
+          descEl.classList.remove('empty-desc');
+        } else {
+          descEl.textContent = '概要情報がありません。';
+          descEl.classList.add('empty-desc');
+        }
+        document.getElementById('modal-link').href = item.dataset.articleUrl || '#';
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      document.getElementById('columns').addEventListener('click', e => {
+        if (e.target.closest('a[href]')) return; // リンククリックはモーダル不要
+        const item = e.target.closest('.item[data-article-url]');
+        if (!item) return;
+        openModal(item);
+      });
+
+      document.getElementById('modal-close').addEventListener('click', closeModal);
+      overlay.addEventListener('click', e => {
+        if (!modal.contains(e.target)) closeModal();
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeModal();
       });
 
       // 既読リセット

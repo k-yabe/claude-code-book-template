@@ -327,6 +327,78 @@
     }
     .url-original { color: #636e72; word-break: break-all; line-height: 1.4; }
     .url-campaign { color: #b2bec3; font-family: monospace; font-size: 0.73rem; word-break: break-all; }
+
+    .url-item-main {
+      flex: 1;
+      min-width: 0;
+    }
+    .url-edit-input {
+      width: 100%;
+      padding: 5px 8px;
+      border: 1.5px solid #ffb81c;
+      background: #fffdf5;
+      font-size: 0.8rem;
+      font-family: 'Courier New', monospace;
+      color: #2d3436;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .url-edit-input:focus {
+      border-color: #ffb81c;
+      box-shadow: 0 0 0 3px rgba(255,184,28,0.12);
+    }
+    .url-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+      align-items: flex-start;
+      padding-top: 2px;
+    }
+    .url-edit-btn, .url-delete-btn {
+      padding: 3px 8px;
+      border: 1.5px solid #e8ecf0;
+      background: #fff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #636e72;
+      font-family: inherit;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .url-edit-btn:hover {
+      border-color: #001f33;
+      color: #001f33;
+    }
+    .url-delete-btn:hover {
+      border-color: #e17055;
+      color: #e17055;
+      background: #ffeaea;
+    }
+    .url-save-btn {
+      padding: 3px 10px;
+      border: none;
+      background: #ffb81c;
+      color: #001f33;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.15s;
+    }
+    .url-save-btn:hover { opacity: 0.85; }
+    .url-cancel-btn {
+      padding: 3px 8px;
+      border: 1.5px solid #e8ecf0;
+      background: #fff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #636e72;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .url-cancel-btn:hover { border-color: #636e72; color: #2d3436; }
   </style>
 </head>
 <body>
@@ -364,6 +436,28 @@
           />
         </div>
         <p class="param-hint">utm_source=marketo　utm_medium=email　は自動で付与。URLごとに01, 02... と連番が付きます</p>
+      </div>
+    </div>
+
+    <!-- Step 1b: utm_content -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num" style="background:#8a9bb0;">+</div>
+        <div class="step-title">utm_content を入力（任意）</div>
+        <span class="step-badge badge-optional">任意</span>
+      </div>
+      <div class="step-body">
+        <div class="form-row">
+          <span class="param-prefix">utm_content=</span>
+          <input
+            type="text"
+            class="param-input"
+            id="content-input"
+            placeholder="例: hero-cta"
+            autocomplete="off"
+          />
+        </div>
+        <p class="param-hint">入力するとすべてのURLに <code style="background:#f0f2f5;padding:1px 5px;font-size:0.82em;">&amp;utm_content=値</code> が付与されます</p>
       </div>
     </div>
 
@@ -418,8 +512,16 @@
   <script>
     const URL_REGEX = /https?:\/\/[^\s\u3000\u3001\u3002\uff01\uff09\u300d\uff0c]+/g;
 
-    function buildParams(campaign) {
-      return `utm_source=marketo&utm_medium=email&utm_campaign=ak_clt_${campaign}`;
+    // URL一覧の状態管理（originalUrl: 元URL, editedUrl: 編集後URL）
+    let urlItems = [];
+    let currentBody = '';
+    let currentCampaign = '';
+    let currentContent = '';
+
+    function buildParams(campaign, content) {
+      let p = `utm_source=marketo&utm_medium=email&utm_campaign=ak_clt_${campaign}`;
+      if (content) p += `&utm_content=${encodeURIComponent(content)}`;
+      return p;
     }
 
     function appendParams(url, params) {
@@ -430,41 +532,64 @@
       return url.split('?')[0];
     }
 
-    function generateText(body, campaign) {
-      let i = 0;
-      return body.replace(URL_REGEX, url => {
-        i++;
-        const params = buildParams(`${campaign}${String(i).padStart(2, '0')}`);
-        return `[[${appendParams(url, params)}]]`;
-      });
-    }
+    // urlItems を使って本文を再生成（削除・編集を反映）
+    // urlItems[i].deleted === true のURLは元URLをそのまま残し、連番から除外する
+    function rebuildOutputs() {
+      if (!currentBody) return;
 
-    function generateHtml(body, campaign) {
-      // エスケープ
-      const escaped = body
+      // 生きているアイテムのみ順番に番号を振る
+      let activeNum = 0;
+      // 元本文のURL出現順に urlItems を対応付け（全アイテム含む）
+      let allIdx = 0;
+
+      const textResult = currentBody.replace(URL_REGEX, (originalUrl) => {
+        const item = urlItems[allIdx++];
+        if (!item) return originalUrl;
+        if (item.deleted) return originalUrl; // 削除済みは元URLをそのまま残す
+        activeNum++;
+        const num = String(activeNum).padStart(2, '0');
+        const params = buildParams(`${currentCampaign}${num}`, currentContent);
+        return `[[${appendParams(item.editedUrl, params)}]]`;
+      });
+
+      // HTML版
+      let allIdx2 = 0;
+      let activeNum2 = 0;
+      const escaped = currentBody
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
-      // URLをリンクに変換（連番付き）
-      let i = 0;
-      const linked = escaped.replace(URL_REGEX, url => {
-        i++;
-        const params = buildParams(`${campaign}${String(i).padStart(2, '0')}`);
-        const fullUrl = appendParams(url, params);
-        const displayUrl = stripParams(url);
+      const linkedHtml = escaped.replace(URL_REGEX, (originalUrl) => {
+        const item = urlItems[allIdx2++];
+        if (!item) return escapeHtml(originalUrl);
+        if (item.deleted) return escapeHtml(originalUrl); // 削除済みは元URLテキストを残す
+        activeNum2++;
+        const num = String(activeNum2).padStart(2, '0');
+        const params = buildParams(`${currentCampaign}${num}`, currentContent);
+        const fullUrl = appendParams(item.editedUrl, params);
+        const displayUrl = stripParams(item.editedUrl);
         return `<a href="${fullUrl}" target="_blank">${displayUrl}</a>`;
       });
-      // 改行を <br> に変換
-      return linked.replace(/\n/g, '<br>\n');
-    }
+      const htmlResult = linkedHtml.replace(/\n/g, '<br>\n');
 
-    function countUrls(body) {
-      const matches = body.match(URL_REGEX);
-      return matches ? matches.length : 0;
+      document.getElementById('text-output').textContent = textResult;
+      document.getElementById('html-output').textContent = htmlResult;
+
+      const n = urlItems.filter(item => !item.deleted).length;
+      const countMsg = n > 0 ? `${n}件のURLにパラメーターを付与しました` : 'URLは検出されませんでした';
+      document.getElementById('text-url-count').textContent = countMsg;
+      document.getElementById('html-url-count').textContent = countMsg;
+
+      // プレビュー中なら更新
+      if (previewMode) {
+        const frameEl = document.getElementById('html-preview-frame');
+        frameEl.srcdoc = `<style>body{font-family:'Segoe UI','Helvetica Neue',sans-serif;font-size:14px;line-height:1.7;color:#2d3436;padding:0;margin:0;}a{color:#001f33;}}</style>${htmlResult}`;
+      }
     }
 
     document.getElementById('generate-btn').addEventListener('click', () => {
       const campaign = document.getElementById('campaign-input').value.trim();
+      const content = document.getElementById('content-input').value.trim();
       const body = document.getElementById('body-input').value;
 
       if (!campaign) {
@@ -481,16 +606,13 @@
         return;
       }
 
-      const urlCount = countUrls(body);
-      const textResult = generateText(body, campaign);
-      const htmlResult = generateHtml(body, campaign);
+      currentBody = body;
+      currentCampaign = campaign;
+      currentContent = content;
 
-      document.getElementById('text-output').textContent = textResult;
-      document.getElementById('html-output').textContent = htmlResult;
-
-      const countMsg = urlCount > 0 ? `${urlCount}件のURLにパラメーターを付与しました` : 'URLは検出されませんでした';
-      document.getElementById('text-url-count').textContent = countMsg;
-      document.getElementById('html-url-count').textContent = countMsg;
+      // urlItems を初期化
+      const matches = [...body.matchAll(new RegExp(URL_REGEX.source, 'g'))];
+      urlItems = matches.map(m => ({ originalUrl: m[0], editedUrl: m[0], deleted: false }));
 
       // プレビューをリセット
       previewMode = false;
@@ -499,7 +621,8 @@
       document.getElementById('preview-toggle').classList.remove('active');
       document.getElementById('preview-toggle').textContent = 'プレビュー';
 
-      renderUrlList(body, campaign);
+      rebuildOutputs();
+      renderUrlList();
       document.getElementById('output-section').style.display = 'block';
       document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -534,7 +657,6 @@
         codeEl.style.display = 'none';
         this.classList.add('active');
         this.textContent = 'コード';
-        // iframeの高さをコンテンツに合わせる
         frameEl.onload = () => {
           try { frameEl.style.minHeight = frameEl.contentDocument.body.scrollHeight + 40 + 'px'; } catch {}
         };
@@ -546,25 +668,87 @@
       }
     });
 
-    // URL一覧の描画
-    function renderUrlList(body, campaign) {
-      const matches = [...body.matchAll(new RegExp(URL_REGEX.source, 'g'))];
+    // URL一覧の描画（urlItems ベース、deleted は非表示）
+    function renderUrlList() {
       const listEl = document.getElementById('url-list');
       const bodyEl = document.getElementById('url-list-body');
-      if (matches.length === 0) { listEl.style.display = 'none'; return; }
-      bodyEl.innerHTML = matches.map((m, i) => {
-        const num = String(i + 1).padStart(2, '0');
-        const utmContent = `utm_content=${num}`;
+      if (urlItems.length === 0) { listEl.style.display = 'none'; return; }
+
+      // 表示行の連番は生きているアイテムの順番
+      let activeNum = 0;
+      bodyEl.innerHTML = urlItems.map((item, i) => {
+        if (item.deleted) return '';
+        activeNum++;
+        const num = String(activeNum).padStart(2, '0');
+        const contentPart = currentContent ? `&utm_content=${currentContent}` : '';
         return `
-          <div class="url-list-item">
-            <div class="url-num">${i + 1}</div>
-            <div>
-              <div class="url-original">${m[0]}</div>
-              <div class="url-campaign">utm_campaign=ak_clt_${campaign}${num}</div>
+          <div class="url-list-item" data-index="${i}">
+            <div class="url-num">${activeNum}</div>
+            <div class="url-item-main">
+              <div class="url-original url-display">${escapeHtml(item.editedUrl)}</div>
+              <div class="url-campaign">utm_campaign=ak_clt_${currentCampaign}${num}${contentPart}</div>
+            </div>
+            <div class="url-actions">
+              <button class="url-edit-btn" onclick="startEdit(${i})">編集</button>
+              <button class="url-delete-btn" onclick="deleteUrl(${i})">×</button>
             </div>
           </div>`;
       }).join('');
+
       listEl.style.display = 'block';
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // インライン編集開始
+    function startEdit(index) {
+      const item = urlItems[index];
+      const rowEl = document.querySelector(`.url-list-item[data-index="${index}"]`);
+      const mainEl = rowEl.querySelector('.url-item-main');
+      const actionsEl = rowEl.querySelector('.url-actions');
+
+      mainEl.innerHTML = `
+        <input class="url-edit-input" id="url-edit-${index}" value="${escapeHtml(item.editedUrl)}" />
+        <div class="url-campaign" style="margin-top:4px;">編集後のURLに保存されます</div>
+      `;
+      actionsEl.innerHTML = `
+        <button class="url-save-btn" onclick="saveEdit(${index})">保存</button>
+        <button class="url-cancel-btn" onclick="cancelEdit(${index})">キャンセル</button>
+      `;
+
+      const inputEl = document.getElementById(`url-edit-${index}`);
+      inputEl.focus();
+      inputEl.select();
+      // Enterキーで保存
+      inputEl.addEventListener('keydown', e => {
+        if (e.key === 'Enter') saveEdit(index);
+        if (e.key === 'Escape') cancelEdit(index);
+      });
+    }
+
+    // 編集保存
+    function saveEdit(index) {
+      const inputEl = document.getElementById(`url-edit-${index}`);
+      const newUrl = inputEl.value.trim();
+      if (newUrl) {
+        urlItems[index].editedUrl = newUrl;
+      }
+      rebuildOutputs();
+      renderUrlList();
+    }
+
+    // 編集キャンセル
+    function cancelEdit(index) {
+      renderUrlList();
+    }
+
+    // URL削除（deleted フラグを立てて出力から除外、一覧からも非表示）
+    function deleteUrl(index) {
+      urlItems[index].deleted = true;
+      rebuildOutputs();
+      renderUrlList();
     }
   </script>
 

@@ -386,6 +386,46 @@
     }
     .crop-info.has-cut  { color: #c0392b; }
     .crop-info.no-cut   { color: #27ae60; }
+
+    /* カスタムサイズ削除ボタン */
+    .preview-item-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .preview-item-header-left { flex: 1; min-width: 0; }
+    .delete-size-btn {
+      background: none;
+      border: none;
+      font-size: 0.78rem;
+      color: #8a9bb0;
+      cursor: pointer;
+      padding: 2px 4px;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .delete-size-btn:hover { color: #ff7675; }
+
+    /* AIアップスケール チェックボックス */
+    .ai-upscale-check {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 8px;
+      font-size: 0.75rem;
+      color: #636e72;
+      cursor: pointer;
+      user-select: none;
+    }
+    .ai-upscale-check input[type="checkbox"] {
+      accent-color: #001f33;
+      width: 13px;
+      height: 13px;
+      cursor: pointer;
+    }
+    .ai-upscale-check:hover { color: #2d3436; }
   </style>
 </head>
 <body>
@@ -482,6 +522,10 @@
   let sourceImage = null;
   let filename = 'banner';
   let customSizes = [];
+
+  // AIアップスケール適用フラグ（sizeId → boolean）
+  // デフォルトはSIZES配列のaiUpscale値、カスタムはfalse
+  const aiUpscaleFlags = {};
 
   // ── AI Upscale ────────────────────────────────────────
   let _libsLoading = null;
@@ -731,14 +775,40 @@
 
     const allSizes = [...SIZES, ...customSizes];
 
+    // aiUpscaleFlags の初期値を設定（未設定の場合のみ）
+    for (const size of allSizes) {
+      if (aiUpscaleFlags[size.id] === undefined) {
+        aiUpscaleFlags[size.id] = size.aiUpscale === true;
+      }
+    }
+
     // Build all cards first (with loading placeholder for AI items)
     for (const size of allSizes) {
-      const needsAI = size.aiUpscale && (sourceImage.width < size.w || sourceImage.height < size.h);
+      const isCustom = customSizes.some(s => s.id === size.id);
+      const aiEnabled = !!aiUpscaleFlags[size.id];
+      const needsAI = aiEnabled && (sourceImage.width < size.w || sourceImage.height < size.h);
+
       const item = document.createElement('div');
       item.className = 'preview-item';
+
+      // ヘッダー部分（カスタムは削除ボタンあり）
+      const deleteBtn = isCustom
+        ? `<button class="delete-size-btn" title="このサイズを削除" onclick="deleteCustomSize('${size.id}')">✕</button>`
+        : '';
+
       item.innerHTML = `
-        <div class="preview-name">${size.label}${size.forcePng ? ' <span style="font-size:0.7rem;color:#b2bec3;font-weight:400;text-transform:none;">PNG固定</span>' : ''}</div>
-        <div class="preview-size">${size.w} × ${size.h}px</div>
+        <div class="preview-item-header">
+          <div class="preview-item-header-left">
+            <div class="preview-name">${size.label}${size.forcePng ? ' <span style="font-size:0.7rem;color:#b2bec3;font-weight:400;text-transform:none;">PNG固定</span>' : ''}</div>
+            <div class="preview-size">${size.w} × ${size.h}px</div>
+          </div>
+          ${deleteBtn}
+        </div>
+        <label class="ai-upscale-check">
+          <input type="checkbox" id="ai-check-${size.id}" ${aiEnabled ? 'checked' : ''}
+            onchange="toggleAiUpscale('${size.id}', this.checked)">
+          AIアップスケール適用（小さい画像を高品質拡大）
+        </label>
         <div class="preview-canvas-wrap" id="wrap-${size.id}">
           ${needsAI ? '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AIアップスケール中...</div>' : ''}
         </div>
@@ -758,7 +828,8 @@
 
     // Process AI items asynchronously
     for (const size of allSizes) {
-      if (!size.aiUpscale || sourceImage.width >= size.w && sourceImage.height >= size.h) continue;
+      const aiEnabled = !!aiUpscaleFlags[size.id];
+      if (!aiEnabled || (sourceImage.width >= size.w && sourceImage.height >= size.h)) continue;
       const canvas = await createOgpWithAI(sourceImage, size.w, size.h);
       canvas.id = 'canvas-' + size.id;
       const wrap = document.getElementById('wrap-' + size.id);
@@ -832,12 +903,25 @@
 
     const id = `custom-${Date.now()}`;
     const label = nameEl.value.trim() || `${w}×${h}`;
+    // カスタムサイズはデフォルトでAIアップスケールoff
+    aiUpscaleFlags[id] = false;
     customSizes.push({ id, label, w, h });
 
     nameEl.value = '';
     wEl.value = '';
     hEl.value = '';
 
+    if (sourceImage) renderAll();
+  }
+
+  function deleteCustomSize(id) {
+    customSizes = customSizes.filter(s => s.id !== id);
+    delete aiUpscaleFlags[id];
+    if (sourceImage) renderAll();
+  }
+
+  function toggleAiUpscale(sizeId, enabled) {
+    aiUpscaleFlags[sizeId] = enabled;
     if (sourceImage) renderAll();
   }
 
