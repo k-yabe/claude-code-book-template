@@ -40,8 +40,7 @@
     .platform-btn:hover:not(.active) { border-color: #d0d8e0; color: #2d3436; }
 
     /* URL入力 */
-    .url-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-    .url-row { display: flex; gap: 0; }
+    .url-row { display: flex; gap: 0; margin-bottom: 12px; }
     .url-input {
       flex: 1; padding: 13px 16px; border: 1.5px solid #e8ecf0; border-right: none;
       font-size: 0.92rem; color: #2d3436; font-family: inherit; outline: none;
@@ -49,17 +48,6 @@
     }
     .url-input:focus { border-color: #ffb81c; }
     .url-input::placeholder { color: #c0c8d4; }
-    .url-remove-btn {
-      padding: 0 14px; border: 1.5px solid #e8ecf0; border-left: none; background: #fff;
-      color: #c0c8d4; cursor: pointer; font-size: 0.9rem; transition: all 0.15s;
-    }
-    .url-remove-btn:hover { color: #e17055; border-color: #f0c0b0; background: #fff5f5; }
-    .url-add-btn {
-      width: 100%; padding: 9px; background: none; border: 1.5px dashed #d0d8e0;
-      font-size: 0.78rem; color: #8a9bb0; cursor: pointer; font-family: inherit;
-      transition: all 0.15s; margin-bottom: 12px;
-    }
-    .url-add-btn:hover { border-color: #ffb81c; color: #001f33; }
     .generate-btn {
       width: 100%; padding: 13px; background: #ffb81c; border: none; color: #001f33;
       font-size: 0.92rem; font-weight: 800; cursor: pointer; font-family: inherit;
@@ -121,14 +109,10 @@
       <button class="platform-btn" data-platform="x">✦ X (Twitter)</button>
     </div>
 
-    <!-- URL入力（複数対応） -->
-    <div class="url-list" id="url-list">
-      <div class="url-row">
-        <input class="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off">
-        <button class="url-remove-btn" style="display:none">✕</button>
-      </div>
+    <!-- URL入力 -->
+    <div class="url-row">
+      <input class="url-input" id="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off">
     </div>
-    <button class="url-add-btn" id="url-add-btn">＋ URLを追加（複数記事から生成）</button>
     <button class="generate-btn" id="generate-btn">生成する</button>
     <div class="error-msg" id="error-msg"></div>
   </div>
@@ -153,7 +137,6 @@
 
 <script>
   const LIMITS = { chatter: 1000, linkedin: 1300, x: 140 };
-  const MAX_URLS = 4;
 
   let platform = 'chatter';
   let linkedinRefs = [];
@@ -185,58 +168,14 @@
     });
   });
 
-  // ── URL管理 ──────────────────────────────────────────
-  function getUrlInputs() {
-    return Array.from(document.querySelectorAll('#url-list .url-input'));
-  }
-
-  function getUrls() {
-    return getUrlInputs().map(i => i.value.trim()).filter(Boolean);
-  }
-
-  function updateRemoveButtons() {
-    const rows = document.querySelectorAll('#url-list .url-row');
-    rows.forEach(row => {
-      row.querySelector('.url-remove-btn').style.display = rows.length > 1 ? '' : 'none';
-    });
-    document.getElementById('url-add-btn').style.display = rows.length >= MAX_URLS ? 'none' : '';
-  }
-
-  function addUrlRow() {
-    const list = document.getElementById('url-list');
-    const row = document.createElement('div');
-    row.className = 'url-row';
-    row.innerHTML = `<input class="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off"><button class="url-remove-btn">✕</button>`;
-    row.querySelector('.url-remove-btn').addEventListener('click', () => {
-      row.remove();
-      updateRemoveButtons();
-    });
-    list.appendChild(row);
-    updateRemoveButtons();
-    row.querySelector('.url-input').focus();
-  }
-
-  document.getElementById('url-add-btn').addEventListener('click', addUrlRow);
-
-  // 最初の行の削除ボタンにもイベント設定
-  document.querySelector('.url-remove-btn').addEventListener('click', function() {
-    this.closest('.url-row').remove();
-    updateRemoveButtons();
-  });
-
   // ── 生成 ─────────────────────────────────────────────
   async function generate() {
-    const urls = getUrls();
+    const url = document.getElementById('url-input').value.trim();
     const errEl = document.getElementById('error-msg');
     errEl.textContent = '';
 
-    if (urls.length === 0) {
+    if (!url || !url.startsWith('https://')) {
       errEl.textContent = '有効なURLを入力してください（https://...）';
-      return;
-    }
-    const invalidUrl = urls.find(u => !u.startsWith('https://'));
-    if (invalidUrl) {
-      errEl.textContent = `無効なURL: ${invalidUrl}`;
       return;
     }
 
@@ -246,28 +185,26 @@
     document.getElementById('output-section').style.display = 'none';
 
     try {
-      // 未キャッシュのURLを並列取得
-      const uncached = urls.filter(u => !articleCache[u]);
-      await Promise.all(uncached.map(async url => {
+      // 記事取得（キャッシュ）
+      if (!articleCache[url]) {
         const r = await fetch('/api/fetch-article', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url }),
         });
         const d = await r.json();
-        if (!r.ok) throw new Error(`${url} の取得に失敗しました`);
+        if (!r.ok) throw new Error(d.error || '記事の取得に失敗しました');
         articleCache[url] = d;
-      }));
+      }
 
       btn.textContent = '生成中...';
       document.getElementById('output-text').textContent = '';
       document.getElementById('output-section').style.display = 'block';
       document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-      const articles = urls.map(u => articleCache[u]);
+      const article = articleCache[url];
       const platformLabel = platform === 'linkedin' ? 'LinkedIn' : platform === 'x' ? 'X (Twitter)' : 'Salesforce Chatter';
       const limit = LIMITS[platform];
-
       const refs = platform === 'chatter' ? chatterRefs : linkedinRefs;
 
       let platformRule, styleRule;
@@ -293,15 +230,7 @@
         platformRule = `端的でキャッチーに、ハッシュタグ1〜2個`;
       }
 
-      const articlesText = articles.map((a, i) =>
-        articles.length > 1
-          ? `【記事${i+1} タイトル】\n${a.title}\n\n【記事${i+1} 内容】\n${a.text}`
-          : `【記事タイトル】\n${a.title}\n\n【記事内容】\n${a.text}`
-      ).join('\n\n---\n\n');
-
-      const urlsText = urls.length > 1
-        ? `複数記事のリンクをそれぞれ末尾に含める:\n${urls.map((u,i) => `記事${i+1}: ${u}`).join('\n')}`
-        : `記事リンクを末尾に含める: ${urls[0]}`;
+      const urlsText = `記事リンクを末尾に含める: ${url}`;
 
       const prompt = `あなたはAKKODiS Japanの${platform === 'chatter' ? '社内広報' : 'SNS担当'}マーケターです。以下の記事をもとに${platformLabel}用の投稿文を1つ書いてください。
 
@@ -318,7 +247,11 @@ ${refs.slice(0, 3).join('\n\n---\n\n')}
 
 ---
 
-${articlesText}
+【記事タイトル】
+${article.title}
+
+【記事内容】
+${article.text}
 
 投稿文のみを出力してください。`;
 
@@ -369,10 +302,8 @@ ${articlesText}
 
   document.getElementById('generate-btn').addEventListener('click', generate);
   document.getElementById('regen-btn').addEventListener('click', generate);
-
-  // Enterキーで生成（最後のURL欄のみ）
-  document.getElementById('url-list').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && e.target.classList.contains('url-input')) generate();
+  document.getElementById('url-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') generate();
   });
 
   // ── 文字数 ───────────────────────────────────────────
