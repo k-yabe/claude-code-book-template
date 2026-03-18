@@ -189,7 +189,7 @@
       <button onclick="resetRefs()" style="margin-left:auto;background:none;border:none;font-size:0.72rem;color:#b2bec3;cursor:pointer;font-family:inherit;padding:0 4px;" title="デフォルトに戻す">↺ リセット</button>
     </div>
     <div class="step-body">
-      <p class="field-hint" style="margin-bottom:12px;">過去のLinkedIn / X投稿文をここに登録しておくと、そのトーン・構成を参考にして生成します。最大5件まで。</p>
+      <p class="field-hint" style="margin-bottom:12px;">過去のLinkedIn / X投稿文をここに登録しておくと、そのトーン・構成を参考にして生成します。最大10件まで。</p>
       <div class="ref-list" id="ref-list"></div>
       <div class="ref-add-area">
         <button class="ref-add-btn" id="ref-add-btn">＋ 参考投稿を追加</button>
@@ -329,7 +329,7 @@ https://lnkd.in/eHkUHwH5`,
       </div>`).join('');
 
     const addBtn = document.getElementById('ref-add-btn');
-    addBtn.style.display = refs.length >= 5 ? 'none' : '';
+    addBtn.style.display = refs.length >= 10 ? 'none' : '';
   }
 
   function deleteRef(i) {
@@ -355,7 +355,7 @@ https://lnkd.in/eHkUHwH5`,
     const val = document.getElementById('ref-input').value.trim();
     if (!val) return;
     refs.push(val);
-    if (refs.length > 5) refs = refs.slice(-5);
+    if (refs.length > 10) refs = refs.slice(-10);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(refs));
     document.getElementById('ref-input').value = '';
     document.getElementById('ref-input-wrap').classList.remove('open');
