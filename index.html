@@ -265,16 +265,18 @@
     }
     .cl-item {
       display: flex;
-      align-items: baseline;
+      align-items: flex-start;
       gap: 10px;
-      padding: 10px 0;
-      font-size: 0.74rem;
+      padding: 11px 0;
       border-bottom: 1px solid #f4f5f7;
     }
     .cl-item:last-child { border-bottom: none; }
-    .cl-icon { font-size: 0.9rem; flex-shrink: 0; width: 20px; text-align: center; }
-    .cl-app { font-weight: 700; color: #2d3436; white-space: nowrap; flex-shrink: 0; width: 140px; }
-    .cl-desc { color: #8a9bb0; font-size: 0.72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .cl-icon { font-size: 1rem; flex-shrink: 0; width: 22px; text-align: center; padding-top: 1px; }
+    .cl-content { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .cl-top { display: flex; align-items: center; gap: 8px; }
+    .cl-app { font-weight: 700; font-size: 0.75rem; color: #2d3436; }
+    .cl-date { font-size: 0.68rem; color: #b2bec3; background: #f4f5f7; padding: 1px 6px; border-radius: 3px; }
+    .cl-desc { color: #636e72; font-size: 0.72rem; line-height: 1.4; }
 
     .grid {
       display: grid;
@@ -563,24 +565,30 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
-      { icon: '📣', app: 'Post Generator',           desc: 'Chatter/LinkedIn/X投稿文をAI生成' },
+      { icon: '✏️', app: 'Post Generator', date: '2026-03-18(水)', desc: 'PDF添付・テキスト補足・修正して再生成・UIリデザイン' },
+      { icon: '📣', app: 'Post Generator', date: '2026-03-17(火)', desc: 'URL履歴・インライン編集・3パターン+メリデメ生成に対応' },
     ];
 
     function initChangelog() {
       const btn = document.getElementById('changelog-btn');
       const dropdown = document.getElementById('changelog-dropdown');
+      btn.textContent = `↑ ${WHATS_NEW.length}件の更新`;
 
       dropdown.innerHTML = `
         <div class="changelog-header">
           <span class="changelog-title">WHAT'S NEW</span>
-          <span class="changelog-date">2026-03-18</span><!-- updated -->
         </div>
         <div class="changelog-body">
           ${WHATS_NEW.map(w => `
             <div class="cl-item">
               <span class="cl-icon">${w.icon}</span>
-              <span class="cl-app">${w.app}</span>
-              <span class="cl-desc">${w.desc}</span>
+              <div class="cl-content">
+                <div class="cl-top">
+                  <span class="cl-app">${w.app}</span>
+                  <span class="cl-date">${w.date}</span>
+                </div>
+                <div class="cl-desc">${w.desc}</div>
+              </div>
             </div>`).join('')}
         </div>`;
 
