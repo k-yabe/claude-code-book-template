@@ -176,10 +176,8 @@
     .regen-btn:hover { border-color: #ffb81c; color: #001f33; }
 
     /* パターン個別修正 */
-    .patch-row {
-      display: flex; gap: 8px; margin-top: 14px; padding-top: 14px;
-      border-top: 1px solid #f0f2f5;
-    }
+    .patch-area { display: none; margin-top: 10px; }
+    .patch-area.open { display: flex; gap: 8px; }
     .patch-input {
       flex: 1; padding: 8px 12px; border: 1.5px solid #e2e8f0; font-size: 0.82rem;
       font-family: inherit; color: #2d3436; outline: none; min-width: 0;
@@ -188,12 +186,18 @@
     .patch-input:focus { border-color: #ffb81c; }
     .patch-input::placeholder { color: #c8d0da; }
     .patch-btn {
-      padding: 8px 16px; background: #001f33; border: none; color: #fff;
+      padding: 8px 14px; background: #001f33; border: none; color: #fff;
       font-size: 0.77rem; font-weight: 700; cursor: pointer; font-family: inherit;
       white-space: nowrap; transition: opacity 0.15s; flex-shrink: 0;
     }
     .patch-btn:hover { opacity: 0.75; }
     .patch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .edit-toggle-btn {
+      padding: 6px 12px; background: none; border: 1.5px solid #e2e8f0;
+      font-size: 0.75rem; color: #7a8694; cursor: pointer; font-family: inherit;
+      transition: all 0.15s; flex-shrink: 0;
+    }
+    .edit-toggle-btn:hover { border-color: #ffb81c; color: #001f33; }
 
     /* 補足インプット */
     .supp-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
@@ -522,7 +526,8 @@
       styleRule = `各パターンで以下の構成テンプレートに従うこと。
 1行目: 絵文字1つ＋「公開しました」「リリースしました」「ご紹介します」など発信ニュアンスを必ず含み、記事タイトル「${article.title}」を自然に繋げた一文（改行なし）。各パターンの切り口に合わせて表現を変えること。3パターン同一禁止。例: 📢 最新レポートを公開しました！「${article.title}」 / 📣 現場リーダー向けの新しいコラムをご紹介します。「${article.title}」
 ※セミナー・ウェビナー・イベントの場合は、1行目に必ず開催日時（開始〜終了、終了不明なら開始のみ）を含め、読んだ人が申し込みたくなるような一文にすること。タイトルの位置・構成は問わない。パターンごとに切り口を変えること。（例: 📢 【6/20（金）13:00〜14:30】参加無料！申込み受付中——「${article.title}」 / 📣 このテーマ、気になりませんか？【6/20（金）13:00〜14:30】「${article.title}」） / 2行目: #ハッシュタグ5〜8個 / 空行 / 📝 概要（改行）本文リード2〜3文 / 空行 / 絵文字+見出し（📌📖💡🔍✨など内容に合うもの）+箇条書き2〜4個 / 空行 / 🔗 詳細はこちら（改行）記事URL / 空行 / 🎯こんな方におすすめ（3点） / 空行 / 最後に一言（絵文字1つ+お客さま・クライアントへの紹介を促す一文。記事の内容に触れてもよいが、不自然な日本語にならないこと。「〜という問いをご活用ください」のような接続はNG。「様」は必ずひらがな。パターンごとに表現を変えること。例: 💬 ぜひお客さまとの商談でご活用ください！ / 👀 AIやDXを検討中のお客さまにぜひご共有を / 📩 担当クライアントへの話題提供にお使いください）
-禁止: **太字**記法・✅記号・AIっぽい常套句・：（全角コロン）・ですます調での箇条書き見出し・▼・■（絵文字で代替すること）・箇条書きの「-」（「・」を使うこと）・「——」「--」「―」などダッシュ記号
+禁止: **太字**記法・✅記号・AIっぽい常套句・：（全角コロン）・ですます調での箇条書き見出し・▼・■（絵文字で代替すること）・箇条書きの「-」（「・」を使うこと）・「——」「--」「―」などダッシュ記号・全角括弧（）（半角()を使うこと）
+1行目の絵文字は告知・発信感のあるもの（📢📣🔔📨📬）を優先して使うこと
 不自然な日本語表現も禁止。以下は使わないこと：「新鮮な議論を生む」「示唆に富む」「洞察を深める」「〜という観点を提供する」「知見を得る」「リアルな声」「網羅的に」。代わりに話し言葉に近い自然な表現を使うこと（例:「話のきっかけになる」「参考になる」「読んでみてください」）`;
       platformRule = `各パターン${limit}文字以内。ハッシュタグ5〜8個。記事URLを必ず含める。`;
     } else if (platform === 'linkedin') {
@@ -673,11 +678,14 @@ ${styleRule}
         </div>` : ''}
         <div class="panel-footer">
           <span class="char-count${over ? ' over' : ''}">${charLen} / ${limit}文字</span>
-          <button class="copy-btn" data-text="${escAttr(text)}">コピー</button>
+          <div style="display:flex;gap:6px;">
+            <button class="edit-toggle-btn">✏️ 修正</button>
+            <button class="copy-btn" data-text="${escAttr(text)}">コピー</button>
+          </div>
         </div>
-        <div class="patch-row">
-          <input class="patch-input" type="text" placeholder="修正指示を入力（例: もっと短く / 1行目を変えて）">
-          <button class="patch-btn">修正して再生成</button>
+        <div class="patch-area">
+          <input class="patch-input" type="text" placeholder="修正指示（例: もっと短く / 1行目を変えて）">
+          <button class="patch-btn">再生成</button>
         </div>`;
 
       panel.querySelector('.copy-btn').addEventListener('click', function () {
@@ -685,6 +693,13 @@ ${styleRule}
           this.textContent = 'コピーしました';
           setTimeout(() => { this.textContent = 'コピー'; }, 2000);
         });
+      });
+
+      // 修正エリアのトグル
+      panel.querySelector('.edit-toggle-btn').addEventListener('click', () => {
+        const area = panel.querySelector('.patch-area');
+        area.classList.toggle('open');
+        if (area.classList.contains('open')) panel.querySelector('.patch-input').focus();
       });
 
       // パターン個別修正
@@ -723,7 +738,7 @@ ${styleRule}
           alert(err.message);
         } finally {
           patchBtn.disabled = false;
-          patchBtn.textContent = '修正して再生成';
+          patchBtn.textContent = '再生成';
         }
       });
 
