@@ -30,15 +30,34 @@
     .page-header h1 { font-size: 1.45rem; font-weight: 800; color: #001f33; letter-spacing: -0.01em; margin-bottom: 5px; }
     .page-header p { font-size: 0.82rem; color: #8a9bb0; }
 
-    /* 入力カード */
-    .input-card {
-      background: #fff; border: 1px solid #e2e8f0;
-      padding: 18px 20px; margin-bottom: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    /* ステップ */
+    .step {
+      background: #fff; border: 1.5px solid #e8ecf0;
+      margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
+    .step-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px; border-bottom: 1px solid #f0f2f5; background: #fafbfc;
+    }
+    .step-num {
+      width: 24px; height: 24px; background: #001f33; color: #fff;
+      font-size: 0.72rem; font-weight: 800; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .step-title { font-size: 0.85rem; font-weight: 700; color: #001f33; }
+    .badge-required {
+      font-size: 0.65rem; font-weight: 700; padding: 2px 7px;
+      background: #ffeaea; color: #c0392b; letter-spacing: 0.04em;
+    }
+    .badge-optional {
+      font-size: 0.65rem; font-weight: 700; padding: 2px 7px;
+      background: #f0f0f0; color: #636e72; letter-spacing: 0.04em;
+    }
+    .step-desc { font-size: 0.75rem; color: #a0aab4; margin-left: auto; }
+    .step-body { padding: 16px 18px; }
 
     /* プラットフォームタブ */
-    .platform-tabs { display: flex; border-bottom: 2px solid #f0f2f5; margin-bottom: 18px; }
+    .platform-tabs { display: flex; border-bottom: 2px solid #f0f2f5; margin-bottom: 16px; }
     .platform-tab {
       padding: 7px 18px; border: none; background: none; font-family: inherit;
       font-size: 0.83rem; font-weight: 600; color: #a0aab4; cursor: pointer;
@@ -47,24 +66,27 @@
     .platform-tab.active { color: #001f33; border-bottom-color: #ffb81c; }
     .platform-tab:hover:not(.active) { color: #4a5568; }
 
-    /* URL入力行 */
+    /* URL入力 */
+    .field-label { font-size: 0.78rem; font-weight: 700; color: #4a5568; margin-bottom: 6px; }
     .input-row { display: flex; }
     .url-input {
-      flex: 1; padding: 11px 14px; border: 1.5px solid #e2e8f0; border-right: none;
+      flex: 1; padding: 11px 14px; border: 1.5px solid #e2e8f0;
       font-size: 0.9rem; color: #2d3436; font-family: inherit; outline: none;
       transition: border-color 0.15s; min-width: 0;
     }
-    .url-input:focus { border-color: #ffb81c; z-index: 1; position: relative; }
+    .url-input:focus { border-color: #ffb81c; }
     .url-input::placeholder { color: #c8d0da; }
+
+    /* 生成ボタン */
     .generate-btn {
-      padding: 11px 22px; background: #ffb81c; border: 1.5px solid #ffb81c;
-      color: #001f33; font-size: 0.87rem; font-weight: 800; cursor: pointer;
-      font-family: inherit; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+      width: 100%; padding: 13px; background: #ffb81c; border: none;
+      color: #001f33; font-size: 0.95rem; font-weight: 800; cursor: pointer;
+      font-family: inherit; transition: all 0.15s; margin-bottom: 6px;
     }
-    .generate-btn:hover:not(:disabled) { background: #f0ac10; border-color: #f0ac10; }
+    .generate-btn:hover:not(:disabled) { background: #f0ac10; }
     .generate-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    .error-msg { font-size: 0.79rem; color: #e17055; margin-top: 8px; min-height: 1.1em; }
+    .error-msg { font-size: 0.79rem; color: #e17055; min-height: 1.1em; margin-bottom: 16px; }
 
     /* 出力エリア */
     .output-section { display: none; }
@@ -154,24 +176,25 @@
     .regen-btn:hover { border-color: #ffb81c; color: #001f33; }
 
     /* 補足インプット */
-    .supplement-area { margin-top: 14px; border-top: 1px solid #f0f2f5; padding-top: 12px; }
-    .supp-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+    .supp-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
     .supp-tab {
-      padding: 5px 14px; border: 1.5px solid #e2e8f0; background: none;
-      font-size: 0.78rem; color: #7a8694; cursor: pointer; font-family: inherit;
-      transition: all 0.15s;
+      padding: 12px 14px; border: 1.5px solid #e2e8f0; background: #fafbfc;
+      font-size: 0.82rem; font-weight: 600; color: #7a8694; cursor: pointer;
+      font-family: inherit; transition: all 0.15s; text-align: left; line-height: 1.5;
     }
-    .supp-tab:hover { border-color: #ffb81c; color: #001f33; }
-    .supp-tab.active { border-color: #ffb81c; background: #fffbf0; color: #001f33; font-weight: 700; }
+    .supp-tab:hover { border-color: #ffb81c; color: #001f33; background: #fffbf0; }
+    .supp-tab.active { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
+    .supp-tab .supp-tab-desc { display: block; font-size: 0.7rem; font-weight: 400; color: #a0aab4; margin-top: 2px; }
+    .supp-tab.active .supp-tab-desc { color: #b8860b; }
     .supp-panel { display: none; }
     .supp-panel.active { display: block; }
     .supp-file-label {
-      display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
-      border: 1.5px dashed #e2e8f0; cursor: pointer; font-size: 0.82rem;
-      color: #7a8694; transition: all 0.15s;
+      display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+      border: 1.5px dashed #e2e8f0; cursor: pointer; font-size: 0.85rem;
+      color: #7a8694; transition: all 0.15s; background: #fafbfc;
     }
     .supp-file-label:hover { border-color: #ffb81c; color: #001f33; }
-    .supp-file-name { font-size: 0.78rem; color: #52c878; margin-left: 8px; font-weight: 600; }
+    .supp-file-name { font-size: 0.78rem; color: #52c878; margin-top: 6px; font-weight: 600; display: block; }
     .supp-textarea {
       width: 100%; min-height: 100px; padding: 10px 14px; border: 1.5px solid #e2e8f0;
       font-size: 0.85rem; font-family: inherit; color: #2d3436; resize: vertical;
@@ -179,7 +202,7 @@
     }
     .supp-textarea:focus { border-color: #ffb81c; }
     .supp-textarea::placeholder { color: #c8d0da; }
-    .supp-hint { font-size: 0.72rem; color: #a0aab4; margin-top: 5px; }
+    .supp-hint { font-size: 0.72rem; color: #a0aab4; margin-top: 6px; }
 
     /* インライン編集 */
     .post-textarea {
@@ -232,39 +255,63 @@
     <p>記事URLを入力するだけで、切り口の異なる3パターンの投稿文を自動生成します</p>
   </div>
 
-  <div class="input-card">
-    <div class="platform-tabs">
-      <button class="platform-tab active" data-platform="chatter">☁ Chatter</button>
-      <button class="platform-tab" data-platform="linkedin">🔗 LinkedIn</button>
-      <button class="platform-tab" data-platform="x">✦ X (Twitter)</button>
+  <!-- Step 1 -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">1</span>
+      <span class="step-title">プラットフォームと記事URLを入力</span>
+      <span class="badge-required">必須</span>
     </div>
-    <div class="input-row">
-      <div class="url-wrapper">
-        <input class="url-input" id="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off" style="width:100%;">
-        <div class="url-history-dropdown" id="url-history-dropdown"></div>
+    <div class="step-body">
+      <div class="platform-tabs">
+        <button class="platform-tab active" data-platform="chatter">☁ Chatter</button>
+        <button class="platform-tab" data-platform="linkedin">🔗 LinkedIn</button>
+        <button class="platform-tab" data-platform="x">✦ X (Twitter)</button>
       </div>
-      <button class="generate-btn" id="generate-btn">生成する</button>
-    </div>
-    <div class="error-msg" id="error-msg"></div>
-    <div class="supplement-area">
-      <div class="supp-tabs">
-        <button class="supp-tab" data-supp="pdf">📎 PDFを添付</button>
-        <button class="supp-tab" data-supp="text">📝 テキストを貼り付け</button>
-      </div>
-      <div class="supp-panel" id="supp-pdf-panel">
-        <label class="supp-file-label">
-          ファイルを選択
-          <input type="file" id="pdf-input" accept=".pdf" style="display:none;">
-        </label>
-        <span class="supp-file-name" id="pdf-name"></span>
-        <div class="supp-hint">PDFを添付するとURLフェッチをスキップして資料の内容を直接使用します</div>
-      </div>
-      <div class="supp-panel" id="supp-text-panel">
-        <textarea class="supp-textarea" id="supp-text-input" placeholder="記事・資料の本文を貼り付けてください"></textarea>
-        <div class="supp-hint">テキストを貼り付けるとURLフェッチをスキップしてこの内容を使用します</div>
+      <div class="field-label">記事URL</div>
+      <div class="input-row">
+        <div class="url-wrapper">
+          <input class="url-input" id="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off" style="width:100%;">
+          <div class="url-history-dropdown" id="url-history-dropdown"></div>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- Step 2 -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">2</span>
+      <span class="step-title">補足資料を追加</span>
+      <span class="badge-optional">任意</span>
+      <span class="step-desc">添付するとより精度の高い投稿文を生成できます</span>
+    </div>
+    <div class="step-body">
+      <div class="supp-options">
+        <button class="supp-tab" data-supp="pdf">
+          📎 PDFを添付
+          <span class="supp-tab-desc">PDFファイルを直接読み込みます</span>
+        </button>
+        <button class="supp-tab" data-supp="text">
+          📝 テキストを貼り付け
+          <span class="supp-tab-desc">本文テキストをそのまま入力</span>
+        </button>
+      </div>
+      <div class="supp-panel" id="supp-pdf-panel">
+        <label class="supp-file-label">
+          📎 ファイルを選択（PDF）
+          <input type="file" id="pdf-input" accept=".pdf" style="display:none;">
+        </label>
+        <span class="supp-file-name" id="pdf-name"></span>
+      </div>
+      <div class="supp-panel" id="supp-text-panel">
+        <textarea class="supp-textarea" id="supp-text-input" placeholder="記事・資料の本文を貼り付けてください"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <button class="generate-btn" id="generate-btn">生成する</button>
+  <div class="error-msg" id="error-msg"></div>
 
   <div class="output-section" id="output-section">
     <div id="loading-area" class="loading-msg" style="display:none;">
@@ -433,7 +480,7 @@
     let styleRule, platformRule;
     if (platform === 'chatter') {
       styleRule = `各パターンで以下の構成テンプレートに従うこと。
-1行目: 「公開しました」「リリースしました」「お知らせです」など"発信・公開"のニュアンスを含む一言＋記事タイトル「${article.title}」で構成すること（タイトル自体は改変しない。例: 📢 新しいレポートを公開しました！${article.title} / 📣 最新コラムのご紹介です。${article.title}） / 2行目: #ハッシュタグ5〜8個 / 空行 / 本文リード2〜3文 / 空行 / 絵文字+見出し（📌📖💡🔍✨など内容に合うもの）+箇条書き2〜4個 / 空行 / 記事URL / 空行 / 🎯こんな方におすすめ（3点） / 空行 / 最後に一言（絵文字1つ+パターンごとに切り口を変えること。定型文・毎回同じ書き出し禁止。お客さま・クライアントへの紹介を強く促すニュアンスで締めること。「ぜひ使ってください」「積極的に活用してください」くらいの温度感で。「様」は必ずひらがな（「お客様」はNG、「お客さま」が正しい）。例: 💬 ぜひお客さまとの商談でご活用ください！ / 👀 担当クライアントへの話題提供にぜひお使いください / 📩 お客さまへのご提案の糸口に、積極的にご活用を！）
+1行目: 「公開しました」「リリースしました」「お知らせです」など"発信・公開"のニュアンスを含む一言＋記事タイトル「${article.title}」で構成すること（タイトル自体は改変しない。例: 📢 新しいレポートを公開しました！${article.title} / 📣 最新コラムのご紹介です。${article.title}） / 2行目: #ハッシュタグ5〜8個 / 空行 / 本文リード2〜3文 / 空行 / 絵文字+見出し（📌📖💡🔍✨など内容に合うもの）+箇条書き2〜4個 / 空行 / 🔗 詳細はこちら→ 記事URL / 空行 / 🎯こんな方におすすめ（3点） / 空行 / 最後に一言（絵文字1つ+パターンごとに切り口を変えること。定型文・毎回同じ書き出し禁止。お客さま・クライアントへの紹介を強く促すニュアンスで締めること。「ぜひ使ってください」「積極的に活用してください」くらいの温度感で。「様」は必ずひらがな（「お客様」はNG、「お客さま」が正しい）。例: 💬 ぜひお客さまとの商談でご活用ください！ / 👀 担当クライアントへの話題提供にぜひお使いください / 📩 お客さまへのご提案の糸口に、積極的にご活用を！）
 禁止: **太字**記法・✅記号・AIっぽい常套句・：（全角コロン）・ですます調での箇条書き見出し・▼・■（絵文字で代替すること）・箇条書きの「-」（「・」を使うこと）`;
       platformRule = `各パターン${limit}文字以内。ハッシュタグ5〜8個。記事URLを必ず含める。`;
     } else if (platform === 'linkedin') {
