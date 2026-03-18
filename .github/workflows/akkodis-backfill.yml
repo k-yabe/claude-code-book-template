@@ -1,0 +1,36 @@
+name: AKKODiS Watcher — Summary Backfill
+
+on:
+  workflow_dispatch: # 手動実行のみ（一度だけ使う）
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r apps/akkodis-watcher/requirements.txt
+          playwright install chromium --with-deps
+
+      - name: Run backfill
+        run: python apps/akkodis-watcher/backfill_summaries.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apps/akkodis-watcher/data/articles.json
+          git diff --cached --quiet || git commit -m "chore: backfill summary_ja for existing articles [skip ci]"
+          git push
