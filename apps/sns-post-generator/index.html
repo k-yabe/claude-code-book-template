@@ -27,9 +27,9 @@
     h1 { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
     .subtitle { font-size: 0.82rem; color: #8a9bb0; margin-bottom: 28px; }
 
-    .main-card { background: #fff; border: 1.5px solid #e8ecf0; padding: 24px; margin-bottom: 16px; }
+    .card { background: #fff; border: 1.5px solid #e8ecf0; padding: 24px; margin-bottom: 16px; }
 
-    /* プラットフォーム */
+    /* プラットフォーム選択 */
     .platform-btns { display: flex; gap: 8px; margin-bottom: 20px; }
     .platform-btn {
       flex: 1; padding: 10px; border: 1.5px solid #e8ecf0; background: #fff;
@@ -40,27 +40,28 @@
     .platform-btn:hover:not(.active) { border-color: #d0d8e0; color: #2d3436; }
 
     /* URL入力 */
-    .url-row { display: flex; gap: 0; margin-bottom: 12px; }
     .url-input {
-      flex: 1; padding: 13px 16px; border: 1.5px solid #e8ecf0; border-right: none;
+      width: 100%; padding: 13px 16px; border: 1.5px solid #e8ecf0;
       font-size: 0.92rem; color: #2d3436; font-family: inherit; outline: none;
-      transition: border-color 0.15s;
+      transition: border-color 0.15s; margin-bottom: 10px; display: block;
     }
     .url-input:focus { border-color: #ffb81c; }
     .url-input::placeholder { color: #c0c8d4; }
+
     .generate-btn {
       width: 100%; padding: 13px; background: #ffb81c; border: none; color: #001f33;
       font-size: 0.92rem; font-weight: 800; cursor: pointer; font-family: inherit;
       transition: opacity 0.15s;
     }
-    .generate-btn:hover { opacity: 0.9; }
+    .generate-btn:hover:not(:disabled) { opacity: 0.9; }
     .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .error-msg { font-size: 0.8rem; color: #e17055; margin-top: 8px; min-height: 1.2em; }
 
-    /* 出力 */
+    /* 出力エリア */
     .output-section { display: none; }
     .output-card { background: #fff; border: 1.5px solid #e8ecf0; }
+
     .output-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 12px 20px; border-bottom: 1px solid #f0f2f5;
@@ -69,16 +70,18 @@
     .output-meta { display: flex; align-items: center; gap: 12px; }
     .char-count { font-size: 0.75rem; color: #8a9bb0; }
     .char-count.over { color: #e17055; font-weight: 700; }
+
     .copy-btn {
       padding: 6px 16px; background: #001f33; border: none; color: #fff;
       font-size: 0.75rem; font-weight: 700; cursor: pointer; font-family: inherit;
       transition: opacity 0.15s;
     }
     .copy-btn:hover { opacity: 0.8; }
+
     .output-body { padding: 20px; }
     .output-text {
       font-size: 0.9rem; line-height: 1.8; color: #2d3436;
-      white-space: pre-wrap; word-break: break-word;
+      white-space: pre-wrap; word-break: break-word; min-height: 60px;
     }
     .regen-btn {
       margin-top: 12px; padding: 8px 18px; background: none; border: 1.5px solid #e8ecf0;
@@ -101,23 +104,18 @@
   <h1>Post Generator</h1>
   <p class="subtitle">記事URLを入力するだけでChatter / LinkedIn / X用の投稿文を自動生成します</p>
 
-  <div class="main-card">
-    <!-- プラットフォーム選択 -->
+  <div class="card">
     <div class="platform-btns">
       <button class="platform-btn active" data-platform="chatter">☁ Chatter</button>
       <button class="platform-btn" data-platform="linkedin">🔗 LinkedIn</button>
       <button class="platform-btn" data-platform="x">✦ X (Twitter)</button>
     </div>
 
-    <!-- URL入力 -->
-    <div class="url-row">
-      <input class="url-input" id="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off">
-    </div>
+    <input class="url-input" id="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off">
     <button class="generate-btn" id="generate-btn">生成する</button>
     <div class="error-msg" id="error-msg"></div>
   </div>
 
-  <!-- 出力 -->
   <div class="output-section" id="output-section">
     <div class="output-card">
       <div class="output-header">
@@ -141,23 +139,12 @@
   let platform = 'chatter';
   let linkedinRefs = [];
   let chatterRefs = [];
-  let articleCache = {};  // url -> {title, text}
+  let articleCache = {};
 
-  // 参考投稿をJSONから読み込み
   fetch('refs.json').then(r => r.json()).then(d => { linkedinRefs = d; }).catch(() => {});
   fetch('chatter_refs.json').then(r => r.json()).then(d => { chatterRefs = d; }).catch(() => {});
 
-  // ── テキストクリーニング ──────────────────────────────
-  function cleanText(text) {
-    return text
-      .replace(/\*\*(.+?)\*\*/g, '$1')   // **太字** → テキストのみ
-      .replace(/\*(.+?)\*/g, '$1')        // *斜体* → テキストのみ
-      .replace(/^#{2,6}\s+/gm, '')        // ## 見出し → 削除（#1つはハッシュタグのため除外）
-      .replace(/\n{3,}/g, '\n\n')         // 3行以上の空行 → 2行に
-      .trim();
-  }
-
-  // ── プラットフォーム ─────────────────────────────────
+  // プラットフォーム切替
   document.querySelectorAll('.platform-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
@@ -167,7 +154,88 @@
     });
   });
 
-  // ── 生成 ─────────────────────────────────────────────
+  // Markdown記法除去
+  function cleanText(text) {
+    return text
+      .replace(/\*\*(.+?)\*\*/g, '$1')
+      .replace(/\*(.+?)\*/g, '$1')
+      .replace(/^#{2,6}\s+/gm, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  // プロンプト生成
+  function buildPrompt(article, url) {
+    const platformLabel = platform === 'linkedin' ? 'LinkedIn' : platform === 'x' ? 'X (Twitter)' : 'Salesforce Chatter';
+    const limit = LIMITS[platform];
+    const refs = platform === 'chatter' ? chatterRefs : linkedinRefs;
+
+    let styleRule, platformRule;
+
+    if (platform === 'chatter') {
+      styleRule = `以下の【構成テンプレート】に必ず従うこと。
+
+【構成テンプレート】
+1行目: 📢【タイトル（記事・セミナー・イベント名を簡潔に）】
+2行目: #ハッシュタグ（5〜8個、記事内容に関連した具体的なものを選ぶ）
+空行
+本文リード（2〜3文：記事の背景・価値・読む意義を書く）
+空行
+▼ または ■ で始まる見出し + 箇条書き「・」で主要ポイントを2〜4個
+空行
+記事URL
+空行
+🎯 こんな方におすすめ
+・[具体的なターゲット1]
+・[具体的なターゲット2]
+・[具体的なターゲット3]
+空行
+🚀 社員の皆さまへ：
+[活用イメージを1〜2文で]
+
+【禁止事項】
+- **太字** 記法を使わない
+- ✅ などのチェックマーク記号を使わない
+- 「〜をお知らせします」「〜な世界へ」等のAI的常套句は使わない`;
+      platformRule = `ハッシュタグは5〜8個。末尾URLを必ず含める。`;
+    } else if (platform === 'linkedin') {
+      styleRule = `- 普通の人間が書いたような自然な文体にする
+- **太字** は絶対に使わない
+- 「：」「✅」「💡」などの装飾記号は使わない（絵文字は文脈に合う場合のみ1〜2個まで）
+- 箇条書きを多用しない（使うなら「・」で最大3行まで）
+- AIっぽい決まり文句は使わない`;
+      platformRule = `末尾に日本語ハッシュタグを3〜5個。末尾に記事URLを含める。`;
+    } else {
+      styleRule = `- 普通の人間が書いたような自然な文体にする
+- **太字** や装飾記号は使わない
+- 文末は体言止めや短い一文で締める`;
+      platformRule = `端的でキャッチーに。ハッシュタグ1〜2個。末尾に記事URLを含める。`;
+    }
+
+    const refText = refs.length > 0
+      ? `【参考投稿（文体・構成・絵文字の使い方を参考にすること）】\n${refs.slice(0, 3).join('\n\n---\n\n')}\n\n---\n\n`
+      : '';
+
+    return `あなたはAKKODiS Japanの${platform === 'chatter' ? '社内広報' : 'SNS担当'}マーケターです。以下の記事をもとに${platformLabel}用の投稿文を1つ書いてください。
+
+${refText}【文体・構成ルール（厳守）】
+${styleRule}
+
+【投稿条件】
+- ${limit}文字以内（厳守）
+- ${platformRule}
+- 記事URL: ${url}
+
+【記事タイトル】
+${article.title}
+
+【記事内容】
+${article.text}
+
+投稿文のみを出力してください。説明・コメント・前置きは不要。`;
+  }
+
+  // 生成メイン
   async function generate() {
     const url = document.getElementById('url-input').value.trim();
     const errEl = document.getElementById('error-msg');
@@ -181,10 +249,9 @@
     const btn = document.getElementById('generate-btn');
     btn.disabled = true;
     btn.textContent = '取得中...';
-    document.getElementById('output-section').style.display = 'none';
 
     try {
-      // 記事取得（キャッシュ）
+      // 記事取得（キャッシュあれば再利用）
       if (!articleCache[url]) {
         const r = await fetch('/api/fetch-article', {
           method: 'POST',
@@ -197,66 +264,10 @@
       }
 
       btn.textContent = '生成中...';
-      document.getElementById('output-text').textContent = '';
-      document.getElementById('output-section').style.display = 'block';
-      document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-      const article = articleCache[url];
-      const platformLabel = platform === 'linkedin' ? 'LinkedIn' : platform === 'x' ? 'X (Twitter)' : 'Salesforce Chatter';
-      const limit = LIMITS[platform];
-      const refs = platform === 'chatter' ? chatterRefs : linkedinRefs;
+      const prompt = buildPrompt(articleCache[url], url);
 
-      let platformRule, styleRule;
-      if (platform === 'chatter') {
-        styleRule = `- 絵文字を積極的に使う（📢🗓📍🔗🎯🚀💡など）
-- タイトルの直後にハッシュタグ（#）を並べる
-- 「🎯 こんな方におすすめ」「🚀 社員の皆さまへ」のセクションを設ける
-- セミナー情報は 🗓📍💰🔗 で整理して記載
-- 箇条書きは「・」を使用`;
-        platformRule = `社内向けの告知文として構造化して書く。ハッシュタグは5〜8個程度`;
-      } else if (platform === 'linkedin') {
-        styleRule = `- 普通の人間が書いたような自然な文体にする
-- **太字** は絶対に使わない
-- 「：」「✅」「💡」などの装飾記号は使わない（絵文字は文脈に合う場合のみ1〜2個まで）
-- 箇条書きを多用しない（使うなら「・」で最大3行まで）
-- 「〜をお知らせします」「〜を実現します」「〜な世界へ」などのAIっぽい決まり文句は使わない
-- 文末は体言止めや短い一文で締める`;
-        platformRule = `末尾に日本語ハッシュタグを3〜5個`;
-      } else {
-        styleRule = `- 普通の人間が書いたような自然な文体にする
-- **太字** や装飾記号は使わない
-- 文末は体言止めや短い一文で締める`;
-        platformRule = `端的でキャッチーに、ハッシュタグ1〜2個`;
-      }
-
-      const urlsText = `記事リンクを末尾に含める: ${url}`;
-
-      const prompt = `あなたはAKKODiS Japanの${platform === 'chatter' ? '社内広報' : 'SNS担当'}マーケターです。以下の記事をもとに${platformLabel}用の投稿文を1つ書いてください。
-
-【文体ルール（厳守）】
-${styleRule}
-
-【投稿条件】
-- ${limit}文字以内（厳守）
-- ${platformRule}
-- ${urlsText}
-
-【参考にすべき文体・構成】
-${refs.slice(0, 3).join('\n\n---\n\n')}
-
----
-
-【記事タイトル】
-${article.title}
-
-【記事内容】
-${article.text}
-
-投稿文のみを出力してください。`;
-
-      document.getElementById('output-label').textContent = platformLabel.toUpperCase();
-
-      const res = await fetch('/api/generate-stream', {
+      const r = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -265,32 +276,19 @@ ${article.text}
           messages: [{ role: 'user', content: prompt }],
         }),
       });
-      if (!res.ok) throw new Error('生成に失敗しました');
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error?.message || '生成に失敗しました');
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder('utf-8', { stream: true });
-      const outputEl = document.getElementById('output-text');
-      let fullText = '';
+      const text = cleanText(data.content?.[0]?.text || '');
+      if (!text) throw new Error('生成に失敗しました。もう一度お試しください。');
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        for (const line of decoder.decode(value).split('\n')) {
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6).trim();
-          if (data === '[DONE]') break;
-          try {
-            const parsed = JSON.parse(data);
-            if (parsed.error) throw new Error(parsed.error);
-            if (parsed.text) { fullText += parsed.text; outputEl.textContent = fullText; updateCharCount(); }
-          } catch (e) { if (e.message !== 'Unexpected end of JSON input') throw e; }
-        }
-      }
-
-      if (!fullText) throw new Error('生成に失敗しました。もう一度お試しください。');
-      fullText = cleanText(fullText);
-      outputEl.textContent = fullText;
+      const platformLabel = platform === 'linkedin' ? 'LINKEDIN' : platform === 'x' ? 'X (TWITTER)' : 'CHATTER';
+      document.getElementById('output-label').textContent = platformLabel;
+      document.getElementById('output-text').textContent = text;
+      document.getElementById('output-section').style.display = 'block';
+      document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
       updateCharCount();
+
     } catch (err) {
       errEl.textContent = err.message;
     } finally {
@@ -299,13 +297,7 @@ ${article.text}
     }
   }
 
-  document.getElementById('generate-btn').addEventListener('click', generate);
-  document.getElementById('regen-btn').addEventListener('click', generate);
-  document.getElementById('url-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') generate();
-  });
-
-  // ── 文字数 ───────────────────────────────────────────
+  // 文字数カウント
   function updateCharCount() {
     const text = document.getElementById('output-text').textContent;
     if (!text) return;
@@ -315,7 +307,7 @@ ${article.text}
     el.className = 'char-count' + (text.length > limit ? ' over' : '');
   }
 
-  // ── コピー ───────────────────────────────────────────
+  // コピー
   document.getElementById('copy-btn').addEventListener('click', () => {
     const text = document.getElementById('output-text').textContent;
     navigator.clipboard.writeText(text).then(() => {
@@ -323,6 +315,12 @@ ${article.text}
       btn.textContent = 'コピーしました';
       setTimeout(() => { btn.textContent = 'コピー'; }, 2000);
     });
+  });
+
+  document.getElementById('generate-btn').addEventListener('click', generate);
+  document.getElementById('regen-btn').addEventListener('click', generate);
+  document.getElementById('url-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') generate();
   });
 </script>
 </body>
