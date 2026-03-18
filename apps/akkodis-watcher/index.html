@@ -293,9 +293,10 @@
       line-height: 1.65;
       margin-bottom: 20px;
     }
-    .modal-description.empty-desc {
+    .modal-summary-loading {
       color: #b2bec3;
       font-style: italic;
+      font-size: 0.82rem;
     }
     .modal-open-btn {
       display: inline-block;
@@ -369,7 +370,10 @@
           <strong>公開日</strong><span id="modal-date"></span>
         </div>
       </div>
-      <div class="modal-description" id="modal-description"></div>
+      <div class="modal-description" id="modal-description">
+        <span class="modal-summary-loading" id="modal-summary-loading" style="display:none;">⏳ 要約を生成中...</span>
+        <span id="modal-summary-text"></span>
+      </div>
       <a class="modal-open-btn" id="modal-link" href="#" target="_blank" rel="noopener">記事を開く →</a>
     </div>
   </div>
@@ -545,8 +549,23 @@
       // 記事詳細モーダル
       const overlay = document.getElementById('modal-overlay');
       const modal = document.getElementById('modal');
+      const summaryCache = {};
+
+      async function fetchSummary(url) {
+        if (summaryCache[url]) return summaryCache[url];
+        const res = await fetch('/api/summarize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || '要約の取得に失敗しました');
+        summaryCache[url] = data.summary;
+        return data.summary;
+      }
 
       function openModal(item) {
+        const url = item.dataset.articleUrl || '#';
         document.getElementById('modal-title').textContent = item.dataset.articleTitle || '';
         document.getElementById('modal-source').textContent = item.dataset.articleSource || '';
         const dateEl = document.getElementById('modal-date');
@@ -558,18 +577,28 @@
         } else {
           dateWrap.style.display = 'none';
         }
-        const desc = item.dataset.articleDesc || '';
-        const descEl = document.getElementById('modal-description');
-        if (desc) {
-          descEl.textContent = desc;
-          descEl.classList.remove('empty-desc');
-        } else {
-          descEl.textContent = '概要情報がありません。';
-          descEl.classList.add('empty-desc');
-        }
-        document.getElementById('modal-link').href = item.dataset.articleUrl || '#';
+
+        // 要約エリアをローディング状態に
+        const loadingEl = document.getElementById('modal-summary-loading');
+        const summaryEl = document.getElementById('modal-summary-text');
+        loadingEl.style.display = 'inline';
+        summaryEl.textContent = '';
+
+        document.getElementById('modal-link').href = url;
         overlay.classList.add('open');
         document.body.style.overflow = 'hidden';
+
+        // 要約を非同期取得
+        fetchSummary(url)
+          .then(summary => {
+            loadingEl.style.display = 'none';
+            summaryEl.textContent = summary;
+          })
+          .catch(err => {
+            loadingEl.style.display = 'none';
+            summaryEl.textContent = '要約の取得に失敗しました。';
+            summaryEl.style.color = '#b2bec3';
+          });
       }
 
       function closeModal() {
