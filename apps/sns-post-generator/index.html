@@ -153,6 +153,34 @@
     }
     .regen-btn:hover { border-color: #ffb81c; color: #001f33; }
 
+    /* 補足インプット */
+    .supplement-area { margin-top: 14px; border-top: 1px solid #f0f2f5; padding-top: 12px; }
+    .supp-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+    .supp-tab {
+      padding: 5px 14px; border: 1.5px solid #e2e8f0; background: none;
+      font-size: 0.78rem; color: #7a8694; cursor: pointer; font-family: inherit;
+      transition: all 0.15s;
+    }
+    .supp-tab:hover { border-color: #ffb81c; color: #001f33; }
+    .supp-tab.active { border-color: #ffb81c; background: #fffbf0; color: #001f33; font-weight: 700; }
+    .supp-panel { display: none; }
+    .supp-panel.active { display: block; }
+    .supp-file-label {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
+      border: 1.5px dashed #e2e8f0; cursor: pointer; font-size: 0.82rem;
+      color: #7a8694; transition: all 0.15s;
+    }
+    .supp-file-label:hover { border-color: #ffb81c; color: #001f33; }
+    .supp-file-name { font-size: 0.78rem; color: #52c878; margin-left: 8px; font-weight: 600; }
+    .supp-textarea {
+      width: 100%; min-height: 100px; padding: 10px 14px; border: 1.5px solid #e2e8f0;
+      font-size: 0.85rem; font-family: inherit; color: #2d3436; resize: vertical;
+      outline: none; box-sizing: border-box; transition: border-color 0.15s;
+    }
+    .supp-textarea:focus { border-color: #ffb81c; }
+    .supp-textarea::placeholder { color: #c8d0da; }
+    .supp-hint { font-size: 0.72rem; color: #a0aab4; margin-top: 5px; }
+
     /* インライン編集 */
     .post-textarea {
       width: 100%; font-size: 0.9rem; line-height: 1.85; color: #2d3436;
@@ -218,6 +246,24 @@
       <button class="generate-btn" id="generate-btn">生成する</button>
     </div>
     <div class="error-msg" id="error-msg"></div>
+    <div class="supplement-area">
+      <div class="supp-tabs">
+        <button class="supp-tab" data-supp="pdf">📎 PDFを添付</button>
+        <button class="supp-tab" data-supp="text">📝 テキストを貼り付け</button>
+      </div>
+      <div class="supp-panel" id="supp-pdf-panel">
+        <label class="supp-file-label">
+          ファイルを選択
+          <input type="file" id="pdf-input" accept=".pdf" style="display:none;">
+        </label>
+        <span class="supp-file-name" id="pdf-name"></span>
+        <div class="supp-hint">PDFを添付するとURLフェッチをスキップして資料の内容を直接使用します</div>
+      </div>
+      <div class="supp-panel" id="supp-text-panel">
+        <textarea class="supp-textarea" id="supp-text-input" placeholder="記事・資料の本文を貼り付けてください"></textarea>
+        <div class="supp-hint">テキストを貼り付けるとURLフェッチをスキップしてこの内容を使用します</div>
+      </div>
+    </div>
   </div>
 
   <div class="output-section" id="output-section">
@@ -247,6 +293,40 @@
   const ANGLES = ['数字・データ軸', '読者の共感軸', '意外性・問いかけ軸'];
   const HISTORY_KEY = 'post-gen-url-history';
   const HISTORY_MAX = 10;
+
+  // 補足インプット
+  let supplementType = null;
+  let pdfBase64 = null;
+
+  document.querySelectorAll('.supp-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const type = btn.dataset.supp;
+      if (supplementType === type) {
+        supplementType = null;
+        pdfBase64 = null;
+        document.getElementById('pdf-name').textContent = '';
+        document.getElementById('pdf-input').value = '';
+        document.getElementById('supp-text-input').value = '';
+        btn.classList.remove('active');
+        document.getElementById(`supp-${type}-panel`).classList.remove('active');
+      } else {
+        supplementType = type;
+        document.querySelectorAll('.supp-tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.supp-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(`supp-${type}-panel`).classList.add('active');
+      }
+    });
+  });
+
+  document.getElementById('pdf-input').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    document.getElementById('pdf-name').textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = () => { pdfBase64 = reader.result.split(',')[1]; };
+    reader.readAsDataURL(file);
+  });
 
   // URL履歴
   function loadUrlHistory() {
@@ -383,9 +463,9 @@ ${styleRule}
 - 記事の事実のみ使うこと。推測・誇張・架空の内容は禁止
 - 記事URL: ${url}
 
-【記事タイトル】${article.title}
+【記事タイトル】${article.title || '添付資料・テキストから適切なタイトルを判断して使用すること'}
 
-【記事内容】${article.text}
+【記事内容】${article.text || '※添付資料またはドキュメントの内容を参照すること'}
 
 【出力フォーマット（厳守）】
 ===PATTERN1===
@@ -549,18 +629,32 @@ ${styleRule}
     outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     try {
-      if (!articleCache[url]) {
-        const r = await fetch('/api/fetch-article', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url }),
-        });
-        const d = await r.json();
-        if (!r.ok) throw new Error(d.error || '記事の取得に失敗しました');
-        articleCache[url] = d;
-      }
+      const pastedText = document.getElementById('supp-text-input').value.trim();
 
-      btn.textContent = '生成中...';
+      let messages;
+      if (supplementType === 'pdf' && pdfBase64) {
+        btn.textContent = '生成中...';
+        messages = [{ role: 'user', content: [
+          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } },
+          { type: 'text', text: buildPrompt({ title: '', text: '' }, url) }
+        ]}];
+      } else if (supplementType === 'text' && pastedText) {
+        btn.textContent = '生成中...';
+        messages = [{ role: 'user', content: buildPrompt({ title: '', text: pastedText }, url) }];
+      } else {
+        if (!articleCache[url]) {
+          const r = await fetch('/api/fetch-article', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url }),
+          });
+          const d = await r.json();
+          if (!r.ok) throw new Error(d.error || '記事の取得に失敗しました');
+          articleCache[url] = d;
+        }
+        btn.textContent = '生成中...';
+        messages = [{ role: 'user', content: buildPrompt(articleCache[url], url) }];
+      }
 
       const r = await fetch('/api/generate', {
         method: 'POST',
@@ -568,7 +662,7 @@ ${styleRule}
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: platform === 'x' ? 1000 : platform === 'chatter' ? 3500 : 4000,
-          messages: [{ role: 'user', content: buildPrompt(articleCache[url], url) }],
+          messages,
         }),
       });
       const data = await r.json();
