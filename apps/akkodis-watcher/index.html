@@ -438,7 +438,7 @@
     const items = sorted.map(a => {
       const n = isNew(a);
       const dateStr = getDateStr(a);
-      const desc = (a.description || '').replace(/"/g, '&quot;');
+      const desc = (a.summary_ja || '').replace(/"/g, '&quot;');
       return `
         <div class="item${n ? ' is-new' : ''}" data-article-url="${a.url}"
              data-article-title="${(a.title || '').replace(/"/g, '&quot;')}"
@@ -549,20 +549,6 @@
       // 記事詳細モーダル
       const overlay = document.getElementById('modal-overlay');
       const modal = document.getElementById('modal');
-      const summaryCache = {};
-
-      async function fetchSummary(url) {
-        if (summaryCache[url]) return summaryCache[url];
-        const res = await fetch('/api/summarize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || '要約の取得に失敗しました');
-        summaryCache[url] = data.summary;
-        return data.summary;
-      }
 
       function openModal(item) {
         const url = item.dataset.articleUrl || '#';
@@ -578,27 +564,16 @@
           dateWrap.style.display = 'none';
         }
 
-        // 要約エリアをローディング状態に
         const loadingEl = document.getElementById('modal-summary-loading');
         const summaryEl = document.getElementById('modal-summary-text');
-        loadingEl.style.display = 'inline';
-        summaryEl.textContent = '';
+        loadingEl.style.display = 'none';
+        const summary = item.dataset.articleDesc || '';
+        summaryEl.textContent = summary || '（この記事の要約はまだ生成されていません）';
+        summaryEl.style.color = summary ? '' : '#b2bec3';
 
         document.getElementById('modal-link').href = url;
         overlay.classList.add('open');
         document.body.style.overflow = 'hidden';
-
-        // 要約を非同期取得
-        fetchSummary(url)
-          .then(summary => {
-            loadingEl.style.display = 'none';
-            summaryEl.textContent = summary;
-          })
-          .catch(err => {
-            loadingEl.style.display = 'none';
-            summaryEl.textContent = '要約の取得に失敗しました。';
-            summaryEl.style.color = '#b2bec3';
-          });
       }
 
       function closeModal() {

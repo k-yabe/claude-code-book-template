@@ -7,6 +7,7 @@ AKKODiS サイト監視スクレイパー
 """
 
 import json
+import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -239,6 +240,38 @@ SCRAPER_MAP = {
 }
 
 
+# ── 日本語要約生成 ─────────────────────────────────────
+def generate_summary_ja(page, url: str) -> str | None:
+    """記事ページのテキストをClaude Haikuで日本語要約する。失敗時はNoneを返す。"""
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        return None
+    try:
+        import anthropic
+        page.goto(url, wait_until="domcontentloaded", timeout=30000)
+        page.wait_for_timeout(1500)
+        body_text = page.inner_text("body")
+        text = re.sub(r"\s+", " ", body_text).strip()[:6000]
+
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=300,
+            messages=[{
+                "role": "user",
+                "content": (
+                    "以下の記事を日本語で3〜4文に要約してください。"
+                    "マーケティング担当者向けに、記事の主旨と重要ポイントを簡潔にまとめてください。\n\n"
+                    + text
+                ),
+            }],
+        )
+        return message.content[0].text.strip()
+    except Exception as e:
+        print(f"      要約生成エラー: {e}")
+        return None
+
+
 # ── メイン ────────────────────────────────────────────
 def main():
     # 既存データを読み込む
@@ -285,11 +318,15 @@ def main():
                         item["published_date"] = existing_date if existing_date else item.get("published_date")
                     else:
                         item["first_seen"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-                        # ブログ記事・Client Storiesは個別ページから公開日を取得
+                        # ブログ記事・Client Storiesは個別ページから公開日と要約を取得
                         # それ以外（Thinkers等）はスクレイパーが設定した値を維持
                         if source["type"] in ("blog", "client_stories"):
                             print(f"      公開日取得中: {item['url']}")
                             item["published_date"] = fetch_published_date(page, item["url"])
+                            print(f"      日本語要約生成中: {item['title'][:40]}")
+                            summary = generate_summary_ja(page, item["url"])
+                            if summary:
+                                item["summary_ja"] = summary
 
                     # Blog記事: 公開日が1ヶ月超ならスキップ
                     if source["type"] == "blog":
