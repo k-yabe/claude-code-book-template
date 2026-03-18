@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SNS Post Generator</title>
+  <title>Post Generator</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; }
@@ -27,7 +27,6 @@
     h1 { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
     .subtitle { font-size: 0.82rem; color: #8a9bb0; margin-bottom: 28px; }
 
-    /* メイン入力カード */
     .main-card { background: #fff; border: 1.5px solid #e8ecf0; padding: 24px; margin-bottom: 16px; }
 
     /* プラットフォーム */
@@ -41,6 +40,7 @@
     .platform-btn:hover:not(.active) { border-color: #d0d8e0; color: #2d3436; }
 
     /* URL入力 */
+    .url-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
     .url-row { display: flex; gap: 0; }
     .url-input {
       flex: 1; padding: 13px 16px; border: 1.5px solid #e8ecf0; border-right: none;
@@ -49,10 +49,21 @@
     }
     .url-input:focus { border-color: #ffb81c; }
     .url-input::placeholder { color: #c0c8d4; }
+    .url-remove-btn {
+      padding: 0 14px; border: 1.5px solid #e8ecf0; border-left: none; background: #fff;
+      color: #c0c8d4; cursor: pointer; font-size: 0.9rem; transition: all 0.15s;
+    }
+    .url-remove-btn:hover { color: #e17055; border-color: #f0c0b0; background: #fff5f5; }
+    .url-add-btn {
+      width: 100%; padding: 9px; background: none; border: 1.5px dashed #d0d8e0;
+      font-size: 0.78rem; color: #8a9bb0; cursor: pointer; font-family: inherit;
+      transition: all 0.15s; margin-bottom: 12px;
+    }
+    .url-add-btn:hover { border-color: #ffb81c; color: #001f33; }
     .generate-btn {
-      padding: 13px 28px; background: #ffb81c; border: none; color: #001f33;
+      width: 100%; padding: 13px; background: #ffb81c; border: none; color: #001f33;
       font-size: 0.92rem; font-weight: 800; cursor: pointer; font-family: inherit;
-      white-space: nowrap; transition: opacity 0.15s;
+      transition: opacity 0.15s;
     }
     .generate-btn:hover { opacity: 0.9; }
     .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -95,26 +106,30 @@
   <a class="back-btn" href="../../">← アプリ一覧へ</a>
   <img src="../../assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:20px;display:block;">
   <div class="navbar-divider"></div>
-  <span class="navbar-title">SNS Post Generator</span>
+  <span class="navbar-title">Post Generator</span>
 </nav>
 
 <div class="container">
-  <h1>SNS Post Generator</h1>
-  <p class="subtitle">記事URLを入力するだけでLinkedIn / X用の投稿文を自動生成します</p>
+  <h1>Post Generator</h1>
+  <p class="subtitle">記事URLを入力するだけでChatter / LinkedIn / X用の投稿文を自動生成します</p>
 
   <div class="main-card">
     <!-- プラットフォーム選択 -->
     <div class="platform-btns">
-      <button class="platform-btn active" data-platform="linkedin">🔗 LinkedIn</button>
+      <button class="platform-btn active" data-platform="chatter">☁ Chatter</button>
+      <button class="platform-btn" data-platform="linkedin">🔗 LinkedIn</button>
       <button class="platform-btn" data-platform="x">✦ X (Twitter)</button>
-      <button class="platform-btn" data-platform="chatter">☁ Chatter</button>
     </div>
 
-    <!-- URL入力 + 生成ボタン -->
-    <div class="url-row">
-      <input class="url-input" id="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off">
-      <button class="generate-btn" id="generate-btn">生成する</button>
+    <!-- URL入力（複数対応） -->
+    <div class="url-list" id="url-list">
+      <div class="url-row">
+        <input class="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off">
+        <button class="url-remove-btn" style="display:none">✕</button>
+      </div>
     </div>
+    <button class="url-add-btn" id="url-add-btn">＋ URLを追加（複数記事から生成）</button>
+    <button class="generate-btn" id="generate-btn">生成する</button>
     <div class="error-msg" id="error-msg"></div>
   </div>
 
@@ -122,7 +137,7 @@
   <div class="output-section" id="output-section">
     <div class="output-card">
       <div class="output-header">
-        <span class="output-label" id="output-label">LINKEDIN</span>
+        <span class="output-label" id="output-label">CHATTER</span>
         <div class="output-meta">
           <span class="char-count" id="char-count"></span>
           <button class="copy-btn" id="copy-btn">コピー</button>
@@ -137,15 +152,17 @@
 </div>
 
 <script>
-  const LIMITS = { linkedin: 1300, x: 140, chatter: 1000 };
+  const LIMITS = { chatter: 1000, linkedin: 1300, x: 140 };
+  const MAX_URLS = 4;
 
-  let platform = 'linkedin';
-  let refs = [];
-  let lastUrl = '';
-  let lastArticle = null;
+  let platform = 'chatter';
+  let linkedinRefs = [];
+  let chatterRefs = [];
+  let articleCache = {};  // url -> {title, text}
 
   // 参考投稿をJSONから読み込み
-  fetch('refs.json').then(r => r.json()).then(data => { refs = data; }).catch(() => {});
+  fetch('refs.json').then(r => r.json()).then(d => { linkedinRefs = d; }).catch(() => {});
+  fetch('chatter_refs.json').then(r => r.json()).then(d => { chatterRefs = d; }).catch(() => {});
 
   // ── プラットフォーム ─────────────────────────────────
   document.querySelectorAll('.platform-btn').forEach(btn => {
@@ -157,15 +174,60 @@
     });
   });
 
+  // ── URL管理 ──────────────────────────────────────────
+  function getUrlInputs() {
+    return Array.from(document.querySelectorAll('#url-list .url-input'));
+  }
+
+  function getUrls() {
+    return getUrlInputs().map(i => i.value.trim()).filter(Boolean);
+  }
+
+  function updateRemoveButtons() {
+    const rows = document.querySelectorAll('#url-list .url-row');
+    rows.forEach(row => {
+      row.querySelector('.url-remove-btn').style.display = rows.length > 1 ? '' : 'none';
+    });
+    document.getElementById('url-add-btn').style.display = rows.length >= MAX_URLS ? 'none' : '';
+  }
+
+  function addUrlRow() {
+    const list = document.getElementById('url-list');
+    const row = document.createElement('div');
+    row.className = 'url-row';
+    row.innerHTML = `<input class="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off"><button class="url-remove-btn">✕</button>`;
+    row.querySelector('.url-remove-btn').addEventListener('click', () => {
+      row.remove();
+      updateRemoveButtons();
+    });
+    list.appendChild(row);
+    updateRemoveButtons();
+    row.querySelector('.url-input').focus();
+  }
+
+  document.getElementById('url-add-btn').addEventListener('click', addUrlRow);
+
+  // 最初の行の削除ボタンにもイベント設定
+  document.querySelector('.url-remove-btn').addEventListener('click', function() {
+    this.closest('.url-row').remove();
+    updateRemoveButtons();
+  });
+
   // ── 生成 ─────────────────────────────────────────────
   async function generate() {
-    const url = document.getElementById('url-input').value.trim();
+    const urls = getUrls();
     const errEl = document.getElementById('error-msg');
-    if (!url || !url.startsWith('https://')) {
+    errEl.textContent = '';
+
+    if (urls.length === 0) {
       errEl.textContent = '有効なURLを入力してください（https://...）';
       return;
     }
-    errEl.textContent = '';
+    const invalidUrl = urls.find(u => !u.startsWith('https://'));
+    if (invalidUrl) {
+      errEl.textContent = `無効なURL: ${invalidUrl}`;
+      return;
+    }
 
     const btn = document.getElementById('generate-btn');
     btn.disabled = true;
@@ -173,53 +235,76 @@
     document.getElementById('output-section').style.display = 'none';
 
     try {
-      // 記事取得（キャッシュ）
-      if (url !== lastUrl) {
+      // 未キャッシュのURLを並列取得
+      const uncached = urls.filter(u => !articleCache[u]);
+      await Promise.all(uncached.map(async url => {
         const r = await fetch('/api/fetch-article', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url }),
         });
         const d = await r.json();
-        if (!r.ok) throw new Error(d.error || '記事の取得に失敗しました');
-        lastArticle = d;
-        lastUrl = url;
-      }
+        if (!r.ok) throw new Error(`${url} の取得に失敗しました`);
+        articleCache[url] = d;
+      }));
 
       btn.textContent = '生成中...';
 
+      const articles = urls.map(u => articleCache[u]);
       const platformLabel = platform === 'linkedin' ? 'LinkedIn' : platform === 'x' ? 'X (Twitter)' : 'Salesforce Chatter';
       const limit = LIMITS[platform];
-      const platformRule = platform === 'linkedin'
-        ? '末尾に日本語ハッシュタグを3〜5個'
-        : platform === 'x'
-        ? '端的でキャッチーに、ハッシュタグ1〜2個'
-        : '社内向けの親しみやすいトーンで、ハッシュタグ不要。要点を簡潔に伝える';
-      const prompt = `あなたはAKKODiS JapanのSNS担当マーケターです。以下の記事をもとに${platformLabel}用の投稿文を1つ書いてください。
 
-【文体ルール（厳守）】
-- 普通の人間が書いたような自然な文体にする
+      const refs = platform === 'chatter' ? chatterRefs : linkedinRefs;
+
+      let platformRule, styleRule;
+      if (platform === 'chatter') {
+        styleRule = `- 絵文字を積極的に使う（📢🗓📍🔗🎯🚀💡など）
+- タイトルの直後にハッシュタグ（#）を並べる
+- 「🎯 こんな方におすすめ」「🚀 社員の皆さまへ」のセクションを設ける
+- セミナー情報は 🗓📍💰🔗 で整理して記載
+- 箇条書きは「・」を使用`;
+        platformRule = `社内向けの告知文として構造化して書く。ハッシュタグは5〜8個程度`;
+      } else if (platform === 'linkedin') {
+        styleRule = `- 普通の人間が書いたような自然な文体にする
 - **太字** は絶対に使わない
 - 「：」「✅」「💡」などの装飾記号は使わない（絵文字は文脈に合う場合のみ1〜2個まで）
 - 箇条書きを多用しない（使うなら「・」で最大3行まで）
 - 「〜をお知らせします」「〜を実現します」「〜な世界へ」などのAIっぽい決まり文句は使わない
-- 文末は体言止めや短い一文で締める
+- 文末は体言止めや短い一文で締める`;
+        platformRule = `末尾に日本語ハッシュタグを3〜5個`;
+      } else {
+        styleRule = `- 普通の人間が書いたような自然な文体にする
+- **太字** や装飾記号は使わない
+- 文末は体言止めや短い一文で締める`;
+        platformRule = `端的でキャッチーに、ハッシュタグ1〜2個`;
+      }
+
+      const articlesText = articles.map((a, i) =>
+        articles.length > 1
+          ? `【記事${i+1} タイトル】\n${a.title}\n\n【記事${i+1} 内容】\n${a.text}`
+          : `【記事タイトル】\n${a.title}\n\n【記事内容】\n${a.text}`
+      ).join('\n\n---\n\n');
+
+      const urlsText = urls.length > 1
+        ? `複数記事のリンクをそれぞれ末尾に含める:\n${urls.map((u,i) => `記事${i+1}: ${u}`).join('\n')}`
+        : `記事リンクを末尾に含める: ${urls[0]}`;
+
+      const prompt = `あなたはAKKODiS Japanの${platform === 'chatter' ? '社内広報' : 'SNS担当'}マーケターです。以下の記事をもとに${platformLabel}用の投稿文を1つ書いてください。
+
+【文体ルール（厳守）】
+${styleRule}
 
 【投稿条件】
 - ${limit}文字以内（厳守）
 - ${platformRule}
-- 記事リンクを末尾に含める: ${url}
+- ${urlsText}
 
 【参考にすべき文体・構成】
-${refs.slice(0, 3).map(r => r).join('\n\n---\n\n')}
+${refs.slice(0, 3).join('\n\n---\n\n')}
 
 ---
 
-【記事タイトル】
-${lastArticle.title}
-
-【記事内容】
-${lastArticle.text}
+${articlesText}
 
 投稿文のみを出力してください。`;
 
@@ -252,8 +337,10 @@ ${lastArticle.text}
 
   document.getElementById('generate-btn').addEventListener('click', generate);
   document.getElementById('regen-btn').addEventListener('click', generate);
-  document.getElementById('url-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') generate();
+
+  // Enterキーで生成（最後のURL欄のみ）
+  document.getElementById('url-list').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.classList.contains('url-input')) generate();
   });
 
   // ── 文字数 ───────────────────────────────────────────
