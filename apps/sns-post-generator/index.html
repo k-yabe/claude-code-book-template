@@ -369,6 +369,11 @@
   document.getElementById('pdf-input').addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
+    if (file.size > 3 * 1024 * 1024) {
+      document.getElementById('error-msg').textContent = 'PDFのサイズが大きすぎます（上限3MB）。圧縮するかテキスト貼り付けをお試しください。';
+      e.target.value = '';
+      return;
+    }
     document.getElementById('pdf-name').textContent = file.name;
     const reader = new FileReader();
     reader.onload = () => { pdfBase64 = reader.result.split(',')[1]; };
