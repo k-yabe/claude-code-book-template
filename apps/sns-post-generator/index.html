@@ -9,6 +9,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; }
 
+    /* ナビ */
     .navbar {
       background: #001f33; height: 58px; display: flex; align-items: center;
       padding: 0 40px; gap: 14px; position: sticky; top: 0; z-index: 10;
@@ -22,117 +23,135 @@
     }
     .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 
-    .container { max-width: 800px; margin: 0 auto; padding: 28px 40px 80px; }
+    .container { max-width: 760px; margin: 0 auto; padding: 36px 24px 80px; }
 
-    h1 { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
-    .subtitle { font-size: 0.82rem; color: #8a9bb0; margin-bottom: 28px; }
+    /* ページヘッダー */
+    .page-header { margin-bottom: 20px; }
+    .page-header h1 { font-size: 1.45rem; font-weight: 800; color: #001f33; letter-spacing: -0.01em; margin-bottom: 5px; }
+    .page-header p { font-size: 0.82rem; color: #8a9bb0; }
 
-    .card { background: #fff; border: 1.5px solid #e8ecf0; padding: 24px; margin-bottom: 16px; }
-
-    /* プラットフォーム選択 */
-    .platform-btns { display: flex; gap: 8px; margin-bottom: 20px; }
-    .platform-btn {
-      flex: 1; padding: 10px; border: 1.5px solid #e8ecf0; background: #fff;
-      font-size: 0.85rem; font-weight: 700; color: #8a9bb0; cursor: pointer;
-      font-family: inherit; transition: all 0.15s; text-align: center;
+    /* 入力カード */
+    .input-card {
+      background: #fff; border: 1px solid #e2e8f0;
+      padding: 18px 20px; margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
-    .platform-btn.active { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
-    .platform-btn:hover:not(.active) { border-color: #d0d8e0; color: #2d3436; }
 
-    /* URL入力 */
+    /* プラットフォームタブ */
+    .platform-tabs { display: flex; border-bottom: 2px solid #f0f2f5; margin-bottom: 18px; }
+    .platform-tab {
+      padding: 7px 18px; border: none; background: none; font-family: inherit;
+      font-size: 0.83rem; font-weight: 600; color: #a0aab4; cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s;
+    }
+    .platform-tab.active { color: #001f33; border-bottom-color: #ffb81c; }
+    .platform-tab:hover:not(.active) { color: #4a5568; }
+
+    /* URL入力行 */
+    .input-row { display: flex; }
     .url-input {
-      width: 100%; padding: 13px 16px; border: 1.5px solid #e8ecf0;
-      font-size: 0.92rem; color: #2d3436; font-family: inherit; outline: none;
-      transition: border-color 0.15s; margin-bottom: 10px; display: block;
+      flex: 1; padding: 11px 14px; border: 1.5px solid #e2e8f0; border-right: none;
+      font-size: 0.9rem; color: #2d3436; font-family: inherit; outline: none;
+      transition: border-color 0.15s; min-width: 0;
     }
-    .url-input:focus { border-color: #ffb81c; }
-    .url-input::placeholder { color: #c0c8d4; }
-
+    .url-input:focus { border-color: #ffb81c; z-index: 1; position: relative; }
+    .url-input::placeholder { color: #c8d0da; }
     .generate-btn {
-      width: 100%; padding: 13px; background: #ffb81c; border: none; color: #001f33;
-      font-size: 0.92rem; font-weight: 800; cursor: pointer; font-family: inherit;
-      transition: opacity 0.15s;
+      padding: 11px 22px; background: #ffb81c; border: 1.5px solid #ffb81c;
+      color: #001f33; font-size: 0.87rem; font-weight: 800; cursor: pointer;
+      font-family: inherit; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
     }
-    .generate-btn:hover:not(:disabled) { opacity: 0.9; }
-    .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .generate-btn:hover:not(:disabled) { background: #f0ac10; border-color: #f0ac10; }
+    .generate-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    .error-msg { font-size: 0.8rem; color: #e17055; margin-top: 8px; min-height: 1.2em; }
+    .error-msg { font-size: 0.79rem; color: #e17055; margin-top: 8px; min-height: 1.1em; }
 
     /* 出力エリア */
     .output-section { display: none; }
 
-    /* おすすめ理由 */
-    .reason-box {
-      background: #fffbf0; border: 1.5px solid #ffb81c; padding: 14px 18px;
-      margin-bottom: 16px; font-size: 0.84rem; line-height: 1.7; color: #4a3800;
+    /* ローディング */
+    .loading-msg {
+      text-align: center; padding: 44px 20px; background: #fff;
+      border: 1px solid #e2e8f0; color: #9aa5b4; font-size: 0.87rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
-    .reason-label {
-      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em;
-      color: #b8860b; margin-bottom: 6px;
+    .loading-dots { display: inline-flex; gap: 5px; margin-left: 6px; vertical-align: middle; }
+    .loading-dot { width: 5px; height: 5px; background: #ffb81c; border-radius: 50%; animation: bounce 1.2s ease-in-out infinite; }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.35; } 40% { transform: scale(1); opacity: 1; } }
+
+    /* 結果エリア */
+    .result-card {
+      background: #fff; border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
 
-    /* 出力カード */
-    .output-cards { display: flex; flex-direction: column; gap: 12px; }
-    .output-card {
-      background: #fff; border: 1.5px solid #e8ecf0; transition: border-color 0.15s;
+    /* パターンタブ */
+    .pattern-tabs { display: flex; border-bottom: 1px solid #edf0f3; }
+    .pattern-tab {
+      flex: 1; padding: 12px 8px; border: none; background: none; font-family: inherit;
+      font-size: 0.78rem; font-weight: 600; color: #9aa5b4; cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s;
+      text-align: center; line-height: 1.4;
     }
-    .output-card.recommended { border-color: #ffb81c; }
+    .pattern-tab.active { color: #001f33; border-bottom-color: #ffb81c; background: #fafbfc; }
+    .pattern-tab:hover:not(.active) { color: #4a5568; background: #f9fafb; }
+    .pattern-tab .tab-rec { display: block; font-size: 0.62rem; color: #ffb81c; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 1px; }
+    .pattern-tab .tab-name { display: block; }
 
-    .output-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 11px 18px; border-bottom: 1px solid #f0f2f5; gap: 10px;
-    }
-    .output-header-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+    /* パネル */
+    .pattern-panel { display: none; padding: 20px; }
+    .pattern-panel.active { display: block; }
 
-    .rec-badge {
-      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.05em;
-      background: #ffb81c; color: #001f33; padding: 3px 9px; white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .pattern-label {
-      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; color: #001f33;
-      white-space: nowrap;
-    }
-    .angle-label {
-      font-size: 0.75rem; color: #8a9bb0; white-space: nowrap; overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .output-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .char-count { font-size: 0.74rem; color: #8a9bb0; white-space: nowrap; }
-    .char-count.over { color: #e17055; font-weight: 700; }
-
-    .copy-btn {
-      padding: 5px 14px; background: #001f33; border: none; color: #fff;
-      font-size: 0.74rem; font-weight: 700; cursor: pointer; font-family: inherit;
-      transition: opacity 0.15s; white-space: nowrap;
-    }
-    .copy-btn:hover { opacity: 0.8; }
-
-    .output-body { padding: 18px 20px; }
-    .output-text {
-      font-size: 0.9rem; line-height: 1.8; color: #2d3436;
+    /* 投稿テキスト */
+    .post-text {
+      font-size: 0.9rem; line-height: 1.85; color: #2d3436;
       white-space: pre-wrap; word-break: break-word;
+      border-left: 3px solid #e2e8f0; padding-left: 14px; margin-bottom: 16px;
     }
+    .output-card.recommended .post-text { border-left-color: #ffb81c; }
+
+    /* メリデメ */
+    .merit-demerit { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .merit-box, .demerit-box {
+      padding: 10px 13px; font-size: 0.79rem; line-height: 1.6;
+    }
+    .merit-box { background: #f0faf4; border-left: 3px solid #52c878; color: #1a5c32; }
+    .demerit-box { background: #fff5f3; border-left: 3px solid #e88; color: #7a2020; }
+    .md-label { font-size: 0.67rem; font-weight: 800; letter-spacing: 0.07em; margin-bottom: 4px; opacity: 0.7; }
+
+    /* おすすめ理由 */
+    .reason-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: #fffbf0; border: 1px solid #fde89a; padding: 10px 13px;
+      margin-bottom: 16px; font-size: 0.81rem; line-height: 1.65; color: #5a4000;
+    }
+    .reason-row .reason-icon { font-size: 0.9rem; flex-shrink: 0; }
+    .reason-row .reason-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.07em; color: #b8860b; margin-bottom: 2px; }
+
+    /* フッター（コピー・文字数） */
+    .panel-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 14px; border-top: 1px solid #f0f2f5;
+    }
+    .char-count { font-size: 0.74rem; color: #a0aab4; }
+    .char-count.over { color: #e17055; font-weight: 700; }
+    .copy-btn {
+      padding: 6px 18px; background: #001f33; border: none; color: #fff;
+      font-size: 0.77rem; font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: opacity 0.15s;
+    }
+    .copy-btn:hover { opacity: 0.75; }
 
     /* 再生成 */
-    .regen-row { margin-top: 20px; }
+    .regen-row { margin-top: 12px; }
     .regen-btn {
-      padding: 8px 18px; background: none; border: 1.5px solid #e8ecf0;
-      font-size: 0.78rem; color: #636e72; cursor: pointer; font-family: inherit;
+      padding: 7px 16px; background: none; border: 1.5px solid #e2e8f0;
+      font-size: 0.77rem; color: #7a8694; cursor: pointer; font-family: inherit;
       transition: all 0.15s;
     }
     .regen-btn:hover { border-color: #ffb81c; color: #001f33; }
-
-    /* ローディング */
-    .loading-msg {
-      text-align: center; padding: 40px 20px; background: #fff;
-      border: 1.5px solid #e8ecf0; color: #8a9bb0; font-size: 0.88rem;
-    }
-    .loading-dot { animation: blink 1.2s ease-in-out infinite; }
-    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
-    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes blink { 0%,80%,100% { opacity: 0; } 40% { opacity: 1; } }
   </style>
 </head>
 <body>
@@ -145,35 +164,41 @@
 </nav>
 
 <div class="container">
-  <h1>Post Generator</h1>
-  <p class="subtitle">記事URLを入力するだけでChatter / LinkedIn / X用の投稿文を3パターン自動生成します</p>
+  <div class="page-header">
+    <h1>Post Generator</h1>
+    <p>記事URLを入力するだけで、切り口の異なる3パターンの投稿文を自動生成します</p>
+  </div>
 
-  <div class="card">
-    <div class="platform-btns">
-      <button class="platform-btn active" data-platform="chatter">☁ Chatter</button>
-      <button class="platform-btn" data-platform="linkedin">🔗 LinkedIn</button>
-      <button class="platform-btn" data-platform="x">✦ X (Twitter)</button>
+  <div class="input-card">
+    <div class="platform-tabs">
+      <button class="platform-tab active" data-platform="chatter">☁ Chatter</button>
+      <button class="platform-tab" data-platform="linkedin">🔗 LinkedIn</button>
+      <button class="platform-tab" data-platform="x">✦ X (Twitter)</button>
     </div>
-    <input class="url-input" id="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off">
-    <button class="generate-btn" id="generate-btn">生成する</button>
+    <div class="input-row">
+      <input class="url-input" id="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off">
+      <button class="generate-btn" id="generate-btn">生成する</button>
+    </div>
     <div class="error-msg" id="error-msg"></div>
   </div>
 
   <div class="output-section" id="output-section">
     <div id="loading-area" class="loading-msg" style="display:none;">
-      生成中<span class="loading-dot">．</span><span class="loading-dot">．</span><span class="loading-dot">．</span>
+      生成中
+      <span class="loading-dots">
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+      </span>
     </div>
 
     <div id="results-area" style="display:none;">
-      <div class="reason-box" id="reason-box" style="display:none;">
-        <div class="reason-label">★ おすすめの理由</div>
-        <div id="reason-text"></div>
+      <div class="result-card">
+        <div class="pattern-tabs" id="pattern-tabs"></div>
+        <div id="pattern-panels"></div>
       </div>
-
-      <div class="output-cards" id="output-cards"></div>
-
       <div class="regen-row">
-        <button class="regen-btn" id="regen-btn">↺ 再生成（3パターン）</button>
+        <button class="regen-btn" id="regen-btn">↺ 再生成</button>
       </div>
     </div>
   </div>
@@ -191,9 +216,9 @@
   fetch('refs.json').then(r => r.json()).then(d => { linkedinRefs = d; }).catch(() => {});
   fetch('chatter_refs.json').then(r => r.json()).then(d => { chatterRefs = d; }).catch(() => {});
 
-  document.querySelectorAll('.platform-btn').forEach(btn => {
+  document.querySelectorAll('.platform-tab').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.platform-tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       platform = btn.dataset.platform;
     });
@@ -216,11 +241,9 @@
       sections[m[1].trim()] = m[2].trim();
     }
     return {
-      patterns: [
-        sections['PATTERN1'] || '',
-        sections['PATTERN2'] || '',
-        sections['PATTERN3'] || '',
-      ].map(p => cleanText(p)),
+      patterns: [1, 2, 3].map(i => cleanText(sections[`PATTERN${i}`] || '')),
+      merits:   [1, 2, 3].map(i => sections[`MERIT${i}`]   || ''),
+      demerits: [1, 2, 3].map(i => sections[`DEMERIT${i}`] || ''),
       recommend: Math.max(0, parseInt(sections['RECOMMEND'] || '1') - 1),
       reason: sections['REASON'] || '',
     };
@@ -232,38 +255,16 @@
     const refs = platform === 'chatter' ? chatterRefs : linkedinRefs;
 
     let styleRule, platformRule;
-
     if (platform === 'chatter') {
       styleRule = `各パターンで以下の構成テンプレートに従うこと。
-
-【構成テンプレート】
-1行目: 📢【タイトル（記事・イベント名を簡潔に）】
-2行目: #ハッシュタグ（5〜8個、記事に関連した具体的なもの）
-空行
-本文リード（2〜3文）
-空行
-▼ または ■ で始まる見出し + 箇条書き「・」で主要ポイントを2〜4個
-空行
-記事URL
-空行
-🎯 こんな方におすすめ
-・[ターゲット1]・[ターゲット2]・[ターゲット3]
-空行
-🚀 社員の皆さまへ：[活用イメージを1〜2文]
-
-【禁止事項】
-- **太字** 記法を使わない / ✅ チェックマークを使わない / AIっぽい常套句は使わない`;
+1行目: 📢【タイトル】 / 2行目: #ハッシュタグ5〜8個 / 空行 / 本文リード2〜3文 / 空行 / ▼か■の見出し+箇条書き2〜4個 / 空行 / 記事URL / 空行 / 🎯こんな方におすすめ（3点） / 空行 / 🚀社員の皆さまへ（1〜2文）
+禁止: **太字**記法・✅記号・AIっぽい常套句`;
       platformRule = `各パターン${limit}文字以内。ハッシュタグ5〜8個。記事URLを必ず含める。`;
     } else if (platform === 'linkedin') {
-      styleRule = `- 普通の人間が書いたような自然な文体
-- **太字** 不可 / 装飾記号不可（絵文字は1〜2個まで）
-- 箇条書きは「・」で最大3行まで
-- AIっぽい決まり文句は使わない`;
+      styleRule = `自然な人間の文体。**太字**不可。装飾記号不可。絵文字は1〜2個まで。箇条書きは「・」で3行まで。AIっぽい定型句は使わない。`;
       platformRule = `各パターン${limit}文字以内。末尾に日本語ハッシュタグ3〜5個と記事URLを含める。`;
     } else {
-      styleRule = `- 端的で人間らしい自然な文体
-- **太字** ・装飾記号不可
-- 文末は体言止めか短い一文`;
+      styleRule = `端的で自然な文体。**太字**・装飾記号不可。文末は体言止めか短文。`;
       platformRule = `各パターン${limit}文字以内。ハッシュタグ1〜2個と記事URLを含める。`;
     }
 
@@ -271,95 +272,124 @@
       ? `【参考投稿（文体・構成を参考にすること）】\n${refs.slice(0, 2).join('\n\n---\n\n')}\n\n---\n\n`
       : '';
 
-    return `あなたはAKKODiS Japanの${platform === 'chatter' ? '社内広報' : 'SNS担当'}マーケターです。以下の記事をもとに${platformLabel}用の投稿文を【3パターン】書いてください。
+    return `あなたはAKKODiS Japanの${platform === 'chatter' ? '社内広報' : 'SNS担当'}マーケターです。以下の記事をもとに${platformLabel}用の投稿文を【3パターン】生成してください。
 
 ${refText}【3パターンの切り口（厳守）】
 - PATTERN1（数字・データ軸）: 記事中の具体的な数字・実績・データを冒頭に持ってきて興味を引く
 - PATTERN2（読者の共感軸）: 読み手が「あるある」と感じる課題や状況から入り、記事がその答えになる流れ
-- PATTERN3（意外性・問いかけ軸）: 意外な事実や問いかけで始め、読み手に「続きが気になる」と思わせる
+- PATTERN3（意外性・問いかけ軸）: 意外な事実や問いかけで始め「続きが気になる」と思わせる
 
-【文体・構成ルール（厳守）】
+【文体・構成ルール】
 ${styleRule}
 
 【投稿条件】
 - ${platformRule}
-- 記事の内容から読み取れる事実のみ使うこと。推測・誇張・架空の数字は禁止
+- 記事の事実のみ使うこと。推測・誇張・架空の内容は禁止
 - 記事URL: ${url}
 
-【記事タイトル】
-${article.title}
+【記事タイトル】${article.title}
 
-【記事内容】
-${article.text}
+【記事内容】${article.text}
 
 【出力フォーマット（厳守）】
-以下のフォーマットで出力すること。各セクションの区切りは必ず ===SECTION=== の形式を使うこと。
-
 ===PATTERN1===
 （PATTERN1の投稿文）
+===MERIT1===
+（PATTERN1のメリットを1〜2文で。どんな読者に響きやすいか）
+===DEMERIT1===
+（PATTERN1のデメリットを1文で。どんな点が弱いか）
 ===PATTERN2===
 （PATTERN2の投稿文）
+===MERIT2===
+（PATTERN2のメリット）
+===DEMERIT2===
+（PATTERN2のデメリット）
 ===PATTERN3===
 （PATTERN3の投稿文）
+===MERIT3===
+（PATTERN3のメリット）
+===DEMERIT3===
+（PATTERN3のデメリット）
 ===RECOMMEND===
-（おすすめパターンの番号。1か2か3のみ）
+（おすすめパターン番号。1か2か3のみ）
 ===REASON===
-（おすすめの理由を1〜2文で。なぜそのパターンが最も読まれやすいか）`;
+（おすすめの理由を1〜2文。なぜそのパターンが最も読まれやすいか）`;
   }
 
-  function renderResults({ patterns, recommend, reason }) {
+  function renderResults({ patterns, merits, demerits, recommend, reason }) {
     const limit = LIMITS[platform];
-    const platformLabel = platform === 'linkedin' ? 'LINKEDIN' : platform === 'x' ? 'X (TWITTER)' : 'CHATTER';
-
-    const container = document.getElementById('output-cards');
-    container.innerHTML = '';
+    const tabsEl = document.getElementById('pattern-tabs');
+    const panelsEl = document.getElementById('pattern-panels');
+    tabsEl.innerHTML = '';
+    panelsEl.innerHTML = '';
 
     patterns.forEach((text, i) => {
       if (!text) return;
       const isRec = i === recommend;
-      const card = document.createElement('div');
-      card.className = 'output-card' + (isRec ? ' recommended' : '');
+
+      // タブ
+      const tab = document.createElement('button');
+      tab.className = 'pattern-tab' + (isRec ? ' active' : '');
+      tab.dataset.idx = i;
+      tab.innerHTML = `${isRec ? '<span class="tab-rec">★ おすすめ</span>' : '<span class="tab-rec" style="visibility:hidden">★</span>'}<span class="tab-name">パターン ${i + 1}</span>`;
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.pattern-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.pattern-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`panel-${i}`).classList.add('active');
+      });
+      tabsEl.appendChild(tab);
+
+      // パネル
+      const panel = document.createElement('div');
+      panel.className = 'pattern-panel' + (isRec ? ' active' : '');
+      panel.id = `panel-${i}`;
 
       const charLen = text.length;
-      const overLimit = charLen > limit;
+      const over = charLen > limit;
 
-      card.innerHTML = `
-        <div class="output-header">
-          <div class="output-header-left">
-            ${isRec ? '<span class="rec-badge">★ おすすめ</span>' : ''}
-            <span class="pattern-label">${platformLabel} ${i + 1}</span>
-            <span class="angle-label">— ${ANGLES[i]}</span>
+      panel.innerHTML = `
+        <div style="font-size:0.71rem;font-weight:800;letter-spacing:0.07em;color:#9aa5b4;margin-bottom:10px;">${ANGLES[i].toUpperCase()}</div>
+        <div class="post-text">${escHtml(text)}</div>
+        <div class="merit-demerit">
+          <div class="merit-box">
+            <div class="md-label">メリット</div>
+            ${escHtml(merits[i] || '—')}
           </div>
-          <div class="output-meta">
-            <span class="char-count${overLimit ? ' over' : ''}">${charLen} / ${limit}文字</span>
-            <button class="copy-btn">コピー</button>
+          <div class="demerit-box">
+            <div class="md-label">デメリット</div>
+            ${escHtml(demerits[i] || '—')}
           </div>
         </div>
-        <div class="output-body">
-          <div class="output-text">${escHtml(text)}</div>
+        ${isRec && reason ? `
+        <div class="reason-row">
+          <span class="reason-icon">★</span>
+          <div>
+            <div class="reason-label">おすすめ理由</div>
+            ${escHtml(reason)}
+          </div>
+        </div>` : ''}
+        <div class="panel-footer">
+          <span class="char-count${over ? ' over' : ''}">${charLen} / ${limit}文字</span>
+          <button class="copy-btn" data-text="${escAttr(text)}">コピー</button>
         </div>`;
 
-      card.querySelector('.copy-btn').addEventListener('click', function () {
-        navigator.clipboard.writeText(text).then(() => {
+      panel.querySelector('.copy-btn').addEventListener('click', function () {
+        navigator.clipboard.writeText(this.dataset.text).then(() => {
           this.textContent = 'コピーしました';
           setTimeout(() => { this.textContent = 'コピー'; }, 2000);
         });
       });
 
-      container.appendChild(card);
+      panelsEl.appendChild(panel);
     });
-
-    const reasonBox = document.getElementById('reason-box');
-    if (reason) {
-      document.getElementById('reason-text').textContent = reason;
-      reasonBox.style.display = 'block';
-    } else {
-      reasonBox.style.display = 'none';
-    }
   }
 
   function escHtml(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function escAttr(str) {
+    return str.replace(/"/g, '&quot;').replace(/\n/g, '&#10;');
   }
 
   async function generate() {
