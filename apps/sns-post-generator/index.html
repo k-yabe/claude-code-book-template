@@ -185,7 +185,8 @@
     <div class="step-header">
       <div class="step-num">3</div>
       <div class="step-title">参考投稿を登録（スタイル学習用）</div>
-      <span class="step-badge badge-optional">任意・保存済み</span>
+      <span class="step-badge badge-optional">保存済み</span>
+      <button onclick="resetRefs()" style="margin-left:auto;background:none;border:none;font-size:0.72rem;color:#b2bec3;cursor:pointer;font-family:inherit;padding:0 4px;" title="デフォルトに戻す">↺ リセット</button>
     </div>
     <div class="step-body">
       <p class="field-hint" style="margin-bottom:12px;">過去のLinkedIn / X投稿文をここに登録しておくと、そのトーン・構成を参考にして生成します。最大5件まで。</p>
@@ -224,8 +225,53 @@
   const STORAGE_KEY = 'snsgen_refs';
   const LIMITS = { linkedin: 1300, x: 140 };
 
+  // ── デフォルト参考投稿（AKKODiS実績ベース） ────────
+  const DEFAULT_REFS = [
+    `3月8日はInternational Women's Day🌍
+
+Akkodis Thinkers and Makers Vol 1 2026では、フランス・ドイツ・中東・日本で活躍する女性たちの才能・多様性・野心を称える特別版が公開されました。
+
+AKKODiS Japanからは、ビジネスデベロップメントマネージャーの川口理沙がAI導入について紹介しています。
+・ 利用率98%を達成
+・ ADKARチェンジマネジメントモデルを活用
+・ 強制ではなく「個人の目的」に基づくボトムアップのアプローチ
+・ 従業員が自発的にアプリを作成し、ワークフローを自動化
+
+導入初期は利用が伸び悩んだものの、認知・意欲・知識・能力・定着の各段階を丁寧に構築した結果、多様な職種において自発的なエンゲージメントが生まれました。
+
+詳細はこちらから👇（英語コンテンツ）
+https://lnkd.in/e8JFYYUR
+
+#Akkodis #AI活用 #DX #IWD2026`,
+
+    `AKKODiSは、IOWN Global Forumのメンバーとして、次世代インフラを相互運用可能な導入へと前進させるための、エコシステムの整合および検証の取り組みに貢献しています。
+
+MWC Barcelona 2026のホール2、スタンド2B40 にて、ぜひお立ち寄りください。
+
+#Akkodis #thefutureisphotonic #IOWNGlobalForum #MWC2026 #AkkodisIntelligence`,
+
+    `【大賞決定！産学連携ビジネスコンペティション2025】
+「就活が不安で眠れない」、そんな学生のリアルな声から生まれたのは、悩みを相談できるゲームサービスでした。
+
+「持続可能な社会を創ろう！」をテーマに、大学生とAKKODiSのテックコンサルタントが混成チームで社会課題に挑みました。
+
+大賞：芝浦工業大学「慈愛」── 就活生の不安を軽減するゲームサービス
+2位：法政大学「yoyakuプロジェクト」── 街の余白を活用するスキマ広告
+3位：大阪経済大学「御縁倶楽部」── 学生の「やってみたい」を応援する学び場
+オーディエンス賞：武蔵野大学「chaps」── 政治参加を促すカードゲーム
+
+どのチームも、現地調査やPoCを経た、実現性の高いビジネスモデルを発表してくれました。
+学生の斬新な発想 × テックコンサルタントの実践力。
+このフュージョンが、社会を変える力になると私たちは信じています。
+
+▶ 受賞結果の詳細はこちら
+https://lnkd.in/eHkUHwH5`,
+  ];
+
   let platform = 'linkedin';
-  let refs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  // localStorageに保存があればそれを使い、なければデフォルトを使う
+  const stored = localStorage.getItem(STORAGE_KEY);
+  let refs = stored ? JSON.parse(stored) : [...DEFAULT_REFS];
 
   // ── プラットフォーム切替 ────────────────────────────
   document.querySelectorAll('.platform-btn').forEach(btn => {
@@ -256,6 +302,13 @@
   function deleteRef(i) {
     refs.splice(i, 1);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(refs));
+    renderRefs();
+  }
+
+  function resetRefs() {
+    if (!confirm('参考投稿をデフォルトに戻しますか？')) return;
+    refs = [...DEFAULT_REFS];
+    localStorage.removeItem(STORAGE_KEY);
     renderRefs();
   }
 
