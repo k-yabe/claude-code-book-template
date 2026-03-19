@@ -17,7 +17,7 @@ def generate_summary_ja(client, page, url: str) -> str | None:
     try:
         page.goto(url, wait_until="domcontentloaded", timeout=30000)
         page.wait_for_timeout(1500)
-        body_text = page.inner_text("body")
+        body_text = page.inner_text("main, article, .content, body")
         text = re.sub(r"\s+", " ", body_text).strip()[:6000]
 
         message = client.messages.create(
@@ -26,12 +26,14 @@ def generate_summary_ja(client, page, url: str) -> str | None:
             messages=[{
                 "role": "user",
                 "content": (
-                    "以下の記事を日本語3文で要約してください。\n"
+                    "以下はWebページから抽出したテキストです。ナビゲーションやフッターなどの不要な部分を無視し、"
+                    "記事の本文内容だけをもとに日本語3文で要約してください。\n\n"
                     "条件:\n"
-                    "- AKKODiS Japanのマーケティング担当者が社内共有や投稿文に使う想定\n"
-                    "- 直訳せず、日本のビジネス文脈で自然な表現にする\n"
-                    "- 専門用語は平易な言葉に言い換える\n"
-                    "- 体言止めや箇条書きは使わず、です・ます調で書く\n"
+                    "- AKKODiS Japanのマーケティング担当者が社内共有や投稿文のネタ探しに使う想定\n"
+                    "- 直訳せず、日本語として自然な文章にする（「〜を実現しました」「〜が可能になります」など普通のビジネス表現で）\n"
+                    "- 「活用」「実現」「革新」「推進」などのありきたりな表現は避け、具体的に何をしたかを書く\n"
+                    "- 専門用語は使わず、誰でもわかる言葉で書く\n"
+                    "- です・ます調、体言止めや箇条書き不可\n"
                     "- 見出し・記号・マークダウン不要。本文テキストのみ出力\n\n"
                     + text
                 ),
