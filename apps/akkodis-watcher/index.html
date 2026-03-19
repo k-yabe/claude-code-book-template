@@ -567,7 +567,7 @@
         const loadingEl = document.getElementById('modal-summary-loading');
         const summaryEl = document.getElementById('modal-summary-text');
         loadingEl.style.display = 'none';
-        const summary = item.dataset.articleDesc || '';
+        const summary = (item.dataset.articleDesc || '').replace(/^#+\s.*\n?/gm, '').trim();
         summaryEl.textContent = summary || '（この記事の要約はまだ生成されていません）';
         summaryEl.style.color = summary ? '' : '#b2bec3';
 
