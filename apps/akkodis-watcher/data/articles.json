@@ -1,6 +1,15 @@
 {
-  "last_scraped": "2026-03-18T01:51:29Z",
+  "last_scraped": "2026-03-19T01:50:26Z",
   "articles": [
+    {
+      "id": "copilots-agents-designing-enterprise-ai-adoption",
+      "title": "From Copilots to Agents: Designing Enterprise AI Adoption",
+      "url": "https://www.akkodis.com/blog/articles/copilots-agents-designing-enterprise-ai-adoption",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:51Z",
+      "published_date": "2026-02-26T00:00:00Z"
+    },
     {
       "id": "driving-innovation-and-engineering-a-smarter-future-for-all",
       "title": "Driving Innovation and Engineering a Smarter Future for All",
@@ -146,24 +155,6 @@
       "published_date": "2026-02-23T00:00:00Z"
     },
     {
-      "id": "copilots-agents-designing-enterprise-ai-adoption",
-      "title": "From Copilots to Agents: Designing Enterprise AI Adoption",
-      "url": "https://www.akkodis.com/blog/articles/copilots-agents-designing-enterprise-ai-adoption",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:51Z",
-      "published_date": "2026-02-26T00:00:00Z"
-    },
-    {
-      "id": "practical-ai-workplace-careers",
-      "title": "From Curiosity to Practical AI: Making Innovation Real",
-      "url": "https://www.akkodis.com/blog/articles/practical-ai-workplace-careers",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:53Z",
-      "published_date": "2026-02-17T00:00:00Z"
-    },
-    {
       "id": "salesforce-developer-career-growth",
       "title": "Growing Skills and Driving Innovation as a Salesforce Developer",
       "url": "https://www.akkodis.com/blog/articles/salesforce-developer-career-growth",
@@ -171,24 +162,6 @@
       "source_label": "Akkodis Blog",
       "first_seen": "2026-03-18T01:50:23Z",
       "published_date": null
-    },
-    {
-      "id": "ai-customer-experience-innovation",
-      "title": "Shaping the Future of Customer Experience with AI",
-      "url": "https://www.akkodis.com/blog/articles/ai-customer-experience-innovation",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:57Z",
-      "published_date": "2026-02-17T00:00:00Z"
-    },
-    {
-      "id": "safety-on-the-open-road-architecture-revamp-motorcyclists",
-      "title": "Safety on the Open Road: Architecture Revamp Improves Safety Device for Motorcyclists",
-      "url": "https://www.akkodis.com/blog/articles/safety-on-the-open-road-architecture-revamp-motorcyclists",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:59Z",
-      "published_date": "2026-02-17T00:00:00Z"
     },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
