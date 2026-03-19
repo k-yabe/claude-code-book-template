@@ -256,15 +256,17 @@ def generate_summary_ja(page, url: str) -> str | None:
         client = anthropic.Anthropic(api_key=api_key)
         message = client.messages.create(
             model="claude-haiku-4-5-20251001",
-            max_tokens=300,
+            max_tokens=600,
             messages=[{
                 "role": "user",
                 "content": (
-                    "以下の英語記事を日本語で3〜4文に要約してください。"
-                    "AKKODiS Japanのマーケティング担当者が社内共有・投稿文作成に使うことを想定し、"
-                    "直訳ではなく日本のビジネス文脈に合った自然な日本語で書いてください。"
-                    "専門用語はわかりやすく言い換え、読んだ人が「なるほど、これは使えそう」と感じる文体にしてください。"
-                    "見出しや箇条書きは使わず、本文テキストのみで出力してください。\n\n"
+                    "以下の記事を日本語3文で要約してください。\n"
+                    "条件:\n"
+                    "- AKKODiS Japanのマーケティング担当者が社内共有や投稿文に使う想定\n"
+                    "- 直訳せず、日本のビジネス文脈で自然な表現にする\n"
+                    "- 専門用語は平易な言葉に言い換える\n"
+                    "- 体言止めや箇条書きは使わず、です・ます調で書く\n"
+                    "- 見出し・記号・マークダウン不要。本文テキストのみ出力\n\n"
                     + text
                 ),
             }],
