@@ -368,12 +368,14 @@
       if (!cat) return 'tag-style';
       if (cat.includes('IOWN')) return 'tag-iown';
       if (cat.includes('AKKODiS')) return 'tag-brand';
+      if (cat.includes('Microsoft')) return 'tag-brand';
       return 'tag-style';
     };
     const tagLabel = cat => {
       if (!cat) return '表記';
       if (cat.includes('IOWN')) return 'IOWN®';
       if (cat.includes('AKKODiS')) return 'ブランド';
+      if (cat.includes('Microsoft')) return 'Microsoft';
       return '表記ルール';
     };
 
