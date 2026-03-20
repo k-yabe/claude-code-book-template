@@ -14,6 +14,7 @@
       background: #001f33; height: 58px; display: flex; align-items: center;
       padding: 0 40px; gap: 14px; position: sticky; top: 0; z-index: 10;
     }
+    .navbar-brand { display: flex; align-items: center; gap: 14px; }
     .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
     .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
     .back-btn {
@@ -176,10 +177,13 @@
 <body>
 
 <nav class="navbar">
-  <a class="back-btn" href="../../">← アプリ一覧へ</a>
-  <img src="../../assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:20px;display:block;">
-  <div class="navbar-divider"></div>
-  <span class="navbar-title">Writing Checker</span>
+  <div class="navbar-brand">
+    <a class="back-btn" href="../../">← アプリ一覧へ</a>
+    <div class="navbar-divider"></div>
+    <img src="../../assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:22px;display:block;">
+    <div class="navbar-divider"></div>
+    <span class="navbar-title">Writing Checker</span>
+  </div>
 </nav>
 
 <div class="container">
