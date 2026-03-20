@@ -340,9 +340,9 @@
       const get = key => { const m = block.match(new RegExp(`${key}:\\s*(.+)`)); return m ? m[1].trim() : ''; };
       const issue = {
         category: get('カテゴリ'),
-        problem: get('問題箇所').replace(/^「|」$/g, ''),
+        problem: get('問題箇所'),
         note: get('指摘'),
-        fix: get('修正例').replace(/^「|」$/g, ''),
+        fix: get('修正例'),
       };
       const key = `${issue.problem}|${issue.note}`;
       if ((issue.note || issue.category) && !seen.has(key)) {
