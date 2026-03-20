@@ -246,7 +246,7 @@ ${KNOWLEDGE}
 組織名・部署名に含まれる「Solution」「Consulting」などの語句を単独の固有名詞ルール（Solutions→NG等）で指摘しない。
 
 ■ 条件付きOKのルールは文脈を見て判断する
-- 「Akkodis」は常にNGとして指摘し、修正例に「AKKODiS（グローバルのAkkodisを指す場合はAkkodisのままでOK）」と記載する。
+- 「Akkodis」は常にNGとして指摘する。修正例は「AKKODiS」のみ。指摘文の末尾に「※グローバルのAkkodisを指す場合はそのままでOK。」と添える。
 - 「人材派遣」はSEO対策・公的文書文脈ではNG指摘しない。
 - 「IOWN構想」「IOWN推進室」「IOWN構想基礎研修」など付属語がある複合語の場合は®を付けてはいけない。「IOWN®構想」のように®を付けた場合はNG指摘し「IOWN構想」に修正するよう指摘する。
 
