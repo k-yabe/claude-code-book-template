@@ -140,9 +140,9 @@
       font-size: 0.62rem; font-weight: 800; padding: 2px 7px;
       border-radius: 3px; flex-shrink: 0; letter-spacing: 0.04em;
     }
-    .tag-style   { background: #eef2ff; color: #4a6cf7; }
-    .tag-brand   { background: #fff3cd; color: #856404; }
-    .tag-iown    { background: #fdecea; color: #c0392b; }
+    .tag-style   { background: rgba(0,31,51,0.08); color: #001f33; }
+    .tag-brand   { background: rgba(255,184,28,0.18); color: #7a5500; }
+    .tag-iown    { background: rgba(255,184,28,0.35); color: #5c3d00; }
   </style>
 </head>
 <body>
@@ -176,8 +176,8 @@
     <div class="file-drop" id="file-drop">
       <div class="file-drop-icon">📂</div>
       <div class="file-drop-label">クリックまたはドラッグ＆ドロップでファイルを選択</div>
-      <div class="file-drop-sub">対応形式: PDF・TXT</div>
-      <input type="file" class="file-input" id="file-input" accept=".pdf,.txt">
+      <div class="file-drop-sub">対応形式: Word（.docx）・PDF・TXT</div>
+      <input type="file" class="file-input" id="file-input" accept=".pdf,.txt,.docx">
     </div>
     <div class="file-status" id="file-status"></div>
   </div>
@@ -203,6 +203,7 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   }
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script src="knowledge.js"></script>
 <script>
   let currentTab = 'text';
@@ -278,8 +279,26 @@
       return;
     }
 
+    if (ext === 'docx') {
+      fileStatus.textContent = `${file.name} テキスト抽出中...`;
+      try {
+        if (typeof mammoth === 'undefined') throw new Error('Wordファイルの読み込みに失敗しました');
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        const text = result.value.trim();
+        if (text.length < 10) throw new Error('テキストを抽出できませんでした');
+        uploadedText = text.slice(0, 10000);
+        fileStatus.textContent = `✓ ${file.name}（${uploadedText.length}文字抽出）`;
+      } catch (err) {
+        fileStatus.className = 'file-status error';
+        fileStatus.textContent = err.message;
+        fileInput.value = '';
+      }
+      return;
+    }
+
     fileStatus.className = 'file-status error';
-    fileStatus.textContent = 'PDF・TXTファイルのみ対応しています';
+    fileStatus.textContent = 'Word（.docx）・PDF・TXTファイルのみ対応しています';
   }
 
   // 出力パース
