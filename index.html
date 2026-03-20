@@ -388,7 +388,9 @@
     }
     .card-tag {
       margin-top: 14px;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       font-size: 0.68rem;
       font-weight: 600;
       border-radius: 99px;
@@ -398,10 +400,16 @@
       color: #1C304B;
       background: #dde3ea;
     }
-    .card-tag:not(.card-tag-web) {
-      color: #1C304B;
-      background: #dde3ea;
+    .card-tag-external {
+      color: #5c3d00;
+      background: rgba(255,184,28,0.22);
+      border: 1px solid rgba(255,184,28,0.4);
     }
+
+    a.card.card-external {
+      border-style: dashed;
+    }
+    a.card.card-external:hover::before { background: rgba(255,184,28,0.5); }
 
   </style>
 </head>
@@ -444,7 +452,7 @@
     <div class="portal-body">
       <div class="section-bar">
         <span class="section-bar-title">All Apps</span>
-        <span class="section-bar-count">8</span>
+        <span class="section-bar-count">9</span>
         <span class="section-bar-line"></span>
         <span class="section-bar-drag">⠿ ドラッグで並び替え</span>
       </div>
@@ -476,34 +484,34 @@
         <a class="card" href="apps/marketo-mail-generator/">
           <div class="card-icon-wrap">✉️</div>
           <div class="card-name">Marketo Mail Generator</div>
-          <div class="card-desc">UTMパラメーター付与・テキスト版とHTML版を同時生成</div>
+          <div class="card-desc">メール本文をHTMLとテキスト形式で同時生成</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/akkodis-watcher/" id="card-antenna">
           <div class="card-icon-wrap">📡</div>
           <div class="card-name">Global Antenna</div>
-          <div class="card-desc">AKKODiSグローバルサイトの新着記事を毎日チェック</div>
+          <div class="card-desc">AKKODiSグローバルの新着記事を毎日チェック</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/writing-checker/">
           <div class="card-new-badge">NEW</div>
           <div class="card-icon-wrap">✍️</div>
           <div class="card-name">Writing Checker</div>
-          <div class="card-desc">記者ハンドブック準拠＋AKKODiSブランドガイドラインで文章の表記をチェック</div>
+          <div class="card-desc">記者ハンドブック準拠・AKKODiS固有名詞で表記をチェック</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
-        <a class="card" href="apps/sns-post-generator/" class="card-new-badge">
+        <a class="card" href="apps/sns-post-generator/">
           <div class="card-new-badge">NEW</div>
           <div class="card-icon-wrap">📣</div>
           <div class="card-name">Post Generator</div>
-          <div class="card-desc">記事URLからChatter / LinkedIn / X用の投稿文をAIで自動生成</div>
+          <div class="card-desc">記事URLからSNS投稿文をAIで自動生成</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
-        <a class="card" href="https://m365.cloud.microsoft/chat/?titleId=T_8aa0cc54-ad42-710e-b66b-a63fa397a14a&source=embedded-builder" target="_blank" rel="noopener">
+        <a class="card card-external" href="https://m365.cloud.microsoft/chat/?titleId=T_8aa0cc54-ad42-710e-b66b-a63fa397a14a&source=embedded-builder" target="_blank" rel="noopener">
           <div class="card-icon-wrap">🛡️</div>
           <div class="card-name">Brand Guardian Pro</div>
           <div class="card-desc">ブランドガイドラインに沿った表現をAIがサポート</div>
-          <div class="card-tag">Microsoft Copilot Agent</div>
+          <div class="card-tag card-tag-external">↗ Copilot Agent</div>
         </a>
       </div>
     </div>
@@ -529,7 +537,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
-      { icon: '✍️', app: 'Writing Checker',     date: '2026-03-20(木)', desc: '記者ハンドブック準拠＋AKKODiSブランドガイドラインで表記チェック' },
+      { icon: '✍️', app: 'Writing Checker',     date: '2026-03-20(金)', desc: '記者ハンドブック準拠・AKKODiS固有名詞チェック機能を追加' },
       { icon: '📡', app: 'Global Antenna',     date: '2026-03-19(木)', desc: 'AI日本語要約を自然なビジネス文体に改善' },
       { icon: '📣', app: 'Post Generator',    date: '2026-03-18(水)', desc: 'PDF添付・修正して再生成・UIリデザイン' },
       { icon: '✉️', app: 'Marketo Mail',       date: '2026-03-18(水)', desc: 'utm_content削除・UIシンプル化' },
