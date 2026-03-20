@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Writing Checker</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; }
+
+    .navbar {
+      background: #001f33; height: 58px; display: flex; align-items: center;
+      padding: 0 40px; gap: 14px; position: sticky; top: 0; z-index: 10;
+    }
+    .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+    .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+    .back-btn {
+      background: none; border: 1px solid rgba(255,255,255,0.2); font-size: 0.78rem;
+      color: rgba(255,255,255,0.65); cursor: pointer; padding: 6px 14px;
+      text-decoration: none; transition: all 0.15s;
+    }
+    .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 36px 24px 80px; }
+
+    .page-header { margin-bottom: 20px; }
+    .page-header h1 { font-size: 1.45rem; font-weight: 800; color: #001f33; letter-spacing: -0.01em; margin-bottom: 5px; }
+    .page-header p { font-size: 0.82rem; color: #8a9bb0; }
+
+    /* モード切り替えタブ */
+    .mode-tabs { display: flex; border-bottom: 2px solid #e8ecf0; margin-bottom: 16px; }
+    .mode-tab {
+      padding: 9px 22px; border: none; background: none; font-family: inherit;
+      font-size: 0.88rem; font-weight: 600; color: #a0aab4; cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s;
+    }
+    .mode-tab.active { color: #001f33; border-bottom-color: #ffb81c; }
+    .mode-tab:hover:not(.active) { color: #4a5568; }
+
+    /* パネル */
+    .mode-panel { display: none; }
+    .mode-panel.active { display: block; }
+
+    /* 入力エリア */
+    .input-area {
+      width: 100%; min-height: 180px; padding: 14px 16px;
+      border: 1.5px solid #e8ecf0; background: #fff; font-size: 0.92rem;
+      font-family: inherit; color: #2d3436; resize: vertical; outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s; line-height: 1.7;
+    }
+    .input-area:focus {
+      border-color: #ffb81c;
+      box-shadow: 0 0 0 3px rgba(255,184,28,0.12);
+    }
+    .input-area::placeholder { color: #c8d0da; }
+
+    .char-count { font-size: 0.72rem; color: #b2bec3; text-align: right; margin: 4px 0 12px; }
+
+    /* 質問入力 */
+    .question-input {
+      width: 100%; padding: 12px 16px; border: 1.5px solid #e8ecf0; background: #fff;
+      font-size: 0.92rem; font-family: inherit; color: #2d3436; outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .question-input:focus {
+      border-color: #ffb81c;
+      box-shadow: 0 0 0 3px rgba(255,184,28,0.12);
+    }
+    .question-input::placeholder { color: #c8d0da; }
+
+    /* ボタン */
+    .action-btn {
+      width: 100%; padding: 13px; background: #ffb81c; border: none;
+      color: #001f33; font-size: 0.95rem; font-weight: 800; cursor: pointer;
+      font-family: inherit; transition: all 0.15s; margin-top: 10px;
+    }
+    .action-btn:hover:not(:disabled) { background: #f0ac10; }
+    .action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .error-msg { font-size: 0.79rem; color: #e17055; min-height: 1.2em; margin-top: 8px; }
+
+    /* ローディング */
+    .loading-msg {
+      text-align: center; padding: 40px 20px; background: #fff;
+      border: 1px solid #e2e8f0; color: #9aa5b4; font-size: 0.87rem;
+      margin-top: 16px;
+    }
+    .loading-dots { display: inline-flex; gap: 5px; margin-left: 6px; vertical-align: middle; }
+    .loading-dot { width: 5px; height: 5px; background: #ffb81c; border-radius: 50%; animation: bounce 1.2s ease-in-out infinite; }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.35; } 40% { transform: scale(1); opacity: 1; } }
+
+    /* 結果エリア */
+    .result-area { margin-top: 16px; }
+
+    /* OK */
+    .result-ok {
+      background: #f0faf4; border: 1.5px solid #52c878; padding: 20px 22px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .result-ok-icon { font-size: 1.4rem; }
+    .result-ok-text { font-size: 0.9rem; font-weight: 700; color: #1a5c32; }
+
+    /* 指摘サマリー */
+    .result-summary {
+      background: #fff; border: 1.5px solid #e8ecf0; padding: 14px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .result-summary-left { font-size: 0.85rem; font-weight: 700; color: #001f33; }
+    .result-summary-count { font-size: 0.75rem; color: #8a9bb0; }
+    .badge-high { background: #ffeaea; color: #c0392b; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; margin-left: 6px; }
+    .badge-mid { background: #fff5e6; color: #e67e22; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; margin-left: 6px; }
+    .badge-low { background: #f0f0f0; color: #636e72; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; margin-left: 6px; }
+
+    /* 指摘カード */
+    .issue-card {
+      background: #fff; border: 1.5px solid #e8ecf0; margin-bottom: 8px;
+      border-left: 4px solid #e8ecf0;
+    }
+    .issue-card.high { border-left-color: #e17055; }
+    .issue-card.mid { border-left-color: #ffb81c; }
+    .issue-card.low { border-left-color: #b2bec3; }
+
+    .issue-header {
+      padding: 10px 16px; display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid #f0f2f5; background: #fafbfc;
+    }
+    .issue-category { font-size: 0.7rem; font-weight: 800; color: #8a9bb0; letter-spacing: 0.06em; text-transform: uppercase; }
+    .issue-body { padding: 12px 16px; }
+    .issue-problem { font-size: 0.83rem; color: #4a5568; margin-bottom: 8px; }
+    .issue-quote { display: inline; background: #ffeaea; color: #c0392b; padding: 1px 5px; font-weight: 600; font-size: 0.83rem; }
+    .issue-fix-row { display: flex; align-items: center; gap: 8px; }
+    .issue-fix-label { font-size: 0.68rem; font-weight: 800; color: #52c878; letter-spacing: 0.06em; flex-shrink: 0; }
+    .issue-fix { font-size: 0.83rem; color: #1a5c32; font-weight: 600; }
+
+    /* QA回答 */
+    .qa-result {
+      background: #fff; border: 1.5px solid #e8ecf0; padding: 20px 22px;
+      margin-top: 16px;
+    }
+    .qa-result-label { font-size: 0.68rem; font-weight: 800; color: #ffb81c; letter-spacing: 0.08em; margin-bottom: 10px; }
+    .qa-result-text { font-size: 0.9rem; color: #2d3436; line-height: 1.75; white-space: pre-wrap; }
+
+    /* コピーボタン */
+    .copy-row { display: flex; justify-content: flex-end; margin-top: 12px; }
+    .copy-btn {
+      padding: 6px 18px; background: #001f33; border: none; color: #fff;
+      font-size: 0.77rem; font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: opacity 0.15s;
+    }
+    .copy-btn:hover { opacity: 0.75; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="back-btn" href="../../">← アプリ一覧へ</a>
+  <img src="../../assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:20px;display:block;">
+  <div class="navbar-divider"></div>
+  <span class="navbar-title">Writing Checker</span>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Writing Checker</h1>
+    <p>記者ハンドブック準拠の表記ルールとAKKODiSブランドガイドラインで文章をチェックします</p>
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-mode="check">✓ チェックモード</button>
+    <button class="mode-tab" data-mode="qa">？ 質問モード</button>
+  </div>
+
+  <!-- チェックモード -->
+  <div class="mode-panel active" id="panel-check">
+    <textarea class="input-area" id="check-input" placeholder="チェックしたい文章を貼り付けてください"></textarea>
+    <div class="char-count"><span id="check-char">0</span> 文字</div>
+    <button class="action-btn" id="check-btn">チェックする</button>
+    <div class="error-msg" id="check-error"></div>
+    <div id="check-loading" class="loading-msg" style="display:none;">
+      チェック中
+      <span class="loading-dots">
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+      </span>
+    </div>
+    <div class="result-area" id="check-result"></div>
+  </div>
+
+  <!-- 質問モード -->
+  <div class="mode-panel" id="panel-qa">
+    <input class="question-input" id="qa-input" type="text" placeholder="例：「いただく」と「頂く」どちらが正しいですか？">
+    <button class="action-btn" id="qa-btn">質問する</button>
+    <div class="error-msg" id="qa-error"></div>
+    <div id="qa-loading" class="loading-msg" style="display:none;">
+      回答中
+      <span class="loading-dots">
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+      </span>
+    </div>
+    <div id="qa-result"></div>
+  </div>
+</div>
+
+<script src="knowledge.js"></script>
+<script>
+  // モード切り替え
+  document.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(`panel-${tab.dataset.mode}`).classList.add('active');
+    });
+  });
+
+  // 文字数カウント
+  document.getElementById('check-input').addEventListener('input', function () {
+    document.getElementById('check-char').textContent = this.value.length;
+  });
+
+  // 出力パース
+  function parseCheckResult(raw) {
+    if (raw.includes('===OK===')) {
+      return { ok: true, issues: [] };
+    }
+    const issues = [];
+    const blocks = raw.split('---').map(b => b.trim()).filter(b => b && !b.includes('===ISSUES===') && !b.includes('===END==='));
+    for (const block of blocks) {
+      const get = (key) => {
+        const m = block.match(new RegExp(`${key}:\\s*(.+)`));
+        return m ? m[1].trim() : '';
+      };
+      const category = get('カテゴリ');
+      const severity = get('重要度');
+      const problem = get('問題箇所').replace(/^「|」$/g, '');
+      const note = get('指摘');
+      const fix = get('修正例').replace(/^「|」$/g, '');
+      if (category || note) {
+        issues.push({ category, severity, problem, note, fix });
+      }
+    }
+    return { ok: false, issues };
+  }
+
+  function severityClass(s) {
+    if (s === '高') return 'high';
+    if (s === '中') return 'mid';
+    return 'low';
+  }
+  function severityBadge(s) {
+    if (s === '高') return `<span class="badge-high">重要度：高</span>`;
+    if (s === '中') return `<span class="badge-mid">重要度：中</span>`;
+    return `<span class="badge-low">重要度：低</span>`;
+  }
+
+  function escHtml(str) {
+    return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function renderCheckResult(parsed) {
+    const el = document.getElementById('check-result');
+    if (parsed.ok) {
+      el.innerHTML = `
+        <div class="result-ok">
+          <span class="result-ok-icon">✅</span>
+          <span class="result-ok-text">問題は見つかりませんでした</span>
+        </div>`;
+      return;
+    }
+    const high = parsed.issues.filter(i => i.severity === '高').length;
+    const mid = parsed.issues.filter(i => i.severity === '中').length;
+    const low = parsed.issues.filter(i => i.severity === '低').length;
+    const summaryBadges = [
+      high > 0 ? `<span class="badge-high">高 ${high}件</span>` : '',
+      mid > 0 ? `<span class="badge-mid">中 ${mid}件</span>` : '',
+      low > 0 ? `<span class="badge-low">低 ${low}件</span>` : '',
+    ].join('');
+
+    const cards = parsed.issues.map(issue => `
+      <div class="issue-card ${severityClass(issue.severity)}">
+        <div class="issue-header">
+          <span class="issue-category">${escHtml(issue.category)}</span>
+          ${severityBadge(issue.severity)}
+        </div>
+        <div class="issue-body">
+          <div class="issue-problem">
+            ${escHtml(issue.note)}
+            ${issue.problem ? `（<span class="issue-quote">${escHtml(issue.problem)}</span>）` : ''}
+          </div>
+          ${issue.fix ? `
+          <div class="issue-fix-row">
+            <span class="issue-fix-label">修正例</span>
+            <span class="issue-fix">→ ${escHtml(issue.fix)}</span>
+          </div>` : ''}
+        </div>
+      </div>`).join('');
+
+    el.innerHTML = `
+      <div class="result-summary">
+        <span class="result-summary-left">${parsed.issues.length}件の指摘${summaryBadges}</span>
+      </div>
+      ${cards}`;
+  }
+
+  // チェック実行
+  async function runCheck() {
+    const text = document.getElementById('check-input').value.trim();
+    const errEl = document.getElementById('check-error');
+    errEl.textContent = '';
+    if (!text) { errEl.textContent = '文章を入力してください'; return; }
+
+    const btn = document.getElementById('check-btn');
+    btn.disabled = true;
+    btn.textContent = 'チェック中...';
+    document.getElementById('check-loading').style.display = 'block';
+    document.getElementById('check-result').innerHTML = '';
+
+    try {
+      const r = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 2000,
+          system: CHECK_SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: `以下の文章をチェックしてください。\n\n${text}` }],
+        }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error?.message || 'チェックに失敗しました');
+      const raw = data.content?.[0]?.text || '';
+      if (!raw) throw new Error('チェックに失敗しました');
+      renderCheckResult(parseCheckResult(raw));
+    } catch (err) {
+      errEl.textContent = err.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'チェックする';
+      document.getElementById('check-loading').style.display = 'none';
+    }
+  }
+
+  // QA実行
+  async function runQA() {
+    const question = document.getElementById('qa-input').value.trim();
+    const errEl = document.getElementById('qa-error');
+    errEl.textContent = '';
+    if (!question) { errEl.textContent = '質問を入力してください'; return; }
+
+    const btn = document.getElementById('qa-btn');
+    btn.disabled = true;
+    btn.textContent = '回答中...';
+    document.getElementById('qa-loading').style.display = 'block';
+    document.getElementById('qa-result').innerHTML = '';
+
+    try {
+      const r = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 600,
+          system: QA_SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: question }],
+        }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error?.message || '回答に失敗しました');
+      const answer = data.content?.[0]?.text || '';
+      if (!answer) throw new Error('回答に失敗しました');
+
+      document.getElementById('qa-result').innerHTML = `
+        <div class="qa-result">
+          <div class="qa-result-label">ANSWER</div>
+          <div class="qa-result-text" id="qa-answer-text">${escHtml(answer)}</div>
+          <div class="copy-row">
+            <button class="copy-btn" id="qa-copy-btn">コピー</button>
+          </div>
+        </div>`;
+
+      document.getElementById('qa-copy-btn').addEventListener('click', function () {
+        navigator.clipboard.writeText(answer).then(() => {
+          this.textContent = 'コピーしました';
+          setTimeout(() => { this.textContent = 'コピー'; }, 2000);
+        });
+      });
+    } catch (err) {
+      errEl.textContent = err.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '質問する';
+      document.getElementById('qa-loading').style.display = 'none';
+    }
+  }
+
+  document.getElementById('check-btn').addEventListener('click', runCheck);
+  document.getElementById('qa-btn').addEventListener('click', runQA);
+  document.getElementById('qa-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runQA();
+  });
+</script>
+</body>
+</html>
