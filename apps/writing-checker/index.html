@@ -91,10 +91,10 @@
     .result-area { margin-top: 16px; }
 
     .result-ok {
-      background: #f0faf4; border: 1.5px solid #52c878; padding: 20px 22px;
+      background: #fffbf0; border: 1.5px solid #ffb81c; padding: 20px 22px;
       display: flex; align-items: center; gap: 12px;
     }
-    .result-ok-text { font-size: 0.9rem; font-weight: 700; color: #1a5c32; }
+    .result-ok-text { font-size: 0.9rem; font-weight: 700; color: #001f33; }
 
     .result-summary {
       font-size: 0.78rem; color: #8a9bb0; margin-bottom: 12px; font-weight: 600;
@@ -111,23 +111,23 @@
     .issue-before, .issue-after {
       flex: 1; padding: 14px 16px;
     }
-    .issue-before { background: #fff8f8; border-right: 1px solid #f0e0e0; }
-    .issue-after  { background: #f6fff8; }
+    .issue-before { background: #fffbf0; border-right: 1px solid #e8ecf0; }
+    .issue-after  { background: #f0f4f7; }
     .diff-label {
       font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em;
       margin-bottom: 4px;
     }
-    .issue-before .diff-label { color: #c0392b; }
-    .issue-after  .diff-label { color: #27ae60; }
+    .issue-before .diff-label { color: #7a5500; }
+    .issue-after  .diff-label { color: #001f33; }
     .diff-text {
       font-size: 0.88rem; font-weight: 700; line-height: 1.5;
     }
-    .issue-before .diff-text { color: #c0392b; }
-    .issue-after  .diff-text { color: #1a5c32; }
+    .issue-before .diff-text { color: #5c3d00; text-decoration: line-through; text-decoration-color: #ffb81c; }
+    .issue-after  .diff-text { color: #001f33; }
 
     .issue-arrow {
       display: flex; align-items: center; padding: 0 10px;
-      color: #b2bec3; font-size: 1rem; background: #fff; flex-shrink: 0;
+      color: #ffb81c; font-size: 1rem; background: #fff; flex-shrink: 0;
       border-right: 1px solid #e8ecf0; border-left: 1px solid #e8ecf0;
     }
 
@@ -141,8 +141,8 @@
       border-radius: 3px; flex-shrink: 0; letter-spacing: 0.04em;
     }
     .tag-style   { background: rgba(0,31,51,0.08); color: #001f33; }
-    .tag-brand   { background: rgba(255,184,28,0.18); color: #7a5500; }
-    .tag-iown    { background: rgba(255,184,28,0.35); color: #5c3d00; }
+    .tag-brand   { background: rgba(255,184,28,0.25); color: #5c3d00; }
+    .tag-iown    { background: #ffb81c; color: #001f33; }
   </style>
 </head>
 <body>
