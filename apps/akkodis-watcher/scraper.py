@@ -323,6 +323,9 @@ def main():
                         # 既存がNullでスクレイパーが日付を持つ場合はスクレイパー値を優先
                         existing_date = existing[item["id"]].get("published_date")
                         item["published_date"] = existing_date if existing_date else item.get("published_date")
+                        # 要約を引き継ぐ
+                        if existing[item["id"]].get("summary_ja"):
+                            item["summary_ja"] = existing[item["id"]]["summary_ja"]
                     else:
                         item["first_seen"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                         # ブログ記事・Client Storiesは個別ページから公開日と要約を取得
