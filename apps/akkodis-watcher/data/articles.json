@@ -1,165 +1,14 @@
 {
-  "last_scraped": "2026-03-18T01:51:29Z",
+  "last_scraped": "2026-03-20T00:21:09Z",
   "articles": [
     {
-      "id": "driving-innovation-and-engineering-a-smarter-future-for-all",
-      "title": "Driving Innovation and Engineering a Smarter Future for All",
-      "url": "https://www.akkodis.com/blog/articles/driving-innovation-and-engineering-a-smarter-future-for-all",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:42Z",
-      "published_date": "2026-02-27T00:00:00Z",
-      "summary_ja": "Akkodisグループは、単なる効率化にとどまらず人々の生活を変える力を持つものとして人工知能に取り組んでおり、AIを善のために活用する姿勢で責任あるイノベーションを推し進めています。同社のAI責任者であるジョシュア・モーリーは、ビジネスリーダーに対してAIが従業員の働きがいを高めるためにどう役立つかを伝えることが重要だと指摘しており、人間中心のアプローチを重視しています。Akkodisは、倫理的で透明性が高く信頼できるAIシステムを開発することで、組織と個人の両方がその成果に自信を持てる環境を目指しており、こうしたAI分野での採用を通じてより良い未来を一緒に作っていく姿勢を示しています。"
-    },
-    {
-      "id": "why-most-ai-pilots-fail",
-      "title": "Why Most AI Pilots Fail: Real Constraints To AI Scale",
-      "url": "https://www.akkodis.com/blog/articles/why-most-ai-pilots-fail",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:14Z",
-      "published_date": "2026-02-18T00:00:00Z",
-      "summary_ja": "AIパイロットプロジェクトが本格導入に進まない理由は、技術の問題ではなく、組織の体制や運用の不備にあります。多くの企業は限定的な環境では成功しても、レガシーシステムの複雑さ、散在するデータ、曖昧な意思決定プロセスという現実に直面すると、スケーリングが停滞してしまいます。AIを導入する前に、データの一元化、ワークフローの標準化、責任体制の明確化といった基本的な運用体制を整備することが、プロジェクトを実際に機能させるための必須条件です。"
-    },
-    {
-      "id": "federated-learning-ai-scalability",
-      "title": "Federated Learning Beyond Privacy: Smarter AI at Scale",
-      "url": "https://www.akkodis.com/blog/articles/federated-learning-ai-scalability",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:16Z",
-      "published_date": "2026-03-13T00:00:00Z",
-      "summary_ja": "フェデレーティッド・ラーニングはデータを各地のデバイスに保ったまま機械学習を行う技術で、大量のデータをネットワーク経由で移動させる必要がなくなるため、通信量と電力消費を大幅に削減できます。各デバイスが自分の環境から学びながら、小さなモデルの更新情報だけを共有することで、ローカルな特性に対応しながらもグローバルな知識を蓄積できるようになります。通信環境が限られた防衛や海洋、洋上などの産業でも安定して機能する、より強靭で拡張性の高いAIシステムが実現可能になります。"
-    },
-    {
-      "id": "federated-learning-critical-industries",
-      "title": "Federated Learning in Action Across Critical Industries",
-      "url": "https://www.akkodis.com/blog/articles/federated-learning-critical-industries",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:18Z",
-      "published_date": "2026-03-13T00:00:00Z",
-      "summary_ja": "防衛やオフショアエネルギー、医療といった重要産業では、膨大なセンサーデータが発生しますが、規制や機密保持の都合でクラウドに集約することができないため、フェデレーテッドラーニング技術により各拠点でAIモデルを訓練し、生データではなくモデルの更新のみを共有することで課題を解決しています。この手法により、分散されたデータセットから洞察を引き出しながらセキュリティとプライバシーの基準を厳守でき、オフショア施設の予防保全から医療診断の向上まで、実務的な効果が実現されています。フェデレーテッドラーニングは地域でのデータ管理と学習共有を組み合わせることで、複数拠点にわたって柔軟で強靭なAIシステムを展開でき、組織のプライバシーとコンプライアンスを保ちながら事業パフォーマンスの向上に直結する成果を生み出しています。"
-    },
-    {
-      "id": "edge-ai-federated-learning",
-      "title": "Moving AI to the Edge with Federated Learning",
-      "url": "https://www.akkodis.com/blog/articles/edge-ai-federated-learning",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:21Z",
-      "published_date": "2026-03-13T00:00:00Z",
-      "summary_ja": "従来、AIは大規模なデータセンターで一元管理されていましたが、エッジAIと連合学習により、データが発生した現場のデバイス上で直接処理を行う新しい方法が広がっています。連合学習では、生データをサーバーに送らず、各デバイスで学習を行い、モデルの更新情報だけを共有することで、データプライバシーを守りながら複数の情報源から学ぶことが可能になります。この技術により、組織は個人情報を保護しながら、通信速度の制約がある環境でも高速で効率的なAI運用ができるようになります。"
-    },
-    {
-      "id": "edge-ai-federated-learning-architecture",
-      "title": "How AI Architecture Changes with Edge and Federated Learning",
-      "url": "https://www.akkodis.com/blog/articles/edge-ai-federated-learning-architecture",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:23Z",
-      "published_date": "2026-03-06T00:00:00Z",
-      "summary_ja": "AIの学習方法が従来のクラウド一極集中型から、データが生まれる現場で処理する分散型へシフトしており、デバイスごとにローカルで学習を行いながら全体の精度を高める仕組みが広がっています。この変化により、プライバシー保護とネットワーク遅延の削減が設計の最優先事項となり、デバイス側に計算機能と安全なデータ保管機能を備えさせる必要が生じています。企業は複雑な分散環境でも信頼性の高い知能システムを構築し、オフライン状態での動作にも対応しながらネットワーク接続時に情報を同期させるといった実際の運用に耐える仕組みを整える課題に直面しています。"
-    },
-    {
-      "id": "ai-sports-performance-rugby",
-      "title": "Stade Toulousain x Akkodis: Where AI Powers Performance",
-      "url": "https://www.akkodis.com/blog/articles/ai-sports-performance-rugby",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:25Z",
-      "published_date": "2026-02-18T00:00:00Z",
-      "summary_ja": "Akkodisはトゥールーズ・オリンピック・メトロポール・スタッド・ラグビーチームのテック・パートナーとして、AIとデータ分析を活用したスポーツ分析システムを導入し、選手の動きやスクラムの力の分布を細かく測定して、パフォーマンス向上に役立てています。センサーやリアルタイムデータ処理により、練習中に即座にデータを分析し、コーチと選手が科学的根拠に基づいて技術を改善し、怪我のリスクを減らすことができるようになりました。このような技術と人間の専門知識の組み合わせにより、従来のコーチング経験を補強しながら、より効果的で強靭なパフォーマンスモデルを構築しています。"
-    },
-    {
-      "id": "digital-learning-and-immersive-solutions",
-      "title": "Akkodis Digital Learning & Immersive Solutions",
-      "url": "https://www.akkodis.com/blog/articles/digital-learning-and-immersive-solutions",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-18T01:49:10Z",
-      "published_date": null,
-      "summary_ja": "Akkodisのデジタルラーニング・イマーシブソリューション部門は、70人以上の専門家と2800件以上のプロジェクト実績を持ち、産業分野の企業向けに高度な映像・没入型トレーニングソリューションを提供しています。e-ラーニングやシリアスゲーム、仮想教室といったデジタル学習ツールと、実際の機器に近い環境で手順を繰り返し学べるシミュレーター・トレーナーシステムを組み合わせることで、作業員の知識習得と事故リスクの低減を同時に実現させています。さらに3DJuumpという3Dビューアーツールにより、製造現場で3Dデータを共通言語として活用し、技術的な障壁を取り除く環境づくりに貢献しています。"
-    },
-    {
-      "id": "electric-mobility-energy-careers",
-      "title": "Driving the Future of Electric Mobility Careers in Energy",
-      "url": "https://www.akkodis.com/blog/articles/electric-mobility-energy-careers",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:29Z",
-      "published_date": "2026-03-06T00:00:00Z",
-      "summary_ja": "Akkodis Energyのコンサルタント、エディスは電気自動車のインフラ整備プロジェクトにおいて、データ分析やAI技術を活用して運用の可視化と二酸化炭素削減戦略の強化に取り組んでいます。彼は概念段階から実装まで各プロジェクトに関わることで、グリーンシティの実現と持続可能なエネルギー社会への移行を直接支援しています。Akkodisの多様なチームとの協働環境では、国際プロジェクトや最新のデジタルツールを通じて継続的にスキルを磨きながら、より清潔でレジリエンスのあるエネルギーエコシステムの構築に貢献できます。"
-    },
-    {
-      "id": "automotive-hvac-consulting-careers",
-      "title": "Driving Innovation in Automotive HVAC Engineering",
-      "url": "https://www.akkodis.com/blog/articles/automotive-hvac-consulting-careers",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:31Z",
-      "published_date": "2026-03-03T00:00:00Z",
-      "summary_ja": "AKKODiSのリカルド・カンパネッラ主任コンサルタントは、自動車空調システムの設計から製造まで一貫した製品開発を担当し、技術的な課題を予測して性能を最適化しながらチームの育成も行っています。欧州の規制強化と環境への対応が進む急速に変わる自動車業界で、国際的なチームと協働することで継続的な学習と革新的な問題解決能力が培われています。AKKODiSではエンジニアが深い技術力と経営スキルの両方を身につけながら、持続可能な自動車技術の開発を通じて実際の影響を与える環境が整っています。"
-    },
-    {
-      "id": "ai-first-modernization-digital-transformation-not-enough",
-      "title": "AI-First Modernization: Digital Transformation Is Not Enough",
-      "url": "https://www.akkodis.com/blog/articles/ai-first-modernization-digital-transformation-not-enough",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:36Z",
-      "published_date": "2026-03-04T00:00:00Z",
-      "summary_ja": "企業がAIを導入する際、データやシステムの基盤が整っていなければ二度の近代化が必要になるという課題に直面しています。AIは従来のデジタル変革と異なり、データの一貫性やシステム間の統合がなければ機能しないため、レガシーシステムの問題を素早く露呈させます。そのため、企業はAIを見据えた近代化を進める際に、まずは中核業務での価値創出を特定し、その過程でデータ基盤を同時に整備することで、段階的かつ効率的な改革が可能になります。"
-    },
-    {
-      "id": "space-ait-satellite-engineering",
-      "title": "Space AIT Engineering: Ensuring Satellite Mission Readiness",
-      "url": "https://www.akkodis.com/blog/articles/space-ait-satellite-engineering",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:38Z",
-      "published_date": "2026-03-03T00:00:00Z",
-      "summary_ja": "衛星の打ち上げから運用まで確実に機能させるため、アッコーディスのAITマネージャーであるルカは、機械組立、電気系統の統合、ソフトウェア検証といった複数の工程を統括し、振動試験や熱真空試験などの環境試験を通じて信頼性を徹底的に確認しています。衛星が極限の環境でも要求される性能を満たすよう、構造の安定性や通信システムの完全性を検証する際には、複数分野の技術者がチームを組んで設計上のリスクを事前に洗い出し、問題を記録・追跡する体制を整えることが重要です。宇宙産業では開発期間の短縮化が進む一方で、統一された試験方法と高精度な検証プロセスの必要性が高まっており、衛星統合と検証の専門人材の需要がますます増加しています。"
-    },
-    {
-      "id": "software-development-ai-careers",
-      "title": "Innovate, Code, Lead: A Career in Software Development",
-      "url": "https://www.akkodis.com/blog/articles/software-development-ai-careers",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:40Z",
-      "published_date": "2026-02-23T00:00:00Z",
-      "summary_ja": "エレナというシニアコンサルタントは、HTMLの学習から始まった技術への興味を、AIを活用した実践的なソフトウェア開発に結びつけ、クライアントの期待に応える現代的なソリューションを提供しています。Akkodisでは単なるコーディングにとどまらず、AIを組み込んだ業務効率化ツールの開発から複雑なプロジェクト推進まで、革新的な手法を実装することで実質的な価値を生み出しています。多様なバックグラウンドを持つチームでの協働と、社内の研修やメンターシップ制度を通じて、個々の専門知識を広げながらリーダーシップを発揮できる職場環境を整備しています。"
-    },
-    {
       "id": "from-digital-to-physical-ai",
-      "title": "From Digital to Physical AI When AI Leaves the Screen",
+      "title": "From Digital to Physical AI: When AI Leaves the Screen",
       "url": "https://www.akkodis.com/blog/articles/from-digital-to-physical-ai",
       "source_id": "blog",
       "source_label": "Akkodis Blog",
       "first_seen": "2026-03-14T12:15:44Z",
-      "published_date": "2026-02-26T00:00:00Z",
-      "summary_ja": "AIが画面から飛び出し、自動運転車やロボットアーム、生産ラインといった物理的なシステムを制御する時代になってきました。デジタル上のAIと違い、物理的なAIは予測を実際の動きに変える必要があるため、遅延やネットワークの不安定性、安全性といった物理的な制約が設計段階から重要になります。クラウドに頼った中央集約的なAI実装は、リアルタイム制御が必要な環境では遅延や接続の不安定さが致命的になるため、製造現場や車両では機械のそばで判断できるエッジコンピューティングと組み合わせた分散型のアーキテクチャが求められるようになっています。"
-    },
-    {
-      "id": "ai-ev-charging-reliability",
-      "title": "AI-Driven Self-Diagnosing EV Charging Infrastructure",
-      "url": "https://www.akkodis.com/blog/articles/ai-ev-charging-reliability",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-18T01:49:53Z",
-      "published_date": null,
-      "summary_ja": "電動バスなどの大規模な車両群の充電インフラは故障すると多くの車両が運用できなくなるため、信頼性の向上が急務となっています。Akkodisはミュンヘン工科大学と協力し、AI技術を使って充電ステーション故障を事前に検知し予防保全を行うKI-LOADプロジェクトを進めています。このプロジェクトではドイツ北部の大型交通事業者と連携して実装検証を行い、充電ステーションのダウンタイムを50パーセント削減し信頼性を95パーセントから97.5パーセント以上に高めることを目指しています。"
-    },
-    {
-      "id": "life-sciences-consulting-pharma-careers",
-      "title": "Life Sciences Consulting Careers: Innovation & Quality Leadership",
-      "url": "https://www.akkodis.com/blog/articles/life-sciences-consulting-pharma-careers",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:49Z",
-      "published_date": "2026-02-23T00:00:00Z",
-      "summary_ja": "Elisa Casiraghiはアッコディスのライフサイエンスコンサルティング部門で、品質保証や規制対応、製造プロセスの最適化など複数の専門分野を持つチームを率いながら、医薬品クライアントの安全性と法令遵守を両立させています。急速に変化する医薬品業界において、革新性と規制要件のバランスを取りながら、技術移転やプロセス検証を通じて製造の信頼性と医療提供の質を向上させています。アッコディスではライフサイエンス人材に対して複数のプロジェクトに携わる機会を提供し、品質管理システムや規制主導の変革イニシアティブへの実践的な経験を通じて専門性の強化を支援しています。"
+      "published_date": "2026-02-26T00:00:00Z"
     },
     {
       "id": "copilots-agents-designing-enterprise-ai-adoption",
@@ -168,18 +17,124 @@
       "source_id": "blog",
       "source_label": "Akkodis Blog",
       "first_seen": "2026-03-14T12:15:51Z",
-      "published_date": "2026-02-26T00:00:00Z",
-      "summary_ja": "エンタープライズAIの導入において、多くの企業は自動化されたエージェントAIへの期待が高い一方で、信頼度の低さ、従業員のAIリテラシーのばらつき、プロセスの不透明さといった組織的な課題が障壁となっているという状況があります。コパイロットは、人間が主導権を保つ補助的なAIツールとして、小さく繰り返される低リスクの相互作用を通じて従業員の信頼を醸成し、組織全体がAIを日常ツールとして受け入れるための準備を整えることができます。このアクセスしやすい入口を通じて、企業はワークフローの問題を安全に発見でき、データの質を検証でき、最終的に完全自動化されたエージェントAIへと段階的に移行するための基盤をつくることができるのです。"
+      "published_date": "2026-02-26T00:00:00Z"
     },
     {
-      "id": "practical-ai-workplace-careers",
-      "title": "From Curiosity to Practical AI: Making Innovation Real",
-      "url": "https://www.akkodis.com/blog/articles/practical-ai-workplace-careers",
+      "id": "driving-innovation-and-engineering-a-smarter-future-for-all",
+      "title": "Driving Innovation and Engineering a Smarter Future for All",
+      "url": "https://www.akkodis.com/blog/articles/driving-innovation-and-engineering-a-smarter-future-for-all",
       "source_id": "blog",
       "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:53Z",
-      "published_date": "2026-02-17T00:00:00Z",
-      "summary_ja": "Akkodisのテクノロジー・エバンジェリストであるリショーナは、AIを身近な業務課題に当てはめた実践的な研修を通じて、社員がAIツールを日常業務で自信を持って使えるようサポートしています。会議の議事録作成やメール作成などの小さなタスクから始めることで、複雑な変革を避けながら確実に生産性を向上させることができます。さらに組織全体では個人の活用から始まり、チーム向けのAIエージェント構築へと段階的に進めることで、AIを自然な形で業務プロセスに組み込んでいます。"
+      "first_seen": "2026-03-14T12:15:42Z",
+      "published_date": "2026-02-27T00:00:00Z"
+    },
+    {
+      "id": "federated-learning-ai-scalability",
+      "title": "Federated Learning Beyond Privacy: Smarter AI at Scale",
+      "url": "https://www.akkodis.com/blog/articles/federated-learning-ai-scalability",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:16Z",
+      "published_date": "2026-03-13T00:00:00Z"
+    },
+    {
+      "id": "federated-learning-critical-industries",
+      "title": "Federated Learning in Action Across Critical Industries",
+      "url": "https://www.akkodis.com/blog/articles/federated-learning-critical-industries",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:18Z",
+      "published_date": "2026-03-13T00:00:00Z"
+    },
+    {
+      "id": "edge-ai-federated-learning",
+      "title": "Moving AI to the Edge with Federated Learning",
+      "url": "https://www.akkodis.com/blog/articles/edge-ai-federated-learning",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:21Z",
+      "published_date": "2026-03-13T00:00:00Z"
+    },
+    {
+      "id": "edge-ai-federated-learning-architecture",
+      "title": "How AI Architecture Changes with Edge and Federated Learning",
+      "url": "https://www.akkodis.com/blog/articles/edge-ai-federated-learning-architecture",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:23Z",
+      "published_date": "2026-03-06T00:00:00Z"
+    },
+    {
+      "id": "digital-learning-and-immersive-solutions",
+      "title": "Akkodis Digital Learning & Immersive Solutions",
+      "url": "https://www.akkodis.com/blog/articles/digital-learning-and-immersive-solutions",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-18T01:49:10Z",
+      "published_date": null
+    },
+    {
+      "id": "electric-mobility-energy-careers",
+      "title": "Driving the Future of Electric Mobility Careers in Energy",
+      "url": "https://www.akkodis.com/blog/articles/electric-mobility-energy-careers",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:29Z",
+      "published_date": "2026-03-06T00:00:00Z"
+    },
+    {
+      "id": "automotive-hvac-consulting-careers",
+      "title": "Driving Innovation in Automotive HVAC Engineering",
+      "url": "https://www.akkodis.com/blog/articles/automotive-hvac-consulting-careers",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:31Z",
+      "published_date": "2026-03-03T00:00:00Z"
+    },
+    {
+      "id": "ai-first-modernization-digital-transformation-not-enough",
+      "title": "AI-First Modernization: Digital Transformation Is Not Enough",
+      "url": "https://www.akkodis.com/blog/articles/ai-first-modernization-digital-transformation-not-enough",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:36Z",
+      "published_date": "2026-03-04T00:00:00Z"
+    },
+    {
+      "id": "space-ait-satellite-engineering",
+      "title": "Space AIT Engineering: Ensuring Satellite Mission Readiness",
+      "url": "https://www.akkodis.com/blog/articles/space-ait-satellite-engineering",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:38Z",
+      "published_date": "2026-03-03T00:00:00Z"
+    },
+    {
+      "id": "software-development-ai-careers",
+      "title": "Innovate, Code, Lead: A Career in Software Development",
+      "url": "https://www.akkodis.com/blog/articles/software-development-ai-careers",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:40Z",
+      "published_date": "2026-02-23T00:00:00Z"
+    },
+    {
+      "id": "ai-ev-charging-reliability",
+      "title": "AI-Driven Self-Diagnosing EV Charging Infrastructure",
+      "url": "https://www.akkodis.com/blog/articles/ai-ev-charging-reliability",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-18T01:49:53Z",
+      "published_date": null
+    },
+    {
+      "id": "life-sciences-consulting-pharma-careers",
+      "title": "Life Sciences Consulting Careers: Innovation & Quality Leadership",
+      "url": "https://www.akkodis.com/blog/articles/life-sciences-consulting-pharma-careers",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:49Z",
+      "published_date": "2026-02-23T00:00:00Z"
     },
     {
       "id": "salesforce-developer-career-growth",
@@ -188,28 +143,7 @@
       "source_id": "blog",
       "source_label": "Akkodis Blog",
       "first_seen": "2026-03-18T01:50:23Z",
-      "published_date": null,
-      "summary_ja": "Akkodisで働くセールスフォース開発者のエリオットは、実装やプロトタイピング、AI機能の実験など多様なプロジェクトに携わることで、技術スキルを急速に磨きながら業界の最先端に位置しています。社内では毎週の知識共有セッションや先輩からの直接的なサポートにより、継続的な学習とキャリア開発が日常的に行われています。リモートワークに対応した柔軟な環境と信頼できるチームメンバーとの関係が、仕事のパフォーマンスと個人の充実の両立を可能にしています。"
-    },
-    {
-      "id": "ai-customer-experience-innovation",
-      "title": "Shaping the Future of Customer Experience with AI",
-      "url": "https://www.akkodis.com/blog/articles/ai-customer-experience-innovation",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:57Z",
-      "published_date": "2026-02-17T00:00:00Z",
-      "summary_ja": "Akkodisのコンサルタント・ジェシカは、音声・チャット・デジタルチャネルを統合したマイクロソフト製のコンタクトセンターを導入し、クライアントの顧客対応業務を一元化して生産性を向上させました。このシステムには組み込みのAI機能が備わっており、通話の最適な振り分けやリアルタイム分析、感情認識を行うことで、チームが迅速かつ効果的に対応できるようになり、問題解決の速度と顧客満足度が向上しました。スケーラブルで費用対効果の高いこのソリューションにより、クライアントは顧客ロイヤルティを強化しながら長期的な事業成長を実現できるようになりました。"
-    },
-    {
-      "id": "safety-on-the-open-road-architecture-revamp-motorcyclists",
-      "title": "Safety on the Open Road: Architecture Revamp Improves Safety Device for Motorcyclists",
-      "url": "https://www.akkodis.com/blog/articles/safety-on-the-open-road-architecture-revamp-motorcyclists",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:59Z",
-      "published_date": "2026-02-17T00:00:00Z",
-      "summary_ja": "オートバイ用のエアバッグジャケットを製造するイタリアの企業がアッコディスの支援を受け、製品の電子制御システムとクラウド連携を一から設計し直しました。新しいシステムでは、衝撃検知から膨張制御、データ記録までを効率的に管理でき、生産コストを削減しながら安全性と信頼性を高めることに成功しています。ライダーはスマートフォンアプリでバッテリー残量やエアバッグの履歴確認、GPS盗難防止機能が使えるようになり、メーカー側も販売後の製品管理と利用データ分析がしやすくなりました。"
+      "published_date": null
     },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
@@ -272,8 +206,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:16:21Z",
-      "published_date": "2025-03-27T00:00:00Z",
-      "summary_ja": "運送業界の顧客向けに、複数のセンサーから得られるデータを一つのプラットフォームに統一し、リアルタイムで車両の位置や状態を把握できるシステムを構築しました。このプラットフォームにより、データの分断が解消され、複雑さが40パーセント削減され、対応速度が35パーセント高速化されるとともに、99.9パーセントのシステム稼働率を実現しました。クラウドを活用した最新の技術基盤により、顧客が安全性と効率性を両立させながら、市場のニーズに素早く対応できる環境を整備しました。"
+      "published_date": "2025-03-27T00:00:00Z"
     },
     {
       "id": "automotive-education-program-adoption",
@@ -282,8 +215,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:16:23Z",
-      "published_date": "2025-03-27T00:00:00Z",
-      "summary_ja": "アッコディスアカデミー ジャパンが自動車メーカーに対して キャリアマッピングや実務的な研修、その後のフォローアップを含む人材育成プログラムを導入したことで、28カ国500人以上のエンジニアがシステムを活用できるようになりました。このプログラムにより、急速に増加するソフトウェア開発の需要に対応するためのエンジニアの技術力が着実に向上し、デジタル変革に必要な人材育成が進みました。同時に長期的な人材パイプラインの構築も実現でき、チーム全体が複雑化するプロジェクト要件に対応できる組織体制が整いました。"
+      "published_date": "2025-03-27T00:00:00Z"
     },
     {
       "id": "ai-battery-diagnostics-ev-fleets",
@@ -292,8 +224,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:16:25Z",
-      "published_date": "2025-03-27T00:00:00Z",
-      "summary_ja": "電動車の充電時にAIを使ってバッテリーの劣化状態を95%の精度で判定し、メーカーを問わずどの車両にも対応できる診断システムを開発しました。クラウドを活用した大規模データ分析と実験室での検証により、運送事業者が充電中にリアルタイムでバッテリーの健康状態を把握し、走行距離の予測精度を高めることができるようになります。このシステムにより、ダウンタイムの削減と走行ルートの最適化が実現し、電動車フリートの導入コスト削減と環境目標達成を支援できます。"
+      "published_date": "2025-03-27T00:00:00Z"
     },
     {
       "id": "retail-it-service-desk-modernization",
@@ -302,8 +233,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:16:27Z",
-      "published_date": "2025-03-27T00:00:00Z",
-      "summary_ja": "北米の大手食品小売企業が抱えていたIT問い合わせの増加と対応の遅さを解決するため、AkkodisはAIを組み込んだ統合型サービスデスクを導入しました。Amazon Connectと呼ばれる通話管理システムと自動化技術を活用することで、顧客問い合わせを素早く判別し、適切な担当者に振り分けられるようにしました。導入から1年以内に初回対応での解決率が35%向上し、顧客の待ちきれずに電話を切る率が40%減少し、問題解決の平均時間が25%短縮されるなど、大きな成果を上げることができました。"
+      "published_date": "2025-03-27T00:00:00Z"
     },
     {
       "id": "3m-achieves-efficient-utilization-of-resources-with-akkodis-scalable-client-service-solution",
@@ -312,8 +242,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:16:29Z",
-      "published_date": "2025-03-27T00:00:00Z",
-      "summary_ja": "3Mは複数の拠点に分散する業務において、コスト効率を保ちながらIT支援体制を整えることに課題を抱えていました。Akkodisは固定チームと需要に応じて増減できる人材プールを組み合わせたIT支援モデルを導入し、ピーク時の業務量変動に柔軟に対応できる体制を構築しました。この仕組みにより、複数の拠地全体での運用経費を削減しながら業務の継続性を確保し、資産管理の効率化とデータセキュリティの強化を同時に実現させました。"
+      "published_date": "2025-03-27T00:00:00Z"
     },
     {
       "id": "pdi-pilots-waste-management-project",
@@ -322,8 +251,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:16:31Z",
-      "published_date": "2025-08-06T00:00:00Z",
-      "summary_ja": "PDIはAkkodisと協力して、病院廃棄物を処理するための船舶搭載型の移動式ガス化プラントを開発しました。Akkodisが提供した回転キルン技術とPDIの高温ガス化技術を組み合わせることで、多様な種類の廃棄物を安定して処理し、合成ガスを生成することが可能になりました。2024年夏に正式稼働を迎えたこの施設は、予定通りに完成し、クライアントから高い評価を得ています。"
+      "published_date": "2025-08-06T00:00:00Z"
     },
     {
       "id": "grid-friendly-bidirectional-charging",
@@ -332,8 +260,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:16:33Z",
-      "published_date": "2025-03-27T00:00:00Z",
-      "summary_ja": "電動車の急速な普及に伴う電力網への負荷増大という課題に対して、Akkodisは欧州のエネルギーおよび自動車産業のパートナーと協力し、双方向充電ソリューションを開発しました。このソリューションは電動車への充電だけでなく、車に蓄えた電力をグリッドに戻すことで、再生可能エネルギーの活用を促進し、ピーク時の電力供給の最適化を実現しています。開発されたシステムは実際の運用を通じて検証され、電動車が分散エネルギーリソースとして機能し、グローバルなエネルギー転換を加速させる基盤が整備されました。"
+      "published_date": "2025-03-27T00:00:00Z"
     },
     {
       "id": "genai-service-desk-healthcare",
@@ -342,8 +269,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:16:35Z",
-      "published_date": "2025-03-27T00:00:00Z",
-      "summary_ja": "大規模な医療機関が抱えていた複数のシステムに分散した知識ベースと手動業務の問題に対して、Akkodisが生成AIを活用した統合型サービスデスクプラットフォームを導入しました。ServiceNowやSharePointなど5000件以上の情報を一つの知識層に統合し、30人以上のスタッフが22000人以上のユーザーをサポートできるようにしたのです。その結果、対応時間を30パーセント削減し、チケット1件あたり5分以上の効率化を実現したほか、24時間体制での支援提供と利用者満足度の向上につながりました。"
+      "published_date": "2025-03-27T00:00:00Z"
     },
     {
       "id": "ai-powered-it-modernization",
@@ -352,8 +278,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:16:38Z",
-      "published_date": "2025-03-27T00:00:00Z",
-      "summary_ja": "工業用電源システムを扱うグローバル製造企業が、複数の地域に分散した業務システムを統一的に管理できていない課題に直面していました。Akkodisは米国とヨーロッパにオンサイトチーム、メキシコにニアショア拠点、インドにオフショア拠点を配置した体制で、SAP、Salesforce、Workdayなど200以上の基幹システムを24時間体制でサポートする統合的なIT運用サービスを提供しました。生成AIを活用した自動化によってトラブル解決時間を35パーセント短縮し、開発工数を25パーセント削減することで、クライアントの2年目までに20パーセントのコスト削減を見込める環境を整備しました。"
+      "published_date": "2025-03-27T00:00:00Z"
     },
     {
       "id": "medtech-remediation-managed-services",
@@ -362,8 +287,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:16:40Z",
-      "published_date": "2025-03-27T00:00:00Z",
-      "summary_ja": "グローバルなMedTech企業が買収した製造施設でFDAの医薬品製造基準違反を指摘され、事前承認申請が一時停止される危機に直面していました。Akkodisは1100名以上の様々な部門のスタッフを動員し、一元化された管理体制のもとで包括的な改善プログラムを推進しました。その結果、完全なコンプライアンス回復を実現し、1170万ドルのコスト削減も達成したうえで、規制当局との信頼関係を回復させることができました。"
+      "published_date": "2025-03-27T00:00:00Z"
     },
     {
       "id": "data-analytics-solutions-help-client-achieve-ag-tech-breakthroughs",
@@ -372,8 +296,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:19:40Z",
-      "published_date": null,
-      "summary_ja": "農業技術の革新に取り組む企業に対して、Akkodisのチームは小型ロボットカメラやセンサーを搭載した装置を用いて、畑全体の詳細なデータを収集し、衛星画像などと組み合わせて個々の植物の状態を可視化するシステムを構築しました。このシステムにより、ラズベリーの芽の数を正確に数えたり大豆の収穫量を推定したりと、従来は人間には不可能な高度な分析が可能になりました。また、ベリーの品質検査では、新しいセンサー技術とAI画像解析を組み合わせることで、鮮度や熟度、外観などをUSDA基準に基づいて自動判定できるようになり、グローバルな品質基準への対応が実現しました。"
+      "published_date": null
     },
     {
       "id": "software-defined-vehicle-program",
@@ -382,8 +305,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:19:47Z",
-      "published_date": null,
-      "summary_ja": "グローバル自動車メーカーがソフトウェア中心の車両開発を推進する際に、Akkodisは国内外の拠点を組み合わせたチーム体制を構築し、クラウドやIoT、組み込みシステムなど複数の専門領域の人材を配置することで開発能力を大幅に強化しました。このアプローチにより製品市場投入までの期間を短縮し、開発コストを削減しながら質の高い技術者チームへのアクセスが可能になり、継続的な人材育成によってチームの満足度向上と長期的な事業価値の創出につながっています。また製品管理と品質保証の体制を整備することで業務効率と生産性が向上し、市場の変化に素早く対応できる組織文化が醸成されました。"
+      "published_date": null
     },
     {
       "id": "akkodis-optimizes-operational-use-of-commercial-e-vehicles",
@@ -392,8 +314,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:19:53Z",
-      "published_date": null,
-      "summary_ja": "Akkodis Researchは、電動商用車のバッテリー劣化を充電時のデータから診断するAI技術を開発しており、メーカーの違いを超えた統一的なバッテリー状態把握が可能になります。複数メーカーの車両が混在する配送・公共交通などの商用車フリートにおいて、手作業に頼らずクラウド上の標準フォーマットでバッテリー状態を評価し、最適なルート配置を実現できるようになります。既存の充電インフラを活用しながら新たなセンサー導入を不要とした本ソリューションにより、車種やバッテリー劣化の程度に応じた正確な運用判断がフリート事業者に提供されます。"
+      "published_date": null
     },
     {
       "id": "european-grid-operator-improves-power-transmission-services",
@@ -402,8 +323,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:19:56Z",
-      "published_date": null,
-      "summary_ja": "オランダの大手電力会社から既存の150kV開閉装置の交換と新規部品追加の依頼を受け、鋼鉄構造と基礎を新しく設計しながら、電力供給を途絶させないように工事を進めました。顧客のデータベースから必要な情報を集めて設計・計算を行い、一次および二次構造の図面や計算書などを含む詳細な作業パッケージを提供しました。プロジェクトの過程で顧客と綿密に相談して様々な案を検討することで、納品プロジェクトの95%が初回納品で完了する「First Time Right」のコンセプトを達成しました。"
+      "published_date": null
     },
     {
       "id": "law-enforcement-bringing-positive-community-change-with-yarning",
@@ -412,8 +332,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:19:58Z",
-      "published_date": null,
-      "summary_ja": "西オーストラリア州警察がアボリジニ文化を尊重するため、マイクロソフトとアッコディスと共同で「ヤーニング」という多言語対応の警察向けモバイルアプリケーションを開発しました。このアプリは8つのアボリジニ言語で逮捕時の権利やCOVID-19に関する重要な情報を音声で提供し、英語が第二言語以上のアボリジニ住民との円滑なコミュニケーションを実現しています。2021年8月にリリースされた本アプリは月間300件以上の利用実績を生み出し、キンバーリー地域でインタープリター利用が25パーセント増加するなど、警察とアボリジニコミュニティの関係構築に貢献しています。"
+      "published_date": null
     },
     {
       "id": "akkodis-drives-insights-from-data-at-speed-to-empower-police-investigators-solve-crime-faster",
@@ -422,8 +341,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:16:52Z",
-      "published_date": "2025-03-27T00:00:00Z",
-      "summary_ja": "オーストラリア警察との協働により、膨大な電話記録やメール、SNS、財務データなど複数の情報源から得られるデータを一元的に分析できるクラウド型のAI分析プラットフォーム「Söze Analytics Platform」を開発しました。このプラットフォームはネットワーク分析や画像認識などの機能を備えており、捜査官が手作業でのデータ処理を減らしながら、より重要な情報に集中できるようにしています。その結果、捜査の時間短縮、大量データ処理の効率化、重要な情報の見落とし防止、および捜査官の心理的負担軽減が実現し、警察の意思決定をより迅速で正確にしています。"
+      "published_date": "2025-03-27T00:00:00Z"
     },
     {
       "id": "akkodis-deploys-salesforce-net-zero-cloud-solution-to-enhance-clients-efficiency-of-carbon-reduction",
@@ -432,8 +350,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:20:04Z",
-      "published_date": null,
-      "summary_ja": "Akkodisは、フランスの文書自動化企業に対してSalesforceのNet Zero Cloudソリューションを導入し、炭素排出量の管理と削減を効率的に進められるようにしました。廃棄物管理の専用モジュールを開発することで、排出量の正確な測定や監視ダッシュボードの構築を実現し、社内9つの事業部門のデータを一元管理できる体制を整えました。この導入により、クライアント企業は複数言語や通貨・単位の制約を受けることなく、カーボンフットプリントの削減と財務報告を同時に推し進めることが可能になりました。"
+      "published_date": null
     },
     {
       "id": "automotive-company-speeds-up-education-programs-adoption",
@@ -442,8 +359,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:20:11Z",
-      "published_date": null,
-      "summary_ja": "自動車部品メーカーのクライアントがソフトウェア開発の人材不足に直面していたため、AKKODiS Japanは従業員のキャリアパスを整理し、研修基準の見直しや教育カリキュラムの構築を支援することで、必要な人数の確保に取り組みました。80名のエンジニアチームが電動車や自動運転システムなど、競合他社より素早く開発できる体制作りをサポートし、ソフトウェア開発の質と速度の向上を実現しています。教育成果の可視化から異動後のフォローアップまで一貫したサービスを提供することで、クライアントの大規模ソフトウェア開発システムの構築を加速させています。"
+      "published_date": null
     },
     {
       "id": "crypto-gin-reimagines-nft-ownership",
@@ -452,8 +368,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:20:18Z",
-      "published_date": null,
-      "summary_ja": "ドイツの伝統的なジン蒸留所であるCrypto-Ginが、Akkodiのブロックチェーン技術を使用して、物理的なジンボトルとデジタル資産を組み合わせた新しい販売方法を実現しました。開発されたアプリケーションにより、ユーザーはNFトークンをジンボトルと交換でき、同時にデジタル版も所有することができるようになります。この仕組みにより、ユーザーは商品の真正性が保証された状態でNFトークンの売買ができるようになり、Crypto-Ginは製品の高い市場価値を実現することに成功しました。"
+      "published_date": null
     },
     {
       "id": "life-sciences-and-healthcare-group-advances-customer-experience",
@@ -462,8 +377,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:20:23Z",
-      "published_date": null,
-      "summary_ja": "フランスの化粧品メーカーが複数の国で顧客サービスを一元管理する必要があったため、AkkodisはSalesforce Service Cloudの導入を支援しました。実装の際には既存システムとの統合を慎重に進め、日々の業務に支障が出ないよう段階的に展開することで、スムーズな移行を実現しました。導入後、同社は顧客サービス業務全体を一つのシステムで把握できるようになり、市場の需要把握とコスト削減につなげることができました。"
+      "published_date": null
     },
     {
       "id": "akkodis-strategic-partner-of-choice-for-standard-life-talent-and-service-desk-management",
@@ -472,8 +386,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:20:30Z",
-      "published_date": null,
-      "summary_ja": "Standard Lifeはサービスデスク運営において限定的な時間帯での対応と高額なコスト負担という課題を抱えていたため、Akkodisと協働して24時間体制での対応体制を構築しました。Akkodisの雇用型コンサルタントモデルにより、顧客基盤の拡大に対応しながら専門知識を社内に保持でき、サービス品質と従業員の定着率を同時に向上させることができました。結果として総コストを25パーセント削減しながらサービスの質を高め、Standard Lifeが契約を3年間延長するほどの成功を収めました。"
+      "published_date": null
     },
     {
       "id": "japanese-automotive-manufacturer-employs-automation-tool",
@@ -482,8 +395,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:20:32Z",
-      "published_date": null,
-      "summary_ja": "日本の自動車部品メーカーが設計部門の業務効率化に取り組む際に、図面や設計書の審査プロセスを自動化するツールの開発をアッコーディスが支援しました。エンジニアたちが社内で提供された教育を活用してPythonを学び、自らツールを構築することで、本来は専門家が時間をかけていた定型業務を削減することに成功しました。この業績が認められ、初期段階の別プロジェクトでの成果がきっかけとなって、アッコーディスが他のコンサルティング企業から受託業務を引き継ぎ、9万5千ユーロのコンサルティング契約へと拡大しました。"
+      "published_date": null
     },
     {
       "id": "akkodis-pioneers-energy-transformation-in-australia",
@@ -492,8 +404,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:20:38Z",
-      "published_date": null,
-      "summary_ja": "オーストラリアの電力会社が機械学習とIoT技術を活用して、太陽光発電の電力を電力網に売却する際に発生する赤字価格の影響を軽減するシステムを構築しました。このシステムは赤字価格が予想される時間帯に太陽光発電を自動的に停止し、その期間の発電ロスに対して顧客に事前クレジットと返金を提供することで、エネルギー小売業者の買取コストを削減しています。パイロットプログラムの実施により、数千ドルの赤字削減と電力網のバランス調整が実現し、将来の分散型エネルギー管理サービス展開への足がかりとなっています。"
+      "published_date": null
     },
     {
       "id": "leading-aerospace-manufacturer-expands-business-development-opportunities",
@@ -502,8 +413,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:20:44Z",
-      "published_date": null,
-      "summary_ja": "日本の大手航空宇宙メーカーが市場競争力の低下に直面していたため、Akkodisは市場調査と社内技術の整理、顧客ニーズの把握といった基礎的な分析に取り組みました。既存製品と新製品の差別化ポイントを明確にした上で、再生資源市場を含む新規事業計画を提案し、初期段階での成果が評価されて受託企業から契約を拡大されました。現在はAkkodisのエンジニアと協力して、提案内容に基づいた研究開発を進め、クライアントの事業成長を支援しています。"
+      "published_date": null
     },
     {
       "id": "education-organization-makes-better-technology-and-learning-decisions-with-akkodis-analytics-tool",
@@ -512,8 +422,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:20:46Z",
-      "published_date": null,
-      "summary_ja": "オーストラリア最大の教育機関から、学校でのMicrosoftやGoogleなどの学習ツール利用状況を自動で集計・分析するシステムの構築を依頼されました。AkkodisはAzureやPower BIを活用した分析基盤を構築し、学校ごと、地域ごと、学年ごとなど多角的に利用データを可視化できるレポートを提供しました。その結果、教育委員会は学期ごとの利用傾向や学校タイプ別の使用状況など、従来は把握できなかった具体的な数字をもとに、テクノロジー導入やカリキュラム設計の判断ができるようになりました。"
+      "published_date": null
     },
     {
       "id": "jury-management-service-for-court-services-victoria",
@@ -522,8 +431,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:20:53Z",
-      "published_date": null,
-      "summary_ja": "オーストラリア・ビクトリア州の陪審員管理システムについて、Akkodisは2019年からクラウドインフラの保守を担当し、セキュリティと運用効率の向上に取り組みました。暗号化プロトコルの強化、不要なアクセス権限の削除、ストレージの暗号化設定、リアルタイム脅威監視ツールの導入など、多角的なセキュリティ対策を実施しました。これらの改善によってシステムはより堅牢になり、他の地域への展開に対応できる体制が整い、裁判所の運営と市民サービスの向上につながっています。"
+      "published_date": null
     },
     {
       "id": "client-drives-productivity-and-customer-experience",
@@ -532,8 +440,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:21:01Z",
-      "published_date": null,
-      "summary_ja": "フランスの大手家電メーカーが顧客データを一元管理するシステムの構築を望んでいたため、AkkodisはSalesforceプラットフォームを用いて40以上の国と5つのブランド全体で利用可能な統合顧客管理システムを設計・導入しました。このシステムにより同社は顧客情報を安全かつ効率的に一元化し、IoT事業への展開やカスタマーサービスの向上を実現して、直接販売顧客の拡大という経営目標に注力できるようになりました。プロジェクトの成功によってAkkodisとの信頼関係が深まり、現在はアフターセールスサービスと価格政策管理という2つの追加プロジェクトを進めており、Salesforceプラットフォームの保守・進化をサポートするパートナーとしてのポジションを確立しました。"
+      "published_date": null
     },
     {
       "id": "akkodis-supports-bmw-senior-experts-program",
@@ -542,8 +449,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:21:08Z",
-      "published_date": null,
-      "summary_ja": "BMWグループが経験豊かな退職者を一時的に呼び戻し、若い世代への知識継承を図るシニアエキスパートプログラムを立ち上げるにあたり、Akkodisが人材管理プラットフォーム「BEEPLE」をカスタマイズして導入しました。Akkodisは長年のパートナーシップの中で、採用プロセスから契約管理、現場サポートまで幅広い業務を一手に担当し、プログラムの迅速な展開を実現しました。プログラム開始以来50件以上のプロジェクトが実行され、Akkodisの専門知識とシステム対応力によって、BMWグループは100年以上の歴史に培われた従業員の経験とスキルを組織に継承していくことができるようになりました。"
+      "published_date": null
     },
     {
       "id": "akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
@@ -552,8 +458,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:21:17Z",
-      "published_date": null,
-      "summary_ja": "EEは技術運用センターの外部契約者数と経費を削減する必要があり、Akkodisが成果ベースの委託契約でサービスデスク運営を引き受けました。Akkodisは人材の採用から福利厚生管理まで全て担当し、月額固定料金で合意したことにより、EEの管理負担を軽減しながらコスト削減を実現しました。初期6か月の契約は12か月以上に延長され、EEは同じレベルのサービス品質を保ちながら経費を抑え、後に必要に応じてAkkodisのコンサルタントを正社員として雇用することもできるようになりました。"
+      "published_date": null
     },
     {
       "id": "state-utility-regional-power-compliance",
@@ -562,8 +467,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:21:23Z",
-      "published_date": null,
-      "summary_ja": "オーストラリア西部の電力事業者が、土地や環境、先住民族の権利など五つの項目にわたる許可申請の確認作業を手作業で行っていたため、コロナ禍で急増した申請に対応できなくなっていました。Akkodisはマイクロソフトのクラウド技術を組み合わせた専用システムを構築し、これまで以上に三倍の申請を処理できるようにしました。新しいシステムでは許可書が自動生成され、承認者が内容を確認して修正してから送付できるようになったため、事業者は三月だけで64件の申請をクリアでき、システムの導入費用も一か月で回収できたと評価しています。"
+      "published_date": null
     },
     {
       "id": "world-leading-automotive-supplier-transforms-talent-skills",
@@ -572,8 +476,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:21:33Z",
-      "published_date": null,
-      "summary_ja": "グローバル自動車サプライヤーが電動車とソフトウェア中心への経営転換を進める中で、機械工学が専門の500人のエンジニアをシステム開発者やソフトウェア開発者といった新しい職種へ転職させるスキル育成プログラムをAkkodisが設計・実行しました。ドイツの公的資金制度を活用しながら、5ヶ月間の集中的なオンライン研修と実務研修を組み合わせることで、既存の優秀人材を次の事業領域で必要とされる能力へと転換させることに成功しました。このプログラムは単なる研修にとどまらず、全社規模の15年間の変革計画の中で、従業員を未来に備えた人材へ投資するという経営戦略の中核を担うものとなりました。"
+      "published_date": null
     },
     {
       "id": "continuous-integration-for-the-department-of-transport-on-demand-transport-platform",
@@ -582,8 +485,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:21:40Z",
-      "published_date": null,
-      "summary_ja": "オーストラリア西部運輸局がAWSとJenkinsを使った自動デプロイメントシステムを構築し、アプリケーション更新の作業時間を大幅に短縮しました。これまで複数チームが手作業で行っていた設定作業をコード化することで、人的ミスを排除し、チーム間の調整待ちを不要にしました。このパイプラインテンプレートは他のプロジェクトでも標準利用できるため、組織全体での効率化につながっています。"
+      "published_date": null
     },
     {
       "id": "inserm-consolidates-and-modernizes-applications-to-optimize-internal-processes",
@@ -592,8 +494,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:21:47Z",
-      "published_date": null,
-      "summary_ja": "フランスの国立医学研究機関であるINSERMは、複数のシステムが評価や採用プロセスに対応しきれず、セキュリティ要件も満たせなくなっていました。AKKODISは彼らの既存システムを調査し、機能と利用者層が重複している5つのアプリケーションを1つの統合ソリューションに集約することで問題解決に当たりました。2,500人月の開発期間を経て、ウェブポータル2つ、業務プロセス管理ツール、企業データ管理ソフト2つを統合した新システムが完成し、ユーザーの利便性が大幅に向上しました。"
+      "published_date": null
     },
     {
       "id": "akkodis-sustains-adecco-app-project",
@@ -602,8 +503,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-14T12:21:49Z",
-      "published_date": null,
-      "summary_ja": "Adeccoは求職者向けモバイルアプリプロジェクトの開発にあたり、社内リソースの不足から追加の人材確保が必要でした。AkkodisはAkkodisの開発能力を評価した同社からの依頼を受け、初期数名から20名以上の専門家チームへと段階的に拡大し、新しい技術スタックの習得と既存体制への統合を迅速に進めました。採用プロセスに実践的なタスクを導入して適切な候補者を見極め、優れたコミュニケーションとベストプラクティスの活用により、プロジェクト成功に必要な人材の確保に成功しました。"
+      "published_date": null
     },
     {
       "id": "british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
@@ -612,8 +512,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-16T01:57:15Z",
-      "published_date": null,
-      "summary_ja": "ブリティッシュ・エアウェイズが世界中の空港から寄せられるIT問い合わせに対応するため、複数の拠点に分散していたサービスセンターをイギリス国内に統合する必要に直面していました。Akkodisは50人以上のIT専門家チームを配置して24時間体制でサポートを提供し、採用や人材流出の管理といった事務業務の負担を軽減しました。その結果、人員管理の手間を削減しながら安定した価格で信頼できるサービスを実現し、ブリティッシュ・エアウェイズが親会社のIAGグループの一員としてIT機能の変革を進めることを可能にしました。"
+      "published_date": null
     },
     {
       "id": "rbc-railway",
@@ -622,8 +521,7 @@
       "source_id": "client_stories",
       "source_label": "Client Stories",
       "first_seen": "2026-03-16T01:57:22Z",
-      "published_date": null,
-      "summary_ja": "フランスの鉄道インフラ製造大手が開発した欧州統一の列車制御システム「ETCS Level 2」について、ソフトウェアの安全性と信頼性を検証するため、包括的なテスト戦略を立案し、様々な運行シナリオをシミュレーションして機能や性能を評価しました。検証プロセス全体を記録・追跡することで、改善すべき点を特定し、顧客にフィードバックを提供しています。2019年以降、複数の市場向けのソフトウェアバージョンを同時に検証する体制を整備し、年2回および年1回のサイクルで納期を守りながら、世界中の鉄道制御システムの安全性と規制対応を保証しているパートナーとして信頼を獲得しています。"
+      "published_date": null
     }
   ]
 }
