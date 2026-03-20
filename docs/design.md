@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-20（S025 Writing Checker追加）
+最終更新: 2026-03-20（ポータルUI・全アプリUI統一）
 
 ---
 
@@ -41,13 +41,19 @@
 
 | 機能 | ファイル | ステータス | スペック |
 |------|----------|-----------|---------|
-| ブロック崩しゲーム | `index.html`, `main.js` | ✅ 完成 | 未作成 |
+| アプリポータル | `index.html` | ✅ 完成 | — |
+| ブロック崩しゲーム | `main.js` | ✅ 完成 | 未作成 |
 | Todoアプリ | `todo.html` | ✅ 完成 | 未作成 |
 | プランナー（カンバン） | `planner.html` | ✅ 完成 | 未作成 |
 | テトリス | `apps/tetris.html` | ✅ 完成 | 未作成 |
 | ぷよぷよ | `apps/puyo.html` | ✅ 完成 | 未作成 |
 | YouTube説明文ジェネレーター | `apps/youtube-desc/index.html` | ✅ 完成 | S012 |
+| AKKODiS Global Antenna | `apps/akkodis-watcher/index.html` | ✅ 完成 | S011 |
+| Banner Resizer | `apps/banner-resizer/index.html` | ✅ 完成 | S013 |
+| Marketo Mail Generator | `apps/marketo-mail-generator/index.html` | ✅ 完成 | S015 |
+| URL Slug Generator | `apps/url-slug-generator/index.html` | ✅ 完成 | S016 |
 | OGPチェッカー | `apps/ogp-checker/index.html` | ✅ 完成 | S017 |
+| SNS Post Generator | `apps/sns-post-generator/index.html` | ✅ 完成 | S024 |
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 
 ---
@@ -158,3 +164,5 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-02-23 | ステアリングファイルで作業単位を管理 | レビュー可能な開発フローの確立 |
 | 2026-02-26 | ぷよぷよを `apps/puyo.html` に実装 | 既存ゲーム群と同スタイルで1ファイル完結 |
 | 2026-03-20 | Writing Checkerを `apps/writing-checker/` に実装 | 記者ハンドブック準拠＋AKKODiSブランド＋Microsoft表記＋IOWN®のチェックツール。ナレッジをknowledge.jsに分離 |
+| 2026-03-20 | 全アプリUI統一（ブランドカラー・navbar・h1・ファビコン） | AKKODiSブランドカラー (#001f33/#ffb81c/#00ffff) 徹底、角丸NG、色付きborderNG、各アプリにファビコン追加 |
+| 2026-03-20 | ポータルカードUIリニューアル | 正方形カード(190×190px)・`aspect-ratio:1`・グリッドを`justify-content:center`で最終行崩れ防止 |
