@@ -51,6 +51,7 @@
     .text-area:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
     .text-area::placeholder { color: #c8d0da; }
     .char-count { font-size: 0.72rem; color: #b2bec3; text-align: right; margin: 4px 0 0; }
+    .char-count.over { color: #c0392b; font-weight: 700; }
 
     /* ファイルアップロード */
     .file-drop {
@@ -62,8 +63,8 @@
     .file-drop-label { font-size: 0.88rem; font-weight: 600; color: #4a5568; margin-bottom: 4px; }
     .file-drop-sub { font-size: 0.75rem; color: #a0aab4; }
     .file-input { display: none; }
-    .file-status { margin-top: 12px; font-size: 0.82rem; color: #52c878; font-weight: 600; min-height: 1.2em; }
-    .file-status.error { color: #e17055; }
+    .file-status { margin-top: 12px; font-size: 0.82rem; color: #001f33; font-weight: 600; min-height: 1.2em; }
+    .file-status.error { color: #c0392b; }
 
     /* ボタン */
     .check-btn {
@@ -144,6 +145,24 @@
     .tag-style   { background: rgba(0,31,51,0.08); color: #001f33; }
     .tag-brand   { background: rgba(255,184,28,0.25); color: #5c3d00; }
     .tag-iown    { background: #ffb81c; color: #001f33; }
+
+    .copy-btn {
+      background: none; border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.7);
+      font-size: 0.68rem; font-weight: 700; padding: 3px 9px; cursor: pointer;
+      font-family: inherit; transition: all 0.15s; white-space: nowrap;
+    }
+    .copy-btn:hover { border-color: #ffb81c; color: #ffb81c; }
+    .copy-btn.copied { border-color: #ffb81c; color: #ffb81c; }
+
+    .result-actions {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+    }
+    .copy-all-btn {
+      background: none; border: 1px solid #e8ecf0; color: #8a9bb0;
+      font-size: 0.72rem; font-weight: 700; padding: 4px 12px; cursor: pointer;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .copy-all-btn:hover { border-color: #001f33; color: #001f33; }
   </style>
 </head>
 <body>
@@ -223,7 +242,16 @@
 
   // 文字数カウント
   document.getElementById('text-input').addEventListener('input', function () {
-    document.getElementById('char-count').textContent = this.value.length;
+    const len = this.value.length;
+    const el = document.getElementById('char-count');
+    const wrap = el.parentElement;
+    el.textContent = len;
+    if (len > 8000) {
+      wrap.classList.add('over');
+      el.textContent = `${len}（8,000文字を超えた部分はチェック対象外）`;
+    } else {
+      wrap.classList.remove('over');
+    }
   });
 
   // ファイルアップロード
@@ -306,6 +334,7 @@
   function parseResult(raw) {
     if (raw.includes('===OK===')) return { ok: true, issues: [] };
     const issues = [];
+    const seen = new Set();
     const blocks = raw.split('---').map(b => b.trim()).filter(b => b && !b.includes('==='));
     for (const block of blocks) {
       const get = key => { const m = block.match(new RegExp(`${key}:\\s*(.+)`)); return m ? m[1].trim() : ''; };
@@ -315,7 +344,11 @@
         note: get('指摘'),
         fix: get('修正例').replace(/^「|」$/g, ''),
       };
-      if (issue.note || issue.category) issues.push(issue);
+      const key = `${issue.problem}|${issue.note}`;
+      if ((issue.note || issue.category) && !seen.has(key)) {
+        seen.add(key);
+        issues.push(issue);
+      }
     }
     return { ok: false, issues };
   }
@@ -344,7 +377,7 @@
       return '表記ルール';
     };
 
-    const cards = parsed.issues.map(issue => `
+    const cards = parsed.issues.map((issue, i) => `
       <div class="issue-card">
         <div class="issue-diff">
           <div class="issue-before">
@@ -353,8 +386,13 @@
           </div>
           <div class="issue-arrow">→</div>
           <div class="issue-after">
-            <div class="diff-label">修正後</div>
-            <div class="diff-text">${escHtml(issue.fix || '—')}</div>
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+              <div>
+                <div class="diff-label">修正後</div>
+                <div class="diff-text">${escHtml(issue.fix || '—')}</div>
+              </div>
+              <button class="copy-btn" onclick="copyFix(this, ${i})">コピー</button>
+            </div>
           </div>
         </div>
         <div class="issue-note">
@@ -363,7 +401,14 @@
         </div>
       </div>`).join('');
 
-    el.innerHTML = `<div class="result-summary">${parsed.issues.length}件の修正箇所</div>${cards}`;
+    el.innerHTML = `
+      <div class="result-actions">
+        <span class="result-summary">${parsed.issues.length}件の修正箇所</span>
+        <button class="copy-all-btn" onclick="copyAll()">全件コピー</button>
+      </div>
+      ${cards}`;
+
+    window._currentIssues = parsed.issues;
   }
 
   // チェック実行
@@ -409,6 +454,27 @@
       btn.textContent = 'チェックする';
       document.getElementById('loading').style.display = 'none';
     }
+  }
+
+  function copyFix(btn, idx) {
+    const fix = (window._currentIssues?.[idx]?.fix || '').replace(/^→\s*/, '');
+    navigator.clipboard.writeText(fix).then(() => {
+      btn.textContent = '✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 1500);
+    });
+  }
+
+  function copyAll() {
+    const issues = window._currentIssues || [];
+    const text = issues.map((iss, i) =>
+      `[${i+1}] ${iss.problem} → ${iss.fix}\n    ${iss.note}`
+    ).join('\n\n');
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.copy-all-btn');
+      btn.textContent = '✓ コピーしました';
+      setTimeout(() => { btn.textContent = '全件コピー'; }, 1500);
+    });
   }
 
   document.getElementById('check-btn').addEventListener('click', runCheck);
