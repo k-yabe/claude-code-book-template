@@ -101,18 +101,10 @@
       display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
       font-size: 0.85rem; font-weight: 700; color: #001f33;
     }
-    .badge { font-size: 0.68rem; font-weight: 800; padding: 2px 8px; }
-    .badge-high { background: #ffeaea; color: #c0392b; }
-    .badge-mid  { background: #fff5e6; color: #e67e22; }
-    .badge-low  { background: #f0f0f0; color: #636e72; }
-
     .issue-card {
       background: #fff; border: 1.5px solid #e8ecf0; margin-bottom: 8px;
-      border-left: 4px solid #e8ecf0;
+      border-left: 4px solid #e17055;
     }
-    .issue-card.high { border-left-color: #e17055; }
-    .issue-card.mid  { border-left-color: #ffb81c; }
-    .issue-card.low  { border-left-color: #b2bec3; }
 
     .issue-header {
       padding: 8px 16px; display: flex; align-items: center; gap: 8px;
@@ -273,7 +265,6 @@
       const get = key => { const m = block.match(new RegExp(`${key}:\\s*(.+)`)); return m ? m[1].trim() : ''; };
       const issue = {
         category: get('カテゴリ'),
-        severity: get('重要度'),
         problem: get('問題箇所').replace(/^「|」$/g, ''),
         note: get('指摘'),
         fix: get('修正例').replace(/^「|」$/g, ''),
@@ -293,40 +284,21 @@
       el.innerHTML = `<div class="result-ok"><span style="font-size:1.4rem">✅</span><span class="result-ok-text">問題は見つかりませんでした</span></div>`;
       return;
     }
-    const cnt = { high: 0, mid: 0, low: 0 };
-    parsed.issues.forEach(i => {
-      if (i.severity === '高') cnt.high++;
-      else if (i.severity === '中') cnt.mid++;
-      else cnt.low++;
-    });
-    const badges = [
-      cnt.high ? `<span class="badge badge-high">重要度 高 ${cnt.high}件</span>` : '',
-      cnt.mid  ? `<span class="badge badge-mid">重要度 中 ${cnt.mid}件</span>` : '',
-      cnt.low  ? `<span class="badge badge-low">重要度 低 ${cnt.low}件</span>` : '',
-    ].join('');
 
-    const cards = parsed.issues.map(issue => {
-      const cls = issue.severity === '高' ? 'high' : issue.severity === '中' ? 'mid' : 'low';
-      const badge = issue.severity === '高' ? `<span class="badge badge-high">高</span>` :
-                    issue.severity === '中' ? `<span class="badge badge-mid">中</span>` :
-                    `<span class="badge badge-low">低</span>`;
-      return `
-        <div class="issue-card ${cls}">
-          <div class="issue-header">
-            <span class="issue-category">${escHtml(issue.category)}</span>
-            ${badge}
+    const cards = parsed.issues.map(issue => `
+      <div class="issue-card">
+        <div class="issue-header">
+          <span class="issue-category">${escHtml(issue.category)}</span>
+        </div>
+        <div class="issue-body">
+          <div class="issue-note">
+            ${issue.problem ? `<span class="issue-quote">${escHtml(issue.problem)}</span> ` : ''}${escHtml(issue.note)}
           </div>
-          <div class="issue-body">
-            <div class="issue-note">
-              ${escHtml(issue.note)}
-              ${issue.problem ? `（<span class="issue-quote">${escHtml(issue.problem)}</span>）` : ''}
-            </div>
-            ${issue.fix ? `<div class="issue-fix-row"><span class="issue-fix-label">修正例</span><span class="issue-fix">→ ${escHtml(issue.fix)}</span></div>` : ''}
-          </div>
-        </div>`;
-    }).join('');
+          ${issue.fix ? `<div class="issue-fix-row"><span class="issue-fix-label">修正例</span><span class="issue-fix">→ ${escHtml(issue.fix)}</span></div>` : ''}
+        </div>
+      </div>`).join('');
 
-    el.innerHTML = `<div class="result-summary">${parsed.issues.length}件の指摘 ${badges}</div>${cards}`;
+    el.innerHTML = `<div class="result-summary">${parsed.issues.length}件の修正箇所</div>${cards}`;
   }
 
   // チェック実行
