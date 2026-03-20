@@ -28,63 +28,58 @@
     .page-header h1 { font-size: 1.45rem; font-weight: 800; color: #001f33; letter-spacing: -0.01em; margin-bottom: 5px; }
     .page-header p { font-size: 0.82rem; color: #8a9bb0; }
 
-    /* モード切り替えタブ */
-    .mode-tabs { display: flex; border-bottom: 2px solid #e8ecf0; margin-bottom: 16px; }
-    .mode-tab {
+    /* 入力切り替えタブ */
+    .input-tabs { display: flex; border-bottom: 2px solid #e8ecf0; margin-bottom: 16px; }
+    .input-tab {
       padding: 9px 22px; border: none; background: none; font-family: inherit;
       font-size: 0.88rem; font-weight: 600; color: #a0aab4; cursor: pointer;
       border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s;
     }
-    .mode-tab.active { color: #001f33; border-bottom-color: #ffb81c; }
-    .mode-tab:hover:not(.active) { color: #4a5568; }
+    .input-tab.active { color: #001f33; border-bottom-color: #ffb81c; }
+    .input-tab:hover:not(.active) { color: #4a5568; }
 
-    /* パネル */
-    .mode-panel { display: none; }
-    .mode-panel.active { display: block; }
+    .input-panel { display: none; }
+    .input-panel.active { display: block; }
 
-    /* 入力エリア */
-    .input-area {
-      width: 100%; min-height: 180px; padding: 14px 16px;
+    /* テキスト入力 */
+    .text-area {
+      width: 100%; min-height: 200px; padding: 14px 16px;
       border: 1.5px solid #e8ecf0; background: #fff; font-size: 0.92rem;
       font-family: inherit; color: #2d3436; resize: vertical; outline: none;
       transition: border-color 0.15s, box-shadow 0.15s; line-height: 1.7;
     }
-    .input-area:focus {
-      border-color: #ffb81c;
-      box-shadow: 0 0 0 3px rgba(255,184,28,0.12);
-    }
-    .input-area::placeholder { color: #c8d0da; }
+    .text-area:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
+    .text-area::placeholder { color: #c8d0da; }
+    .char-count { font-size: 0.72rem; color: #b2bec3; text-align: right; margin: 4px 0 0; }
 
-    .char-count { font-size: 0.72rem; color: #b2bec3; text-align: right; margin: 4px 0 12px; }
-
-    /* 質問入力 */
-    .question-input {
-      width: 100%; padding: 12px 16px; border: 1.5px solid #e8ecf0; background: #fff;
-      font-size: 0.92rem; font-family: inherit; color: #2d3436; outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
+    /* ファイルアップロード */
+    .file-drop {
+      border: 2px dashed #e2e8f0; background: #fafbfc; padding: 48px 24px;
+      text-align: center; cursor: pointer; transition: all 0.15s;
     }
-    .question-input:focus {
-      border-color: #ffb81c;
-      box-shadow: 0 0 0 3px rgba(255,184,28,0.12);
-    }
-    .question-input::placeholder { color: #c8d0da; }
+    .file-drop:hover, .file-drop.dragover { border-color: #ffb81c; background: #fffbf0; }
+    .file-drop-icon { font-size: 2rem; margin-bottom: 10px; }
+    .file-drop-label { font-size: 0.88rem; font-weight: 600; color: #4a5568; margin-bottom: 4px; }
+    .file-drop-sub { font-size: 0.75rem; color: #a0aab4; }
+    .file-input { display: none; }
+    .file-status { margin-top: 12px; font-size: 0.82rem; color: #52c878; font-weight: 600; min-height: 1.2em; }
+    .file-status.error { color: #e17055; }
 
     /* ボタン */
-    .action-btn {
+    .check-btn {
       width: 100%; padding: 13px; background: #ffb81c; border: none;
       color: #001f33; font-size: 0.95rem; font-weight: 800; cursor: pointer;
-      font-family: inherit; transition: all 0.15s; margin-top: 10px;
+      font-family: inherit; transition: all 0.15s; margin-top: 12px;
     }
-    .action-btn:hover:not(:disabled) { background: #f0ac10; }
-    .action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .check-btn:hover:not(:disabled) { background: #f0ac10; }
+    .check-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
     .error-msg { font-size: 0.79rem; color: #e17055; min-height: 1.2em; margin-top: 8px; }
 
     /* ローディング */
     .loading-msg {
       text-align: center; padding: 40px 20px; background: #fff;
-      border: 1px solid #e2e8f0; color: #9aa5b4; font-size: 0.87rem;
-      margin-top: 16px;
+      border: 1px solid #e2e8f0; color: #9aa5b4; font-size: 0.87rem; margin-top: 16px;
     }
     .loading-dots { display: inline-flex; gap: 5px; margin-left: 6px; vertical-align: middle; }
     .loading-dot { width: 5px; height: 5px; background: #ffb81c; border-radius: 50%; animation: bounce 1.2s ease-in-out infinite; }
@@ -92,66 +87,44 @@
     .loading-dot:nth-child(3) { animation-delay: 0.4s; }
     @keyframes bounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.35; } 40% { transform: scale(1); opacity: 1; } }
 
-    /* 結果エリア */
+    /* 結果 */
     .result-area { margin-top: 16px; }
 
-    /* OK */
     .result-ok {
       background: #f0faf4; border: 1.5px solid #52c878; padding: 20px 22px;
       display: flex; align-items: center; gap: 12px;
     }
-    .result-ok-icon { font-size: 1.4rem; }
     .result-ok-text { font-size: 0.9rem; font-weight: 700; color: #1a5c32; }
 
-    /* 指摘サマリー */
     .result-summary {
       background: #fff; border: 1.5px solid #e8ecf0; padding: 14px 18px;
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+      font-size: 0.85rem; font-weight: 700; color: #001f33;
     }
-    .result-summary-left { font-size: 0.85rem; font-weight: 700; color: #001f33; }
-    .result-summary-count { font-size: 0.75rem; color: #8a9bb0; }
-    .badge-high { background: #ffeaea; color: #c0392b; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; margin-left: 6px; }
-    .badge-mid { background: #fff5e6; color: #e67e22; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; margin-left: 6px; }
-    .badge-low { background: #f0f0f0; color: #636e72; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; margin-left: 6px; }
+    .badge { font-size: 0.68rem; font-weight: 800; padding: 2px 8px; }
+    .badge-high { background: #ffeaea; color: #c0392b; }
+    .badge-mid  { background: #fff5e6; color: #e67e22; }
+    .badge-low  { background: #f0f0f0; color: #636e72; }
 
-    /* 指摘カード */
     .issue-card {
       background: #fff; border: 1.5px solid #e8ecf0; margin-bottom: 8px;
       border-left: 4px solid #e8ecf0;
     }
     .issue-card.high { border-left-color: #e17055; }
-    .issue-card.mid { border-left-color: #ffb81c; }
-    .issue-card.low { border-left-color: #b2bec3; }
+    .issue-card.mid  { border-left-color: #ffb81c; }
+    .issue-card.low  { border-left-color: #b2bec3; }
 
     .issue-header {
-      padding: 10px 16px; display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px; display: flex; align-items: center; gap: 8px;
       border-bottom: 1px solid #f0f2f5; background: #fafbfc;
     }
-    .issue-category { font-size: 0.7rem; font-weight: 800; color: #8a9bb0; letter-spacing: 0.06em; text-transform: uppercase; }
+    .issue-category { font-size: 0.68rem; font-weight: 800; color: #8a9bb0; letter-spacing: 0.06em; text-transform: uppercase; }
     .issue-body { padding: 12px 16px; }
-    .issue-problem { font-size: 0.83rem; color: #4a5568; margin-bottom: 8px; }
-    .issue-quote { display: inline; background: #ffeaea; color: #c0392b; padding: 1px 5px; font-weight: 600; font-size: 0.83rem; }
+    .issue-note { font-size: 0.83rem; color: #4a5568; margin-bottom: 8px; line-height: 1.6; }
+    .issue-quote { background: #ffeaea; color: #c0392b; padding: 1px 5px; font-weight: 600; }
     .issue-fix-row { display: flex; align-items: center; gap: 8px; }
     .issue-fix-label { font-size: 0.68rem; font-weight: 800; color: #52c878; letter-spacing: 0.06em; flex-shrink: 0; }
     .issue-fix { font-size: 0.83rem; color: #1a5c32; font-weight: 600; }
-
-    /* QA回答 */
-    .qa-result {
-      background: #fff; border: 1.5px solid #e8ecf0; padding: 20px 22px;
-      margin-top: 16px;
-    }
-    .qa-result-label { font-size: 0.68rem; font-weight: 800; color: #ffb81c; letter-spacing: 0.08em; margin-bottom: 10px; }
-    .qa-result-text { font-size: 0.9rem; color: #2d3436; line-height: 1.75; white-space: pre-wrap; }
-
-    /* コピーボタン */
-    .copy-row { display: flex; justify-content: flex-end; margin-top: 12px; }
-    .copy-btn {
-      padding: 6px 18px; background: #001f33; border: none; color: #fff;
-      font-size: 0.77rem; font-weight: 700; cursor: pointer; font-family: inherit;
-      transition: opacity 0.15s;
-    }
-    .copy-btn:hover { opacity: 0.75; }
   </style>
 </head>
 <body>
@@ -169,158 +142,212 @@
     <p>記者ハンドブック準拠の表記ルールとAKKODiSブランドガイドラインで文章をチェックします</p>
   </div>
 
-  <div class="mode-tabs">
-    <button class="mode-tab active" data-mode="check">✓ チェックモード</button>
-    <button class="mode-tab" data-mode="qa">？ 質問モード</button>
+  <div class="input-tabs">
+    <button class="input-tab active" data-tab="text">📝 テキストを貼り付け</button>
+    <button class="input-tab" data-tab="file">📎 ファイルをアップロード</button>
   </div>
 
-  <!-- チェックモード -->
-  <div class="mode-panel active" id="panel-check">
-    <textarea class="input-area" id="check-input" placeholder="チェックしたい文章を貼り付けてください"></textarea>
-    <div class="char-count"><span id="check-char">0</span> 文字</div>
-    <button class="action-btn" id="check-btn">チェックする</button>
-    <div class="error-msg" id="check-error"></div>
-    <div id="check-loading" class="loading-msg" style="display:none;">
-      チェック中
-      <span class="loading-dots">
-        <span class="loading-dot"></span>
-        <span class="loading-dot"></span>
-        <span class="loading-dot"></span>
-      </span>
-    </div>
-    <div class="result-area" id="check-result"></div>
+  <!-- テキスト入力 -->
+  <div class="input-panel active" id="panel-text">
+    <textarea class="text-area" id="text-input" placeholder="チェックしたい文章を貼り付けてください"></textarea>
+    <div class="char-count"><span id="char-count">0</span> 文字</div>
   </div>
 
-  <!-- 質問モード -->
-  <div class="mode-panel" id="panel-qa">
-    <input class="question-input" id="qa-input" type="text" placeholder="例：「いただく」と「頂く」どちらが正しいですか？">
-    <button class="action-btn" id="qa-btn">質問する</button>
-    <div class="error-msg" id="qa-error"></div>
-    <div id="qa-loading" class="loading-msg" style="display:none;">
-      回答中
-      <span class="loading-dots">
-        <span class="loading-dot"></span>
-        <span class="loading-dot"></span>
-        <span class="loading-dot"></span>
-      </span>
+  <!-- ファイルアップロード -->
+  <div class="input-panel" id="panel-file">
+    <div class="file-drop" id="file-drop">
+      <div class="file-drop-icon">📂</div>
+      <div class="file-drop-label">クリックまたはドラッグ＆ドロップでファイルを選択</div>
+      <div class="file-drop-sub">対応形式: PDF・TXT</div>
+      <input type="file" class="file-input" id="file-input" accept=".pdf,.txt">
     </div>
-    <div id="qa-result"></div>
+    <div class="file-status" id="file-status"></div>
   </div>
+
+  <button class="check-btn" id="check-btn">チェックする</button>
+  <div class="error-msg" id="error-msg"></div>
+
+  <div id="loading" class="loading-msg" style="display:none;">
+    チェック中
+    <span class="loading-dots">
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+    </span>
+  </div>
+
+  <div class="result-area" id="result"></div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
 <script src="knowledge.js"></script>
 <script>
-  // モード切り替え
-  document.querySelectorAll('.mode-tab').forEach(tab => {
+  let currentTab = 'text';
+  let uploadedText = null;
+
+  // タブ切り替え
+  document.querySelectorAll('.input-tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.input-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.input-panel').forEach(p => p.classList.remove('active'));
       tab.classList.add('active');
-      document.getElementById(`panel-${tab.dataset.mode}`).classList.add('active');
+      document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
+      currentTab = tab.dataset.tab;
     });
   });
 
   // 文字数カウント
-  document.getElementById('check-input').addEventListener('input', function () {
-    document.getElementById('check-char').textContent = this.value.length;
+  document.getElementById('text-input').addEventListener('input', function () {
+    document.getElementById('char-count').textContent = this.value.length;
   });
 
-  // 出力パース
-  function parseCheckResult(raw) {
-    if (raw.includes('===OK===')) {
-      return { ok: true, issues: [] };
+  // ファイルアップロード
+  const fileDrop = document.getElementById('file-drop');
+  const fileInput = document.getElementById('file-input');
+  const fileStatus = document.getElementById('file-status');
+
+  fileDrop.addEventListener('click', () => fileInput.click());
+  fileDrop.addEventListener('dragover', e => { e.preventDefault(); fileDrop.classList.add('dragover'); });
+  fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('dragover'));
+  fileDrop.addEventListener('drop', e => {
+    e.preventDefault();
+    fileDrop.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) handleFile(e.target.files[0]);
+  });
+
+  async function handleFile(file) {
+    fileStatus.className = 'file-status';
+    uploadedText = null;
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    if (ext === 'txt') {
+      const text = await file.text();
+      uploadedText = text.trim();
+      fileStatus.textContent = `✓ ${file.name}（${uploadedText.length}文字）`;
+      return;
     }
-    const issues = [];
-    const blocks = raw.split('---').map(b => b.trim()).filter(b => b && !b.includes('===ISSUES===') && !b.includes('===END==='));
-    for (const block of blocks) {
-      const get = (key) => {
-        const m = block.match(new RegExp(`${key}:\\s*(.+)`));
-        return m ? m[1].trim() : '';
-      };
-      const category = get('カテゴリ');
-      const severity = get('重要度');
-      const problem = get('問題箇所').replace(/^「|」$/g, '');
-      const note = get('指摘');
-      const fix = get('修正例').replace(/^「|」$/g, '');
-      if (category || note) {
-        issues.push({ category, severity, problem, note, fix });
+
+    if (ext === 'pdf') {
+      fileStatus.textContent = `${file.name} テキスト抽出中...`;
+      try {
+        if (typeof pdfjsLib === 'undefined') throw new Error('PDF読み込みに失敗しました');
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let text = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          text += content.items.map(item => item.str).join(' ') + '\n';
+        }
+        text = text.trim();
+        if (text.length < 10) throw new Error('テキストを抽出できませんでした（スキャンPDFの可能性があります）');
+        uploadedText = text.slice(0, 10000);
+        fileStatus.textContent = `✓ ${file.name}（${uploadedText.length}文字抽出）`;
+      } catch (err) {
+        fileStatus.className = 'file-status error';
+        fileStatus.textContent = err.message;
+        fileInput.value = '';
       }
+      return;
+    }
+
+    fileStatus.className = 'file-status error';
+    fileStatus.textContent = 'PDF・TXTファイルのみ対応しています';
+  }
+
+  // 出力パース
+  function parseResult(raw) {
+    if (raw.includes('===OK===')) return { ok: true, issues: [] };
+    const issues = [];
+    const blocks = raw.split('---').map(b => b.trim()).filter(b => b && !b.includes('==='));
+    for (const block of blocks) {
+      const get = key => { const m = block.match(new RegExp(`${key}:\\s*(.+)`)); return m ? m[1].trim() : ''; };
+      const issue = {
+        category: get('カテゴリ'),
+        severity: get('重要度'),
+        problem: get('問題箇所').replace(/^「|」$/g, ''),
+        note: get('指摘'),
+        fix: get('修正例').replace(/^「|」$/g, ''),
+      };
+      if (issue.note || issue.category) issues.push(issue);
     }
     return { ok: false, issues };
   }
 
-  function severityClass(s) {
-    if (s === '高') return 'high';
-    if (s === '中') return 'mid';
-    return 'low';
-  }
-  function severityBadge(s) {
-    if (s === '高') return `<span class="badge-high">重要度：高</span>`;
-    if (s === '中') return `<span class="badge-mid">重要度：中</span>`;
-    return `<span class="badge-low">重要度：低</span>`;
+  function escHtml(s) {
+    return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
-  function escHtml(str) {
-    return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
-
-  function renderCheckResult(parsed) {
-    const el = document.getElementById('check-result');
+  function renderResult(parsed) {
+    const el = document.getElementById('result');
     if (parsed.ok) {
-      el.innerHTML = `
-        <div class="result-ok">
-          <span class="result-ok-icon">✅</span>
-          <span class="result-ok-text">問題は見つかりませんでした</span>
-        </div>`;
+      el.innerHTML = `<div class="result-ok"><span style="font-size:1.4rem">✅</span><span class="result-ok-text">問題は見つかりませんでした</span></div>`;
       return;
     }
-    const high = parsed.issues.filter(i => i.severity === '高').length;
-    const mid = parsed.issues.filter(i => i.severity === '中').length;
-    const low = parsed.issues.filter(i => i.severity === '低').length;
-    const summaryBadges = [
-      high > 0 ? `<span class="badge-high">高 ${high}件</span>` : '',
-      mid > 0 ? `<span class="badge-mid">中 ${mid}件</span>` : '',
-      low > 0 ? `<span class="badge-low">低 ${low}件</span>` : '',
+    const cnt = { high: 0, mid: 0, low: 0 };
+    parsed.issues.forEach(i => {
+      if (i.severity === '高') cnt.high++;
+      else if (i.severity === '中') cnt.mid++;
+      else cnt.low++;
+    });
+    const badges = [
+      cnt.high ? `<span class="badge badge-high">重要度 高 ${cnt.high}件</span>` : '',
+      cnt.mid  ? `<span class="badge badge-mid">重要度 中 ${cnt.mid}件</span>` : '',
+      cnt.low  ? `<span class="badge badge-low">重要度 低 ${cnt.low}件</span>` : '',
     ].join('');
 
-    const cards = parsed.issues.map(issue => `
-      <div class="issue-card ${severityClass(issue.severity)}">
-        <div class="issue-header">
-          <span class="issue-category">${escHtml(issue.category)}</span>
-          ${severityBadge(issue.severity)}
-        </div>
-        <div class="issue-body">
-          <div class="issue-problem">
-            ${escHtml(issue.note)}
-            ${issue.problem ? `（<span class="issue-quote">${escHtml(issue.problem)}</span>）` : ''}
+    const cards = parsed.issues.map(issue => {
+      const cls = issue.severity === '高' ? 'high' : issue.severity === '中' ? 'mid' : 'low';
+      const badge = issue.severity === '高' ? `<span class="badge badge-high">高</span>` :
+                    issue.severity === '中' ? `<span class="badge badge-mid">中</span>` :
+                    `<span class="badge badge-low">低</span>`;
+      return `
+        <div class="issue-card ${cls}">
+          <div class="issue-header">
+            <span class="issue-category">${escHtml(issue.category)}</span>
+            ${badge}
           </div>
-          ${issue.fix ? `
-          <div class="issue-fix-row">
-            <span class="issue-fix-label">修正例</span>
-            <span class="issue-fix">→ ${escHtml(issue.fix)}</span>
-          </div>` : ''}
-        </div>
-      </div>`).join('');
+          <div class="issue-body">
+            <div class="issue-note">
+              ${escHtml(issue.note)}
+              ${issue.problem ? `（<span class="issue-quote">${escHtml(issue.problem)}</span>）` : ''}
+            </div>
+            ${issue.fix ? `<div class="issue-fix-row"><span class="issue-fix-label">修正例</span><span class="issue-fix">→ ${escHtml(issue.fix)}</span></div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
 
-    el.innerHTML = `
-      <div class="result-summary">
-        <span class="result-summary-left">${parsed.issues.length}件の指摘${summaryBadges}</span>
-      </div>
-      ${cards}`;
+    el.innerHTML = `<div class="result-summary">${parsed.issues.length}件の指摘 ${badges}</div>${cards}`;
   }
 
   // チェック実行
   async function runCheck() {
-    const text = document.getElementById('check-input').value.trim();
-    const errEl = document.getElementById('check-error');
+    const errEl = document.getElementById('error-msg');
     errEl.textContent = '';
-    if (!text) { errEl.textContent = '文章を入力してください'; return; }
+
+    let text = '';
+    if (currentTab === 'text') {
+      text = document.getElementById('text-input').value.trim();
+      if (!text) { errEl.textContent = '文章を入力してください'; return; }
+    } else {
+      if (!uploadedText) { errEl.textContent = 'ファイルをアップロードしてください'; return; }
+      text = uploadedText;
+    }
 
     const btn = document.getElementById('check-btn');
     btn.disabled = true;
     btn.textContent = 'チェック中...';
-    document.getElementById('check-loading').style.display = 'block';
-    document.getElementById('check-result').innerHTML = '';
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('result').innerHTML = '';
 
     try {
       const r = await fetch('/api/generate', {
@@ -328,83 +355,26 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
-          max_tokens: 2000,
+          max_tokens: 3000,
           system: CHECK_SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: `以下の文章をチェックしてください。\n\n${text}` }],
+          messages: [{ role: 'user', content: `以下の文章をチェックしてください。\n\n${text.slice(0, 8000)}` }],
         }),
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error?.message || 'チェックに失敗しました');
       const raw = data.content?.[0]?.text || '';
       if (!raw) throw new Error('チェックに失敗しました');
-      renderCheckResult(parseCheckResult(raw));
+      renderResult(parseResult(raw));
     } catch (err) {
       errEl.textContent = err.message;
     } finally {
       btn.disabled = false;
       btn.textContent = 'チェックする';
-      document.getElementById('check-loading').style.display = 'none';
-    }
-  }
-
-  // QA実行
-  async function runQA() {
-    const question = document.getElementById('qa-input').value.trim();
-    const errEl = document.getElementById('qa-error');
-    errEl.textContent = '';
-    if (!question) { errEl.textContent = '質問を入力してください'; return; }
-
-    const btn = document.getElementById('qa-btn');
-    btn.disabled = true;
-    btn.textContent = '回答中...';
-    document.getElementById('qa-loading').style.display = 'block';
-    document.getElementById('qa-result').innerHTML = '';
-
-    try {
-      const r = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 600,
-          system: QA_SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: question }],
-        }),
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error?.message || '回答に失敗しました');
-      const answer = data.content?.[0]?.text || '';
-      if (!answer) throw new Error('回答に失敗しました');
-
-      document.getElementById('qa-result').innerHTML = `
-        <div class="qa-result">
-          <div class="qa-result-label">ANSWER</div>
-          <div class="qa-result-text" id="qa-answer-text">${escHtml(answer)}</div>
-          <div class="copy-row">
-            <button class="copy-btn" id="qa-copy-btn">コピー</button>
-          </div>
-        </div>`;
-
-      document.getElementById('qa-copy-btn').addEventListener('click', function () {
-        navigator.clipboard.writeText(answer).then(() => {
-          this.textContent = 'コピーしました';
-          setTimeout(() => { this.textContent = 'コピー'; }, 2000);
-        });
-      });
-    } catch (err) {
-      errEl.textContent = err.message;
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '質問する';
-      document.getElementById('qa-loading').style.display = 'none';
+      document.getElementById('loading').style.display = 'none';
     }
   }
 
   document.getElementById('check-btn').addEventListener('click', runCheck);
-  document.getElementById('qa-btn').addEventListener('click', runQA);
-  document.getElementById('qa-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') runQA();
-  });
 </script>
 </body>
 </html>
