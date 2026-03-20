@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-15（S017 OGPチェッカー追加）
+最終更新: 2026-03-20（S025 Writing Checker追加）
 
 ---
 
@@ -48,6 +48,7 @@
 | ぷよぷよ | `apps/puyo.html` | ✅ 完成 | 未作成 |
 | YouTube説明文ジェネレーター | `apps/youtube-desc/index.html` | ✅ 完成 | S012 |
 | OGPチェッカー | `apps/ogp-checker/index.html` | ✅ 完成 | S017 |
+| Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 
 ---
 
@@ -156,3 +157,4 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-02-23 | プランナーを Vanilla JS で実装 | ビルド不要の方針に合わせる |
 | 2026-02-23 | ステアリングファイルで作業単位を管理 | レビュー可能な開発フローの確立 |
 | 2026-02-26 | ぷよぷよを `apps/puyo.html` に実装 | 既存ゲーム群と同スタイルで1ファイル完結 |
+| 2026-03-20 | Writing Checkerを `apps/writing-checker/` に実装 | 記者ハンドブック準拠＋AKKODiSブランド＋Microsoft表記＋IOWN®のチェックツール。ナレッジをknowledge.jsに分離 |

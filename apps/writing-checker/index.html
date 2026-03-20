@@ -75,6 +75,13 @@
     .check-btn:hover:not(:disabled) { background: #f0ac10; }
     .check-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
+    .reset-btn {
+      padding: 13px 20px; background: #fff; border: 1.5px solid #e8ecf0;
+      color: #8a9bb0; font-size: 0.88rem; font-weight: 700; cursor: pointer;
+      font-family: inherit; transition: all 0.15s; white-space: nowrap;
+    }
+    .reset-btn:hover { border-color: #001f33; color: #001f33; }
+
     .error-msg { font-size: 0.79rem; color: #e17055; min-height: 1.2em; margin-top: 8px; }
 
     /* ローディング */
@@ -202,7 +209,10 @@
     <div class="file-status" id="file-status"></div>
   </div>
 
-  <button class="check-btn" id="check-btn">チェックする</button>
+  <div style="display:flex;gap:8px;margin-top:12px;">
+    <button class="check-btn" id="check-btn" style="margin-top:0;flex:1;">チェックする</button>
+    <button class="reset-btn" id="reset-btn">クリア</button>
+  </div>
   <div class="error-msg" id="error-msg"></div>
 
   <div id="loading" class="loading-msg" style="display:none;">
@@ -480,6 +490,19 @@
   }
 
   document.getElementById('check-btn').addEventListener('click', runCheck);
+
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    document.getElementById('text-input').value = '';
+    document.getElementById('char-count').textContent = '0';
+    document.getElementById('char-count').parentElement.classList.remove('over');
+    document.getElementById('file-status').textContent = '';
+    document.getElementById('file-input').value = '';
+    document.getElementById('error-msg').textContent = '';
+    document.getElementById('result').innerHTML = '';
+    document.getElementById('loading').style.display = 'none';
+    uploadedText = null;
+    window._currentIssues = [];
+  });
 </script>
 </body>
 </html>
