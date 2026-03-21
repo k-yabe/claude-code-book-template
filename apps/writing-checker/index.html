@@ -382,6 +382,8 @@
   }
 
   // 出力パース
+  const INVALID_PATTERNS = ['指摘取り消し', '対象外', 'かもしれない', '可能性がある', '原文確認', 'ただし'];
+
   function parseResult(raw) {
     if (raw.includes('===OK===')) return { ok: true, issues: [] };
     const issues = [];
@@ -395,6 +397,8 @@
         note: get('指摘'),
         fix: get('修正例'),
       };
+      const combined = `${issue.fix}${issue.note}`;
+      if (INVALID_PATTERNS.some(p => combined.includes(p))) continue;
       const key = `${issue.problem}|${issue.note}`;
       if ((issue.note || issue.category) && !seen.has(key)) {
         seen.add(key);
