@@ -427,6 +427,19 @@
       cursor: pointer;
     }
     .ai-upscale-check:hover { color: #2d3436; }
+    .app-footer {
+      background: #001f33;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 40px;
+    }
+    .app-footer-text {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.85);
+    }
   </style>
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
@@ -992,5 +1005,10 @@
     btn.disabled = false;
   }
 </script>
+  <footer class="app-footer">
+    <span class="app-footer-text">お問い合わせ：Kunito Yabe</span>
+    <span class="app-footer-text" style="color:#ffb81c;">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
+    <img src="../../assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:14px;display:block;">
+  </footer>
 </body>
 </html>
