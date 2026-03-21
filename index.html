@@ -680,11 +680,8 @@
     document.getElementById('logout-btn').addEventListener('click', () => {
       localStorage.removeItem('auth');
       sessionStorage.removeItem('username');
-      appScreen.style.display   = 'none';
-      loginScreen.style.opacity = '1';
-      loginScreen.style.display = 'flex';
-      pwInput.value = '';
       // username は残す（次回ログイン時に名前選択スキップのため）
+      location.reload();
     });
 
     // アプリカードクリック時にログ送信
