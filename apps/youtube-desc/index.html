@@ -311,6 +311,9 @@
       letter-spacing: 0.01em;
     }
     .yt-toggle-btn:hover { color: #fff; }
+    .sample-hint { font-size: 0.75rem; color: #b2bec3; margin: 6px 0 0; }
+    .sample-btn { background: none; border: none; color: #8a9bb0; font-size: 0.75rem; font-weight: 700; padding: 0; cursor: pointer; font-family: inherit; text-decoration: underline; transition: color 0.15s; }
+    .sample-btn:hover { color: #001f33; }
   </style>
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
@@ -340,6 +343,7 @@
       <p class="field-hint">YouTubeにつける予定のタイトルを入力してください。AIがタイトルを参考に説明文を生成します。</p>
       <input type="text" id="title" placeholder="例：AIがものづくりを変える｜アジャイル開発の最前線" oninput="updateTitleCounter()" />
       <div class="char-counter" id="title-counter">0 / 100文字（検索表示は約70文字）</div>
+      <div class="sample-hint">はじめての方は <button class="sample-btn" id="sample-btn">サンプルで試す →</button></div>
     </div>
   </div>
 
@@ -636,5 +640,17 @@ X→ https://x.com/AkkodisJapan
 </script>
 <script src="../../assets/history.js"></script>
 <script>HistoryManager.init('YouTube Generator');</script>
+<script>
+  document.getElementById('sample-btn').addEventListener('click', () => {
+    const title = 'AIで変わるBtoBマーケティング｜リード獲得を3倍にした実践手法';
+    document.getElementById('title').value = title;
+    updateTitleCounter();
+    document.getElementById('content').value = `・AIツールを活用したコンテンツ制作の効率化について
+・マーケティングオートメーションとAIを組み合わせたリード育成手法
+・データドリブンなターゲティングで商談化率を向上させた事例紹介
+・AKKODiSが取り組むDX推進とBtoBマーケティングの最新トレンド
+・Q&A：現場のマーケターからよく聞かれる疑問に答えます`;
+  });
+</script>
 </body>
 </html>
