@@ -255,62 +255,79 @@
 
 
     /* YouTubeプレビュー */
-    .yt-preview {
-      margin-top: 16px;
-    }
+    .yt-preview { margin-top: 16px; }
     .yt-preview-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
     }
     .yt-preview-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #8a9bb0;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      font-size: 0.75rem; font-weight: 700; color: #8a9bb0;
+      text-transform: uppercase; letter-spacing: 0.08em;
     }
     .yt-preview-badge {
-      font-size: 0.65rem;
-      font-weight: 700;
-      background: #ff0000;
-      color: #fff;
-      padding: 2px 7px;
-      letter-spacing: 0.04em;
+      font-size: 0.65rem; font-weight: 700; background: #ff0000;
+      color: #fff; padding: 2px 7px; letter-spacing: 0.04em;
     }
-    .yt-preview-box {
-      background: #fff;
-      border: 1.5px solid #e0e0e0;
-      padding: 16px 18px;
-      font-size: 0.85rem;
-      line-height: 1.7;
-      color: #0f0f0f;
+    /* YouTubeプレーヤー風コンテナ */
+    .yt-player {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
       font-family: 'Roboto', 'Segoe UI', sans-serif;
-      word-break: break-word;
+      max-width: 100%;
     }
-    .yt-preview-text {
-      white-space: pre-wrap;
+    .yt-thumbnail {
+      width: 100%; aspect-ratio: 16/9;
+      background: linear-gradient(135deg, #282828 0%, #1a1a1a 100%);
+      display: flex; align-items: center; justify-content: center;
     }
-    .yt-preview-text .yt-link {
-      color: #065fd4;
+    .yt-play-icon {
+      width: 56px; height: 40px; background: rgba(255,255,255,0.85);
+      display: flex; align-items: center; justify-content: center;
     }
-    .yt-preview-text .yt-hash {
-      color: #065fd4;
+    .yt-play-icon::after {
+      content: ''; border-left: 20px solid #0f0f0f;
+      border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+      margin-left: 4px;
     }
+    .yt-info {
+      padding: 12px 14px 6px;
+    }
+    .yt-video-title {
+      font-size: 0.95rem; font-weight: 700; color: #0f0f0f;
+      line-height: 1.4; margin-bottom: 6px; word-break: break-word;
+    }
+    .yt-meta {
+      font-size: 0.78rem; color: #606060; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .yt-channel-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+    }
+    .yt-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #001f33; display: flex; align-items: center;
+      justify-content: center; color: #ffb81c; font-weight: 700;
+      font-size: 0.85rem; flex-shrink: 0;
+    }
+    .yt-channel-name { font-size: 0.82rem; font-weight: 700; color: #0f0f0f; }
+    .yt-subscribe-btn {
+      margin-left: auto; background: #0f0f0f; color: #fff;
+      border: none; padding: 8px 14px; font-size: 0.78rem;
+      font-weight: 700; cursor: default; font-family: inherit;
+    }
+    .yt-desc-box {
+      background: #f2f2f2; padding: 10px 12px; margin: 0 14px 12px;
+      font-size: 0.8rem; color: #0f0f0f; line-height: 1.6;
+      word-break: break-word; cursor: pointer;
+    }
+    .yt-desc-text { white-space: pre-wrap; }
+    .yt-desc-text .yt-link { color: #065fd4; }
+    .yt-desc-text .yt-hash { color: #065fd4; }
     .yt-toggle-btn {
-      display: inline-block;
-      margin-top: 8px;
-      background: none;
-      border: none;
-      color: #606060;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      padding: 0;
-      letter-spacing: 0.01em;
+      display: inline-block; margin-top: 6px; background: none; border: none;
+      color: #0f0f0f; font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; padding: 0; font-family: inherit;
     }
-    .yt-toggle-btn:hover { color: #fff; }
+    .yt-toggle-btn:hover { text-decoration: underline; }
     .sample-hint { font-size: 0.75rem; color: #b2bec3; margin: 6px 0 0; }
     .sample-btn { background: none; border: none; color: #8a9bb0; font-size: 0.75rem; font-weight: 700; padding: 0; cursor: pointer; font-family: inherit; text-decoration: underline; transition: color 0.15s; }
     .sample-btn:hover { color: #001f33; }
@@ -437,9 +454,23 @@
           <span class="yt-preview-label">YouTubeプレビュー</span>
           <span class="yt-preview-badge">YouTube風</span>
         </div>
-        <div class="yt-preview-box">
-          <div class="yt-preview-text" id="yt-preview-text"></div>
-          <button class="yt-toggle-btn" id="yt-toggle-btn" onclick="toggleYtPreview()">...もっと見る</button>
+        <div class="yt-player">
+          <div class="yt-thumbnail"><div class="yt-play-icon"></div></div>
+          <div class="yt-info">
+            <div class="yt-video-title" id="yt-preview-title"></div>
+            <div class="yt-meta">
+              <span id="yt-preview-tags"></span>
+            </div>
+            <div class="yt-channel-row">
+              <div class="yt-avatar">A</div>
+              <span class="yt-channel-name">AKKODiS Japan</span>
+              <button class="yt-subscribe-btn">チャンネル登録</button>
+            </div>
+          </div>
+          <div class="yt-desc-box" onclick="toggleYtPreview()">
+            <div class="yt-desc-text" id="yt-preview-text"></div>
+            <button class="yt-toggle-btn" id="yt-toggle-btn">...もっと見る</button>
+          </div>
         </div>
       </div>
 
@@ -613,6 +644,8 @@ X→ https://x.com/AkkodisJapan
       HistoryManager.save(scriptInput.slice(0, 300), `${parsed.title}\n\n${desc}\n\n${parsed.hashtags}`);
       // YouTubeプレビューを更新
       ytExpanded = false;
+      document.getElementById('yt-preview-title').textContent = parsed.title || '';
+      document.getElementById('yt-preview-tags').textContent = parsed.hashtags || '';
       renderYtPreview(desc);
       outputEl.classList.add('on');
       outputEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
