@@ -1,0 +1,17 @@
+{
+  "name": "AKKODiS Marketing Apps",
+  "short_name": "MktApps",
+  "description": "AKKODiS マーケティングチーム向け業務効率化ツール集",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#001f33",
+  "theme_color": "#001f33",
+  "icons": [
+    {
+      "src": "/assets/SVG/AKKODIS_Logo_RGB_WHITE.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

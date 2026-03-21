@@ -8,9 +8,16 @@
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23001f33'/><text y='.9em' font-size='90' fill='%23ffb81c'>⚡</text></svg>">
   <meta name="robots" content="noindex, nofollow">
   <meta name="description" content="AKKODiSマーケティングチーム向けツール集">
-  <meta property="og:title" content="Marketing Apps">
-  <meta property="og:description" content="AKKODiSマーケティングチーム向けツール集">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#001f33">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MktApps">
+  <meta property="og:title" content="AKKODiS Marketing Apps">
+  <meta property="og:description" content="AKKODiSマーケティングチーム向け業務効率化ツール集">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kunito-yabe.vercel.app/">
+  <meta property="og:image" content="https://kunito-yabe.vercel.app/assets/SVG/AKKODIS_Logo_RGB_WHITE.svg">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -593,7 +600,12 @@
       initChangelog();
     }
 
-    if (sessionStorage.getItem('auth') === '1') showApp();
+    // localStorageから復元（sessionStorageにも同期）
+    if (localStorage.getItem('auth') === '1') {
+      const savedName = localStorage.getItem('username');
+      if (savedName) sessionStorage.setItem('username', savedName);
+      showApp();
+    }
 
     function sendLog(action, app = '') {
       const user = sessionStorage.getItem('username') || 'unknown';
@@ -610,7 +622,8 @@
       if (!name) { pwError.textContent = 'お名前を選択してください'; return; }
       const hash = await hashPassword(pwInput.value);
       if (hash === PW_HASH) {
-        sessionStorage.setItem('auth', '1');
+        localStorage.setItem('auth', '1');
+        localStorage.setItem('username', name);
         sessionStorage.setItem('username', name);
         sendLog('login');
         showApp();
@@ -622,7 +635,8 @@
     });
 
     document.getElementById('logout-btn').addEventListener('click', () => {
-      sessionStorage.removeItem('auth');
+      localStorage.removeItem('auth');
+      localStorage.removeItem('username');
       sessionStorage.removeItem('username');
       appScreen.style.display   = 'none';
       loginScreen.style.display = 'flex';
