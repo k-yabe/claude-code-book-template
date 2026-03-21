@@ -421,21 +421,26 @@
       <div class="login-brand">
         <img src="assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:20px;display:block;">
       </div>
-      <h2>Marketing Apps</h2>
+      <h2 id="login-greeting">Marketing Apps</h2>
       <p class="login-tagline">業務効率化ツール集</p>
       <form id="login-form" autocomplete="on">
-        <select id="name-select" style="width:100%;padding:14px 18px;margin-bottom:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.95rem;font-family:inherit;outline:none;appearance:none;">
-          <option value="" disabled selected style="color:#999;">お名前を選択してください</option>
-          <option value="Kunito Yabe">Kunito Yabe</option>
-          <option value="Makoto Kawai">Makoto Kawai</option>
-          <option value="Yukiko Ito">Yukiko Ito</option>
-          <option value="Hiroki Hoya">Hiroki Hoya</option>
-          <option value="Mayumi Nishina">Mayumi Nishina</option>
-          <option value="James Bottari">James Bottari</option>
-          <option value="Yuji Inaba">Yuji Inaba</option>
-          <option value="Momoka Nagashima">Momoka Nagashima</option>
-          <option value="Guest">Guest</option>
-        </select>
+        <div id="name-wrap">
+          <select id="name-select" style="width:100%;padding:14px 18px;margin-bottom:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.95rem;font-family:inherit;outline:none;appearance:none;">
+            <option value="" disabled selected style="color:#999;">お名前を選択してください</option>
+            <option value="Kunito Yabe">Kunito Yabe</option>
+            <option value="Makoto Kawai">Makoto Kawai</option>
+            <option value="Yukiko Ito">Yukiko Ito</option>
+            <option value="Hiroki Hoya">Hiroki Hoya</option>
+            <option value="Mayumi Nishina">Mayumi Nishina</option>
+            <option value="James Bottari">James Bottari</option>
+            <option value="Yuji Inaba">Yuji Inaba</option>
+            <option value="Momoka Nagashima">Momoka Nagashima</option>
+            <option value="Guest">Guest</option>
+          </select>
+        </div>
+        <div id="switch-user-wrap" style="display:none;margin-bottom:10px;text-align:right;">
+          <button type="button" id="switch-user-btn" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.75rem;cursor:pointer;font-family:inherit;padding:0;">別の名前でログイン →</button>
+        </div>
         <input type="text" name="username" autocomplete="username" style="display:none" value="marketing-team" />
         <input type="password" id="pw-input" name="password" placeholder="Password" autocomplete="current-password" />
         <button type="submit">Sign In</button>
@@ -600,9 +605,25 @@
       initChangelog();
     }
 
+    // 名前が保存済みなら名前選択をスキップ
+    const savedName = localStorage.getItem('username');
+    if (savedName) {
+      document.getElementById('login-greeting').textContent = `こんにちは、${savedName.split(' ')[0]}さん`;
+      document.getElementById('name-wrap').style.display = 'none';
+      document.getElementById('switch-user-wrap').style.display = 'block';
+      document.getElementById('name-select').value = savedName;
+    }
+
+    document.getElementById('switch-user-btn')?.addEventListener('click', () => {
+      localStorage.removeItem('username');
+      document.getElementById('login-greeting').textContent = 'Marketing Apps';
+      document.getElementById('name-wrap').style.display = 'block';
+      document.getElementById('switch-user-wrap').style.display = 'none';
+      document.getElementById('name-select').value = '';
+    });
+
     // localStorageから復元（sessionStorageにも同期）
     if (localStorage.getItem('auth') === '1') {
-      const savedName = localStorage.getItem('username');
       if (savedName) sessionStorage.setItem('username', savedName);
       showApp();
     }
