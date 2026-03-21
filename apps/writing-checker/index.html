@@ -399,6 +399,7 @@
       };
       const combined = `${issue.fix}${issue.note}`;
       if (INVALID_PATTERNS.some(p => combined.includes(p))) continue;
+      if (issue.fix && issue.problem && issue.fix.length > issue.problem.length * 4) continue;
       const key = `${issue.problem}|${issue.note}`;
       if ((issue.note || issue.category) && !seen.has(key)) {
         seen.add(key);
