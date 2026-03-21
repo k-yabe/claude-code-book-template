@@ -163,38 +163,37 @@
     .copy-btn:hover { border-color: #ffb81c; color: #ffb81c; }
     .copy-btn.copied { border-color: #ffb81c; color: #ffb81c; }
 
-    .result-actions {
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
-    }
-    .copy-all-btn {
-      background: none; border: 1px solid #e8ecf0; color: #8a9bb0;
-      font-size: 0.72rem; font-weight: 700; padding: 4px 12px; cursor: pointer;
-      font-family: inherit; transition: all 0.15s;
-    }
-    .copy-all-btn:hover { border-color: #001f33; color: #001f33; }
-    .copy-full-btn {
-      background: none; border: 1px solid #e8ecf0; color: #8a9bb0;
-      font-size: 0.72rem; font-weight: 700; padding: 4px 12px; cursor: pointer;
-      font-family: inherit; transition: all 0.15s; white-space: nowrap;
-    }
-    .copy-full-btn:hover { border-color: #001f33; color: #001f33; }
+    .result-actions { margin-bottom: 16px; }
+    .result-summary { font-size: 0.78rem; color: #8a9bb0; font-weight: 600; }
 
-    /* 修正済み全文エリア */
-    .corrected-section { margin-top: 20px; }
+    /* 修正済み全文エリア（主役） */
+    .corrected-section { margin-bottom: 28px; }
     .corrected-header {
       display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
     }
-    .corrected-title { font-size: 0.78rem; font-weight: 700; color: #001f33; }
-    .corrected-card {
-      background: #fff; border: 1px solid #e8ecf0;
-      border-left: 3px solid #001f33; transition: border-color 0.15s;
+    .corrected-title { font-size: 0.95rem; font-weight: 700; color: #001f33; }
+    .copy-full-btn {
+      background: #001f33; border: none; color: #fff;
+      font-size: 0.82rem; font-weight: 700; padding: 8px 20px; cursor: pointer;
+      font-family: inherit; transition: opacity 0.15s;
     }
-    .corrected-card:focus-within { border-left-color: #001f33; box-shadow: 0 0 0 3px rgba(0,31,51,0.08); }
+    .copy-full-btn:hover { opacity: 0.75; }
+    .corrected-card {
+      background: #fff; border: 1px solid #e8ecf0; border-left: 3px solid #001f33;
+    }
+    .corrected-card:focus-within { box-shadow: 0 0 0 3px rgba(0,31,51,0.08); }
     .corrected-textarea {
-      width: 100%; min-height: 180px; padding: 14px 16px;
-      font-size: 0.9rem; font-family: inherit; color: #2d3436; line-height: 1.7;
+      width: 100%; min-height: 200px; padding: 14px 16px;
+      font-size: 0.92rem; font-family: inherit; color: #2d3436; line-height: 1.7;
       border: none; resize: vertical; outline: none; box-sizing: border-box; background: #fff;
     }
+
+    /* 修正詳細セクション */
+    .detail-header {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #e8ecf0;
+    }
+    .detail-title { font-size: 0.78rem; font-weight: 700; color: #8a9bb0; }
   </style>
 </head>
 <body>
@@ -451,18 +450,21 @@
 
     el.innerHTML = `
       <div class="result-actions">
-        <span class="result-summary">${parsed.issues.length}件の修正箇所</span>
+        <span class="result-summary">✏️ ${parsed.issues.length}件の修正箇所が見つかりました</span>
       </div>
-      ${cards}
       <div class="corrected-section">
         <div class="corrected-header">
-          <span class="corrected-title">修正済み全文</span>
-          <button class="copy-full-btn" onclick="copyFullText(this)">コピー</button>
+          <span class="corrected-title">✅ 修正済み全文</span>
+          <button class="copy-full-btn" onclick="copyFullText(this)">📋 コピー</button>
         </div>
         <div class="corrected-card">
           <textarea class="corrected-textarea" id="corrected-text">${escHtml(correctedText)}</textarea>
         </div>
-      </div>`;
+      </div>
+      <div class="detail-header">
+        <span class="detail-title">📝 修正内容の詳細</span>
+      </div>
+      ${cards}`;
 
     window._currentIssues = parsed.issues;
   }
