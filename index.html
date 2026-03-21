@@ -660,7 +660,6 @@
 
     document.getElementById('logout-btn').addEventListener('click', () => {
       localStorage.removeItem('auth');
-      localStorage.removeItem('username');
       sessionStorage.removeItem('username');
       appScreen.style.display   = 'none';
       loginScreen.style.display = 'flex';
