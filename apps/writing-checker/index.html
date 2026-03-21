@@ -54,6 +54,15 @@
     .text-area::placeholder { color: #c8d0da; }
     .char-count { font-size: 0.72rem; color: #b2bec3; text-align: right; margin: 4px 0 0; }
     .char-count.over { color: #c0392b; font-weight: 700; }
+    .sample-hint {
+      font-size: 0.75rem; color: #b2bec3; margin: 6px 0 0;
+    }
+    .sample-btn {
+      background: none; border: none; color: #8a9bb0; font-size: 0.75rem;
+      font-weight: 700; padding: 0; cursor: pointer; font-family: inherit;
+      text-decoration: underline; transition: color 0.15s;
+    }
+    .sample-btn:hover { color: #001f33; }
 
     /* ファイルアップロード */
     .file-drop {
@@ -182,10 +191,14 @@
       background: #fff; border: 1px solid #e8ecf0; border-left: 3px solid #001f33;
     }
     .corrected-card:focus-within { box-shadow: 0 0 0 3px rgba(0,31,51,0.08); }
-    .corrected-textarea {
+    .corrected-display {
       width: 100%; min-height: 200px; padding: 14px 16px;
       font-size: 0.92rem; font-family: inherit; color: #2d3436; line-height: 1.7;
-      border: none; resize: vertical; outline: none; box-sizing: border-box; background: #fff;
+      border: none; outline: none; box-sizing: border-box; background: #fff;
+      white-space: pre-wrap; word-wrap: break-word; cursor: text;
+    }
+    .corrected-highlight {
+      background: #ffb81c; color: #001f33; padding: 0 1px; font-weight: 700;
     }
 
     /* 修正詳細セクション */
@@ -223,6 +236,7 @@
   <div class="input-panel active" id="panel-text">
     <textarea class="text-area" id="text-input" placeholder="チェックしたい文章を貼り付けてください"></textarea>
     <div class="char-count"><span id="char-count">0</span> 文字</div>
+    <div class="sample-hint">はじめての方は <button class="sample-btn" id="sample-btn">サンプルテキストで試す →</button></div>
   </div>
 
   <!-- ファイルアップロード -->
@@ -440,13 +454,17 @@
         </div>
       </div>`).join('');
 
-    // 修正済み全文を生成
+    // 修正済み全文＋ハイライトを生成
     let correctedText = window._originalText || '';
+    let highlightedHtml = escHtml(window._originalText || '');
     for (const issue of parsed.issues) {
       if (issue.problem && issue.fix) {
         correctedText = correctedText.split(issue.problem).join(issue.fix);
+        highlightedHtml = highlightedHtml.split(escHtml(issue.problem))
+          .join(`<span class="corrected-highlight">${escHtml(issue.fix)}</span>`);
       }
     }
+    highlightedHtml = highlightedHtml.replace(/\n/g, '<br>');
 
     el.innerHTML = `
       <div class="result-actions">
@@ -458,7 +476,7 @@
           <button class="copy-full-btn" onclick="copyFullText(this)">📋 コピー</button>
         </div>
         <div class="corrected-card">
-          <textarea class="corrected-textarea" id="corrected-text">${escHtml(correctedText)}</textarea>
+          <div class="corrected-display" id="corrected-display" contenteditable="true">${highlightedHtml}</div>
         </div>
       </div>
       <div class="detail-header">
@@ -525,12 +543,29 @@
   }
 
   function copyFullText(btn) {
-    const text = document.getElementById('corrected-text')?.value || '';
+    const el = document.getElementById('corrected-display');
+    const text = el ? el.innerText : '';
     navigator.clipboard.writeText(text).then(() => {
-      btn.textContent = '✓ コピー済み';
-      setTimeout(() => { btn.textContent = 'コピー'; }, 1500);
+      btn.innerHTML = '✅ コピー済み';
+      setTimeout(() => { btn.innerHTML = '📋 コピー'; }, 1500);
     });
   }
+
+  const SAMPLE_TEXT = `弊社のコンピュータシステムはクラウドサーバを活用し、ユーザの利便性を高めています。シュミレーション機能を用いた分析を行なうことで、より精度の高いサービスを提供しています。
+
+なお、AKKODiSコンサルティングが提供するIOWNソリューションについては、本資料をご参照下さい。Eメールでのお問い合わせも受け付けております。
+
+従って、本プロジェクトは第１四半期より開始する予定です。`;
+
+  document.getElementById('sample-btn').addEventListener('click', () => {
+    document.getElementById('text-input').value = SAMPLE_TEXT;
+    document.getElementById('char-count').textContent = SAMPLE_TEXT.length;
+    document.querySelectorAll('.input-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.input-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('[data-tab="text"]').classList.add('active');
+    document.getElementById('panel-text').classList.add('active');
+    currentTab = 'text';
+  });
 
   function copyAll() {
     const issues = window._currentIssues || [];
