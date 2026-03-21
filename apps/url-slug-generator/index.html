@@ -662,6 +662,8 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            _user: sessionStorage.getItem('username') || 'unknown',
+            _app: 'URL Slug Generator',
             model: 'claude-haiku-4-5-20251001',
             max_tokens: 256,
             system: `あなたはWebページのURLスラッグを生成する専門家です。

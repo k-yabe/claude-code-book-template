@@ -519,6 +519,8 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          _user: sessionStorage.getItem('username') || 'unknown',
+          _app: 'Writing Checker',
           model: 'claude-sonnet-4-6',
           max_tokens: 3000,
           system: CHECK_SYSTEM_PROMPT,

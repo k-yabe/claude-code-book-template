@@ -552,6 +552,8 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          _user: sessionStorage.getItem('username') || 'unknown',
+          _app: 'YouTube Generator',
           model: 'claude-opus-4-6',
           max_tokens: 2048,
           system: `あなたはAKKODiS JapanのYouTube担当アシスタントです。

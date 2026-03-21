@@ -9,6 +9,16 @@ export default async function handler(req, res) {
   }
 
   try {
+    const { _user, _app, ...body } = req.body;
+    const logEndpoint = process.env.LOG_ENDPOINT;
+    if (logEndpoint && _user) {
+      fetch(logEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: _user, action: 'generate', app: _app || '', timestamp: new Date().toISOString() }),
+      }).catch(() => {});
+    }
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -16,7 +26,7 @@ export default async function handler(req, res) {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
-      body: JSON.stringify(req.body),
+      body: JSON.stringify(body),
     });
 
     const text = await response.text();
