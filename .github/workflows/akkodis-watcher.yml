@@ -2,8 +2,8 @@ name: AKKODiS Watcher
 
 on:
   schedule:
-    # 毎日 JST 9:00（UTC 0:00）に実行
-    - cron: '0 0 * * *'
+    # 毎日 JST 8:00（UTC 23:00）に実行（GitHub遅延を考慮して1時間早め）
+    - cron: '0 23 * * *'
   workflow_dispatch: # 手動実行も可能
 
 jobs:
