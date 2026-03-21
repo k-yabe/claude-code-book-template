@@ -570,7 +570,10 @@
       { icon: '📣', app: 'Post Generator',     date: '2026-03-17(火)', desc: 'URL履歴・インライン編集・3パターン+メリデメ生成' },
     ];
 
+    let changelogReady = false;
     function initChangelog() {
+      if (changelogReady) return;
+      changelogReady = true;
       const btn = document.getElementById('changelog-btn');
       const dropdown = document.getElementById('changelog-dropdown');
       btn.innerHTML = `<span class="changelog-btn-dot"></span>WHAT'S NEW <span style="opacity:0.7;font-weight:400;">${WHATS_NEW.length}</span>`;
