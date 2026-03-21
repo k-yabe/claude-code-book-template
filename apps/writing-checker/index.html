@@ -180,7 +180,8 @@
     .copy-full-btn:hover { border-color: #ffb81c; color: #ffb81c; }
 
     /* 修正済み全文エリア */
-    .corrected-section { margin-top: 16px; background: #fff; border: 1px solid #e8ecf0; }
+    .corrected-section { margin-top: 16px; background: #fff; border: 1px solid #e8ecf0; transition: border-color 0.15s; }
+    .corrected-section:focus-within { border-color: #ffb81c; }
     .corrected-header {
       background: #001f33; display: flex; align-items: center;
       justify-content: space-between; padding: 10px 16px;
