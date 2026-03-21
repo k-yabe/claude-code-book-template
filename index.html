@@ -43,6 +43,14 @@
       align-items: center;
       justify-content: center;
       padding: 24px;
+      transition: opacity 0.5s ease;
+    }
+    #app-screen {
+      animation: appFadeIn 0.5s ease both;
+    }
+    @keyframes appFadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .login-box {
@@ -604,10 +612,13 @@
     }
 
     function showApp() {
-      loginScreen.style.display = 'none';
-      appScreen.style.display   = 'block';
-      loadAntennaBadge();
-      initChangelog();
+      loginScreen.style.opacity = '0';
+      setTimeout(() => {
+        loginScreen.style.display = 'none';
+        appScreen.style.display   = 'block';
+        loadAntennaBadge();
+        initChangelog();
+      }, 450);
     }
 
     // 名前が保存済みなら名前選択をスキップ
