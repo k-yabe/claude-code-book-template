@@ -674,9 +674,14 @@
     // localStorageから復元（sessionStorageにも同期）
     if (localStorage.getItem('auth') === '1') {
       if (savedName) sessionStorage.setItem('username', savedName);
-      // タイピングアニメーションが見えるよう少し待ってから遷移
-      const greetingLen = getGreeting(savedName).length;
-      setTimeout(showApp, greetingLen * 90 + 300);
+      const firstVisit = !localStorage.getItem('greeting_seen');
+      if (firstVisit) {
+        localStorage.setItem('greeting_seen', '1');
+        const greetingLen = getGreeting(savedName).length;
+        setTimeout(showApp, greetingLen * 90 + 300);
+      } else {
+        showApp();
+      }
     }
 
     function sendLog(action, app = '') {
