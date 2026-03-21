@@ -173,31 +173,28 @@
     }
     .copy-all-btn:hover { border-color: #001f33; color: #001f33; }
     .copy-full-btn {
-      background: #ffb81c; border: none; color: #001f33;
-      font-size: 0.78rem; font-weight: 800; padding: 6px 14px; cursor: pointer;
-      font-family: inherit; transition: opacity 0.15s;
+      background: none; border: 1px solid #001f33; color: #001f33;
+      font-size: 0.72rem; font-weight: 700; padding: 4px 12px; cursor: pointer;
+      font-family: inherit; transition: all 0.15s;
     }
-    .copy-full-btn:hover { opacity: 0.75; }
+    .copy-full-btn:hover { background: #001f33; color: #fff; }
 
     /* 修正済み全文エリア */
-    .corrected-section { margin-top: 24px; }
+    .corrected-section { margin-top: 28px; }
     .corrected-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 18px; background: #001f33;
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
     }
-    .corrected-title-wrap { display: flex; align-items: center; gap: 10px; }
-    .corrected-badge {
-      width: 22px; height: 22px; background: #ffb81c; color: #001f33;
-      font-size: 0.72rem; font-weight: 800; display: flex; align-items: center;
-      justify-content: center; flex-shrink: 0;
+    .corrected-title {
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em;
+      color: #001f33; text-transform: uppercase;
     }
-    .corrected-title { font-size: 0.85rem; font-weight: 700; color: #fff; }
     .corrected-textarea {
-      width: 100%; min-height: 160px; padding: 14px 18px;
-      font-size: 0.88rem; font-family: inherit; color: #2d3436; line-height: 1.7;
-      border: none; border-left: 3px solid #ffb81c; resize: vertical; outline: none;
-      box-sizing: border-box; background: #fff;
+      width: 100%; min-height: 180px; padding: 14px 16px;
+      font-size: 0.9rem; font-family: inherit; color: #2d3436; line-height: 1.7;
+      border: 1.5px solid #001f33; resize: vertical; outline: none;
+      box-sizing: border-box; background: #fff; transition: border-color 0.15s, box-shadow 0.15s;
     }
+    .corrected-textarea:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
   </style>
 </head>
 <body>
@@ -459,13 +456,10 @@
       ${cards}
       <div class="corrected-section">
         <div class="corrected-header">
-          <div class="corrected-title-wrap">
-            <div class="corrected-badge">✓</div>
-            <span class="corrected-title">修正済み全文</span>
-          </div>
+          <span class="corrected-title">修正済み全文</span>
           <button class="copy-full-btn" onclick="copyFullText(this)">コピー</button>
         </div>
-        <textarea class="corrected-textarea" id="corrected-text" readonly>${escHtml(correctedText)}</textarea>
+        <textarea class="corrected-textarea" id="corrected-text">${escHtml(correctedText)}</textarea>
       </div>`;
 
     window._currentIssues = parsed.issues;
