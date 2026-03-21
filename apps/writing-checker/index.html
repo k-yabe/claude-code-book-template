@@ -174,10 +174,26 @@
     .copy-all-btn:hover { border-color: #001f33; color: #001f33; }
     .copy-full-btn {
       background: #001f33; border: none; color: #fff;
-      font-size: 0.72rem; font-weight: 700; padding: 4px 12px; cursor: pointer;
+      font-size: 0.82rem; font-weight: 700; padding: 8px 18px; cursor: pointer;
       font-family: inherit; transition: opacity 0.15s;
     }
     .copy-full-btn:hover { opacity: 0.75; }
+
+    /* 修正済み全文エリア */
+    .corrected-section {
+      margin-top: 24px; background: #fff; border: 1.5px solid #ffb81c;
+    }
+    .corrected-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; background: #fffbf0; border-bottom: 1px solid #fde89a;
+    }
+    .corrected-title { font-size: 0.85rem; font-weight: 700; color: #001f33; }
+    .corrected-textarea {
+      width: 100%; min-height: 160px; padding: 14px 16px;
+      font-size: 0.88rem; font-family: inherit; color: #2d3436; line-height: 1.7;
+      border: none; resize: vertical; outline: none; box-sizing: border-box;
+      background: #fff;
+    }
   </style>
 </head>
 <body>
@@ -424,12 +440,26 @@
         </div>
       </div>`).join('');
 
+    // 修正済み全文を生成
+    let correctedText = window._originalText || '';
+    for (const issue of parsed.issues) {
+      if (issue.problem && issue.fix) {
+        correctedText = correctedText.split(issue.problem).join(issue.fix);
+      }
+    }
+
     el.innerHTML = `
       <div class="result-actions">
         <span class="result-summary">${parsed.issues.length}件の修正箇所</span>
-        <button class="copy-full-btn" onclick="copyFullText(this)">修正済み全文をコピー</button>
       </div>
-      ${cards}`;
+      ${cards}
+      <div class="corrected-section">
+        <div class="corrected-header">
+          <span class="corrected-title">✅ 修正済み全文</span>
+          <button class="copy-full-btn" onclick="copyFullText(this)">コピー</button>
+        </div>
+        <textarea class="corrected-textarea" id="corrected-text" readonly>${escHtml(correctedText)}</textarea>
+      </div>`;
 
     window._currentIssues = parsed.issues;
   }
@@ -490,16 +520,10 @@
   }
 
   function copyFullText(btn) {
-    const issues = window._currentIssues || [];
-    let text = window._originalText || '';
-    for (const issue of issues) {
-      if (issue.problem && issue.fix) {
-        text = text.split(issue.problem).join(issue.fix);
-      }
-    }
+    const text = document.getElementById('corrected-text')?.value || '';
     navigator.clipboard.writeText(text).then(() => {
-      btn.textContent = '✓ コピーしました';
-      setTimeout(() => { btn.textContent = '修正済み全文をコピー'; }, 1500);
+      btn.textContent = '✓ コピー済み';
+      setTimeout(() => { btn.textContent = 'コピー'; }, 1500);
     });
   }
 
