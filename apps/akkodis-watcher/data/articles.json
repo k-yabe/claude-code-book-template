@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-03-20T00:21:09Z",
+  "last_scraped": "2026-03-21T23:17:09Z",
   "articles": [
+    {
+      "id": "nvidia-gtc-2026-digital-engineering",
+      "title": "From Tokens to Transformation: What NVIDIA GTC 2026 Means for Digital Engineering",
+      "url": "https://www.akkodis.com/blog/articles/nvidia-gtc-2026-digital-engineering",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-21T23:14:58Z",
+      "published_date": "2026-03-19T00:00:00Z",
+      "summary_ja": "NVIDIA GTC 2026ではAIインフラの大規模な構築が加速することが明らかになり、同社のBlackwellとVera Rubin プラットフォームで1兆ドル規模の受注が見込まれています。Vera Rubin は複数のチップを統合した新型スーパーコンピュータで、自律的に動作し続けるAIエージェント向けに設計されており、2027年から本格稼働する予定です。同時に発表されたOpenClawはエンタープライズ向けのAIエージェント運用プラットフォームとなり、自動車の自動運転やロボット技術などの産業応用が急速に進展することで、ソフトウェア検証やシステム統合といった複雑な技術課題への対応が企業に求められるようになります。"
+    },
     {
       "id": "from-digital-to-physical-ai",
       "title": "From Digital to Physical AI: When AI Leaves the Screen",
@@ -160,60 +170,6 @@
       "first_seen": "2026-03-18T01:50:23Z",
       "published_date": null,
       "summary_ja": "Akkodisで働くSalesforce開発者のエリオットは、実装やプロトタイピングといった技術業務と新しいAI機能の試験的活用を組み合わせながら、多様なクライアントプロジェクトを通じてスキルを素早く高めています。社内では週次の勉強会や先輩からの指導が常に行われており、開発者は最新の技術動向に対応しながら着実に成長できる環境が整備されています。リモートワークに対応した柔軟な働き方と信頼関係のあるチーム体制により、仕事のパフォーマンスと個人の生活のバランスを両立させながらキャリアを築いていくことができます。"
-    },
-    {
-      "id": "akkodis-thinkers-and-makers-vol3-2025",
-      "title": "Thinkers & Makers Vol.3 2025",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers_and_makers_vol3_2025.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2025",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "thinkers-and-makers-vol2-2025",
-      "title": "Thinkers & Makers Vol.2 2025",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol2_2025.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2025",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "thinkers-and-makers-vol1-2025",
-      "title": "Thinkers & Makers Vol.1 2025",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol1_2025.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2025",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "thinkers-and-makers-vol-3---2024",
-      "title": "Thinkers And Makers Vol 3   2024",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-3-_-2024.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2024",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "thinkers-and-makers-vol-2---2024",
-      "title": "Thinkers And Makers Vol 2   2024",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-2-_-2024.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2024",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "akkodis-thinkers-and-makers-vol-01-2024new",
-      "title": "Thinkers & Makers Vol.1 2024",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers-and-makers_vol_01_2024new.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2024",
-      "first_seen": "2026-03-14T10:15:00Z"
     },
     {
       "id": "integrated-sensor-technology-analytics-platform",
