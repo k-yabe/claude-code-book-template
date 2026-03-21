@@ -182,14 +182,21 @@
     /* 修正済み全文エリア */
     .corrected-section {
       margin-top: 24px; background: #fff; border: 1.5px solid #e8ecf0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
     .corrected-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 16px; background: #001f33;
+      padding: 12px 18px; border-bottom: 1px solid #f0f2f5; background: #fafbfc;
     }
-    .corrected-title { font-size: 0.85rem; font-weight: 700; color: #ffb81c; }
+    .corrected-title-wrap { display: flex; align-items: center; gap: 10px; }
+    .corrected-badge {
+      width: 24px; height: 24px; background: #001f33; color: #ffb81c;
+      font-size: 0.72rem; font-weight: 800; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .corrected-title { font-size: 0.85rem; font-weight: 700; color: #001f33; }
     .corrected-textarea {
-      width: 100%; min-height: 160px; padding: 14px 16px;
+      width: 100%; min-height: 160px; padding: 14px 18px;
       font-size: 0.88rem; font-family: inherit; color: #2d3436; line-height: 1.7;
       border: none; resize: vertical; outline: none; box-sizing: border-box;
       background: #fff;
@@ -455,7 +462,10 @@
       ${cards}
       <div class="corrected-section">
         <div class="corrected-header">
-          <span class="corrected-title">✅ 修正済み全文</span>
+          <div class="corrected-title-wrap">
+            <div class="corrected-badge">✓</div>
+            <span class="corrected-title">修正済み全文</span>
+          </div>
           <button class="copy-full-btn" onclick="copyFullText(this)">コピー</button>
         </div>
         <textarea class="corrected-textarea" id="corrected-text" readonly>${escHtml(correctedText)}</textarea>
