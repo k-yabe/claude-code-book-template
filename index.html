@@ -659,6 +659,7 @@
       document.querySelector('input[name="username"]').value = savedName;
     } else {
       document.getElementById('name-wrap').style.display = 'block';
+      typeGreeting(document.getElementById('login-greeting'), 'Marketing Apps', 120);
     }
 
     document.getElementById('switch-user-btn')?.addEventListener('click', () => {
