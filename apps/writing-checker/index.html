@@ -427,10 +427,7 @@
     el.innerHTML = `
       <div class="result-actions">
         <span class="result-summary">${parsed.issues.length}件の修正箇所</span>
-        <div style="display:flex;gap:6px;">
-          <button class="copy-all-btn" onclick="copyAll()">全件コピー</button>
-          <button class="copy-full-btn" onclick="copyFullText(this)">修正済み全文をコピー</button>
-        </div>
+        <button class="copy-full-btn" onclick="copyFullText(this)">修正済み全文をコピー</button>
       </div>
       ${cards}`;
 
