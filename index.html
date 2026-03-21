@@ -653,7 +653,7 @@
 
     const savedName = localStorage.getItem('username');
     if (savedName) {
-      typeGreeting(document.getElementById('login-greeting'), getGreeting(savedName));
+      typeGreeting(document.getElementById('login-greeting'), getGreeting(savedName), 120);
       document.getElementById('switch-user-wrap').style.display = 'block';
       document.getElementById('name-select').value = savedName;
       document.querySelector('input[name="username"]').value = savedName;
