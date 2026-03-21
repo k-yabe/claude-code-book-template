@@ -634,9 +634,17 @@
     }
 
     // 名前が保存済みなら名前選択をスキップ
+    function getGreeting(name) {
+      const h = new Date().getHours();
+      const base = h >= 5 && h < 11 ? 'おはようございます' :
+                   h >= 11 && h < 18 ? 'こんにちは' :
+                   h >= 18 && h < 23 ? 'こんばんは' : 'お疲れ様です';
+      return name ? `${base}、${name.split(' ')[0]}さん` : base;
+    }
+
     const savedName = localStorage.getItem('username');
     if (savedName) {
-      document.getElementById('login-greeting').textContent = `こんにちは、${savedName.split(' ')[0]}さん`;
+      document.getElementById('login-greeting').textContent = getGreeting(savedName);
       document.getElementById('switch-user-wrap').style.display = 'block';
       document.getElementById('name-select').value = savedName;
       document.querySelector('input[name="username"]').value = savedName;
