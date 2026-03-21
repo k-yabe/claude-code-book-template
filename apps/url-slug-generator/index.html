@@ -697,7 +697,7 @@
         if (slugs.length === 0) throw new Error('候補の生成に失敗しました。もう一度お試しください。');
 
         _currentSlugs = slugs;
-        HistoryManager.save(titleInput.value || '', slugs.join('\n'));
+        HistoryManager.save(document.getElementById('title-input').value || '', slugs.join('\n'));
         _isSorted = true;
         const sortBtn = document.getElementById('sort-btn');
         if (sortBtn) { sortBtn.classList.add('active'); sortBtn.textContent = '元の順序に戻す'; }
