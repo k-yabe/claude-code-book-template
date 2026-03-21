@@ -612,27 +612,22 @@
             </div>`).join('')}
         </div>`;
 
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        dropdown.classList.toggle('open');
+      const wrap = document.querySelector('.changelog-wrap');
+      btn.addEventListener('click', () => dropdown.classList.toggle('open'));
+      document.addEventListener('click', e => {
+        if (!wrap.contains(e.target)) dropdown.classList.remove('open');
       });
-      document.addEventListener('click', () => dropdown.classList.remove('open'));
     }
 
     function showApp() {
       loginScreen.style.opacity = '0';
       setTimeout(() => {
         loginScreen.style.display = 'none';
-        appScreen.style.display   = 'block';
-        // ナビバーにユーザー名を表示
-        const name = localStorage.getItem('username') || sessionStorage.getItem('username');
-        if (name) {
-          document.getElementById('navbar-username').textContent = name.split(' ')[0];
-        }
-        // カードをスタッガーでフェードイン
+        // カードの遅延をセットしてからdisplay:block
         document.querySelectorAll('.grid a.card').forEach((card, i) => {
           card.style.animationDelay = `${i * 60}ms`;
         });
+        appScreen.style.display = 'block';
         loadAntennaBadge();
         initChangelog();
       }, 450);
