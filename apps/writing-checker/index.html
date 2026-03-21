@@ -101,7 +101,7 @@
     .result-area { margin-top: 16px; }
 
     .result-ok {
-      background: #fffbf0; border: 1.5px solid #ffb81c; padding: 20px 22px;
+      background: #fff; border-left: 3px solid #ffb81c; padding: 20px 22px;
       display: flex; align-items: center; gap: 12px;
     }
     .result-ok-text { font-size: 0.9rem; font-weight: 700; color: #001f33; }
@@ -173,33 +173,30 @@
     }
     .copy-all-btn:hover { border-color: #001f33; color: #001f33; }
     .copy-full-btn {
-      background: #001f33; border: none; color: #fff;
-      font-size: 0.82rem; font-weight: 700; padding: 8px 18px; cursor: pointer;
+      background: #ffb81c; border: none; color: #001f33;
+      font-size: 0.78rem; font-weight: 800; padding: 6px 14px; cursor: pointer;
       font-family: inherit; transition: opacity 0.15s;
     }
     .copy-full-btn:hover { opacity: 0.75; }
 
     /* 修正済み全文エリア */
-    .corrected-section {
-      margin-top: 24px; background: #fff; border: 1.5px solid #e8ecf0;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
+    .corrected-section { margin-top: 24px; }
     .corrected-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 18px; border-bottom: 1px solid #f0f2f5; background: #fafbfc;
+      padding: 12px 18px; background: #001f33;
     }
     .corrected-title-wrap { display: flex; align-items: center; gap: 10px; }
     .corrected-badge {
-      width: 24px; height: 24px; background: #001f33; color: #ffb81c;
+      width: 22px; height: 22px; background: #ffb81c; color: #001f33;
       font-size: 0.72rem; font-weight: 800; display: flex; align-items: center;
       justify-content: center; flex-shrink: 0;
     }
-    .corrected-title { font-size: 0.85rem; font-weight: 700; color: #001f33; }
+    .corrected-title { font-size: 0.85rem; font-weight: 700; color: #fff; }
     .corrected-textarea {
       width: 100%; min-height: 160px; padding: 14px 18px;
       font-size: 0.88rem; font-family: inherit; color: #2d3436; line-height: 1.7;
-      border: none; resize: vertical; outline: none; box-sizing: border-box;
-      background: #fff;
+      border: none; border-left: 3px solid #ffb81c; resize: vertical; outline: none;
+      box-sizing: border-box; background: #fff;
     }
   </style>
 </head>

@@ -17,6 +17,42 @@
       "mcp__ide__*",
       "Agent(*)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "Read the hook input JSON from stdin. Extract the file path from tool_input.file_path. If the file path contains 'apps/' and ends with '.html', do the following:\n1. Run this command to take a screenshot: npx playwright screenshot 'http://localhost:3456/<path-after-claude-code-book-template>' /tmp/ui-check-latest.png --wait-for-timeout 2000\n   (replace <path-after-claude-code-book-template> with the part after 'claude-code-book-template/' in the file path)\n2. Read the screenshot file at /tmp/ui-check-latest.png\n3. Review the UI for design issues including:\n   - Layout, alignment, spacing, anything that looks broken or inconsistent\n   - AKKODiS BRAND VIOLATIONS (report as NG if found):\n     * Colors: Only 5 brand colors allowed: #001f33, #ffb81c, #00ffff, #000000, #ffffff (and their 20/40/60/80% tones). Any other color (e.g. #fffbf0, #fde89a, #f0faf4, #fafbfc, #e8ecf0) is NG.\n     * No border-radius on rectangular shapes (border-radius: 50% for circles is OK)\n     * No colored border on colored shapes (e.g. yellow border on white box is NG; only neutral gray border or border-left accent is OK)\n     * Wide yellow or cyan backgrounds are NG — use navy or white as background; yellow/cyan for accents only\n4. Return a SHORT review (3-5 lines max) as hookSpecificOutput.additionalContext. List each NG item on its own line.\n\nIf the file is NOT in apps/ or NOT .html, output nothing and exit 0.",
+            "timeout": 45,
+            "statusMessage": "UIをチェック中..."
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\a'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\a'"
+          }
+        ]
+      }
+    ]
   }
 }
-
