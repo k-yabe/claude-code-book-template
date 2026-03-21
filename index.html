@@ -638,7 +638,7 @@
       fetch('/api/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user, action, app, timestamp: new Date().toISOString() }),
+        body: JSON.stringify({ user, action, app, timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }) }),
       }).catch(() => {});
     }
 

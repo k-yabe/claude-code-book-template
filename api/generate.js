@@ -15,7 +15,7 @@ export default async function handler(req, res) {
       fetch(logEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: _user, action: 'generate', app: _app || '', timestamp: new Date().toISOString() }),
+        body: JSON.stringify({ user: _user, action: 'generate', app: _app || '', timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }) }),
       }).catch(() => {});
     }
 
