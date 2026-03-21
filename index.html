@@ -653,13 +653,13 @@
 
     const savedName = localStorage.getItem('username');
     if (savedName) {
-      typeGreeting(document.getElementById('login-greeting'), getGreeting(savedName), 120);
+      typeGreeting(document.getElementById('login-greeting'), getGreeting(savedName), 90);
       document.getElementById('switch-user-wrap').style.display = 'block';
       document.getElementById('name-select').value = savedName;
       document.querySelector('input[name="username"]').value = savedName;
     } else {
       document.getElementById('name-wrap').style.display = 'block';
-      typeGreeting(document.getElementById('login-greeting'), 'Marketing Apps', 120);
+      typeGreeting(document.getElementById('login-greeting'), 'Marketing Apps', 90);
     }
 
     document.getElementById('switch-user-btn')?.addEventListener('click', () => {
