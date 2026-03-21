@@ -173,22 +173,23 @@
     }
     .copy-all-btn:hover { border-color: #001f33; color: #001f33; }
     .copy-full-btn {
-      background: none; border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.7);
-      font-size: 0.68rem; font-weight: 700; padding: 3px 9px; cursor: pointer;
+      background: none; border: 1px solid #e8ecf0; color: #8a9bb0;
+      font-size: 0.72rem; font-weight: 700; padding: 4px 12px; cursor: pointer;
       font-family: inherit; transition: all 0.15s; white-space: nowrap;
     }
-    .copy-full-btn:hover { border-color: #ffb81c; color: #ffb81c; }
+    .copy-full-btn:hover { border-color: #001f33; color: #001f33; }
 
     /* 修正済み全文エリア */
-    .corrected-section { margin-top: 16px; background: #fff; border: 1px solid #e8ecf0; transition: border-color 0.15s; }
-    .corrected-section:focus-within { border-color: #ffb81c; }
+    .corrected-section { margin-top: 20px; }
     .corrected-header {
-      background: #001f33; display: flex; align-items: center;
-      justify-content: space-between; padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
     }
-    .corrected-title {
-      font-size: 0.88rem; font-weight: 700; color: #fff;
+    .corrected-title { font-size: 0.78rem; font-weight: 700; color: #001f33; }
+    .corrected-card {
+      background: #fff; border: 1px solid #e8ecf0;
+      border-left: 3px solid #ffb81c; transition: border-color 0.15s;
     }
+    .corrected-card:focus-within { border-color: #ffb81c; }
     .corrected-textarea {
       width: 100%; min-height: 180px; padding: 14px 16px;
       font-size: 0.9rem; font-family: inherit; color: #2d3436; line-height: 1.7;
@@ -458,7 +459,9 @@
           <span class="corrected-title">修正済み全文</span>
           <button class="copy-full-btn" onclick="copyFullText(this)">コピー</button>
         </div>
-        <textarea class="corrected-textarea" id="corrected-text">${escHtml(correctedText)}</textarea>
+        <div class="corrected-card">
+          <textarea class="corrected-textarea" id="corrected-text">${escHtml(correctedText)}</textarea>
+        </div>
       </div>`;
 
     window._currentIssues = parsed.issues;
