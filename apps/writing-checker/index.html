@@ -172,6 +172,12 @@
       font-family: inherit; transition: all 0.15s;
     }
     .copy-all-btn:hover { border-color: #001f33; color: #001f33; }
+    .copy-full-btn {
+      background: #001f33; border: none; color: #fff;
+      font-size: 0.72rem; font-weight: 700; padding: 4px 12px; cursor: pointer;
+      font-family: inherit; transition: opacity 0.15s;
+    }
+    .copy-full-btn:hover { opacity: 0.75; }
   </style>
 </head>
 <body>
@@ -421,7 +427,10 @@
     el.innerHTML = `
       <div class="result-actions">
         <span class="result-summary">${parsed.issues.length}件の修正箇所</span>
-        <button class="copy-all-btn" onclick="copyAll()">全件コピー</button>
+        <div style="display:flex;gap:6px;">
+          <button class="copy-all-btn" onclick="copyAll()">全件コピー</button>
+          <button class="copy-full-btn" onclick="copyFullText(this)">修正済み全文をコピー</button>
+        </div>
       </div>
       ${cards}`;
 
@@ -442,6 +451,7 @@
       text = uploadedText;
     }
 
+    window._originalText = text;
     const btn = document.getElementById('check-btn');
     btn.disabled = true;
     btn.textContent = 'チェック中...';
@@ -479,6 +489,20 @@
       btn.textContent = '✓';
       btn.classList.add('copied');
       setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 1500);
+    });
+  }
+
+  function copyFullText(btn) {
+    const issues = window._currentIssues || [];
+    let text = window._originalText || '';
+    for (const issue of issues) {
+      if (issue.problem && issue.fix) {
+        text = text.split(issue.problem).join(issue.fix);
+      }
+    }
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ コピーしました';
+      setTimeout(() => { btn.textContent = '修正済み全文をコピー'; }, 1500);
     });
   }
 
