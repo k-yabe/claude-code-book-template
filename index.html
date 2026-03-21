@@ -642,7 +642,10 @@
 
     document.getElementById('login-form').addEventListener('submit', async e => {
       e.preventDefault();
-      const name = document.getElementById('name-select').value;
+      const nameWrapHidden = document.getElementById('name-wrap').style.display === 'none';
+      const name = nameWrapHidden
+        ? localStorage.getItem('username')
+        : document.getElementById('name-select').value;
       if (!name) { pwError.textContent = 'お名前を選択してください'; return; }
       const hash = await hashPassword(pwInput.value);
       if (hash === PW_HASH) {
