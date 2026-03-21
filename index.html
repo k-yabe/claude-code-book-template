@@ -425,7 +425,7 @@
       <h2 id="login-greeting">Marketing Apps</h2>
       <p class="login-tagline">業務効率化ツール集</p>
       <form id="login-form" autocomplete="on">
-        <div id="name-wrap">
+        <div id="name-wrap" style="display:none;">
           <select id="name-select" style="width:100%;padding:14px 18px;margin-bottom:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.95rem;font-family:inherit;outline:none;appearance:none;">
             <option value="" disabled selected style="color:#999;">お名前を選択してください</option>
             <option value="Kunito Yabe">Kunito Yabe</option>
@@ -610,9 +610,10 @@
     const savedName = localStorage.getItem('username');
     if (savedName) {
       document.getElementById('login-greeting').textContent = `こんにちは、${savedName.split(' ')[0]}さん`;
-      document.getElementById('name-wrap').style.display = 'none';
       document.getElementById('switch-user-wrap').style.display = 'block';
       document.getElementById('name-select').value = savedName;
+    } else {
+      document.getElementById('name-wrap').style.display = 'block';
     }
 
     document.getElementById('switch-user-btn')?.addEventListener('click', () => {
@@ -621,6 +622,7 @@
       document.getElementById('name-wrap').style.display = 'block';
       document.getElementById('switch-user-wrap').style.display = 'none';
       document.getElementById('name-select').value = '';
+      pwError.textContent = '';
     });
 
     // localStorageから復元（sessionStorageにも同期）
