@@ -383,6 +383,7 @@
 </div>
 
 <script>
+  if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
   const NEW_DAYS = 14;
   const THIS_YEAR = new Date().getFullYear();
   localStorage.setItem('antennaLastVisit', Date.now());

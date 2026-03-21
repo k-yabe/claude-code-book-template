@@ -493,6 +493,7 @@
   </div>
 
   <script>
+    if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
     const URL_REGEX = /https?:\/\/[^\s\u3000\u3001\u3002\uff01\uff09\u300d\uff0c]+/g;
 
     // URL一覧の状態管理（originalUrl: 元URL, editedUrl: 編集後URL）

@@ -521,6 +521,7 @@
   </div>
 
   <script>
+    if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
     // ── フェッチ（自前APIルート → 公開プロキシのフォールバック）──
     async function fetchPage(url) {
       const enc = encodeURIComponent(url);
