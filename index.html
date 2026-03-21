@@ -442,7 +442,7 @@
         <div id="switch-user-wrap" style="display:none;margin-bottom:10px;text-align:right;">
           <button type="button" id="switch-user-btn" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.75rem;cursor:pointer;font-family:inherit;padding:0;">別の名前でログイン →</button>
         </div>
-        <input type="text" name="username" autocomplete="username" style="display:none" value="marketing-team" />
+        <input type="text" name="username" autocomplete="username" style="position:absolute;opacity:0;height:0;width:0;padding:0;border:0;overflow:hidden;" value="marketing-team" />
         <input type="password" id="pw-input" name="password" placeholder="Password" autocomplete="current-password" />
         <button type="submit">Sign In</button>
       </form>
@@ -612,6 +612,7 @@
       document.getElementById('login-greeting').textContent = `こんにちは、${savedName.split(' ')[0]}さん`;
       document.getElementById('switch-user-wrap').style.display = 'block';
       document.getElementById('name-select').value = savedName;
+      document.querySelector('input[name="username"]').value = savedName;
     } else {
       document.getElementById('name-wrap').style.display = 'block';
     }
