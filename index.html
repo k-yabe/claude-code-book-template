@@ -674,7 +674,9 @@
     // localStorageから復元（sessionStorageにも同期）
     if (localStorage.getItem('auth') === '1') {
       if (savedName) sessionStorage.setItem('username', savedName);
-      showApp();
+      // タイピングアニメーションが見えるよう少し待ってから遷移
+      const greetingLen = getGreeting(savedName).length;
+      setTimeout(showApp, greetingLen * 90 + 300);
     }
 
     function sendLog(action, app = '') {
