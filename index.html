@@ -312,6 +312,14 @@
       gap: 12px;
       justify-content: center;
     }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .grid a.card {
+      opacity: 0;
+      animation: cardIn 0.4s ease both;
+    }
 
     /* ── フッター ── */
     .portal-footer {
@@ -471,6 +479,7 @@
           <button class="changelog-btn" id="changelog-btn"><span class="changelog-btn-dot"></span>WHAT'S NEW</button>
           <div class="changelog-dropdown" id="changelog-dropdown"></div>
         </div>
+        <span id="navbar-username" style="font-size:0.78rem;color:rgba(255,255,255,0.55);"></span>
         <button class="logout-btn" id="logout-btn">Sign out</button>
       </div>
     </nav>
@@ -616,6 +625,15 @@
       setTimeout(() => {
         loginScreen.style.display = 'none';
         appScreen.style.display   = 'block';
+        // ナビバーにユーザー名を表示
+        const name = localStorage.getItem('username') || sessionStorage.getItem('username');
+        if (name) {
+          document.getElementById('navbar-username').textContent = name.split(' ')[0];
+        }
+        // カードをスタッガーでフェードイン
+        document.querySelectorAll('.grid a.card').forEach((card, i) => {
+          card.style.animationDelay = `${i * 60}ms`;
+        });
         loadAntennaBadge();
         initChangelog();
       }, 450);
