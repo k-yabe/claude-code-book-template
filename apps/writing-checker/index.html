@@ -269,6 +269,7 @@
   <div class="result-area" id="result"></div>
 </div>
 
+<script src="../../assets/history.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
   if (typeof pdfjsLib !== 'undefined') {
@@ -531,7 +532,12 @@
       if (!r.ok) throw new Error(data.error?.message || 'チェックに失敗しました');
       const raw = data.content?.[0]?.text || '';
       if (!raw) throw new Error('チェックに失敗しました');
-      renderResult(parseResult(raw));
+      const parsed = parseResult(raw);
+      renderResult(parsed);
+      if (!parsed.ok) {
+        const corrected = document.getElementById('corrected-display')?.innerText || '';
+        HistoryManager.save(text.slice(0, 300), corrected);
+      }
     } catch (err) {
       errEl.textContent = err.message;
     } finally {
@@ -588,6 +594,7 @@
   }
 
   document.getElementById('check-btn').addEventListener('click', runCheck);
+  HistoryManager.init('Writing Checker');
 
   document.getElementById('reset-btn').addEventListener('click', () => {
     document.getElementById('text-input').value = '';

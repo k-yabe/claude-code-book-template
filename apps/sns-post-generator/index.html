@@ -965,6 +965,8 @@ ${styleRule}
 
       saveUrlHistory(url);
       renderResults(parsed);
+      const firstPattern = parsed.patterns[0] || '';
+      HistoryManager.save((url || prompt || '').slice(0, 300), firstPattern);
       loadingArea.style.display = 'none';
       resultsArea.style.display = 'block';
 
@@ -1013,6 +1015,8 @@ ${styleRule}
     if (e.key === 'Enter') generate();
   });
 </script>
+<script src="../../assets/history.js"></script>
+<script>HistoryManager.init('Post Generator');</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
   if (typeof pdfjsLib !== 'undefined') {

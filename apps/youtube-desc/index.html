@@ -603,6 +603,8 @@ X→ https://x.com/AkkodisJapan
       document.getElementById('out-desc').textContent = desc;
       updateDescCounter(desc);
       document.getElementById('out-tags').textContent = parsed.hashtags || '';
+      const scriptInput = document.getElementById('script-input')?.value || '';
+      HistoryManager.save(scriptInput.slice(0, 300), `${parsed.title}\n\n${desc}\n\n${parsed.hashtags}`);
       // YouTubeプレビューを更新
       ytExpanded = false;
       renderYtPreview(desc);
@@ -631,5 +633,7 @@ X→ https://x.com/AkkodisJapan
     });
   }
 </script>
+<script src="../../assets/history.js"></script>
+<script>HistoryManager.init('YouTube Generator');</script>
 </body>
 </html>
