@@ -642,9 +642,18 @@
       return name ? `${base}、${name.split(' ')[0]}さん` : base;
     }
 
+    function typeGreeting(el, text, speed = 60) {
+      el.textContent = '';
+      let i = 0;
+      const timer = setInterval(() => {
+        el.textContent += text[i++];
+        if (i >= text.length) clearInterval(timer);
+      }, speed);
+    }
+
     const savedName = localStorage.getItem('username');
     if (savedName) {
-      document.getElementById('login-greeting').textContent = getGreeting(savedName);
+      typeGreeting(document.getElementById('login-greeting'), getGreeting(savedName));
       document.getElementById('switch-user-wrap').style.display = 'block';
       document.getElementById('name-select').value = savedName;
       document.querySelector('input[name="username"]').value = savedName;
