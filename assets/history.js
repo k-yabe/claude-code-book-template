@@ -43,6 +43,7 @@ const HistoryManager = {
           <div class="hm-entry-time">${this._fmt(e.timestamp)}</div>
           <div class="hm-entry-input">${this._esc(e.input)}${e.input.length >= 300 ? '…' : ''}</div>
           ${e.url ? `<div class="hm-entry-url">${this._esc(e.url)}</div>` : ''}
+          ${e.output ? `<div class="hm-entry-preview">${this._esc(e.output.slice(0, 60))}${e.output.length > 60 ? '…' : ''}</div>` : ''}
           <button class="hm-copy-btn" data-idx="${i}">📋 コピー</button>
         </div>
       `).join('');
@@ -172,7 +173,12 @@ const HistoryManager = {
       }
       .hm-copy-btn:hover { border-color: #001f33; color: #001f33; }
       .hm-entry-url {
-        font-size: 0.7rem; color: #a0aab4; margin-bottom: 8px;
+        font-size: 0.7rem; color: #a0aab4; margin-bottom: 6px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .hm-entry-preview {
+        font-size: 0.78rem; color: #8a9bb0; line-height: 1.4; margin-bottom: 8px;
+        padding: 6px 8px; background: #f8f9fa; border-left: 2px solid #e2e8f0;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
     `;
