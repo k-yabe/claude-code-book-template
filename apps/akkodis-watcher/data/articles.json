@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-03-21T23:17:09Z",
+  "last_scraped": "2026-03-22T23:20:27Z",
   "articles": [
     {
       "id": "nvidia-gtc-2026-digital-engineering",
@@ -172,6 +172,60 @@
       "summary_ja": "Akkodisで働くSalesforce開発者のエリオットは、実装やプロトタイピングといった技術業務と新しいAI機能の試験的活用を組み合わせながら、多様なクライアントプロジェクトを通じてスキルを素早く高めています。社内では週次の勉強会や先輩からの指導が常に行われており、開発者は最新の技術動向に対応しながら着実に成長できる環境が整備されています。リモートワークに対応した柔軟な働き方と信頼関係のあるチーム体制により、仕事のパフォーマンスと個人の生活のバランスを両立させながらキャリアを築いていくことができます。"
     },
     {
+      "id": "akkodis-thinkers-and-makers-vol3-2025",
+      "title": "Thinkers & Makers Vol.3 2025",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers_and_makers_vol3_2025.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2025",
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "thinkers-and-makers-vol2-2025",
+      "title": "Thinkers & Makers Vol.2 2025",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol2_2025.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2025",
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "thinkers-and-makers-vol1-2025",
+      "title": "Thinkers & Makers Vol.1 2025",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol1_2025.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2025",
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "thinkers-and-makers-vol-3---2024",
+      "title": "Thinkers And Makers Vol 3   2024",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-3-_-2024.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2024",
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "thinkers-and-makers-vol-2---2024",
+      "title": "Thinkers And Makers Vol 2   2024",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-2-_-2024.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2024",
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "akkodis-thinkers-and-makers-vol-01-2024new",
+      "title": "Thinkers & Makers Vol.1 2024",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers-and-makers_vol_01_2024new.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2024",
+      "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
       "id": "integrated-sensor-technology-analytics-platform",
       "title": "Integrated Sensor Analytics Platform for Fleet Efficiency",
       "url": "https://www.akkodis.com/en/blog/client-success/integrated-sensor-technology-analytics-platform",
@@ -342,6 +396,16 @@
       "summary_ja": "アッコディスは、文書処理の自動化を手がけるフランス企業向けにセールスフォースの脱炭素クラウドソリューションを導入し、企業全体の9つの事業部門から排出量データを一元管理できるようにしました。廃棄物管理の専用モジュールを開発して正確な炭素排出量の指標を数値化し、リアルタイムで監視できるダッシュボードを構築することで、サステナビリティ報告書の信頼性を高めました。多言語・多通貨対応による複雑な制約を排除しながら、カーボンフットプリントを削減し財務報告をより効率的に行える仕組みを整備しました。"
     },
     {
+      "id": "zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
+      "title": "View\nkeyboard_arrow_right",
+      "url": "https://www.akkodis.com/en/blog/client-success/zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-22T23:19:19Z",
+      "published_date": null,
+      "summary_ja": "Akkodisは40年以上の業界経験を持つ4万人以上のエンジニアと専門家を活かし、企業のイノベーション加速とデジタル変革をコンサルティング、ソリューション提供、人材派遣、人材育成の4つのサービスで支援しています。同社は技術と人材を組み合わせることで、クライアント、候補者、パートナーに対して測定可能な成果をもたらすことを目指しており、自動車から医療まで様々な業界で信頼を獲得しています。AIやデジタル技術を活用した診断ツール開発やエンタープライズAI導入など、最新の技術トレンドに対応したソリューションで、企業の競争力強化を支援しています。"
+    },
+    {
       "id": "automotive-company-speeds-up-education-programs-adoption",
       "title": "Automotive Company’s Speeds Up Education Programs Adoption",
       "url": "https://www.akkodis.com/en/blog/client-success/automotive-company-speeds-up-education-programs-adoption",
@@ -452,6 +516,16 @@
       "summary_ja": "BMWグループは経験豊富な退職者の知識が失われるのを防ぐため、シニア・エキスパート・プログラムを立ち上げ、元従業員が短期プロジェクトで若い世代に知識を伝承する仕組みを構築しました。アコディスは従業員管理プラットフォーム「BEEPLE」をBMWグループの要件に合わせてカスタマイズし、プールの設計から契約管理、面接調整まで一貫してサポートしました。プログラム開始以来50以上のプロジェクトが実施され、アコディスの人材採用経験とプラットフォームの柔軟性により、BMWグループは100年間培った従業員の経験と専門知識を次世代に確実に引き継ぐことができるようになりました。"
     },
     {
+      "id": "personal-rekrutierung-fur-value-added-reseller",
+      "title": "View\nkeyboard_arrow_right",
+      "url": "https://www.akkodis.com/en/blog/client-success/personal-rekrutierung-fur-value-added-reseller",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-22T23:19:49Z",
+      "published_date": null,
+      "summary_ja": "Akkodisは40年以上の業界経験と40,000人以上のエンジニアを擁するデジタルエンジニアリング企業で、コンサルティング、ソリューション、人材派遣、人材育成の4つのサービスを通じて企業のイノベーション加速と事業変革を支援しています。同社は最新のテクノロジーと人間の可能性を組み合わせることで、自動車・航空宇宙・ヘルスケア・エネルギーなど多岐にわたる業界で企業の課題解決に取り組んでいます。特にAI技術を活用した医療診断の高度化や、AIの企業導入に向けたロードマップ設計など、次世代のビジネス課題にも積極的に対応しています。"
+    },
+    {
       "id": "akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
       "title": "Akkodis Delivers Cost Efficiencies in EE’s SD Management",
       "url": "https://www.akkodis.com/en/blog/client-success/akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
@@ -510,80 +584,6 @@
       "first_seen": "2026-03-14T12:21:49Z",
       "published_date": null,
       "summary_ja": "Adeccoが新規開発したモバイルアプリプロジェクトで、社内人員不足を補うため、Akkodisに20名以上のエンジニアチームの派遣を依頼されました。Akkodisは採用段階で実践的なタスクを導入し、プロジェクト内容の価値を候補者に丁寧に説明することで、必要な技術スキルと適性を持つ人材の確保に成功しました。チームは限られた納期の中で高い技術力とプロジェクト管理の専門知識を提供し、クライアント満足度を実現したことで、Akkodisの組織全体での認知度向上と従業員のキャリア発展につながりました。"
-    },
-    {
-      "id": "british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
-      "title": "British Airways Transforms Its IT Function",
-      "url": "https://www.akkodis.com/en/blog/client-success/british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-16T01:57:15Z",
-      "published_date": null,
-      "summary_ja": "ブリティッシュ・エアウェイズは世界中の空港から寄せられるIT関連の問題に対応するため、ニューキャッスルに新しいサービスセンターを開設しましたが、スタッフの確保と離職対策が課題となっていました。アッコディスは50人以上のIT専門家からなるチームを派遣し、採用や人材管理の負担を引き取るとともに、継続的な研修で技術レベルを維持するマネージド・サービスを提供しました。その結果、英国内のサービスセンターを統合して世界規模のサポート体制を整備し、コスト削減と安定したサービス提供を同時に実現することができました。"
-    },
-    {
-      "id": "rbc-railway",
-      "title": "Ensuring Rail Software Safety: Akkodis Validation Services",
-      "url": "https://www.akkodis.com/en/blog/client-success/rbc-railway",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-16T01:57:22Z",
-      "published_date": null,
-      "summary_ja": "ヨーロッパの鉄道インフラメーカーから、列車制御システムの中核となるRBC（ラジオブロックセンター）ソフトウェアの検証業務を受託しました。ソフトウェアの動作を専用のテスト環境で再現し、様々な運用シナリオをシミュレーションすることで、安全性と機能要件への適合性を徹底的に検証しました。2019年からの長年の実績を通じて、年2回のペースで複数市場向けのソフトウェアバージョンを同時検証し、納期厳守と規制対応を両立させながら、クライアントの信頼を獲得しています。"
-    },
-    {
-      "id": "akkodis-thinkers-and-makers-vol3-2025",
-      "title": "Thinkers & Makers Vol.3 2025",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers_and_makers_vol3_2025.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2025",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "thinkers-and-makers-vol2-2025",
-      "title": "Thinkers & Makers Vol.2 2025",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol2_2025.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2025",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "thinkers-and-makers-vol1-2025",
-      "title": "Thinkers & Makers Vol.1 2025",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol1_2025.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2025",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "thinkers-and-makers-vol-3---2024",
-      "title": "Thinkers And Makers Vol 3   2024",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-3-_-2024.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2024",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "thinkers-and-makers-vol-2---2024",
-      "title": "Thinkers And Makers Vol 2   2024",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-2-_-2024.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2024",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "akkodis-thinkers-and-makers-vol-01-2024new",
-      "title": "Thinkers & Makers Vol.1 2024",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers-and-makers_vol_01_2024new.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2024",
-      "first_seen": "2026-03-14T10:15:00Z"
     }
   ]
 }
