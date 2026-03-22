@@ -634,6 +634,9 @@
         sourceImage = img;
         renderCropPreview(img);
         renderAll();
+        const allSizes = [...SIZES, ...customSizes];
+        const sizeList = allSizes.map(s => `${s.label || `${s.w}x${s.h}`}`).join(', ');
+        HistoryManager.save(file.name, `${file.name} → ${sizeList}`);
       };
       img.src = e.target.result;
     };
@@ -1014,5 +1017,7 @@
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
+  <script src="../../assets/history.js"></script>
+  <script>HistoryManager.init('Banner Resizer');</script>
 </body>
 </html>

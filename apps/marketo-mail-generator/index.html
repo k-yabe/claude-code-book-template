@@ -621,6 +621,7 @@
       renderUrlList();
       document.getElementById('output-section').style.display = 'block';
       document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      HistoryManager.save(campaign, document.getElementById('text-output').textContent);
     });
 
     function setupCopyBtn(btnId, getContent) {
@@ -750,5 +751,7 @@
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
+  <script src="../../assets/history.js"></script>
+  <script>HistoryManager.init('Marketo Mail Generator');</script>
 </body>
 </html>
