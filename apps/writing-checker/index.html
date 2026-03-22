@@ -221,11 +221,17 @@
       color: rgba(255,255,255,0.8);
     }
 
+    @media (max-width: 768px) {
+      .container { padding: 24px 20px 60px; }
+      .navbar { padding: 0 20px; }
+    }
+
     @media (max-width: 600px) {
       .navbar { padding: 0 16px; }
       .container { padding: 20px 16px 60px; }
     }
   </style>
+  <link rel="stylesheet" href="../../assets/app-styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
@@ -254,6 +260,7 @@
 
   <!-- テキスト入力 -->
   <div class="input-panel active" id="panel-text">
+    <label for="text-input" style="display:none;">チェックする文章</label>
     <textarea class="text-area" id="text-input" placeholder="チェックしたい文章を貼り付けてください"></textarea>
     <div class="char-count"><span id="char-count">0</span> 文字</div>
     <div class="sample-hint">はじめての方は <button class="sample-btn" id="sample-btn">サンプルテキストで試す →</button></div>
@@ -274,7 +281,7 @@
     <button class="check-btn" id="check-btn" style="margin-top:0;flex:1;">チェックする</button>
     <button class="reset-btn" id="reset-btn">クリア</button>
   </div>
-  <div class="error-msg" id="error-msg"></div>
+  <div class="error-msg" id="error-msg" role="alert"></div>
 
   <div id="loading" class="loading-msg" style="display:none;">
     チェック中
@@ -288,6 +295,7 @@
   <div class="result-area" id="result"></div>
 </div>
 
+<script src="../../assets/copy-utils.js"></script>
 <script src="../../assets/history.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
@@ -569,20 +577,13 @@
 
   function copyFix(btn, idx) {
     const fix = (window._currentIssues?.[idx]?.fix || '').replace(/^→\s*/, '');
-    navigator.clipboard.writeText(fix).then(() => {
-      btn.textContent = '✓';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 1500);
-    });
+    copyToClipboard(fix, btn);
   }
 
   function copyFullText(btn) {
     const el = document.getElementById('corrected-display');
     const text = el ? el.innerText : '';
-    navigator.clipboard.writeText(text).then(() => {
-      btn.innerHTML = '✅ コピー済み';
-      setTimeout(() => { btn.innerHTML = '📋 コピー'; }, 1500);
-    });
+    copyToClipboard(text, btn);
   }
 
   const SAMPLE_TEXT = `弊社のコンピュータシステムはクラウドサーバを活用し、ユーザの利便性を高めています。シュミレーション機能を用いた分析を行なうことで、より精度の高いサービスを提供しています。
@@ -606,11 +607,8 @@
     const text = issues.map((iss, i) =>
       `[${i+1}] ${iss.problem} → ${iss.fix}\n    ${iss.note}`
     ).join('\n\n');
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.querySelector('.copy-all-btn');
-      btn.textContent = '✓ コピーしました';
-      setTimeout(() => { btn.textContent = '全件コピー'; }, 1500);
-    });
+    const btn = document.querySelector('.copy-all-btn');
+    copyToClipboard(text, btn);
   }
 
   document.getElementById('check-btn').addEventListener('click', runCheck);

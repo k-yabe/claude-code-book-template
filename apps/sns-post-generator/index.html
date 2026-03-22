@@ -339,6 +339,11 @@
       color: rgba(255,255,255,0.8);
     }
 
+    @media (max-width: 768px) {
+      .container { padding: 24px 20px 60px; }
+      .navbar { padding: 0 20px; }
+    }
+
     @media (max-width: 600px) {
       .navbar { padding: 0 16px; }
       .container { padding: 20px 16px 60px; }
@@ -346,6 +351,7 @@
       .supp-options { grid-template-columns: 1fr; }
     }
   </style>
+  <link rel="stylesheet" href="../../assets/app-styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
@@ -380,7 +386,7 @@
         <button class="platform-tab" data-platform="linkedin">🔗 LinkedIn</button>
         <button class="platform-tab" data-platform="x">✦ X (Twitter)</button>
       </div>
-      <div class="field-label">記事URL</div>
+      <label for="url-input" class="field-label">記事URL</label>
       <div class="input-row">
         <div class="url-wrapper">
           <input class="url-input" id="url-input" type="text" placeholder="https://www.akkodis.com/..." autocomplete="off" style="width:100%;">
@@ -424,7 +430,7 @@
   </div>
 
   <button class="generate-btn" id="generate-btn">生成する</button>
-  <div class="error-msg" id="error-msg"></div>
+  <div class="error-msg" id="error-msg" role="alert"></div>
 
   <div class="output-section" id="output-section">
     <div id="loading-area" class="loading-msg" style="display:none;">
@@ -859,10 +865,7 @@ ${styleRule}
         </div>`;
 
       panel.querySelector('.copy-btn').addEventListener('click', function () {
-        navigator.clipboard.writeText(this.dataset.text).then(() => {
-          this.textContent = 'コピーしました';
-          setTimeout(() => { this.textContent = 'コピー'; }, 2000);
-        });
+        copyToClipboard(this.dataset.text, this);
       });
 
       // 修正エリアのトグル
@@ -1064,6 +1067,7 @@ ${styleRule}
 AIツールの活用により、コンテンツ制作の工数を従来の1/3に削減しながら、リード獲得数を3倍に伸ばした企業事例を紹介。マーケティングオートメーションとAIを組み合わせることで、ターゲットへの最適なタイミングでのアプローチが可能になる。2025年のBtoBマーケティングにおいて、AIは「あると便利」なツールから「なければ戦えない」インフラへと変わりつつある。`;
   });
 </script>
+<script src="../../assets/copy-utils.js"></script>
 <script src="../../assets/history.js"></script>
 <script>HistoryManager.init('Post Generator');</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>

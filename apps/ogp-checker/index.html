@@ -452,6 +452,11 @@
       color: rgba(255,255,255,0.8);
     }
 
+    @media (max-width: 768px) {
+      .container { padding: 24px 20px 60px; }
+      .navbar { padding: 0 20px; }
+    }
+
     @media (max-width: 600px) {
       .navbar { padding: 0 16px; }
       .container { padding: 16px 16px 60px; }
@@ -460,6 +465,7 @@
       .preview-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <link rel="stylesheet" href="../../assets/app-styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
@@ -480,6 +486,7 @@
     <p class="subtitle">URLを入力してSNS表示・OGP・SEO・構造化データを一括確認</p>
 
     <div class="input-row">
+      <label for="url-input" style="display:none;">チェックするURL</label>
       <input type="text" id="url-input" placeholder="https://example.com/your-page" autocomplete="off" />
       <button class="check-btn" id="check-btn">チェック</button>
     </div>
@@ -487,7 +494,7 @@
       <span class="history-label">履歴</span>
       <div id="history-chips"></div>
     </div>
-    <div class="error-msg" id="error-msg"></div>
+    <div class="error-msg" id="error-msg" role="alert"></div>
 
     <div class="result-area" id="result-area">
 
@@ -897,15 +904,8 @@
         lines.push(`${icons[i.type]} ${i.msg}`);
       });
 
-      navigator.clipboard.writeText(lines.join('\n')).then(() => {
-        const btn = document.getElementById('copy-result-btn');
-        btn.classList.add('copied');
-        btn.textContent = '✅ コピーしました';
-        setTimeout(() => {
-          btn.classList.remove('copied');
-          btn.textContent = '📋 結果をコピー';
-        }, 2000);
-      }).catch(() => alert('クリップボードへのコピーに失敗しました'));
+      const btn = document.getElementById('copy-result-btn');
+      copyToClipboard(lines.join('\n'), btn);
     }
 
     // ── Markdownレポートコピー ────────────────────────────
@@ -942,12 +942,8 @@
         });
       }
 
-      navigator.clipboard.writeText(lines.join('\n')).then(() => {
-        const btn = document.getElementById('copy-md-btn');
-        btn.classList.add('copied');
-        btn.textContent = '✅ コピーしました';
-        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '📄 Markdownでコピー'; }, 2000);
-      }).catch(() => alert('クリップボードへのコピーに失敗しました'));
+      const mdBtn = document.getElementById('copy-md-btn');
+      copyToClipboard(lines.join('\n'), mdBtn);
     }
 
     // ── メタタグ HTML コピー ──────────────────────────────
@@ -967,12 +963,8 @@
       if (o.twitterDesc)  lines.push(`<meta name="twitter:description" content="${o.twitterDesc.replace(/"/g, '&quot;')}">`);
       if (o.twitterImage) lines.push(`<meta name="twitter:image" content="${o.twitterImage}">`);
       const text = lines.join('\n');
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('copy-tags-btn');
-        btn.classList.add('copied');
-        btn.textContent = '✅ コピーしました';
-        setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 メタタグをHTMLコピー'; }, 2000);
-      }).catch(() => { alert('クリップボードへのコピーに失敗しました'); });
+      const tagsBtn = document.getElementById('copy-tags-btn');
+      copyToClipboard(text, tagsBtn);
     }
 
     // ── メイン処理 ────────────────────────────────────────
@@ -1128,6 +1120,7 @@
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
+  <script src="../../assets/copy-utils.js"></script>
   <script src="../../assets/history.js"></script>
   <script>HistoryManager.init('OGP Checker');</script>
 </body>

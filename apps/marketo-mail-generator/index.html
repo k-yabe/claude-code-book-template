@@ -415,11 +415,17 @@
       color: rgba(255,255,255,0.8);
     }
 
+    @media (max-width: 768px) {
+      .container { padding: 24px 20px 60px; }
+      .navbar { padding: 0 20px; }
+    }
+
     @media (max-width: 600px) {
       .navbar { padding: 0 16px; }
       .container { padding: 20px 16px 60px; }
     }
   </style>
+  <link rel="stylesheet" href="../../assets/app-styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
@@ -449,6 +455,7 @@
       <div class="step-body">
         <div class="form-row">
           <span class="param-prefix">utm_campaign=ak_clt_</span>
+          <label for="campaign-input" style="display:none;">UTM Campaignパラメーター</label>
           <input
             type="text"
             class="param-input"
@@ -627,14 +634,7 @@
     function setupCopyBtn(btnId, getContent) {
       document.getElementById(btnId).addEventListener('click', function() {
         const content = getContent();
-        navigator.clipboard.writeText(content).then(() => {
-          this.textContent = 'コピーしました';
-          this.classList.add('copied');
-          setTimeout(() => {
-            this.textContent = 'コピー';
-            this.classList.remove('copied');
-          }, 2000);
-        });
+        copyToClipboard(content, this);
       });
     }
 
@@ -751,6 +751,7 @@
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
+  <script src="../../assets/copy-utils.js"></script>
   <script src="../../assets/history.js"></script>
   <script>HistoryManager.init('Marketo Mail Generator');</script>
 </body>

@@ -345,6 +345,11 @@
       color: rgba(255,255,255,0.8);
     }
 
+    @media (max-width: 768px) {
+      .container { padding: 24px 20px 60px; }
+      .navbar { padding: 0 20px; }
+    }
+
     @media (max-width: 600px) {
       .navbar { padding: 0 16px; }
       .container { padding: 20px 16px 60px; }
@@ -353,6 +358,7 @@
       .param-input { min-width: 0; width: 100%; }
     }
   </style>
+  <link rel="stylesheet" href="../../assets/app-styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
@@ -380,6 +386,7 @@
         <span class="step-badge badge-required">必須</span>
       </div>
       <div class="step-body">
+        <label for="title-input" style="display:none;">ページタイトル</label>
         <input type="text" id="title-input" placeholder="例：Azure AI で実現する次世代クラウド運用セミナー" autocomplete="off" />
         <div class="sample-hint">はじめての方は <button class="sample-btn" id="sample-btn">サンプルで試す →</button></div>
       </div>
@@ -415,7 +422,7 @@
       </div>
     </div>
 
-    <div class="error-msg" id="error-msg"></div>
+    <div class="error-msg" id="error-msg" role="alert"></div>
 
     <button class="generate-btn" id="generate-btn">候補を生成する</button>
 
@@ -631,28 +638,14 @@
 
       slugList.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-          navigator.clipboard.writeText(this.dataset.slug).then(() => {
-            this.textContent = 'コピーしました';
-            this.classList.add('copied');
-            setTimeout(() => {
-              this.textContent = 'コピー';
-              this.classList.remove('copied');
-            }, 2000);
-          });
+          copyToClipboard(this.dataset.slug, this);
         });
       });
 
       // 一括コピー
       const copyAllBtn = document.getElementById('copy-all-btn');
       copyAllBtn.onclick = () => {
-        navigator.clipboard.writeText(slugs.join('\n')).then(() => {
-          copyAllBtn.textContent = '✅ コピーしました';
-          copyAllBtn.classList.add('copied');
-          setTimeout(() => {
-            copyAllBtn.textContent = '全候補をまとめてコピー';
-            copyAllBtn.classList.remove('copied');
-          }, 2000);
-        });
+        copyToClipboard(slugs.join('\n'), copyAllBtn);
       };
     }
 
@@ -760,6 +753,7 @@
       }
     });
   </script>
+<script src="../../assets/copy-utils.js"></script>
 <script src="../../assets/history.js"></script>
 <script>HistoryManager.init('URL Slug Generator');</script>
 <script>

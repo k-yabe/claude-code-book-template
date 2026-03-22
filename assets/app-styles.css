@@ -1,0 +1,72 @@
+/**
+ * 共通アプリスタイル
+ * 全マーケティングアプリで統一されたデザインを提供する
+ */
+
+/* ── エラー表示 ─────────────────────────── */
+.error-msg {
+  background: #fff5f4;
+  border: 1.5px solid #fab1a0;
+  color: #c0392b;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  min-height: 1.2em;
+  display: none;
+}
+.error-msg.show,
+.error-msg:not(:empty) {
+  display: block;
+}
+
+/* ── コピーボタン共通状態 ───────────────── */
+.copy-btn.copied,
+[class*="copy"].copied {
+  background: #00b894 !important;
+  color: #fff !important;
+  border-color: #00b894 !important;
+}
+
+/* ── ボタン無効状態 ─────────────────────── */
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+/* ── フォーム入力フォーカス統一 ─────────── */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #ffb81c !important;
+  box-shadow: 0 0 0 3px rgba(255, 184, 28, 0.12);
+}
+
+/* ── タブレット対応（768px）────────────── */
+@media (max-width: 768px) {
+  .container,
+  .app-container {
+    padding: 24px 20px 60px;
+  }
+
+  /* 2カラムグリッドを1カラムに */
+  .two-col,
+  .merit-demerit,
+  .preview-grid,
+  .result-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ナビバー */
+  .navbar {
+    padding: 0 20px;
+  }
+
+  /* 生成ボタン */
+  .generate-btn,
+  .check-btn,
+  .submit-btn {
+    width: 100%;
+  }
+}
