@@ -6,6 +6,10 @@
     "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/root/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gitconfig,target=/root/.gitconfig,type=bind,consistency=cached"
+  ],
   "postCreateCommand": ".devcontainer/post_create.sh",
   "runArgs": ["--memory=6g", "--memory-swap=6g"]
 }
