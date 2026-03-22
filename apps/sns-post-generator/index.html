@@ -995,8 +995,13 @@ ${styleRule}
 
       saveUrlHistory(url);
       renderResults(parsed);
-      const firstPattern = parsed.patterns[0] || '';
-      HistoryManager.save((url || prompt || '').slice(0, 300), firstPattern);
+      const platformLabel = platform === 'chatter' ? 'Chatter' : platform === 'linkedin' ? 'LinkedIn' : 'X';
+      const articleTitle = (articleCache[url]?.title || '').slice(0, 30);
+      const historyLabel = articleTitle
+        ? `${platformLabel} ｜ ${articleTitle}`
+        : `${platformLabel} ｜ ${url.slice(0, 30)}`;
+      const recommendedPattern = parsed.patterns[parsed.recommend] || parsed.patterns[0] || '';
+      HistoryManager.save(historyLabel, recommendedPattern);
       loadingArea.style.display = 'none';
       resultsArea.style.display = 'block';
 
