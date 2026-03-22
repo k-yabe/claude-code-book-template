@@ -25,7 +25,7 @@
     }
     .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 
-    .container { max-width: 760px; margin: 0 auto; padding: 36px 24px 80px; }
+    .container { max-width: 800px; margin: 0 auto; padding: 36px 24px 80px; }
 
     /* ページヘッダー */
     .page-header { margin-bottom: 20px; }
@@ -76,7 +76,7 @@
       font-size: 0.9rem; color: #2d3436; font-family: inherit; outline: none;
       transition: border-color 0.15s; min-width: 0;
     }
-    .url-input:focus { border-color: #ffb81c; }
+    .url-input:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); outline: none; }
     .url-input::placeholder { color: #c8d0da; }
 
     /* 生成ボタン */
@@ -185,7 +185,7 @@
       font-family: inherit; color: #2d3436; outline: none; min-width: 0;
       transition: border-color 0.15s;
     }
-    .patch-input:focus { border-color: #ffb81c; }
+    .patch-input:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); outline: none; }
     .patch-input::placeholder { color: #c8d0da; }
     .patch-btn {
       padding: 8px 14px; background: #001f33; border: none; color: #fff;
@@ -226,7 +226,7 @@
       font-size: 0.85rem; font-family: inherit; color: #2d3436; resize: vertical;
       outline: none; box-sizing: border-box; transition: border-color 0.15s;
     }
-    .supp-textarea:focus { border-color: #ffb81c; }
+    .supp-textarea:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); outline: none; }
     .supp-textarea::placeholder { color: #c8d0da; }
     .supp-hint { font-size: 0.72rem; color: #a0aab4; margin-top: 6px; }
 
@@ -327,8 +327,8 @@
       margin-top: 40px;
     }
     .app-footer-text {
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.85);
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.45);
     }
   </style>
   <script defer src="/_vercel/insights/script.js"></script>
@@ -1038,7 +1038,7 @@ ${styleRule}
   }
 </script>
   <footer class="app-footer">
-    <span class="app-footer-text" style="color:rgba(255,255,255,0.5);">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
+    <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
 </body>
 </html>

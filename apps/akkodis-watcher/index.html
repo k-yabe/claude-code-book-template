@@ -168,7 +168,7 @@
       font-family: inherit;
       transition: border-color 0.2s;
     }
-    .filter-input:focus { border-color: #ffb81c; }
+    .filter-input:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); outline: none; }
     .filter-input::placeholder { color: #b2bec3; }
     .reset-read-btn {
       padding: 8px 16px;
@@ -323,8 +323,8 @@
       margin-top: 40px;
     }
     .app-footer-text {
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.85);
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.45);
     }
   </style>
   <script defer src="/_vercel/insights/script.js"></script>
@@ -625,7 +625,7 @@
     });
 </script>
   <footer class="app-footer">
-    <span class="app-footer-text" style="color:rgba(255,255,255,0.5);">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
+    <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
 </body>
 </html>
