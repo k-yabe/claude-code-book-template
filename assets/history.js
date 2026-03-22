@@ -1,5 +1,6 @@
 const HistoryManager = {
   currentApp: '',
+  _currentFilter: 'all',
 
   init(app) {
     this.currentApp = app;
@@ -22,6 +23,7 @@ const HistoryManager = {
       output: String(output),
     };
     if (meta?.url) entry.url = String(meta.url).slice(0, 300);
+    if (meta?.platform) entry.platform = String(meta.platform);
     entries.unshift(entry);
     localStorage.setItem(this.key(), JSON.stringify(entries.slice(0, 10)));
     this._updateBadge();
@@ -33,31 +35,51 @@ const HistoryManager = {
   },
 
   openPanel() {
+    this._currentFilter = 'all';
+    this._renderFilters();
     this._renderBody();
     document.getElementById('hm-panel').classList.add('open');
     document.getElementById('hm-overlay').classList.add('open');
   },
 
+  _renderFilters() {
+    const filterEl = document.getElementById('hm-filters');
+    if (!filterEl) return;
+    const entries = this.getAll();
+    const hasPlatform = entries.some(e => e.platform);
+    if (!hasPlatform) { filterEl.style.display = 'none'; return; }
+    filterEl.style.display = 'flex';
+    filterEl.querySelectorAll('.hm-filter-tab').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.filter === this._currentFilter);
+    });
+  },
+
   _renderBody() {
     const body = document.getElementById('hm-body');
-    const entries = this.getAll();
+    const allEntries = this.getAll();
+    const entries = this._currentFilter === 'all'
+      ? allEntries
+      : allEntries.filter(e => e.platform === this._currentFilter || (!e.platform && this._currentFilter === 'all'));
     if (entries.length === 0) {
       body.innerHTML = '<div class="hm-empty">まだ履歴がありません</div>';
     } else {
-      body.innerHTML = entries.map((e, i) => `
+      body.innerHTML = entries.map((e) => `
         <div class="hm-entry">
           <div class="hm-entry-header">
-            <div class="hm-entry-time">${this._fmt(e.timestamp)}</div>
+            <div class="hm-entry-header-left">
+              ${e.platform ? `<span class="hm-platform-badge hm-platform-${e.platform}">${e.platform}</span>` : ''}
+              <div class="hm-entry-time">${this._fmt(e.timestamp)}</div>
+            </div>
             <button class="hm-delete-btn" data-id="${e.id}" title="削除">×</button>
           </div>
           <div class="hm-entry-input">${this._esc(e.input)}${e.input.length >= 300 ? '…' : ''}</div>
           ${e.url ? `<div class="hm-entry-url">${this._esc(e.url)}</div>` : ''}
           ${e.output ? `<div class="hm-entry-preview">${this._esc(e.output.slice(0, 60))}${e.output.length > 60 ? '…' : ''}</div>` : ''}
-          <button class="hm-copy-btn" data-idx="${i}">📋 コピー</button>
+          <button class="hm-copy-btn" data-id="${e.id}">📋 コピー</button>
         </div>
       `).join('');
       body.querySelectorAll('.hm-copy-btn').forEach(btn => {
-        btn.addEventListener('click', () => this._copy(Number(btn.dataset.idx), btn));
+        btn.addEventListener('click', (ev) => this._copyById(Number(btn.dataset.id), ev.currentTarget));
       });
       body.querySelectorAll('.hm-delete-btn').forEach(btn => {
         btn.addEventListener('click', () => this._deleteEntry(Number(btn.dataset.id)));
@@ -77,8 +99,8 @@ const HistoryManager = {
     this._renderBody();
   },
 
-  _copy(index, btn) {
-    const entry = this.getAll()[index];
+  _copyById(id, btn) {
+    const entry = this.getAll().find(e => e.id === id);
     if (!entry) return;
     navigator.clipboard.writeText(entry.output).then(() => {
       btn.textContent = '✅ コピー済み';
@@ -129,9 +151,24 @@ const HistoryManager = {
         <button class="hm-close" onclick="HistoryManager.closePanel()">✕</button>
       </div>
       <div class="hm-subhead">クリックでコピー。端末ごとに最新10件保存。</div>
+      <div class="hm-filters" id="hm-filters" style="display:none;">
+        <button class="hm-filter-tab active" data-filter="all">全て</button>
+        <button class="hm-filter-tab" data-filter="Chatter">Chatter</button>
+        <button class="hm-filter-tab" data-filter="LinkedIn">LinkedIn</button>
+        <button class="hm-filter-tab" data-filter="X">X</button>
+      </div>
       <div class="hm-body" id="hm-body"></div>
     `;
     document.body.appendChild(panel);
+
+    // フィルタタブのクリック
+    panel.querySelectorAll('.hm-filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        this._currentFilter = tab.dataset.filter;
+        this._renderFilters();
+        this._renderBody();
+      });
+    });
   },
 
   _injectStyles() {
@@ -199,6 +236,24 @@ const HistoryManager = {
         font-size: 0.7rem; color: #a0aab4; margin-bottom: 6px;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
+      .hm-filters {
+        flex-shrink: 0; gap: 4px; padding: 8px 14px;
+        border-bottom: 1px solid #e8ecf0; background: #f8f9fa;
+      }
+      .hm-filter-tab {
+        background: none; border: 1px solid #e2e8f0; color: #8a9bb0;
+        font-size: 0.7rem; font-weight: 700; padding: 3px 10px; cursor: pointer;
+        font-family: inherit; transition: all 0.15s;
+      }
+      .hm-filter-tab:hover { border-color: #001f33; color: #001f33; }
+      .hm-filter-tab.active { background: #001f33; border-color: #001f33; color: #fff; }
+      .hm-entry-header-left { display: flex; align-items: center; gap: 6px; }
+      .hm-platform-badge {
+        font-size: 0.62rem; font-weight: 800; padding: 1px 6px; letter-spacing: 0.04em;
+      }
+      .hm-platform-Chatter { background: #e8f4ff; color: #1a6db5; }
+      .hm-platform-LinkedIn { background: #e8f0fb; color: #0a66c2; }
+      .hm-platform-X { background: #f0f0f0; color: #2d3436; }
       .hm-entry-preview {
         font-size: 0.78rem; color: #8a9bb0; line-height: 1.4; margin-bottom: 8px;
         padding: 6px 8px; background: #f8f9fa; border-left: 2px solid #e2e8f0;

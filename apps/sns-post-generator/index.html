@@ -1001,7 +1001,7 @@ ${styleRule}
         ? `${platformLabel} ｜ ${articleTitle}`
         : `${platformLabel} ｜ ${url.slice(0, 30)}`;
       const recommendedPattern = parsed.patterns[parsed.recommend] || parsed.patterns[0] || '';
-      HistoryManager.save(historyLabel, recommendedPattern, { url });
+      HistoryManager.save(historyLabel, recommendedPattern, { url, platform: platformLabel });
       loadingArea.style.display = 'none';
       resultsArea.style.display = 'block';
 
