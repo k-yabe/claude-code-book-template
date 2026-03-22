@@ -13,14 +13,16 @@ const HistoryManager = {
     return `mkapp_history_${user}_${this.currentApp}`;
   },
 
-  save(input, output) {
+  save(input, output, meta) {
     const entries = this.getAll();
-    entries.unshift({
+    const entry = {
       id: Date.now(),
       timestamp: new Date().toISOString(),
       input: String(input).slice(0, 300),
       output: String(output),
-    });
+    };
+    if (meta?.url) entry.url = String(meta.url).slice(0, 300);
+    entries.unshift(entry);
     localStorage.setItem(this.key(), JSON.stringify(entries.slice(0, 10)));
     this._updateBadge();
   },
@@ -40,6 +42,7 @@ const HistoryManager = {
         <div class="hm-entry">
           <div class="hm-entry-time">${this._fmt(e.timestamp)}</div>
           <div class="hm-entry-input">${this._esc(e.input)}${e.input.length >= 300 ? '…' : ''}</div>
+          ${e.url ? `<div class="hm-entry-url">${this._esc(e.url)}</div>` : ''}
           <button class="hm-copy-btn" data-idx="${i}">📋 コピー</button>
         </div>
       `).join('');
@@ -168,6 +171,10 @@ const HistoryManager = {
         font-family: inherit; transition: all 0.15s;
       }
       .hm-copy-btn:hover { border-color: #001f33; color: #001f33; }
+      .hm-entry-url {
+        font-size: 0.7rem; color: #a0aab4; margin-bottom: 8px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
     `;
     document.head.appendChild(style);
   },
