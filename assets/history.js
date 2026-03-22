@@ -33,6 +33,12 @@ const HistoryManager = {
   },
 
   openPanel() {
+    this._renderBody();
+    document.getElementById('hm-panel').classList.add('open');
+    document.getElementById('hm-overlay').classList.add('open');
+  },
+
+  _renderBody() {
     const body = document.getElementById('hm-body');
     const entries = this.getAll();
     if (entries.length === 0) {
@@ -40,7 +46,10 @@ const HistoryManager = {
     } else {
       body.innerHTML = entries.map((e, i) => `
         <div class="hm-entry">
-          <div class="hm-entry-time">${this._fmt(e.timestamp)}</div>
+          <div class="hm-entry-header">
+            <div class="hm-entry-time">${this._fmt(e.timestamp)}</div>
+            <button class="hm-delete-btn" data-id="${e.id}" title="削除">×</button>
+          </div>
           <div class="hm-entry-input">${this._esc(e.input)}${e.input.length >= 300 ? '…' : ''}</div>
           ${e.url ? `<div class="hm-entry-url">${this._esc(e.url)}</div>` : ''}
           ${e.output ? `<div class="hm-entry-preview">${this._esc(e.output.slice(0, 60))}${e.output.length > 60 ? '…' : ''}</div>` : ''}
@@ -50,14 +59,22 @@ const HistoryManager = {
       body.querySelectorAll('.hm-copy-btn').forEach(btn => {
         btn.addEventListener('click', () => this._copy(Number(btn.dataset.idx), btn));
       });
+      body.querySelectorAll('.hm-delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => this._deleteEntry(Number(btn.dataset.id)));
+      });
     }
-    document.getElementById('hm-panel').classList.add('open');
-    document.getElementById('hm-overlay').classList.add('open');
   },
 
   closePanel() {
     document.getElementById('hm-panel')?.classList.remove('open');
     document.getElementById('hm-overlay')?.classList.remove('open');
+  },
+
+  _deleteEntry(id) {
+    const entries = this.getAll().filter(e => e.id !== id);
+    localStorage.setItem(this.key(), JSON.stringify(entries));
+    this._updateBadge();
+    this._renderBody();
   },
 
   _copy(index, btn) {
@@ -161,7 +178,13 @@ const HistoryManager = {
         border: 1px solid #e8ecf0; border-left: 3px solid #001f33;
         padding: 10px 14px; margin-bottom: 10px;
       }
-      .hm-entry-time { font-size: 0.68rem; color: #b2bec3; font-weight: 600; margin-bottom: 5px; }
+      .hm-entry-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+      .hm-entry-time { font-size: 0.68rem; color: #b2bec3; font-weight: 600; }
+      .hm-delete-btn {
+        background: none; border: none; color: #c8d0da; font-size: 0.85rem;
+        cursor: pointer; padding: 0 2px; line-height: 1; transition: color 0.15s;
+      }
+      .hm-delete-btn:hover { color: #e17055; }
       .hm-entry-input {
         font-size: 0.82rem; color: #4a5568; line-height: 1.5; margin-bottom: 8px;
         white-space: pre-wrap; max-height: 72px; overflow: hidden;
