@@ -152,7 +152,8 @@ def scrape_blog(page, source: dict, existing: dict = None) -> list[dict]:
 
 def scrape_thinkers(page, source: dict) -> list[dict]:
     """Thinkers & Makers ページからPDFリンクを取得"""
-    page.goto(source["url"], wait_until="networkidle", timeout=30000)
+    page.goto(source["url"], wait_until="domcontentloaded", timeout=30000)
+    page.wait_for_timeout(2000)
     articles = []
 
     # thinkers-and-makers ドキュメントのみ対象（フッター等の無関係なPDFを除外）
@@ -353,6 +354,10 @@ def main():
                 all_articles.extend(filtered)
             except Exception as e:
                 print(f"    エラー: {e}")
+                existing_for_source = [v for v in existing.values() if v.get("source_id") == source["id"]]
+                if existing_for_source:
+                    print(f"    エラーのため既存データを引き継ぎ ({len(existing_for_source)} 件)")
+                    all_articles.extend(existing_for_source)
 
         browser.close()
 
