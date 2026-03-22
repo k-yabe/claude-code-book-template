@@ -294,6 +294,14 @@
     .x-actions { display: flex; gap: 24px; }
     .x-action-btn { background: none; border: none; cursor: default; font-size: 0.8rem; color: #536471; display: flex; align-items: center; gap: 4px; padding: 0; }
 
+    .sample-hint { font-size: 0.75rem; color: #b2bec3; margin: 6px 0 0; }
+    .sample-btn {
+      background: none; border: none; color: #8a9bb0; font-size: 0.75rem;
+      font-weight: 700; padding: 0; cursor: pointer; font-family: inherit;
+      text-decoration: underline; transition: color 0.15s;
+    }
+    .sample-btn:hover { color: #001f33; }
+
     /* URL履歴ドロップダウン */
     .url-wrapper { position: relative; flex: 1; min-width: 0; }
     .url-history-dropdown {
@@ -329,6 +337,13 @@
     .app-footer-text {
       font-size: 0.72rem;
       color: rgba(255,255,255,0.8);
+    }
+
+    @media (max-width: 600px) {
+      .navbar { padding: 0 16px; }
+      .container { padding: 20px 16px 60px; }
+      .merit-demerit { grid-template-columns: 1fr; }
+      .supp-options { grid-template-columns: 1fr; }
     }
   </style>
   <script defer src="/_vercel/insights/script.js"></script>
@@ -372,6 +387,7 @@
           <div class="url-history-dropdown" id="url-history-dropdown"></div>
         </div>
       </div>
+      <div class="sample-hint">はじめての方は <button class="sample-btn" id="sample-btn">サンプルで試す →</button></div>
     </div>
   </div>
 
@@ -1027,6 +1043,20 @@ ${styleRule}
   document.getElementById('regen-btn').addEventListener('click', generate);
   document.getElementById('url-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') generate();
+  });
+
+  document.getElementById('sample-btn').addEventListener('click', () => {
+    document.getElementById('url-input').value = 'https://example.com/articles/ai-marketing-2025';
+    document.querySelectorAll('.supp-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.supp-panel').forEach(p => p.classList.remove('active'));
+    const textTab = document.querySelector('[data-supp="text"]');
+    textTab.classList.add('active');
+    document.getElementById('supp-text-panel').classList.add('active');
+    supplementType = 'text';
+    document.getElementById('supp-text-input').value = `【記事タイトル】AIが変えるBtoBマーケティング——リード獲得を3倍にした実践手法
+
+【記事要約】
+AIツールの活用により、コンテンツ制作の工数を従来の1/3に削減しながら、リード獲得数を3倍に伸ばした企業事例を紹介。マーケティングオートメーションとAIを組み合わせることで、ターゲットへの最適なタイミングでのアプローチが可能になる。2025年のBtoBマーケティングにおいて、AIは「あると便利」なツールから「なければ戦えない」インフラへと変わりつつある。`;
   });
 </script>
 <script src="../../assets/history.js"></script>
