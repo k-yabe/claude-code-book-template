@@ -1,6 +1,46 @@
 {
-  "last_scraped": "2026-03-22T23:20:27Z",
+  "last_scraped": "2026-03-23T23:24:11Z",
   "articles": [
+    {
+      "id": "it-engineering-salary-guide-2026",
+      "title": "2026 IT & Engineering Salary Guide: Human + AI Teams",
+      "url": "https://www.akkodis.com/blog/articles/it-engineering-salary-guide-2026",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-23T23:21:52Z",
+      "published_date": "2026-03-23T00:00:00Z",
+      "summary_ja": "2026年のIT・エンジニア業界では、AIが定型業務を担当する一方で、人間は設計やガバナンス、意思決定といったより高度な仕事にシフトしており、テクノロジー人材の働き方が大きく変わろうとしています。技術者の80%がAI活用で自信を深め、95%が人間とAIの協働に対応する準備ができていますが、単なるツール導入ではなく、信頼性の構築と透明性のあるガバナンスが成功の鍵になります。企業が人材を確保・育成するためには、継続的なスキル開発と明確なキャリアパス、環境や社会への責任姿勢の表現が不可欠であり、給与面だけでなく柔軟な働き方や人間中心の組織設計が求められています。"
+    },
+    {
+      "id": "ai-skills-resume-2026",
+      "title": "How to Show AI Skills on Your Resume in 2026",
+      "url": "https://www.akkodis.com/blog/articles/ai-skills-resume-2026",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-23T23:22:07Z",
+      "published_date": "2026-03-23T00:00:00Z",
+      "summary_ja": "2026年の採用市場では、AIツールの名前を列挙するだけでなく、業務効率の向上や正確性の改善など、AIがもたらした具体的な成果を履歴書に示すことが求められています。エンジニアはAI活用した開発の最適化を、データ専門家は自動化による分析の改善を、プロジェクト管理者はワークフロー改善の事例など、自分の職種に合わせてAIスキルをアピールすることが重要です。同時に、出力結果の検証や責任あるAI利用を判断する人間の専門知識と協働姿勢も組み合わせることで、企業が求める適応力と信頼性を備えた人材として評価される可能性が高まります。"
+    },
+    {
+      "id": "ask-the-expert-edge-ai-performance",
+      "title": "Edge AI Myths: More TOPS Does Not Mean Better",
+      "url": "https://www.akkodis.com/blog/articles/ask-the-expert-edge-ai-performance",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-23T23:22:20Z",
+      "published_date": "2026-03-20T00:00:00Z",
+      "summary_ja": "Edge AIのパフォーマンスは単純な計算処理能力の大きさではなく、消費電力や応答速度、信頼性といった複数の要素をバランスよく設計することが本当の価値だと述べられています。通信が不安定な環境や予測不可能な条件下でも確実に動作し、地元でデータを処理して即座に判断することで、システムの堅牢性と応答性を高める必要があります。Edge AIは人間の判断を置き換えるのではなく、膨大なデータから本当に重要な情報を抽出して人間の意思決定を助け、防衛やセキュリティが重要な現場で予測可能で制御された信頼性の高い判断をもたらします。"
+    },
+    {
+      "id": "ask-the-expert-edge-ai-myths",
+      "title": "Debunking Edge AI Myths: What Edge Intelligence Really Means",
+      "url": "https://www.akkodis.com/blog/articles/ask-the-expert-edge-ai-myths",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-23T23:22:30Z",
+      "published_date": "2026-03-20T00:00:00Z",
+      "summary_ja": "Edge AIは自動で判断する独立した知能ではなく、データ発生源に計算処理を近づけることで、人間の監視のもとで迅速で安全な判断を可能にする技術です。Edge AIシステムは物体検出や予測保全といった限定された特定のタスクを実行するように設計されており、機械が独立して思考することはなく、エンジニアと専門家が定めたルールの中で動作します。高い計算性能だけでなく、ユーザーのニーズ、運用上の制約、プライバシー、倫理的要素を含めた総合的な視点で評価することが、実際に価値をもたらすEdge AI導入の鍵となります。"
+    },
     {
       "id": "nvidia-gtc-2026-digital-engineering",
       "title": "From Tokens to Transformation: What NVIDIA GTC 2026 Means for Digital Engineering",
@@ -160,16 +200,6 @@
       "first_seen": "2026-03-14T12:15:49Z",
       "published_date": "2026-02-23T00:00:00Z",
       "summary_ja": "AKKODiSのライフサイエンスコンサルティング部門では、品質保証や規制対応、製造プロセス最適化などの専門家が協力して、医薬品メーカーの複雑なプロジェクトに取り組んでいます。リード・コンサルタントのエリサ・カシラギは、技術移管の調整やプロセス検証を通じて、患者の安全性を最優先としながら規制対応と業務効率の両立を実現しています。同社ではコンサルタントが複数の医薬品プロジェクトに関わることで、品質マネジメントシステムや規制対応を学びながら実務経験を積み重ねる機会が提供されています。"
-    },
-    {
-      "id": "salesforce-developer-career-growth",
-      "title": "Growing Skills and Driving Innovation as a Salesforce Developer",
-      "url": "https://www.akkodis.com/blog/articles/salesforce-developer-career-growth",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-18T01:50:23Z",
-      "published_date": null,
-      "summary_ja": "Akkodisで働くSalesforce開発者のエリオットは、実装やプロトタイピングといった技術業務と新しいAI機能の試験的活用を組み合わせながら、多様なクライアントプロジェクトを通じてスキルを素早く高めています。社内では週次の勉強会や先輩からの指導が常に行われており、開発者は最新の技術動向に対応しながら着実に成長できる環境が整備されています。リモートワークに対応した柔軟な働き方と信頼関係のあるチーム体制により、仕事のパフォーマンスと個人の生活のバランスを両立させながらキャリアを築いていくことができます。"
     },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
@@ -396,16 +426,6 @@
       "summary_ja": "アッコディスは、文書処理の自動化を手がけるフランス企業向けにセールスフォースの脱炭素クラウドソリューションを導入し、企業全体の9つの事業部門から排出量データを一元管理できるようにしました。廃棄物管理の専用モジュールを開発して正確な炭素排出量の指標を数値化し、リアルタイムで監視できるダッシュボードを構築することで、サステナビリティ報告書の信頼性を高めました。多言語・多通貨対応による複雑な制約を排除しながら、カーボンフットプリントを削減し財務報告をより効率的に行える仕組みを整備しました。"
     },
     {
-      "id": "zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
-      "title": "View\nkeyboard_arrow_right",
-      "url": "https://www.akkodis.com/en/blog/client-success/zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-22T23:19:19Z",
-      "published_date": null,
-      "summary_ja": "Akkodisは40年以上の業界経験を持つ4万人以上のエンジニアと専門家を活かし、企業のイノベーション加速とデジタル変革をコンサルティング、ソリューション提供、人材派遣、人材育成の4つのサービスで支援しています。同社は技術と人材を組み合わせることで、クライアント、候補者、パートナーに対して測定可能な成果をもたらすことを目指しており、自動車から医療まで様々な業界で信頼を獲得しています。AIやデジタル技術を活用した診断ツール開発やエンタープライズAI導入など、最新の技術トレンドに対応したソリューションで、企業の競争力強化を支援しています。"
-    },
-    {
       "id": "automotive-company-speeds-up-education-programs-adoption",
       "title": "Automotive Company’s Speeds Up Education Programs Adoption",
       "url": "https://www.akkodis.com/en/blog/client-success/automotive-company-speeds-up-education-programs-adoption",
@@ -516,16 +536,6 @@
       "summary_ja": "BMWグループは経験豊富な退職者の知識が失われるのを防ぐため、シニア・エキスパート・プログラムを立ち上げ、元従業員が短期プロジェクトで若い世代に知識を伝承する仕組みを構築しました。アコディスは従業員管理プラットフォーム「BEEPLE」をBMWグループの要件に合わせてカスタマイズし、プールの設計から契約管理、面接調整まで一貫してサポートしました。プログラム開始以来50以上のプロジェクトが実施され、アコディスの人材採用経験とプラットフォームの柔軟性により、BMWグループは100年間培った従業員の経験と専門知識を次世代に確実に引き継ぐことができるようになりました。"
     },
     {
-      "id": "personal-rekrutierung-fur-value-added-reseller",
-      "title": "View\nkeyboard_arrow_right",
-      "url": "https://www.akkodis.com/en/blog/client-success/personal-rekrutierung-fur-value-added-reseller",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-22T23:19:49Z",
-      "published_date": null,
-      "summary_ja": "Akkodisは40年以上の業界経験と40,000人以上のエンジニアを擁するデジタルエンジニアリング企業で、コンサルティング、ソリューション、人材派遣、人材育成の4つのサービスを通じて企業のイノベーション加速と事業変革を支援しています。同社は最新のテクノロジーと人間の可能性を組み合わせることで、自動車・航空宇宙・ヘルスケア・エネルギーなど多岐にわたる業界で企業の課題解決に取り組んでいます。特にAI技術を活用した医療診断の高度化や、AIの企業導入に向けたロードマップ設計など、次世代のビジネス課題にも積極的に対応しています。"
-    },
-    {
       "id": "akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
       "title": "Akkodis Delivers Cost Efficiencies in EE’s SD Management",
       "url": "https://www.akkodis.com/en/blog/client-success/akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
@@ -584,6 +594,26 @@
       "first_seen": "2026-03-14T12:21:49Z",
       "published_date": null,
       "summary_ja": "Adeccoが新規開発したモバイルアプリプロジェクトで、社内人員不足を補うため、Akkodisに20名以上のエンジニアチームの派遣を依頼されました。Akkodisは採用段階で実践的なタスクを導入し、プロジェクト内容の価値を候補者に丁寧に説明することで、必要な技術スキルと適性を持つ人材の確保に成功しました。チームは限られた納期の中で高い技術力とプロジェクト管理の専門知識を提供し、クライアント満足度を実現したことで、Akkodisの組織全体での認知度向上と従業員のキャリア発展につながりました。"
+    },
+    {
+      "id": "british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
+      "title": "British Airways Transforms Its IT Function",
+      "url": "https://www.akkodis.com/en/blog/client-success/british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-23T23:23:50Z",
+      "published_date": null,
+      "summary_ja": "ブリティッシュ・エアウェイズは世界中の空港からのIT問い合わせが急増したため、新たにニューカッスルにIT総合支援センターを設立しましたが、14万人以上のユーザーをサポートする中で人員確保と離職防止が課題となっていました。アッコディスは50名以上の専門スタッフを配置した固定価格の運用サービスを提供し、採用や人材管理の負担を完全に引き継ぐとともに、継続的な技能研修でチームの技術水準を維持しました。これにより同社は英国のサービスセンターを統合しながらグローバル対応を可能にし、運用コストを削減したうえで経営層がIT機能の変革に専念できる環境を整備することができました。"
+    },
+    {
+      "id": "rbc-railway",
+      "title": "Ensuring Rail Software Safety: Akkodis Validation Services",
+      "url": "https://www.akkodis.com/en/blog/client-success/rbc-railway",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-23T23:24:01Z",
+      "published_date": null,
+      "summary_ja": "フランスの鉄道インフラメーカーから依頼を受け、ヨーロッパ全域の鉄道を統一する信号制御システム「ERTMS」のソフトウェア検証業務に当たりました。テスト環境でさまざまな運行シナリオを再現し、ソフトウェアの性能や機能が要件を満たしているかを綿密に評価する手法を採用しました。2019年以来、複数の市場向けソフトウェアの同時検証に対応することで、クライアントが世界中で安全かつ確実に鉄道制御システムを運用できるよう支援してきました。"
     }
   ]
 }
