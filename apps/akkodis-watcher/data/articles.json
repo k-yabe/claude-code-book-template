@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-03-23T23:24:11Z",
+  "last_scraped": "2026-03-24T23:23:21Z",
   "articles": [
+    {
+      "id": "ask-the-expert-ai-ethics-bias",
+      "title": "Ethics, Responsibility and Bias in AI: Beyond Innovation",
+      "url": "https://www.akkodis.com/blog/articles/ask-the-expert-ai-ethics-bias",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-24T23:21:58Z",
+      "published_date": "2026-03-24T00:00:00Z",
+      "summary_ja": "AIシステムが採用や医療などの重要な領域で人々の人生に直接影響を与えるようになる中で、企業は倫理性と透明性を確保した設計が不可欠になっています。学習データに含まれた歴史的な不平等やデータの偏りが、大規模運用時に差別につながるリスクがあるため、継続的な監視と検証を通じた対策が求められています。Akkodisは技術専門知識と人間中心の思考を組み合わせることで、革新的な価値を生みながら個人と社会を守るAI開発に取り組んでいます。"
+    },
     {
       "id": "it-engineering-salary-guide-2026",
       "title": "2026 IT & Engineering Salary Guide: Human + AI Teams",
