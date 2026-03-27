@@ -63,8 +63,6 @@
       box-shadow: 0 32px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
     }
 
-    .login-brand { margin-bottom: 20px; }
-
     .login-box h2 {
       font-size: 1.9rem;
       font-weight: 700;
@@ -437,9 +435,6 @@
   <!-- ログイン画面 -->
   <div id="login-screen">
     <div class="login-box">
-      <div class="login-brand">
-        <img src="assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:20px;display:block;">
-      </div>
       <h2 id="login-greeting">Marketing Apps</h2>
       <p class="login-tagline">業務効率化ツール集</p>
       <form id="login-form" autocomplete="on">
@@ -472,8 +467,6 @@
   <div id="app-screen">
     <nav class="navbar">
       <div class="navbar-brand">
-        <img src="assets/SVG/AKKODIS_Logo_RGB_WHITE.svg" alt="AKKODiS" style="height:22px;display:block;">
-        <div class="navbar-divider"></div>
         <span class="navbar-title">Marketing Apps</span>
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
@@ -572,6 +565,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '🏠', app: 'ポータル全体',          date: '2026-03-27(木)', desc: '全アプリのナビバーからAKKODiSロゴを削除・デザイン整理' },
       { icon: '🏠', app: 'ポータル全体',          date: '2026-03-23(月)', desc: 'PWAアイコンを黄色背景＋AKKODiS紺ロゴにリニューアル' },
       { icon: '🏠', app: 'ポータル全体',          date: '2026-03-22(日)', desc: 'コピーボタン表示を「✅ コピーしました」に統一・エラー表示CSS統一・タブレット対応(768px)追加・アクセシビリティ基本対応' },
       { icon: '📋', app: '全アプリ 履歴',         date: '2026-03-22(日)', desc: '履歴パネルに削除ボタン追加・Marketo / OGP Checker / Banner Resizer に履歴機能を追加' },
