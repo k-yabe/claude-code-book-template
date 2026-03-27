@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-03-26T23:23:17Z",
+  "last_scraped": "2026-03-27T23:24:44Z",
   "articles": [
     {
       "id": "federated-learning-critical-industries",
@@ -10,6 +10,16 @@
       "first_seen": "2026-03-14T12:15:18Z",
       "published_date": "2026-03-13T00:00:00Z",
       "summary_ja": "防衛やエネルギー、医療といった機密性の高い産業では、大量のセンサーデータが分散した場所で生成されるため、従来のクラウドベースのAI学習が難しい課題がありますが、フェデレーテッドラーニングなら生データを移動させず各拠点でローカル学習し、モデルの更新情報だけを共有することで、プライバシーと規制要件を守りながら統合的なAIモデルを構築できます。オフショア施設では予防保全モデルで設備の信頼性を高め、医療では患者データを保護しながら診断精度を向上させるなど、各産業で実際の成果が出ており、データセキュリティの制約がある環境でも運用効率を改善する手段として機能しています。この技術は各拠点で独立したままのデータを活かし、プライバシー確保と業務遂行を両立させることで、組織全体として回復力のある知能システムを実現しているのです。"
+    },
+    {
+      "id": "generative-ai-airlines-optimization",
+      "title": "How Generative AI Enhances Airline Efficiency in Cargo and MRO",
+      "url": "https://www.akkodis.com/blog/articles/generative-ai-airlines-optimization",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-27T23:23:02Z",
+      "published_date": null,
+      "summary_ja": "航空業界では、生成AIとブロックチェーン技術を活用することで、予測分析に基づいた需要予測と在庫管理が可能になり、必要な部品を必要な時期に必要な場所へ配置できるようになります。これにより、航空会社は貨物スペースを効率的に活用し、高利益率の商品を運べる余裕が生まれるため、コスト削減と売上増加を同時に実現できます。リアルタイムの可視化により供給チェーン全体の透明性が向上し、予期しない運用上の支障を避けながら、より信頼性の高いサービス提供が可能になります。"
     },
     {
       "id": "edge-ai-federated-learning-architecture",
