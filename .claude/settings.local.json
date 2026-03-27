@@ -1,8 +1,4 @@
 {
-  "enabledMcpjsonServers": [
-    "playwright"
-  ],
-  "enableAllProjectMcpServers": true,
   "permissions": {
     "allow": [
       "Bash(*)",
@@ -15,9 +11,15 @@
       "WebSearch(*)",
       "mcp__playwright__*",
       "mcp__ide__*",
-      "Agent(*)"
+      "Agent(*)",
+      "Skill(done)",
+      "Skill(done:*)"
     ]
   },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright"
+  ],
   "hooks": {
     "PostToolUse": [
       {
@@ -50,6 +52,17 @@
           {
             "type": "command",
             "command": "printf '\\a'"
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'IMPORTANT REMINDERS:\n- Brand colors only: #001f33 / #ffb81c / #00ffff / #000000 / #ffffff (and 20/40/60/80% tones)\n- No border-radius on rectangles\n- No colored border on colored shapes\n- Wide yellow/cyan backgrounds are NG — use navy/white as background\n- Update WHAT'S NEW in index.html at the end of each session'"
           }
         ]
       }
