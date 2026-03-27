@@ -67,8 +67,8 @@
       align-items: center;
       gap: 5px;
       background: #fff;
-      border: 1.5px solid #dfe6e9;
-      border-radius: 99px;
+      border: none;
+      border-radius: 0;
       padding: 3px 10px;
       font-size: 0.8rem;
       font-weight: 600;
@@ -77,7 +77,7 @@
     .size-chip-dot {
       width: 8px;
       height: 8px;
-      border-radius: 50%;
+      border-radius: 0;
     }
     .size-chip small {
       font-weight: 400;
@@ -90,7 +90,7 @@
       align-items: center;
       gap: 6px;
       background: #fff8e6;
-      border: 1.5px solid #ffb81c;
+      border: none;
       border-radius: 0;
       padding: 6px 12px;
       font-size: 0.82rem;
@@ -98,6 +98,15 @@
       margin-bottom: 28px;
     }
     .recommend-note strong { color: #5a4000; }
+    .recommend-badge {
+      display: inline-block;
+      background: #ffb81c;
+      color: #001f33;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      padding: 2px 7px;
+    }
 
     .step {
       background: #fff;
@@ -172,7 +181,7 @@
     .format-label { font-size: 0.88rem; font-weight: 700; color: #2d3436; }
     .format-btn {
       padding: 6px 18px;
-      border: 1.5px solid #dfe6e9;
+      border: none;
       border-radius: 0;
       font-size: 0.85rem;
       font-weight: 700;
@@ -249,7 +258,7 @@
       padding: 8px;
       background: #f0f2f5;
       color: #001f33;
-      border: 1.5px solid #dfe6e9;
+      border: none;
       border-radius: 0;
       font-size: 0.82rem;
       font-weight: 700;
@@ -305,7 +314,7 @@
     .custom-row input[type="text"],
     .custom-row input[type="number"] {
       padding: 7px 10px;
-      border: 1.5px solid #dfe6e9;
+      border: none;
       border-radius: 0;
       font-size: 0.85rem;
       color: #2d3436;
@@ -368,7 +377,7 @@
     .crop-dot {
       width: 12px;
       height: 12px;
-      border-radius: 50%;
+      border-radius: 0;
       flex-shrink: 0;
     }
     .crop-name {
@@ -468,13 +477,12 @@
 </nav>
 <div class="wrap">
   <h1>Banner Resizer</h1>
-  <p class="sub">1枚の画像をアップロードするだけで、用途別の3サイズを一括生成します</p>
+  <p class="sub">1枚の画像をアップロードするだけで、用途別の2サイズを一括生成します</p>
   <div class="size-chips">
     <span class="size-chip"><span class="size-chip-dot" style="background:#1C304B"></span>OGP <small>1200×630 / PNG固定</small></span>
-    <span class="size-chip"><span class="size-chip-dot" style="background:#ffb81c"></span>バナー（MV） <small>800×446</small></span>
-    <span class="size-chip"><span class="size-chip-dot" style="background:#00ffff"></span>一覧（index） <small>350×200</small></span>
+    <span class="size-chip"><span class="size-chip-dot" style="background:#ffb81c"></span>バナー（MV） <small>1920×1080</small></span>
   </div>
-  <div class="recommend-note">💡 <strong>推奨アップロードサイズ：1200×669px</strong>　全サイズのトリミングを最小化できます</div>
+  <div class="recommend-note"><span class="recommend-badge">TIP</span> <strong>推奨アップロードサイズ：1920×1080px</strong>　MV画像と同じサイズでトリミングなし</div>
 
   <!-- Step 1 -->
   <div class="step">
@@ -543,8 +551,7 @@
   if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
   const SIZES = [
     { id: 'ogp',    label: 'OGP',          w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp' },
-    { id: 'banner', label: 'バナー（MV）',   w: 800,  h: 446, dlName: 'img-mv' },
-    { id: 'list',   label: '一覧（index）', w: 350,  h: 200, dlName: 'img-index' },
+    { id: 'banner', label: 'バナー（MV）',   w: 1920, h: 1080, dlName: 'img-mv', safeZone: { top: 24, bottom: 24, left: 100, right: 100 } },
   ];
 
   let format = 'webp';
@@ -650,7 +657,7 @@
   }
 
   // ── Crop Preview ──────────────────────────────────────
-  const CROP_COLORS = { ogp: '#1C304B', banner: '#ffb81c', list: '#3d7ab5' };
+  const CROP_COLORS = { ogp: '#1C304B', banner: '#ffb81c' };
 
   function getCropRect(imgW, imgH, targetW, targetH) {
     const srcRatio = imgW / imgH;
@@ -766,6 +773,44 @@
       ctx.lineWidth = 3;
       ctx.strokeRect(cx + 1.5, cy + 1.5, cw - 3, ch - 3);
 
+      // Safe zone overlay (thumbnail trim guide)
+      if (size.safeZone) {
+        const sz = size.safeZone;
+        const szScale = cw / size.w; // scale from target px to canvas px
+        const szTop = sz.top * szScale;
+        const szBottom = sz.bottom * szScale;
+        const szLeft = sz.left * szScale;
+        const szRight = sz.right * szScale;
+
+        // Draw trim zone strips with semi-transparent red
+        ctx.fillStyle = 'rgba(255, 100, 100, 0.35)';
+        ctx.fillRect(cx, cy, cw, szTop);                           // top
+        ctx.fillRect(cx, cy + ch - szBottom, cw, szBottom);        // bottom
+        ctx.fillRect(cx, cy + szTop, szLeft, ch - szTop - szBottom); // left
+        ctx.fillRect(cx + cw - szRight, cy + szTop, szRight, ch - szTop - szBottom); // right
+
+        // Dashed safe zone border
+        ctx.setLineDash([6, 4]);
+        ctx.strokeStyle = '#00e676';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(cx + szLeft, cy + szTop, cw - szLeft - szRight, ch - szTop - szBottom);
+        ctx.setLineDash([]);
+
+        // Safe zone label
+        ctx.font = 'bold 11px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const safeLabel = '安全ゾーン（1720×1032px）';
+        const slw = ctx.measureText(safeLabel).width + 14;
+        const slx = cx + cw / 2 - slw / 2;
+        const sly = cy + ch - szBottom - 24;
+        ctx.fillStyle = 'rgba(0, 230, 118, 0.85)';
+        drawRoundRect(ctx, slx, sly, slw, 20, 4);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.fillText(safeLabel, cx + cw / 2, sly + 10);
+      }
+
       // Size badge inside crop area (top-left)
       const badgeText = `${size.w}×${size.h}`;
       ctx.font = 'bold 12px system-ui, sans-serif';
@@ -852,6 +897,10 @@
       if (!needsAI) {
         const canvas = createResized(sourceImage, size.w, size.h);
         canvas.id = 'canvas-' + size.id;
+        // Draw safe zone overlay on preview canvas
+        if (size.safeZone) {
+          drawSafeZoneOverlay(canvas, size.safeZone);
+        }
         document.getElementById('wrap-' + size.id).appendChild(canvas);
       }
     }
@@ -870,6 +919,35 @@
         wrap.appendChild(canvas);
       }
     }
+  }
+
+  function drawSafeZoneOverlay(canvas, sz) {
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    // Semi-transparent red on trim zones
+    ctx.fillStyle = 'rgba(255, 100, 100, 0.3)';
+    ctx.fillRect(0, 0, w, sz.top);                                    // top
+    ctx.fillRect(0, h - sz.bottom, w, sz.bottom);                     // bottom
+    ctx.fillRect(0, sz.top, sz.left, h - sz.top - sz.bottom);         // left
+    ctx.fillRect(w - sz.right, sz.top, sz.right, h - sz.top - sz.bottom); // right
+    // Dashed green safe zone border
+    ctx.setLineDash([8, 5]);
+    ctx.strokeStyle = '#00e676';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(sz.left, sz.top, w - sz.left - sz.right, h - sz.top - sz.bottom);
+    ctx.setLineDash([]);
+    // Label
+    ctx.font = 'bold 14px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const label = `安全ゾーン ${w - sz.left - sz.right}×${h - sz.top - sz.bottom}px`;
+    const lw = ctx.measureText(label).width + 16;
+    const lx = w / 2 - lw / 2, ly = h - sz.bottom - 30;
+    ctx.fillStyle = 'rgba(0, 230, 118, 0.85)';
+    drawRoundRect(ctx, lx, ly, lw, 24, 5);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.fillText(label, w / 2, ly + 12);
   }
 
   function createResized(img, targetW, targetH) {
