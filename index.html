@@ -357,17 +357,23 @@
       overflow: hidden;
     }
 
-    .card-new-badge {
+    .card-new-badge, .card-update-badge {
       position: absolute;
       top: 8px;
       right: 8px;
-      background: #ffb81c;
-      color: #001f33;
       font-size: 0.55rem;
       font-weight: 800;
       padding: 2px 5px;
       border-radius: 0;
       letter-spacing: 0.06em;
+    }
+    .card-new-badge {
+      background: #ffb81c;
+      color: #001f33;
+    }
+    .card-update-badge {
+      background: #00ffff;
+      color: #001f33;
     }
     a.card::before {
       content: '';
@@ -499,9 +505,10 @@
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/banner-resizer/">
+          <div class="card-update-badge">UPDATE</div>
           <div class="card-icon-wrap">🖼️</div>
           <div class="card-name">Banner Resizer</div>
-          <div class="card-desc">バナーの3サイズ一括書き出し</div>
+          <div class="card-desc">バナーの2サイズ一括書き出し</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/youtube-desc/">
