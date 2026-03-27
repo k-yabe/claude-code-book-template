@@ -1,6 +1,7 @@
 {
   "functions": {
     "api/generate.js": { "maxDuration": 60 },
+    "api/slide-generate.js": { "maxDuration": 60 },
     "api/fetch-article.js": { "maxDuration": 30 }
   },
   "headers": [

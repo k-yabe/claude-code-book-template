@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide Maker | AKKODiS Tools</title>
+  <link rel="manifest" href="/manifest.json">
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ナビバー */
+    .navbar { background: #001f33; height: 58px; display: flex; align-items: center; padding: 0 40px; gap: 16px; position: sticky; top: 0; z-index: 100; }
+    .navbar-back { color: #fff; text-decoration: none; font-size: 0.82rem; opacity: 0.8; border: 1px solid transparent; padding: 6px 12px; transition: border-color 0.2s, opacity 0.2s; }
+    .navbar-back:hover { border-color: rgba(255,255,255,0.5); opacity: 1; }
+    .navbar-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.15); }
+    .navbar-title { color: #fff; font-size: 0.95rem; font-weight: 600; }
+
+    /* メインコンテナ */
+    .container { max-width: 860px; margin: 0 auto; padding: 36px 20px; flex: 1; width: 100%; }
+    .page-title { font-size: 1.4rem; font-weight: 700; color: #001f33; letter-spacing: -0.01em; }
+    .page-subtitle { font-size: 0.82rem; color: #8a9bb0; margin-top: 4px; }
+
+    /* ウィザード */
+    .wizard { margin-top: 28px; }
+    .step { background: #fff; border: 1.5px solid #e8ecf0; padding: 24px 28px; margin-bottom: 16px; }
+    .step-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .step-num { width: 28px; height: 28px; background: #1c304b; color: #ffb81c; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-name { font-size: 0.9rem; font-weight: 700; color: #001f33; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 0.75rem; font-weight: 600; color: #4a5568; }
+    .badge-required { font-size: 0.62rem; font-weight: 700; background: #ffeaea; color: #c0392b; padding: 1px 5px; margin-left: 4px; }
+    .badge-optional { font-size: 0.62rem; font-weight: 700; background: #f0f0f0; color: #636e72; padding: 1px 5px; margin-left: 4px; }
+    input, select, textarea { border: 1.5px solid #e8ecf0; padding: 9px 12px; font-size: 0.85rem; font-family: inherit; color: #2d3436; background: #fff; width: 100%; transition: border-color 0.2s; outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
+    textarea { resize: vertical; min-height: 72px; }
+    .message-rows { display: flex; flex-direction: column; gap: 8px; }
+    .message-row { display: flex; gap: 8px; align-items: center; }
+    .message-row input { flex: 1; }
+    .message-num { font-size: 0.75rem; font-weight: 700; color: #8a9bb0; width: 20px; flex-shrink: 0; }
+
+    /* テンプレートカード */
+    .template-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .template-card { border: 2px solid #e8ecf0; padding: 12px 8px; text-align: center; cursor: pointer; transition: border-color 0.2s; }
+    .template-card:hover { border-color: #001f33; }
+    .template-card.selected { border-color: #ffb81c; background: #fffbf0; }
+    .template-card.dark-card { background: #001f33; color: #fff; }
+    .template-card.dark-card.selected { border-color: #ffb81c; }
+    .template-preview { width: 100%; aspect-ratio: 16/9; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; }
+    .preview-ext-white { background: #fff; border: 1px solid #e8ecf0; color: #001f33; }
+    .preview-ext-dark { background: #001f33; color: #ffb81c; }
+    .preview-int-white { background: #f5f7fa; border: 1px solid #e8ecf0; color: #001f33; }
+    .preview-int-dark { background: #0a2540; color: #ffb81c; }
+    .template-label { font-size: 0.7rem; font-weight: 600; }
+
+    /* アクションボタン */
+    .action-area { margin-top: 20px; display: flex; gap: 12px; align-items: center; }
+    .btn-generate { background: #ffb81c; color: #001f33; border: none; padding: 13px 32px; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: opacity 0.2s; }
+    .btn-generate:hover:not(:disabled) { opacity: 0.88; }
+    .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary { background: #001f33; color: #fff; border: none; padding: 13px 24px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+    .btn-secondary:hover:not(:disabled) { opacity: 0.8; }
+    .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ローディング */
+    .loading-area { display: none; margin-top: 24px; background: #fff; border: 1.5px solid #e8ecf0; padding: 28px; text-align: center; }
+    .loading-area.active { display: block; }
+    .loading-spinner { width: 36px; height: 36px; border: 3px solid #e8ecf0; border-top-color: #ffb81c; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-step { font-size: 0.85rem; color: #4a5568; font-weight: 600; }
+    .progress-bar { width: 100%; height: 4px; background: #e8ecf0; margin-top: 12px; }
+    .progress-fill { height: 100%; background: #ffb81c; transition: width 0.4s ease; }
+
+    /* エラー */
+    .error-msg { display: none; margin-top: 16px; padding: 12px 16px; background: #ffeaea; border-left: 3px solid #c0392b; font-size: 0.82rem; color: #c0392b; }
+    .error-msg.active { display: flex; align-items: center; gap: 10px; }
+    .btn-retry { background: #c0392b; color: #fff; border: none; padding: 6px 14px; font-size: 0.78rem; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+
+    /* プレビューセクション */
+    .preview-section { display: none; margin-top: 28px; }
+    .preview-section.active { display: block; }
+    .section-title { font-size: 0.95rem; font-weight: 700; color: #001f33; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .slide-count-badge { font-size: 0.72rem; font-weight: 700; background: #001f33; color: #ffb81c; padding: 2px 8px; }
+    .slides-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .slide-thumb { aspect-ratio: 16/9; position: relative; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; overflow: hidden; }
+    .slide-thumb:hover { border-color: #ffb81c; }
+    .slide-num { position: absolute; top: 6px; left: 6px; background: rgba(0,31,51,0.7); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; z-index: 2; }
+
+    /* スライドプレビュー HTML */
+    .slide-inner { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 8%; font-family: 'Meiryo UI', 'Segoe UI', sans-serif; }
+    .slide-cover { background: #001f33; color: #fff; }
+    .slide-cover .s-title { font-size: 1.5em; font-weight: 700; color: #ffb81c; line-height: 1.2; }
+    .slide-cover .s-subtitle { font-size: 0.65em; color: rgba(255,255,255,0.8); margin-top: 0.5em; }
+    .slide-cover .s-date { font-size: 0.55em; color: rgba(255,255,255,0.5); margin-top: auto; }
+    .slide-white { background: #fff; }
+    .slide-white .s-title { font-size: 0.9em; font-weight: 700; color: #001f33; border-bottom: 2px solid #ffb81c; padding-bottom: 4px; margin-bottom: 10px; }
+    .slide-white .s-body { font-size: 0.6em; color: #2d3436; line-height: 1.6; flex: 1; }
+    .slide-chapter { background: #ffb81c; color: #001f33; justify-content: center; }
+    .slide-chapter .s-title { font-size: 1.1em; font-weight: 700; text-align: center; }
+    .slide-chapter .s-num { font-size: 0.6em; text-align: center; margin-bottom: 8px; opacity: 0.7; }
+    .slide-agenda { background: #001f33; color: #fff; }
+    .slide-agenda .s-title { font-size: 0.9em; font-weight: 700; color: #ffb81c; margin-bottom: 10px; }
+    .slide-agenda .s-item { font-size: 0.6em; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .slide-closing { background: #001f33; color: #fff; justify-content: center; align-items: center; text-align: center; }
+    .slide-closing .s-msg { font-size: 1em; font-weight: 700; color: #ffb81c; }
+    .slide-table th, .slide-table td { font-size: 0.5em; padding: 3px 6px; border: 1px solid #e8ecf0; }
+    .slide-table th { background: #001f33; color: #fff; font-weight: 600; }
+
+    /* リファインセクション */
+    .refine-section { display: none; margin-top: 20px; background: #fff; border: 1.5px solid #e8ecf0; padding: 20px 24px; }
+    .refine-section.active { display: block; }
+    .refine-title { font-size: 0.85rem; font-weight: 700; color: #001f33; margin-bottom: 12px; }
+    .refine-input-row { display: flex; gap: 10px; }
+    .refine-input-row input { flex: 1; }
+    .refine-count { font-size: 0.75rem; color: #8a9bb0; margin-top: 8px; }
+
+    /* ダウンロードエリア */
+    .download-area { display: none; margin-top: 16px; }
+    .download-area.active { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .btn-download { background: #001f33; color: #fff; border: none; padding: 13px 28px; font-size: 0.88rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: opacity 0.2s; }
+    .btn-download:hover:not(:disabled) { opacity: 0.8; }
+    .btn-download:disabled { opacity: 0.5; cursor: not-allowed; }
+    .download-note { font-size: 0.75rem; color: #8a9bb0; }
+
+    /* フッター */
+    footer { background: #001f33; border-top: 1px solid rgba(255,255,255,0.08); padding: 16px 40px; margin-top: auto; }
+    footer p { font-size: 0.72rem; color: rgba(255,255,255,0.6); }
+    footer strong { color: #ffb81c; }
+
+    /* チャート用hidden canvas */
+    #chart-canvas { display: none; position: absolute; top: -9999px; }
+
+    @media (max-width: 768px) {
+      .navbar { padding: 0 20px; }
+      .container { padding: 24px 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .template-grid { grid-template-columns: repeat(2, 1fr); }
+      .action-area { flex-direction: column; align-items: stretch; }
+      .refine-input-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="navbar-back">← アプリ一覧へ</a>
+    <div class="navbar-divider"></div>
+    <span class="navbar-title">Slide Maker</span>
+  </nav>
+
+  <div class="container">
+    <h1 class="page-title">Slide Maker</h1>
+    <p class="page-subtitle">AKKODiSブランド準拠のPPTXを自動生成します</p>
+
+    <div class="wizard">
+      <!-- STEP 1: 基本設定 -->
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-name">基本設定</div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label>テンプレート種別<span class="badge-required">必須</span></label>
+          <div class="template-grid" style="margin-top:8px;" id="template-grid">
+            <div class="template-card selected" data-val="external-white" onclick="selectTemplate(this)">
+              <div class="template-preview preview-ext-white">社外 / WHITE</div>
+              <div class="template-label">社外向け WHITE</div>
+            </div>
+            <div class="template-card dark-card" data-val="external-dark" onclick="selectTemplate(this)">
+              <div class="template-preview preview-ext-dark">社外 / DARK</div>
+              <div class="template-label" style="color:#fff;">社外向け DARK</div>
+            </div>
+            <div class="template-card" data-val="internal-white" onclick="selectTemplate(this)">
+              <div class="template-preview preview-int-white">社内 / WHITE</div>
+              <div class="template-label">社内向け WHITE</div>
+            </div>
+            <div class="template-card dark-card" data-val="internal-dark" onclick="selectTemplate(this)">
+              <div class="template-preview preview-int-dark">社内 / DARK</div>
+              <div class="template-label" style="color:#fff;">社内向け DARK</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="purpose">用途<span class="badge-required">必須</span></label>
+            <select id="purpose">
+              <option value="提案">提案</option>
+              <option value="報告">報告</option>
+              <option value="研修・説明">研修・説明</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="slide-count">枚数目安<span class="badge-optional">任意</span></label>
+            <select id="slide-count">
+              <option value="6">6枚程度</option>
+              <option value="8" selected>8枚程度</option>
+              <option value="10">10枚程度</option>
+              <option value="12">12枚程度</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: コンテンツ -->
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-name">コンテンツ</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label for="title">プレゼンタイトル<span class="badge-required">必須</span></label>
+            <input type="text" id="title" placeholder="例：2026年度 採用戦略の提案">
+          </div>
+          <div class="form-group full">
+            <label for="audience">受け手・対象者<span class="badge-required">必須</span></label>
+            <input type="text" id="audience" placeholder="例：HR部門マネージャー、経営陣">
+          </div>
+          <div class="form-group full">
+            <label for="background">背景・課題<span class="badge-required">必須</span></label>
+            <textarea id="background" placeholder="例：採用コスト増加と内定承諾率低下が続いており、採用プロセスの見直しが急務となっている。"></textarea>
+          </div>
+          <div class="form-group full">
+            <label>伝えたいメッセージ（最大3つ）<span class="badge-required">必須</span></label>
+            <div class="message-rows">
+              <div class="message-row"><span class="message-num">①</span><input type="text" class="msg-input" placeholder="例：採用プロセスを4週間から2週間に短縮する"></div>
+              <div class="message-row"><span class="message-num">②</span><input type="text" class="msg-input" placeholder="例：内定承諾率を15%改善する施策を導入"></div>
+              <div class="message-row"><span class="message-num">③</span><input type="text" class="msg-input" placeholder="例：（任意）"></div>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label for="supplement">補足データ・根拠<span class="badge-optional">任意</span></label>
+            <textarea id="supplement" placeholder="例：2024年応募数180件→2025年240件（33%増）、内定承諾率30%→15%に低下。競合他社の平均選考期間は2週間。"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: スタイル -->
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">3</div>
+          <div class="step-name">スタイル</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="tone">トーン</label>
+            <select id="tone">
+              <option value="フォーマル">フォーマル（ビジネス向け）</option>
+              <option value="カジュアル">カジュアル（社内向け）</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="language">言語</label>
+            <select id="language">
+              <option value="日本語">日本語</option>
+              <option value="英語">English</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-area">
+      <button class="btn-generate" id="btn-generate" onclick="startGenerate()">
+        ✨ スライドを生成する
+      </button>
+    </div>
+
+    <!-- ローディング -->
+    <div class="loading-area" id="loading-area">
+      <div class="loading-spinner"></div>
+      <div class="loading-step" id="loading-step">スライド構成を生成中…</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:10%"></div></div>
+    </div>
+
+    <!-- エラー -->
+    <div class="error-msg" id="error-msg">
+      <span id="error-text"></span>
+      <button class="btn-retry" id="btn-retry" onclick="retryGenerate()">再試行</button>
+    </div>
+
+    <!-- プレビュー -->
+    <div class="preview-section" id="preview-section">
+      <div class="section-title">
+        プレビュー
+        <span class="slide-count-badge" id="slide-count-badge">0枚</span>
+      </div>
+      <div class="slides-grid" id="slides-grid"></div>
+    </div>
+
+    <!-- リファイン -->
+    <div class="refine-section" id="refine-section">
+      <div class="refine-title">🔄 スライドを修正する</div>
+      <div class="refine-input-row">
+        <input type="text" id="refine-input" placeholder="例：3枚目をシンプルにして　／　比較表のスライドを追加して" onkeydown="if(event.key==='Enter')refine()">
+        <button class="btn-secondary" id="btn-refine" onclick="refine()">修正する</button>
+      </div>
+      <div class="refine-count" id="refine-count">残り5回</div>
+    </div>
+
+    <!-- ダウンロード -->
+    <div class="download-area" id="download-area">
+      <button class="btn-download" id="btn-download" onclick="downloadPptx()">
+        ⬇ PPTXをダウンロード
+      </button>
+      <span class="download-note">PowerPoint / Keynote で開けます</span>
+    </div>
+  </div>
+
+  <footer>
+    <p>⚠️ <strong>機密情報・個人情報の入力は禁止</strong>です。社外秘情報はVercel環境変数で管理してください。</p>
+  </footer>
+
+  <canvas id="chart-canvas" width="800" height="450"></canvas>
+
+  <script>
+    // 認証チェック
+    if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
+
+    const USER = localStorage.getItem('user') || '';
+    let selectedTemplate = 'external-white';
+    let currentSlides = null;
+    let refineCount = 0;
+    const MAX_REFINE = 5;
+
+    function selectTemplate(el) {
+      document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedTemplate = el.dataset.val;
+    }
+
+    function getWizardData() {
+      return {
+        template: selectedTemplate,
+        purpose: document.getElementById('purpose').value,
+        slideCount: document.getElementById('slide-count').value,
+        title: document.getElementById('title').value.trim(),
+        audience: document.getElementById('audience').value.trim(),
+        background: document.getElementById('background').value.trim(),
+        messages: [...document.querySelectorAll('.msg-input')].map(i => i.value.trim()).filter(Boolean),
+        supplement: document.getElementById('supplement').value.trim(),
+        tone: document.getElementById('tone').value,
+        language: document.getElementById('language').value,
+      };
+    }
+
+    function validate(data) {
+      if (!data.title) { showError('タイトルを入力してください。'); return false; }
+      if (!data.audience) { showError('受け手・対象者を入力してください。'); return false; }
+      if (!data.background) { showError('背景・課題を入力してください。'); return false; }
+      if (data.messages.length === 0) { showError('伝えたいメッセージを1つ以上入力してください。'); return false; }
+      return true;
+    }
+
+    function setLoading(active, step = '', progress = 10) {
+      document.getElementById('loading-area').classList.toggle('active', active);
+      document.getElementById('btn-generate').disabled = active;
+      if (active) {
+        document.getElementById('loading-step').textContent = step;
+        document.getElementById('progress-fill').style.width = progress + '%';
+      }
+    }
+
+    function setProgress(step, progress) {
+      document.getElementById('loading-step').textContent = step;
+      document.getElementById('progress-fill').style.width = progress + '%';
+    }
+
+    function showError(msg, retryFn = null) {
+      const el = document.getElementById('error-msg');
+      document.getElementById('error-text').textContent = msg;
+      el.classList.add('active');
+      document.getElementById('btn-retry').style.display = retryFn ? 'inline-block' : 'none';
+      if (retryFn) window._retryFn = retryFn;
+    }
+
+    function hideError() { document.getElementById('error-msg').classList.remove('active'); }
+
+    function retryGenerate() { if (window._retryFn) window._retryFn(); }
+
+    async function startGenerate() {
+      hideError();
+      const data = getWizardData();
+      if (!validate(data)) return;
+      await runGenerate(data);
+    }
+
+    async function runGenerate(data) {
+      setLoading(true, '🔄 スライド構成を生成中…', 10);
+
+      try {
+        const res = await fetch('/api/slide-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'generate', wizard: data, _user: USER }),
+        });
+
+        setProgress('🎨 プレビューを生成中…', 50);
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          if (res.status === 429) throw new Error('しばらく時間をおいて再試行してください。');
+          throw new Error(err.error || `APIエラー (${res.status})`);
+        }
+
+        const json = await res.json();
+        if (json.error) throw new Error(json.error);
+
+        currentSlides = json.slides;
+        refineCount = 0;
+
+        setProgress('📦 プレビューを組み立て中…', 80);
+        renderPreview(currentSlides);
+
+        setLoading(false);
+        document.getElementById('preview-section').classList.add('active');
+        document.getElementById('refine-section').classList.add('active');
+        document.getElementById('download-area').classList.add('active');
+        updateRefineCount();
+        document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      } catch (err) {
+        setLoading(false);
+        showError(err.message || 'スライドの生成に失敗しました。', () => runGenerate(data));
+      }
+    }
+
+    async function refine() {
+      const instruction = document.getElementById('refine-input').value.trim();
+      if (!instruction) return;
+      if (refineCount >= MAX_REFINE) { showError('リファイン上限（5回）に達しました。'); return; }
+      if (!currentSlides) return;
+
+      hideError();
+      document.getElementById('btn-refine').disabled = true;
+      document.getElementById('refine-input').disabled = true;
+
+      try {
+        const res = await fetch('/api/slide-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'refine', currentSlides, instruction, _user: USER }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || `エラー (${res.status})`);
+        }
+
+        const json = await res.json();
+        if (json.error) throw new Error(json.error);
+
+        currentSlides = json.slides;
+        refineCount++;
+        renderPreview(currentSlides);
+        document.getElementById('refine-input').value = '';
+        updateRefineCount();
+
+      } catch (err) {
+        showError(err.message || 'リファインに失敗しました。');
+      } finally {
+        document.getElementById('btn-refine').disabled = false;
+        document.getElementById('refine-input').disabled = false;
+      }
+    }
+
+    function updateRefineCount() {
+      const remaining = MAX_REFINE - refineCount;
+      document.getElementById('refine-count').textContent =
+        remaining > 0 ? `残り${remaining}回` : 'リファイン上限に達しました';
+    }
+
+    // ===== プレビューレンダリング =====
+    function renderPreview(slides) {
+      const grid = document.getElementById('slides-grid');
+      grid.innerHTML = '';
+      document.getElementById('slide-count-badge').textContent = `${slides.length}枚`;
+
+      slides.forEach((slide, i) => {
+        const thumb = document.createElement('div');
+        thumb.className = 'slide-thumb';
+        thumb.innerHTML = `<div class="slide-num">${i + 1}</div>${buildSlideHtml(slide)}`;
+        grid.appendChild(thumb);
+      });
+    }
+
+    function esc(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function buildSlideHtml(slide) {
+      const isDark = selectedTemplate.includes('dark');
+      switch (slide.layout) {
+        case 'cover':
+          return `<div class="slide-inner slide-cover">
+            <div class="s-title">${esc(slide.title)}</div>
+            <div class="s-subtitle">${esc(slide.subtitle || '')}</div>
+            <div class="s-date">${esc(slide.date || '')}</div>
+          </div>`;
+        case 'agenda':
+          return `<div class="slide-inner slide-agenda">
+            <div class="s-title">${esc(slide.title || 'Agenda')}</div>
+            ${(slide.items || []).map((item, i) => `<div class="s-item">　${i+1}. ${esc(item)}</div>`).join('')}
+          </div>`;
+        case 'chapter':
+          return `<div class="slide-inner slide-chapter">
+            <div class="s-num">${esc(slide.number || '')}</div>
+            <div class="s-title">${esc(slide.title)}</div>
+          </div>`;
+        case 'content':
+        case 'content-with-chart':
+        case 'content-with-flow':
+          return `<div class="slide-inner slide-white">
+            <div class="s-title">${esc(slide.title)}</div>
+            <div class="s-body">${esc(slide.body || '').replace(/\n/g,'<br>')}</div>
+            ${slide.chart ? `<div style="font-size:0.5em;background:#f0f2f5;padding:4px 8px;margin-top:4px;color:#8a9bb0;">📊 ${esc(slide.chart.title || 'グラフ')}</div>` : ''}
+            ${slide.flow ? `<div style="font-size:0.5em;background:#f0f2f5;padding:4px 8px;margin-top:4px;color:#8a9bb0;">→ ${(slide.flow.steps||[]).join(' → ')}</div>` : ''}
+          </div>`;
+        case 'comparison':
+          const table = slide.table || { headers: [], rows: [] };
+          return `<div class="slide-inner slide-white">
+            <div class="s-title">${esc(slide.title)}</div>
+            <table class="slide-table" style="width:100%;border-collapse:collapse;margin-top:8px;">
+              <tr>${(table.headers||[]).map(h=>`<th>${esc(h)}</th>`).join('')}</tr>
+              ${(table.rows||[]).map(row=>`<tr>${row.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}
+            </table>
+          </div>`;
+        case 'closing':
+          return `<div class="slide-inner slide-closing">
+            <div class="s-msg">${esc(slide.message || 'Thank you')}</div>
+          </div>`;
+        default:
+          return `<div class="slide-inner slide-white"><div class="s-title">${esc(slide.title||'')}</div></div>`;
+      }
+    }
+
+    // ===== PPTX生成 =====
+    async function downloadPptx() {
+      if (!currentSlides) return;
+      const btn = document.getElementById('btn-download');
+      btn.disabled = true;
+      btn.textContent = '⏳ PPTXを生成中…';
+
+      try {
+        const pptx = await buildPptx(currentSlides, selectedTemplate);
+        const blob = await pptx.generateAsync({ type: 'blob' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const titleText = currentSlides[0]?.title || 'slide';
+        const safe = titleText.replace(/[/\\:*?"<>|]/g, '_').slice(0, 40);
+        a.download = `${safe}_${selectedTemplate}.pptx`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        showError('PPTXの生成に失敗しました: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '⬇ PPTXをダウンロード';
+      }
+    }
+
+    // テンプレートのスライドとレイアウトのマッピング
+    const LAYOUT_TO_TEMPLATE_SLIDE = {
+      'cover': 1,
+      'agenda': 5,
+      'chapter': 3,
+      'content': 7,
+      'content-with-chart': 7,
+      'content-with-flow': 7,
+      'comparison': 12,
+      'closing': 15,
+    };
+
+    function escXml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+    }
+
+    // 段落内の分割ランを1つにまとめて新テキストで置換する
+    function buildPara(text, lang = 'ja-JP') {
+      return `<a:p><a:r><a:rPr lang="${lang}" dirty="0"/><a:t>${escXml(text)}</a:t></a:r></a:p>`;
+    }
+
+    function buildParaStyled(text, bold = false, fontSize = null, color = null) {
+      let rpr = `lang="ja-JP" dirty="0"${bold ? ' b="1"' : ''}`;
+      let inner = fontSize || color
+        ? `<a:rPr ${rpr}>${color ? `<a:solidFill><a:srgbClr val="${color}"/></a:solidFill>` : ''}${fontSize ? `<a:latin typeface="Meiryo UI" pitchFamily="18" charset="-128"/><a:sz val="${fontSize}"/>` : ''}</a:rPr>`
+        : `<a:rPr ${rpr}/>`;
+      return `<a:p>${inner}<a:t>${escXml(text)}</a:t></a:r></a:p>`.replace('<a:t>', `<a:r>${inner}<a:t>`).replace(`<a:r><a:rPr`, `<a:r><a:rPr`);
+    }
+
+    // txBody全体を新しいテキストで置換
+    function replaceTxBody(shapeXml, paragraphs) {
+      const paras = paragraphs.map(p => typeof p === 'string' ? buildPara(p) : p).join('');
+      return shapeXml.replace(/<a:txBody>[\s\S]*?<\/a:txBody>/, `<a:txBody><a:bodyPr/><a:lstStyle/>${paras}</a:txBody>`);
+    }
+
+    // shape内の特定のプレースホルダーテキストを置換（単純な文字列置換）
+    function replaceText(xml, oldText, newText) {
+      return xml.split(`<a:t>${oldText}</a:t>`).join(`<a:t>${escXml(newText)}</a:t>`);
+    }
+
+    // 特定phタイプのshapeのtxBodyを置換
+    function replaceShapeByPhType(slideXml, phType, paragraphs) {
+      const re = new RegExp(`(<p:sp>[\\s\\S]*?<p:ph type="${phType}"[^>]*/>[\\s\\S]*?)(<a:txBody>[\\s\\S]*?<\\/a:txBody>)([\\s\\S]*?<\\/p:sp>)`, 'g');
+      const paras = paragraphs.map(p => typeof p === 'string' ? buildPara(p) : p).join('');
+      return slideXml.replace(re, (m, before, txBody, after) => {
+        return `${before}<a:txBody><a:bodyPr/><a:lstStyle/>${paras}</a:txBody>${after}`;
+      });
+    }
+
+    // 特定phIdxのshapeのtxBodyを置換
+    function replaceShapeByPhIdx(slideXml, phIdx, paragraphs) {
+      const re = new RegExp(`(<p:sp>[\\s\\S]*?<p:ph[^>]*idx="${phIdx}"[^>]*/>[\\s\\S]*?)(<a:txBody>[\\s\\S]*?<\\/a:txBody>)([\\s\\S]*?<\\/p:sp>)`, 'g');
+      const paras = paragraphs.map(p => typeof p === 'string' ? buildPara(p) : p).join('');
+      return slideXml.replace(re, (m, before, txBody, after) => {
+        return `${before}<a:txBody><a:bodyPr/><a:lstStyle/>${paras}</a:txBody>${after}`;
+      });
+    }
+
+    async function buildPptx(slides, templateId) {
+      // テンプレートPPTXを取得
+      const templateUrl = `templates/${templateId}.pptx`;
+      const response = await fetch(templateUrl);
+      if (!response.ok) throw new Error(`テンプレートの読み込みに失敗しました: ${templateUrl}`);
+      const arrayBuffer = await response.arrayBuffer();
+
+      const zip = await JSZip.loadAsync(arrayBuffer);
+
+      // presentation.xmlを取得
+      const prsXml = await zip.file('ppt/presentation.xml').async('string');
+      const prsRels = await zip.file('ppt/_rels/presentation.xml.rels').async('string');
+      const contentTypes = await zip.file('[Content_Types].xml').async('string');
+
+      // 既存の全スライドのXMLをキャッシュ
+      const slideCache = {};
+      for (let i = 1; i <= 16; i++) {
+        const f = zip.file(`ppt/slides/slide${i}.xml`);
+        if (f) {
+          slideCache[i] = await f.async('string');
+        }
+      }
+      // 既存スライドのrelsもキャッシュ
+      const slideRelsCache = {};
+      for (let i = 1; i <= 16; i++) {
+        const f = zip.file(`ppt/slides/_rels/slide${i}.xml.rels`);
+        if (f) {
+          slideRelsCache[i] = await f.async('string');
+        }
+      }
+
+      // 新しいスライドを構築
+      const newSlideEntries = []; // { fileName, xml, relsXml, rId, slideId }
+      let baseId = 500;
+      let rIdCounter = 50;
+      let imageCounter = 1;
+
+      for (let i = 0; i < slides.length; i++) {
+        const slide = slides[i];
+        const templateSlideNum = LAYOUT_TO_TEMPLATE_SLIDE[slide.layout] || 7;
+        let slideXml = slideCache[templateSlideNum] || slideCache[1];
+        let slideRels = slideRelsCache[templateSlideNum] || slideRelsCache[1];
+
+        // レイアウトに応じてXMLを編集
+        slideXml = await applySlideContent(slideXml, slideRels, slide, zip, imageCounter);
+        if (slide.chart || slide.flow) imageCounter++;
+
+        const newSlideNum = 200 + i;
+        const fileName = `ppt/slides/slide${newSlideNum}.xml`;
+        const rId = `rId${rIdCounter++}`;
+
+        newSlideEntries.push({ fileName, xml: slideXml, relsXml: slideRels, rId, slideId: baseId + i });
+        zip.file(fileName, slideXml);
+        zip.file(`ppt/slides/_rels/slide${newSlideNum}.xml.rels`, slideRels);
+      }
+
+      // presentation.xmlのslideIdLstを更新
+      let newPrsXml = prsXml;
+      const sldIdList = newSlideEntries
+        .map(e => `<p:sldId id="${e.slideId}" r:id="${e.rId}"/>`)
+        .join('');
+      newPrsXml = newPrsXml.replace(/<p:sldIdLst>[\s\S]*?<\/p:sldIdLst>/, `<p:sldIdLst>${sldIdList}</p:sldIdLst>`);
+      zip.file('ppt/presentation.xml', newPrsXml);
+
+      // _rels/presentation.xml.relsを更新
+      let newPrsRels = prsRels;
+      // 既存のslide relを除去してから追加
+      newPrsRels = newPrsRels.replace(/<Relationship[^>]+relationships\/slide[^>]+\/>/g, '');
+      const newRels = newSlideEntries
+        .map(e => `<Relationship Id="${e.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide${200 + newSlideEntries.indexOf(e)}.xml"/>`)
+        .join('');
+      newPrsRels = newPrsRels.replace('</Relationships>', `${newRels}</Relationships>`);
+      zip.file('ppt/_rels/presentation.xml.rels', newPrsRels);
+
+      // [Content_Types].xmlに新スライドのOverrideを追加
+      let newCt = contentTypes;
+      // 既存スライドのOverrideを除去
+      newCt = newCt.replace(/<Override PartName="\/ppt\/slides\/slide\d+\.xml"[^/]*\/>/g, '');
+      const ctEntries = newSlideEntries
+        .map(e => `<Override PartName="/${e.fileName}" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>`)
+        .join('');
+      newCt = newCt.replace('</Types>', `${ctEntries}</Types>`);
+      zip.file('[Content_Types].xml', newCt);
+
+      // 古いスライドファイルを削除（元の1-16）
+      for (let i = 1; i <= 16; i++) {
+        zip.remove(`ppt/slides/slide${i}.xml`);
+        zip.remove(`ppt/slides/_rels/slide${i}.xml.rels`);
+      }
+
+      return zip;
+    }
+
+    async function applySlideContent(slideXml, slideRels, slide, zip, imgIdx) {
+      switch (slide.layout) {
+        case 'cover':
+          slideXml = replaceText(slideXml, 'Presentation Title', slide.title || '');
+          slideXml = replaceText(slideXml, 'Presentation Subtitle', slide.subtitle || '');
+          slideXml = replaceText(slideXml, 'Month YYYY', slide.date || new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' }));
+          return slideXml;
+
+        case 'agenda':
+          const items = slide.items || [];
+          for (let j = 0; j < 6; j++) {
+            const label = `Chapter Title 0${j + 1}`;
+            slideXml = replaceText(slideXml, label, items[j] || '');
+          }
+          // 最後のChapter Title（6番目）
+          slideXml = replaceText(slideXml, 'Chapter Title 06', items[5] || '');
+          return slideXml;
+
+        case 'chapter':
+          slideXml = replaceText(slideXml, 'Chapter Title', slide.title || '');
+          slideXml = replaceText(slideXml, '1.0', slide.number || '');
+          return slideXml;
+
+        case 'content': {
+          // タイトル置換
+          slideXml = replaceShapeByPhType(slideXml, 'title', [slide.title || '']);
+          // 本文置換（idx=29 or 30の最初のbodyプレースホルダー）
+          const bodyLines = (slide.body || '').split('\n').filter(Boolean);
+          slideXml = replaceShapeByPhIdx(slideXml, '29', bodyLines.length ? bodyLines : [slide.body || '']);
+          return slideXml;
+        }
+
+        case 'content-with-chart': {
+          slideXml = replaceShapeByPhType(slideXml, 'title', [slide.title || '']);
+          const bodyText = slide.body || '';
+          slideXml = replaceShapeByPhIdx(slideXml, '29', [bodyText]);
+          // Chart.jsでグラフPNG生成
+          if (slide.chart) {
+            const pngBase64 = await generateChartPng(slide.chart);
+            const { xml: newSlide, rels: newRels } = addImageToSlide(slideXml, slideRels, pngBase64, `chart${imgIdx}.png`, imgIdx + 10);
+            return newSlide;
+          }
+          return slideXml;
+        }
+
+        case 'content-with-flow': {
+          slideXml = replaceShapeByPhType(slideXml, 'title', [slide.title || '']);
+          slideXml = replaceShapeByPhIdx(slideXml, '29', [slide.body || '']);
+          if (slide.flow) {
+            const pngBase64 = await generateFlowPng(slide.flow.steps || []);
+            const { xml: newSlide } = addImageToSlide(slideXml, slideRels, pngBase64, `flow${imgIdx}.png`, imgIdx + 10);
+            return newSlide;
+          }
+          return slideXml;
+        }
+
+        case 'comparison': {
+          // テーブルスライドのタイトルを置換
+          slideXml = replaceText(slideXml, 'Table', slide.title || '');
+          // テーブルセルを置換
+          if (slide.table) {
+            const allCells = [...(slide.table.headers || []), ...(slide.table.rows || []).flat()];
+            const templateCells = ['Action', 'Status', 'Impact', 'Responsible', 'Completed by'];
+            // シンプルな置換（テンプレートの固定セルテキストを順に置き換え）
+            let cellIdx = 0;
+            const allNew = [...(slide.table.headers || []), ...(slide.table.rows || []).flat()];
+            allNew.forEach((cell, i) => {
+              if (i < templateCells.length) {
+                slideXml = replaceText(slideXml, templateCells[i], cell);
+              }
+            });
+          }
+          return slideXml;
+        }
+
+        case 'closing':
+          // 締めのスライド - Thankメッセージを置換
+          slideXml = replaceText(slideXml, 'John SMITH', slide.message || 'Thank you');
+          slideXml = replaceText(slideXml, 'Function title', '');
+          slideXml = replaceText(slideXml, 'M:\t+33 6 00 01 02 03 ', '');
+          slideXml = replaceText(slideXml, 'E:\tjohn.smith@akkodis.com', '');
+          slideXml = replaceText(slideXml, 'Paul JOHNSON', '');
+          slideXml = replaceText(slideXml, 'Function Title ', '');
+          return slideXml;
+
+        default:
+          slideXml = replaceShapeByPhType(slideXml, 'title', [slide.title || '']);
+          return slideXml;
+      }
+    }
+
+    function addImageToSlide(slideXml, slideRels, pngBase64, fileName, rIdNum) {
+      const rId = `rId${rIdNum}`;
+      // spTreeの閉じタグ前にpicを挿入
+      const picXml = `<p:pic>
+  <p:nvPicPr>
+    <p:cNvPr id="${rIdNum + 100}" name="${fileName}"/>
+    <p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr>
+    <p:nvPr/>
+  </p:nvPicPr>
+  <p:blipFill>
+    <a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="${rId}"/>
+    <a:stretch><a:fillRect/></a:stretch>
+  </p:blipFill>
+  <p:spPr>
+    <a:xfrm>
+      <a:off x="5486400" y="1143000"/>
+      <a:ext cx="5943600" cy="4800600"/>
+    </a:xfrm>
+    <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+  </p:spPr>
+</p:pic>`;
+      const newXml = slideXml.replace('</p:spTree>', `${picXml}</p:spTree>`);
+
+      // rels に画像追加
+      const relEntry = `<Relationship Id="${rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${fileName}"/>`;
+      // 実際にzipに追加するのはbuildPptxでは難しいので、ここではXMLのみ返す
+      return { xml: newXml, rels: slideRels.replace('</Relationships>', `${relEntry}</Relationships>`) };
+    }
+
+    async function generateChartPng(chartData) {
+      return new Promise((resolve) => {
+        const canvas = document.getElementById('chart-canvas');
+        canvas.style.display = 'block';
+        canvas.width = 800;
+        canvas.height = 500;
+        const ctx = canvas.getContext('2d');
+
+        // 既存チャートを破棄
+        if (window._chartInstance) { window._chartInstance.destroy(); }
+
+        const colors = ['#001f33', '#ffb81c', '#00ffff', '#8a9bb0', '#4a5568', '#e67e22'];
+
+        const config = {
+          type: chartData.type || 'bar',
+          data: {
+            labels: chartData.labels || [],
+            datasets: [{
+              label: chartData.title || '',
+              data: chartData.data || [],
+              backgroundColor: chartData.type === 'pie' || chartData.type === 'doughnut'
+                ? colors.slice(0, (chartData.data || []).length)
+                : '#001f33',
+              borderColor: chartData.type === 'line' ? '#ffb81c' : 'transparent',
+              borderWidth: chartData.type === 'line' ? 2 : 0,
+              fill: false,
+            }],
+          },
+          options: {
+            animation: false,
+            responsive: false,
+            plugins: {
+              legend: { display: chartData.type === 'pie' || chartData.type === 'doughnut' },
+              title: {
+                display: !!chartData.title,
+                text: chartData.title || '',
+                font: { size: 18, family: 'Meiryo UI, sans-serif', weight: 'bold' },
+                color: '#001f33',
+              },
+            },
+            scales: (chartData.type !== 'pie' && chartData.type !== 'doughnut') ? {
+              y: {
+                beginAtZero: true,
+                ticks: { font: { family: 'Meiryo UI, sans-serif' } },
+              },
+              x: {
+                ticks: { font: { family: 'Meiryo UI, sans-serif' } },
+              },
+            } : {},
+          },
+        };
+
+        window._chartInstance = new Chart(ctx, config);
+
+        setTimeout(() => {
+          const dataUrl = canvas.toDataURL('image/png');
+          canvas.style.display = 'none';
+          if (window._chartInstance) { window._chartInstance.destroy(); window._chartInstance = null; }
+          resolve(dataUrl.split(',')[1]);
+        }, 200);
+      });
+    }
+
+    async function generateFlowPng(steps) {
+      return new Promise((resolve) => {
+        const canvas = document.getElementById('chart-canvas');
+        canvas.style.display = 'block';
+        canvas.width = 960;
+        canvas.height = 400;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, 960, 400);
+
+        // 背景
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 960, 400);
+
+        const n = steps.length;
+        const boxW = 140, boxH = 60, arrowW = 30;
+        const totalW = n * boxW + (n - 1) * arrowW;
+        const startX = (960 - totalW) / 2;
+        const y = 170;
+
+        steps.forEach((step, i) => {
+          const x = startX + i * (boxW + arrowW);
+
+          // ボックス
+          ctx.fillStyle = '#001f33';
+          ctx.fillRect(x, y, boxW, boxH);
+
+          // テキスト
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 14px Meiryo UI, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          // テキスト折り返し（簡易）
+          const words = step;
+          ctx.fillText(words, x + boxW / 2, y + boxH / 2, boxW - 10);
+
+          // ステップ番号
+          ctx.fillStyle = '#ffb81c';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText(`${i + 1}`, x + boxW / 2, y - 20);
+
+          // 矢印
+          if (i < n - 1) {
+            const arrowX = x + boxW;
+            ctx.fillStyle = '#ffb81c';
+            ctx.beginPath();
+            ctx.moveTo(arrowX + 5, y + boxH / 2);
+            ctx.lineTo(arrowX + arrowW - 5, y + boxH / 2 - 10);
+            ctx.lineTo(arrowX + arrowW - 5, y + boxH / 2 + 10);
+            ctx.closePath();
+            ctx.fill();
+          }
+        });
+
+        const dataUrl = canvas.toDataURL('image/png');
+        canvas.style.display = 'none';
+        resolve(dataUrl.split(',')[1]);
+      });
+    }
+  </script>
+</body>
+</html>
