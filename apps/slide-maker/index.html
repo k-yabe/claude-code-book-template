@@ -198,6 +198,20 @@
     .btn-reset { background: none; color: #8a9bb0; border: 1.5px solid #e8ecf0; padding: 13px 20px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: color 0.2s, border-color 0.2s; }
     .btn-reset:hover { color: #2d3436; border-color: #8a9bb0; }
 
+    /* ===== モード切替タブ ===== */
+    .mode-tabs { display: flex; gap: 0; margin-top: 20px; border-bottom: 2px solid #e8ecf0; }
+    .mode-tab { background: none; border: none; padding: 10px 22px; font-size: 0.85rem; font-weight: 600; color: #8a9bb0; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.2s, border-color 0.2s; }
+    .mode-tab:hover { color: #001f33; }
+    .mode-tab.active { color: #001f33; border-bottom-color: #ffb81c; }
+
+    /* ===== フリー入力エリア ===== */
+    .free-input-section { margin-top: 16px; display: none; }
+    .free-input-section.active { display: block; }
+    .free-textarea { width: 100%; min-height: 220px; border: 1.5px solid #e8ecf0; padding: 14px 16px; font-size: 0.88rem; font-family: inherit; color: #2d3436; background: #fff; resize: vertical; outline: none; transition: border-color 0.2s; line-height: 1.7; }
+    .free-textarea:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
+    .free-hint { font-size: 0.75rem; color: #8a9bb0; margin-top: 8px; line-height: 1.6; }
+    .free-hint strong { color: #4a5568; }
+
     /* ===== テンプレートプレビュー強化 ===== */
     .template-card.loading-preview { opacity: 0.6; }
   </style>
@@ -225,6 +239,61 @@
       <div class="onboarding-actions">
         <button class="btn-sample" onclick="fillSample()">📋 サンプルで試す</button>
         <button class="btn-close-banner" onclick="closeBanner()" title="閉じる">✕</button>
+      </div>
+    </div>
+
+    <!-- モード切替タブ -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-wizard" onclick="switchMode('wizard')">📋 ウィザード入力</button>
+      <button class="mode-tab" id="tab-free" onclick="switchMode('free')">✏️ フリー入力</button>
+    </div>
+
+    <!-- フリー入力セクション -->
+    <div class="free-input-section" id="free-input-section">
+      <div class="step" style="margin-top:16px;">
+        <div class="step-header">
+          <div class="step-num">✏</div>
+          <div class="step-name">伝えたいことを自由に書く</div>
+        </div>
+        <textarea class="free-textarea" id="free-text"
+          placeholder="例：
+2026年度の採用戦略について経営陣に提案したい。
+応募数は増えているが内定承諾率が30%→15%に低下しており、選考期間短縮と候補者体験改善が急務。
+・選考を4週間→2週間に短縮
+・内定後のフォロー強化
+・採用ブランド向上施策
+数値データ：応募240件、承諾15%、採用単価120万円
+8枚程度でフォーマルなトーン、日本語で。"></textarea>
+        <div class="free-hint">
+          <strong>ヒント:</strong> 目的・対象者・伝えたいこと・数値データ・枚数・トーンなど、思いつくまま書いてください。箇条書きでも文章でも構いません。AIが自動で構成を判断します。
+        </div>
+      </div>
+      <div class="step" style="margin-top:16px;">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-name">テンプレート・スタイル</div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label>テンプレート種別<span class="badge-required">必須</span></label>
+          <div class="template-grid" style="margin-top:8px;" id="free-template-grid">
+            <div class="template-card selected" data-val="external-white" onclick="selectFreeTemplate(this)">
+              <div class="template-preview preview-ext-white">社外 / WHITE</div>
+              <div class="template-label">社外向け WHITE</div>
+            </div>
+            <div class="template-card dark-card" data-val="external-dark" onclick="selectFreeTemplate(this)">
+              <div class="template-preview preview-ext-dark">社外 / DARK</div>
+              <div class="template-label" style="color:#fff;">社外向け DARK</div>
+            </div>
+            <div class="template-card" data-val="internal-white" onclick="selectFreeTemplate(this)">
+              <div class="template-preview preview-int-white">社内 / WHITE</div>
+              <div class="template-label">社内向け WHITE</div>
+            </div>
+            <div class="template-card dark-card" data-val="internal-dark" onclick="selectFreeTemplate(this)">
+              <div class="template-preview preview-int-dark">社内 / DARK</div>
+              <div class="template-label" style="color:#fff;">社内向け DARK</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -418,6 +487,26 @@
     let currentSlides = null;
     let refineCount = 0;
     const MAX_REFINE = 5;
+    let currentMode = 'wizard'; // 'wizard' | 'free'
+
+    function switchMode(mode) {
+      currentMode = mode;
+      document.getElementById('tab-wizard').classList.toggle('active', mode === 'wizard');
+      document.getElementById('tab-free').classList.toggle('active', mode === 'free');
+      document.getElementById('free-input-section').classList.toggle('active', mode === 'free');
+      document.querySelector('.wizard').style.display = mode === 'wizard' ? '' : 'none';
+      // フリーモードのテンプレート選択をウィザードと同期
+      if (mode === 'free') selectFreeTemplate(document.querySelector(`#free-template-grid [data-val="${selectedTemplate}"]`) || document.querySelector('#free-template-grid .template-card'));
+      if (mode === 'wizard') selectTemplateByVal(selectedTemplate);
+    }
+
+    function selectFreeTemplate(el) {
+      document.querySelectorAll('#free-template-grid .template-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedTemplate = el.dataset.val;
+      preloadTemplate(selectedTemplate);
+      if (currentSlides) renderPreview(currentSlides);
+    }
 
     function selectTemplate(el) {
       document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
@@ -444,6 +533,11 @@
     }
 
     function validate(data) {
+      if (currentMode === 'free') {
+        const txt = document.getElementById('free-text').value.trim();
+        if (!txt) { showError('伝えたいことを入力してください。'); return false; }
+        return true;
+      }
       if (!data.title) { showError('タイトルを入力してください。'); return false; }
       if (!data.audience) { showError('受け手・対象者を入力してください。'); return false; }
       if (!data.background) { showError('背景・課題を入力してください。'); return false; }
@@ -488,10 +582,13 @@
       setLoading(true, '🔄 スライド構成を生成中…', 10);
 
       try {
+        const body = currentMode === 'free'
+          ? { mode: 'free', freeText: document.getElementById('free-text').value.trim(), template: selectedTemplate, _user: USER }
+          : { mode: 'generate', wizard: data, _user: USER };
         const res = await fetch('/api/slide-generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: 'generate', wizard: data, _user: USER }),
+          body: JSON.stringify(body),
         });
 
         setProgress('🎨 プレビューを生成中…', 50);
@@ -725,6 +822,7 @@
       document.getElementById('tone').value = 'フォーマル';
       document.getElementById('language').value = '日本語';
       document.querySelectorAll('.msg-input').forEach(el => { el.value = ''; });
+      document.getElementById('free-text').value = '';
       selectTemplateByVal('external-white');
       updateTitleCounter();
       currentSlides = null;
@@ -896,19 +994,28 @@
       return xml.split(`<a:t>${oldText}</a:t>`).join(`<a:t>${escXml(newText)}</a:t>`);
     }
 
-    // indexOf ベースで <p:sp> を特定し txBody を置換（regexより確実）
+    // indexOf ベースで <p:sp> を特定し txBody の段落のみを置換（bodyPr/lstStyleは原本を保持）
     function replaceShapeText(xml, phMatcher, lines) {
       const phPos = xml.indexOf(phMatcher);
       if (phPos === -1) return xml;
       const spStart = xml.lastIndexOf('<p:sp>', phPos);
       if (spStart === -1) return xml;
       const spEnd = xml.indexOf('</p:sp>', phPos) + 7;
+      if (spEnd < 7) return xml;
       const spXml = xml.slice(spStart, spEnd);
       const txStart = spXml.indexOf('<a:txBody>');
       const txEnd = spXml.indexOf('</a:txBody>') + 11;
       if (txStart === -1 || txEnd < 11) return xml;
+
+      // txBody 内の bodyPr / lstStyle を保持（属性・子要素ごと残す）
+      const txXml = spXml.slice(txStart, txEnd);
+      const bodyPrM = txXml.match(/<a:bodyPr[\s\S]*?(?:\/>|<\/a:bodyPr>)/);
+      const lstStyleM = txXml.match(/<a:lstStyle[\s\S]*?(?:\/>|<\/a:lstStyle>)/);
+      const bodyPr = bodyPrM ? bodyPrM[0] : '<a:bodyPr/>';
+      const lstStyle = lstStyleM ? lstStyleM[0] : '<a:lstStyle/>';
+
       const paras = (lines.filter(Boolean).length ? lines.filter(Boolean) : ['']).map(buildPara).join('');
-      const newSp = spXml.slice(0, txStart) + `<a:txBody><a:bodyPr/><a:lstStyle/>${paras}</a:txBody>` + spXml.slice(txEnd);
+      const newSp = spXml.slice(0, txStart) + `<a:txBody>${bodyPr}${lstStyle}${paras}</a:txBody>` + spXml.slice(txEnd);
       return xml.slice(0, spStart) + newSp + xml.slice(spEnd);
     }
 
@@ -972,7 +1079,8 @@
         buffer = await response.arrayBuffer();
         templateCache[templateId] = buffer;
       }
-      const zip = await JSZip.loadAsync(buffer);
+      // キャッシュバッファをクローンして渡す（JSZip処理でバッファが破壊されないよう）
+      const zip = await JSZip.loadAsync(buffer.slice(0));
 
       const prsXml = await zip.file('ppt/presentation.xml').async('string');
       const prsRels = await zip.file('ppt/_rels/presentation.xml.rels').async('string');

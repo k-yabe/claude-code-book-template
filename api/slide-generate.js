@@ -96,7 +96,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'APIキーが設定されていません' });
   }
 
-  const { mode, wizard, currentSlides, instruction, _user } = req.body;
+  const { mode, wizard, freeText, template, currentSlides, instruction, _user } = req.body;
 
   // ログ送信
   const logEndpoint = process.env.LOG_ENDPOINT;
@@ -106,7 +106,7 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user: _user,
-        action: mode === 'refine' ? 'slide-refine' : 'slide-generate',
+        action: mode === 'refine' ? 'slide-refine' : mode === 'free' ? 'slide-free' : 'slide-generate',
         app: 'slide-maker',
         timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
       }),
@@ -118,7 +118,15 @@ export default async function handler(req, res) {
     let model;
     let systemPrompt;
 
-    if (mode === 'refine') {
+    if (mode === 'free') {
+      // フリー入力モード: 自由記述テキストからスライド構成を生成
+      model = 'claude-sonnet-4-6';
+      systemPrompt = SYSTEM_PROMPT;
+      messages = [{
+        role: 'user',
+        content: `以下のメモ・文章をもとに、スライド構成を作成してください。\n文章は自由形式で書かれています。目的・対象者・メッセージ・数値・トーン・枚数などを読み取り、最適な構成を判断してください。\n\n---\n${freeText}\n---`,
+      }];
+    } else if (mode === 'refine') {
       // リファインモード: 既存JSONに修正指示を適用
       model = 'claude-haiku-4-5-20251001';
       systemPrompt = REFINE_SYSTEM_PROMPT;
