@@ -214,6 +214,17 @@
 
     /* ===== テンプレートプレビュー強化 ===== */
     .template-card.loading-preview { opacity: 0.6; }
+
+    /* ===== テンプレートインライン選択 ===== */
+    .template-inline-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .template-inline-item { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 8px 8px; border: 2px solid #e8ecf0; cursor: pointer; flex: 1; min-width: 90px; transition: border-color 0.2s; }
+    .template-inline-item:hover { border-color: #001f33; }
+    .template-inline-item.selected { border-color: #ffb81c; background: #fffbf0; }
+    .template-inline-item.dark-card { background: #001f33; }
+    .template-inline-item.dark-card.selected { border-color: #ffb81c; background: #0a1e2e; }
+    .template-inline-preview { width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; }
+    .template-inline-label { font-size: 0.68rem; font-weight: 600; text-align: center; }
+    .template-inline-item.dark-card .template-inline-label { color: #fff; }
   </style>
 </head>
 <body>
@@ -244,12 +255,12 @@
 
     <!-- モード切替タブ -->
     <div class="mode-tabs">
-      <button class="mode-tab active" id="tab-wizard" onclick="switchMode('wizard')">📋 ウィザード入力</button>
-      <button class="mode-tab" id="tab-free" onclick="switchMode('free')">✏️ フリー入力</button>
+      <button class="mode-tab" id="tab-wizard" onclick="switchMode('wizard')">📋 ウィザード入力</button>
+      <button class="mode-tab active" id="tab-free" onclick="switchMode('free')">✏️ フリー入力</button>
     </div>
 
     <!-- フリー入力セクション -->
-    <div class="free-input-section" id="free-input-section">
+    <div class="free-input-section active" id="free-input-section">
       <div class="step" style="margin-top:16px;">
         <div class="step-header">
           <div class="step-num">✏</div>
@@ -274,30 +285,30 @@
           <div class="step-name">テンプレート・スタイル</div>
         </div>
         <div style="margin-bottom:16px;">
-          <label>テンプレート種別<span class="badge-required">必須</span></label>
-          <div class="template-grid" style="margin-top:8px;" id="free-template-grid">
-            <div class="template-card selected" data-val="external-white" onclick="selectFreeTemplate(this)">
-              <div class="template-preview preview-ext-white">社外 / WHITE</div>
-              <div class="template-label">社外向け WHITE</div>
+          <label>テンプレート<span class="badge-required">必須</span></label>
+          <div class="template-inline-grid" id="free-template-grid">
+            <div class="template-inline-item selected" data-val="external-white" onclick="selectFreeTemplate(this)">
+              <div class="template-inline-preview preview-ext-white">社外 WHITE</div>
+              <div class="template-inline-label">社外向け WHITE</div>
             </div>
-            <div class="template-card dark-card" data-val="external-dark" onclick="selectFreeTemplate(this)">
-              <div class="template-preview preview-ext-dark">社外 / DARK</div>
-              <div class="template-label" style="color:#fff;">社外向け DARK</div>
+            <div class="template-inline-item dark-card" data-val="external-dark" onclick="selectFreeTemplate(this)">
+              <div class="template-inline-preview preview-ext-dark">社外 DARK</div>
+              <div class="template-inline-label">社外向け DARK</div>
             </div>
-            <div class="template-card" data-val="internal-white" onclick="selectFreeTemplate(this)">
-              <div class="template-preview preview-int-white">社内 / WHITE</div>
-              <div class="template-label">社内向け WHITE</div>
+            <div class="template-inline-item" data-val="internal-white" onclick="selectFreeTemplate(this)">
+              <div class="template-inline-preview preview-int-white">社内 WHITE</div>
+              <div class="template-inline-label">社内向け WHITE</div>
             </div>
-            <div class="template-card dark-card" data-val="internal-dark" onclick="selectFreeTemplate(this)">
-              <div class="template-preview preview-int-dark">社内 / DARK</div>
-              <div class="template-label" style="color:#fff;">社内向け DARK</div>
+            <div class="template-inline-item dark-card" data-val="internal-dark" onclick="selectFreeTemplate(this)">
+              <div class="template-inline-preview preview-int-dark">社内 DARK</div>
+              <div class="template-inline-label">社内向け DARK</div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="wizard">
+    <div class="wizard" style="display:none;">
       <!-- STEP 1: 基本設定 -->
       <div class="step">
         <div class="step-header">
@@ -305,23 +316,23 @@
           <div class="step-name">基本設定</div>
         </div>
         <div style="margin-bottom:16px;">
-          <label>テンプレート種別<span class="badge-required">必須</span></label>
-          <div class="template-grid" style="margin-top:8px;" id="template-grid">
-            <div class="template-card selected" data-val="external-white" onclick="selectTemplate(this)">
-              <div class="template-preview preview-ext-white">社外 / WHITE</div>
-              <div class="template-label">社外向け WHITE</div>
+          <label>テンプレート<span class="badge-required">必須</span></label>
+          <div class="template-inline-grid" id="template-grid">
+            <div class="template-inline-item selected" data-val="external-white" onclick="selectTemplate(this)">
+              <div class="template-inline-preview preview-ext-white">社外 WHITE</div>
+              <div class="template-inline-label">社外向け WHITE</div>
             </div>
-            <div class="template-card dark-card" data-val="external-dark" onclick="selectTemplate(this)">
-              <div class="template-preview preview-ext-dark">社外 / DARK</div>
-              <div class="template-label" style="color:#fff;">社外向け DARK</div>
+            <div class="template-inline-item dark-card" data-val="external-dark" onclick="selectTemplate(this)">
+              <div class="template-inline-preview preview-ext-dark">社外 DARK</div>
+              <div class="template-inline-label">社外向け DARK</div>
             </div>
-            <div class="template-card" data-val="internal-white" onclick="selectTemplate(this)">
-              <div class="template-preview preview-int-white">社内 / WHITE</div>
-              <div class="template-label">社内向け WHITE</div>
+            <div class="template-inline-item" data-val="internal-white" onclick="selectTemplate(this)">
+              <div class="template-inline-preview preview-int-white">社内 WHITE</div>
+              <div class="template-inline-label">社内向け WHITE</div>
             </div>
-            <div class="template-card dark-card" data-val="internal-dark" onclick="selectTemplate(this)">
-              <div class="template-preview preview-int-dark">社内 / DARK</div>
-              <div class="template-label" style="color:#fff;">社内向け DARK</div>
+            <div class="template-inline-item dark-card" data-val="internal-dark" onclick="selectTemplate(this)">
+              <div class="template-inline-preview preview-int-dark">社内 DARK</div>
+              <div class="template-inline-label">社内向け DARK</div>
             </div>
           </div>
         </div>
@@ -487,7 +498,7 @@
     let currentSlides = null;
     let refineCount = 0;
     const MAX_REFINE = 5;
-    let currentMode = 'wizard'; // 'wizard' | 'free'
+    let currentMode = 'free'; // 'wizard' | 'free'
 
     function switchMode(mode) {
       currentMode = mode;
@@ -496,12 +507,12 @@
       document.getElementById('free-input-section').classList.toggle('active', mode === 'free');
       document.querySelector('.wizard').style.display = mode === 'wizard' ? '' : 'none';
       // フリーモードのテンプレート選択をウィザードと同期
-      if (mode === 'free') selectFreeTemplate(document.querySelector(`#free-template-grid [data-val="${selectedTemplate}"]`) || document.querySelector('#free-template-grid .template-card'));
+      if (mode === 'free') selectFreeTemplate(document.querySelector(`#free-template-grid [data-val="${selectedTemplate}"]`) || document.querySelector('#free-template-grid .template-inline-item'));
       if (mode === 'wizard') selectTemplateByVal(selectedTemplate);
     }
 
     function selectFreeTemplate(el) {
-      document.querySelectorAll('#free-template-grid .template-card').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('#free-template-grid .template-inline-item').forEach(c => c.classList.remove('selected'));
       el.classList.add('selected');
       selectedTemplate = el.dataset.val;
       preloadTemplate(selectedTemplate);
@@ -509,7 +520,7 @@
     }
 
     function selectTemplate(el) {
-      document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('#template-grid .template-inline-item').forEach(c => c.classList.remove('selected'));
       el.classList.add('selected');
       selectedTemplate = el.dataset.val;
       saveForm();
@@ -747,6 +758,7 @@
     };
 
     function fillSample() {
+      switchMode('wizard');
       selectTemplateByVal(SAMPLE.template);
       document.getElementById('purpose').value = SAMPLE.purpose;
       document.getElementById('slide-count').value = SAMPLE.slideCount;
@@ -765,7 +777,7 @@
     }
 
     function selectTemplateByVal(val) {
-      const card = document.querySelector(`.template-card[data-val="${val}"]`);
+      const card = document.querySelector(`#template-grid [data-val="${val}"]`);
       if (card) selectTemplate(card);
     }
 
@@ -823,7 +835,10 @@
       document.getElementById('language').value = '日本語';
       document.querySelectorAll('.msg-input').forEach(el => { el.value = ''; });
       document.getElementById('free-text').value = '';
-      selectTemplateByVal('external-white');
+      selectedTemplate = 'external-white';
+      document.querySelectorAll('#template-grid .template-inline-item, #free-template-grid .template-inline-item').forEach(c => {
+        c.classList.toggle('selected', c.dataset.val === 'external-white');
+      });
       updateTitleCounter();
       currentSlides = null;
       refineCount = 0;
@@ -846,16 +861,23 @@
     // ===== ステップ完了チェック =====
     function checkStepCompletion() {
       const steps = document.querySelectorAll('.step');
-      const step1Done = !!document.getElementById('purpose').value;
+      const step1Done = !!(
+        document.getElementById('title').value.trim() &&
+        document.getElementById('audience').value.trim()
+      );
       const step2Done = !!(
         document.getElementById('title').value.trim() &&
         document.getElementById('audience').value.trim() &&
         document.getElementById('background').value.trim() &&
         [...document.querySelectorAll('.msg-input')].some(el => el.value.trim())
       );
+      const step3Done = !!(
+        document.getElementById('tone').value &&
+        document.getElementById('language').value
+      );
       if (steps[0]) steps[0].classList.toggle('done', step1Done);
       if (steps[1]) steps[1].classList.toggle('done', step2Done);
-      if (steps[2]) steps[2].classList.toggle('done', true);
+      if (steps[2]) steps[2].classList.toggle('done', step3Done);
     }
 
     // ===== モーダル =====
@@ -1135,7 +1157,7 @@
       ).join('');
       zip.file('ppt/_rels/presentation.xml.rels',
         prsRels
-          .replace(/<Relationship[^>]+relationships\/slide[^>]+\/>/g, '')
+          .replace(/<Relationship[^>]+Type="[^"]*\/relationships\/slide"[^>]*\/>/g, '')
           .replace('</Relationships>', `${slideRelsXml}</Relationships>`)
       );
 
@@ -1182,11 +1204,9 @@
           return { xml, rels };
 
         case 'content': {
-          // slide7: titleプレースホルダーなし→addTitleShapeで注入
           // idx=29: 見出し（One Paragraph）→ slide.title
           // idx=30: サブタイトル（Lorem ipsum分割ラン）→ クリア
           // idx=32: 本文ボディ（Lorem ipsum分割ラン）→ slide.body
-          xml = addTitleShape(xml, slide.title || '');
           xml = replaceShapeText(xml, 'idx="29"', [slide.title || '']);
           xml = replaceShapeText(xml, 'idx="30"', []);
           const lines = (slide.body || '').split('\n').filter(Boolean);
@@ -1195,7 +1215,6 @@
         }
 
         case 'content-with-chart': {
-          xml = addTitleShape(xml, slide.title || '');
           xml = replaceShapeText(xml, 'idx="29"', [slide.title || '']);
           xml = replaceShapeText(xml, 'idx="30"', [slide.body || '']);
           xml = replaceShapeText(xml, 'idx="32"', []);
@@ -1212,7 +1231,6 @@
         }
 
         case 'content-with-flow': {
-          xml = addTitleShape(xml, slide.title || '');
           xml = replaceShapeText(xml, 'idx="29"', [slide.title || '']);
           xml = replaceShapeText(xml, 'idx="30"', [slide.body || '']);
           xml = replaceShapeText(xml, 'idx="32"', []);
@@ -1230,7 +1248,6 @@
 
         case 'comparison': {
           // slide12: idx=30がテーブルタイトル、<a:tbl>をreplaceTableDataで完全置換
-          xml = addTitleShape(xml, slide.title || '');
           xml = replaceShapeText(xml, 'idx="30"', [slide.title || '']);
           if (slide.table) {
             xml = replaceTableData(xml, slide.table.headers || [], slide.table.rows || []);
@@ -1252,7 +1269,6 @@
           return { xml, rels };
 
         default:
-          xml = addTitleShape(xml, slide.title || '');
           return { xml, rels };
       }
     }
