@@ -549,7 +549,7 @@
 
       try {
         const pptx = await buildPptx(currentSlides, selectedTemplate);
-        const blob = await pptx.generateAsync({ type: 'blob' });
+        const blob = await pptx.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -650,7 +650,7 @@
 
     // content系スライドにタイトルshapeを追加（slide7にはtitleプレースホルダーがない）
     function addTitleShape(xml, titleText) {
-      const sp = `<p:sp><p:nvSpPr><p:cNvPr id="901" name="SMTitle"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr><p:nvPr><p:ph type="title"/></p:nvPr></p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="ja-JP" dirty="0"/><a:t>${escXml(titleText)}</a:t></a:r></a:p></a:txBody></p:sp>`;
+      const sp = `<p:sp><p:nvSpPr><p:cNvPr id="9901" name="SMTitle"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr><p:nvPr><p:ph type="title"/></p:nvPr></p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="ja-JP" dirty="0"/><a:t>${escXml(titleText)}</a:t></a:r></a:p></a:txBody></p:sp>`;
       return xml.replace('</p:spTree>', `${sp}</p:spTree>`);
     }
 
@@ -683,8 +683,9 @@
       for (let i = 0; i < slides.length; i++) {
         const slide = slides[i];
         const srcNum = LAYOUT_TO_TEMPLATE_SLIDE[slide.layout] || 7;
-        let xml = slideCache[srcNum] || slideCache[1];
-        let rels = slideRelsCache[srcNum] || slideRelsCache[1];
+        let xml = slideCache[srcNum] || slideCache[1] || '';
+        const EMPTY_RELS = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
+        let rels = slideRelsCache[srcNum] || slideRelsCache[1] || EMPTY_RELS;
 
         // コンテンツを適用（xmlとrelsを両方更新）
         const result = await applySlideContent(xml, rels, slide, zip, imgCounter);
@@ -721,7 +722,7 @@
       ).join('');
       zip.file('[Content_Types].xml',
         contentTypes
-          .replace(/<Override PartName="\/ppt\/slides\/slide\d+\.xml"[^/]*\/>/g, '')
+          .replace(/<Override PartName="\/ppt\/slides\/slide\d+\.xml"[^>]*\/>/g, '')
           .replace('</Types>', `${ctSlides}</Types>`)
       );
 

@@ -167,7 +167,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model,
-        max_tokens: 4096,
+        max_tokens: mode === 'refine' ? 6000 : 4096,
         system: systemPrompt,
         messages,
       }),
