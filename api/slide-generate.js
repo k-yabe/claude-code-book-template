@@ -1,92 +1,90 @@
 const SYSTEM_PROMPT = `あなたはAKKODiSのプレゼンテーション構成の専門家です。
 ユーザーの入力情報をもとに、PowerPointスライドの構成をJSONで返してください。
 
-## 出力形式（必ずこのJSON形式で返すこと）
+## 出力形式（必ずこのJSON形式のみを返す。説明文・前置き・コメント一切不要）
 
-\`\`\`json
-{
-  "slides": [
-    {
-      "layout": "cover",
-      "title": "スライドタイトル",
-      "subtitle": "サブタイトル",
-      "date": "2026年3月"
-    },
-    {
-      "layout": "agenda",
-      "title": "Agenda",
-      "items": ["項目1", "項目2", "項目3"]
-    },
-    {
-      "layout": "chapter",
-      "title": "章タイトル",
-      "number": "1"
-    },
-    {
-      "layout": "content",
-      "title": "スライドタイトル",
-      "body": "本文テキスト。箇条書きは\\nで区切る"
-    },
-    {
-      "layout": "content-with-chart",
-      "title": "スライドタイトル",
-      "body": "補足説明",
-      "chart": {
-        "type": "bar",
-        "title": "グラフタイトル",
-        "labels": ["ラベル1", "ラベル2", "ラベル3"],
-        "data": [100, 200, 150],
-        "unit": "件"
-      }
-    },
-    {
-      "layout": "content-with-flow",
-      "title": "スライドタイトル",
-      "body": "補足説明",
-      "flow": {
-        "steps": ["ステップ1", "ステップ2", "ステップ3", "ステップ4"]
-      }
-    },
-    {
-      "layout": "comparison",
-      "title": "スライドタイトル",
-      "table": {
-        "headers": ["項目", "現状", "改善後"],
-        "rows": [
-          ["項目1", "値A", "値B"],
-          ["項目2", "値C", "値D"]
-        ]
-      }
-    },
-    {
-      "layout": "closing",
-      "message": "ありがとうございました"
-    }
-  ]
-}
+{"slides":[...]}
+
+## スライド構造の鉄則
+
+1. **順序**: cover → agenda（4枚以上時） → [chapter + content群] × N → closing
+2. **agendaのitemsは必ずchapterのtitleと完全一致させること**（順序も同じ）
+3. **1スライド1メッセージ**: 各contentスライドは1つの明確な主張を持つ
+4. **具体性**: 汎用的な文章（「課題があります」「重要です」）は禁止。ユーザー入力の語句・数値・固有名詞を使う
+
+## レイアウト選択（優先度順）
+
+| layout | 使用条件 |
+|--------|---------|
+| cover | 必ず最初 |
+| agenda | 2枚目、セクションが3つ以上あるとき |
+| chapter | 各セクションの開始 |
+| content-with-chart | ユーザーが数値・データ・推移・比較数値を提供した場合に優先 |
+| content-with-flow | プロセス・手順・ステップ・フローが含まれる内容 |
+| comparison | 2択の比較・現状vs改善・A案vsB案 |
+| content | 上記に当てはまらないテキスト主体のスライド |
+| closing | 必ず最後 |
+
+## 各フィールドの品質ルール
+
+### title（全layout共通）
+- 30文字以内
+- 「〜について」「〜の説明」で終わらない → 主張・結論を端的に
+
+### body（content / content-with-chart / content-with-flow）
+- 200文字以内
+- 箇条書きは「・〇〇」形式で\\n区切り（3〜5行が理想）
+- 各行は50文字以内
+- ユーザー入力の背景・課題・メッセージを必ず反映すること
+
+### chart
+- type: "bar"（比較・ランキング）/ "line"（推移・トレンド）/ "pie"（構成比）
+- labels: 3〜5個
+- data: 実際の数値または文脈から推測できる現実的な数値（架空の100/200/150は禁止）
+- unit: 適切な単位（件、%、人、万円 など）
+
+### flow.steps
+- 2〜6ステップ。各ステップは動詞から始める（「現状分析」→「課題特定」→「施策立案」）
+
+### table
+- headers: 2〜4列
+- rows: 2〜5行
+- 各セル20文字以内
+
+## フィールド仕様
+
+\`\`\`
+cover:   { layout, title, subtitle, date }
+agenda:  { layout, title, items[] }          // items = chapterのtitle一覧（完全一致）
+chapter: { layout, title, number }           // number = "1","2","3"...
+content: { layout, title, body }
+content-with-chart: { layout, title, body, chart: { type, title, labels[], data[], unit } }
+content-with-flow:  { layout, title, body, flow: { steps[] } }
+comparison: { layout, title, table: { headers[], rows[][] } }
+closing: { layout, message }
 \`\`\`
 
-## レイアウト選択ルール
-- cover: 必ず最初のスライド
-- agenda: 2枚目（スライドが4枚以上の場合）
-- chapter: セクション区切りに使用
-- content: テキスト主体のスライド
-- content-with-chart: 数値データがある場合に使用（棒/円/折れ線）
-- content-with-flow: プロセス・手順・フローがある場合に使用
-- comparison: 比較・対比がある場合に使用
-- closing: 必ず最後のスライド
-
-## 重要ルール
-- 必ずJSON形式のみを返す（説明文不要）
-- titleは30文字以内
-- bodyは200文字以内、箇条書きは\\nで区切る
-- chart.dataは数値の配列
-- flow.stepsは2〜6ステップ
-- table.rowsは2〜5行`;
+必ずJSON形式のみを返してください。`;
 
 const REFINE_SYSTEM_PROMPT = `あなたはAKKODiSのプレゼンテーション構成の専門家です。
 既存のスライド構成JSONに対してユーザーの修正指示を適用し、修正後の完全なJSONを返してください。
-必ずJSON形式のみを返してください（説明文不要）。`;
+
+## 修正の原則
+- 指示された箇所のみ変更し、他のスライドは変更しない
+- agendaのitemsはchapterのtitleと常に一致させること
+- 修正後も全スライドを含む完全なJSONを返すこと
+
+## 有効なlayout一覧とフィールド
+- cover: { title, subtitle, date }
+- agenda: { title, items[] }
+- chapter: { title, number }
+- content: { title, body }
+- content-with-chart: { title, body, chart: { type, title, labels[], data[], unit } }
+- content-with-flow: { title, body, flow: { steps[] } }
+- comparison: { title, table: { headers[], rows[][] } }
+- closing: { message }
+
+必ずJSON形式のみを返してください（{"slides":[...]}）。説明文不要。`;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -137,23 +135,26 @@ export default async function handler(req, res) {
 
       const { template, purpose, slideCount, title, audience, background, messages: contentMessages, supplement, tone, language } = wizard;
 
+      const msgs = (contentMessages || []).filter(Boolean);
       const userPrompt = `以下の情報をもとに、${slideCount || 8}枚程度のスライド構成を作成してください。
 
-## 基本設定
-- テンプレート: ${template || 'external-white'}
+## プレゼンの基本設定
 - 用途: ${purpose || '提案'}
-- 目標枚数: ${slideCount || 8}枚
+- トーン: ${tone || 'フォーマル'}
+- 言語: ${language || '日本語'}
+- 目標枚数: ${slideCount || 8}枚（cover と closing を含む）
 
-## コンテンツ
+## コンテンツ（★これらを必ずスライドに反映すること）
 - タイトル: ${title || '（未入力）'}
 - 受け手・対象者: ${audience || '（未入力）'}
 - 背景・課題: ${background || '（未入力）'}
-- 伝えたいメッセージ: ${(contentMessages || []).filter(Boolean).join(' / ')}
-- 補足データ・根拠: ${supplement || '（なし）'}
+${msgs.length > 0 ? `- 伝えたいメッセージ:\n${msgs.map((m, i) => `  ${i + 1}. ${m}`).join('\n')}` : '- 伝えたいメッセージ: （未入力）'}
+${supplement ? `- 補足データ・根拠（グラフに使える場合は content-with-chart を使うこと）:\n  ${supplement}` : ''}
 
-## スタイル
-- トーン: ${tone || 'フォーマル'}
-- 言語: ${language || '日本語'}`;
+## 構成の指示
+- 「伝えたいメッセージ」が複数ある場合、それぞれをセクション（chapter）として構造化する
+- 背景・課題は冒頭のcontentスライドで示し、その後の章でメッセージを展開する
+- 補足データがある場合は必ず content-with-chart または comparison を1枚以上使う`;
 
       messages = [{ role: 'user', content: userPrompt }];
     }
@@ -168,6 +169,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model,
         max_tokens: mode === 'refine' ? 6000 : 4096,
+        temperature: mode === 'refine' ? 0.2 : 0.3,
         system: systemPrompt,
         messages,
       }),
