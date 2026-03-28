@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-03-27T23:24:44Z",
+  "last_scraped": "2026-03-28T23:22:52Z",
   "articles": [
     {
       "id": "federated-learning-critical-industries",
@@ -50,16 +50,6 @@
       "first_seen": "2026-03-14T12:15:21Z",
       "published_date": "2026-03-13T00:00:00Z",
       "summary_ja": "従来、AIは大規模なデータセンターに集約されていましたが、エッジAIと呼ばれる新しい手法により、データが生成される場所の近くでAIの処理を行うことが可能になりました。フェデレーテッドラーニングはこの概念をさらに進め、個々のデバイスでAIモデルの学習を行い、学習結果のみを共有することで、データを一箇所に集めることなくプライバシーを守りながら複数の情報源から学習することができます。このアプローチにより、データ保護規制への対応、処理速度の向上、そして多くの分散ソースからのスケーラブルな学習が同時に実現され、組織が責任あるAI活用を推進できるようになります。"
-    },
-    {
-      "id": "from-digital-to-physical-ai",
-      "title": "From Digital to Physical AI: When AI Leaves the Screen",
-      "url": "https://www.akkodis.com/blog/articles/from-digital-to-physical-ai",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:44Z",
-      "published_date": "2026-02-26T00:00:00Z",
-      "summary_ja": "自動運転車や製造ロボットなど、AIが物理的な動きを制御する場面では、予測精度だけでなく、遅延時間や安全性、システムの信頼性が成功を左右する重要な要素になります。クラウドの中央集約型AIは学習や分析には適していますが、リアルタイムの制御が必要な現場では通信遅延が問題となるため、機械や センサーの近くで判断できる分散型のコンピュート配置が不可欠です。物理的なAIシステムの設計には、IT部門とOT部門が協力して、センサーから制御まで全体を見通したシステムエンジニアリングが求められます。"
     },
     {
       "id": "ask-the-expert-responsible-ai-eu-ai-act",
@@ -130,16 +120,6 @@
       "first_seen": "2026-03-21T23:14:58Z",
       "published_date": "2026-03-19T00:00:00Z",
       "summary_ja": "NVIDIA GTC 2026ではAIインフラの大規模な構築が加速することが明らかになり、同社のBlackwellとVera Rubin プラットフォームで1兆ドル規模の受注が見込まれています。Vera Rubin は複数のチップを統合した新型スーパーコンピュータで、自律的に動作し続けるAIエージェント向けに設計されており、2027年から本格稼働する予定です。同時に発表されたOpenClawはエンタープライズ向けのAIエージェント運用プラットフォームとなり、自動車の自動運転やロボット技術などの産業応用が急速に進展することで、ソフトウェア検証やシステム統合といった複雑な技術課題への対応が企業に求められるようになります。"
-    },
-    {
-      "id": "copilots-agents-designing-enterprise-ai-adoption",
-      "title": "From Copilots to Agents: Designing Enterprise AI Adoption",
-      "url": "https://www.akkodis.com/blog/articles/copilots-agents-designing-enterprise-ai-adoption",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:51Z",
-      "published_date": "2026-02-26T00:00:00Z",
-      "summary_ja": "企業のAI導入では、2026年時点で多くのリーダーがAIの有用性を認識していますが、組織全体での進展のばらつきが課題になっています。信頼の欠如やAIリテラシーの不均等、業務の複雑さといった組織的な準備不足が、技術よりも先に障害として現れているのが実情です。このため、完全自動型のAI導入を目指す前に、コパイロット（支援型AI）を活用して組織を段階的に適応させることが重要な戦略となります。コパイロットは既存のツール内に組み込まれるため、人々が普段の業務の中で低リスクで繰り返しAIと関わることで、信頼を構築し、プロセスの問題点を安全に可視化できます。この準備段階を経ることで、自動型AIへの移行時に必要なガバナンス体制、ワークフロー理解、チーム間の責任分担が明確になり、最終的により安全で実効的なAI導入が実現するということです。"
     },
     {
       "id": "driving-innovation-and-engineering-a-smarter-future-for-all",
