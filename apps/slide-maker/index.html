@@ -602,6 +602,52 @@
       return xml.slice(0, spStart) + newSp + xml.slice(spEnd);
     }
 
+    // <a:tbl> をデータで完全置換（comparison用）
+    function replaceTableData(xml, headers, rows) {
+      const tblStart = xml.indexOf('<a:tbl>');
+      if (tblStart === -1) return xml;
+      const tblEnd = xml.indexOf('</a:tbl>') + 8;
+      const tblXml = xml.slice(tblStart, tblEnd);
+
+      // tblPr を保持
+      const tblPrM = tblXml.match(/<a:tblPr[^>]*(?:\/>|>[\s\S]*?<\/a:tblPr>)/);
+      const tblPr = tblPrM ? tblPrM[0] : '<a:tblPr firstRow="1" bandRow="1"/>';
+
+      // 既存 gridCol の合計幅を取得して均等分割
+      let totalW = 0;
+      const gridM = tblXml.match(/<a:tblGrid>[\s\S]*?<\/a:tblGrid>/);
+      if (gridM) {
+        const gwRe = /w="(\d+)"/g;
+        let gm;
+        while ((gm = gwRe.exec(gridM[0])) !== null) totalW += parseInt(gm[1]);
+      }
+      if (!totalW) totalW = 8229600;
+      const colCount = Math.max(headers.length, ...rows.map(r => r.length), 1);
+      const colW = Math.floor(totalW / colCount);
+      const tblGrid = `<a:tblGrid>${Array(colCount).fill(`<a:gridCol w="${colW}"/>`).join('')}</a:tblGrid>`;
+
+      // 既存セルから tcPr テンプレートを抽出
+      const firstCellM = tblXml.match(/<a:tc\b[\s\S]*?<\/a:tc>/);
+      const tcPrM = firstCellM ? firstCellM[0].match(/<a:tcPr[\s\S]*?(?:\/>|<\/a:tcPr>)/) : null;
+      const tcPr = tcPrM ? tcPrM[0] : '';
+
+      function makeCell(text, isHeader) {
+        const rPr = isHeader
+          ? `<a:rPr lang="ja-JP" dirty="0" b="1"/>`
+          : `<a:rPr lang="ja-JP" dirty="0"/>`;
+        return `<a:tc><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r>${rPr}<a:t>${escXml(String(text || ''))}</a:t></a:r></a:p></a:txBody>${tcPr}</a:tc>`;
+      }
+      function makeRow(cells, isHeader) {
+        return `<a:tr h="370840">${cells.map(c => makeCell(c, isHeader)).join('')}</a:tr>`;
+      }
+
+      let newRows = '';
+      if (headers.length > 0) newRows += makeRow(headers, true);
+      rows.forEach(row => { newRows += makeRow(row, false); });
+
+      return xml.slice(0, tblStart) + `<a:tbl>${tblPr}${tblGrid}${newRows}</a:tbl>` + xml.slice(tblEnd);
+    }
+
     // content系スライドにタイトルshapeを追加（slide7にはtitleプレースホルダーがない）
     function addTitleShape(xml, titleText) {
       const sp = `<p:sp><p:nvSpPr><p:cNvPr id="901" name="SMTitle"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr><p:nvPr><p:ph type="title"/></p:nvPr></p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="ja-JP" dirty="0"/><a:t>${escXml(titleText)}</a:t></a:r></a:p></a:txBody></p:sp>`;
@@ -617,9 +663,14 @@
       const prsRels = await zip.file('ppt/_rels/presentation.xml.rels').async('string');
       const contentTypes = await zip.file('[Content_Types].xml').async('string');
 
-      // 元スライドのXML / relsをキャッシュ
+      // 元スライドのXML / relsをキャッシュ（テンプレートのスライド数を動的に取得）
+      const slideFiles = Object.keys(zip.files)
+        .filter(f => /^ppt\/slides\/slide\d+\.xml$/.test(f));
+      const maxSlideNum = slideFiles.length > 0
+        ? Math.max(...slideFiles.map(f => parseInt(f.match(/slide(\d+)\.xml/)[1])))
+        : 16;
       const slideCache = {}, slideRelsCache = {};
-      for (let i = 1; i <= 16; i++) {
+      for (let i = 1; i <= maxSlideNum; i++) {
         const sf = zip.file(`ppt/slides/slide${i}.xml`);
         const rf = zip.file(`ppt/slides/_rels/slide${i}.xml.rels`);
         if (sf) slideCache[i] = await sf.async('string');
@@ -675,7 +726,7 @@
       );
 
       // 元のスライドファイルを削除
-      for (let i = 1; i <= 16; i++) {
+      for (let i = 1; i <= maxSlideNum; i++) {
         zip.remove(`ppt/slides/slide${i}.xml`);
         zip.remove(`ppt/slides/_rels/slide${i}.xml.rels`);
       }
@@ -707,20 +758,27 @@
           return { xml, rels };
 
         case 'content': {
-          // slide7にはtitleプレースホルダーがないので追加、本文はidx="29"を置換
+          // slide7: titleプレースホルダーなし→addTitleShapeで注入
+          // idx=29: 見出し（One Paragraph）→ slide.title
+          // idx=30: サブタイトル（Lorem ipsum分割ラン）→ クリア
+          // idx=32: 本文ボディ（Lorem ipsum分割ラン）→ slide.body
           xml = addTitleShape(xml, slide.title || '');
+          xml = replaceShapeText(xml, 'idx="29"', [slide.title || '']);
+          xml = replaceShapeText(xml, 'idx="30"', []);
           const lines = (slide.body || '').split('\n').filter(Boolean);
-          xml = replaceShapeText(xml, 'idx="29"', lines.length ? lines : [slide.body || '']);
+          xml = replaceShapeText(xml, 'idx="32"', lines.length ? lines : [slide.body || '']);
           return { xml, rels };
         }
 
         case 'content-with-chart': {
           xml = addTitleShape(xml, slide.title || '');
-          xml = replaceShapeText(xml, 'idx="29"', [slide.body || '']);
+          xml = replaceShapeText(xml, 'idx="29"', [slide.title || '']);
+          xml = replaceShapeText(xml, 'idx="30"', [slide.body || '']);
+          xml = replaceShapeText(xml, 'idx="32"', []);
           if (slide.chart) {
             const png = await generateChartPng(slide.chart);
             const imgName = `sm_img${imgIdx}.png`;
-            zip.file(`ppt/media/${imgName}`, png, { base64: true }); // ZIPに追加
+            zip.file(`ppt/media/${imgName}`, png, { base64: true });
             const rId = `rIdImg${imgIdx}`;
             rels = rels.replace('</Relationships>',
               `<Relationship Id="${rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${imgName}"/></Relationships>`);
@@ -731,11 +789,13 @@
 
         case 'content-with-flow': {
           xml = addTitleShape(xml, slide.title || '');
-          xml = replaceShapeText(xml, 'idx="29"', [slide.body || '']);
+          xml = replaceShapeText(xml, 'idx="29"', [slide.title || '']);
+          xml = replaceShapeText(xml, 'idx="30"', [slide.body || '']);
+          xml = replaceShapeText(xml, 'idx="32"', []);
           if (slide.flow) {
             const png = await generateFlowPng(slide.flow.steps || []);
             const imgName = `sm_flow${imgIdx}.png`;
-            zip.file(`ppt/media/${imgName}`, png, { base64: true }); // ZIPに追加
+            zip.file(`ppt/media/${imgName}`, png, { base64: true });
             const rId = `rIdImg${imgIdx}`;
             rels = rels.replace('</Relationships>',
               `<Relationship Id="${rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${imgName}"/></Relationships>`);
@@ -745,20 +805,25 @@
         }
 
         case 'comparison': {
-          xml = replaceText(xml, 'Table', slide.title || '');
+          // slide12: idx=30がテーブルタイトル、<a:tbl>をreplaceTableDataで完全置換
+          xml = addTitleShape(xml, slide.title || '');
+          xml = replaceShapeText(xml, 'idx="30"', [slide.title || '']);
           if (slide.table) {
-            const templateCells = ['Action', 'Status', 'Impact', 'Responsible', 'Completed by'];
-            const allNew = [...(slide.table.headers || []), ...(slide.table.rows || []).flat()];
-            allNew.forEach((cell, i) => {
-              if (i < templateCells.length) xml = replaceText(xml, templateCells[i], cell);
-            });
+            xml = replaceTableData(xml, slide.table.headers || [], slide.table.rows || []);
           }
           return { xml, rels };
         }
 
         case 'closing':
           xml = replaceText(xml, 'John SMITH', slide.message || 'Thank you');
-          ['Function title', 'M:\t+33 6 00 01 02 03 ', 'E:\tjohn.smith@akkodis.com', 'Paul JOHNSON', 'Function Title ']
+          // テンプレートの正確な文字列に合わせる（末尾スペースなし、タブ文字あり）
+          ['Function title',
+           'M:\t+33 6 00 01 02 03',
+           'E:\tjohn.smith@akkodis.com',
+           'Paul JOHNSON',
+           'Function Title',
+           'M:\t+33 6 02 03 04 05',
+           'E:\tpaul.jonhson@akkodis.com']
             .forEach(t => { xml = replaceText(xml, t, ''); });
           return { xml, rels };
 
@@ -769,7 +834,9 @@
     }
 
     function insertPicture(xml, rId, idx) {
-      const pic = `<p:pic><p:nvPicPr><p:cNvPr id="${200 + idx}" name="img${idx}"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr><p:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="${rId}"/><a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr><a:xfrm><a:off x="5486400" y="1143000"/><a:ext cx="5943600" cy="4800600"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`;
+      // スライドサイズ: 9144000 x 6858000 EMU (10" x 7.5")
+      // 下半分にチャートを配置: x=457200(0.5"), y=2400300(2.6"), w=8229600(9"), h=3886200(4.25")
+      const pic = `<p:pic><p:nvPicPr><p:cNvPr id="${200 + idx}" name="img${idx}"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="${rId}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/><a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr><a:xfrm><a:off x="457200" y="2400300"/><a:ext cx="8229600" cy="3886200"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`;
       return xml.replace('</p:spTree>', `${pic}</p:spTree>`);
     }
 
