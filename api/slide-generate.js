@@ -96,7 +96,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'APIキーが設定されていません' });
   }
 
-  const { mode, wizard, freeText, template, currentSlides, instruction, _user } = req.body;
+  const { mode, wizard, freeText, template, currentSlides, instruction, url, _user } = req.body;
 
   // ログ送信
   const logEndpoint = process.env.LOG_ENDPOINT;
@@ -106,7 +106,7 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user: _user,
-        action: mode === 'refine' ? 'slide-refine' : mode === 'free' ? 'slide-free' : 'slide-generate',
+        action: mode === 'refine' ? 'slide-refine' : mode === 'free' ? 'slide-free' : mode === 'url' ? 'slide-url' : 'slide-generate',
         app: 'slide-maker',
         timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
       }),
@@ -118,7 +118,36 @@ export default async function handler(req, res) {
     let model;
     let systemPrompt;
 
-    if (mode === 'free') {
+    if (mode === 'url') {
+      // URL読み込みモード: WebページのテキストからスライドJSON生成
+      if (!url || !/^https?:\/\/.+/.test(url)) {
+        return res.status(400).json({ error: '有効なURLを指定してください。' });
+      }
+      model = 'claude-sonnet-4-6';
+      systemPrompt = SYSTEM_PROMPT;
+      try {
+        const urlRes = await fetch(url, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SlideMaker/1.0)' },
+          redirect: 'follow',
+        });
+        if (!urlRes.ok) throw new Error(`HTTP ${urlRes.status}`);
+        const html = await urlRes.text();
+        const text = html
+          .replace(/<script[\s\S]*?<\/script>/gi, '')
+          .replace(/<style[\s\S]*?<\/style>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 10000);
+        if (!text || text.length < 50) throw new Error('ページからテキストを抽出できませんでした');
+        messages = [{
+          role: 'user',
+          content: `以下のWebページの内容をもとに、スライド構成を作成してください。\n目的・対象者・メッセージ・数値などを読み取り、最適な構成を判断してください。\n\nURL: ${url}\n\n---\n${text}\n---`,
+        }];
+      } catch (err) {
+        return res.status(500).json({ error: `URLの読み込みに失敗しました: ${err.message}` });
+      }
+    } else if (mode === 'free') {
       // フリー入力モード: 自由記述テキストからスライド構成を生成
       model = 'claude-sonnet-4-6';
       systemPrompt = SYSTEM_PROMPT;

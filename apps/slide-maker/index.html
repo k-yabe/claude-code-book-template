@@ -77,6 +77,14 @@
     .opt-chip:hover { border-color: #001f33; color: #001f33; }
     .opt-chip.selected { border-color: #001f33; background: #001f33; color: #fff; }
 
+    /* URL読み込み行 */
+    .url-row { display: flex; align-items: center; gap: 0; border-top: 1px solid #f0f2f5; }
+    .url-input { flex: 1; border: none; padding: 10px 16px; font-size: 0.82rem; font-family: inherit; color: #2d3436; background: transparent; outline: none; }
+    .url-input::placeholder { color: #c0cdd9; }
+    .btn-url-load { background: none; border: none; border-left: 1px solid #e8ecf0; color: #4a5568; padding: 10px 16px; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
+    .btn-url-load:hover { color: #001f33; background: #f5f7fa; }
+    .btn-url-load:disabled { opacity: 0.5; cursor: not-allowed; }
+
     /* 文字数カウンター */
     .char-counter { font-size: 0.72rem; color: #b0bec5; text-align: right; margin-top: 2px; }
     .char-counter.warn { color: #e67e22; }
@@ -208,6 +216,11 @@
 
     <!-- メイン入力カード -->
     <div class="input-card">
+      <!-- URL読み込み行 -->
+      <div class="url-row">
+        <input type="url" id="url-input" class="url-input" placeholder="🔗 URLを貼り付けてページ内容からスライドを生成">
+        <button class="btn-url-load" id="btn-url-load" onclick="importFromUrl()">読み込む</button>
+      </div>
       <textarea class="main-textarea" id="free-text"
         placeholder="伝えたいことを自由に書いてください。
 
@@ -442,6 +455,59 @@
     function hideError() { document.getElementById('error-msg').classList.remove('active'); }
 
     function retryGenerate() { if (window._retryFn) window._retryFn(); }
+
+    async function importFromUrl() {
+      const urlInput = document.getElementById('url-input');
+      const url = urlInput.value.trim();
+      if (!url) { urlInput.focus(); return; }
+      if (!/^https?:\/\/.+/.test(url)) { showError('有効なURL（https://...）を入力してください。'); return; }
+
+      hideError();
+      const btn = document.getElementById('btn-url-load');
+      btn.disabled = true;
+      btn.textContent = '読込中…';
+      setLoading(true, '🌐 ページを読み込み中…', 15);
+
+      try {
+        const res = await fetch('/api/slide-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'url', url, template: selectedTemplate, _user: USER }),
+        });
+
+        setProgress('🎨 スライド構成を生成中…', 55);
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          if (res.status === 429) throw new Error('しばらく時間をおいて再試行してください。');
+          throw new Error(err.error || `APIエラー (${res.status})`);
+        }
+
+        const json = await res.json();
+        if (json.error) throw new Error(json.error);
+
+        currentSlides = json.slides;
+        refineCount = 0;
+
+        setProgress('📦 プレビューを組み立て中…', 85);
+        renderPreview(currentSlides);
+
+        setLoading(false);
+        document.getElementById('preview-section').classList.add('active');
+        document.getElementById('refine-section').classList.add('active');
+        document.getElementById('download-area').classList.add('active');
+        updateRefineCount();
+        document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        showToast('✅ URLからスライドを生成しました');
+
+      } catch (err) {
+        setLoading(false);
+        showError(err.message || 'URLからの読み込みに失敗しました。');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '読み込む';
+      }
+    }
 
     async function startGenerate() {
       hideError();
