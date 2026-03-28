@@ -1033,13 +1033,14 @@
           .replace('</Relationships>', `${slideRelsXml}</Relationships>`)
       );
 
-      // [Content_Types].xml を更新
+      // [Content_Types].xml を更新（元スライド・notesSlides エントリを削除して新スライドを追加）
       const ctSlides = newEntries.map(e =>
         `<Override PartName="/ppt/slides/slide${e.num}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>`
       ).join('');
       zip.file('[Content_Types].xml',
         contentTypes
           .replace(/<Override PartName="\/ppt\/slides\/slide\d+\.xml"[^>]*\/>/g, '')
+          .replace(/<Override PartName="\/ppt\/notesSlides\/[^"]*"[^>]*\/>/g, '')
           .replace('</Types>', `${ctSlides}</Types>`)
       );
 
@@ -1048,6 +1049,11 @@
         zip.remove(`ppt/slides/slide${i}.xml`);
         zip.remove(`ppt/slides/_rels/slide${i}.xml.rels`);
       }
+
+      // notesSlides を削除（元スライドへの参照が壊れてファイルエラーになるため）
+      Object.keys(zip.files)
+        .filter(f => f.startsWith('ppt/notesSlides/'))
+        .forEach(f => zip.remove(f));
 
       return zip;
     }
