@@ -566,149 +566,115 @@
       }
     }
 
-    // テンプレートのスライドとレイアウトのマッピング
+    // レイアウト → テンプレートスライド番号マッピング
     const LAYOUT_TO_TEMPLATE_SLIDE = {
-      'cover': 1,
-      'agenda': 5,
-      'chapter': 3,
-      'content': 7,
-      'content-with-chart': 7,
-      'content-with-flow': 7,
-      'comparison': 12,
-      'closing': 15,
+      'cover': 1, 'agenda': 5, 'chapter': 3,
+      'content': 7, 'content-with-chart': 7, 'content-with-flow': 7,
+      'comparison': 12, 'closing': 15,
     };
 
     function escXml(str) {
       return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
     }
 
-    // 段落内の分割ランを1つにまとめて新テキストで置換する
-    function buildPara(text, lang = 'ja-JP') {
-      return `<a:p><a:r><a:rPr lang="${lang}" dirty="0"/><a:t>${escXml(text)}</a:t></a:r></a:p>`;
+    function buildPara(text) {
+      return `<a:p><a:r><a:rPr lang="ja-JP" dirty="0"/><a:t>${escXml(text)}</a:t></a:r></a:p>`;
     }
 
-    function buildParaStyled(text, bold = false, fontSize = null, color = null) {
-      let rpr = `lang="ja-JP" dirty="0"${bold ? ' b="1"' : ''}`;
-      let inner = fontSize || color
-        ? `<a:rPr ${rpr}>${color ? `<a:solidFill><a:srgbClr val="${color}"/></a:solidFill>` : ''}${fontSize ? `<a:latin typeface="Meiryo UI" pitchFamily="18" charset="-128"/><a:sz val="${fontSize}"/>` : ''}</a:rPr>`
-        : `<a:rPr ${rpr}/>`;
-      return `<a:p>${inner}<a:t>${escXml(text)}</a:t></a:r></a:p>`.replace('<a:t>', `<a:r>${inner}<a:t>`).replace(`<a:r><a:rPr`, `<a:r><a:rPr`);
-    }
-
-    // txBody全体を新しいテキストで置換
-    function replaceTxBody(shapeXml, paragraphs) {
-      const paras = paragraphs.map(p => typeof p === 'string' ? buildPara(p) : p).join('');
-      return shapeXml.replace(/<a:txBody>[\s\S]*?<\/a:txBody>/, `<a:txBody><a:bodyPr/><a:lstStyle/>${paras}</a:txBody>`);
-    }
-
-    // shape内の特定のプレースホルダーテキストを置換（単純な文字列置換）
+    // 単純テキスト置換（単一<a:t>タグ内）
     function replaceText(xml, oldText, newText) {
       return xml.split(`<a:t>${oldText}</a:t>`).join(`<a:t>${escXml(newText)}</a:t>`);
     }
 
-    // 特定phタイプのshapeのtxBodyを置換
-    function replaceShapeByPhType(slideXml, phType, paragraphs) {
-      const re = new RegExp(`(<p:sp>[\\s\\S]*?<p:ph type="${phType}"[^>]*/>[\\s\\S]*?)(<a:txBody>[\\s\\S]*?<\\/a:txBody>)([\\s\\S]*?<\\/p:sp>)`, 'g');
-      const paras = paragraphs.map(p => typeof p === 'string' ? buildPara(p) : p).join('');
-      return slideXml.replace(re, (m, before, txBody, after) => {
-        return `${before}<a:txBody><a:bodyPr/><a:lstStyle/>${paras}</a:txBody>${after}`;
-      });
+    // indexOf ベースで <p:sp> を特定し txBody を置換（regexより確実）
+    function replaceShapeText(xml, phMatcher, lines) {
+      const phPos = xml.indexOf(phMatcher);
+      if (phPos === -1) return xml;
+      const spStart = xml.lastIndexOf('<p:sp>', phPos);
+      if (spStart === -1) return xml;
+      const spEnd = xml.indexOf('</p:sp>', phPos) + 7;
+      const spXml = xml.slice(spStart, spEnd);
+      const txStart = spXml.indexOf('<a:txBody>');
+      const txEnd = spXml.indexOf('</a:txBody>') + 11;
+      if (txStart === -1 || txEnd < 11) return xml;
+      const paras = (lines.filter(Boolean).length ? lines.filter(Boolean) : ['']).map(buildPara).join('');
+      const newSp = spXml.slice(0, txStart) + `<a:txBody><a:bodyPr/><a:lstStyle/>${paras}</a:txBody>` + spXml.slice(txEnd);
+      return xml.slice(0, spStart) + newSp + xml.slice(spEnd);
     }
 
-    // 特定phIdxのshapeのtxBodyを置換
-    function replaceShapeByPhIdx(slideXml, phIdx, paragraphs) {
-      const re = new RegExp(`(<p:sp>[\\s\\S]*?<p:ph[^>]*idx="${phIdx}"[^>]*/>[\\s\\S]*?)(<a:txBody>[\\s\\S]*?<\\/a:txBody>)([\\s\\S]*?<\\/p:sp>)`, 'g');
-      const paras = paragraphs.map(p => typeof p === 'string' ? buildPara(p) : p).join('');
-      return slideXml.replace(re, (m, before, txBody, after) => {
-        return `${before}<a:txBody><a:bodyPr/><a:lstStyle/>${paras}</a:txBody>${after}`;
-      });
+    // content系スライドにタイトルshapeを追加（slide7にはtitleプレースホルダーがない）
+    function addTitleShape(xml, titleText) {
+      const sp = `<p:sp><p:nvSpPr><p:cNvPr id="901" name="SMTitle"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr><p:nvPr><p:ph type="title"/></p:nvPr></p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="ja-JP" dirty="0"/><a:t>${escXml(titleText)}</a:t></a:r></a:p></a:txBody></p:sp>`;
+      return xml.replace('</p:spTree>', `${sp}</p:spTree>`);
     }
 
     async function buildPptx(slides, templateId) {
-      // テンプレートPPTXを取得
-      const templateUrl = `templates/${templateId}.pptx`;
-      const response = await fetch(templateUrl);
-      if (!response.ok) throw new Error(`テンプレートの読み込みに失敗しました: ${templateUrl}`);
-      const arrayBuffer = await response.arrayBuffer();
+      const response = await fetch(`templates/${templateId}.pptx`);
+      if (!response.ok) throw new Error(`テンプレートの読み込みに失敗しました (${response.status})`);
+      const zip = await JSZip.loadAsync(await response.arrayBuffer());
 
-      const zip = await JSZip.loadAsync(arrayBuffer);
-
-      // presentation.xmlを取得
       const prsXml = await zip.file('ppt/presentation.xml').async('string');
       const prsRels = await zip.file('ppt/_rels/presentation.xml.rels').async('string');
       const contentTypes = await zip.file('[Content_Types].xml').async('string');
 
-      // 既存の全スライドのXMLをキャッシュ
-      const slideCache = {};
+      // 元スライドのXML / relsをキャッシュ
+      const slideCache = {}, slideRelsCache = {};
       for (let i = 1; i <= 16; i++) {
-        const f = zip.file(`ppt/slides/slide${i}.xml`);
-        if (f) {
-          slideCache[i] = await f.async('string');
-        }
-      }
-      // 既存スライドのrelsもキャッシュ
-      const slideRelsCache = {};
-      for (let i = 1; i <= 16; i++) {
-        const f = zip.file(`ppt/slides/_rels/slide${i}.xml.rels`);
-        if (f) {
-          slideRelsCache[i] = await f.async('string');
-        }
+        const sf = zip.file(`ppt/slides/slide${i}.xml`);
+        const rf = zip.file(`ppt/slides/_rels/slide${i}.xml.rels`);
+        if (sf) slideCache[i] = await sf.async('string');
+        if (rf) slideRelsCache[i] = await rf.async('string');
       }
 
-      // 新しいスライドを構築
-      const newSlideEntries = []; // { fileName, xml, relsXml, rId, slideId }
-      let baseId = 500;
-      let rIdCounter = 50;
-      let imageCounter = 1;
+      const newEntries = [];
+      let imgCounter = 1;
 
       for (let i = 0; i < slides.length; i++) {
         const slide = slides[i];
-        const templateSlideNum = LAYOUT_TO_TEMPLATE_SLIDE[slide.layout] || 7;
-        let slideXml = slideCache[templateSlideNum] || slideCache[1];
-        let slideRels = slideRelsCache[templateSlideNum] || slideRelsCache[1];
+        const srcNum = LAYOUT_TO_TEMPLATE_SLIDE[slide.layout] || 7;
+        let xml = slideCache[srcNum] || slideCache[1];
+        let rels = slideRelsCache[srcNum] || slideRelsCache[1];
 
-        // レイアウトに応じてXMLを編集
-        slideXml = await applySlideContent(slideXml, slideRels, slide, zip, imageCounter);
-        if (slide.chart || slide.flow) imageCounter++;
+        // コンテンツを適用（xmlとrelsを両方更新）
+        const result = await applySlideContent(xml, rels, slide, zip, imgCounter);
+        xml = result.xml;
+        rels = result.rels;
+        if (slide.chart || slide.flow) imgCounter++;
 
-        const newSlideNum = 200 + i;
-        const fileName = `ppt/slides/slide${newSlideNum}.xml`;
-        const rId = `rId${rIdCounter++}`;
-
-        newSlideEntries.push({ fileName, xml: slideXml, relsXml: slideRels, rId, slideId: baseId + i });
-        zip.file(fileName, slideXml);
-        zip.file(`ppt/slides/_rels/slide${newSlideNum}.xml.rels`, slideRels);
+        const newNum = 200 + i;
+        const rId = `rId${50 + i}`;
+        newEntries.push({ num: newNum, rId, slideId: 500 + i });
+        zip.file(`ppt/slides/slide${newNum}.xml`, xml);
+        zip.file(`ppt/slides/_rels/slide${newNum}.xml.rels`, rels);
       }
 
-      // presentation.xmlのslideIdLstを更新
-      let newPrsXml = prsXml;
-      const sldIdList = newSlideEntries
-        .map(e => `<p:sldId id="${e.slideId}" r:id="${e.rId}"/>`)
-        .join('');
-      newPrsXml = newPrsXml.replace(/<p:sldIdLst>[\s\S]*?<\/p:sldIdLst>/, `<p:sldIdLst>${sldIdList}</p:sldIdLst>`);
-      zip.file('ppt/presentation.xml', newPrsXml);
+      // presentation.xml のスライドリストを更新
+      const sldIdLst = newEntries.map(e => `<p:sldId id="${e.slideId}" r:id="${e.rId}"/>`).join('');
+      zip.file('ppt/presentation.xml',
+        prsXml.replace(/<p:sldIdLst>[\s\S]*?<\/p:sldIdLst>/, `<p:sldIdLst>${sldIdLst}</p:sldIdLst>`)
+      );
 
-      // _rels/presentation.xml.relsを更新
-      let newPrsRels = prsRels;
-      // 既存のslide relを除去してから追加
-      newPrsRels = newPrsRels.replace(/<Relationship[^>]+relationships\/slide[^>]+\/>/g, '');
-      const newRels = newSlideEntries
-        .map(e => `<Relationship Id="${e.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide${200 + newSlideEntries.indexOf(e)}.xml"/>`)
-        .join('');
-      newPrsRels = newPrsRels.replace('</Relationships>', `${newRels}</Relationships>`);
-      zip.file('ppt/_rels/presentation.xml.rels', newPrsRels);
+      // _rels/presentation.xml.rels を更新
+      const slideRelsXml = newEntries.map(e =>
+        `<Relationship Id="${e.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide${e.num}.xml"/>`
+      ).join('');
+      zip.file('ppt/_rels/presentation.xml.rels',
+        prsRels
+          .replace(/<Relationship[^>]+relationships\/slide[^>]+\/>/g, '')
+          .replace('</Relationships>', `${slideRelsXml}</Relationships>`)
+      );
 
-      // [Content_Types].xmlに新スライドのOverrideを追加
-      let newCt = contentTypes;
-      // 既存スライドのOverrideを除去
-      newCt = newCt.replace(/<Override PartName="\/ppt\/slides\/slide\d+\.xml"[^/]*\/>/g, '');
-      const ctEntries = newSlideEntries
-        .map(e => `<Override PartName="/${e.fileName}" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>`)
-        .join('');
-      newCt = newCt.replace('</Types>', `${ctEntries}</Types>`);
-      zip.file('[Content_Types].xml', newCt);
+      // [Content_Types].xml を更新
+      const ctSlides = newEntries.map(e =>
+        `<Override PartName="/ppt/slides/slide${e.num}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>`
+      ).join('');
+      zip.file('[Content_Types].xml',
+        contentTypes
+          .replace(/<Override PartName="\/ppt\/slides\/slide\d+\.xml"[^/]*\/>/g, '')
+          .replace('</Types>', `${ctSlides}</Types>`)
+      );
 
-      // 古いスライドファイルを削除（元の1-16）
+      // 元のスライドファイルを削除
       for (let i = 1; i <= 16; i++) {
         zip.remove(`ppt/slides/slide${i}.xml`);
         zip.remove(`ppt/slides/_rels/slide${i}.xml.rels`);
@@ -717,124 +683,94 @@
       return zip;
     }
 
-    async function applySlideContent(slideXml, slideRels, slide, zip, imgIdx) {
+    // 各スライドのコンテンツを適用して { xml, rels } を返す
+    async function applySlideContent(xml, rels, slide, zip, imgIdx) {
       switch (slide.layout) {
-        case 'cover':
-          slideXml = replaceText(slideXml, 'Presentation Title', slide.title || '');
-          slideXml = replaceText(slideXml, 'Presentation Subtitle', slide.subtitle || '');
-          slideXml = replaceText(slideXml, 'Month YYYY', slide.date || new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' }));
-          return slideXml;
 
-        case 'agenda':
+        case 'cover':
+          xml = replaceText(xml, 'Presentation Title', slide.title || '');
+          xml = replaceText(xml, 'Presentation Subtitle', slide.subtitle || '');
+          xml = replaceText(xml, 'Month YYYY', slide.date || new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' }));
+          return { xml, rels };
+
+        case 'agenda': {
           const items = slide.items || [];
-          for (let j = 0; j < 6; j++) {
-            const label = `Chapter Title 0${j + 1}`;
-            slideXml = replaceText(slideXml, label, items[j] || '');
+          for (let j = 1; j <= 6; j++) {
+            xml = replaceText(xml, `Chapter Title 0${j}`, items[j - 1] || '');
           }
-          // 最後のChapter Title（6番目）
-          slideXml = replaceText(slideXml, 'Chapter Title 06', items[5] || '');
-          return slideXml;
+          return { xml, rels };
+        }
 
         case 'chapter':
-          slideXml = replaceText(slideXml, 'Chapter Title', slide.title || '');
-          slideXml = replaceText(slideXml, '1.0', slide.number || '');
-          return slideXml;
+          xml = replaceText(xml, 'Chapter Title', slide.title || '');
+          xml = replaceText(xml, '1.0', slide.number || '');
+          return { xml, rels };
 
         case 'content': {
-          // タイトル置換
-          slideXml = replaceShapeByPhType(slideXml, 'title', [slide.title || '']);
-          // 本文置換（idx=29 or 30の最初のbodyプレースホルダー）
-          const bodyLines = (slide.body || '').split('\n').filter(Boolean);
-          slideXml = replaceShapeByPhIdx(slideXml, '29', bodyLines.length ? bodyLines : [slide.body || '']);
-          return slideXml;
+          // slide7にはtitleプレースホルダーがないので追加、本文はidx="29"を置換
+          xml = addTitleShape(xml, slide.title || '');
+          const lines = (slide.body || '').split('\n').filter(Boolean);
+          xml = replaceShapeText(xml, 'idx="29"', lines.length ? lines : [slide.body || '']);
+          return { xml, rels };
         }
 
         case 'content-with-chart': {
-          slideXml = replaceShapeByPhType(slideXml, 'title', [slide.title || '']);
-          const bodyText = slide.body || '';
-          slideXml = replaceShapeByPhIdx(slideXml, '29', [bodyText]);
-          // Chart.jsでグラフPNG生成
+          xml = addTitleShape(xml, slide.title || '');
+          xml = replaceShapeText(xml, 'idx="29"', [slide.body || '']);
           if (slide.chart) {
-            const pngBase64 = await generateChartPng(slide.chart);
-            const { xml: newSlide, rels: newRels } = addImageToSlide(slideXml, slideRels, pngBase64, `chart${imgIdx}.png`, imgIdx + 10);
-            return newSlide;
+            const png = await generateChartPng(slide.chart);
+            const imgName = `sm_img${imgIdx}.png`;
+            zip.file(`ppt/media/${imgName}`, png, { base64: true }); // ZIPに追加
+            const rId = `rIdImg${imgIdx}`;
+            rels = rels.replace('</Relationships>',
+              `<Relationship Id="${rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${imgName}"/></Relationships>`);
+            xml = insertPicture(xml, rId, imgIdx);
           }
-          return slideXml;
+          return { xml, rels };
         }
 
         case 'content-with-flow': {
-          slideXml = replaceShapeByPhType(slideXml, 'title', [slide.title || '']);
-          slideXml = replaceShapeByPhIdx(slideXml, '29', [slide.body || '']);
+          xml = addTitleShape(xml, slide.title || '');
+          xml = replaceShapeText(xml, 'idx="29"', [slide.body || '']);
           if (slide.flow) {
-            const pngBase64 = await generateFlowPng(slide.flow.steps || []);
-            const { xml: newSlide } = addImageToSlide(slideXml, slideRels, pngBase64, `flow${imgIdx}.png`, imgIdx + 10);
-            return newSlide;
+            const png = await generateFlowPng(slide.flow.steps || []);
+            const imgName = `sm_flow${imgIdx}.png`;
+            zip.file(`ppt/media/${imgName}`, png, { base64: true }); // ZIPに追加
+            const rId = `rIdImg${imgIdx}`;
+            rels = rels.replace('</Relationships>',
+              `<Relationship Id="${rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${imgName}"/></Relationships>`);
+            xml = insertPicture(xml, rId, imgIdx);
           }
-          return slideXml;
+          return { xml, rels };
         }
 
         case 'comparison': {
-          // テーブルスライドのタイトルを置換
-          slideXml = replaceText(slideXml, 'Table', slide.title || '');
-          // テーブルセルを置換
+          xml = replaceText(xml, 'Table', slide.title || '');
           if (slide.table) {
-            const allCells = [...(slide.table.headers || []), ...(slide.table.rows || []).flat()];
             const templateCells = ['Action', 'Status', 'Impact', 'Responsible', 'Completed by'];
-            // シンプルな置換（テンプレートの固定セルテキストを順に置き換え）
-            let cellIdx = 0;
             const allNew = [...(slide.table.headers || []), ...(slide.table.rows || []).flat()];
             allNew.forEach((cell, i) => {
-              if (i < templateCells.length) {
-                slideXml = replaceText(slideXml, templateCells[i], cell);
-              }
+              if (i < templateCells.length) xml = replaceText(xml, templateCells[i], cell);
             });
           }
-          return slideXml;
+          return { xml, rels };
         }
 
         case 'closing':
-          // 締めのスライド - Thankメッセージを置換
-          slideXml = replaceText(slideXml, 'John SMITH', slide.message || 'Thank you');
-          slideXml = replaceText(slideXml, 'Function title', '');
-          slideXml = replaceText(slideXml, 'M:\t+33 6 00 01 02 03 ', '');
-          slideXml = replaceText(slideXml, 'E:\tjohn.smith@akkodis.com', '');
-          slideXml = replaceText(slideXml, 'Paul JOHNSON', '');
-          slideXml = replaceText(slideXml, 'Function Title ', '');
-          return slideXml;
+          xml = replaceText(xml, 'John SMITH', slide.message || 'Thank you');
+          ['Function title', 'M:\t+33 6 00 01 02 03 ', 'E:\tjohn.smith@akkodis.com', 'Paul JOHNSON', 'Function Title ']
+            .forEach(t => { xml = replaceText(xml, t, ''); });
+          return { xml, rels };
 
         default:
-          slideXml = replaceShapeByPhType(slideXml, 'title', [slide.title || '']);
-          return slideXml;
+          xml = addTitleShape(xml, slide.title || '');
+          return { xml, rels };
       }
     }
 
-    function addImageToSlide(slideXml, slideRels, pngBase64, fileName, rIdNum) {
-      const rId = `rId${rIdNum}`;
-      // spTreeの閉じタグ前にpicを挿入
-      const picXml = `<p:pic>
-  <p:nvPicPr>
-    <p:cNvPr id="${rIdNum + 100}" name="${fileName}"/>
-    <p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr>
-    <p:nvPr/>
-  </p:nvPicPr>
-  <p:blipFill>
-    <a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="${rId}"/>
-    <a:stretch><a:fillRect/></a:stretch>
-  </p:blipFill>
-  <p:spPr>
-    <a:xfrm>
-      <a:off x="5486400" y="1143000"/>
-      <a:ext cx="5943600" cy="4800600"/>
-    </a:xfrm>
-    <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
-  </p:spPr>
-</p:pic>`;
-      const newXml = slideXml.replace('</p:spTree>', `${picXml}</p:spTree>`);
-
-      // rels に画像追加
-      const relEntry = `<Relationship Id="${rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${fileName}"/>`;
-      // 実際にzipに追加するのはbuildPptxでは難しいので、ここではXMLのみ返す
-      return { xml: newXml, rels: slideRels.replace('</Relationships>', `${relEntry}</Relationships>`) };
+    function insertPicture(xml, rId, idx) {
+      const pic = `<p:pic><p:nvPicPr><p:cNvPr id="${200 + idx}" name="img${idx}"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr><p:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="${rId}"/><a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr><a:xfrm><a:off x="5486400" y="1143000"/><a:ext cx="5943600" cy="4800600"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`;
+      return xml.replace('</p:spTree>', `${pic}</p:spTree>`);
     }
 
     async function generateChartPng(chartData) {
