@@ -23,6 +23,7 @@ GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
 TO_EMAIL = os.environ.get("TO_EMAIL")
 
 JST = timezone(timedelta(hours=9))
+WEEKDAYS_JA = ["月", "火", "水", "木", "金", "土", "日"]
 
 
 def validate_env():
@@ -34,6 +35,12 @@ def validate_env():
     if missing:
         print(f"[ERROR] 以下の環境変数が未設定です: {', '.join(missing)}", file=sys.stderr)
         sys.exit(1)
+
+
+def format_date_with_weekday(dt: datetime) -> str:
+    """日本語の曜日付き日付文字列を返す。"""
+    weekday = WEEKDAYS_JA[dt.weekday()]
+    return dt.strftime(f"%Y年%m月%d日（{weekday}）")
 
 
 def generate_news_json(today_str: str) -> dict:
@@ -53,6 +60,8 @@ def generate_news_json(today_str: str) -> dict:
   "b2b_news": [
     {{
       "title": "ニュースのタイトル",
+      "source_url": "出典元のURL（公式サイト・プレスリリース・主要メディア記事など）",
+      "source_name": "出典元の名前（例：OpenAI Blog, TechCrunch, 日経新聞 など）",
       "what_happened": "何が起きた？（1〜2文で簡潔に）",
       "why_it_matters": "なぜ重要？（ビジネスへのインパクトを分かりやすく）",
       "how_to_use": "どう活かす？（B2Bマーケでの具体的なアクション）"
@@ -61,24 +70,31 @@ def generate_news_json(today_str: str) -> dict:
   "trending": [
     {{
       "title": "トピックのタイトル",
+      "source_url": "関連する参考URL",
+      "source_name": "出典元の名前",
       "summary": "2〜3行の要約"
     }}
   ],
-  "daily_action": "B2Bマーケ担当者として今日意識すべきこと（1文）"
+  "daily_action": "B2Bマーケ担当者として今日意識すべきこと（1文）",
+  "key_number": {{
+    "value": "今日の注目数字（例：73%、1000万人、$10B など）",
+    "label": "その数字が何を表すかの短い説明（1文）"
+  }}
 }}
 
 b2b_newsは2〜3件、trendingは2〜3件にしてください。
+source_urlは実在する可能性が高い公式ページやメディアのURLを記載してください。
+不明な場合はその企業やサービスのトップページURLでも構いません。
 読者はマーケティング担当者なので、難しいAI用語は避けて、ビジネスパーソンに伝わる言葉で書いてください。"""
 
     print("[INFO] Claude APIにニュース生成をリクエスト中...")
     message = client.messages.create(
         model="claude-sonnet-4-5-20250929",
-        max_tokens=2000,
+        max_tokens=3000,
         messages=[{"role": "user", "content": prompt}],
     )
 
     raw = message.content[0].text.strip()
-    # JSON部分を抽出（コードブロックで囲まれている場合に対応）
     if raw.startswith("```"):
         raw = raw.split("\n", 1)[1].rsplit("```", 1)[0]
 
@@ -90,10 +106,20 @@ b2b_newsは2〜3件、trendingは2〜3件にしてください。
 def build_html(data: dict, today_str: str) -> str:
     """構造化データからリッチHTMLメールを生成する。"""
 
-    # B2Bニュースカード生成
+    # B2Bニュースカード
     b2b_cards = ""
     for i, news in enumerate(data["b2b_news"]):
         num = i + 1
+        source_link = ""
+        if news.get("source_url"):
+            source_name = news.get("source_name", "Source")
+            source_link = f"""
+          <div style="margin-top:12px; padding-top:12px; border-top:1px solid #eee;">
+            <a href="{news['source_url']}" style="color:#1a73e8; font-size:12px;
+               text-decoration:none; font-weight:600;"
+               target="_blank">&#128279; {source_name} で詳しく読む &rarr;</a>
+          </div>"""
+
         b2b_cards += f"""
         <div style="background:#fff; border-radius:12px; padding:24px; margin-bottom:16px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid #1a73e8;">
@@ -116,25 +142,52 @@ def build_html(data: dict, today_str: str) -> str:
             <div style="font-size:11px; color:#2e7d32; font-weight:700; margin-bottom:4px;">
               &#127919; どう活かす？</div>
             <div style="font-size:14px; color:#333; line-height:1.6;">{news['how_to_use']}</div>
-          </div>
+          </div>{source_link}
         </div>"""
 
-    # トレンドカード生成
+    # トレンドカード
     trending_items = ""
     trend_icons = ["&#128293;", "&#9889;", "&#127775;"]
     for i, topic in enumerate(data["trending"]):
         icon = trend_icons[i % len(trend_icons)]
+        source_link = ""
+        if topic.get("source_url"):
+            source_name = topic.get("source_name", "Source")
+            source_link = f"""
+          <div style="margin-top:10px;">
+            <a href="{topic['source_url']}" style="color:#e91e63; font-size:12px;
+               text-decoration:none; font-weight:600;"
+               target="_blank">&#128279; {source_name} &rarr;</a>
+          </div>"""
+
         trending_items += f"""
         <div style="background:#fff; border-radius:12px; padding:20px; margin-bottom:12px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.06);">
           <div style="font-size:16px; font-weight:700; color:#1a1a1a; margin-bottom:8px;">
             {icon} {topic['title']}
           </div>
-          <div style="font-size:14px; color:#555; line-height:1.7;">{topic['summary']}</div>
+          <div style="font-size:14px; color:#555; line-height:1.7;">{topic['summary']}</div>{source_link}
         </div>"""
 
     greeting = data.get("greeting", "")
     daily_action = data.get("daily_action", "")
+
+    # 注目数字セクション
+    key_number_html = ""
+    key_number = data.get("key_number")
+    if key_number:
+        key_number_html = f"""
+    <div style="background:#fff; border-radius:16px; padding:24px; margin-bottom:24px;
+                box-shadow:0 2px 8px rgba(0,0,0,0.06); text-align:center;">
+      <div style="font-size:11px; color:#764ba2; font-weight:700; letter-spacing:1px;
+                  margin-bottom:8px;">&#128202; KEY NUMBER</div>
+      <div style="font-size:36px; font-weight:800; color:#667eea;
+                  line-height:1.2; margin-bottom:8px;">{key_number['value']}</div>
+      <div style="font-size:14px; color:#666; line-height:1.5;">{key_number['label']}</div>
+    </div>"""
+
+    # ニュース件数
+    total_news = len(data["b2b_news"]) + len(data["trending"])
 
     return f"""<!DOCTYPE html>
 <html lang="ja">
@@ -154,18 +207,23 @@ def build_html(data: dict, today_str: str) -> str:
       <div style="font-size:40px; margin-bottom:8px;">&#129302;</div>
       <h1 style="margin:0 0 4px; font-size:26px; font-weight:800; letter-spacing:1px;">
         AI Daily Report</h1>
-      <p style="margin:0 0 12px; font-size:13px; opacity:0.8;">{today_str}</p>
+      <p style="margin:0 0 16px; font-size:14px; opacity:0.85;">{today_str}</p>
       <div style="background:rgba(255,255,255,0.2); border-radius:8px; padding:10px 16px;
                   font-size:14px; line-height:1.5; display:inline-block;">
         {greeting}
       </div>
+      <div style="margin-top:16px; font-size:12px; opacity:0.7;">
+        &#128230; 本日のピックアップ {total_news} 件</div>
     </div>
+
+    <!-- 注目数字 -->
+    {key_number_html}
 
     <!-- セクション1: B2Bニュース -->
     <div style="margin-bottom:28px;">
-      <div style="display:flex; align-items:center; margin-bottom:16px;">
+      <div style="margin-bottom:16px;">
         <div style="background:#1a73e8; color:#fff; font-size:12px; font-weight:700;
-                    padding:6px 14px; border-radius:20px; letter-spacing:0.5px;">
+                    padding:6px 14px; border-radius:20px; letter-spacing:0.5px; display:inline-block;">
           &#128188; B2B MARKETING</div>
       </div>
       <h2 style="margin:0 0 16px; font-size:18px; color:#1a1a1a;">
@@ -196,9 +254,12 @@ def build_html(data: dict, today_str: str) -> str:
     </div>
 
     <!-- フッター -->
-    <div style="text-align:center; padding:16px; font-size:11px; color:#999; line-height:1.6;">
-      <div style="margin-bottom:4px;">Powered by Claude API + GitHub Actions</div>
+    <div style="text-align:center; padding:20px 16px; font-size:11px; color:#999; line-height:1.8;">
+      <div style="border-top:1px solid #ddd; padding-top:16px; margin-bottom:4px;">
+        &#128640; Powered by Claude API + GitHub Actions</div>
       <div>&#169; AI Daily Report &#8212; 自動生成ニュースレター</div>
+      <div style="margin-top:8px; color:#bbb;">
+        ※ AIが生成したコンテンツです。出典URLから最新情報をご確認ください。</div>
     </div>
 
   </div>
@@ -231,7 +292,7 @@ def main():
     validate_env()
 
     now_jst = datetime.now(JST)
-    today_str = now_jst.strftime("%Y年%m月%d日")
+    today_str = format_date_with_weekday(now_jst)
     subject = f"【AI日報】{today_str}"
 
     print(f"[INFO] 日付: {today_str}")
