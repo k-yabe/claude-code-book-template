@@ -817,10 +817,12 @@
     // ===== アウトラインエディター =====
     const LAYOUT_NAMES = {
       cover:'カバー', agenda:'アジェンダ', chapter:'チャプター',
-      content:'コンテンツ', 'content-with-chart':'グラフ付き',
-      'content-with-flow':'フロー付き', comparison:'比較表', closing:'クロージング',
+      content:'コンテンツ', 'two-column':'2段組',
+      'content-with-image':'画像付き', 'content-with-chart':'グラフ付き',
+      'content-with-flow':'フロー付き', sixbox:'6ボックス',
+      comparison:'比較表', quote:'引用', closing:'クロージング',
     };
-    const VALID_LAYOUTS = ['cover','agenda','chapter','content','content-with-chart','content-with-flow','comparison','closing'];
+    const VALID_LAYOUTS = ['cover','agenda','chapter','content','two-column','content-with-image','content-with-chart','content-with-flow','sixbox','comparison','quote','closing'];
 
     function renderOutline() {
       const list = document.getElementById('outline-list');
@@ -1081,11 +1083,18 @@
           return `<div class="slide-inner slide-agenda"><div class="s-title">${esc(slide.title || 'Agenda')}</div>${(slide.items || []).map((item, i) => `<div class="s-item">${i+1}. ${esc(item)}</div>`).join('')}</div>`;
         case 'chapter':
           return `<div class="slide-inner slide-chapter"><div class="s-num">CHAPTER ${esc(slide.number || '')}</div><div class="s-title">${esc(slide.title)}</div></div>`;
-        case 'content': case 'content-with-chart': case 'content-with-flow':
+        case 'two-column':
+          return `<div class="slide-inner slide-white"><div class="s-header"><div class="s-title">${esc(slide.title)}</div></div><div class="s-body-area" style="display:flex;gap:12px;"><div style="flex:1;"><div class="s-body">${esc(slide.leftBody || '').replace(/\n/g,'<br>')}</div></div><div style="flex:1;border-left:1px solid #e8ecf0;padding-left:12px;"><div class="s-body">${esc(slide.rightBody || '').replace(/\n/g,'<br>')}</div></div></div></div>`;
+        case 'content': case 'content-with-image': case 'content-with-chart': case 'content-with-flow':
           const extras = [];
           if (slide.chart) extras.push(`<div style="font-size:0.5em;background:#f5f7fa;padding:5px 8px;margin-top:6px;color:#4a5568;">📊 ${esc(slide.chart.title || 'グラフ')}</div>`);
           if (slide.flow) extras.push(`<div style="font-size:0.5em;background:#f5f7fa;padding:5px 8px;margin-top:6px;color:#4a5568;">→ ${(slide.flow.steps||[]).join(' → ')}</div>`);
           return `<div class="slide-inner slide-white"><div class="s-header"><div class="s-title">${esc(slide.title)}</div></div><div class="s-body-area"><div class="s-body">${esc(slide.body || '').replace(/\n/g,'<br>')}</div>${extras.join('')}</div></div>`;
+        case 'sixbox':
+          const bx = slide.boxes || [];
+          return `<div class="slide-inner slide-white"><div class="s-header"><div class="s-title">${esc(slide.title)}</div></div><div class="s-body-area" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">${bx.slice(0,6).map((b,i) => `<div style="background:#f5f7fa;padding:6px;"><div style="font-size:0.55em;font-weight:700;color:#001f33;">${esc(b.heading||'')}</div><div style="font-size:0.45em;color:#4a5568;margin-top:2px;">${esc(b.body||'')}</div></div>`).join('')}</div></div>`;
+        case 'quote':
+          return `<div class="slide-inner slide-white" style="justify-content:center;align-items:center;text-align:center;padding:10%;"><div style="font-size:0.8em;color:#2d3436;line-height:1.7;font-style:italic;">"${esc(slide.body || '')}"</div><div style="font-size:0.55em;color:#8a9bb0;margin-top:10px;">${esc(slide.speaker || '')}</div></div>`;
         case 'comparison':
           const tb = slide.table || { headers: [], rows: [] };
           return `<div class="slide-inner slide-white"><div class="s-header"><div class="s-title">${esc(slide.title)}</div></div><div class="s-body-area"><table class="slide-table"><tr>${(tb.headers||[]).map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${(tb.rows||[]).map(row=>`<tr>${row.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div></div>`;
@@ -1208,11 +1217,16 @@
       initChat();
     }
 
-    // レイアウト → テンプレートスライド番号マッピング
+    // レイアウト → テンプレートスライド番号マッピング（全16スライドを活用）
     const LAYOUT_TO_TEMPLATE_SLIDE = {
       'cover': 1, 'agenda': 5, 'chapter': 3,
-      'content': 7, 'content-with-chart': 7, 'content-with-flow': 7,
-      'comparison': 12, 'closing': 15,
+      'content': 7,
+      'two-column': 10,
+      'content-with-image': 8, 'content-with-chart': 8, 'content-with-flow': 8,
+      'sixbox': 9,
+      'comparison': 12,
+      'quote': 13,
+      'closing': 15,
     };
 
     function escXml(str) {
@@ -1466,10 +1480,21 @@
           return { xml, rels };
         }
 
-        case 'content-with-chart': {
+        case 'two-column': {
+          // slide10: idx=29=タイトル, idx=30=左本文, idx=32=右本文上, idx=33=右本文下
           xml = replaceShapeText(xml, 'idx="29"', [slide.title || '']);
-          xml = replaceShapeText(xml, 'idx="30"', [slide.body || '']);
-          xml = replaceShapeText(xml, 'idx="32"', []);
+          xml = replaceShapeText(xml, 'idx="30"', (slide.leftBody || '').split('\n').filter(Boolean));
+          xml = replaceShapeText(xml, 'idx="32"', (slide.rightBody || '').split('\n').filter(Boolean));
+          xml = replaceShapeText(xml, 'idx="33"', []);
+          return { xml, rels };
+        }
+
+        case 'content-with-image':
+        case 'content-with-chart': {
+          // slide8: idx=29=タイトル, idx=30=サブ, idx=32=本文, pic=画像エリア
+          xml = replaceShapeText(xml, 'idx="29"', [slide.title || '']);
+          xml = replaceShapeText(xml, 'idx="30"', []);
+          xml = replaceShapeText(xml, 'idx="32"', (slide.body || '').split('\n').filter(Boolean));
           if (slide.chart) {
             const png = await generateChartPng(slide.chart);
             const imgName = `sm_img${imgIdx}.png`;
@@ -1483,9 +1508,10 @@
         }
 
         case 'content-with-flow': {
+          // slide8: テキスト+フロー図
           xml = replaceShapeText(xml, 'idx="29"', [slide.title || '']);
-          xml = replaceShapeText(xml, 'idx="30"', [slide.body || '']);
-          xml = replaceShapeText(xml, 'idx="32"', []);
+          xml = replaceShapeText(xml, 'idx="30"', []);
+          xml = replaceShapeText(xml, 'idx="32"', (slide.body || '').split('\n').filter(Boolean));
           if (slide.flow) {
             const png = await generateFlowPng(slide.flow.steps || []);
             const imgName = `sm_flow${imgIdx}.png`;
@@ -1495,6 +1521,31 @@
               `<Relationship Id="${rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${imgName}"/></Relationships>`);
             xml = insertPicture(xml, rId, imgIdx);
           }
+          return { xml, rels };
+        }
+
+        case 'sixbox': {
+          // slide9: idx=30=タイトル, idx=31=サブ, idx=23-28=番号(1-6), idx=10-16=見出し(偶数), idx=17-22=本文(偶数)
+          xml = replaceShapeText(xml, 'idx="30"', [slide.title || '']);
+          xml = replaceShapeText(xml, 'idx="31"', []);
+          const boxes = slide.boxes || [];
+          for (let b = 0; b < 6; b++) {
+            const box = boxes[b] || {};
+            // 番号 (idx 23-28)
+            xml = replaceShapeText(xml, `idx="${23 + b}"`, [box.heading ? String(b + 1) : '']);
+            // 見出し (idx 10-16 の偶数位置: 10,11,12,14,15,16)
+            const headIdx = b < 3 ? 10 + b : 11 + b;
+            xml = replaceShapeText(xml, `idx="${headIdx}"`, [box.heading || '']);
+            // 本文 (idx 17-22)
+            xml = replaceShapeText(xml, `idx="${17 + b}"`, (box.body || '').split('\n').filter(Boolean));
+          }
+          return { xml, rels };
+        }
+
+        case 'quote': {
+          // slide13: idx=30=話者名, idx=31=引用本文
+          xml = replaceShapeText(xml, 'idx="30"', [slide.speaker ? `- ${slide.speaker}` : '']);
+          xml = replaceShapeText(xml, 'idx="31"', (slide.body || '').split('\n').filter(Boolean));
           return { xml, rels };
         }
 
