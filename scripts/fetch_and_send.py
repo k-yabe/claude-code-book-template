@@ -73,12 +73,31 @@ def is_weekend(dt: datetime) -> bool:
     return dt.weekday() >= 5  # 5=土, 6=日
 
 
+def get_claude_code_tips_schema() -> str:
+    """Claude Code Tips セクションのJSONスキーマを返す。"""
+    return """  "claude_code_tips": [
+    {
+      "title": "事例・Tipsのタイトル",
+      "author": "投稿者名（@ユーザー名）",
+      "summary": "何がすごい？どう真似できる？（2〜3行）",
+      "x_url": "ポストのURLまたは検索URL",
+      "tag": "カテゴリ（例：自動化, リファクタリング, テスト生成, プロンプト技, 神ワークフロー など）"
+    }
+  ],"""
+
+
 def get_weekend_prompt(today_str: str) -> str:
     """土日用のプロンプトを返す。"""
-    return f"""あなたはB2Bマーケティングに精通した生成AI専門のニュースキュレーターです。
+    return f"""あなたはテック企業のマーケティングに精通した生成AI専門のニュースキュレーターです。
 今日は{today_str}（週末）です。
 
 Web検索ツールを使って、今週の生成AI関連ニュースを振り返り、来週の注目ポイントをまとめてください。
+
+検索キーワード例：
+1. 「生成AI 最新ニュース」「AI 新機能 リリース」「AI developer tools」
+2. 「Google AI」「OpenAI」「Anthropic」「Meta AI」の最新発表
+3. 「Claude Code tips」「Claude Code 使い方」「Claude Code すごい」で、X(Twitter)上のClaude Code活用事例を収集
+4. 「AI developer tools trending」「AI coding assistant」で開発者ツール系のトレンドを収集
 
 必ず以下のJSON形式のみを出力してください（前後に説明文を付けないこと）：
 
@@ -86,11 +105,11 @@ Web検索ツールを使って、今週の生成AI関連ニュースを振り返
   "greeting": "週末の挨拶文（例：今週もお疲れさまでした。週末にサクッと振り返りましょう）",
   "b2b_news": [
     {{
-      "title": "今週の重要ニュース",
+      "title": "今週の重要テックニュース",
       "source_url": "出典元URL",
       "source_name": "出典元の名前",
       "what_happened": "何が起きた？",
-      "why_it_matters": "なぜ重要？",
+      "why_it_matters": "なぜ重要？（技術的・ビジネス的インパクト）",
       "how_to_use": "どう活かす？"
     }}
   ],
@@ -100,10 +119,11 @@ Web検索ツールを使って、今週の生成AI関連ニュースを振り返
       "title": "今週のビッグテック動向",
       "source_url": "出典元URL",
       "source_name": "出典元の名前",
-      "summary": "概要",
+      "summary": "概要（技術的な内容を重視）",
       "impact": "インパクト"
     }}
   ],
+{get_claude_code_tips_schema()}
   "x_buzz": [
     {{
       "title": "今週X(Twitter)で話題だったトピック",
@@ -122,27 +142,29 @@ Web検索ツールを使って、今週の生成AI関連ニュースを振り返
   ],
   "daily_action": "週末に軽くやっておくと来週楽になること（1文）",
   "key_number": {{
-    "value": "今週の注目数字",
+    "value": "今週の注目数字（技術的な指標を優先）",
     "label": "その数字の説明",
     "source": "出典元"
   }}
 }}
 
-b2b_newsは今週のハイライト2〜3件、bigtech_movesは2〜3件、x_buzzは2〜3件、
-trendingは「来週の注目ポイント」として2〜3件にしてください。
-読者はマーケティング担当者です。難しいAI用語は避けてください。"""
+b2b_newsは今週のハイライト2〜3件、bigtech_movesは2〜3件、claude_code_tipsは2〜3件、
+x_buzzは2〜3件、trendingは「来週の注目ポイント」として2〜3件にしてください。
+株価・投資情報は不要です。技術的な話題（新モデル、API、開発ツール、OSS）を優先してください。
+読者はテック企業のマーケティング担当者です。技術的な内容を噛み砕いて伝えてください。"""
 
 
 def get_weekday_prompt(today_str: str) -> str:
     """平日用のプロンプトを返す。"""
-    return f"""あなたはB2Bマーケティングに精通した生成AI専門のニュースキュレーターです。
+    return f"""あなたはテック企業のマーケティングに精通した生成AI専門のニュースキュレーターです。
 今日は{today_str}です。
 
 まず、Web検索ツールを使って以下の情報をリアルタイムで収集してください：
-1. 「生成AI 最新ニュース」「AI 企業 発表」で検索し、直近1週間のB2B向けニュースを収集
-2. 「Google AI」「Microsoft AI」「OpenAI」「Anthropic」「Meta AI」で検索し、ビッグテック企業のAI関連の重大ニュースを収集（新製品発表、人事異動、提携、規制対応、人員削減など）
-3. 「AI trending Twitter/X」「生成AI 話題 SNS」で検索し、X(Twitter)で話題のAIトピックを収集
-4. 「AI market stats 2026」「生成AI 市場 数字」で検索し、注目の統計データを収集
+1. 「生成AI 最新ニュース」「AI 新機能 リリース」「AI developer tools」で検索し、直近のテック系ニュースを収集
+2. 「Google AI」「Microsoft AI」「OpenAI」「Anthropic」「Meta AI」で検索し、ビッグテック企業のAI関連の技術ニュースを収集（新モデル、API更新、開発ツール、OSS公開など）
+3. 「Claude Code tips」「Claude Code 使い方」「Claude Code すごい」で、X(Twitter)上のClaude Code活用事例・神ワークフローを収集
+4. 「AI trending Twitter/X」「生成AI 話題 SNS」で検索し、X(Twitter)で話題のAIトピックを収集
+5. 「AI developer stats」「生成AI 技術 数字」で検索し、注目の技術指標・統計を収集
 
 収集した情報を基に、以下のJSON形式で出力してください。
 必ずJSON形式のみを出力してください（前後に説明文を付けないこと）：
@@ -169,6 +191,7 @@ def get_weekday_prompt(today_str: str) -> str:
       "impact": "業界へのインパクト（1文）"
     }}
   ],
+{get_claude_code_tips_schema()}
   "x_buzz": [
     {{
       "title": "X(Twitter)で話題のトピック",
@@ -185,17 +208,18 @@ def get_weekday_prompt(today_str: str) -> str:
       "summary": "2〜3行の要約"
     }}
   ],
-  "daily_action": "B2Bマーケ担当者として今日意識すべきこと（1文）",
+  "daily_action": "テック系マーケ担当者として今日意識すべきこと（1文）",
   "key_number": {{
-    "value": "今日の注目数字（例：73%、1000万人、$10B など）",
+    "value": "今日の注目数字（技術的な指標を優先。例：API呼び出し数、モデル性能、開発者数 など）",
     "label": "その数字が何を表すかの短い説明（1文）",
     "source": "数字の出典元"
   }}
 }}
 
-b2b_newsは2〜3件、bigtech_movesは2〜3件、x_buzzは2〜3件、trendingは2〜3件にしてください。
+b2b_newsは2〜3件、bigtech_movesは2〜3件、claude_code_tipsは2〜3件、x_buzzは2〜3件、trendingは2〜3件にしてください。
 source_urlは検索で見つけた実際のURLを記載してください。
-読者はマーケティング担当者なので、難しいAI用語は避けて、ビジネスパーソンに伝わる言葉で書いてください。"""
+株価・投資・資金調達の話題は不要です。技術的な話題（新モデル、API、開発ツール、OSS、ベンチマーク）を優先してください。
+読者はテック企業のマーケティング担当者なので、技術的な内容を噛み砕いて伝えてください。"""
 
 
 def generate_news_json(today_str: str, dt: datetime) -> dict:
@@ -250,10 +274,11 @@ def generate_news_json(today_str: str, dt: datetime) -> dict:
 
     b2b_count = len(data.get("b2b_news", []))
     bigtech_count = len(data.get("bigtech_moves", []))
+    cc_count = len(data.get("claude_code_tips", []))
     x_count = len(data.get("x_buzz", []))
     trend_count = len(data.get("trending", []))
     print(f"[INFO] ニュース生成完了（B2B: {b2b_count}件, BigTech: {bigtech_count}件, "
-          f"X/Twitter: {x_count}件, トレンド: {trend_count}件）")
+          f"Claude Code: {cc_count}件, X/Twitter: {x_count}件, トレンド: {trend_count}件）")
     return data
 
 
@@ -292,6 +317,17 @@ def build_plain_text(data: dict, today_str: str) -> str:
             f"   {move.get('summary', '')}",
             f"   インパクト: {move.get('impact', '')}",
             f"   出典: {move.get('source_name', '')} {move.get('source_url', '')}",
+            "",
+        ]
+
+    # Claude Code Tips
+    lines += ["--- CLAUDE CODE TIPS ---", ""]
+    for tip in data.get("claude_code_tips", []):
+        lines += [
+            f"* [{tip.get('tag', '')}] {tip.get('title', '')}",
+            f"  by {tip.get('author', '')}",
+            f"  {tip.get('summary', '')}",
+            f"  {tip.get('x_url', '')}",
             "",
         ]
 
@@ -404,6 +440,33 @@ def build_html(data: dict, today_str: str) -> str:
             &#9888;&#65039; {esc(move.get('impact', ''))}</div>{source_link}
         </div>"""
 
+    # Claude Code Tips カード
+    cc_tips_items = ""
+    for tip in data.get("claude_code_tips", []):
+        tag = esc(tip.get("tag", "Tips"))
+        x_link = ""
+        if tip.get("x_url"):
+            x_link = f"""
+          <div style="margin-top:10px;">
+            <a href="{esc(tip['x_url'])}" style="color:#d97706; font-size:12px;
+               text-decoration:none; font-weight:600;"
+               target="_blank">&#128279; ポストを見る &rarr;</a>
+          </div>"""
+
+        cc_tips_items += f"""
+        <div style="background:#fff; border-radius:12px; padding:20px; margin-bottom:12px;
+                    box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid #d97706;">
+          <div style="margin-bottom:10px;">
+            <span style="background:#d97706; color:#fff; font-size:10px; font-weight:700;
+                         padding:3px 10px; border-radius:10px;">{tag}</span>
+            <span style="font-size:12px; color:#999; margin-left:8px;">{esc(tip.get('author', ''))}</span>
+          </div>
+          <div style="font-size:16px; font-weight:700; color:#1a1a1a; margin-bottom:8px;">
+            {esc(tip['title'])}
+          </div>
+          <div style="font-size:14px; color:#555; line-height:1.7;">{esc(tip['summary'])}</div>{x_link}
+        </div>"""
+
     # X/Twitter バズカード
     x_buzz_items = ""
     for topic in data.get("x_buzz", []):
@@ -480,6 +543,7 @@ def build_html(data: dict, today_str: str) -> str:
     counts = {
         "b2b": len(data.get("b2b_news", [])),
         "bigtech": len(data.get("bigtech_moves", [])),
+        "cc": len(data.get("claude_code_tips", [])),
         "x": len(data.get("x_buzz", [])),
         "trend": len(data.get("trending", [])),
     }
@@ -502,6 +566,8 @@ def build_html(data: dict, today_str: str) -> str:
         toc_items.append(f"&#128188; B2Bニュース({counts['b2b']})")
     if counts["bigtech"]:
         toc_items.append(f"&#127970; BigTech({counts['bigtech']})")
+    if counts["cc"]:
+        toc_items.append(f"&#128296; Claude Code({counts['cc']})")
     if counts["x"]:
         toc_items.append(f"&#120143; X/Twitter({counts['x']})")
     if counts["trend"]:
@@ -575,6 +641,18 @@ def build_html(data: dict, today_str: str) -> str:
       <h2 style="margin:0 0 16px; font-size:18px; color:#1a1a1a;">
         主要企業の注目ニュース</h2>
       {bigtech_cards}
+    </div>
+
+    <!-- セクション: Claude Code Tips -->
+    <div style="margin-bottom:28px;">
+      <div style="margin-bottom:16px;">
+        <div style="background:#d97706; color:#fff; font-size:12px; font-weight:700;
+                    padding:6px 14px; border-radius:20px; letter-spacing:0.5px; display:inline-block;">
+          &#128296; CLAUDE CODE TIPS</div>
+      </div>
+      <h2 style="margin:0 0 16px; font-size:18px; color:#1a1a1a;">
+        真似したくなるClaude Code活用術</h2>
+      {cc_tips_items}
     </div>
 
     <!-- セクション3: X/Twitter バズ -->
