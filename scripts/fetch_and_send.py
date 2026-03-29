@@ -237,7 +237,7 @@ def generate_news_json(today_str: str, dt: datetime) -> dict:
     def api_call():
         return client.messages.create(
             model="claude-sonnet-4-5-20250929",
-            max_tokens=4096,
+            max_tokens=8192,
             tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 10}],
             messages=[{"role": "user", "content": prompt}],
         )
@@ -245,6 +245,9 @@ def generate_news_json(today_str: str, dt: datetime) -> dict:
     message = call_with_retry(api_call, "Claude API呼び出し")
     elapsed = time.time() - t0
     print(f"[INFO] API応答時間: {elapsed:.1f}秒")
+
+    if message.stop_reason == "max_tokens":
+        print("[WARN] レスポンスがmax_tokensで打ち切られました。出力が不完全の可能性があります。", file=sys.stderr)
 
     # web_search付きレスポンスからテキストブロックを抽出
     raw = ""
