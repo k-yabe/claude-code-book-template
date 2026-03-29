@@ -232,6 +232,107 @@ def add_flow(slide, steps):
             arrow.line.fill.background()
 
 
+def add_accent_line(slide, x, y, width):
+    """ゴールドのアクセントライン"""
+    line = slide.shapes.add_shape(1, x, y, width, Inches(0.04))
+    line.fill.solid()
+    line.fill.fore_color.rgb = GOLD
+    line.line.fill.background()
+
+
+def add_bullet_icons(slide, body_text, x, y, width):
+    """箇条書きをアイコンバレット付きのshapeとして描画"""
+    lines = [l.strip() for l in str(body_text).split('\n') if l.strip()]
+    line_h = Inches(0.38)
+    icon_size = Inches(0.22)
+
+    for i, line in enumerate(lines):
+        ly = y + i * line_h
+        text = line.lstrip('・-•● ')
+
+        # バレットアイコン（丸）
+        icon = slide.shapes.add_shape(9, x, ly + Inches(0.04), icon_size, icon_size)  # 9 = oval
+        icon.fill.solid()
+        icon.fill.fore_color.rgb = GOLD
+        icon.line.fill.background()
+
+        # テキスト
+        txbox = slide.shapes.add_textbox(x + Inches(0.35), ly, width - Inches(0.35), line_h)
+        tf = txbox.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        p.text = text
+        p.font.size = Pt(11)
+        p.font.color.rgb = NAVY
+
+
+def add_metric_callout(slide, value, label, x, y, width=Inches(1.8), height=Inches(1.2)):
+    """大きな数字 + ラベルのメトリクスカード"""
+    # 背景ボックス
+    box = slide.shapes.add_shape(1, x, y, width, height)
+    box.fill.solid()
+    box.fill.fore_color.rgb = RGBColor(0xF5, 0xF7, 0xFA)
+    box.line.fill.background()
+
+    # 数字（大きく）
+    num_box = slide.shapes.add_textbox(x, y + Inches(0.1), width, Inches(0.6))
+    p = num_box.text_frame.paragraphs[0]
+    p.text = str(value)
+    p.font.size = Pt(28)
+    p.font.bold = True
+    p.font.color.rgb = NAVY
+    p.alignment = PP_ALIGN.CENTER
+
+    # ラベル（小さく）
+    lbl_box = slide.shapes.add_textbox(x, y + Inches(0.7), width, Inches(0.4))
+    p2 = lbl_box.text_frame.paragraphs[0]
+    p2.text = str(label)
+    p2.font.size = Pt(9)
+    p2.font.color.rgb = GRAY
+    p2.alignment = PP_ALIGN.CENTER
+
+    # ゴールドトップライン
+    add_accent_line(slide, x, y, width)
+
+
+def set_rich_body(ph, body_text):
+    """本文をリッチテキスト（太字/サイズ使い分け）で設定"""
+    if not body_text:
+        ph.text = ''
+        return
+
+    tf = ph.text_frame
+    tf.clear()
+    lines = str(body_text).split('\n')
+
+    for i, line in enumerate(lines):
+        line = line.strip()
+        if not line:
+            continue
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+
+        # 見出し行（【】で囲まれている）
+        if line.startswith('【') and '】' in line:
+            run = p.add_run()
+            run.text = line
+            run.font.size = Pt(12)
+            run.font.bold = True
+            run.font.color.rgb = NAVY
+        # 箇条書き行
+        elif line.startswith(('・', '- ', '• ', '● ')):
+            run = p.add_run()
+            run.text = line
+            run.font.size = Pt(10)
+            run.font.color.rgb = RGBColor(0x2D, 0x34, 0x36)
+            p.space_before = Pt(2)
+        # 通常行
+        else:
+            run = p.add_run()
+            run.text = line
+            run.font.size = Pt(10)
+            run.font.color.rgb = RGBColor(0x2D, 0x34, 0x36)
+
+
 def apply_data(slide, layout, data):
     ph_map = {ph.placeholder_format.idx: ph for ph in slide.placeholders}
 
@@ -254,19 +355,30 @@ def apply_data(slide, layout, data):
     elif layout == 'content':
         _set(ph_map, 29, data.get('title', ''))
         _set(ph_map, 30, '')
-        _set(ph_map, 32, data.get('body', ''))
+        body = data.get('body', '')
+        # リッチテキスト or バレットアイコン
+        if body and any(body.startswith(c) for c in ('・', '- ', '• ')):
+            _set(ph_map, 32, '')  # placeholderはクリア
+            add_bullet_icons(slide, body, Inches(0.8), Inches(2.2), Inches(8.0))
+        elif 32 in ph_map:
+            set_rich_body(ph_map[32], body)
 
     elif layout == 'two-column':
         _set(ph_map, 29, data.get('title', ''))
-        _set(ph_map, 30, data.get('leftBody', ''))
-        _set(ph_map, 32, data.get('rightBody', ''))
+        if 30 in ph_map:
+            set_rich_body(ph_map[30], data.get('leftBody', ''))
+        if 32 in ph_map:
+            set_rich_body(ph_map[32], data.get('rightBody', ''))
         _set(ph_map, 33, '')
+        # 中央の区切り線
+        add_accent_line(slide, Inches(4.85), Inches(2.0), Inches(0.04))
 
     elif layout == 'content-with-chart':
         _set(ph_map, 29, data.get('title', ''))
         _set(ph_map, 30, '')
         body = data.get('body', '')
-        _set(ph_map, 32, body)
+        if 32 in ph_map:
+            set_rich_body(ph_map[32], body)
         # ネイティブチャート追加
         chart = data.get('chart')
         if chart and chart.get('labels') and chart.get('data'):
@@ -275,7 +387,8 @@ def apply_data(slide, layout, data):
     elif layout == 'content-with-flow':
         _set(ph_map, 29, data.get('title', ''))
         _set(ph_map, 30, '')
-        _set(ph_map, 32, data.get('body', ''))
+        if 32 in ph_map:
+            set_rich_body(ph_map[32], data.get('body', ''))
         # フロー図形追加
         flow = data.get('flow')
         if flow and flow.get('steps'):
@@ -300,6 +413,8 @@ def apply_data(slide, layout, data):
         table = data.get('table')
         if table and table.get('headers'):
             add_table(slide, table)
+        # タイトル下アクセントライン
+        add_accent_line(slide, Inches(0.8), Inches(1.9), Inches(1.5))
 
     elif layout == 'quote':
         speaker = data.get('speaker', '')
