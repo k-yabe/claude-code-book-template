@@ -68,11 +68,74 @@ def call_with_retry(fn, description: str):
             time.sleep(RETRY_DELAY * attempt)
 
 
-def generate_news_json(today_str: str) -> dict:
-    """Claude API（Web Search付き）を使ってリアルタイムの生成AIニュースを収集・構造化する。"""
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+def is_weekend(dt: datetime) -> bool:
+    """土日かどうか判定する。"""
+    return dt.weekday() >= 5  # 5=土, 6=日
 
-    prompt = f"""あなたはB2Bマーケティングに精通した生成AI専門のニュースキュレーターです。
+
+def get_weekend_prompt(today_str: str) -> str:
+    """土日用のプロンプトを返す。"""
+    return f"""あなたはB2Bマーケティングに精通した生成AI専門のニュースキュレーターです。
+今日は{today_str}（週末）です。
+
+Web検索ツールを使って、今週の生成AI関連ニュースを振り返り、来週の注目ポイントをまとめてください。
+
+必ず以下のJSON形式のみを出力してください（前後に説明文を付けないこと）：
+
+{{
+  "greeting": "週末の挨拶文（例：今週もお疲れさまでした。週末にサクッと振り返りましょう）",
+  "b2b_news": [
+    {{
+      "title": "今週の重要ニュース",
+      "source_url": "出典元URL",
+      "source_name": "出典元の名前",
+      "what_happened": "何が起きた？",
+      "why_it_matters": "なぜ重要？",
+      "how_to_use": "どう活かす？"
+    }}
+  ],
+  "bigtech_moves": [
+    {{
+      "company": "企業名",
+      "title": "今週のビッグテック動向",
+      "source_url": "出典元URL",
+      "source_name": "出典元の名前",
+      "summary": "概要",
+      "impact": "インパクト"
+    }}
+  ],
+  "x_buzz": [
+    {{
+      "title": "今週X(Twitter)で話題だったトピック",
+      "summary": "概要",
+      "x_search_url": "https://x.com/search?q=...",
+      "engagement": "規模感"
+    }}
+  ],
+  "trending": [
+    {{
+      "title": "来週の注目ポイント",
+      "source_url": "参考URL",
+      "source_name": "出典元の名前",
+      "summary": "来週に予定されているイベント・発表・注目すべきこと"
+    }}
+  ],
+  "daily_action": "週末に軽くやっておくと来週楽になること（1文）",
+  "key_number": {{
+    "value": "今週の注目数字",
+    "label": "その数字の説明",
+    "source": "出典元"
+  }}
+}}
+
+b2b_newsは今週のハイライト2〜3件、bigtech_movesは2〜3件、x_buzzは2〜3件、
+trendingは「来週の注目ポイント」として2〜3件にしてください。
+読者はマーケティング担当者です。難しいAI用語は避けてください。"""
+
+
+def get_weekday_prompt(today_str: str) -> str:
+    """平日用のプロンプトを返す。"""
+    return f"""あなたはB2Bマーケティングに精通した生成AI専門のニュースキュレーターです。
 今日は{today_str}です。
 
 まず、Web検索ツールを使って以下の情報をリアルタイムで収集してください：
@@ -133,6 +196,16 @@ def generate_news_json(today_str: str) -> dict:
 b2b_newsは2〜3件、bigtech_movesは2〜3件、x_buzzは2〜3件、trendingは2〜3件にしてください。
 source_urlは検索で見つけた実際のURLを記載してください。
 読者はマーケティング担当者なので、難しいAI用語は避けて、ビジネスパーソンに伝わる言葉で書いてください。"""
+
+
+def generate_news_json(today_str: str, dt: datetime) -> dict:
+    """Claude API（Web Search付き）を使ってリアルタイムの生成AIニュースを収集・構造化する。"""
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    if is_weekend(dt):
+        prompt = get_weekend_prompt(today_str)
+    else:
+        prompt = get_weekday_prompt(today_str)
 
     t0 = time.time()
     print("[INFO] Claude API（Web Search付き）にニュース生成をリクエスト中...")
@@ -577,6 +650,59 @@ def send_email(subject: str, html_content: str, plain_content: str):
     print("[INFO] メール送信完了")
 
 
+def save_archive(data: dict, today_str: str, plain_content: str, dt: datetime):
+    """日報をMarkdownファイルとしてアーカイブ保存する。"""
+    archive_dir = os.path.join(os.path.dirname(__file__), "..", "archives", "daily")
+    os.makedirs(archive_dir, exist_ok=True)
+
+    filename = dt.strftime("%Y-%m-%d") + ".md"
+    filepath = os.path.join(archive_dir, filename)
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(f"# AI日報 — {today_str}\n\n")
+        f.write(plain_content)
+
+    print(f"[INFO] アーカイブ保存: {filepath}")
+    return filepath
+
+
+def send_error_notification(error_msg: str, today_str: str):
+    """エラー時に簡易通知メールを送信する。"""
+    if not all([GMAIL_ADDRESS, GMAIL_APP_PASSWORD, TO_EMAIL]):
+        return  # 認証情報がなければスキップ
+
+    recipients = [addr.strip() for addr in TO_EMAIL.split(",") if addr.strip()]
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = f"[ERROR] AI日報の生成に失敗しました — {today_str}"
+    msg["From"] = GMAIL_ADDRESS
+    msg["To"] = ", ".join(recipients)
+
+    error_html = f"""<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"></head>
+<body style="font-family:sans-serif; padding:20px; color:#333;">
+  <div style="background:#fee; border-left:4px solid #e53e3e; padding:16px; border-radius:8px;">
+    <h2 style="margin:0 0 12px; color:#e53e3e;">&#9888;&#65039; AI日報の自動生成に失敗しました</h2>
+    <p><strong>日付:</strong> {today_str}</p>
+    <p><strong>エラー:</strong></p>
+    <pre style="background:#f5f5f5; padding:12px; border-radius:4px; overflow-x:auto;
+                font-size:13px;">{esc(error_msg[:500])}</pre>
+    <p style="font-size:13px; color:#666; margin-top:16px;">
+      GitHub Actions のログで詳細を確認してください。</p>
+  </div>
+</body></html>"""
+
+    msg.attach(MIMEText(error_html, "html", "utf-8"))
+
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
+            server.send_message(msg)
+        print("[INFO] エラー通知メール送信完了")
+    except Exception as e:
+        print(f"[WARN] エラー通知メールの送信にも失敗: {e}", file=sys.stderr)
+
+
 def main():
     t_start = time.time()
     print("=" * 50)
@@ -587,33 +713,47 @@ def main():
 
     now_jst = datetime.now(JST)
     today_str = format_date_with_weekday(now_jst)
+    is_wkend = is_weekend(now_jst)
 
     print(f"[INFO] 日付: {today_str}")
+    print(f"[INFO] モード: {'週末（振り返り＋来週注目）' if is_wkend else '平日（最新ニュース）'}")
 
-    # ニュース生成
-    data = generate_news_json(today_str)
+    try:
+        # ニュース生成
+        data = generate_news_json(today_str, now_jst)
 
-    # 件名にトップニュースを含める
-    top_title = ""
-    if data.get("b2b_news"):
-        top_title = data["b2b_news"][0].get("title", "")
-    if top_title:
-        subject = f"【AI日報】{today_str}｜{top_title}"
-    else:
-        subject = f"【AI日報】{today_str}"
-    # 件名が長すぎる場合は切り詰め
-    if len(subject) > 80:
-        subject = subject[:77] + "..."
+        # 件名
+        top_title = ""
+        if data.get("b2b_news"):
+            top_title = data["b2b_news"][0].get("title", "")
 
-    # HTML・プレーンテキスト生成
-    html_content = build_html(data, today_str)
-    plain_content = build_plain_text(data, today_str)
+        if is_wkend:
+            subject = f"【AI週報】{today_str}｜今週の振り返り＆来週の注目"
+        elif top_title:
+            subject = f"【AI日報】{today_str}｜{top_title}"
+        else:
+            subject = f"【AI日報】{today_str}"
+        if len(subject) > 80:
+            subject = subject[:77] + "..."
 
-    # メール送信
-    send_email(subject, html_content, plain_content)
+        # HTML・プレーンテキスト生成
+        html_content = build_html(data, today_str)
+        plain_content = build_plain_text(data, today_str)
 
-    elapsed = time.time() - t_start
-    print(f"[INFO] 全処理完了（所要時間: {elapsed:.1f}秒）")
+        # アーカイブ保存
+        save_archive(data, today_str, plain_content, now_jst)
+
+        # メール送信
+        send_email(subject, html_content, plain_content)
+
+        elapsed = time.time() - t_start
+        print(f"[INFO] 全処理完了（所要時間: {elapsed:.1f}秒）")
+
+    except Exception as e:
+        elapsed = time.time() - t_start
+        print(f"[ERROR] 処理失敗（{elapsed:.1f}秒経過）: {e}", file=sys.stderr)
+        send_error_notification(str(e), today_str)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
