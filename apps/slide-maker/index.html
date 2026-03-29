@@ -60,6 +60,9 @@
     @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
     .chat-action-btn { display: inline-block; margin-top: 8px; background: #ffb81c; color: #001f33; border: none; padding: 8px 18px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
     .chat-action-btn:hover { opacity: 0.88; }
+    .chat-suggestions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; align-self: flex-start; }
+    .chat-sug-chip { background: transparent; border: 1.5px solid #334d66; color: #8a9bb0; padding: 6px 14px; font-size: 0.78rem; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .chat-sug-chip:hover { border-color: #ffb81c; color: #fff; background: rgba(255,184,28,0.1); }
 
     /* チャット入力 */
     .chat-input-area { border-top: 1px solid #e8ecf0; padding: 12px 16px; display: flex; gap: 8px; align-items: flex-end; }
@@ -461,6 +464,30 @@
       const msgs = document.getElementById('chat-messages');
       msgs.innerHTML = '';
       addChatBubble('ai', 'こんにちは！プレゼン資料の作成をお手伝いします。\nどんな内容のプレゼンを作りたいですか？\n\nファイル（PDF / Word / PPTX）やURLからも読み込めます。');
+      showSuggestions(['営業提案資料を作りたい', '会社紹介スライドを作りたい', '報告書をスライド化したい']);
+    }
+
+    function showSuggestions(suggestions) {
+      // 既存のサジェスチョンを削除
+      document.querySelectorAll('.chat-suggestions').forEach(el => el.remove());
+      if (!suggestions?.length) return;
+
+      const msgs = document.getElementById('chat-messages');
+      const container = document.createElement('div');
+      container.className = 'chat-suggestions';
+      suggestions.forEach(sug => {
+        const chip = document.createElement('button');
+        chip.className = 'chat-sug-chip';
+        chip.textContent = sug;
+        chip.onclick = () => {
+          container.remove();
+          document.getElementById('chat-input').value = sug;
+          sendChat();
+        };
+        container.appendChild(chip);
+      });
+      msgs.appendChild(container);
+      msgs.scrollTop = msgs.scrollHeight;
     }
 
     function addChatBubble(role, text, actionBtn = null) {
@@ -495,7 +522,7 @@
     }
 
     function handleChatKey(e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendChat(); }
     }
     function autoResize(el) {
       el.style.height = 'auto';
@@ -545,6 +572,11 @@
           });
         } else {
           addChatBubble('ai', json.reply);
+        }
+
+        // サジェスチョンチップを表示
+        if (json.suggestions?.length) {
+          showSuggestions(json.suggestions);
         }
       } catch (err) {
         hideTyping();
@@ -1131,8 +1163,9 @@
       const spEnd = xml.indexOf('</p:sp>', phPos) + 7;
       if (spEnd < 7) return xml;
       const spXml = xml.slice(spStart, spEnd);
-      const txStart = spXml.indexOf('<a:txBody>');
-      const txEnd = spXml.indexOf('</a:txBody>') + 11;
+      // PPTX の shape 内 txBody は p:txBody（PresentationML名前空間）
+      const txStart = spXml.indexOf('<p:txBody>');
+      const txEnd = spXml.indexOf('</p:txBody>') + 11;
       if (txStart === -1 || txEnd < 11) return xml;
 
       // txBody 内の bodyPr / lstStyle を保持（属性・子要素ごと残す）
@@ -1143,7 +1176,7 @@
       const lstStyle = lstStyleM ? lstStyleM[0] : '<a:lstStyle/>';
 
       const paras = (lines.filter(Boolean).length ? lines.filter(Boolean) : ['']).map(buildPara).join('');
-      const newSp = spXml.slice(0, txStart) + `<a:txBody>${bodyPr}${lstStyle}${paras}</a:txBody>` + spXml.slice(txEnd);
+      const newSp = spXml.slice(0, txStart) + `<p:txBody>${bodyPr}${lstStyle}${paras}</p:txBody>` + spXml.slice(txEnd);
       return xml.slice(0, spStart) + newSp + xml.slice(spEnd);
     }
 
@@ -1195,7 +1228,7 @@
 
     // content系スライドにタイトルshapeを追加（slide7にはtitleプレースホルダーがない）
     function addTitleShape(xml, titleText) {
-      const sp = `<p:sp><p:nvSpPr><p:cNvPr id="9901" name="SMTitle"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr><p:nvPr><p:ph type="title"/></p:nvPr></p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="ja-JP" dirty="0"/><a:t>${escXml(titleText)}</a:t></a:r></a:p></a:txBody></p:sp>`;
+      const sp = `<p:sp><p:nvSpPr><p:cNvPr id="9901" name="SMTitle"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr><p:nvPr><p:ph type="title"/></p:nvPr></p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="ja-JP" dirty="0"/><a:t>${escXml(titleText)}</a:t></a:r></a:p></p:txBody></p:sp>`;
       return xml.replace('</p:spTree>', `${sp}</p:spTree>`);
     }
 

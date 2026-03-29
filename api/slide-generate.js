@@ -114,6 +114,16 @@ const CHAT_SYSTEM_PROMPT = `あなたはAKKODiSのプレゼンテーション構
 - 応答は簡潔に（3文以内 + 質問1つ）
 - 相槌や励ましを自然に入れる
 
+## サジェスチョン（回答候補）
+
+応答の末尾に必ず ##SUGGESTIONS## マーカーを付け、ユーザーが選べる回答候補を2〜3個JSON配列で提供する。
+候補はユーザーが「これをタップするだけで回答できる」短い文（15文字以内）にする。
+質問に対する典型的な回答や、会話を進める選択肢を提示する。
+
+例：
+- 質問「誰に向けて発表しますか？」→ ##SUGGESTIONS##["経営陣・役員向け","部門マネージャー向け","社内全体向け"]
+- 質問「トーンはどうしますか？」→ ##SUGGESTIONS##["フォーマルで","カジュアルに","データ重視で"]
+
 ## 構成生成の合図
 
 以下の条件を満たしたら、応答の末尾に構成生成の合図を付ける：
@@ -121,13 +131,14 @@ const CHAT_SYSTEM_PROMPT = `あなたはAKKODiSのプレゼンテーション構
 - 対象者が分かっている（推測可能でもOK）
 - 伝えたいメッセージが1つ以上ある
 
-合図のフォーマット（応答テキストの後に必ず改行して付加）：
+合図のフォーマット（応答テキストの後に、##SUGGESTIONS##の後に改行して付加）：
 ##CONTEXT_READY##
 {"topic":"...","audience":"...","messages":["..."],"background":"...","data":"...","tone":"フォーマル","slideCount":8,"language":"日本語"}
 
 - JSONのフィールドは分かっている情報のみ埋める
 - 分からないフィールドは空文字 "" にする
-- この合図はユーザーには見えない（システムが処理する）`;
+- ##SUGGESTIONS## と ##CONTEXT_READY## の両方を含めてよい
+- これらのマーカーはユーザーには見えない（システムが処理する）`;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -202,23 +213,48 @@ export default async function handler(req, res) {
       const data = await response.json();
       const rawText = data.content?.[0]?.text || '';
 
-      // ##CONTEXT_READY## マーカーを解析
+      // ##SUGGESTIONS## と ##CONTEXT_READY## マーカーを解析
       let reply = rawText;
       let readyForOutline = false;
       let context = null;
+      let suggestions = [];
 
-      const markerIdx = rawText.indexOf('##CONTEXT_READY##');
-      if (markerIdx !== -1) {
-        reply = rawText.slice(0, markerIdx).trim();
-        readyForOutline = true;
+      // ##SUGGESTIONS## を先に抽出
+      const sugIdx = reply.indexOf('##SUGGESTIONS##');
+      if (sugIdx !== -1) {
+        const afterSug = reply.slice(sugIdx + 15);
+        reply = reply.slice(0, sugIdx).trim();
         try {
-          const jsonStr = rawText.slice(markerIdx + 17).trim();
-          const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-          if (jsonMatch) context = JSON.parse(jsonMatch[0]);
+          const arrMatch = afterSug.match(/\[[\s\S]*?\]/);
+          if (arrMatch) suggestions = JSON.parse(arrMatch[0]);
         } catch {}
+        // ##CONTEXT_READY## が ##SUGGESTIONS## の後にある場合
+        const ctxInAfter = afterSug.indexOf('##CONTEXT_READY##');
+        if (ctxInAfter !== -1) {
+          readyForOutline = true;
+          try {
+            const jsonStr = afterSug.slice(ctxInAfter + 17).trim();
+            const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+            if (jsonMatch) context = JSON.parse(jsonMatch[0]);
+          } catch {}
+        }
       }
 
-      return res.status(200).json({ reply, readyForOutline, context });
+      // ##CONTEXT_READY## が ##SUGGESTIONS## より前にある場合
+      if (!readyForOutline) {
+        const markerIdx = reply.indexOf('##CONTEXT_READY##');
+        if (markerIdx !== -1) {
+          const afterCtx = reply.slice(markerIdx + 17);
+          reply = reply.slice(0, markerIdx).trim();
+          readyForOutline = true;
+          try {
+            const jsonMatch = afterCtx.match(/\{[\s\S]*\}/);
+            if (jsonMatch) context = JSON.parse(jsonMatch[0]);
+          } catch {}
+        }
+      }
+
+      return res.status(200).json({ reply, readyForOutline, context, suggestions });
     }
 
     if (mode === 'url') {
