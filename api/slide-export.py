@@ -232,6 +232,53 @@ def add_flow(slide, steps):
             arrow.line.fill.background()
 
 
+def add_feature_cards(slide, body_text, x, y, width):
+    """箇条書きを色付きカードとして配置（参考PPTXスライド9のパターン）"""
+    lines = [l.strip() for l in str(body_text).split('\n') if l.strip()]
+    if not lines:
+        return
+    n = len(lines)
+    card_h = Inches(0.75)
+    gap = Inches(0.1)
+    bar_w = Inches(0.06)
+
+    for i, line in enumerate(lines):
+        cy = y + i * (card_h + gap)
+        text = line.lstrip('・-•● ')
+
+        # 左のカラーバー（ゴールド）
+        bar = slide.shapes.add_shape(1, x, cy, bar_w, card_h)
+        bar.fill.solid()
+        bar.fill.fore_color.rgb = GOLD
+        bar.line.fill.background()
+
+        # カード背景
+        card_bg = slide.shapes.add_shape(1, x + bar_w, cy, width - bar_w, card_h)
+        card_bg.fill.solid()
+        card_bg.fill.fore_color.rgb = RGBColor(0xF5, 0xF7, 0xFA)
+        card_bg.line.fill.background()
+
+        # テキスト
+        txbox = slide.shapes.add_textbox(x + bar_w + Inches(0.2), cy + Inches(0.1), width - bar_w - Inches(0.4), card_h - Inches(0.2))
+        tf = txbox.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        p.text = text
+        p.font.size = Pt(10)
+        p.font.color.rgb = NAVY
+        p.font.bold = False
+
+
+def add_section_dividers(slide, x, y, width, count):
+    """水平区切り線を追加"""
+    for i in range(count):
+        ly = y + i * Inches(1.2)
+        line = slide.shapes.add_shape(1, x, ly, width, Inches(0.015))
+        line.fill.solid()
+        line.fill.fore_color.rgb = RGBColor(0xE0, 0xE4, 0xE8)
+        line.line.fill.background()
+
+
 def add_accent_line(slide, x, y, width):
     """ゴールドのアクセントライン"""
     line = slide.shapes.add_shape(1, x, y, width, Inches(0.04))
@@ -356,12 +403,23 @@ def apply_data(slide, layout, data):
         _set(ph_map, 29, data.get('title', ''))
         _set(ph_map, 30, '')
         body = data.get('body', '')
-        # リッチテキスト or バレットアイコン
-        if body and any(body.startswith(c) for c in ('・', '- ', '• ')):
-            _set(ph_map, 32, '')  # placeholderはクリア
+        lines = [l.strip() for l in str(body).split('\n') if l.strip()] if body else []
+        has_bullets = any(l.startswith(('・', '- ', '• ', '● ')) for l in lines)
+
+        if has_bullets and len(lines) >= 3:
+            # 3行以上の箇条書き → feature cards（参考PPTXパターン）
+            _set(ph_map, 32, '')
+            add_feature_cards(slide, body, Inches(0.8), Inches(2.1), Inches(8.4))
+            add_accent_line(slide, Inches(0.8), Inches(1.85), Inches(1.5))
+        elif has_bullets:
+            # 2行以下 → アイコンバレット
+            _set(ph_map, 32, '')
             add_bullet_icons(slide, body, Inches(0.8), Inches(2.2), Inches(8.0))
-        elif 32 in ph_map:
-            set_rich_body(ph_map[32], body)
+            add_accent_line(slide, Inches(0.8), Inches(1.85), Inches(1.5))
+        else:
+            if 32 in ph_map:
+                set_rich_body(ph_map[32], body)
+            add_accent_line(slide, Inches(0.8), Inches(1.85), Inches(1.5))
 
     elif layout == 'two-column':
         _set(ph_map, 29, data.get('title', ''))
@@ -420,6 +478,13 @@ def apply_data(slide, layout, data):
         speaker = data.get('speaker', '')
         _set(ph_map, 30, f'- {speaker}' if speaker else '')
         _set(ph_map, 31, data.get('body', ''))
+        # 大きな引用符マーク
+        q_shape = slide.shapes.add_textbox(Inches(0.8), Inches(1.8), Inches(1.0), Inches(0.8))
+        qp = q_shape.text_frame.paragraphs[0]
+        qp.text = '\u201C'  # "
+        qp.font.size = Pt(72)
+        qp.font.color.rgb = GOLD
+        qp.font.bold = True
 
     elif layout == 'closing':
         pass
