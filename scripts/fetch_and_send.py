@@ -70,8 +70,9 @@ def generate_news_json(today_str: str) -> dict:
 
 まず、Web検索ツールを使って以下の情報をリアルタイムで収集してください：
 1. 「生成AI 最新ニュース」「AI 企業 発表」で検索し、直近1週間のB2B向けニュースを収集
-2. 「AI trending Twitter/X」「生成AI 話題 SNS」で検索し、X(Twitter)で話題のAIトピックを収集
-3. 「AI market stats 2026」「生成AI 市場 数字」で検索し、注目の統計データを収集
+2. 「Google AI」「Microsoft AI」「OpenAI」「Anthropic」「Meta AI」で検索し、ビッグテック企業のAI関連の重大ニュースを収集（新製品発表、人事異動、提携、規制対応、人員削減など）
+3. 「AI trending Twitter/X」「生成AI 話題 SNS」で検索し、X(Twitter)で話題のAIトピックを収集
+4. 「AI market stats 2026」「生成AI 市場 数字」で検索し、注目の統計データを収集
 
 収集した情報を基に、以下のJSON形式で出力してください。
 必ずJSON形式のみを出力してください（前後に説明文を付けないこと）：
@@ -86,6 +87,16 @@ def generate_news_json(today_str: str) -> dict:
       "what_happened": "何が起きた？（1〜2文で簡潔に）",
       "why_it_matters": "なぜ重要？（ビジネスへのインパクトを分かりやすく）",
       "how_to_use": "どう活かす？（B2Bマーケでの具体的なアクション）"
+    }}
+  ],
+  "bigtech_moves": [
+    {{
+      "company": "企業名（Google, Microsoft, OpenAI, Anthropic, Meta など）",
+      "title": "ニュースの見出し",
+      "source_url": "出典元の実際のURL",
+      "source_name": "出典元の名前",
+      "summary": "何が起きたか（2〜3文）",
+      "impact": "業界へのインパクト（1文）"
     }}
   ],
   "x_buzz": [
@@ -112,7 +123,7 @@ def generate_news_json(today_str: str) -> dict:
   }}
 }}
 
-b2b_newsは2〜3件、x_buzzは2〜3件、trendingは2〜3件にしてください。
+b2b_newsは2〜3件、bigtech_movesは2〜3件、x_buzzは2〜3件、trendingは2〜3件にしてください。
 source_urlは検索で見つけた実際のURLを記載してください。
 読者はマーケティング担当者なので、難しいAI用語は避けて、ビジネスパーソンに伝わる言葉で書いてください。"""
 
@@ -122,7 +133,7 @@ source_urlは検索で見つけた実際のURLを記載してください。
         return client.messages.create(
             model="claude-sonnet-4-5-20250929",
             max_tokens=4096,
-            tools=[{"type": "web_search_20250305"}],
+            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 10}],
             messages=[{"role": "user", "content": prompt}],
         )
 
@@ -143,9 +154,11 @@ source_urlは検索で見つけた実際のURLを記載してください。
 
     data = json.loads(raw)
     b2b_count = len(data.get("b2b_news", []))
+    bigtech_count = len(data.get("bigtech_moves", []))
     x_count = len(data.get("x_buzz", []))
     trend_count = len(data.get("trending", []))
-    print(f"[INFO] ニュース生成完了（B2B: {b2b_count}件, X/Twitter: {x_count}件, トレンド: {trend_count}件）")
+    print(f"[INFO] ニュース生成完了（B2B: {b2b_count}件, BigTech: {bigtech_count}件, "
+          f"X/Twitter: {x_count}件, トレンド: {trend_count}件）")
     return data
 
 
@@ -189,6 +202,42 @@ def build_html(data: dict, today_str: str) -> str:
               &#127919; どう活かす？</div>
             <div style="font-size:14px; color:#333; line-height:1.6;">{news['how_to_use']}</div>
           </div>{source_link}
+        </div>"""
+
+    # ビッグテック動向カード
+    bigtech_cards = ""
+    company_colors = {
+        "Google": "#4285f4", "Microsoft": "#00a4ef", "OpenAI": "#10a37f",
+        "Anthropic": "#d97706", "Meta": "#0668e1", "Apple": "#555555",
+        "Amazon": "#ff9900", "NVIDIA": "#76b900",
+    }
+    for move in data.get("bigtech_moves", []):
+        company = move.get("company", "")
+        color = company_colors.get(company, "#6c5ce7")
+        source_link = ""
+        if move.get("source_url"):
+            source_name = move.get("source_name", "Source")
+            source_link = f"""
+          <div style="margin-top:10px;">
+            <a href="{move['source_url']}" style="color:{color}; font-size:12px;
+               text-decoration:none; font-weight:600;"
+               target="_blank">&#128279; {source_name} &rarr;</a>
+          </div>"""
+
+        bigtech_cards += f"""
+        <div style="background:#fff; border-radius:12px; padding:20px; margin-bottom:12px;
+                    box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid {color};">
+          <div style="margin-bottom:10px;">
+            <span style="background:{color}; color:#fff; font-size:11px; font-weight:700;
+                         padding:3px 10px; border-radius:10px;">{company}</span>
+          </div>
+          <div style="font-size:16px; font-weight:700; color:#1a1a1a; margin-bottom:8px;">
+            {move['title']}
+          </div>
+          <div style="font-size:14px; color:#555; line-height:1.7; margin-bottom:6px;">
+            {move['summary']}</div>
+          <div style="font-size:13px; color:#e91e63; font-weight:600; line-height:1.5;">
+            &#9888;&#65039; {move.get('impact', '')}</div>{source_link}
         </div>"""
 
     # X/Twitter バズカード
@@ -266,10 +315,11 @@ def build_html(data: dict, today_str: str) -> str:
 
     # ニュース件数
     total_news = (len(data.get("b2b_news", []))
+                  + len(data.get("bigtech_moves", []))
                   + len(data.get("x_buzz", []))
                   + len(data.get("trending", [])))
 
-    # プレヘッダー（メール一覧のプレビューテキスト）
+    # プレヘッダー
     preheader = greeting[:80] if greeting else "今日の生成AIニュースをお届けします"
 
     return f"""<!DOCTYPE html>
@@ -282,7 +332,7 @@ def build_html(data: dict, today_str: str) -> str:
              font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Kaku Gothic ProN',
              'Noto Sans JP',sans-serif; color:#333;">
 
-  <!-- プレヘッダー（受信トレイのプレビューテキスト） -->
+  <!-- プレヘッダー -->
   <div style="display:none; max-height:0; overflow:hidden; mso-hide:all;">
     {preheader}
   </div>
@@ -319,7 +369,19 @@ def build_html(data: dict, today_str: str) -> str:
       {b2b_cards}
     </div>
 
-    <!-- セクション2: X/Twitter バズ -->
+    <!-- セクション2: ビッグテック動向 -->
+    <div style="margin-bottom:28px;">
+      <div style="margin-bottom:16px;">
+        <div style="background:#6c5ce7; color:#fff; font-size:12px; font-weight:700;
+                    padding:6px 14px; border-radius:20px; letter-spacing:0.5px; display:inline-block;">
+          &#127970; BIG TECH WATCH</div>
+      </div>
+      <h2 style="margin:0 0 16px; font-size:18px; color:#1a1a1a;">
+        主要企業の注目ニュース</h2>
+      {bigtech_cards}
+    </div>
+
+    <!-- セクション3: X/Twitter バズ -->
     <div style="margin-bottom:28px;">
       <div style="margin-bottom:16px;">
         <div style="background:#1d9bf0; color:#fff; font-size:12px; font-weight:700;
@@ -331,7 +393,7 @@ def build_html(data: dict, today_str: str) -> str:
       {x_buzz_items}
     </div>
 
-    <!-- セクション3: トレンド -->
+    <!-- セクション4: トレンド -->
     <div style="margin-bottom:28px;">
       <div style="margin-bottom:16px;">
         <div style="background:#e91e63; color:#fff; font-size:12px; font-weight:700;
@@ -343,7 +405,7 @@ def build_html(data: dict, today_str: str) -> str:
       {trending_items}
     </div>
 
-    <!-- セクション4: 今日のアクション -->
+    <!-- セクション5: 今日のアクション -->
     <div style="background:linear-gradient(135deg,#ff6b6b,#ffa502); border-radius:16px;
                 padding:24px 28px; margin-bottom:28px; color:#fff;">
       <div style="font-size:12px; font-weight:700; letter-spacing:1px; margin-bottom:8px; opacity:0.9;">
