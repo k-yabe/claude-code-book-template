@@ -1349,7 +1349,15 @@
         const srcNum = LAYOUT_TO_TEMPLATE_SLIDE[slide.layout] || 7;
         let xml = slideCache[srcNum] || slideCache[1] || '';
         const EMPTY_RELS = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
-        let rels = slideRelsCache[srcNum] || slideRelsCache[1] || EMPTY_RELS;
+        let rels = (slideRelsCache[srcNum] || slideRelsCache[1] || EMPTY_RELS)
+          // テンプレートの元notesSlide参照を除去（削除済みファイルへの参照を防ぐ）
+          .replace(/<Relationship[^>]+notesSlide[^>]*\/>/g, '');
+
+        // テンプレートのLorem ipsumプレースホルダーテキストをクリア
+        xml = xml.replace(/<a:t>Sed ut[\s\S]*?<\/a:t>/g, '<a:t></a:t>');
+        xml = xml.replace(/<a:t>Lorem ipsum[\s\S]*?<\/a:t>/g, '<a:t></a:t>');
+        xml = xml.replace(/<a:t>Nemo enim[\s\S]*?<\/a:t>/g, '<a:t></a:t>');
+        xml = xml.replace(/<a:t>Quis autem[\s\S]*?<\/a:t>/g, '<a:t></a:t>');
 
         // コンテンツを適用（xmlとrelsを両方更新）
         const result = await applySlideContent(xml, rels, slide, zip, imgCounter);
