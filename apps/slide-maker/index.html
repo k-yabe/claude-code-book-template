@@ -140,31 +140,23 @@
     .slide-num { position: absolute; top: 6px; left: 6px; background: rgba(0,31,51,0.7); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; z-index: 2; }
     .slide-layout-label { position: absolute; bottom: 5px; right: 5px; font-size: 0.58rem; font-weight: 700; background: rgba(0,31,51,0.62); color: rgba(255,255,255,0.9); padding: 1px 5px; z-index: 2; pointer-events: none; }
 
-    /* スライドプレビュー（テンプレートPNG背景 + テキストオーバーレイ） */
-    .slide-inner { width: 100%; height: 100%; background-size: cover; background-position: center; position: relative; font-family: 'Meiryo UI', 'Segoe UI', sans-serif; }
-    .slide-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 7%; }
-    /* カバー (slide1) */
-    .slide-cover .s-title { font-size: 1.1em; font-weight: 700; color: #001f33; margin-top: 12%; }
-    .slide-cover .s-subtitle { font-size: 0.55em; color: #ffb81c; margin-top: 3px; }
-    .slide-cover .s-date { font-size: 0.45em; color: #8a9bb0; margin-top: 8%; }
-    /* コンテンツ系 (slide7/8/10) */
-    .slide-white .s-title { font-size: 0.8em; font-weight: 700; color: #001f33; margin-top: 1%; }
-    .slide-white .s-subtitle { font-size: 0.5em; color: #ffb81c; margin-top: 1px; }
-    .slide-white .s-body { font-size: 0.5em; color: #2d3436; line-height: 1.6; margin-top: 4%; white-space: pre-wrap; }
-    .slide-white .s-body-area { flex: 1; }
-    .slide-white .s-header { }
-    /* チャプター (slide3) */
-    .slide-chapter .s-num { font-size: 0.5em; color: #ffb81c; margin-top: 32%; margin-left: 3%; }
-    .slide-chapter .s-title { font-size: 0.85em; font-weight: 700; color: #001f33; margin-left: 5%; }
-    /* アジェンダ (slide5) */
-    .slide-agenda .s-title { font-size: 0.7em; font-weight: 700; color: #001f33; }
-    .slide-agenda .s-item { font-size: 0.5em; color: #2d3436; padding: 2px 0; }
-    /* クロージング (slide15) */
-    .slide-closing { justify-content: center; align-items: center; }
-    .slide-closing .s-msg { font-size: 0.8em; font-weight: 700; color: #001f33; text-align: center; margin-top: 15%; }
-    /* テーブル */
-    .slide-table { width: 90%; border-collapse: collapse; margin: 4% auto 0; }
-    .slide-table th, .slide-table td { font-size: 0.42em; padding: 3px 5px; }
+    /* スライドプレビューカード */
+    .slide-card { width: 100%; height: 100%; display: flex; flex-direction: column; background: #fff; font-family: 'Meiryo UI', 'Segoe UI', sans-serif; overflow: hidden; }
+    .slide-card-header { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #f5f7fa; border-bottom: 1px solid #e8ecf0; }
+    .slide-card-tpl { width: 56px; height: 32px; background-size: cover; background-position: center; flex-shrink: 0; border: 1px solid #e0e4e8; }
+    .slide-card-layout { font-size: 0.6em; font-weight: 700; color: #8a9bb0; }
+    .slide-card-title { font-size: 0.72em; font-weight: 700; color: #001f33; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .slide-card-body { flex: 1; padding: 8px 10px; overflow: hidden; }
+    .slide-card-body .s-text { font-size: 0.58em; color: #4a5568; line-height: 1.5; white-space: pre-wrap; }
+    .slide-card-body .s-meta { font-size: 0.5em; color: #8a9bb0; margin-top: 4px; }
+    .slide-card-body .s-items { font-size: 0.55em; color: #4a5568; }
+    .slide-card-body .s-items div { padding: 1px 0; }
+    .slide-card-boxes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; padding: 0 10px 6px; }
+    .slide-card-box { background: #f5f7fa; padding: 4px 6px; }
+    .slide-card-box .bx-h { font-size: 0.5em; font-weight: 700; color: #001f33; }
+    .slide-card-box .bx-b { font-size: 0.42em; color: #8a9bb0; }
+    .slide-table { width: calc(100% - 20px); border-collapse: collapse; margin: 0 10px; }
+    .slide-table th, .slide-table td { font-size: 0.45em; padding: 3px 5px; }
     .slide-table th { background: #001f33; color: #fff; font-weight: 600; }
     .slide-table td { border-bottom: 1px solid #e8ecf0; color: #2d3436; }
 
@@ -1063,42 +1055,46 @@
 
     function esc(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-    // テンプレートスライド番号→プレビューPNG
-    const LAYOUT_TO_PREVIEW = {
-      'cover':1, 'agenda':5, 'chapter':3, 'content':7, 'two-column':10,
-      'content-with-image':8, 'content-with-chart':8, 'content-with-flow':8,
-      'sixbox':9, 'comparison':12, 'quote':13, 'closing':15,
-    };
-
     function buildSlideHtml(slide) {
-      const bgNum = LAYOUT_TO_PREVIEW[slide.layout] || 7;
-      const bg = `background-image:url('templates/previews/slide${bgNum}.png')`;
-      const ov = '<div class="slide-overlay">';
+      const tplNum = LAYOUT_TO_TEMPLATE_SLIDE[slide.layout] || 7;
+      const tplBg = `background-image:url('templates/previews/slide${tplNum}.png')`;
+      const layoutLabel = LAYOUT_NAMES[slide.layout] || slide.layout;
+      const hdr = `<div class="slide-card-header"><div class="slide-card-tpl" style="${tplBg}"></div><div class="slide-card-layout">${esc(layoutLabel)}</div><div class="slide-card-title">${esc(slide.title || slide.message || '')}</div></div>`;
 
+      let body = '';
       switch (slide.layout) {
         case 'cover':
-          return `<div class="slide-inner slide-cover" style="${bg}">${ov}<div class="s-title">${esc(slide.title)}</div><div class="s-subtitle">${esc(slide.subtitle || '')}</div><div class="s-date">${esc(slide.date || '')}</div></div></div>`;
+          body = `<div class="s-text">${esc(slide.subtitle || '')}</div><div class="s-meta">${esc(slide.date || '')}</div>`;
+          break;
         case 'agenda':
-          return `<div class="slide-inner slide-agenda" style="${bg}">${ov}<div class="s-title">${esc(slide.title || 'Agenda')}</div>${(slide.items || []).map((it,i) => `<div class="s-item">${i+1}. ${esc(it)}</div>`).join('')}</div></div>`;
+          body = `<div class="s-items">${(slide.items||[]).map((it,i) => `<div>${i+1}. ${esc(it)}</div>`).join('')}</div>`;
+          break;
         case 'chapter':
-          return `<div class="slide-inner slide-chapter" style="${bg}">${ov}<div class="s-num">${esc(slide.number || '')}</div><div class="s-title">${esc(slide.title)}</div></div></div>`;
+          body = `<div class="s-meta">CHAPTER ${esc(slide.number || '')}</div>`;
+          break;
         case 'two-column':
-          return `<div class="slide-inner slide-white" style="${bg}">${ov}<div class="s-header"><div class="s-title">${esc(slide.title)}</div></div><div class="s-body-area" style="display:flex;gap:8px;"><div style="flex:1"><div class="s-body">${esc(slide.leftBody||'')}</div></div><div style="flex:1"><div class="s-body">${esc(slide.rightBody||'')}</div></div></div></div></div>`;
+          body = `<div style="display:flex;gap:8px;"><div style="flex:1"><div class="s-text">${esc(slide.leftBody || '')}</div></div><div style="flex:1;border-left:1px solid #e8ecf0;padding-left:8px"><div class="s-text">${esc(slide.rightBody || '')}</div></div></div>`;
+          break;
         case 'content': case 'content-with-image': case 'content-with-chart': case 'content-with-flow':
-          const sub = slide.chart ? `<div style="font-size:0.42em;color:#8a9bb0;margin-top:4px;">📊 ${esc(slide.chart.title||'')}</div>` : slide.flow ? `<div style="font-size:0.42em;color:#8a9bb0;margin-top:4px;">→ ${(slide.flow.steps||[]).join(' → ')}</div>` : '';
-          return `<div class="slide-inner slide-white" style="${bg}">${ov}<div class="s-header"><div class="s-title">${esc(slide.title)}</div></div><div class="s-body">${esc(slide.body||'')}</div>${sub}</div></div>`;
+          body = `<div class="s-text">${esc(slide.body || '')}</div>`;
+          if (slide.chart) body += `<div class="s-meta">📊 ${esc(slide.chart.title||'')} (${esc(slide.chart.type||'bar')})</div>`;
+          if (slide.flow) body += `<div class="s-meta">→ ${(slide.flow.steps||[]).join(' → ')}</div>`;
+          break;
         case 'sixbox':
-          return `<div class="slide-inner slide-white" style="${bg}">${ov}<div class="s-title" style="font-size:0.7em;font-weight:700;color:#001f33;">${esc(slide.title)}</div></div></div>`;
-        case 'quote':
-          return `<div class="slide-inner slide-white" style="${bg}">${ov}<div style="margin-top:20%;text-align:center;"><div style="font-size:0.6em;color:#2d3436;font-style:italic;">"${esc(slide.body||'')}"</div><div style="font-size:0.45em;color:#8a9bb0;margin-top:6px;">${esc(slide.speaker||'')}</div></div></div></div>`;
+          return `<div class="slide-card">${hdr}<div class="slide-card-body"><div class="s-text" style="margin-bottom:4px">${esc(slide.title||'')}</div></div><div class="slide-card-boxes">${(slide.boxes||[]).slice(0,6).map(b => `<div class="slide-card-box"><div class="bx-h">${esc(b.heading||'')}</div><div class="bx-b">${esc(b.body||'')}</div></div>`).join('')}</div></div>`;
         case 'comparison':
           const tb = slide.table || {headers:[],rows:[]};
-          return `<div class="slide-inner slide-white" style="${bg}">${ov}<div class="s-header"><div class="s-title">${esc(slide.title)}</div></div><table class="slide-table"><tr>${(tb.headers||[]).map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${(tb.rows||[]).map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div></div>`;
+          return `<div class="slide-card">${hdr}<div class="slide-card-body"></div><table class="slide-table"><tr>${(tb.headers||[]).map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${(tb.rows||[]).map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
+        case 'quote':
+          body = `<div class="s-text" style="font-style:italic">"${esc(slide.body || '')}"</div><div class="s-meta">${esc(slide.speaker || '')}</div>`;
+          break;
         case 'closing':
-          return `<div class="slide-inner slide-closing" style="${bg}">${ov}<div class="s-msg">${esc(slide.message||'Thank you')}</div></div></div>`;
+          body = `<div class="s-text" style="text-align:center;font-weight:700">${esc(slide.message || '')}</div>`;
+          break;
         default:
-          return `<div class="slide-inner slide-white" style="${bg}">${ov}<div class="s-title" style="font-size:0.7em;color:#001f33;">${esc(slide.title||'')}</div></div></div>`;
+          body = '';
       }
+      return `<div class="slide-card">${hdr}<div class="slide-card-body">${body}</div></div>`;
     }
 
     // ===== ユーティリティ =====
