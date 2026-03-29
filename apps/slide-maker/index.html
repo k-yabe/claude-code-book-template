@@ -1127,8 +1127,22 @@
       const btn = document.getElementById('btn-download');
       btn.disabled = true; btn.textContent = '⏳ PPTXを生成中…';
       try {
-        const pptx = await buildPptx(currentSlides, selectedTemplate);
-        const blob = await pptx.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+        // Python API (python-pptx) でPPTX生成
+        const res = await fetch('/api/slide-export', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slides: currentSlides, template: selectedTemplate }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || `PPTX生成エラー (${res.status})`);
+        }
+        const json = await res.json();
+        // base64 → blob → ダウンロード
+        const bin = atob(json.pptx);
+        const arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        const blob = new Blob([arr], { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
