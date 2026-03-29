@@ -10,20 +10,18 @@ GitHub Actions (cron: 毎朝7時JST)
     ├─ Claude API (claude-sonnet-4-6)
     │   └─ ニュース生成・まとめ
     │
-    └─ SendGrid API
+    └─ Gmail SMTP
         └─ HTML メール送信
 ```
 
 ## セットアップ手順
 
-### 1. SendGrid アカウントの準備
+### 1. Gmail アプリパスワードの発行
 
-1. [SendGrid](https://sendgrid.com/) にアカウントを作成（無料プランで100通/日まで送信可能）
-2. **Settings > API Keys** から API キーを作成
-   - 権限は「Mail Send」のみで OK
-3. **Settings > Sender Authentication** で送信元メールアドレスを認証
-   - Single Sender Verification が簡単（個人利用向け）
-   - 認証メールが届くのでリンクをクリックして承認
+1. Googleアカウントで **2段階認証を有効化**（未設定の場合）
+2. [アプリパスワード](https://myaccount.google.com/apppasswords) のページへアクセス
+3. アプリ名に「AI日報」など任意の名前を入力して「作成」
+4. 表示される16文字のパスワードを控えておく（スペースは除去して使用）
 
 ### 2. Anthropic API キーの取得
 
@@ -38,9 +36,9 @@ GitHub Actions (cron: 毎朝7時JST)
 | Secret名 | 値 | 説明 |
 |-----------|-----|------|
 | `ANTHROPIC_API_KEY` | `sk-ant-...` | Anthropic の API キー |
-| `SENDGRID_API_KEY` | `SG....` | SendGrid の API キー |
+| `GMAIL_ADDRESS` | `you@gmail.com` | 送信元Gmailアドレス |
+| `GMAIL_APP_PASSWORD` | `abcdefghijklmnop` | Gmailアプリパスワード（16文字） |
 | `TO_EMAIL` | `you@example.com` | 配信先メールアドレス |
-| `FROM_EMAIL` | `news@example.com` | 送信元メールアドレス（SendGridで認証済みのもの） |
 
 ### 4. 動作確認
 
@@ -86,7 +84,7 @@ scripts/
 |----------|------|
 | GitHub Actions | 無料枠（2,000分/月）で十分 |
 | Claude API | 1回あたり約$0.01〜0.03（sonnet） |
-| SendGrid | 無料プラン（100通/日） |
+| Gmail SMTP | 無料（1日500通まで） |
 
 月額コストは **約$1以下** で運用可能です。
 
@@ -94,7 +92,7 @@ scripts/
 
 ### メールが届かない場合
 - GitHub Actions のログでエラーを確認
-- SendGrid の送信元アドレスが認証済みか確認
+- Gmailの2段階認証とアプリパスワードが有効か確認
 - 迷惑メールフォルダを確認
 
 ### Claude API エラーの場合

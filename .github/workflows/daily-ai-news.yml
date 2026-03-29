@@ -26,7 +26,7 @@ jobs:
       - name: AI日報を生成して送信
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
-          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
         run: python scripts/fetch_and_send.py
