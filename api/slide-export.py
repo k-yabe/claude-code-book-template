@@ -1,7 +1,6 @@
 """
 Vercel Python Serverless Function: PPTX生成（python-pptx add_slide方式）
-スライドJSONを受け取り、テンプレートのslide_layoutを使って新しいスライドを追加。
-テンプレートデザインが正しく適用される。
+テンプレートのslide_layoutを使い、テキスト + ネイティブチャート + テーブル + フロー図形を生成。
 """
 from http.server import BaseHTTPRequestHandler
 import json
@@ -9,24 +8,35 @@ import os
 import io
 import base64
 from pptx import Presentation
+from pptx.util import Inches, Pt, Emu
+from pptx.enum.chart import XL_CHART_TYPE
+from pptx.enum.text import PP_ALIGN
+from pptx.dml.color import RGBColor
+from pptx.chart.data import CategoryChartData
 
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'apps', 'slide-maker', 'templates')
 
-# 用途 → テンプレートのslide_layout名
 LAYOUT_NAMES = {
     'cover': 'Wave in the corners',
     'chapter': 'Chapter - Mesh Gold',
     'agenda': 'Agenda - Computer',
     'content': 'Title, Subtitle and one Paragrah',
     'two-column': 'Two Paragraphs with Blue Line',
-    'content-with-image': 'Text left - Picture Right',
-    'content-with-chart': 'Text left - Picture Right',
-    'content-with-flow': 'Text left - Picture Right',
+    'content-with-image': 'Title, Subtitle and one Paragrah',
+    'content-with-chart': 'Title, Subtitle and one Paragrah',
+    'content-with-flow': 'Title, Subtitle and one Paragrah',
     'sixbox': 'Six Text Boxes',
-    'comparison': 'Title and SubTitle one Mesh',
+    'comparison': 'Title, Subtitle and one Paragrah',
     'quote': '1_Quote Content with animation',
     'closing': 'Thank you',
 }
+
+NAVY = RGBColor(0x00, 0x1F, 0x33)
+GOLD = RGBColor(0xFF, 0xB8, 0x1C)
+CYAN = RGBColor(0x00, 0xBF, 0xD6)
+GRAY = RGBColor(0x8A, 0x9B, 0xB0)
+WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+CHART_COLORS = [NAVY, GOLD, CYAN, GRAY, RGBColor(0x4A, 0x55, 0x68), RGBColor(0xE6, 0x7E, 0x22)]
 
 
 def _set(ph_map, idx, text):
@@ -35,6 +45,125 @@ def _set(ph_map, idx, text):
             ph_map[idx].text = str(text) if text else ''
         except Exception:
             pass
+
+
+def add_chart(slide, chart_data):
+    """スライドにネイティブPPTXチャートを追加"""
+    ctype = chart_data.get('type', 'bar')
+    chart_type_map = {
+        'bar': XL_CHART_TYPE.COLUMN_CLUSTERED,
+        'line': XL_CHART_TYPE.LINE_MARKERS,
+        'pie': XL_CHART_TYPE.PIE,
+    }
+    xl_type = chart_type_map.get(ctype, XL_CHART_TYPE.COLUMN_CLUSTERED)
+
+    cd = CategoryChartData()
+    cd.categories = chart_data.get('labels', [])
+    values = chart_data.get('data', [])
+    # 数値変換
+    num_values = []
+    for v in values:
+        try:
+            num_values.append(float(v))
+        except (ValueError, TypeError):
+            num_values.append(0)
+    cd.add_series(chart_data.get('title', ''), num_values)
+
+    # チャート位置: スライド下半分
+    x, y = Inches(0.8), Inches(2.8)
+    cx, cy = Inches(8.4), Inches(4.0)
+    chart_frame = slide.shapes.add_chart(xl_type, x, y, cx, cy, cd)
+    chart = chart_frame.chart
+
+    # スタイリング
+    chart.has_legend = (ctype == 'pie')
+    if chart.series:
+        series = chart.series[0]
+        if ctype != 'pie':
+            series.format.fill.solid()
+            series.format.fill.fore_color.rgb = NAVY
+        else:
+            for i, point in enumerate(series.points):
+                point.format.fill.solid()
+                point.format.fill.fore_color.rgb = CHART_COLORS[i % len(CHART_COLORS)]
+
+    # 単位ラベル
+    unit = chart_data.get('unit', '')
+    if unit and hasattr(chart, 'value_axis'):
+        chart.value_axis.axis_title.text_frame.text = unit
+
+
+def add_table(slide, table_data):
+    """スライドにネイティブPPTXテーブルを追加"""
+    headers = table_data.get('headers', [])
+    rows_data = table_data.get('rows', [])
+    if not headers:
+        return
+
+    cols = len(headers)
+    row_count = 1 + len(rows_data)
+    x, y = Inches(0.8), Inches(2.5)
+    cx, cy = Inches(8.4), Inches(0.5 * row_count)
+    table_shape = slide.shapes.add_table(row_count, cols, x, y, cx, cy)
+    table = table_shape.table
+
+    # ヘッダー行
+    for j, h in enumerate(headers):
+        cell = table.cell(0, j)
+        cell.text = str(h)
+        for para in cell.text_frame.paragraphs:
+            para.font.size = Pt(11)
+            para.font.bold = True
+            para.font.color.rgb = WHITE
+        cell.fill.solid()
+        cell.fill.fore_color.rgb = NAVY
+
+    # データ行
+    for i, row in enumerate(rows_data):
+        for j, val in enumerate(row):
+            if j < cols:
+                cell = table.cell(i + 1, j)
+                cell.text = str(val)
+                for para in cell.text_frame.paragraphs:
+                    para.font.size = Pt(10)
+                    para.font.color.rgb = NAVY
+
+
+def add_flow(slide, steps):
+    """スライドにフロー図形（矢形＋矢印）を追加"""
+    if not steps:
+        return
+    n = len(steps)
+    total_w = Inches(8.4)
+    box_w = int(total_w / n * 0.7)
+    gap = int(total_w / n * 0.3)
+    box_h = Inches(0.9)
+    start_x = Inches(0.8)
+    y = Inches(4.0)
+
+    for i, step in enumerate(steps):
+        x = start_x + i * (box_w + gap)
+        # ボックス
+        shape = slide.shapes.add_shape(1, x, y, box_w, box_h)  # 1 = rectangle
+        shape.fill.solid()
+        shape.fill.fore_color.rgb = NAVY
+        shape.line.fill.background()
+        tf = shape.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        p.text = str(step)
+        p.font.size = Pt(10)
+        p.font.color.rgb = WHITE
+        p.font.bold = True
+        p.alignment = PP_ALIGN.CENTER
+
+        # 矢印（最後以外）
+        if i < n - 1:
+            ax = x + box_w
+            arrow = slide.shapes.add_shape(13, ax, y + box_h // 3, gap, box_h // 3)  # 13 = right arrow
+            arrow.fill.solid()
+            arrow.fill.fore_color.rgb = GOLD
+            arrow.line.fill.background()
 
 
 def apply_data(slide, layout, data):
@@ -67,10 +196,24 @@ def apply_data(slide, layout, data):
         _set(ph_map, 32, data.get('rightBody', ''))
         _set(ph_map, 33, '')
 
-    elif layout in ('content-with-image', 'content-with-chart', 'content-with-flow'):
+    elif layout in ('content-with-image', 'content-with-chart'):
+        _set(ph_map, 29, data.get('title', ''))
+        _set(ph_map, 30, '')
+        body = data.get('body', '')
+        _set(ph_map, 32, body)
+        # ネイティブチャート追加
+        chart = data.get('chart')
+        if chart and chart.get('labels') and chart.get('data'):
+            add_chart(slide, chart)
+
+    elif layout == 'content-with-flow':
         _set(ph_map, 29, data.get('title', ''))
         _set(ph_map, 30, '')
         _set(ph_map, 32, data.get('body', ''))
+        # フロー図形追加
+        flow = data.get('flow')
+        if flow and flow.get('steps'):
+            add_flow(slide, flow['steps'])
 
     elif layout == 'sixbox':
         _set(ph_map, 30, data.get('title', ''))
@@ -84,17 +227,13 @@ def apply_data(slide, layout, data):
             _set(ph_map, 23 + b, str(b + 1) if box.get('heading') else '')
 
     elif layout == 'comparison':
-        _set(ph_map, 30, data.get('title', ''))
-        _set(ph_map, 31, '')
-        # テーブルデータはcomparison layoutでは30,31のみ
-        # テーブルをテキストとして表示
-        table = data.get('table', {})
-        headers = table.get('headers', [])
-        rows = table.get('rows', [])
-        table_text = ' | '.join(headers) + '\n'
-        for row in rows:
-            table_text += ' | '.join(str(c) for c in row) + '\n'
-        _set(ph_map, 31, table_text.strip())
+        _set(ph_map, 29, data.get('title', ''))
+        _set(ph_map, 30, '')
+        _set(ph_map, 32, '')
+        # ネイティブテーブル追加
+        table = data.get('table')
+        if table and table.get('headers'):
+            add_table(slide, table)
 
     elif layout == 'quote':
         speaker = data.get('speaker', '')
@@ -102,11 +241,10 @@ def apply_data(slide, layout, data):
         _set(ph_map, 31, data.get('body', ''))
 
     elif layout == 'closing':
-        pass  # Thank you レイアウトにはplaceholderがない
+        pass
 
 
 def build_layout_map(prs):
-    """全slide_masterからlayout名→layoutオブジェクトのマップを構築"""
     layout_map = {}
     for master in prs.slide_masters:
         for sl in master.slide_layouts:
@@ -143,7 +281,6 @@ class handler(BaseHTTPRequestHandler):
                     prs.part.drop_rel(rId)
                 sldIdLst.remove(sldId)
 
-            # 新しいスライドを追加
             for sd in slides_data:
                 ly = sd.get('layout', 'content')
                 layout_name = LAYOUT_NAMES.get(ly, 'Title, Subtitle and one Paragrah')
@@ -156,7 +293,6 @@ class handler(BaseHTTPRequestHandler):
                 slide = prs.slides.add_slide(layout)
                 apply_data(slide, ly, sd)
 
-            # PPTXをbase64エンコードして返す
             buffer = io.BytesIO()
             prs.save(buffer)
             pptx_b64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
