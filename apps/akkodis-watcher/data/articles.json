@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-03-28T23:22:52Z",
+  "last_scraped": "2026-03-29T23:29:06Z",
   "articles": [
     {
       "id": "federated-learning-critical-industries",
@@ -10,6 +10,16 @@
       "first_seen": "2026-03-14T12:15:18Z",
       "published_date": "2026-03-13T00:00:00Z",
       "summary_ja": "防衛やエネルギー、医療といった機密性の高い産業では、大量のセンサーデータが分散した場所で生成されるため、従来のクラウドベースのAI学習が難しい課題がありますが、フェデレーテッドラーニングなら生データを移動させず各拠点でローカル学習し、モデルの更新情報だけを共有することで、プライバシーと規制要件を守りながら統合的なAIモデルを構築できます。オフショア施設では予防保全モデルで設備の信頼性を高め、医療では患者データを保護しながら診断精度を向上させるなど、各産業で実際の成果が出ており、データセキュリティの制約がある環境でも運用効率を改善する手段として機能しています。この技術は各拠点で独立したままのデータを活かし、プライバシー確保と業務遂行を両立させることで、組織全体として回復力のある知能システムを実現しているのです。"
+    },
+    {
+      "id": "generative-ai-airlines-optimization-copy",
+      "title": "How Generative AI Enhances Airline Efficiency in Cargo and MRO",
+      "url": "https://www.akkodis.com/blog/articles/generative-ai-airlines-optimization-copy",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-29T23:22:23Z",
+      "published_date": null,
+      "summary_ja": "航空会社の荷物管理や部品保管の最適化にAIやブロックチェーン技術を導入することで、需要予測の精度が向上し、本当に必要な部品だけを必要な時期に配送できるようになります。これにより、余分な在庫を減らしながら、高利益の商品をより多く輸送する貨物スペースを確保し、物流コストを大幅に削減することが可能です。こうした先進技術を活用する航空会社は、運用効率と収益性の面で業界内で競争力を持つようになるでしょう。"
     },
     {
       "id": "generative-ai-airlines-optimization",
@@ -50,6 +60,15 @@
       "first_seen": "2026-03-14T12:15:21Z",
       "published_date": "2026-03-13T00:00:00Z",
       "summary_ja": "従来、AIは大規模なデータセンターに集約されていましたが、エッジAIと呼ばれる新しい手法により、データが生成される場所の近くでAIの処理を行うことが可能になりました。フェデレーテッドラーニングはこの概念をさらに進め、個々のデバイスでAIモデルの学習を行い、学習結果のみを共有することで、データを一箇所に集めることなくプライバシーを守りながら複数の情報源から学習することができます。このアプローチにより、データ保護規制への対応、処理速度の向上、そして多くの分散ソースからのスケーラブルな学習が同時に実現され、組織が責任あるAI活用を推進できるようになります。"
+    },
+    {
+      "id": "from-digital-to-physical-ai",
+      "title": "From Digital to Physical AI: When AI Leaves the Screen",
+      "url": "https://www.akkodis.com/blog/articles/from-digital-to-physical-ai",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-29T23:23:03Z",
+      "published_date": null
     },
     {
       "id": "ask-the-expert-responsible-ai-eu-ai-act",
@@ -122,14 +141,33 @@
       "summary_ja": "NVIDIA GTC 2026ではAIインフラの大規模な構築が加速することが明らかになり、同社のBlackwellとVera Rubin プラットフォームで1兆ドル規模の受注が見込まれています。Vera Rubin は複数のチップを統合した新型スーパーコンピュータで、自律的に動作し続けるAIエージェント向けに設計されており、2027年から本格稼働する予定です。同時に発表されたOpenClawはエンタープライズ向けのAIエージェント運用プラットフォームとなり、自動車の自動運転やロボット技術などの産業応用が急速に進展することで、ソフトウェア検証やシステム統合といった複雑な技術課題への対応が企業に求められるようになります。"
     },
     {
-      "id": "driving-innovation-and-engineering-a-smarter-future-for-all",
-      "title": "Driving Innovation and Engineering a Smarter Future for All",
-      "url": "https://www.akkodis.com/blog/articles/driving-innovation-and-engineering-a-smarter-future-for-all",
+      "id": "ai-career-growth-curiosity",
+      "title": "Stay Ahead in the Age of Intelligence: 3 Career Tips from Joshua Morley",
+      "url": "https://www.akkodis.com/blog/articles/ai-career-growth-curiosity",
       "source_id": "blog",
       "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:42Z",
-      "published_date": "2026-02-27T00:00:00Z",
-      "summary_ja": "Akkodisグループは、AI技術を単なる業務効率化の手段ではなく、人々の生活を根本的に変えるための力として位置づけており、AIの責任ある活用に力を入れています。同社のAI責任者であるジョシュア・モーレイ氏は、ビジネスリーダーと協力して従業員の充実した職場環境を作ることと、倫理的で透明性のある信頼できるAIシステムの構築が重要だと述べています。Akkodisは、個人の関心や情熱をAIキャリアの原動力とし、社会に良い影響をもたらす革新的なAI技術を通じて、より良い未来を一緒に作っていくことを求めています。"
+      "first_seen": "2026-03-29T23:24:03Z",
+      "published_date": null
+    },
+    {
+      "id": "why-most-ai-pilots-fail",
+      "title": "Why Most AI Pilots Fail: Real Constraints To AI Scale",
+      "url": "https://www.akkodis.com/blog/articles/why-most-ai-pilots-fail",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-29T23:25:15Z",
+      "published_date": null,
+      "summary_ja": "# 要約\n\nAI導入が失敗する理由は技術の性能ではなく、組織の運営体制にあります。パイロット段階では小さなチームが限定的な条件下で成功を収めますが、スケーリング時には企業全体に存在する古いシステム、散らばったデータ、不明確な承認フローといった構造的な問題が浮き彫りになり、展開が停滞してしまいます。多くの企業はより優れたモデルを導入することが解決策だと考えていますが、実は根本的な問題はデータの統一性、意思決定権の明確化、部門を超えた調整の仕組みにあります。成功している企業は、AI導入を急ぐのではなく、まずデータと業務プロセスの基盤を整備した上でAIを組み込む方針を取っており、その結果として段階的な導入でも着実に本番運用まで進められています。"
+    },
+    {
+      "id": "ai-sports-performance-rugby",
+      "title": "Stade Toulousain x Akkodis: Where AI Powers Performance",
+      "url": "https://www.akkodis.com/blog/articles/ai-sports-performance-rugby",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-29T23:25:50Z",
+      "published_date": null,
+      "summary_ja": "Akkodis IntelligenceはラグビーのStade Toulousainと協力し、AIとデータ分析を活用してトレーニング中の選手の動きや力の入り方を細かく測定し、目に見えない改善点を発見しています。スクラムマシンに搭載したセンサーでは力の分散や衝撃を正確に捉え、怪我リスクの低減と技術向上に役立てています。試合中は低遅延のデータ処理により、選手のワークロード管理や動きの効率性をリアルタイムで分析し、人間の判断と経験をサポートする形で高いパフォーマンスを実現しています。"
     },
     {
       "id": "digital-learning-and-immersive-solutions",
@@ -180,6 +218,16 @@
       "first_seen": "2026-03-14T12:15:38Z",
       "published_date": "2026-03-03T00:00:00Z",
       "summary_ja": "衛星の打ち上げ前には、振動試験や熱真空試験など複数の環境テストを実施して、打ち上げ時の負荷や宇宙空間での条件に耐えられるか厳密に確認する必要があります。AIT（組立・統合・試験）マネージャーのルカ氏は、機械部品から電気系統、ソフトウェアまで異なる分野の専門家チームと連携しながら、個別の部品を一つの完成した衛星へと統合し、信頼性を保証しています。商業衛星コンステレーションの急速な成長に伴い、衛星の統合・検証プロセスをより効率的で標準化されたものにすることが、業界全体の課題となっています。"
+    },
+    {
+      "id": "software-development-ai-careers",
+      "title": "Innovate, Code, Lead: A Career in Software Development",
+      "url": "https://www.akkodis.com/blog/articles/software-development-ai-careers",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-29T23:27:07Z",
+      "published_date": null,
+      "summary_ja": "Elena は個人用コンピュータでの初心者時代から現在のシニアコンサルタントへと成長し、手を動かしながらコーディングを学び、チームメンバーの調整を通じてクライアントのニーズに応えるソフトウェア開発に携わっています。Akkodis では AI 技術を実際のプロジェクトに組み込むことで、プロセス自動化から複雑なプロジェクト管理まで様々な課題に対応し、効率性と実質的なインパクトの向上を実現しています。多様なバックグラウンドを持つチーム内での協働や、研修・メンターシップ・新技術への露出機会を通じて、ソフトウェア開発の専門知識を深め、新しいイニシアティブをリードできるキャリアパスが形成されています。"
     },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
@@ -406,16 +454,6 @@
       "summary_ja": "アッコディスは、文書処理の自動化を手がけるフランス企業向けにセールスフォースの脱炭素クラウドソリューションを導入し、企業全体の9つの事業部門から排出量データを一元管理できるようにしました。廃棄物管理の専用モジュールを開発して正確な炭素排出量の指標を数値化し、リアルタイムで監視できるダッシュボードを構築することで、サステナビリティ報告書の信頼性を高めました。多言語・多通貨対応による複雑な制約を排除しながら、カーボンフットプリントを削減し財務報告をより効率的に行える仕組みを整備しました。"
     },
     {
-      "id": "zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
-      "title": "View\nkeyboard_arrow_right",
-      "url": "https://www.akkodis.com/en/blog/client-success/zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-25T23:25:43Z",
-      "published_date": null,
-      "summary_ja": "Akkodisは40年以上の業界経験を持つ4万人以上のエンジニアと、世界30ヶ国のネットワークを活かして、企業のデジタル変革と技術課題の解決を支援しています。コンサルティングから人材派遣、カスタマイズした研修プログラムまで4つのサービスラインにより、顧客の現在のニーズに対応しながら将来の課題にも備えさせます。テクノロジーと人間の力を組み合わせた「Akkodis Intelligence」という独自のアプローチで、自動車やエアロスペース、ヘルスケアなど様々な業界でAIを活用した次世代ソリューションの開発を推し進めています。"
-    },
-    {
       "id": "automotive-company-speeds-up-education-programs-adoption",
       "title": "Automotive Company’s Speeds Up Education Programs Adoption",
       "url": "https://www.akkodis.com/en/blog/client-success/automotive-company-speeds-up-education-programs-adoption",
@@ -526,16 +564,6 @@
       "summary_ja": "BMWグループは経験豊富な退職者の知識が失われるのを防ぐため、シニア・エキスパート・プログラムを立ち上げ、元従業員が短期プロジェクトで若い世代に知識を伝承する仕組みを構築しました。アコディスは従業員管理プラットフォーム「BEEPLE」をBMWグループの要件に合わせてカスタマイズし、プールの設計から契約管理、面接調整まで一貫してサポートしました。プログラム開始以来50以上のプロジェクトが実施され、アコディスの人材採用経験とプラットフォームの柔軟性により、BMWグループは100年間培った従業員の経験と専門知識を次世代に確実に引き継ぐことができるようになりました。"
     },
     {
-      "id": "personal-rekrutierung-fur-value-added-reseller",
-      "title": "View\nkeyboard_arrow_right",
-      "url": "https://www.akkodis.com/en/blog/client-success/personal-rekrutierung-fur-value-added-reseller",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-25T23:26:14Z",
-      "published_date": null,
-      "summary_ja": "Akkodisは4万人以上のエンジニアと30年以上にわたるクロスインダストリーの経験を備えたデジタルエンジニアリング企業であり、コンサルティングやソリューション提供、人材紹介、スキル育成の4つのサービスラインを通じて企業のイノベーション加速と組織の変革を支援しています。同社はテクノロジーと人材の力を組み合わせることで、クライアント・候補者・パートナーに対して測定可能で意味のある成果をもたらすことを目指しており、自動車・航空宇宙・金融・医療などの主要産業において専門知識を活かして事業を展開しています。AkkodisはZinnov社から多角的なサービス分野でリーダー企業として認定されており、AI活用やデジタル学習ソリューションなど最新のテクノロジートレンドに対応したサービス提供に注力しています。"
-    },
-    {
       "id": "akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
       "title": "Akkodis Delivers Cost Efficiencies in EE’s SD Management",
       "url": "https://www.akkodis.com/en/blog/client-success/akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
@@ -594,6 +622,26 @@
       "first_seen": "2026-03-14T12:21:49Z",
       "published_date": null,
       "summary_ja": "Adeccoが新規開発したモバイルアプリプロジェクトで、社内人員不足を補うため、Akkodisに20名以上のエンジニアチームの派遣を依頼されました。Akkodisは採用段階で実践的なタスクを導入し、プロジェクト内容の価値を候補者に丁寧に説明することで、必要な技術スキルと適性を持つ人材の確保に成功しました。チームは限られた納期の中で高い技術力とプロジェクト管理の専門知識を提供し、クライアント満足度を実現したことで、Akkodisの組織全体での認知度向上と従業員のキャリア発展につながりました。"
+    },
+    {
+      "id": "british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
+      "title": "British Airways Transforms Its IT Function",
+      "url": "https://www.akkodis.com/en/blog/client-success/british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-29T23:28:45Z",
+      "published_date": null,
+      "summary_ja": "ブリティッシュ・エアウェイズは世界140以上の空港をサポートするIT部門が抱えていた通話量の増加と人材流出の課題を解決するために、アッコディスと契約して50人以上のIT専門家から成るサービスチームを設置しました。アッコディスは採用から人材育成、日々の運用管理まで一貫して引き受けることで、航空業界の業務プロセスに精通した安定したサービスを提供できるようにしました。この取り組みによってブリティッシュ・エアウェイズは管理業務の負担を大幅に削減しながら、固定価格で信頼性の高いIT支援体制を整備することができました。"
+    },
+    {
+      "id": "rbc-railway",
+      "title": "Ensuring Rail Software Safety: Akkodis Validation Services",
+      "url": "https://www.akkodis.com/en/blog/client-success/rbc-railway",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-03-29T23:28:56Z",
+      "published_date": null,
+      "summary_ja": "フランスの鉄道インフラメーカーが開発した列車制御システムETCS Level 2の安全性を確保するため、アッコディスはテスト環境で各種シナリオを実行して、ソフトウェアの性能と要件への適合性を徹底的に検証しました。検証プロセス全体を記録・追跡することで、改善点の把握と問題解決の追跡を実現し、クライアントに有用なフィードバックを提供しています。複数市場向けの異なるバージョンを同時に検証できる体制を整えることで、世界中の多様な鉄道網における制御システムの安全性と信頼性を確保し、2019年以来クライアントの満足度を維持しています。"
     }
   ]
 }
