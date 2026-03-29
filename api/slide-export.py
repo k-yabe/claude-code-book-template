@@ -22,7 +22,6 @@ LAYOUT_NAMES = {
     'agenda': 'Agenda - Computer',
     'content': 'Title, Subtitle and one Paragrah',
     'two-column': 'Two Paragraphs with Blue Line',
-    'content-with-image': 'Title, Subtitle and one Paragrah',
     'content-with-chart': 'Title, Subtitle and one Paragrah',
     'content-with-flow': 'Title, Subtitle and one Paragrah',
     'sixbox': 'Six Text Boxes',
@@ -42,7 +41,8 @@ CHART_COLORS = [NAVY, GOLD, CYAN, GRAY, RGBColor(0x4A, 0x55, 0x68), RGBColor(0xE
 def _set(ph_map, idx, text):
     if idx in ph_map:
         try:
-            ph_map[idx].text = str(text) if text else ''
+            # python-pptxは自動でXMLエスケープするのでstr変換のみ
+            ph_map[idx].text = str(text).strip() if text else ''
         except Exception:
             pass
 
@@ -157,8 +157,11 @@ def add_table(slide, table_data):
         cell.margin_top = Pt(6)
         cell.margin_bottom = Pt(6)
 
-    # データ行（ゼブラストライプ）
+    # データ行（ゼブラストライプ + カラムパディング）
     for i, row in enumerate(rows_data):
+        # カラム数が足りない場合はパディング
+        while len(row) < cols:
+            row.append('')
         for j, val in enumerate(row):
             if j < cols:
                 cell = table.cell(i + 1, j)
@@ -259,7 +262,7 @@ def apply_data(slide, layout, data):
         _set(ph_map, 32, data.get('rightBody', ''))
         _set(ph_map, 33, '')
 
-    elif layout in ('content-with-image', 'content-with-chart'):
+    elif layout == 'content-with-chart':
         _set(ph_map, 29, data.get('title', ''))
         _set(ph_map, 30, '')
         body = data.get('body', '')
