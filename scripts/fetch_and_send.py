@@ -6,8 +6,10 @@ AI日報自動生成・メール送信スクリプト
 Gmail SMTP経由でリッチHTML形式のメールを送信する。
 """
 
+import html
 import json
 import os
+import re
 import smtplib
 import sys
 import time
@@ -21,7 +23,7 @@ import anthropic
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS")
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
-TO_EMAIL = os.environ.get("TO_EMAIL")
+TO_EMAIL = os.environ.get("TO_EMAIL")  # カンマ区切りで複数指定可能
 
 JST = timezone(timedelta(hours=9))
 WEEKDAYS_JA = ["月", "火", "水", "木", "金", "土", "日"]
@@ -45,6 +47,11 @@ def format_date_with_weekday(dt: datetime) -> str:
     """日本語の曜日付き日付文字列を返す。"""
     weekday = WEEKDAYS_JA[dt.weekday()]
     return dt.strftime(f"%Y年%m月%d日（{weekday}）")
+
+
+def esc(text: str) -> str:
+    """HTMLエスケープ。API出力の安全化。"""
+    return html.escape(str(text)) if text else ""
 
 
 def call_with_retry(fn, description: str):
@@ -127,6 +134,7 @@ b2b_newsは2〜3件、bigtech_movesは2〜3件、x_buzzは2〜3件、trendingは
 source_urlは検索で見つけた実際のURLを記載してください。
 読者はマーケティング担当者なので、難しいAI用語は避けて、ビジネスパーソンに伝わる言葉で書いてください。"""
 
+    t0 = time.time()
     print("[INFO] Claude API（Web Search付き）にニュース生成をリクエスト中...")
 
     def api_call():
@@ -138,6 +146,8 @@ source_urlは検索で見つけた実際のURLを記載してください。
         )
 
     message = call_with_retry(api_call, "Claude API呼び出し")
+    elapsed = time.time() - t0
+    print(f"[INFO] API応答時間: {elapsed:.1f}秒")
 
     # web_search付きレスポンスからテキストブロックを抽出
     raw = ""
@@ -149,10 +159,22 @@ source_urlは検索で見つけた実際のURLを記載してください。
         print("[ERROR] APIレスポンスにテキストが含まれていません", file=sys.stderr)
         sys.exit(1)
 
+    # コードブロック除去
     if raw.startswith("```"):
         raw = raw.split("\n", 1)[1].rsplit("```", 1)[0]
 
-    data = json.loads(raw)
+    # JSON部分を抽出（前後にテキストがある場合）
+    json_match = re.search(r'\{[\s\S]*\}', raw)
+    if json_match:
+        raw = json_match.group()
+
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as e:
+        print(f"[ERROR] JSON解析失敗: {e}", file=sys.stderr)
+        print(f"[DEBUG] 生のレスポンス:\n{raw[:500]}", file=sys.stderr)
+        sys.exit(1)
+
     b2b_count = len(data.get("b2b_news", []))
     bigtech_count = len(data.get("bigtech_moves", []))
     x_count = len(data.get("x_buzz", []))
@@ -160,6 +182,77 @@ source_urlは検索で見つけた実際のURLを記載してください。
     print(f"[INFO] ニュース生成完了（B2B: {b2b_count}件, BigTech: {bigtech_count}件, "
           f"X/Twitter: {x_count}件, トレンド: {trend_count}件）")
     return data
+
+
+def build_plain_text(data: dict, today_str: str) -> str:
+    """プレーンテキスト版を生成（HTML非対応クライアント用）。"""
+    lines = [
+        f"AI Daily Report — {today_str}",
+        "=" * 50,
+        "",
+        data.get("greeting", ""),
+        "",
+    ]
+
+    # KEY NUMBER
+    kn = data.get("key_number")
+    if kn:
+        lines += [f"[KEY NUMBER] {kn.get('value', '')} — {kn.get('label', '')}", ""]
+
+    # B2B
+    lines += ["--- B2B MARKETING ---", ""]
+    for i, news in enumerate(data.get("b2b_news", []), 1):
+        lines += [
+            f"{i}. {news.get('title', '')}",
+            f"   何が起きた？ {news.get('what_happened', '')}",
+            f"   なぜ重要？ {news.get('why_it_matters', '')}",
+            f"   どう活かす？ {news.get('how_to_use', '')}",
+            f"   出典: {news.get('source_name', '')} {news.get('source_url', '')}",
+            "",
+        ]
+
+    # BigTech
+    lines += ["--- BIG TECH WATCH ---", ""]
+    for move in data.get("bigtech_moves", []):
+        lines += [
+            f"[{move.get('company', '')}] {move.get('title', '')}",
+            f"   {move.get('summary', '')}",
+            f"   インパクト: {move.get('impact', '')}",
+            f"   出典: {move.get('source_name', '')} {move.get('source_url', '')}",
+            "",
+        ]
+
+    # X/Twitter
+    lines += ["--- X / TWITTER BUZZ ---", ""]
+    for topic in data.get("x_buzz", []):
+        lines += [
+            f"* {topic.get('title', '')} ({topic.get('engagement', '')})",
+            f"  {topic.get('summary', '')}",
+            f"  検索: {topic.get('x_search_url', '')}",
+            "",
+        ]
+
+    # Trending
+    lines += ["--- TRENDING ---", ""]
+    for topic in data.get("trending", []):
+        lines += [
+            f"* {topic.get('title', '')}",
+            f"  {topic.get('summary', '')}",
+            f"  出典: {topic.get('source_name', '')} {topic.get('source_url', '')}",
+            "",
+        ]
+
+    # Action
+    lines += [
+        "--- TODAY'S ACTION ---",
+        data.get("daily_action", ""),
+        "",
+        "---",
+        "Powered by Claude API (Web Search) + GitHub Actions",
+        "※ AIがWeb検索で収集・要約したコンテンツです。出典URLから最新情報をご確認ください。",
+    ]
+
+    return "\n".join(lines)
 
 
 def build_html(data: dict, today_str: str) -> str:
@@ -171,12 +264,11 @@ def build_html(data: dict, today_str: str) -> str:
         num = i + 1
         source_link = ""
         if news.get("source_url"):
-            source_name = news.get("source_name", "Source")
             source_link = f"""
           <div style="margin-top:12px; padding-top:12px; border-top:1px solid #eee;">
-            <a href="{news['source_url']}" style="color:#1a73e8; font-size:12px;
+            <a href="{esc(news['source_url'])}" style="color:#1a73e8; font-size:12px;
                text-decoration:none; font-weight:600;"
-               target="_blank">&#128279; {source_name} で詳しく読む &rarr;</a>
+               target="_blank">&#128279; {esc(news.get('source_name', 'Source'))} で詳しく読む &rarr;</a>
           </div>"""
 
         b2b_cards += f"""
@@ -185,22 +277,22 @@ def build_html(data: dict, today_str: str) -> str:
           <div style="font-size:11px; color:#1a73e8; font-weight:700; letter-spacing:1px;
                       margin-bottom:8px;">NEWS {num:02d}</div>
           <h3 style="margin:0 0 16px; font-size:17px; color:#1a1a1a; line-height:1.5;">
-            {news['title']}
+            {esc(news['title'])}
           </h3>
           <div style="background:#f0f4ff; border-radius:8px; padding:14px 16px; margin-bottom:12px;">
             <div style="font-size:11px; color:#5f6368; font-weight:700; margin-bottom:4px;">
               &#128196; 何が起きた？</div>
-            <div style="font-size:14px; color:#333; line-height:1.6;">{news['what_happened']}</div>
+            <div style="font-size:14px; color:#333; line-height:1.6;">{esc(news['what_happened'])}</div>
           </div>
           <div style="background:#fff8e1; border-radius:8px; padding:14px 16px; margin-bottom:12px;">
             <div style="font-size:11px; color:#f59e0b; font-weight:700; margin-bottom:4px;">
               &#128161; なぜ重要？</div>
-            <div style="font-size:14px; color:#333; line-height:1.6;">{news['why_it_matters']}</div>
+            <div style="font-size:14px; color:#333; line-height:1.6;">{esc(news['why_it_matters'])}</div>
           </div>
           <div style="background:#e8f5e9; border-radius:8px; padding:14px 16px;">
             <div style="font-size:11px; color:#2e7d32; font-weight:700; margin-bottom:4px;">
               &#127919; どう活かす？</div>
-            <div style="font-size:14px; color:#333; line-height:1.6;">{news['how_to_use']}</div>
+            <div style="font-size:14px; color:#333; line-height:1.6;">{esc(news['how_to_use'])}</div>
           </div>{source_link}
         </div>"""
 
@@ -212,16 +304,15 @@ def build_html(data: dict, today_str: str) -> str:
         "Amazon": "#ff9900", "NVIDIA": "#76b900",
     }
     for move in data.get("bigtech_moves", []):
-        company = move.get("company", "")
-        color = company_colors.get(company, "#6c5ce7")
+        company = esc(move.get("company", ""))
+        color = company_colors.get(move.get("company", ""), "#6c5ce7")
         source_link = ""
         if move.get("source_url"):
-            source_name = move.get("source_name", "Source")
             source_link = f"""
           <div style="margin-top:10px;">
-            <a href="{move['source_url']}" style="color:{color}; font-size:12px;
+            <a href="{esc(move['source_url'])}" style="color:{color}; font-size:12px;
                text-decoration:none; font-weight:600;"
-               target="_blank">&#128279; {source_name} &rarr;</a>
+               target="_blank">&#128279; {esc(move.get('source_name', 'Source'))} &rarr;</a>
           </div>"""
 
         bigtech_cards += f"""
@@ -232,18 +323,18 @@ def build_html(data: dict, today_str: str) -> str:
                          padding:3px 10px; border-radius:10px;">{company}</span>
           </div>
           <div style="font-size:16px; font-weight:700; color:#1a1a1a; margin-bottom:8px;">
-            {move['title']}
+            {esc(move['title'])}
           </div>
           <div style="font-size:14px; color:#555; line-height:1.7; margin-bottom:6px;">
-            {move['summary']}</div>
+            {esc(move['summary'])}</div>
           <div style="font-size:13px; color:#e91e63; font-weight:600; line-height:1.5;">
-            &#9888;&#65039; {move.get('impact', '')}</div>{source_link}
+            &#9888;&#65039; {esc(move.get('impact', ''))}</div>{source_link}
         </div>"""
 
     # X/Twitter バズカード
     x_buzz_items = ""
     for topic in data.get("x_buzz", []):
-        engagement = topic.get("engagement", "")
+        engagement = esc(topic.get("engagement", ""))
         engagement_html = ""
         if engagement:
             engagement_html = f"""
@@ -254,7 +345,7 @@ def build_html(data: dict, today_str: str) -> str:
         if topic.get("x_search_url"):
             x_link = f"""
           <div style="margin-top:10px;">
-            <a href="{topic['x_search_url']}" style="color:#1d9bf0; font-size:12px;
+            <a href="{esc(topic['x_search_url'])}" style="color:#1d9bf0; font-size:12px;
                text-decoration:none; font-weight:600;"
                target="_blank">&#128269; X で検索する &rarr;</a>
           </div>"""
@@ -263,9 +354,9 @@ def build_html(data: dict, today_str: str) -> str:
         <div style="background:#fff; border-radius:12px; padding:20px; margin-bottom:12px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid #1d9bf0;">
           <div style="font-size:16px; font-weight:700; color:#1a1a1a; margin-bottom:8px;">
-            {topic['title']}{engagement_html}
+            {esc(topic['title'])}{engagement_html}
           </div>
-          <div style="font-size:14px; color:#555; line-height:1.7;">{topic['summary']}</div>{x_link}
+          <div style="font-size:14px; color:#555; line-height:1.7;">{esc(topic['summary'])}</div>{x_link}
         </div>"""
 
     # トレンドカード
@@ -275,25 +366,24 @@ def build_html(data: dict, today_str: str) -> str:
         icon = trend_icons[i % len(trend_icons)]
         source_link = ""
         if topic.get("source_url"):
-            source_name = topic.get("source_name", "Source")
             source_link = f"""
           <div style="margin-top:10px;">
-            <a href="{topic['source_url']}" style="color:#e91e63; font-size:12px;
+            <a href="{esc(topic['source_url'])}" style="color:#e91e63; font-size:12px;
                text-decoration:none; font-weight:600;"
-               target="_blank">&#128279; {source_name} &rarr;</a>
+               target="_blank">&#128279; {esc(topic.get('source_name', 'Source'))} &rarr;</a>
           </div>"""
 
         trending_items += f"""
         <div style="background:#fff; border-radius:12px; padding:20px; margin-bottom:12px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.06);">
           <div style="font-size:16px; font-weight:700; color:#1a1a1a; margin-bottom:8px;">
-            {icon} {topic['title']}
+            {icon} {esc(topic['title'])}
           </div>
-          <div style="font-size:14px; color:#555; line-height:1.7;">{topic['summary']}</div>{source_link}
+          <div style="font-size:14px; color:#555; line-height:1.7;">{esc(topic['summary'])}</div>{source_link}
         </div>"""
 
-    greeting = data.get("greeting", "")
-    daily_action = data.get("daily_action", "")
+    greeting = esc(data.get("greeting", ""))
+    daily_action = esc(data.get("daily_action", ""))
 
     # 注目数字
     key_number_html = ""
@@ -301,26 +391,49 @@ def build_html(data: dict, today_str: str) -> str:
     if key_number:
         source_text = ""
         if key_number.get("source"):
-            source_text = f'<div style="font-size:11px; color:#aaa; margin-top:6px;">出典: {key_number["source"]}</div>'
+            source_text = f'<div style="font-size:11px; color:#aaa; margin-top:6px;">出典: {esc(key_number["source"])}</div>'
         key_number_html = f"""
     <div style="background:#fff; border-radius:16px; padding:24px; margin-bottom:24px;
                 box-shadow:0 2px 8px rgba(0,0,0,0.06); text-align:center;">
       <div style="font-size:11px; color:#764ba2; font-weight:700; letter-spacing:1px;
                   margin-bottom:8px;">&#128202; KEY NUMBER</div>
       <div style="font-size:36px; font-weight:800; color:#667eea;
-                  line-height:1.2; margin-bottom:8px;">{key_number['value']}</div>
-      <div style="font-size:14px; color:#666; line-height:1.5;">{key_number['label']}</div>
+                  line-height:1.2; margin-bottom:8px;">{esc(key_number['value'])}</div>
+      <div style="font-size:14px; color:#666; line-height:1.5;">{esc(key_number['label'])}</div>
       {source_text}
     </div>"""
 
-    # ニュース件数
-    total_news = (len(data.get("b2b_news", []))
-                  + len(data.get("bigtech_moves", []))
-                  + len(data.get("x_buzz", []))
-                  + len(data.get("trending", [])))
+    # 各セクション件数
+    counts = {
+        "b2b": len(data.get("b2b_news", [])),
+        "bigtech": len(data.get("bigtech_moves", [])),
+        "x": len(data.get("x_buzz", [])),
+        "trend": len(data.get("trending", [])),
+    }
+    total_news = sum(counts.values())
 
-    # プレヘッダー
-    preheader = greeting[:80] if greeting else "今日の生成AIニュースをお届けします"
+    # 読了時間の推定（日本語: 約500文字/分）
+    all_text = json.dumps(data, ensure_ascii=False)
+    read_minutes = max(1, len(all_text) // 500)
+
+    # プレヘッダー（トップニュースの見出しを含める）
+    top_headline = ""
+    if data.get("b2b_news"):
+        top_headline = data["b2b_news"][0].get("title", "")
+    preheader = f"{greeting} | {top_headline}" if top_headline else greeting
+    preheader = preheader[:120]
+
+    # 目次
+    toc_items = []
+    if counts["b2b"]:
+        toc_items.append(f"&#128188; B2Bニュース({counts['b2b']})")
+    if counts["bigtech"]:
+        toc_items.append(f"&#127970; BigTech({counts['bigtech']})")
+    if counts["x"]:
+        toc_items.append(f"&#120143; X/Twitter({counts['x']})")
+    if counts["trend"]:
+        toc_items.append(f"&#128640; トレンド({counts['trend']})")
+    toc_html = " &#12288; ".join(toc_items)
 
     return f"""<!DOCTYPE html>
 <html lang="ja">
@@ -351,7 +464,17 @@ def build_html(data: dict, today_str: str) -> str:
         {greeting}
       </div>
       <div style="margin-top:16px; font-size:12px; opacity:0.7;">
-        &#128230; 本日のピックアップ {total_news} 件 &#12288;&#127760; Web検索ベース</div>
+        &#128230; {total_news} 件 &#12288;&#9200; 約{read_minutes}分で読めます &#12288;&#127760; Web検索ベース</div>
+    </div>
+
+    <!-- 目次 -->
+    <div style="background:#fff; border-radius:12px; padding:16px 20px; margin-bottom:24px;
+                box-shadow:0 2px 8px rgba(0,0,0,0.06); text-align:center;">
+      <div style="font-size:11px; color:#999; font-weight:700; letter-spacing:1px; margin-bottom:6px;">
+        TODAY'S CONTENTS</div>
+      <div style="font-size:13px; color:#555; line-height:2;">
+        {toc_html}
+      </div>
     </div>
 
     <!-- 注目数字 -->
@@ -429,15 +552,20 @@ def build_html(data: dict, today_str: str) -> str:
 </html>"""
 
 
-def send_email(subject: str, html_content: str):
-    """Gmail SMTP経由でHTMLメールを送信する。"""
+def send_email(subject: str, html_content: str, plain_content: str):
+    """Gmail SMTP経由でHTMLメールを送信する。複数宛先対応。"""
+    recipients = [addr.strip() for addr in TO_EMAIL.split(",") if addr.strip()]
+
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = GMAIL_ADDRESS
-    msg["To"] = TO_EMAIL
+    msg["To"] = ", ".join(recipients)
+    # プレーンテキスト版（HTML非対応クライアント向け）
+    msg.attach(MIMEText(plain_content, "plain", "utf-8"))
+    # HTML版（優先表示）
     msg.attach(MIMEText(html_content, "html", "utf-8"))
 
-    print(f"[INFO] メール送信中... (To: {TO_EMAIL})")
+    print(f"[INFO] メール送信中... (To: {', '.join(recipients)}, 宛先数: {len(recipients)})")
 
     def smtp_send():
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
@@ -450,6 +578,7 @@ def send_email(subject: str, html_content: str):
 
 
 def main():
+    t_start = time.time()
     print("=" * 50)
     print("AI日報 自動生成・送信スクリプト")
     print("=" * 50)
@@ -458,15 +587,33 @@ def main():
 
     now_jst = datetime.now(JST)
     today_str = format_date_with_weekday(now_jst)
-    subject = f"【AI日報】{today_str}"
 
     print(f"[INFO] 日付: {today_str}")
 
+    # ニュース生成
     data = generate_news_json(today_str)
-    html_content = build_html(data, today_str)
-    send_email(subject, html_content)
 
-    print("[INFO] 全処理が正常に完了しました")
+    # 件名にトップニュースを含める
+    top_title = ""
+    if data.get("b2b_news"):
+        top_title = data["b2b_news"][0].get("title", "")
+    if top_title:
+        subject = f"【AI日報】{today_str}｜{top_title}"
+    else:
+        subject = f"【AI日報】{today_str}"
+    # 件名が長すぎる場合は切り詰め
+    if len(subject) > 80:
+        subject = subject[:77] + "..."
+
+    # HTML・プレーンテキスト生成
+    html_content = build_html(data, today_str)
+    plain_content = build_plain_text(data, today_str)
+
+    # メール送信
+    send_email(subject, html_content, plain_content)
+
+    elapsed = time.time() - t_start
+    print(f"[INFO] 全処理完了（所要時間: {elapsed:.1f}秒）")
 
 
 if __name__ == "__main__":
