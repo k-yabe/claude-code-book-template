@@ -201,6 +201,21 @@
     .modal-save { background: #ffb81c; color: #001f33; border: none; padding: 10px 24px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 8px; }
     .modal-save:hover { opacity: 0.88; }
 
+    /* ノートインジケーター */
+    .slide-notes-icon { position: absolute; bottom: 5px; left: 6px; font-size: 0.6rem; color: rgba(255,255,255,0.8); background: rgba(0,31,51,0.6); padding: 1px 5px; z-index: 2; pointer-events: none; }
+
+    /* プレゼンテーションモード */
+    .pres-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 3000; flex-direction: column; }
+    .pres-overlay.active { display: flex; }
+    .pres-slide-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .pres-slide { width: 100%; max-width: 1200px; aspect-ratio: 16/9; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+    .pres-controls { height: 56px; background: rgba(0,31,51,0.95); display: flex; align-items: center; justify-content: center; gap: 16px; padding: 0 20px; }
+    .pres-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 14px; font-size: 0.82rem; cursor: pointer; font-family: inherit; }
+    .pres-btn:hover { border-color: #ffb81c; color: #ffb81c; }
+    .pres-counter { color: rgba(255,255,255,0.7); font-size: 0.82rem; min-width: 60px; text-align: center; }
+    .pres-notes { background: rgba(0,31,51,0.9); color: rgba(255,255,255,0.8); padding: 10px 20px; font-size: 0.78rem; line-height: 1.6; max-height: 80px; overflow-y: auto; border-top: 1px solid rgba(255,184,28,0.3); }
+    .pres-timer { color: #ffb81c; font-size: 0.85rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
     /* チャート用hidden canvas */
     #chart-canvas { display: none; position: absolute; top: -9999px; }
 
@@ -306,6 +321,7 @@
           <button class="btn-quick" onclick="quickAction('全スライドの文章を改善。主張型タイトル、数値・固有名詞を活用してください')">✍️ 文章ブラッシュアップ</button>
           <button class="btn-quick" onclick="quickAction('冗長な表現を削除し、箇条書きを3行以内に削減してください')">🗜️ シンプルにする</button>
           <button class="btn-quick" onclick="quickAction('content-with-chartスライドを1枚追加し、既存の数値データからグラフを作成してください')">📊 データスライド追加</button>
+          <button class="btn-quick" onclick="quickAction('全スライドを英語に翻訳してください。タイトル・本文・ノートすべて英訳し、layout構造は変更しないでください')">🌐 英語に翻訳</button>
         </div>
 
         <div class="slides-grid" id="slides-grid"></div>
@@ -321,9 +337,10 @@
         <div class="refine-history" id="refine-history"></div>
       </div>
 
-      <!-- ダウンロード -->
+      <!-- ダウンロード・プレゼン -->
       <div class="download-area">
-        <button class="btn-download" id="btn-download" onclick="downloadPptx()">⬇ PPTXをダウンロード</button>
+        <button class="btn-download" id="btn-download" onclick="downloadPptx()">⬇ PPTX</button>
+        <button class="btn-secondary" onclick="enterPresMode()">▶ プレゼン</button>
         <span class="download-note">PowerPoint / Keynote で開けます</span>
       </div>
     </div>
@@ -342,6 +359,21 @@
     <!-- エラー -->
     <div id="error-area" class="hidden">
       <div class="error-msg"><span id="error-text"></span></div>
+    </div>
+  </div>
+
+  <!-- プレゼンテーションモード -->
+  <div class="pres-overlay" id="pres-overlay">
+    <div class="pres-slide-area" onclick="presNext()">
+      <div class="pres-slide" id="pres-slide"></div>
+    </div>
+    <div class="pres-notes" id="pres-notes"></div>
+    <div class="pres-controls">
+      <button class="pres-btn" onclick="presPrev()">← 前</button>
+      <span class="pres-counter" id="pres-counter">1 / 1</span>
+      <button class="pres-btn" onclick="presNext()">次 →</button>
+      <span class="pres-timer" id="pres-timer">00:00</span>
+      <button class="pres-btn" onclick="exitPresMode()">✕ 終了</button>
     </div>
   </div>
 
@@ -719,6 +751,7 @@
           </select>
           <div class="outline-btns">
             <button class="outline-btn" onclick="openEditModal(${i})" title="編集">✎</button>
+            <button class="outline-btn" onclick="duplicateOutlineSlide(${i})" title="複製">⧉</button>
             <button class="outline-btn" onclick="moveOutline(${i},-1)" title="上へ">↑</button>
             <button class="outline-btn" onclick="moveOutline(${i},1)" title="下へ">↓</button>
             <button class="outline-btn del" onclick="deleteOutlineSlide(${i})" title="削除">✕</button>
@@ -819,6 +852,9 @@
           html += field('メッセージ', 'message', 'input', slide.message);
           break;
       }
+      // 全レイアウト共通: スピーカーノート
+      html += `<hr class="modal-divider">`;
+      html += field('スピーカーノート', 'notes', 'textarea', slide.notes);
       html += `<button class="modal-save" onclick="saveModalEdit()">保存</button>`;
       document.getElementById('modal-body').innerHTML = html;
       document.getElementById('modal-overlay').classList.add('active');
@@ -931,7 +967,8 @@
       slides.forEach((slide, i) => {
         const thumb = document.createElement('div');
         thumb.className = 'slide-thumb';
-        thumb.innerHTML = `<div class="slide-num">${i + 1}</div><div class="slide-layout-label">${LAYOUT_NAMES[slide.layout] || slide.layout}</div>${buildSlideHtml(slide)}`;
+        const notesIcon = slide.notes ? `<div class="slide-notes-icon">📝</div>` : '';
+        thumb.innerHTML = `<div class="slide-num">${i + 1}</div>${notesIcon}<div class="slide-layout-label">${LAYOUT_NAMES[slide.layout] || slide.layout}</div>${buildSlideHtml(slide)}`;
         thumb.onclick = () => openEditModal(i);
         thumb.title = 'クリックで編集';
         grid.appendChild(thumb);
@@ -994,6 +1031,61 @@
         showToast('⬇ PPTXをダウンロードしました');
       } catch (err) { showError('PPTXの生成に失敗しました: ' + err.message); }
       finally { btn.disabled = false; btn.textContent = '⬇ PPTXをダウンロード'; }
+    }
+
+    // ===== スライド複製 =====
+    function duplicateOutlineSlide(idx) {
+      const clone = JSON.parse(JSON.stringify(outlineData[idx]));
+      clone.title = (clone.title || '') + '（コピー）';
+      outlineData.splice(idx + 1, 0, clone);
+      renderOutline();
+    }
+
+    // ===== プレゼンテーションモード =====
+    let presIndex = 0;
+    let presTimerInterval = null;
+    let presStartTime = null;
+
+    function enterPresMode() {
+      if (!currentSlides || currentSlides.length === 0) return;
+      presIndex = 0;
+      presStartTime = Date.now();
+      document.getElementById('pres-overlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      renderPresSlide();
+      presTimerInterval = setInterval(updatePresTimer, 1000);
+      document.addEventListener('keydown', presKeyHandler);
+    }
+
+    function exitPresMode() {
+      document.getElementById('pres-overlay').classList.remove('active');
+      document.body.style.overflow = '';
+      clearInterval(presTimerInterval);
+      document.removeEventListener('keydown', presKeyHandler);
+    }
+
+    function presKeyHandler(e) {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); presNext(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); presPrev(); }
+      else if (e.key === 'Escape') exitPresMode();
+    }
+
+    function presNext() { if (presIndex < currentSlides.length - 1) { presIndex++; renderPresSlide(); } }
+    function presPrev() { if (presIndex > 0) { presIndex--; renderPresSlide(); } }
+
+    function renderPresSlide() {
+      const slide = currentSlides[presIndex];
+      document.getElementById('pres-slide').innerHTML = buildSlideHtml(slide);
+      document.getElementById('pres-counter').textContent = `${presIndex + 1} / ${currentSlides.length}`;
+      document.getElementById('pres-notes').textContent = slide.notes || '';
+      document.getElementById('pres-notes').style.display = slide.notes ? 'block' : 'none';
+    }
+
+    function updatePresTimer() {
+      const elapsed = Math.floor((Date.now() - presStartTime) / 1000);
+      const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const s = String(elapsed % 60).padStart(2, '0');
+      document.getElementById('pres-timer').textContent = `${m}:${s}`;
     }
 
     // ===== リセット =====
@@ -1154,7 +1246,14 @@
 
         const newNum = 200 + i;
         const rId = `rId${50 + i}`;
-        newEntries.push({ num: newNum, rId, slideId: 500 + i });
+        newEntries.push({ num: newNum, rId, slideId: 500 + i, notes: slide.notes || '' });
+
+        // スピーカーノートがあればスライドrelsにnotesSlide参照を追加
+        if (slide.notes) {
+          rels = rels.replace('</Relationships>',
+            `<Relationship Id="rIdNotes" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide" Target="../notesSlides/notesSlide${newNum}.xml"/></Relationships>`);
+        }
+
         zip.file(`ppt/slides/slide${newNum}.xml`, xml);
         zip.file(`ppt/slides/_rels/slide${newNum}.xml.rels`, rels);
       }
@@ -1175,7 +1274,38 @@
           .replace('</Relationships>', `${slideRelsXml}</Relationships>`)
       );
 
-      // [Content_Types].xml を更新（元スライド・notesSlides エントリを削除して新スライドを追加）
+      // 元のnotesSlides を削除
+      Object.keys(zip.files)
+        .filter(f => f.startsWith('ppt/notesSlides/'))
+        .forEach(f => zip.remove(f));
+
+      // 新しいnotesSlides を生成
+      let ctNotes = '';
+      for (const e of newEntries) {
+        if (!e.notes) continue;
+        const notesParagraphs = e.notes.split('\n').filter(Boolean).map(line =>
+          `<a:p><a:r><a:rPr lang="ja-JP" dirty="0"/><a:t>${escXml(line)}</a:t></a:r></a:p>`
+        ).join('');
+
+        const notesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:notes xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+<p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>
+<p:sp><p:nvSpPr><p:cNvPr id="2" name="Slide Image"/><p:cNvSpPr><a:spLocks noGrp="1" noRot="1" noChangeAspect="1"/></p:cNvSpPr><p:nvPr><p:ph type="sldImg"/></p:nvPr></p:nvSpPr><p:spPr/></p:sp>
+<p:sp><p:nvSpPr><p:cNvPr id="3" name="Notes"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr><p:nvPr><p:ph type="body" idx="1"/></p:nvPr></p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/>${notesParagraphs}</p:txBody></p:sp>
+</p:spTree></p:cSld></p:notes>`;
+
+        const notesRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesMaster" Target="../notesMasters/notesMaster1.xml"/>
+<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="../slides/slide${e.num}.xml"/>
+</Relationships>`;
+
+        zip.file(`ppt/notesSlides/notesSlide${e.num}.xml`, notesXml);
+        zip.file(`ppt/notesSlides/_rels/notesSlide${e.num}.xml.rels`, notesRels);
+        ctNotes += `<Override PartName="/ppt/notesSlides/notesSlide${e.num}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.notesSlide+xml"/>`;
+      }
+
+      // [Content_Types].xml を更新
       const ctSlides = newEntries.map(e =>
         `<Override PartName="/ppt/slides/slide${e.num}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>`
       ).join('');
@@ -1183,7 +1313,7 @@
         contentTypes
           .replace(/<Override PartName="\/ppt\/slides\/slide\d+\.xml"[^>]*\/>/g, '')
           .replace(/<Override PartName="\/ppt\/notesSlides\/[^"]*"[^>]*\/>/g, '')
-          .replace('</Types>', `${ctSlides}</Types>`)
+          .replace('</Types>', `${ctSlides}${ctNotes}</Types>`)
       );
 
       // 元のスライドファイルを削除
@@ -1191,11 +1321,6 @@
         zip.remove(`ppt/slides/slide${i}.xml`);
         zip.remove(`ppt/slides/_rels/slide${i}.xml.rels`);
       }
-
-      // notesSlides を削除（元スライドへの参照が壊れてファイルエラーになるため）
-      Object.keys(zip.files)
-        .filter(f => f.startsWith('ppt/notesSlides/'))
-        .forEach(f => zip.remove(f));
 
       return zip;
     }
