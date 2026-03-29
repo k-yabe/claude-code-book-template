@@ -88,46 +88,55 @@ def get_claude_code_tips_schema() -> str:
 
 def get_weekend_prompt(today_str: str) -> str:
     """土日用のプロンプトを返す。"""
-    return f"""あなたはテック企業のマーケティングに精通した生成AI専門のニュースキュレーターです。
+    return f"""あなたはテック業界のニュースキュレーターです。読者がサクッと読めて「へぇ！」と思える日報を作ってください。
 今日は{today_str}（週末）です。
 
-Web検索ツールを使って、今週の生成AI関連ニュースを振り返り、来週の注目ポイントをまとめてください。
+## 検索指示
+Web検索ツールを使って、以下を**必ず日本語と英語の両方**で検索してください：
+1. 「生成AI 最新ニュース 日本」「AI スタートアップ 日本」「日本 AI 規制」— 日本発のニュース
+2. 「AI news this week」「AI developer tools」— グローバルニュース
+3. 「Google AI」「OpenAI」「Anthropic」「Meta AI」— ビッグテック動向
+4. 「Claude Code tips」「Claude Code workflow」— X(Twitter)上のClaude Code活用事例
+5. 「AI trending Twitter」「生成AI 話題」— SNSバズ
 
-検索キーワード例：
-1. 「生成AI 最新ニュース」「AI 新機能 リリース」「AI developer tools」
-2. 「Google AI」「OpenAI」「Anthropic」「Meta AI」の最新発表
-3. 「Claude Code tips」「Claude Code 使い方」「Claude Code すごい」で、X(Twitter)上のClaude Code活用事例を収集
-4. 「AI developer tools trending」「AI coding assistant」で開発者ツール系のトレンドを収集
+## 文体ルール（重要）
+- **一言サマリー（tldr）は必ずつけること**。忙しい人が一言で判断できるように
+- 全体的にカジュアルで読みやすいトーンで（ですます調OK、堅すぎNG）
+- 「何が起きた」は事実を2文以内。長くしない
+- 「なぜ重要」「どう活かす」も各1〜2文。ダラダラ書かない
+- **日本のニュースを必ず1件以上含めること**（日本企業のAI活用、政策、スタートアップなど）
 
 必ず以下のJSON形式のみを出力してください（前後に説明文を付けないこと）：
 
 {{
-  "greeting": "週末の挨拶文（例：今週もお疲れさまでした。週末にサクッと振り返りましょう）",
+  "greeting": "週末の挨拶（カジュアルに1文。例：今週もお疲れさま！サクッと振り返りましょう）",
   "b2b_news": [
     {{
-      "title": "今週の重要テックニュース",
+      "title": "ニュースのタイトル（短く、キャッチーに）",
+      "tldr": "一言で言うと？（15〜25文字。例：GPT-5が出た、日本でAI規制法案が通過）",
       "source_url": "出典元URL",
       "source_name": "出典元の名前",
-      "what_happened": "何が起きた？",
-      "why_it_matters": "なぜ重要？（技術的・ビジネス的インパクト）",
-      "how_to_use": "どう活かす？"
+      "what_happened": "何が起きた？（2文以内）",
+      "why_it_matters": "なぜ重要？（1〜2文）",
+      "how_to_use": "どう活かす？（1〜2文、具体的に）"
     }}
   ],
   "bigtech_moves": [
     {{
       "company": "企業名",
-      "title": "今週のビッグテック動向",
+      "title": "見出し（短く）",
+      "tldr": "一言で言うと？（15〜25文字）",
       "source_url": "出典元URL",
       "source_name": "出典元の名前",
-      "summary": "概要（技術的な内容を重視）",
-      "impact": "インパクト"
+      "summary": "概要（2文以内）",
+      "impact": "インパクト（1文）"
     }}
   ],
 {get_claude_code_tips_schema()}
   "x_buzz": [
     {{
-      "title": "今週X(Twitter)で話題だったトピック",
-      "summary": "概要",
+      "title": "話題のトピック",
+      "summary": "何がバズってる？（2文以内）",
       "x_search_url": "https://x.com/search?q=...",
       "engagement": "規模感"
     }}
@@ -137,67 +146,75 @@ Web検索ツールを使って、今週の生成AI関連ニュースを振り返
       "title": "来週の注目ポイント",
       "source_url": "参考URL",
       "source_name": "出典元の名前",
-      "summary": "来週に予定されているイベント・発表・注目すべきこと"
+      "summary": "何に注目すべき？（2文以内）"
     }}
   ],
-  "daily_action": "週末に軽くやっておくと来週楽になること（1文）",
+  "daily_action": "週末に5分でやっておくと来週得すること（1文、具体的に）",
   "key_number": {{
-    "value": "今週の注目数字（技術的な指標を優先）",
-    "label": "その数字の説明",
+    "value": "今週の注目数字",
+    "label": "その数字の説明（1文）",
     "source": "出典元"
   }}
 }}
 
-b2b_newsは今週のハイライト2〜3件、bigtech_movesは2〜3件、claude_code_tipsは2〜3件、
-x_buzzは2〜3件、trendingは「来週の注目ポイント」として2〜3件にしてください。
-株価・投資情報は不要です。技術的な話題（新モデル、API、開発ツール、OSS）を優先してください。
-読者はテック企業のマーケティング担当者です。技術的な内容を噛み砕いて伝えてください。"""
+件数: b2b_news 3件, bigtech_moves 2件, claude_code_tips 2件, x_buzz 2件, trending 2件。
+**日本のニュースをb2b_newsに最低1件含めること。**
+株価・投資は不要。技術的な話題を優先。"""
 
 
 def get_weekday_prompt(today_str: str) -> str:
     """平日用のプロンプトを返す。"""
-    return f"""あなたはテック企業のマーケティングに精通した生成AI専門のニュースキュレーターです。
+    return f"""あなたはテック業界のニュースキュレーターです。読者がサクッと読めて「へぇ！」と思える日報を作ってください。
 今日は{today_str}です。
 
-まず、Web検索ツールを使って以下の情報をリアルタイムで収集してください：
-1. 「生成AI 最新ニュース」「AI 新機能 リリース」「AI developer tools」で検索し、直近のテック系ニュースを収集
-2. 「Google AI」「Microsoft AI」「OpenAI」「Anthropic」「Meta AI」で検索し、ビッグテック企業のAI関連の技術ニュースを収集（新モデル、API更新、開発ツール、OSS公開など）
-3. 「Claude Code tips」「Claude Code 使い方」「Claude Code すごい」で、X(Twitter)上のClaude Code活用事例・神ワークフローを収集
-4. 「AI trending Twitter/X」「生成AI 話題 SNS」で検索し、X(Twitter)で話題のAIトピックを収集
-5. 「AI developer stats」「生成AI 技術 数字」で検索し、注目の技術指標・統計を収集
+## 検索指示
+Web検索ツールを使って、以下を**必ず日本語と英語の両方**で検索してください：
+1. 「生成AI 最新ニュース 日本」「日本 AI 企業」「AI 国内」— 日本発のニュース（必須）
+2. 「AI news today」「AI release announcement」— グローバルの最新ニュース
+3. 「Google AI」「Microsoft AI」「OpenAI」「Anthropic」「Meta AI」— ビッグテック動向
+4. 「Claude Code tips」「Claude Code workflow」「Claude Code すごい」— X上のClaude Code活用事例
+5. 「AI trending Twitter」「生成AI 話題」— SNSバズ
 
-収集した情報を基に、以下のJSON形式で出力してください。
-必ずJSON形式のみを出力してください（前後に説明文を付けないこと）：
+## 文体ルール（重要）
+- **一言サマリー（tldr）は必ずつけること**。忙しい人が一言で判断できるように
+- 全体的にカジュアルで読みやすいトーンで（ですます調OK、堅すぎNG）
+- 「何が起きた」は事実を2文以内。長くしない
+- 「なぜ重要」「どう活かす」も各1〜2文。ダラダラ書かない
+- **日本のニュースを必ず1件以上含めること**（日本企業のAI活用、政策、国内スタートアップなど）
+
+必ず以下のJSON形式のみを出力してください（前後に説明文を付けないこと）：
 
 {{
-  "greeting": "今日のAI動向を一言で表す挨拶文（例：AI業界が大きく動いた一日です）",
+  "greeting": "今日のAI動向を一言で（カジュアルに。例：OpenAIが動いた！今日は要チェックです）",
   "b2b_news": [
     {{
-      "title": "ニュースのタイトル",
+      "title": "ニュースのタイトル（短く、キャッチーに）",
+      "tldr": "一言で言うと？（15〜25文字。例：GPT-5が出た、国内AI法案が閣議決定）",
       "source_url": "出典元の実際のURL",
       "source_name": "出典元の名前（例：OpenAI Blog, TechCrunch, 日経新聞 など）",
-      "what_happened": "何が起きた？（1〜2文で簡潔に）",
-      "why_it_matters": "なぜ重要？（ビジネスへのインパクトを分かりやすく）",
-      "how_to_use": "どう活かす？（B2Bマーケでの具体的なアクション）"
+      "what_happened": "何が起きた？（2文以内）",
+      "why_it_matters": "なぜ重要？（1〜2文）",
+      "how_to_use": "どう活かす？（1〜2文、具体的に）"
     }}
   ],
   "bigtech_moves": [
     {{
       "company": "企業名（Google, Microsoft, OpenAI, Anthropic, Meta など）",
-      "title": "ニュースの見出し",
+      "title": "見出し（短く）",
+      "tldr": "一言で言うと？（15〜25文字）",
       "source_url": "出典元の実際のURL",
       "source_name": "出典元の名前",
-      "summary": "何が起きたか（2〜3文）",
+      "summary": "何が起きたか（2文以内）",
       "impact": "業界へのインパクト（1文）"
     }}
   ],
 {get_claude_code_tips_schema()}
   "x_buzz": [
     {{
-      "title": "X(Twitter)で話題のトピック",
-      "summary": "何がバズっているか（2〜3行）",
-      "x_search_url": "https://x.com/search?q=（関連キーワードをURLエンコードして検索URL化）",
-      "engagement": "話題の規模感（例：1万件以上のポスト、トレンド入り など）"
+      "title": "話題のトピック",
+      "summary": "何がバズってる？（2文以内）",
+      "x_search_url": "https://x.com/search?q=...",
+      "engagement": "規模感"
     }}
   ],
   "trending": [
@@ -205,21 +222,21 @@ def get_weekday_prompt(today_str: str) -> str:
       "title": "トピックのタイトル",
       "source_url": "関連する参考URL",
       "source_name": "出典元の名前",
-      "summary": "2〜3行の要約"
+      "summary": "注目ポイント（2文以内）"
     }}
   ],
-  "daily_action": "テック系マーケ担当者として今日意識すべきこと（1文）",
+  "daily_action": "今日5分でやっておくと得すること（1文、具体的に）",
   "key_number": {{
-    "value": "今日の注目数字（技術的な指標を優先。例：API呼び出し数、モデル性能、開発者数 など）",
-    "label": "その数字が何を表すかの短い説明（1文）",
-    "source": "数字の出典元"
+    "value": "今日の注目数字",
+    "label": "その数字の説明（1文）",
+    "source": "出典元"
   }}
 }}
 
-b2b_newsは2〜3件、bigtech_movesは2〜3件、claude_code_tipsは2〜3件、x_buzzは2〜3件、trendingは2〜3件にしてください。
-source_urlは検索で見つけた実際のURLを記載してください。
-株価・投資・資金調達の話題は不要です。技術的な話題（新モデル、API、開発ツール、OSS、ベンチマーク）を優先してください。
-読者はテック企業のマーケティング担当者なので、技術的な内容を噛み砕いて伝えてください。"""
+件数: b2b_news 3件, bigtech_moves 2件, claude_code_tips 2件, x_buzz 2件, trending 2件。
+source_urlは検索で見つけた実際のURLを記載。
+**日本のニュースをb2b_newsに最低1件含めること。**
+株価・投資・資金調達は不要。技術的な話題を優先。"""
 
 
 def generate_news_json(today_str: str, dt: datetime) -> dict:
@@ -305,6 +322,7 @@ def build_plain_text(data: dict, today_str: str) -> str:
     for i, news in enumerate(data.get("b2b_news", []), 1):
         lines += [
             f"{i}. {news.get('title', '')}",
+            f"   → {news.get('tldr', '')}",
             f"   何が起きた？ {news.get('what_happened', '')}",
             f"   なぜ重要？ {news.get('why_it_matters', '')}",
             f"   どう活かす？ {news.get('how_to_use', '')}",
@@ -317,6 +335,7 @@ def build_plain_text(data: dict, today_str: str) -> str:
     for move in data.get("bigtech_moves", []):
         lines += [
             f"[{move.get('company', '')}] {move.get('title', '')}",
+            f"   → {move.get('tldr', '')}",
             f"   {move.get('summary', '')}",
             f"   インパクト: {move.get('impact', '')}",
             f"   出典: {move.get('source_name', '')} {move.get('source_url', '')}",
@@ -383,28 +402,36 @@ def build_html(data: dict, today_str: str) -> str:
                target="_blank">&#128279; {esc(news.get('source_name', 'Source'))} で詳しく読む &rarr;</a>
           </div>"""
 
+        tldr = esc(news.get('tldr', ''))
+        tldr_html = ""
+        if tldr:
+            tldr_html = f"""
+          <div style="background:#667eea; color:#fff; border-radius:8px; padding:10px 14px;
+                      margin-bottom:14px; font-size:13px; font-weight:600;">
+            &#9889; 一言で: {tldr}</div>"""
+
         b2b_cards += f"""
         <div style="background:#fff; border-radius:12px; padding:24px; margin-bottom:16px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid #1a73e8;">
           <div style="font-size:11px; color:#1a73e8; font-weight:700; letter-spacing:1px;
                       margin-bottom:8px;">NEWS {num:02d}</div>
-          <h3 style="margin:0 0 16px; font-size:17px; color:#1a1a1a; line-height:1.5;">
+          <h3 style="margin:0 0 12px; font-size:17px; color:#1a1a1a; line-height:1.5;">
             {esc(news['title'])}
-          </h3>
-          <div style="background:#f0f4ff; border-radius:8px; padding:14px 16px; margin-bottom:12px;">
+          </h3>{tldr_html}
+          <div style="background:#f0f4ff; border-radius:8px; padding:12px 14px; margin-bottom:10px;">
             <div style="font-size:11px; color:#5f6368; font-weight:700; margin-bottom:4px;">
               &#128196; 何が起きた？</div>
-            <div style="font-size:14px; color:#333; line-height:1.6;">{esc(news['what_happened'])}</div>
+            <div style="font-size:13px; color:#333; line-height:1.6;">{esc(news['what_happened'])}</div>
           </div>
-          <div style="background:#fff8e1; border-radius:8px; padding:14px 16px; margin-bottom:12px;">
+          <div style="background:#fff8e1; border-radius:8px; padding:12px 14px; margin-bottom:10px;">
             <div style="font-size:11px; color:#f59e0b; font-weight:700; margin-bottom:4px;">
               &#128161; なぜ重要？</div>
-            <div style="font-size:14px; color:#333; line-height:1.6;">{esc(news['why_it_matters'])}</div>
+            <div style="font-size:13px; color:#333; line-height:1.6;">{esc(news['why_it_matters'])}</div>
           </div>
-          <div style="background:#e8f5e9; border-radius:8px; padding:14px 16px;">
+          <div style="background:#e8f5e9; border-radius:8px; padding:12px 14px;">
             <div style="font-size:11px; color:#2e7d32; font-weight:700; margin-bottom:4px;">
               &#127919; どう活かす？</div>
-            <div style="font-size:14px; color:#333; line-height:1.6;">{esc(news['how_to_use'])}</div>
+            <div style="font-size:13px; color:#333; line-height:1.6;">{esc(news['how_to_use'])}</div>
           </div>{source_link}
         </div>"""
 
@@ -427,6 +454,14 @@ def build_html(data: dict, today_str: str) -> str:
                target="_blank">&#128279; {esc(move.get('source_name', 'Source'))} &rarr;</a>
           </div>"""
 
+        bt_tldr = esc(move.get('tldr', ''))
+        bt_tldr_html = ""
+        if bt_tldr:
+            bt_tldr_html = f"""
+          <div style="background:#f5f3ff; color:#6c5ce7; border-radius:6px; padding:8px 12px;
+                      margin-bottom:10px; font-size:12px; font-weight:600;">
+            &#9889; {bt_tldr}</div>"""
+
         bigtech_cards += f"""
         <div style="background:#fff; border-radius:12px; padding:20px; margin-bottom:12px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid {color};">
@@ -436,10 +471,10 @@ def build_html(data: dict, today_str: str) -> str:
           </div>
           <div style="font-size:16px; font-weight:700; color:#1a1a1a; margin-bottom:8px;">
             {esc(move['title'])}
-          </div>
-          <div style="font-size:14px; color:#555; line-height:1.7; margin-bottom:6px;">
+          </div>{bt_tldr_html}
+          <div style="font-size:13px; color:#555; line-height:1.7; margin-bottom:6px;">
             {esc(move['summary'])}</div>
-          <div style="font-size:13px; color:#e91e63; font-weight:600; line-height:1.5;">
+          <div style="font-size:12px; color:#e91e63; font-weight:600; line-height:1.5;">
             &#9888;&#65039; {esc(move.get('impact', ''))}</div>{source_link}
         </div>"""
 
