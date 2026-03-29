@@ -48,7 +48,7 @@ def _set(ph_map, idx, text):
 
 
 def add_chart(slide, chart_data):
-    """スライドにネイティブPPTXチャートを追加"""
+    """スライドにネイティブPPTXチャートを追加（高品質スタイリング）"""
     ctype = chart_data.get('type', 'bar')
     chart_type_map = {
         'bar': XL_CHART_TYPE.COLUMN_CLUSTERED,
@@ -60,7 +60,6 @@ def add_chart(slide, chart_data):
     cd = CategoryChartData()
     cd.categories = chart_data.get('labels', [])
     values = chart_data.get('data', [])
-    # 数値変換
     num_values = []
     for v in values:
         try:
@@ -69,32 +68,65 @@ def add_chart(slide, chart_data):
             num_values.append(0)
     cd.add_series(chart_data.get('title', ''), num_values)
 
-    # チャート位置: スライド下半分
-    x, y = Inches(0.8), Inches(2.8)
-    cx, cy = Inches(8.4), Inches(4.0)
+    x, y = Inches(0.8), Inches(2.6)
+    cx, cy = Inches(8.4), Inches(4.2)
     chart_frame = slide.shapes.add_chart(xl_type, x, y, cx, cy, cd)
     chart = chart_frame.chart
 
-    # スタイリング
+    # 共通スタイリング
     chart.has_legend = (ctype == 'pie')
+    chart.font.size = Pt(10)
+    chart.font.color.rgb = NAVY
+
     if chart.series:
         series = chart.series[0]
-        if ctype != 'pie':
+        if ctype == 'bar':
             series.format.fill.solid()
             series.format.fill.fore_color.rgb = NAVY
-        else:
+            # データラベル表示
+            series.has_data_labels = True
+            series.data_labels.font.size = Pt(9)
+            series.data_labels.font.color.rgb = NAVY
+            series.data_labels.font.bold = True
+            series.data_labels.number_format = '#,##0'
+        elif ctype == 'line':
+            series.format.line.color.rgb = NAVY
+            series.format.line.width = Pt(2.5)
+            series.smooth = True
+            series.has_data_labels = True
+            series.data_labels.font.size = Pt(8)
+            series.data_labels.font.color.rgb = NAVY
+        elif ctype == 'pie':
             for i, point in enumerate(series.points):
                 point.format.fill.solid()
                 point.format.fill.fore_color.rgb = CHART_COLORS[i % len(CHART_COLORS)]
+            series.has_data_labels = True
+            series.data_labels.font.size = Pt(9)
+            series.data_labels.show_percentage = True
+            series.data_labels.show_category_name = True
+
+    # 軸スタイリング（pie以外）
+    if ctype != 'pie':
+        if hasattr(chart, 'value_axis'):
+            chart.value_axis.has_major_gridlines = True
+            chart.value_axis.major_gridlines.format.line.color.rgb = RGBColor(0xE0, 0xE4, 0xE8)
+            chart.value_axis.format.line.color.rgb = RGBColor(0xE0, 0xE4, 0xE8)
+        if hasattr(chart, 'category_axis'):
+            chart.category_axis.format.line.color.rgb = RGBColor(0xE0, 0xE4, 0xE8)
 
     # 単位ラベル
     unit = chart_data.get('unit', '')
-    if unit and hasattr(chart, 'value_axis'):
-        chart.value_axis.axis_title.text_frame.text = unit
+    if unit and ctype != 'pie' and hasattr(chart, 'value_axis'):
+        try:
+            chart.value_axis.axis_title.text_frame.text = unit
+            chart.value_axis.axis_title.text_frame.paragraphs[0].font.size = Pt(9)
+            chart.value_axis.axis_title.text_frame.paragraphs[0].font.color.rgb = GRAY
+        except Exception:
+            pass
 
 
 def add_table(slide, table_data):
-    """スライドにネイティブPPTXテーブルを追加"""
+    """ネイティブテーブル（ゼブラストライプ + 見やすいフォーマット）"""
     headers = table_data.get('headers', [])
     rows_data = table_data.get('rows', [])
     if not headers:
@@ -102,10 +134,14 @@ def add_table(slide, table_data):
 
     cols = len(headers)
     row_count = 1 + len(rows_data)
-    x, y = Inches(0.8), Inches(2.5)
-    cx, cy = Inches(8.4), Inches(0.5 * row_count)
+    row_h = Inches(0.55)
+    x, y = Inches(0.8), Inches(2.3)
+    cx = Inches(8.4)
+    cy = row_h * row_count
     table_shape = slide.shapes.add_table(row_count, cols, x, y, cx, cy)
     table = table_shape.table
+
+    LIGHT_BG = RGBColor(0xF5, 0xF7, 0xFA)
 
     # ヘッダー行
     for j, h in enumerate(headers):
@@ -115,10 +151,13 @@ def add_table(slide, table_data):
             para.font.size = Pt(11)
             para.font.bold = True
             para.font.color.rgb = WHITE
+            para.alignment = PP_ALIGN.CENTER
         cell.fill.solid()
         cell.fill.fore_color.rgb = NAVY
+        cell.margin_top = Pt(6)
+        cell.margin_bottom = Pt(6)
 
-    # データ行
+    # データ行（ゼブラストライプ）
     for i, row in enumerate(rows_data):
         for j, val in enumerate(row):
             if j < cols:
@@ -127,24 +166,48 @@ def add_table(slide, table_data):
                 for para in cell.text_frame.paragraphs:
                     para.font.size = Pt(10)
                     para.font.color.rgb = NAVY
+                cell.margin_top = Pt(4)
+                cell.margin_bottom = Pt(4)
+                # 偶数行に背景色
+                if i % 2 == 1:
+                    cell.fill.solid()
+                    cell.fill.fore_color.rgb = LIGHT_BG
 
 
 def add_flow(slide, steps):
-    """スライドにフロー図形（矢形＋矢印）を追加"""
+    """フロー図（ステップ番号 + ネイビーボックス + ゴールド矢印）"""
     if not steps:
         return
     n = len(steps)
-    total_w = Inches(8.4)
-    box_w = int(total_w / n * 0.7)
-    gap = int(total_w / n * 0.3)
-    box_h = Inches(0.9)
-    start_x = Inches(0.8)
-    y = Inches(4.0)
+    # レスポンシブなサイズ計算
+    max_box_w = Inches(1.8)
+    min_box_w = Inches(1.0)
+    avail_w = Inches(8.4)
+    gap_w = Inches(0.22)
+    box_w = min(max_box_w, int((avail_w - gap_w * (n - 1)) / n))
+    box_w = max(min_box_w, box_w)
+    total = box_w * n + gap_w * (n - 1)
+    start_x = Inches(0.8) + (avail_w - total) // 2
+    box_h = Inches(0.85)
+    y = Inches(3.8)
 
     for i, step in enumerate(steps):
-        x = start_x + i * (box_w + gap)
-        # ボックス
-        shape = slide.shapes.add_shape(1, x, y, box_w, box_h)  # 1 = rectangle
+        x = start_x + i * (box_w + gap_w)
+
+        # ステップ番号（上）
+        num_shape = slide.shapes.add_shape(1, x + box_w // 2 - Inches(0.18), y - Inches(0.5), Inches(0.36), Inches(0.36))
+        num_shape.fill.solid()
+        num_shape.fill.fore_color.rgb = GOLD
+        num_shape.line.fill.background()
+        np = num_shape.text_frame.paragraphs[0]
+        np.text = str(i + 1)
+        np.font.size = Pt(11)
+        np.font.color.rgb = NAVY
+        np.font.bold = True
+        np.alignment = PP_ALIGN.CENTER
+
+        # メインボックス
+        shape = slide.shapes.add_shape(1, x, y, box_w, box_h)
         shape.fill.solid()
         shape.fill.fore_color.rgb = NAVY
         shape.line.fill.background()
@@ -160,7 +223,7 @@ def add_flow(slide, steps):
         # 矢印（最後以外）
         if i < n - 1:
             ax = x + box_w
-            arrow = slide.shapes.add_shape(13, ax, y + box_h // 3, gap, box_h // 3)  # 13 = right arrow
+            arrow = slide.shapes.add_shape(13, ax + Inches(0.04), y + box_h // 3, gap_w - Inches(0.08), box_h // 3)
             arrow.fill.solid()
             arrow.fill.fore_color.rgb = GOLD
             arrow.line.fill.background()
