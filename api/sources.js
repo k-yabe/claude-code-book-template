@@ -4,7 +4,7 @@ const KV_KEY = 'prompt_maker_sources';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -35,6 +35,22 @@ export default async function handler(req, res) {
       await kv.set(KV_KEY, sources);
       return res.status(201).json({ source: newSource });
     }
+
+    // PATCH: ソース部分更新（要約・メモなど）
+    if (req.method === 'PATCH') {
+      const { id, summary, note } = req.body;
+      if (!id) return res.status(400).json({ error: 'IDが必要です' });
+
+      const sources = await kv.get(KV_KEY) || [];
+      const source = sources.find(s => s.id === id);
+      if (!source) return res.status(404).json({ error: 'ソースが見つかりません' });
+
+      if (summary !== undefined) source.summary = summary;
+      if (note !== undefined) source.note = note;
+      await kv.set(KV_KEY, sources);
+      return res.status(200).json({ source });
+    }
+
 
     // DELETE: ソース削除
     if (req.method === 'DELETE') {
