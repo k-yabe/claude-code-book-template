@@ -337,7 +337,7 @@
         <!-- チャット入力 -->
         <div class="chat-input-area">
           <textarea class="chat-textarea" id="chat-input" placeholder="例: 新サービスの顧客向け提案資料を作りたい" rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
-          <button class="btn-research-toggle" id="btn-research-toggle" onclick="toggleDeepResearch()" title="ONにするとWeb検索で最新データを収集してからスライドを作成します">🔍 リサーチ</button>
+          <button class="btn-research-toggle" id="btn-research-toggle" onclick="toggleDeepResearch()" title="ONにするとWeb検索で最新データを収集してからスライドを作成します">🔍 ディープリサーチ</button>
           <button class="btn-send" id="btn-send" onclick="sendChat()">&#x27A4;</button>
         </div>
 
@@ -758,7 +758,7 @@
               } else if (event.type === 'result') {
                 researchData = event.research || null;
                 const countText = event.searchCount ? `${event.searchCount}件のソースを調査` : '';
-                progressEl.querySelector('.rp-title').textContent = `🔍 リサーチ完了 ${countText}`;
+                progressEl.querySelector('.rp-title').textContent = `🔍 ディープリサーチ完了 ${countText}`;
                 if (researchData?.key_insights?.length) {
                   researchData.key_insights.forEach(insight => {
                     const item = document.createElement('div');
