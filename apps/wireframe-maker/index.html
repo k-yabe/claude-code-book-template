@@ -111,6 +111,8 @@
     .section-card .sec-desc { font-size: 0.75rem; color: #8a9bb0; }
     .section-card .sec-components { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
     .section-card .comp-tag { font-size: 0.65rem; padding: 2px 6px; background: #f0f2f5; color: #8a9bb0; }
+    .section-card .sec-method { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; padding: 2px 8px; font-size: 0.62rem; font-weight: 600; background: #001f33; color: rgba(255,255,255,0.85); }
+    .section-card .sec-method .sm-dot { width: 5px; height: 5px; background: #ffb81c; border-radius: 50%; }
     .section-card .sec-delete { background: none; border: none; color: #ccc; font-size: 1.1rem; cursor: pointer; padding: 4px 8px; transition: color 0.15s; }
     .section-card .sec-delete:hover { color: #c0392b; }
 
@@ -143,6 +145,16 @@
     .preview-canvas svg .section-group { cursor: pointer; }
     .preview-canvas svg .section-group:hover rect.section-bg { stroke: #ffb81c; stroke-width: 2; }
     .preview-canvas svg .section-group.selected rect.section-bg { stroke: #001f33; stroke-width: 2.5; stroke-dasharray: 8 4; }
+
+    /* セクション根拠パネル */
+    .rationale-panel { background: #001f33; color: #fff; padding: 12px 16px; margin-bottom: 12px; display: none; animation: fadeIn 0.3s ease; }
+    .rationale-panel.visible { display: block; }
+    .rationale-panel .rp-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .rationale-panel .rp-source { font-size: 0.65rem; font-weight: 700; color: #ffb81c; text-transform: uppercase; letter-spacing: 0.5px; }
+    .rationale-panel .rp-section { font-size: 0.82rem; font-weight: 600; }
+    .rationale-panel .rp-text { font-size: 0.75rem; color: rgba(255,255,255,0.8); line-height: 1.6; }
+    .rationale-panel .rp-close { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 1rem; cursor: pointer; margin-left: auto; padding: 0 4px; }
+    .rationale-panel .rp-close:hover { color: #fff; }
 
     /* ===== エクスポートフェーズ ===== */
     .export-card { background: #fff; border: 1px solid #e8ecf0; padding: 32px; text-align: center; margin-bottom: 16px; }
@@ -350,6 +362,14 @@
       <span style="flex:1"></span>
       <span style="font-size:0.72rem;color:#b0bec5">セクションをクリックして選択</span>
     </div>
+    <div id="rationale-panel" class="rationale-panel">
+      <div class="rp-header">
+        <span class="rp-source" id="rp-source"></span>
+        <span class="rp-section" id="rp-section"></span>
+        <button class="rp-close" onclick="closeRationale()">✕</button>
+      </div>
+      <div class="rp-text" id="rp-text"></div>
+    </div>
     <div id="preview-canvas" class="preview-canvas"></div>
     <div class="refine-bar">
       <label for="section-refine-input" class="hidden">セクション修正指示</label>
@@ -395,6 +415,25 @@ let currentSections = [];
 let selectedSectionId = null;
 let zoomLevel = 1;
 let importedContent = '';
+
+/* ===== メソドロジーマッピング ===== */
+const SECTION_RATIONALE = {
+  navigation: { source: '才流+WACUL', badge: '才流: 行動の後押し', text: 'ナビゲーション右端にCTAボタンを配置。才流の「行動の後押し」原則に基づき、常時アクセス可能なCTA導線を確保します。' },
+  hero: { source: 'WACUL', badge: 'WACUL: FV完結型', text: 'ファーストビュー完結型（サービス名+概要+CTA）でCVR1.64倍。CTA中央配置でさらに1.32倍。補完文言（「無料」「3分で完了」等）でCVR1.45倍。滞在時間の57%はFVに集中するため、最も重要なセクションです。' },
+  features: { source: '才流', badge: '才流: 商品紹介', text: '才流「売れるロジック」第4段階。機能ではなくベネフィットで訴求（「○○できる」形式）。3〜4つに絞り、競合との差別化ポイントを明確にします。' },
+  'content-text': { source: '才流', badge: '才流: 問題提起/原因', text: '才流「売れるロジック」第1〜2段階。顧客が抱える問題を提起し、根本原因を深掘りすることで共感を得て、解決策への導線を作ります。' },
+  'two-column': { source: '才流', badge: '才流: 解決策提示', text: '才流「売れるロジック」第3段階。Before/After、課題と解決策の対比で「○○によって□□を解決する△△です」という位置づけを明確化します。' },
+  testimonials: { source: '才流', badge: '才流: 信頼', text: '才流「売れるロジック」第5段階＋導入事例12パターン。成功事例インタビュー（定量的成果数値付き）が最も効果的。BtoBでは必須セクションです。' },
+  pricing: { source: '才流+WACUL', badge: '才流: 商品紹介', text: '2〜3プラン比較で推奨プランを強調。才流の「検討段階別CTA」に基づき、各プランに異なるCTAを設定します。' },
+  'cta-banner': { source: 'WACUL', badge: 'WACUL: CTA最適化', text: 'ページ中間（testimonials後、faq前が効果的）と最下部に配置。CTA補完文言でCVR1.45倍。「問い合わせする」より「資料をダウンロードする（無料）」が高CVR。' },
+  form: { source: '才流EFO+WACUL', badge: '才流EFO', text: '才流EFOチェックリスト準拠。項目7つ以下（1削減で通過率+2%pt）。確認画面省略（離脱防止）。フォーム遷移ボタンとタイトル文言一致で通過率1.3倍。目標通過率25%。' },
+  faq: { source: '才流', badge: '才流: 安心', text: '才流「売れるロジック」第6段階。BtoB特有の「失敗したくない」心理に対応。検討段階の不安5〜8件を解消し、導入ハードルを下げます。' },
+  gallery: { source: 'WACUL', badge: 'WACUL: 視覚訴求', text: '利用シーン・UI画面・導入先の様子を画像グリッドで表示。テキストだけでは伝わらない具体的なイメージを訴求します。' },
+  stats: { source: '才流', badge: '才流: 信頼', text: '才流「売れるロジック」第5段階。導入社数・満足度・継続率・成果指標を3〜4つの数値で可視化。購買担当者が決裁者を説得する材料になります。' },
+  timeline: { source: '才流', badge: '才流: 安心', text: '才流「売れるロジック」第6段階。検討→申込→導入→運用のプロセスを可視化し、導入後のイメージを明確にして不安を解消します。' },
+  cards: { source: '才流', badge: '才流: 商品紹介', text: '事例一覧・サービス一覧・プラン比較をカードグリッドで表示。情報を整理して比較しやすくすることで意思決定を支援します。' },
+  footer: { source: '才流EFO', badge: 'WACUL: 離脱防止', text: 'LPではフッターのリンクを最小限に。フォームページではヘッダー・フッターのリンクを削除して離脱を防止します（才流EFOチェックリスト準拠）。' }
+};
 
 /* ===== 初期化 ===== */
 HistoryManager.init('Wireframe Maker');
@@ -751,6 +790,8 @@ function renderSectionList() {
     card.className = 'section-card';
     card.draggable = true;
     card.dataset.index = i;
+    const rationale = SECTION_RATIONALE[sec.type];
+    const methodBadge = rationale ? `<span class="sec-method"><span class="sm-dot"></span>${escHtml(rationale.badge)}</span>` : '';
     card.innerHTML = `
       <div class="drag-handle">⠿</div>
       <div class="sec-info">
@@ -758,6 +799,7 @@ function renderSectionList() {
         <div class="sec-label">${escHtml(sec.label)}</div>
         <div class="sec-desc">${escHtml(sec.description || '')}</div>
         <div class="sec-components">${(sec.components || []).map(c => '<span class="comp-tag">' + escHtml(c) + '</span>').join('')}</div>
+        ${methodBadge}
       </div>
       <button class="sec-delete" onclick="deleteSection(${i})" title="削除">✕</button>`;
     card.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); card.classList.add('dragging'); });
@@ -999,6 +1041,7 @@ function generatePreview() {
   canvas.innerHTML = '';
   selectedSectionId = null;
   document.getElementById('selected-label').textContent = '';
+  document.getElementById('rationale-panel').classList.remove('visible');
 
   let y = 0;
   const svgEl = svg('svg', { xmlns: SVG_NS, width: WF_WIDTH });
@@ -1023,7 +1066,22 @@ function selectSection(id) {
     target.classList.add('selected');
     const sec = currentSections.find(s => s.id === id);
     document.getElementById('selected-label').textContent = sec ? `選択中: ${sec.label}` : '';
+    // 根拠パネル表示
+    const rationale = sec ? SECTION_RATIONALE[sec.type] : null;
+    const panel = document.getElementById('rationale-panel');
+    if (rationale && sec) {
+      document.getElementById('rp-source').textContent = rationale.source;
+      document.getElementById('rp-section').textContent = sec.label;
+      document.getElementById('rp-text').textContent = rationale.text;
+      panel.classList.add('visible');
+    } else {
+      panel.classList.remove('visible');
+    }
   }
+}
+
+function closeRationale() {
+  document.getElementById('rationale-panel').classList.remove('visible');
 }
 
 async function refineSection() {
