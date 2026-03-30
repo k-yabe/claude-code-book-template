@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-31（Prompt Maker v4 NotebookLM超え — AI自動要約・動的サジェスチョン・横断分析・品質スコア）
+最終更新: 2026-03-31（Prompt Maker v4 NotebookLM超え・Slide Maker 16レイアウト完全対応）
 
 ---
 
@@ -55,7 +55,7 @@
 | OGPチェッカー | `apps/ogp-checker/index.html` | ✅ 完成 | S017 |
 | SNS Post Generator | `apps/sns-post-generator/index.html` | ✅ 完成 | S024, S028 |
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
-| Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034 |
+| Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
 | Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js` | ✅ 完成 | S035, S037, S038, S039 |
 | Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037 |
 
@@ -111,11 +111,14 @@ State: { columns: [...], tasks: [...], nextColumnId, nextTaskId }
 | 項目 | 詳細 |
 |------|------|
 | テンプレート | 4種（社外/社内 × WHITE/DARK）、`apps/slide-maker/templates/` |
-| スライドマスター | 4マスター × 33レイアウト（現行11種使用、V2で16種に拡張予定） |
-| レイアウト（現行） | cover / agenda / chapter / content / two-column / content-with-chart / content-with-flow / sixbox / comparison / quote / closing |
-| PPTX生成 | python-pptx 1.0.2（`api/slide-export.py`）— ネイティブチャート・テーブル・AutoShape・画像挿入 |
-| API | `claude-sonnet-4-6`（チャット・生成）/ `claude-haiku-4-5-20251001`（リファイン） |
+| スライドマスター | 4マスター × 33レイアウト（17種使用） |
+| レイアウト | cover / agenda / chapter / content / two-column / content-with-chart / content-with-flow / sixbox / comparison / quote / closing / centered-text / text-left-picture-right / text-right-picture-left / content-left-full-picture-right / large-image-right / picture-fullscreen |
+| PPTX生成 | python-pptx 1.0.2（`api/slide-export.py`）— ネイティブチャート・テーブル・AutoShape・Unsplash画像挿入 |
+| API | `claude-sonnet-4-6`（チャット・生成）/ `claude-haiku-4-5-20251001`（リファイン・ファクトチェック） |
 | ファイルインポート | PDF（pdf.js）/ Word（mammoth.js）/ PPTX（JSZip）— クライアント側テキスト抽出 |
+
+| ファクトチェック | `api/slide-factcheck.js` — claude-haiku + web_search で主張検証（個別+一括） |
+| プレビュー | Chart.jsミニチャート・SVGフロー図・画像プレースホルダ描画 |
 
 ### Prompt Maker（`apps/prompt-maker/`）
 
@@ -143,11 +146,7 @@ NotebookLM風の2ペインレイアウトでプロンプトを対話生成する
 | API | `claude-sonnet-4-6`（チャット・プロンプト生成・横断分析）/ `claude-haiku-4-5`（要約・サジェスチョン・品質スコア） |
 | 共通モジュール | `copy-utils.js`（コピー）/ `history.js`（履歴パネル） |
 | UXフロー | 4フェーズ（ヒアリング → 構成確認 → プレビュー → 出力）|
-
-**V2 設計見直し（S035 進行中）:**
-- 画像対応レイアウト5種の活用（Unsplash API経由で画像挿入）
-- ディープリサーチ機能（リサーチ→生成→ファクトチェックの3フェーズ分離）
-- SYSTEM_PROMPT強化（16レイアウト + imageQuery + 配分ルール）
+| 動的SYSTEM_PROMPT | `buildSystemPrompt(imageEnabled)` — Unsplash API有無でレイアウト配分を自動切替 |
 
 ### Todoアプリ（`todo.html`）
 
@@ -226,5 +225,6 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-28 | Slide Maker 完成 | AKKODiSブランド準拠PPTXジェネレーター。ウィザード入力・Claude API構成生成・テンプレートPPTX直接操作（JSZip）・図版自動生成3種（グラフ・フロー・比較表）・対話型リファイン・ブラウザプレビュー・UIオンボーディング改善 |
 | 2026-03-29 | Slide Maker V1→V2移行開始 | チャット対話UI・python-pptx移行（JSZip廃止）・アウトライン編集・ファイルインポート・4フェーズUX |
 | 2026-03-30 | Slide Maker V2 設計決定 | アプローチB（python-pptx強化）採用。画像系5レイアウト活用（Unsplash API）、ディープリサーチ3フェーズ分離、SYSTEM_PROMPT 16レイアウト化 |
+| 2026-03-30 | Slide Maker 16レイアウト完全対応 | フロントエンド全17レイアウト対応（VALID_LAYOUTS/編集モーダル/プレビュー描画）、Chart.jsミニチャート・SVGフロー図プレビュー、ファクトチェック（個別+一括）、動的SYSTEM_PROMPT（画像有無切替）、closing/画像レイアウト空スライド修正 |
 | 2026-03-27 | Banner Resizer 新画像サイズ要件対応 | MV: 800×446→1920×1080、一覧プリセット削除、サムネイル余白ガイド（安全ゾーン上下24px左右100px）追加。ブランドガイドライン違反も修正 |
 | 2026-03-30 | Banner Resizer WebPフォールバック修正 | ブラウザがWebP非対応時にPNGにフォールバックされるが拡張子が.webpのままでCMSアップロードエラーになっていた。Blobの実際のMIMEタイプを確認し正しい拡張子で出力するよう修正 |
