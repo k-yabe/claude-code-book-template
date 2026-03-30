@@ -1,4 +1,7 @@
 {
+  "github": {
+    "silent": true
+  },
   "functions": {
     "api/generate.js": { "maxDuration": 60 },
     "api/slide-generate.js": { "maxDuration": 60 },
