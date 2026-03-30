@@ -1,12 +1,15 @@
 """
 Vercel Python Serverless Function: PPTX生成（python-pptx add_slide方式）
-テンプレートのslide_layoutを使い、テキスト + ネイティブチャート + テーブル + フロー図形を生成。
+テンプレートのslide_layoutを使い、テキスト + ネイティブチャート + テーブル + フロー図形 + 画像を生成。
 """
 from http.server import BaseHTTPRequestHandler
 import json
 import os
 import io
 import base64
+import urllib.request
+import urllib.error
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.enum.chart import XL_CHART_TYPE
@@ -16,12 +19,20 @@ from pptx.chart.data import CategoryChartData
 
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'apps', 'slide-maker', 'templates')
 
+UNSPLASH_ACCESS_KEY = os.environ.get('UNSPLASH_ACCESS_KEY', '')
+
 LAYOUT_NAMES = {
     'cover': 'Wave in the corners',
     'chapter': 'Chapter - Mesh Gold',
     'agenda': 'Agenda - Computer',
     'content': 'Title, Subtitle and one Paragrah',
     'two-column': 'Two Paragraphs with Blue Line',
+    'centered-text': 'Centered Text Box',
+    'text-left-picture-right': 'Text left - Picture Right',
+    'text-right-picture-left': 'Text Right- Picture Left',
+    'content-left-full-picture-right': 'Content Left - Full Picture Right',
+    'large-image-right': 'Large Image - Right',
+    'picture-fullscreen': 'Picture full screen with Title block',
     'content-with-chart': 'Title, Subtitle and one Paragrah',
     'content-with-flow': 'Title, Subtitle and one Paragrah',
     'sixbox': 'Six Text Boxes',
@@ -30,12 +41,76 @@ LAYOUT_NAMES = {
     'closing': 'Thank you',
 }
 
+# 画像系レイアウト — Unsplash未設定時はcontentにフォールバック
+IMAGE_LAYOUTS = {
+    'text-left-picture-right', 'text-right-picture-left',
+    'content-left-full-picture-right', 'large-image-right', 'picture-fullscreen',
+}
+
 NAVY = RGBColor(0x00, 0x1F, 0x33)
 GOLD = RGBColor(0xFF, 0xB8, 0x1C)
 CYAN = RGBColor(0x00, 0xBF, 0xD6)
 GRAY = RGBColor(0x8A, 0x9B, 0xB0)
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
 CHART_COLORS = [NAVY, GOLD, CYAN, GRAY, RGBColor(0x4A, 0x55, 0x68), RGBColor(0xE6, 0x7E, 0x22)]
+
+
+def fetch_unsplash_image(query, timeout=5):
+    """Unsplash APIから画像を取得してBytesIOで返す。失敗時はNone。"""
+    if not UNSPLASH_ACCESS_KEY or not query:
+        return None
+    try:
+        search_url = f'https://api.unsplash.com/photos/random?query={urllib.request.quote(query)}&orientation=landscape&w=1200'
+        req = urllib.request.Request(search_url, headers={
+            'Authorization': f'Client-ID {UNSPLASH_ACCESS_KEY}',
+            'Accept-Version': 'v1',
+        })
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read())
+            img_url = data.get('urls', {}).get('regular', '')
+            if not img_url:
+                return None
+        img_req = urllib.request.Request(img_url)
+        with urllib.request.urlopen(img_req, timeout=timeout) as img_resp:
+            return io.BytesIO(img_resp.read())
+    except Exception:
+        return None
+
+
+def fetch_images_batch(slides_data):
+    """複数スライドの画像を並列取得。{index: BytesIO} を返す。"""
+    image_tasks = {}
+    for i, sd in enumerate(slides_data):
+        if sd.get('layout') in IMAGE_LAYOUTS and sd.get('imageQuery'):
+            image_tasks[i] = sd['imageQuery']
+
+    if not image_tasks:
+        return {}
+
+    results = {}
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = {executor.submit(fetch_unsplash_image, q): idx for idx, q in image_tasks.items()}
+        for future in as_completed(futures):
+            idx = futures[future]
+            try:
+                img = future.result()
+                if img:
+                    results[idx] = img
+            except Exception:
+                pass
+    return results
+
+
+def insert_picture_to_placeholder(slide, ph_idx, image_stream):
+    """PICTURE placeholderに画像を挿入。"""
+    for ph in slide.placeholders:
+        if ph.placeholder_format.idx == ph_idx:
+            try:
+                ph.insert_picture(image_stream)
+                return True
+            except Exception:
+                pass
+    return False
 
 
 def _set(ph_map, idx, text):
@@ -431,6 +506,29 @@ def apply_data(slide, layout, data):
         # 中央の区切り線
         add_accent_line(slide, Inches(4.85), Inches(2.0), Inches(0.04))
 
+    elif layout == 'centered-text':
+        _set(ph_map, 29, data.get('title', ''))
+        _set(ph_map, 30, '')
+        if 32 in ph_map:
+            set_rich_body(ph_map[32], data.get('body', ''))
+        elif 31 in ph_map:
+            set_rich_body(ph_map[31], data.get('body', ''))
+
+    elif layout in IMAGE_LAYOUTS:
+        # 画像系レイアウト共通処理
+        _set(ph_map, 29, data.get('title', ''))
+        if 30 in ph_map:
+            _set(ph_map, 30, '')
+        body = data.get('body', '')
+        if layout != 'picture-fullscreen':
+            # テキスト+画像レイアウト
+            if 32 in ph_map:
+                set_rich_body(ph_map[32], body)
+            elif 31 in ph_map:
+                set_rich_body(ph_map[31], body)
+        # 画像挿入は handler の do_POST 内で実行（image_map経由）
+        add_accent_line(slide, Inches(0.8), Inches(1.85), Inches(1.5))
+
     elif layout == 'content-with-chart':
         _set(ph_map, 29, data.get('title', ''))
         _set(ph_map, 30, '')
@@ -527,7 +625,16 @@ class handler(BaseHTTPRequestHandler):
                     prs.part.drop_rel(rId)
                 sldIdLst.remove(sldId)
 
-            for sd in slides_data:
+            # Unsplash未設定時: 画像系レイアウトをcontentにフォールバック
+            if not UNSPLASH_ACCESS_KEY:
+                for sd in slides_data:
+                    if sd.get('layout') in IMAGE_LAYOUTS:
+                        sd['layout'] = 'content'
+
+            # 画像を並列取得
+            image_map = fetch_images_batch(slides_data)
+
+            for i, sd in enumerate(slides_data):
                 ly = sd.get('layout', 'content')
                 layout_name = LAYOUT_NAMES.get(ly, 'Title, Subtitle and one Paragrah')
                 layout = layout_map.get(layout_name)
@@ -538,6 +645,12 @@ class handler(BaseHTTPRequestHandler):
 
                 slide = prs.slides.add_slide(layout)
                 apply_data(slide, ly, sd)
+
+                # 画像系レイアウト: PICTURE placeholderに画像挿入
+                if ly in IMAGE_LAYOUTS and i in image_map:
+                    # PICTURE placeholderのidxはレイアウトによって異なる
+                    pic_idx = 12 if ly == 'content-left-full-picture-right' else (32 if ly == 'picture-fullscreen' else 21)
+                    insert_picture_to_placeholder(slide, pic_idx, image_map[i])
 
             buffer = io.BytesIO()
             prs.save(buffer)
