@@ -2,7 +2,8 @@
   "functions": {
     "api/generate.js": { "maxDuration": 60 },
     "api/slide-generate.js": { "maxDuration": 60 },
-    "api/slide-export.py": { "maxDuration": 30 },
+    "api/slide-export.py": { "maxDuration": 60 },
+    "api/slide-research.js": { "maxDuration": 120 },
     "api/fetch-article.js": { "maxDuration": 30 }
   },
   "headers": [

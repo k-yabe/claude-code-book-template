@@ -40,14 +40,14 @@
 
     /* インポートゾーン */
     .import-zone { padding: 10px 16px; background: #fff; border-bottom: 1px solid #e8ecf0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .import-drop { flex: 1; min-width: 180px; border: 1.5px dashed #d0d5dc; border-radius: 8px; padding: 9px 14px; font-size: 0.78rem; color: #8a9bb0; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .import-drop { flex: 1; min-width: 180px; border: 1.5px dashed #d0d5dc; padding: 9px 14px; font-size: 0.78rem; color: #8a9bb0; text-align: center; cursor: pointer; transition: all 0.2s; }
     .import-drop:hover, .import-drop.dragover { border-color: #ffb81c; background: rgba(255,184,28,0.04); color: #4a5568; }
     .import-drop input[type="file"] { display: none; }
     .import-url-row { display: flex; gap: 0; flex: 1; min-width: 180px; }
-    .import-url-input { flex: 1; border: 1.5px solid #d0d5dc; border-radius: 8px 0 0 8px; padding: 8px 12px; font-size: 0.78rem; font-family: inherit; color: #2d3436; outline: none; }
+    .import-url-input { flex: 1; border: 1.5px solid #d0d5dc; padding: 8px 12px; font-size: 0.78rem; font-family: inherit; color: #2d3436; outline: none; }
     .import-url-input:focus { border-color: #ffb81c; }
     .import-url-input::placeholder { color: #c0cdd9; }
-    .btn-url-go { background: #001f33; color: #fff; border: none; border-radius: 0 8px 8px 0; padding: 8px 14px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    .btn-url-go { background: #001f33; color: #fff; border: none; padding: 8px 14px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; }
     .btn-url-go:hover { opacity: 0.85; }
 
     /* チャットメッセージ */
@@ -55,19 +55,19 @@
     .chat-row { display: flex; gap: 8px; align-items: flex-end; }
     .chat-row.ai { align-self: flex-start; }
     .chat-row.user { align-self: flex-end; flex-direction: row-reverse; }
-    .chat-avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; line-height: 1; }
+    .chat-avatar { width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; line-height: 1; }
     .chat-avatar.ai { background: #fffbf0; }
     .chat-avatar.user { background: #e8ecf0; }
-    .chat-bubble { max-width: 78%; padding: 12px 16px; font-size: 0.88rem; line-height: 1.7; white-space: pre-wrap; word-break: break-word; border-radius: 18px; }
-    .chat-bubble.ai { background: #fff; color: #2d3436; border: 1px solid #e8ecf0; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .chat-bubble.user { background: #001f33; color: #fff; border-bottom-right-radius: 4px; }
-    .chat-typing { align-self: flex-start; margin-left: 40px; padding: 10px 16px; background: #fff; color: #8a9bb0; font-size: 0.82rem; border-radius: 18px; border: 1px solid #e8ecf0; }
+    .chat-bubble { max-width: 78%; padding: 12px 16px; font-size: 0.88rem; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+    .chat-bubble.ai { background: #fff; color: #2d3436; border: 1px solid #e8ecf0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .chat-bubble.user { background: #001f33; color: #fff; }
+    .chat-typing { align-self: flex-start; margin-left: 40px; padding: 10px 16px; background: #fff; color: #8a9bb0; font-size: 0.82rem; border: 1px solid #e8ecf0; }
     .chat-typing::after { content: '...'; animation: dots 1.2s steps(4) infinite; }
     @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
-    .chat-action-btn { display: inline-block; margin-top: 10px; background: #ffb81c; color: #001f33; border: none; border-radius: 20px; padding: 9px 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .chat-action-btn { display: inline-block; margin-top: 10px; background: #ffb81c; color: #001f33; border: none; padding: 9px 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
     .chat-action-btn:hover { opacity: 0.88; }
     .chat-suggestions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; margin-left: 40px; align-self: flex-start; }
-    .chat-sug-chip { background: #fff; border: 1.5px solid #d0d5dc; color: #4a5568; padding: 7px 16px; font-size: 0.8rem; cursor: pointer; font-family: inherit; transition: all 0.15s; border-radius: 20px; }
+    .chat-sug-chip { background: #fff; border: 1.5px solid #d0d5dc; color: #4a5568; padding: 7px 16px; font-size: 0.8rem; cursor: pointer; font-family: inherit; transition: all 0.15s; }
     .chat-sug-chip:hover { border-color: #ffb81c; color: #001f33; background: #fffbf0; }
     .chat-citations { margin-top: 8px; font-size: 0.72rem; }
     .chat-citation-link { color: #8a9bb0; text-decoration: none; display: block; padding: 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -75,12 +75,19 @@
 
     /* チャット入力 */
     .chat-input-area { background: #fff; border-top: 1px solid #e8ecf0; padding: 12px 16px; display: flex; gap: 10px; align-items: flex-end; }
-    .chat-textarea { flex: 1; border: 1.5px solid #e0e4e8; border-radius: 22px; padding: 10px 18px; font-size: 0.88rem; font-family: inherit; color: #2d3436; resize: none; outline: none; min-height: 44px; max-height: 120px; line-height: 1.5; }
+    .chat-textarea { flex: 1; border: 1.5px solid #e0e4e8; padding: 10px 18px; font-size: 0.88rem; font-family: inherit; color: #2d3436; resize: none; outline: none; min-height: 44px; max-height: 120px; line-height: 1.5; }
     .chat-textarea:focus { border-color: #001f33; box-shadow: 0 0 0 3px rgba(0,31,51,0.08); }
     .chat-textarea::placeholder { color: #b0bec5; }
-    .btn-send { background: #001f33; color: #fff; border: none; border-radius: 50%; width: 42px; height: 42px; font-size: 1rem; cursor: pointer; font-family: inherit; flex-shrink: 0; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; }
+    .btn-send { background: #001f33; color: #fff; border: none; width: 42px; height: 42px; font-size: 1rem; cursor: pointer; font-family: inherit; flex-shrink: 0; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; }
     .btn-send:hover:not(:disabled) { opacity: 0.85; }
     .btn-send:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn-research-toggle { background: none; border: 1.5px solid #e0e4e8; width: 42px; height: 42px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .btn-research-toggle:hover { border-color: #001f33; }
+    .btn-research-toggle.active { border-color: #ffb81c; background: #fffbf0; }
+    .research-progress { margin-left: 40px; align-self: flex-start; padding: 10px 16px; background: #fffbf0; border: 1px solid #ffb81c; font-size: 0.82rem; color: #4a5568; }
+    .research-progress .rp-title { font-weight: 700; color: #001f33; margin-bottom: 6px; }
+    .research-progress .rp-item { padding: 2px 0; font-size: 0.78rem; color: #4a5568; }
+    .research-progress .rp-item::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #ffb81c; margin-right: 6px; vertical-align: middle; }
 
     /* テンプレートバー */
     .tpl-bar { padding: 10px 16px; border-top: 1px solid #e8ecf0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -285,6 +292,7 @@
         <!-- チャット入力 -->
         <div class="chat-input-area">
           <textarea class="chat-textarea" id="chat-input" placeholder="メッセージを入力..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="btn-research-toggle" id="btn-research-toggle" onclick="toggleDeepResearch()" title="ディープリサーチ">🔍</button>
           <button class="btn-send" id="btn-send" onclick="sendChat()">&#x27A4;</button>
         </div>
 
@@ -425,6 +433,8 @@
     let importedContent = '';
     let currentPhase = 'chat';
     let editingSlideIdx = -1;
+    let deepResearchEnabled = false;
+    let researchData = null;
 
     // pdf.js worker 設定
     if (typeof pdfjsLib !== 'undefined') {
@@ -631,6 +641,80 @@
       }
     }
 
+    // ===== ディープリサーチ =====
+    function toggleDeepResearch() {
+      deepResearchEnabled = !deepResearchEnabled;
+      document.getElementById('btn-research-toggle').classList.toggle('active', deepResearchEnabled);
+    }
+
+    async function runDeepResearch(topic, context) {
+      researchData = null;
+      const msgs = document.getElementById('chat-messages');
+
+      // リサーチ進捗表示
+      const progressEl = document.createElement('div');
+      progressEl.className = 'research-progress';
+      progressEl.innerHTML = '<div class="rp-title">🔍 ディープリサーチ中...</div>';
+      msgs.appendChild(progressEl);
+      msgs.scrollTop = msgs.scrollHeight;
+
+      try {
+        const res = await fetch('/api/slide-research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic, context, _user: USER }),
+        });
+
+        if (!res.ok) throw new Error(`リサーチAPIエラー (${res.status})`);
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') break;
+
+            try {
+              const event = JSON.parse(data);
+              if (event.type === 'progress') {
+                const item = document.createElement('div');
+                item.className = 'rp-item';
+                item.textContent = event.message;
+                progressEl.appendChild(item);
+                msgs.scrollTop = msgs.scrollHeight;
+              } else if (event.type === 'result') {
+                researchData = event.research || null;
+                const countText = event.searchCount ? `${event.searchCount}件のソースを調査` : '';
+                progressEl.querySelector('.rp-title').textContent = `🔍 リサーチ完了 ${countText}`;
+                if (researchData?.key_insights?.length) {
+                  researchData.key_insights.forEach(insight => {
+                    const item = document.createElement('div');
+                    item.className = 'rp-item';
+                    item.textContent = insight;
+                    progressEl.appendChild(item);
+                  });
+                }
+              }
+            } catch {}
+          }
+        }
+        return researchData;
+      } catch (err) {
+        progressEl.querySelector('.rp-title').textContent = `リサーチに失敗: ${err.message}`;
+        return null;
+      }
+    }
+
     // ===== ファイルインポート =====
     const dropZone = document.getElementById('import-drop');
     if (dropZone) {
@@ -727,12 +811,42 @@
     // ===== アウトライン生成 =====
     async function generateOutline() {
       const ctx = collectedContext || {};
+
+      // ディープリサーチが有効な場合、先にリサーチを実行
+      if (deepResearchEnabled && !researchData) {
+        const topic = ctx.topic || chatHistory.filter(m => m.role === 'user').map(m => m.content).join(' ').slice(0, 500);
+        const research = await runDeepResearch(topic, ctx.background || '');
+        if (research) {
+          researchData = research;
+        }
+      }
+
       showLoading('🔄 スライド構成を生成中…', 20);
 
       try {
+        let freeText = buildFreeTextFromContext(ctx);
+        // リサーチ結果があればコンテキストに追加
+        if (researchData) {
+          freeText += '\n\n## リサーチ結果（出典付きデータ）\n';
+          if (researchData.sections) {
+            for (const sec of researchData.sections) {
+              freeText += `\n### ${sec.title}\n`;
+              for (const f of (sec.findings || [])) {
+                freeText += `- ${f.fact}${f.source_name ? ` (出典: ${f.source_name})` : ''}\n`;
+              }
+            }
+          }
+          if (researchData.suggested_charts?.length) {
+            freeText += '\n### 推奨チャートデータ\n';
+            for (const c of researchData.suggested_charts) {
+              freeText += `- ${c.title}: ${c.type}グラフ [${c.labels?.join(', ')}] = [${c.data?.join(', ')}] ${c.unit || ''} (${c.source || ''})\n`;
+            }
+          }
+        }
+
         const body = {
           mode: 'free',
-          freeText: buildFreeTextFromContext(ctx),
+          freeText,
           _user: USER,
         };
         const res = await fetch('/api/slide-generate', {

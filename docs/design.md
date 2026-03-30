@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-30（Wireframe Maker・Prompt Maker 追加）
+最終更新: 2026-03-30（Slide Maker V2 設計見直し・Wireframe Maker・Prompt Maker 追加）
 
 ---
 
@@ -56,8 +56,6 @@
 | SNS Post Generator | `apps/sns-post-generator/index.html` | ✅ 完成 | S024, S028 |
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034 |
-| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035 |
-| Prompt Maker | `apps/prompt-maker/index.html` | ✅ 完成 | S036 |
 
 ---
 
@@ -98,65 +96,30 @@ State: { columns: [...], tasks: [...], nextColumnId, nextTaskId }
 
 ### Slide Maker（`apps/slide-maker/`）
 
-Claude API + JSZip によるブラウザ完結型PPTXジェネレーター。
+チャット対話 → AI構成生成 → アウトライン編集 → python-pptx PPTX生成。
 
 ```
-ウィザード入力 → /api/slide-generate.js（Vercel Edge Function）
-  → claude-sonnet-4-6 でスライド構成JSON生成（temperature=0.3）
-  → Chart.js / Canvas で図版PNG生成
-  → JSZip でテンプレートPPTX書き換え → Blob → ダウンロード
+[チャット対話] → /api/slide-generate.js (mode: chat)
+  → claude-sonnet-4-6 + web_search でヒアリング
+  → 構成生成 (mode: generate) → スライド構成JSON
+  → /api/slide-export.py (python-pptx)
+  → テンプレートの slide_layout で add_slide → PPTX → Base64 → DL
 ```
 
 | 項目 | 詳細 |
 |------|------|
 | テンプレート | 4種（社外/社内 × WHITE/DARK）、`apps/slide-maker/templates/` |
-| レイアウト | 8種（cover / agenda / chapter / content / content-with-chart / content-with-flow / comparison / closing） |
-| ライブラリ | JSZip 3.10.1 / Chart.js 4.5.1（CDN） |
-| API | `claude-sonnet-4-6`（生成）/ `claude-haiku-4-5-20251001`（リファイン） |
-| リファイン | 最大5往復、履歴チップ表示 |
-
-### Wireframe Maker（`apps/wireframe-maker/`）
-
-要件入力からWebワイヤーフレームを自動生成するツール。Sitecore固有の制約は含めない第一弾。
-
-```
-チャット対話 / テンプレート / フリーテキスト + ファイルインポート（PDF/DOCX/PPTX/URL）
-  → /api/wireframe-generate.js（Vercel Serverless Function）
-  → claude-sonnet-4-6 でセクション構成JSON生成（才流/WACUL LP設計メソドロジー準拠）
-  → JavaScript SVG レンダリングエンジンでプレビュー
-  → SVG/PNG エクスポート
-```
-
-| 項目 | 詳細 |
-|------|------|
-| 入力モード | 3種（チャット対話・テンプレート選択・フリーテキスト） |
-| ファイルインポート | PDF（PDF.js）/ DOCX（Mammoth.js）/ PPTX（JSZip）/ URL |
-| テンプレート | 6種（BtoB リードLP・BtoB 認知LP・サービスサイト・BtoC 商品LP・ブログ・お問い合わせ） |
-| LP設計メソドロジー | 才流「売れるロジック」（課題→原因→解決→製品→信頼→安心→行動）/ WACUL CVR最適化データ |
-| セクションタイプ | 15種（navigation / hero / features / content-text / two-column / testimonials / pricing / cta-banner / form / faq / gallery / stats / timeline / cards / footer） |
-| ライブラリ | PDF.js 4.2.67 / Mammoth.js 1.8.0 / JSZip 3.10.1（CDN） |
+| スライドマスター | 4マスター × 33レイアウト（現行11種使用、V2で16種に拡張予定） |
+| レイアウト（現行） | cover / agenda / chapter / content / two-column / content-with-chart / content-with-flow / sixbox / comparison / quote / closing |
+| PPTX生成 | python-pptx 1.0.2（`api/slide-export.py`）— ネイティブチャート・テーブル・AutoShape・画像挿入 |
 | API | `claude-sonnet-4-6`（チャット・生成）/ `claude-haiku-4-5-20251001`（リファイン） |
-| エクスポート | SVG（Blob DL）/ PNG（Canvas経由変換、2x解像度） |
-| フェーズ | chat → structure → preview → export（双方向遷移可） |
-| localStorage | ウィザード入力を自動保存・復元 |
+| ファイルインポート | PDF（pdf.js）/ Word（mammoth.js）/ PPTX（JSZip）— クライアント側テキスト抽出 |
+| UXフロー | 4フェーズ（ヒアリング → 構成確認 → プレビュー → 出力）|
 
-### Prompt Maker（`apps/prompt-maker/`）
-
-Claude API を使い、ユーザーの要望から構造化されたAIプロンプトを生成するツール。
-
-```
-ステップ入力（目的・背景・出力形式・テクニック）
-  → /api/generate（Vercel Serverless Function）
-  → claude-sonnet-4-6 でプロンプト生成
-  → 構成要素バッジ表示 → ワンクリックコピー
-```
-
-| 項目 | 詳細 |
-|------|------|
-| テンプレート | 6種（フリー / SNS / メール / 企画書 / 分析 / 翻訳） |
-| テクニック | 5種（役割付与 / ステップバイステップ / Few-shot / 構造化タグ / 制約明示） |
-| API | `claude-sonnet-4-6`（max_tokens: 4096） |
-| 履歴 | HistoryManager 統合（最新10件） |
+**V2 設計見直し（S035 進行中）:**
+- 画像対応レイアウト5種の活用（Unsplash API経由で画像挿入）
+- ディープリサーチ機能（リサーチ→生成→ファクトチェックの3フェーズ分離）
+- SYSTEM_PROMPT強化（16レイアウト + imageQuery + 配分ルール）
 
 ### Todoアプリ（`todo.html`）
 
@@ -232,7 +195,7 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-20 | 全アプリUI統一（ブランドカラー・navbar・h1・ファビコン） | AKKODiSブランドカラー (#001f33/#ffb81c/#00ffff) 徹底、角丸NG、色付きborderNG、各アプリにファビコン追加 |
 | 2026-03-22 | SNS Post Generator 履歴ラベルを「プラットフォーム ｜ 記事タイトル」形式に改善 | URL のみでは判別しにくいため。保存パターンもおすすめ（recommend）に変更 |
 | 2026-03-20 | ポータルカードUIリニューアル | 正方形カード(190×190px)・`aspect-ratio:1`・グリッドを`justify-content:center`で最終行崩れ防止 |
-| 2026-03-30 | Wireframe Maker 追加 | 要件からワイヤーフレームを自動生成。AI対話ヒアリング・テンプレート6種・PDF/DOCX/PPTX/URLインポート・才流/WACUL LP設計メソドロジー準拠・15種セクションタイプ・SVGレンダリング・SVG/PNGエクスポート・HistoryManager統合。Sitecore制約は含めない第一弾 |
 | 2026-03-28 | Slide Maker 完成 | AKKODiSブランド準拠PPTXジェネレーター。ウィザード入力・Claude API構成生成・テンプレートPPTX直接操作（JSZip）・図版自動生成3種（グラフ・フロー・比較表）・対話型リファイン・ブラウザプレビュー・UIオンボーディング改善 |
+| 2026-03-29 | Slide Maker V1→V2移行開始 | チャット対話UI・python-pptx移行（JSZip廃止）・アウトライン編集・ファイルインポート・4フェーズUX |
+| 2026-03-30 | Slide Maker V2 設計決定 | アプローチB（python-pptx強化）採用。画像系5レイアウト活用（Unsplash API）、ディープリサーチ3フェーズ分離、SYSTEM_PROMPT 16レイアウト化 |
 | 2026-03-27 | Banner Resizer 新画像サイズ要件対応 | MV: 800×446→1920×1080、一覧プリセット削除、サムネイル余白ガイド（安全ゾーン上下24px左右100px）追加。ブランドガイドライン違反も修正 |
-| 2026-03-30 | Prompt Maker 追加 | AIプロンプト構造化生成ツール。目的別テンプレート6種・応用テクニック5種・構成要素バッジ表示・HistoryManager統合。claude-sonnet-4-6使用 |
