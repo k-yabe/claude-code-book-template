@@ -35,11 +35,29 @@
     .phase-step.active .step-num { background: #ffb81c; color: #001f33; }
     .phase-step.completed .step-num { background: #001f33; color: #fff; }
 
+    /* ===== ウェルカムヒーロー ===== */
+    .welcome-hero { background: #001f33; color: #fff; padding: 28px 24px 22px; }
+    .welcome-hero h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+    .welcome-hero h2 span { color: #ffb81c; }
+    .welcome-hero p { font-size: 0.82rem; color: rgba(255,255,255,0.7); line-height: 1.6; margin-bottom: 14px; }
+    .welcome-steps { display: flex; gap: 12px; }
+    .welcome-step { flex: 1; padding: 10px 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
+    .welcome-step-num { font-size: 0.65rem; font-weight: 700; color: #ffb81c; margin-bottom: 2px; }
+    .welcome-step-text { font-size: 0.75rem; color: rgba(255,255,255,0.85); line-height: 1.4; }
+    .welcome-dismiss { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 0.72rem; cursor: pointer; margin-top: 10px; padding: 0; font-family: inherit; }
+    .welcome-dismiss:hover { color: rgba(255,255,255,0.7); }
+
     /* ===== Phase 1: チャット ===== */
     .chat-section { background: #f7f8fa; box-shadow: 0 2px 16px rgba(0,0,0,0.09); display: flex; flex-direction: column; min-height: 520px; border: 1px solid #e8ecf0; }
 
-    /* インポートゾーン */
-    .import-zone { padding: 10px 16px; background: #fff; border-bottom: 1px solid #e8ecf0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    /* インポートゾーン（折りたたみ） */
+    .import-toggle { padding: 8px 16px; background: #fff; border-bottom: 1px solid #e8ecf0; }
+    .import-toggle-btn { background: none; border: none; color: #8a9bb0; font-size: 0.78rem; cursor: pointer; font-family: inherit; padding: 0; display: flex; align-items: center; gap: 6px; }
+    .import-toggle-btn:hover { color: #4a5568; }
+    .import-toggle-btn .arrow { font-size: 0.6rem; transition: transform 0.2s; }
+    .import-toggle-btn.open .arrow { transform: rotate(90deg); }
+    .import-zone { padding: 10px 16px; background: #fff; border-bottom: 1px solid #e8ecf0; display: none; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .import-zone.open { display: flex; }
     .import-drop { flex: 1; min-width: 180px; border: 1.5px dashed #d0d5dc; padding: 9px 14px; font-size: 0.78rem; color: #8a9bb0; text-align: center; cursor: pointer; transition: all 0.2s; }
     .import-drop:hover, .import-drop.dragover { border-color: #ffb81c; background: rgba(255,184,28,0.04); color: #4a5568; }
     .import-drop input[type="file"] { display: none; }
@@ -81,9 +99,9 @@
     .btn-send { background: #001f33; color: #fff; border: none; width: 42px; height: 42px; font-size: 1rem; cursor: pointer; font-family: inherit; flex-shrink: 0; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; }
     .btn-send:hover:not(:disabled) { opacity: 0.85; }
     .btn-send:disabled { opacity: 0.3; cursor: not-allowed; }
-    .btn-research-toggle { background: none; border: 1.5px solid #e0e4e8; width: 42px; height: 42px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-    .btn-research-toggle:hover { border-color: #001f33; }
-    .btn-research-toggle.active { border-color: #ffb81c; background: #fffbf0; }
+    .btn-research-toggle { background: none; border: 1.5px solid #e0e4e8; height: 42px; padding: 0 12px; font-size: 0.78rem; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.15s; color: #8a9bb0; font-family: inherit; }
+    .btn-research-toggle:hover { border-color: #001f33; color: #4a5568; }
+    .btn-research-toggle.active { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
     .research-progress { margin-left: 40px; align-self: flex-start; padding: 10px 16px; background: #fffbf0; border: 1px solid #ffb81c; font-size: 0.82rem; color: #4a5568; }
     .research-progress .rp-title { font-weight: 700; color: #001f33; margin-bottom: 6px; }
     .research-progress .rp-item { padding: 2px 0; font-size: 0.78rem; color: #4a5568; }
@@ -246,7 +264,8 @@
     @media (max-width: 768px) {
       .navbar { padding: 0 16px; }
       .container { padding: 16px 12px 40px; }
-      .import-zone { flex-direction: column; }
+      .welcome-steps { flex-direction: column; gap: 6px; }
+      .import-zone.open { flex-direction: column; }
       .chat-messages { max-height: 350px; }
       .outline-item { flex-wrap: wrap; }
       .quick-actions { flex-direction: column; }
@@ -273,9 +292,35 @@
 
     <!-- Phase 1: チャット -->
     <div id="phase-chat">
+      <!-- ウェルカムヒーロー -->
+      <div class="welcome-hero" id="welcome-hero">
+        <h2>AIと対話して<span>プレゼン資料</span>を自動生成</h2>
+        <p>作りたいスライドのテーマを入力するだけ。AIが質問しながら最適な構成を提案し、PPTXファイルを生成します。</p>
+        <div class="welcome-steps">
+          <div class="welcome-step">
+            <div class="welcome-step-num">STEP 1</div>
+            <div class="welcome-step-text">下のチャットでテーマを入力</div>
+          </div>
+          <div class="welcome-step">
+            <div class="welcome-step-num">STEP 2</div>
+            <div class="welcome-step-text">AIの質問に答えて内容を詰める</div>
+          </div>
+          <div class="welcome-step">
+            <div class="welcome-step-num">STEP 3</div>
+            <div class="welcome-step-text">構成を確認してPPTXをダウンロード</div>
+          </div>
+        </div>
+        <button class="welcome-dismiss" onclick="dismissWelcome()">閉じる</button>
+      </div>
+
       <div class="chat-section">
-        <!-- インポートゾーン -->
-        <div class="import-zone">
+        <!-- インポートゾーン（折りたたみ） -->
+        <div class="import-toggle">
+          <button class="import-toggle-btn" id="import-toggle-btn" onclick="toggleImportZone()">
+            <span class="arrow">▶</span> 📎 既存の資料を読み込む（PDF / Word / PPTX / URL）
+          </button>
+        </div>
+        <div class="import-zone" id="import-zone">
           <div class="import-drop" id="import-drop" onclick="document.getElementById('file-input').click()">
             📎 PDF / Word / PPTX をドロップまたは選択
             <input type="file" id="file-input" accept=".pdf,.docx,.pptx" onchange="handleFileImport(this.files[0])">
@@ -291,14 +336,14 @@
 
         <!-- チャット入力 -->
         <div class="chat-input-area">
-          <textarea class="chat-textarea" id="chat-input" placeholder="メッセージを入力..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
-          <button class="btn-research-toggle" id="btn-research-toggle" onclick="toggleDeepResearch()" title="ディープリサーチ">🔍</button>
+          <textarea class="chat-textarea" id="chat-input" placeholder="例: 新サービスの顧客向け提案資料を作りたい" rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="btn-research-toggle" id="btn-research-toggle" onclick="toggleDeepResearch()" title="ONにするとWeb検索で最新データを収集してからスライドを作成します">🔍 リサーチ</button>
           <button class="btn-send" id="btn-send" onclick="sendChat()">&#x27A4;</button>
         </div>
 
         <!-- テンプレートバー -->
         <div class="tpl-bar">
-          <span class="tpl-label">テンプレート</span>
+          <span class="tpl-label">デザイン</span>
           <div class="tpl-chips">
             <button class="tpl-chip selected" data-val="external-white" onclick="selectTpl(this)">社外 WHITE</button>
             <button class="tpl-chip dark" data-val="external-dark" onclick="selectTpl(this)">社外 DARK</button>
@@ -441,6 +486,24 @@
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';
     }
 
+    // ===== ウェルカム・インポート =====
+    function dismissWelcome() {
+      const hero = document.getElementById('welcome-hero');
+      if (hero) hero.style.display = 'none';
+      localStorage.setItem('slide-maker-welcomed', '1');
+    }
+    function toggleImportZone() {
+      const zone = document.getElementById('import-zone');
+      const btn = document.getElementById('import-toggle-btn');
+      zone.classList.toggle('open');
+      btn.classList.toggle('open');
+    }
+    // 既訪ユーザーはウェルカムを非表示
+    if (localStorage.getItem('slide-maker-welcomed') === '1') {
+      const hero = document.getElementById('welcome-hero');
+      if (hero) hero.style.display = 'none';
+    }
+
     // ===== フェーズ管理 =====
     function setPhase(phase) {
       currentPhase = phase;
@@ -482,8 +545,8 @@
       importedContent = '';
       const msgs = document.getElementById('chat-messages');
       msgs.innerHTML = '';
-      addChatBubble('ai', 'どんなプレゼンを作りますか？テーマと目的を教えてください。\nファイルやURLからの読み込みもできますよ。');
-      showSuggestions(['顧客向けの提案資料', 'マーケ施策の報告', 'サービス紹介スライド']);
+      addChatBubble('ai', 'どんなプレゼン資料を作りますか？\n\n下のテーマから選ぶか、作りたい内容を自由に入力してください。いくつか質問した後、スライド構成を自動で作成します。');
+      showSuggestions(['新規顧客への提案資料', '社内向け施策報告', 'サービス紹介プレゼン', '勉強会・セミナー資料']);
     }
 
     function showCitations(citations) {
@@ -1328,10 +1391,19 @@
       if (!confirm('すべてリセットしますか？')) return;
       chatHistory = []; collectedContext = null; importedContent = '';
       currentSlides = null; outlineData = null; refineCount = 0;
+      deepResearchEnabled = false; researchData = null;
+      document.getElementById('btn-research-toggle').classList.remove('active');
       selectTplByVal('external-white');
       document.getElementById('slides-grid').innerHTML = '';
       document.getElementById('refine-history').innerHTML = '';
       document.getElementById('url-input').value = '';
+      // インポートゾーンを閉じる
+      document.getElementById('import-zone').classList.remove('open');
+      document.getElementById('import-toggle-btn').classList.remove('open');
+      // ウェルカムヒーローを再表示
+      const hero = document.getElementById('welcome-hero');
+      if (hero) hero.style.display = '';
+      localStorage.removeItem('slide-maker-welcomed');
       hideError();
       setPhase('chat');
       initChat();
