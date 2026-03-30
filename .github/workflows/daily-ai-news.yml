@@ -2,8 +2,8 @@ name: AI日報 自動生成・送信
 
 on:
   schedule:
-    # 毎朝日本時間7:00（UTC 22:00）に実行
-    - cron: "0 22 * * *"
+    # 毎晩日本時間22:00（UTC 13:00）に実行 → その日のニュースが出揃ったタイミングで翌朝用に送信
+    - cron: "0 13 * * *"
   workflow_dispatch: # 手動実行も可能
 
 permissions:
