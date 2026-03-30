@@ -259,42 +259,59 @@ def generate_news_json(today_str: str, dt: datetime) -> dict:
         return client.messages.create(
             model="claude-sonnet-4-5-20250929",
             max_tokens=8192,
-            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 10}],
+            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 15}],
             messages=[{"role": "user", "content": prompt}],
         )
 
-    message = call_with_retry(api_call, "Claude API呼び出し")
-    elapsed = time.time() - t0
-    print(f"[INFO] API応答時間: {elapsed:.1f}秒")
+    # JSON解析失敗時は最大2回リトライ（API再呼び出し）
+    MAX_JSON_RETRIES = 2
+    data = None
+    for json_attempt in range(MAX_JSON_RETRIES + 1):
+        message = call_with_retry(api_call, "Claude API呼び出し")
+        elapsed = time.time() - t0
+        print(f"[INFO] API応答時間: {elapsed:.1f}秒")
 
-    if message.stop_reason == "max_tokens":
-        print("[WARN] レスポンスがmax_tokensで打ち切られました。出力が不完全の可能性があります。", file=sys.stderr)
+        if message.stop_reason == "max_tokens":
+            print("[WARN] レスポンスがmax_tokensで打ち切られました。", file=sys.stderr)
 
-    # web_search付きレスポンスからテキストブロックを抽出
-    raw = ""
-    for block in message.content:
-        if block.type == "text":
-            raw = block.text.strip()
+        # web_search付きレスポンスからテキストブロックを抽出
+        raw = ""
+        for block in message.content:
+            if block.type == "text":
+                raw = block.text.strip()
 
-    if not raw:
-        print("[ERROR] APIレスポンスにテキストが含まれていません", file=sys.stderr)
-        sys.exit(1)
+        if not raw:
+            print("[WARN] APIレスポンスにテキストなし", file=sys.stderr)
+            if json_attempt < MAX_JSON_RETRIES:
+                print(f"[INFO] JSON取得リトライ {json_attempt + 1}/{MAX_JSON_RETRIES}...")
+                time.sleep(5)
+                t0 = time.time()
+                continue
+            print("[ERROR] テキスト取得に失敗", file=sys.stderr)
+            sys.exit(1)
 
-    # コードブロック除去
-    if raw.startswith("```"):
-        raw = raw.split("\n", 1)[1].rsplit("```", 1)[0]
+        # コードブロック除去
+        if raw.startswith("```"):
+            raw = raw.split("\n", 1)[1].rsplit("```", 1)[0]
 
-    # JSON部分を抽出（前後にテキストがある場合）
-    json_match = re.search(r'\{[\s\S]*\}', raw)
-    if json_match:
-        raw = json_match.group()
+        # JSON部分を抽出（前後にテキストがある場合）
+        json_match = re.search(r'\{[\s\S]*\}', raw)
+        if json_match:
+            raw = json_match.group()
 
-    try:
-        data = json.loads(raw)
-    except json.JSONDecodeError as e:
-        print(f"[ERROR] JSON解析失敗: {e}", file=sys.stderr)
-        print(f"[DEBUG] 生のレスポンス:\n{raw[:500]}", file=sys.stderr)
-        sys.exit(1)
+        try:
+            data = json.loads(raw)
+            break  # 成功
+        except json.JSONDecodeError as e:
+            print(f"[WARN] JSON解析失敗 (試行{json_attempt + 1}): {e}", file=sys.stderr)
+            print(f"[DEBUG] 先頭500文字:\n{raw[:500]}", file=sys.stderr)
+            if json_attempt < MAX_JSON_RETRIES:
+                print(f"[INFO] JSON取得リトライ {json_attempt + 1}/{MAX_JSON_RETRIES}...")
+                time.sleep(5)
+                t0 = time.time()
+            else:
+                print("[ERROR] JSON解析に最終的に失敗", file=sys.stderr)
+                sys.exit(1)
 
     b2b_count = len(data.get("b2b_news", []))
     bigtech_count = len(data.get("bigtech_moves", []))
@@ -321,8 +338,8 @@ def build_plain_text(data: dict, today_str: str) -> str:
     if kn:
         lines += [f"[KEY NUMBER] {kn.get('value', '')} — {kn.get('label', '')}", ""]
 
-    # B2B
-    lines += ["--- B2B MARKETING ---", ""]
+    # AI NEWS
+    lines += ["--- AI NEWS ---", ""]
     for i, news in enumerate(data.get("b2b_news", []), 1):
         lines += [
             f"{i}. {news.get('title', '')}",
@@ -595,17 +612,18 @@ def build_html(data: dict, today_str: str) -> str:
     all_text = json.dumps(data, ensure_ascii=False)
     read_minutes = max(1, len(all_text) // 500)
 
-    # プレヘッダー（トップニュースの見出しを含める）
-    top_headline = ""
-    if data.get("b2b_news"):
-        top_headline = data["b2b_news"][0].get("title", "")
-    preheader = f"{greeting} | {top_headline}" if top_headline else greeting
+    # プレヘッダー（tldrを並べて受信トレイで内容がわかるように）
+    tldr_list = [n.get("tldr", "") for n in data.get("b2b_news", []) if n.get("tldr")]
+    if tldr_list:
+        preheader = " / ".join(tldr_list[:3])
+    else:
+        preheader = greeting
     preheader = preheader[:120]
 
     # 目次
     toc_items = []
     if counts["b2b"]:
-        toc_items.append(f"&#128188; B2Bニュース({counts['b2b']})")
+        toc_items.append(f"&#128240; AIニュース({counts['b2b']})")
     if counts["bigtech"]:
         toc_items.append(f"&#127970; BigTech({counts['bigtech']})")
     if counts["cc"]:
@@ -615,6 +633,13 @@ def build_html(data: dict, today_str: str) -> str:
     if counts["trend"]:
         toc_items.append(f"&#128640; トレンド({counts['trend']})")
     toc_html = " &#12288; ".join(toc_items)
+
+    # 週末は暖色、平日は寒色のヘッダー
+    is_wkend = data.get("_is_weekend", False)
+    header_gradient = ("linear-gradient(135deg,#f093fb 0%,#f5576c 100%)"
+                       if is_wkend else
+                       "linear-gradient(135deg,#667eea 0%,#764ba2 100%)")
+    report_type = "AI Weekly Report" if is_wkend else "AI Daily Report"
 
     return f"""<!DOCTYPE html>
 <html lang="ja">
@@ -634,11 +659,11 @@ def build_html(data: dict, today_str: str) -> str:
   <div style="max-width:600px; margin:0 auto; padding:20px 16px;">
 
     <!-- ヘッダー -->
-    <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff;
+    <div style="background:{header_gradient}; color:#fff;
                 border-radius:16px; padding:32px 28px; margin-bottom:24px; text-align:center;">
-      <div style="font-size:40px; margin-bottom:8px;">&#129302;</div>
+      <div style="font-size:40px; margin-bottom:8px;">{"&#127774;" if is_wkend else "&#129302;"}</div>
       <h1 style="margin:0 0 4px; font-size:26px; font-weight:800; letter-spacing:1px;">
-        AI Daily Report</h1>
+        {report_type}</h1>
       <p style="margin:0 0 16px; font-size:14px; opacity:0.85;">{today_str}</p>
       <div style="background:rgba(255,255,255,0.2); border-radius:8px; padding:10px 16px;
                   font-size:14px; line-height:1.5; display:inline-block;">
@@ -666,13 +691,14 @@ def build_html(data: dict, today_str: str) -> str:
       <div style="margin-bottom:16px;">
         <div style="background:#1a73e8; color:#fff; font-size:12px; font-weight:700;
                     padding:6px 14px; border-radius:20px; letter-spacing:0.5px; display:inline-block;">
-          &#128188; B2B MARKETING</div>
+          &#128240; AI NEWS</div>
       </div>
       <h2 style="margin:0 0 16px; font-size:18px; color:#1a1a1a;">
-        生成AI最新ニュース</h2>
+        生成AI注目ニュース</h2>
       {b2b_cards}
     </div>
 
+    {"" if not bigtech_cards else f"""
     <!-- セクション2: ビッグテック動向 -->
     <div style="margin-bottom:28px;">
       <div style="margin-bottom:16px;">
@@ -683,8 +709,9 @@ def build_html(data: dict, today_str: str) -> str:
       <h2 style="margin:0 0 16px; font-size:18px; color:#1a1a1a;">
         主要企業の注目ニュース</h2>
       {bigtech_cards}
-    </div>
+    </div>"""}
 
+    {"" if not cc_tips_items else f"""
     <!-- セクション: Claude Code Tips -->
     <div style="margin-bottom:28px;">
       <div style="margin-bottom:16px;">
@@ -695,8 +722,9 @@ def build_html(data: dict, today_str: str) -> str:
       <h2 style="margin:0 0 16px; font-size:18px; color:#1a1a1a;">
         真似したくなるClaude Code活用術</h2>
       {cc_tips_items}
-    </div>
+    </div>"""}
 
+    {"" if not x_buzz_items else f"""
     <!-- セクション3: X/Twitter バズ -->
     <div style="margin-bottom:28px;">
       <div style="margin-bottom:16px;">
@@ -707,8 +735,9 @@ def build_html(data: dict, today_str: str) -> str:
       <h2 style="margin:0 0 16px; font-size:18px; color:#1a1a1a;">
         SNSで話題のAIトピック</h2>
       {x_buzz_items}
-    </div>
+    </div>"""}
 
+    {"" if not trending_items else f"""
     <!-- セクション4: トレンド -->
     <div style="margin-bottom:28px;">
       <div style="margin-bottom:16px;">
@@ -719,7 +748,8 @@ def build_html(data: dict, today_str: str) -> str:
       <h2 style="margin:0 0 16px; font-size:18px; color:#1a1a1a;">
         注目トピック</h2>
       {trending_items}
-    </div>
+    </div>"""}
+
 
     <!-- セクション5: 今日のアクション -->
     <div style="background:linear-gradient(135deg,#ff6b6b,#ffa502); border-radius:16px;
@@ -841,18 +871,19 @@ def main():
     try:
         # ニュース生成
         data = generate_news_json(today_str, now_jst)
+        data["_is_weekend"] = is_wkend  # HTML生成用フラグ
 
-        # 件名
-        top_title = ""
+        # 件名（tldrで目を引く）
+        top_tldr = ""
         if data.get("b2b_news"):
-            top_title = data["b2b_news"][0].get("title", "")
+            top_tldr = data["b2b_news"][0].get("tldr", data["b2b_news"][0].get("title", ""))
 
         if is_wkend:
-            subject = f"【AI週報】{today_str}｜今週の振り返り＆来週の注目"
-        elif top_title:
-            subject = f"【AI日報】{today_str}｜{top_title}"
+            subject = f"☀️【AI週報】{today_str}｜今週の振り返り＆来週の注目"
+        elif top_tldr:
+            subject = f"🤖【AI日報】{today_str}｜{top_tldr}"
         else:
-            subject = f"【AI日報】{today_str}"
+            subject = f"🤖【AI日報】{today_str}"
         if len(subject) > 80:
             subject = subject[:77] + "..."
 
