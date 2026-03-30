@@ -142,6 +142,27 @@
     .btn-secondary { background: #fff; color: #4a5568; border: 1.5px solid #e8ecf0; padding: 10px 24px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; }
     .btn-secondary:hover { border-color: #b0bec5; }
 
+    /* Undo/Redo ボタン */
+    .undo-redo-bar { display: flex; gap: 4px; margin-left: auto; }
+    .undo-redo-bar button { background: #fff; border: 1.5px solid #e8ecf0; color: #8a9bb0; padding: 5px 10px; font-size: 0.78rem; cursor: pointer; font-family: inherit; }
+    .undo-redo-bar button:hover:not(:disabled) { border-color: #001f33; color: #001f33; }
+    .undo-redo-bar button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* セクションメモ */
+    .sec-memo { margin-top: 4px; }
+    .sec-memo-input { width: 100%; border: 1px dashed #d0d5dc; background: #fafafa; padding: 4px 8px; font-size: 0.7rem; font-family: inherit; color: #8a9bb0; outline: none; resize: none; height: 24px; }
+    .sec-memo-input:focus { border-color: #ffb81c; background: #fffbf0; color: #2d3436; }
+    .sec-memo-input::placeholder { color: #c8d0da; }
+
+    /* デバイスフレーム */
+    .device-frame { display: inline-block; margin: 0 auto; }
+    .device-frame.mobile { border: 12px solid #222; border-top: 24px solid #222; border-bottom: 28px solid #222; position: relative; }
+    .device-frame.mobile::after { content: ''; position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); width: 36px; height: 36px; border: 2px solid #444; border-radius: 50%; }
+    .device-frame.tablet { border: 14px solid #222; border-top: 20px solid #222; border-bottom: 20px solid #222; }
+
+    /* グリッドオーバーレイ */
+    .grid-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+
     /* ===== プレビューフェーズ ===== */
     .preview-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .preview-toolbar button { background: #fff; border: 1.5px solid #e8ecf0; padding: 6px 14px; font-size: 0.88rem; cursor: pointer; font-family: inherit; color: #4a5568; }
@@ -346,6 +367,10 @@
   <div id="phase-structure" class="phase-section">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <button class="btn-secondary" onclick="goToPhase('chat')" style="font-size:0.78rem;padding:6px 14px">← ヒアリングに戻る</button>
+      <div class="undo-redo-bar">
+        <button id="undo-btn" onclick="undo()" disabled title="元に戻す (Ctrl+Z)">↩ 戻す</button>
+        <button id="redo-btn" onclick="redo()" disabled title="やり直し (Ctrl+Y)">↪ やり直し</button>
+      </div>
       <span id="section-count" style="font-size:0.78rem;color:#8a9bb0;font-weight:600"></span>
     </div>
     <p style="font-size:0.75rem;color:#8a9bb0;margin-bottom:10px">ドラッグで並び替え、✕で削除できます。下のセレクトからセクションを追加できます。</p>
@@ -395,6 +420,8 @@
       <button class="device-btn active" onclick="setDevicePreview('desktop')" title="デスクトップ">PC</button>
       <button class="device-btn" onclick="setDevicePreview('tablet')" title="タブレット">Tab</button>
       <button class="device-btn" onclick="setDevicePreview('mobile')" title="モバイル">SP</button>
+      <span style="width:1px;height:20px;background:#e8ecf0;margin:0 4px"></span>
+      <button id="grid-toggle" onclick="toggleGrid()" style="font-size:0.75rem;padding:5px 10px">Grid</button>
       <span style="flex:1"></span>
       <span style="font-size:0.72rem;color:#b0bec5">セクションをクリックして選択</span>
     </div>
@@ -868,6 +895,17 @@ function renderSectionList() {
         <button class="sec-action-btn" onclick="duplicateSection(${i})" title="複製">⧉</button>
         <button class="sec-action-btn sec-delete" onclick="deleteSection(${i})" title="削除">✕</button>
       </div>`;
+    // メモ入力欄を追加
+    const memoDiv = document.createElement('div');
+    memoDiv.className = 'sec-memo';
+    memoDiv.style.gridColumn = '1 / -1';
+    const memoInput = document.createElement('textarea');
+    memoInput.className = 'sec-memo-input';
+    memoInput.placeholder = 'メモ（実装時の注意点、参考URLなど）';
+    memoInput.value = sec._memo || '';
+    memoInput.addEventListener('blur', () => { currentSections[i]._memo = memoInput.value; });
+    memoDiv.appendChild(memoInput);
+    card.appendChild(memoDiv);
     // インライン編集
     card.querySelectorAll('.sec-label, .sec-desc').forEach(el => {
       el.addEventListener('click', e => { e.stopPropagation(); el.contentEditable = 'true'; el.focus(); });
@@ -875,6 +913,7 @@ function renderSectionList() {
         el.contentEditable = 'false';
         const idx = parseInt(el.dataset.index);
         currentSections[idx][el.dataset.field] = el.textContent.trim();
+        saveUndoState();
       });
       el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
     });
@@ -885,15 +924,15 @@ function renderSectionList() {
     card.addEventListener('drop', e => {
       e.preventDefault(); card.classList.remove('drag-over');
       const from = parseInt(e.dataTransfer.getData('text/plain'));
-      if (from !== i) { const item = currentSections.splice(from, 1)[0]; currentSections.splice(i, 0, item); renderSectionList(); }
+      if (from !== i) { saveUndoState(); const item = currentSections.splice(from, 1)[0]; currentSections.splice(i, 0, item); renderSectionList(); }
     });
     list.appendChild(card);
   });
 }
 
-function deleteSection(index) { currentSections.splice(index, 1); renderSectionList(); }
+function deleteSection(index) { saveUndoState(); currentSections.splice(index, 1); renderSectionList(); }
 
-function duplicateSection(index) {
+function duplicateSection(index) { saveUndoState();
   const orig = currentSections[index];
   const clone = JSON.parse(JSON.stringify(orig));
   clone.id = 'sec-' + Date.now();
@@ -924,6 +963,7 @@ function addSection() {
     'sticky-cta': { label: 'スティッキーCTA', description: '画面下部固定CTA', height: 'auto', components: ['heading', 'cta-button', 'sticky-bar'] },
   };
   const d = defaults[type] || defaults['content-text'];
+  saveUndoState();
   currentSections.push({ id: 'sec-' + Date.now(), type, ...d });
   renderSectionList();
 }
@@ -1240,6 +1280,69 @@ async function refineSection() {
   } catch (e) { showError(e.message); } finally { btn.disabled = false; btn.textContent = '修正'; }
 }
 
+/* ===== Undo/Redo ===== */
+const undoStack = [];
+const redoStack = [];
+const MAX_UNDO = 30;
+
+function saveUndoState() {
+  undoStack.push(JSON.stringify(currentSections));
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+  redoStack.length = 0;
+  updateUndoRedoButtons();
+}
+
+function undo() {
+  if (undoStack.length === 0) return;
+  redoStack.push(JSON.stringify(currentSections));
+  currentSections = JSON.parse(undoStack.pop());
+  renderSectionList();
+  updateUndoRedoButtons();
+  showToast('元に戻しました');
+}
+
+function redo() {
+  if (redoStack.length === 0) return;
+  undoStack.push(JSON.stringify(currentSections));
+  currentSections = JSON.parse(redoStack.pop());
+  renderSectionList();
+  updateUndoRedoButtons();
+  showToast('やり直しました');
+}
+
+function updateUndoRedoButtons() {
+  const ub = document.getElementById('undo-btn');
+  const rb = document.getElementById('redo-btn');
+  if (ub) ub.disabled = undoStack.length === 0;
+  if (rb) rb.disabled = redoStack.length === 0;
+}
+
+/* ===== グリッドオーバーレイ ===== */
+let gridVisible = false;
+
+function toggleGrid() {
+  gridVisible = !gridVisible;
+  const btn = document.getElementById('grid-toggle');
+  if (btn) btn.style.background = gridVisible ? '#001f33' : '#fff';
+  if (btn) btn.style.color = gridVisible ? '#fff' : '#4a5568';
+  const svgEl = document.querySelector('#preview-canvas svg');
+  if (!svgEl) return;
+  const existing = svgEl.querySelector('.grid-group');
+  if (existing) { existing.remove(); }
+  if (!gridVisible) return;
+  const h = parseInt(svgEl.getAttribute('height'));
+  const g = svg('g', { class: 'grid-group', opacity: '0.15' });
+  // 12列グリッド
+  const cols = 12, gutter = 24, margin = 60;
+  const colW = (WF_WIDTH - margin * 2 - gutter * (cols - 1)) / cols;
+  for (let i = 0; i < cols; i++) {
+    const x = margin + i * (colW + gutter);
+    g.appendChild(svg('rect', { x, y: 0, width: colW, height: h, fill: '#ff6b6b' }));
+  }
+  svgEl.appendChild(g);
+}
+
+/* ===== デバイスプレビュー ===== */
 let currentDevice = 'desktop';
 const DEVICE_WIDTHS = { desktop: WF_WIDTH, tablet: 768, mobile: 375 };
 
@@ -1357,6 +1460,32 @@ function toggleKnowledgeDetail() {
   banner.classList.toggle('expanded');
   btn.textContent = banner.classList.contains('expanded') ? '閉じる ▴' : '詳しく見る ▾';
 }
+
+/* ===== キーボードショートカット ===== */
+document.addEventListener('keydown', e => {
+  // テキスト入力中は無視
+  const tag = e.target.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.contentEditable === 'true') return;
+
+  const ctrl = e.ctrlKey || e.metaKey;
+
+  // Ctrl+Z: Undo
+  if (ctrl && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+  // Ctrl+Y or Ctrl+Shift+Z: Redo
+  if (ctrl && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); redo(); }
+  // Ctrl+S: Save/Export SVG
+  if (ctrl && e.key === 's') { e.preventDefault(); if (currentPhase === 'export' || currentPhase === 'preview') exportSVG(); else showToast('Ctrl+S: プレビュー/エクスポート画面でSVG保存'); }
+  // Ctrl+G: Grid toggle
+  if (ctrl && e.key === 'g') { e.preventDefault(); if (currentPhase === 'preview') toggleGrid(); }
+  // Ctrl+P: Preview
+  if (ctrl && e.key === 'p' && currentPhase === 'structure') { e.preventDefault(); generatePreview(); }
+  // Delete: 選択セクション削除 (preview phase)
+  if (e.key === 'Delete' && currentPhase === 'preview' && selectedSectionId) {
+    e.preventDefault();
+    const idx = currentSections.findIndex(s => s.id === selectedSectionId);
+    if (idx >= 0) { saveUndoState(); currentSections.splice(idx, 1); generatePreview(); showToast('セクションを削除しました'); }
+  }
+});
 </script>
 </body>
 </html>
