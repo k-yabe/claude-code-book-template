@@ -56,6 +56,8 @@
 | SNS Post Generator | `apps/sns-post-generator/index.html` | ✅ 完成 | S024, S028 |
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
+| Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js` | ✅ 完成 | S035, S037, S038 |
+| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037 |
 
 ---
 
@@ -118,6 +120,27 @@ State: { columns: [...], tasks: [...], nextColumnId, nextTaskId }
 | プレビュー | Chart.jsミニチャート・SVGフロー図・画像プレースホルダ描画 |
 | UXフロー | 4フェーズ（ヒアリング → 構成確認 → プレビュー → 出力）|
 | 動的SYSTEM_PROMPT | `buildSystemPrompt(imageEnabled)` — Unsplash API有無でレイアウト配分を自動切替 |
+
+### Prompt Maker（`apps/prompt-maker/`）
+
+NotebookLM風の2ペインレイアウトでプロンプトを対話生成するツール。ソースはVercel KVでサーバーサイド永続保存。
+
+```
+[左ペイン: ソース管理]    [右ペイン: チャット]
+  テキスト/URL追加  →  buildSourceContext() で SYSTEM_PROMPT に注入
+  /api/sources.js (KV)    → /api/generate.js (claude-sonnet-4-6)
+  /api/fetch-article.js    → ヒアリング → プロンプト生成（---PROMPT_START/END--- パース）
+```
+
+| 項目 | 詳細 |
+|------|------|
+| レイアウト | デスクトップ: 左360px + 右flex-1、モバイル(900px以下): タブ切替 |
+| ソース永続保存 | Vercel KV（`@vercel/kv`）→ `/api/sources.js` CRUD API、KV未設定時はlocalStorageフォールバック |
+| ソース帰属 | 各ソースに追加者ユーザー名・追加日時を記録、チーム全員で共有 |
+| URL取得 | `/api/fetch-article.js` で実コンテンツ自動抽出（タイトル・本文） |
+| プロンプト生成 | 3フェーズ（ヒアリング → 生成 → 洗練）、4構成要素（指示・背景・入力・出力） |
+| API | `claude-sonnet-4-6`（チャット・プロンプト生成） |
+| 共通モジュール | `copy-utils.js`（コピー）/ `history.js`（履歴パネル） |
 
 ### Todoアプリ（`todo.html`）
 
