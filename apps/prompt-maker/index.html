@@ -7,9 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prompt Maker</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; display: flex; flex-direction: column; }
 
+    /* ナビバー */
     .navbar {
       background: #001f33; height: 58px; display: flex; align-items: center;
       padding: 0 40px; gap: 14px; position: sticky; top: 0; z-index: 10;
@@ -24,164 +25,104 @@
     }
     .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 
-    .container { max-width: 800px; margin: 0 auto; padding: 36px 24px 80px; }
+    /* メインコンテナ */
+    .container { max-width: 800px; margin: 0 auto; padding: 24px 24px 60px; flex: 1; width: 100%; }
 
-    .page-header { margin-bottom: 20px; }
-    .page-header h1 { font-size: 1.4rem; font-weight: 700; color: #001f33; letter-spacing: -0.01em; margin-bottom: 4px; }
-    .page-header p { font-size: 0.82rem; color: #8a9bb0; }
-
-    /* ステップ */
-    .step {
+    /* チャットエリア */
+    .chat-box {
       background: #fff; border: 1.5px solid #e8ecf0;
-      margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      display: flex; flex-direction: column; min-height: 520px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
-    .step-header {
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 18px; border-bottom: 1px solid #f0f2f5; background: #fafbfc;
-    }
-    .step-num {
-      width: 24px; height: 24px; background: #001f33; color: #fff;
-      font-size: 0.72rem; font-weight: 800; display: flex; align-items: center;
-      justify-content: center; flex-shrink: 0;
-    }
-    .step-title { font-size: 0.85rem; font-weight: 700; color: #001f33; }
-    .badge-required {
-      font-size: 0.65rem; font-weight: 700; padding: 2px 7px;
-      background: #ffeaea; color: #c0392b; letter-spacing: 0.04em;
-    }
-    .badge-optional {
-      font-size: 0.65rem; font-weight: 700; padding: 2px 7px;
-      background: #f0f0f0; color: #636e72; letter-spacing: 0.04em;
-    }
-    .step-body { padding: 16px 18px; }
 
-    /* フォーム要素 */
-    .field-label { font-size: 0.78rem; font-weight: 700; color: #4a5568; margin-bottom: 6px; }
-    .field-hint { font-size: 0.72rem; color: #b2bec3; margin-bottom: 8px; }
-
-    .text-area {
-      width: 100%; min-height: 120px; padding: 14px 16px;
-      border: 1.5px solid #e8ecf0; background: #fff; font-size: 0.92rem;
-      font-family: inherit; color: #2d3436; resize: vertical; outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s; line-height: 1.7;
+    /* サジェスチョン（初期表示） */
+    .suggestions { padding: 12px 16px; background: #fafbfc; border-bottom: 1px solid #e8ecf0; }
+    .suggestions-label { font-size: 0.72rem; color: #8a9bb0; font-weight: 600; margin-bottom: 8px; }
+    .sug-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .sug-chip {
+      padding: 6px 14px; font-size: 0.75rem; background: #fff; color: #4a5568;
+      border: 1.5px solid #e8ecf0; cursor: pointer; font-family: inherit; transition: all 0.15s;
     }
-    .text-area:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
-    .text-area::placeholder { color: #c8d0da; }
+    .sug-chip:hover { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
 
-    .text-input {
-      width: 100%; padding: 11px 14px; border: 1.5px solid #e8ecf0;
-      font-size: 0.9rem; color: #2d3436; font-family: inherit; outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
+    /* チャットメッセージ */
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px 16px;
+      display: flex; flex-direction: column; gap: 14px;
+      min-height: 300px; max-height: 500px;
     }
-    .text-input:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
-    .text-input::placeholder { color: #c8d0da; }
+    .chat-row { display: flex; gap: 10px; align-items: flex-start; animation: fadeIn 0.3s ease; }
+    .chat-row.ai { align-self: flex-start; }
+    .chat-row.user { align-self: flex-end; flex-direction: row-reverse; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    select {
-      width: 100%; padding: 11px 14px; border: 1.5px solid #e8ecf0;
-      font-size: 0.9rem; color: #2d3436; font-family: inherit; outline: none;
-      background: #fff; cursor: pointer; appearance: auto;
-      transition: border-color 0.15s, box-shadow 0.15s;
+    .chat-avatar {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
     }
-    select:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
+    .chat-avatar.ai { background: #fffbf0; }
+    .chat-avatar.user { background: #e8ecf0; }
 
-    .char-count { font-size: 0.72rem; color: #b2bec3; text-align: right; margin: 4px 0 0; }
-    .char-count.over { color: #c0392b; font-weight: 700; }
-
-    /* テンプレートタブ */
-    .template-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-    .template-tab {
-      padding: 6px 14px; border: 1.5px solid #e8ecf0; background: #fff;
-      font-family: inherit; font-size: 0.78rem; font-weight: 600; color: #8a9bb0;
-      cursor: pointer; transition: all 0.15s;
+    .chat-bubble {
+      max-width: 78%; padding: 12px 16px; font-size: 0.85rem;
+      line-height: 1.7; white-space: pre-wrap; word-break: break-word;
     }
-    .template-tab.active { background: #001f33; border-color: #001f33; color: #fff; }
-    .template-tab:hover:not(.active) { border-color: #001f33; color: #001f33; }
+    .chat-bubble.ai { background: #f7f8fa; color: #2d3436; border: 1px solid #e8ecf0; }
+    .chat-bubble.user { background: #001f33; color: #fff; }
 
-    /* 応用テクニック */
-    .technique-checks { display: flex; flex-wrap: wrap; gap: 8px; }
-    .technique-check {
-      display: flex; align-items: center; gap: 6px;
-      padding: 6px 12px; border: 1.5px solid #e8ecf0; background: #fff;
-      cursor: pointer; transition: all 0.15s; font-size: 0.78rem; color: #4a5568;
+    /* プロンプト結果バブル */
+    .prompt-result {
+      background: #fff; border: 1.5px solid #001f33; padding: 0; max-width: 90%;
     }
-    .technique-check:hover { border-color: #001f33; }
-    .technique-check.active { background: rgba(0,31,51,0.06); border-color: #001f33; color: #001f33; font-weight: 700; }
-    .technique-check input { display: none; }
-
-    /* サンプルボタン */
-    .sample-hint { font-size: 0.75rem; color: #b2bec3; margin: 6px 0 0; }
-    .sample-btn {
-      background: none; border: none; color: #8a9bb0; font-size: 0.75rem;
-      font-weight: 700; padding: 0; cursor: pointer; font-family: inherit;
-      text-decoration: underline; transition: color 0.15s;
+    .prompt-result-header {
+      background: #001f33; color: #fff; padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .sample-btn:hover { color: #001f33; }
-
-    /* ボタン */
-    .generate-btn {
-      width: 100%; padding: 13px; background: #ffb81c; border: none;
-      color: #001f33; font-size: 0.95rem; font-weight: 800; cursor: pointer;
-      font-family: inherit; transition: all 0.15s; margin-top: 12px;
+    .prompt-result-title { font-size: 0.82rem; font-weight: 700; }
+    .prompt-copy-btn {
+      background: #ffb81c; color: #001f33; border: none;
+      font-size: 0.75rem; font-weight: 700; padding: 5px 14px;
+      cursor: pointer; font-family: inherit; transition: opacity 0.15s;
     }
-    .generate-btn:hover:not(:disabled) { background: #f0ac10; }
-    .generate-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    .reset-btn {
-      padding: 13px 20px; background: #fff; border: 1.5px solid #e8ecf0;
-      color: #8a9bb0; font-size: 0.88rem; font-weight: 700; cursor: pointer;
-      font-family: inherit; transition: all 0.15s; white-space: nowrap;
+    .prompt-copy-btn:hover { opacity: 0.85; }
+    .prompt-result-body {
+      padding: 14px 16px; font-size: 0.84rem; line-height: 1.8;
+      font-family: 'Consolas', 'Monaco', monospace; color: #2d3436;
+      white-space: pre-wrap; word-break: break-word; max-height: 400px;
+      overflow-y: auto;
     }
-    .reset-btn:hover { border-color: #001f33; color: #001f33; }
-
-    .error-msg { font-size: 0.79rem; color: #e17055; min-height: 1.2em; margin-top: 8px; }
+    .prompt-result-hint {
+      padding: 8px 16px; background: #fafbfc; border-top: 1px solid #e8ecf0;
+      font-size: 0.72rem; color: #8a9bb0;
+    }
 
     /* ローディング */
-    .loading-msg {
-      text-align: center; padding: 40px 20px; background: #fff;
-      border: 1px solid #e2e8f0; color: #9aa5b4; font-size: 0.87rem; margin-top: 16px;
-    }
-    .loading-dots { display: inline-flex; gap: 5px; margin-left: 6px; vertical-align: middle; }
+    .chat-bubble.loading { color: #9aa5b4; font-size: 0.82rem; display: flex; align-items: center; gap: 6px; }
+    .loading-dots { display: inline-flex; gap: 4px; }
     .loading-dot { width: 5px; height: 5px; background: #ffb81c; border-radius: 50%; animation: bounce 1.2s ease-in-out infinite; }
     .loading-dot:nth-child(2) { animation-delay: 0.2s; }
     .loading-dot:nth-child(3) { animation-delay: 0.4s; }
     @keyframes bounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.35; } 40% { transform: scale(1); opacity: 1; } }
 
-    /* 結果 */
-    .result-area { margin-top: 16px; }
-
-    .result-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 8px;
+    /* 入力バー */
+    .chat-input-bar {
+      padding: 12px 16px; background: #fff; border-top: 1px solid #e8ecf0;
+      display: flex; gap: 8px;
     }
-    .result-title { font-size: 0.95rem; font-weight: 700; color: #001f33; }
-
-    .result-card {
-      background: #fff; border: 1px solid #e8ecf0; border-left: 3px solid #001f33;
+    .chat-input-bar textarea {
+      flex: 1; border: 1.5px solid #e8ecf0; padding: 10px 14px;
+      font-size: 0.85rem; font-family: inherit; resize: none; height: 44px;
+      outline: none; color: #2d3436; line-height: 1.5;
     }
-    .result-display {
-      width: 100%; min-height: 200px; padding: 14px 16px;
-      font-size: 0.88rem; font-family: 'Consolas', 'Monaco', monospace; color: #2d3436;
-      line-height: 1.8; white-space: pre-wrap; word-wrap: break-word;
+    .chat-input-bar textarea:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
+    .chat-input-bar textarea::placeholder { color: #c8d0da; }
+    .send-btn {
+      background: #ffb81c; color: #001f33; border: none; padding: 10px 20px;
+      font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit;
+      white-space: nowrap; transition: opacity 0.15s;
     }
-
-    .copy-prompt-btn {
-      background: #001f33; border: none; color: #fff;
-      font-size: 0.82rem; font-weight: 700; padding: 8px 20px; cursor: pointer;
-      font-family: inherit; transition: opacity 0.15s;
-    }
-    .copy-prompt-btn:hover { opacity: 0.75; }
-
-    /* 構成要素バッジ */
-    .element-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-    .element-badge {
-      font-size: 0.68rem; font-weight: 800; padding: 3px 8px;
-      letter-spacing: 0.04em;
-    }
-    .badge-instruction { background: rgba(0,31,51,0.08); color: #001f33; }
-    .badge-context { background: rgba(255,184,28,0.2); color: #5c3d00; }
-    .badge-input { background: rgba(0,255,255,0.12); color: #004d4d; }
-    .badge-output { background: rgba(0,31,51,0.06); color: #4a5568; }
-    .badge-technique { background: #ffb81c; color: #001f33; }
+    .send-btn:hover { opacity: 0.85; }
+    .send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
     /* フッター */
     .app-footer {
@@ -192,15 +133,13 @@
     .app-footer-text { font-size: 0.72rem; color: rgba(255,255,255,0.8); }
 
     @media (max-width: 768px) {
-      .container { padding: 24px 20px 60px; }
+      .container { padding: 16px 16px 60px; }
       .navbar { padding: 0 20px; }
-      .template-tabs { gap: 4px; }
-      .technique-checks { gap: 4px; }
+      .chat-bubble { max-width: 88%; }
+      .prompt-result { max-width: 95%; }
     }
-
     @media (max-width: 600px) {
       .navbar { padding: 0 16px; }
-      .container { padding: 20px 16px 60px; }
     }
   </style>
   <link rel="stylesheet" href="../../assets/app-styles.css">
@@ -218,334 +157,208 @@
 </nav>
 
 <div class="container">
-  <div class="page-header">
-    <h1>Prompt Maker</h1>
-    <p>AIの性能を最大限に引き出す、構造化されたプロンプトを生成します</p>
-  </div>
-
-  <!-- Step 1: テンプレート選択 -->
-  <div class="step">
-    <div class="step-header">
-      <div class="step-num">1</div>
-      <div class="step-title">テンプレート選択</div>
-      <span class="badge-optional">任意</span>
-    </div>
-    <div class="step-body">
-      <div class="field-hint">目的に合ったテンプレートを選ぶと、入力欄に下書きが自動入力されます</div>
-      <div class="template-tabs" id="template-tabs">
-        <button class="template-tab active" data-template="free">フリー入力</button>
-        <button class="template-tab" data-template="sns">SNS投稿</button>
-        <button class="template-tab" data-template="email">メール文面</button>
-        <button class="template-tab" data-template="proposal">企画書</button>
-        <button class="template-tab" data-template="analysis">分析レポート</button>
-        <button class="template-tab" data-template="translation">翻訳</button>
+  <div class="chat-box">
+    <!-- サジェスチョン -->
+    <div class="suggestions" id="suggestions">
+      <div class="suggestions-label">💡 こんな用途で使えます — クリックで入力</div>
+      <div class="sug-chips">
+        <button class="sug-chip" data-msg="LinkedIn投稿でセミナーの集客をしたい">SNS投稿</button>
+        <button class="sug-chip" data-msg="セミナー参加者にフォローアップメールを送りたい">メール文面</button>
+        <button class="sug-chip" data-msg="新規事業の企画書のアウトラインを作りたい">企画書</button>
+        <button class="sug-chip" data-msg="四半期の売上データを分析して改善提案をまとめたい">分析レポート</button>
+        <button class="sug-chip" data-msg="製品紹介ページを自然な英語に翻訳したい">翻訳</button>
+        <button class="sug-chip" data-msg="社内勉強会のスライド構成を考えたい">プレゼン資料</button>
       </div>
     </div>
-  </div>
 
-  <!-- Step 2: 目的・要望 -->
-  <div class="step">
-    <div class="step-header">
-      <div class="step-num">2</div>
-      <div class="step-title">目的・やりたいこと</div>
-      <span class="badge-required">必須</span>
-    </div>
-    <div class="step-body">
-      <div class="field-hint">AIに何をしてほしいか、できるだけ具体的に書いてください</div>
-      <textarea class="text-area" id="purpose-input" placeholder="例：決済システム導入を検討している飲食チェーン向けに、セミナー集客用のLinkedIn投稿を3パターン作りたい"></textarea>
-      <div class="char-count"><span id="purpose-count">0</span> 文字</div>
-      <div class="sample-hint">はじめての方は <button class="sample-btn" id="sample-btn">サンプルで試す →</button></div>
-    </div>
-  </div>
+    <!-- チャットメッセージ -->
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-row ai">
+        <div class="chat-avatar ai">🪄</div>
+        <div class="chat-bubble ai">AIの力を最大限引き出すプロンプトを一緒に作りましょう！
 
-  <!-- Step 3: コンテキスト -->
-  <div class="step">
-    <div class="step-header">
-      <div class="step-num">3</div>
-      <div class="step-title">背景・コンテキスト</div>
-      <span class="badge-optional">任意</span>
-    </div>
-    <div class="step-body">
-      <div class="field-label">AIに演じてほしい役割</div>
-      <input class="text-input" id="role-input" placeholder="例：BtoBマーケティングの専門家">
-      <div style="height: 12px;"></div>
-      <div class="field-label">想定読者・ターゲット</div>
-      <input class="text-input" id="audience-input" placeholder="例：IT部門の決裁者（部長〜役員クラス）">
-      <div style="height: 12px;"></div>
-      <div class="field-label">前提条件・制約</div>
-      <textarea class="text-area" id="constraints-input" style="min-height: 80px;" placeholder="例：社内ガイドラインに準拠すること。専門用語は避ける。"></textarea>
-    </div>
-  </div>
+何をしたいか、ざっくりで構いません。
+例えば「セミナー集客用のSNS投稿を作りたい」のように教えてください。
 
-  <!-- Step 4: 出力形式 -->
-  <div class="step">
-    <div class="step-header">
-      <div class="step-num">4</div>
-      <div class="step-title">出力形式</div>
-      <span class="badge-optional">任意</span>
-    </div>
-    <div class="step-body">
-      <div class="field-label">フォーマット</div>
-      <select id="format-select">
-        <option value="">指定なし（AIに任せる）</option>
-        <option value="markdown">Markdown</option>
-        <option value="plain">プレーンテキスト</option>
-        <option value="bullets">箇条書き</option>
-        <option value="table">表形式</option>
-        <option value="json">JSON</option>
-      </select>
-      <div style="height: 12px;"></div>
-      <div class="field-label">トーン・文体</div>
-      <select id="tone-select">
-        <option value="">指定なし（AIに任せる）</option>
-        <option value="formal">フォーマル・ビジネス</option>
-        <option value="casual">カジュアル・親しみやすい</option>
-        <option value="technical">テクニカル・専門的</option>
-        <option value="persuasive">説得力のある・営業的</option>
-      </select>
-      <div style="height: 12px;"></div>
-      <div class="field-label">文字数・分量の目安</div>
-      <input class="text-input" id="length-input" placeholder="例：300文字以内、3パターン、A4で1ページ程度">
-    </div>
-  </div>
-
-  <!-- Step 5: 応用テクニック -->
-  <div class="step">
-    <div class="step-header">
-      <div class="step-num">5</div>
-      <div class="step-title">応用テクニック</div>
-      <span class="badge-optional">任意</span>
-    </div>
-    <div class="step-body">
-      <div class="field-hint">適用するテクニックを選択すると、プロンプトに自動で組み込まれます</div>
-      <div class="technique-checks">
-        <label class="technique-check" data-tech="role">
-          <input type="checkbox" value="role"> 🎭 役割付与
-        </label>
-        <label class="technique-check" data-tech="step-by-step">
-          <input type="checkbox" value="step-by-step"> 🔢 ステップバイステップ
-        </label>
-        <label class="technique-check" data-tech="few-shot">
-          <input type="checkbox" value="few-shot"> 📝 Few-shot（例示）
-        </label>
-        <label class="technique-check" data-tech="structured">
-          <input type="checkbox" value="structured"> 🏷️ 構造化タグ
-        </label>
-        <label class="technique-check" data-tech="constraints">
-          <input type="checkbox" value="constraints"> 🚫 制約条件の明示
-        </label>
+こちらから質問しながら、最適なプロンプトに仕上げていきます。</div>
       </div>
     </div>
-  </div>
 
-  <div style="display:flex;gap:8px;margin-top:12px;">
-    <button class="generate-btn" id="generate-btn" style="margin-top:0;flex:1;">プロンプトを生成する</button>
-    <button class="reset-btn" id="reset-btn">クリア</button>
+    <!-- 入力バー -->
+    <div class="chat-input-bar">
+      <textarea id="user-input" placeholder="やりたいことを入力してください（例: セミナー集客用のLinkedIn投稿を作りたい）" rows="1"></textarea>
+      <button class="send-btn" id="send-btn">送信</button>
+    </div>
   </div>
-  <div class="error-msg" id="error-msg" role="alert"></div>
-
-  <div id="loading" class="loading-msg" style="display:none;">
-    プロンプトを生成中
-    <span class="loading-dots">
-      <span class="loading-dot"></span>
-      <span class="loading-dot"></span>
-      <span class="loading-dot"></span>
-    </span>
-  </div>
-
-  <div class="result-area" id="result"></div>
 </div>
 
 <script src="../../assets/copy-utils.js"></script>
 <script src="../../assets/history.js"></script>
 <script>
-  // ── テンプレート定義 ──────────────────────────
-  const TEMPLATES = {
-    free: { purpose: '', role: '', audience: '', constraints: '', format: '', tone: '', length: '' },
-    sns: {
-      purpose: 'LinkedInで自社セミナーの集客投稿を3パターン作成してほしい',
-      role: 'BtoBマーケティングの専門家',
-      audience: 'IT部門の決裁者（部長〜役員クラス）',
-      constraints: '宣伝色を出しすぎない。具体的な数字やデータを盛り込む。ハッシュタグは3つまで。',
-      format: 'plain', tone: 'formal', length: '各パターン200文字以内',
-    },
-    email: {
-      purpose: 'セミナー参加者へのフォローアップメールを作成してほしい',
-      role: 'カスタマーサクセスマネージャー',
-      audience: 'セミナー参加企業の担当者',
-      constraints: '押し売りにならないトーン。次のアクション（個別相談）への誘導を自然に入れる。',
-      format: 'plain', tone: 'formal', length: '400文字程度',
-    },
-    proposal: {
-      purpose: '新規事業の企画書のアウトラインを作成してほしい',
-      role: '経営コンサルタント',
-      audience: '経営層（社長・取締役）',
-      constraints: '市場規模・競合分析・収益モデルを必ず含める。定量データを重視する。',
-      format: 'markdown', tone: 'formal', length: 'A4で3ページ程度の構成',
-    },
-    analysis: {
-      purpose: '四半期の売上データを分析し、改善提案をまとめてほしい',
-      role: 'データアナリスト',
-      audience: 'マーケティング部門のマネージャー',
-      constraints: '仮説を明示する。結論ファーストで記述する。グラフの提案も含める。',
-      format: 'markdown', tone: 'technical', length: '1000文字程度',
-    },
-    translation: {
-      purpose: '日本語の製品紹介ページを英語に翻訳してほしい',
-      role: 'プロの技術翻訳者',
-      audience: '海外のITマネージャー',
-      constraints: '直訳ではなく自然な英語にする。日本特有の表現はローカライズする。固有名詞はそのまま。',
-      format: 'plain', tone: 'formal', length: '原文と同程度',
-    },
-  };
+  // ── 状態管理 ──────────────────────────
+  const messages = []; // { role: 'user'|'assistant', content: '' }
+  let generating = false;
+  let promptGenerated = false;
 
-  const SAMPLE = {
-    purpose: '決済システム導入を検討している飲食チェーン向けに、セミナー集客用のLinkedIn投稿を3パターン作りたい。\n\n【背景】\n・自社の決済ソリューション「PayEasy Pro」を飲食業界に展開したい\n・来月開催する無料ウェビナーへの参加を促したい\n・競合との差別化ポイントは「導入3日・月額無料プラン」',
-    role: 'BtoBマーケティングの専門家',
-    audience: '飲食チェーンのIT担当者・経営企画部門',
-    constraints: '宣伝色を出しすぎない。具体的な数字を盛り込む。ハッシュタグは3つまで。絵文字は控えめに。',
-    format: 'plain',
-    tone: 'formal',
-    length: '各パターン200文字以内',
-  };
+  const SYSTEM_PROMPT = `あなたは「プロのプロンプトエンジニア」です。ユーザーの抽象的な要望を具体化し、AIの性能を最大限に引き出す最適なプロンプトを設計してください。
 
-  // ── システムプロンプト ──────────────────────────
-  const SYSTEM_PROMPT = `あなたは「プロのプロンプトエンジニア」です。ユーザーの要望を分析し、AIの性能を最大限に引き出す最適なプロンプトを設計してください。
+## あなたの行動フロー
 
-## 出力ルール
+### フェーズ1: ヒアリング（最初の1〜2ターン）
+ユーザーの最初の要望を受けたら、不足している情報を特定し、3〜5個の具体的な質問を**番号付きリスト**で投げかけてください。
+質問すべき項目:
+- 目的（何を達成したいか）
+- 想定読者・ターゲット
+- トーン・文体の希望
+- 出力の形式や分量
+- 制約条件（避けたいこと、必須要素など）
 
-1. プロンプト本文のみを出力してください（前後の説明文やメタ説明は不要）
-2. プロンプトは日本語で記述してください
-3. 以下の4つの構成要素を必ず含めてください：
-   - **インストラクション（指示）**: 何をすべきかを明確かつ具体的に定義
-   - **コンテキスト（背景）**: なぜ・どのような状況で行うのか
-   - **インプット（入力データ）**: 処理対象の情報（ユーザーが後で埋めるプレースホルダーを含む）
-   - **アウトプット（出力形式）**: フォーマット・文字数・トーンを指定
-4. 構成要素ごとにセクションを分け、見出しやタグで構造化してください
-5. プレースホルダーは【】で囲んでください（例: 【ここに製品名を入力】）
-6. 実際にコピーしてAIに貼り付けるだけで使える、完成度の高いプロンプトを生成してください`;
+質問は簡潔に。「〜ですか？」「〜を教えてください」形式で。
 
-  // ── テンプレート切り替え ──────────────────────────
-  let currentTemplate = 'free';
+### フェーズ2: プロンプト生成
+ユーザーが質問に回答したら、以下のルールでプロンプトを生成してください:
 
-  document.querySelectorAll('.template-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.template-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentTemplate = tab.dataset.template;
-      applyTemplate(currentTemplate);
-    });
-  });
+1. まず「📋 プロンプトを生成しました！」と一行書く
+2. 次の行に「---PROMPT_START---」と書く（これは区切り記号です）
+3. プロンプト本文を出力する
+4. 最後の行に「---PROMPT_END---」と書く
+5. その後に「このプロンプトをコピーしてAIに貼り付けるだけで使えます。修正したい点があれば教えてください。」と書く
 
-  function applyTemplate(key) {
-    const t = TEMPLATES[key];
-    if (!t) return;
-    document.getElementById('purpose-input').value = t.purpose;
-    document.getElementById('role-input').value = t.role;
-    document.getElementById('audience-input').value = t.audience;
-    document.getElementById('constraints-input').value = t.constraints;
-    document.getElementById('format-select').value = t.format;
-    document.getElementById('tone-select').value = t.tone;
-    document.getElementById('length-input').value = t.length;
-    updateCharCount();
-  }
+プロンプト本文のルール:
+- 4つの構成要素を含む: インストラクション（指示）・コンテキスト（背景）・インプット（入力データ）・アウトプット（出力形式）
+- セクションを##見出しで分ける
+- プレースホルダーは【】で囲む（例: 【ここに製品名を入力】）
+- 日本語で記述
+- コピーしてそのまま使える完成度にする
 
-  // ── テクニックチェック ──────────────────────────
-  document.querySelectorAll('.technique-check').forEach(label => {
-    label.addEventListener('click', () => {
-      const cb = label.querySelector('input');
-      cb.checked = !cb.checked;
-      label.classList.toggle('active', cb.checked);
-    });
-  });
+### フェーズ3: 洗練
+ユーザーから修正依頼が来たら、同じフォーマット（---PROMPT_START--- 〜 ---PROMPT_END---）で改善版を出力してください。`;
 
-  // ── 文字数カウント ──────────────────────────
-  function updateCharCount() {
-    const len = document.getElementById('purpose-input').value.length;
-    document.getElementById('purpose-count').textContent = len;
-  }
-  document.getElementById('purpose-input').addEventListener('input', updateCharCount);
+  // ── DOM ──────────────────────────
+  const chatEl = document.getElementById('chat-messages');
+  const inputEl = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
+  const sugEl = document.getElementById('suggestions');
 
-  // ── サンプル ──────────────────────────
-  document.getElementById('sample-btn').addEventListener('click', () => {
-    document.getElementById('purpose-input').value = SAMPLE.purpose;
-    document.getElementById('role-input').value = SAMPLE.role;
-    document.getElementById('audience-input').value = SAMPLE.audience;
-    document.getElementById('constraints-input').value = SAMPLE.constraints;
-    document.getElementById('format-select').value = SAMPLE.format;
-    document.getElementById('tone-select').value = SAMPLE.tone;
-    document.getElementById('length-input').value = SAMPLE.length;
-    // テクニック: 役割付与 + 構造化タグ をON
-    document.querySelectorAll('.technique-check').forEach(label => {
-      const tech = label.dataset.tech;
-      const cb = label.querySelector('input');
-      const on = tech === 'role' || tech === 'structured';
-      cb.checked = on;
-      label.classList.toggle('active', on);
-    });
-    updateCharCount();
-    // テンプレートタブを「フリー入力」に
-    document.querySelectorAll('.template-tab').forEach(t => t.classList.remove('active'));
-    document.querySelector('[data-template="free"]').classList.add('active');
-    currentTemplate = 'free';
-  });
+  // ── チャット描画 ──────────────────────────
+  function addBubble(role, content) {
+    // プロンプト結果を含むか検出
+    const hasPrompt = content.includes('---PROMPT_START---') && content.includes('---PROMPT_END---');
 
-  // ── 生成 ──────────────────────────
-  async function generate() {
-    const errEl = document.getElementById('error-msg');
-    errEl.textContent = '';
+    const row = document.createElement('div');
+    row.className = `chat-row ${role}`;
 
-    const purpose = document.getElementById('purpose-input').value.trim();
-    if (!purpose) { errEl.textContent = '目的・やりたいことを入力してください'; return; }
+    const avatar = document.createElement('div');
+    avatar.className = `chat-avatar ${role}`;
+    avatar.textContent = role === 'ai' ? '🪄' : '👤';
 
-    const role = document.getElementById('role-input').value.trim();
-    const audience = document.getElementById('audience-input').value.trim();
-    const constraints = document.getElementById('constraints-input').value.trim();
-    const format = document.getElementById('format-select').value;
-    const tone = document.getElementById('tone-select').value;
-    const length = document.getElementById('length-input').value.trim();
+    if (hasPrompt) {
+      // プロンプト結果を特別表示
+      const parts = content.split('---PROMPT_START---');
+      const beforePrompt = parts[0].trim();
+      const afterParts = parts[1].split('---PROMPT_END---');
+      const promptText = afterParts[0].trim();
+      const afterPrompt = afterParts[1] ? afterParts[1].trim() : '';
 
-    const techniques = [];
-    document.querySelectorAll('.technique-check input:checked').forEach(cb => {
-      techniques.push(cb.value);
-    });
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = 'display:flex;flex-direction:column;gap:10px;max-width:90%;';
 
-    // ユーザー入力をまとめる
-    let userMsg = `以下の情報を基に、最適なプロンプトを生成してください。\n\n`;
-    userMsg += `## 目的・やりたいこと\n${purpose}\n\n`;
-    if (role) userMsg += `## AIに演じてほしい役割\n${role}\n\n`;
-    if (audience) userMsg += `## 想定読者・ターゲット\n${audience}\n\n`;
-    if (constraints) userMsg += `## 前提条件・制約\n${constraints}\n\n`;
+      // 前置きテキスト
+      if (beforePrompt) {
+        const pre = document.createElement('div');
+        pre.className = 'chat-bubble ai';
+        pre.textContent = beforePrompt;
+        wrapper.appendChild(pre);
+      }
 
-    const formatLabels = { markdown: 'Markdown', plain: 'プレーンテキスト', bullets: '箇条書き', table: '表形式', json: 'JSON' };
-    const toneLabels = { formal: 'フォーマル・ビジネス', casual: 'カジュアル・親しみやすい', technical: 'テクニカル・専門的', persuasive: '説得力のある・営業的' };
+      // プロンプト結果カード
+      const card = document.createElement('div');
+      card.className = 'prompt-result';
+      card.innerHTML = `
+        <div class="prompt-result-header">
+          <span class="prompt-result-title">✅ 生成されたプロンプト</span>
+          <button class="prompt-copy-btn" id="copy-prompt-btn">📋 コピー</button>
+        </div>
+        <div class="prompt-result-body">${escHtml(promptText)}</div>
+        <div class="prompt-result-hint">💡 このプロンプトをコピーしてChatGPT・Claude・Geminiなどに貼り付けてください</div>`;
+      wrapper.appendChild(card);
 
-    if (format || tone || length) {
-      userMsg += `## 出力形式\n`;
-      if (format) userMsg += `- フォーマット: ${formatLabels[format] || format}\n`;
-      if (tone) userMsg += `- トーン: ${toneLabels[tone] || tone}\n`;
-      if (length) userMsg += `- 分量: ${length}\n`;
-      userMsg += `\n`;
+      // 後続テキスト
+      if (afterPrompt) {
+        const post = document.createElement('div');
+        post.className = 'chat-bubble ai';
+        post.textContent = afterPrompt;
+        wrapper.appendChild(post);
+      }
+
+      row.appendChild(avatar);
+      row.appendChild(wrapper);
+      chatEl.appendChild(row);
+
+      // コピーボタン
+      card.querySelector('#copy-prompt-btn').addEventListener('click', function() {
+        copyToClipboard(promptText, this);
+      });
+
+      // 履歴保存
+      const userFirstMsg = messages.find(m => m.role === 'user')?.content || '';
+      HistoryManager.save(userFirstMsg.slice(0, 300), promptText);
+      promptGenerated = true;
+    } else {
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${role}`;
+      bubble.textContent = content;
+      row.appendChild(avatar);
+      row.appendChild(bubble);
+      chatEl.appendChild(row);
     }
 
-    if (techniques.length > 0) {
-      const techLabels = {
-        'role': '役割付与（「あなたは〇〇です」で始める）',
-        'step-by-step': 'ステップバイステップ思考（「ステップバイステップで考えてください」を組み込む）',
-        'few-shot': 'Few-shotプロンプティング（良い回答例を1〜2つ含める）',
-        'structured': '構造化タグ（<instructions>や###で情報を区切る）',
-        'constraints': '制約条件の明示（「以下のルールを必ず守ってください」セクションを追加）',
-      };
-      userMsg += `## 適用する応用テクニック\n`;
-      techniques.forEach(t => { userMsg += `- ${techLabels[t] || t}\n`; });
-      userMsg += `\n`;
-    }
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
 
-    const btn = document.getElementById('generate-btn');
-    btn.disabled = true;
-    btn.textContent = '生成中...';
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('result').innerHTML = '';
+  function addLoading() {
+    const row = document.createElement('div');
+    row.className = 'chat-row ai';
+    row.id = 'loading-row';
+    row.innerHTML = `
+      <div class="chat-avatar ai">🪄</div>
+      <div class="chat-bubble ai loading">
+        考え中
+        <span class="loading-dots">
+          <span class="loading-dot"></span>
+          <span class="loading-dot"></span>
+          <span class="loading-dot"></span>
+        </span>
+      </div>`;
+    chatEl.appendChild(row);
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
+
+  function removeLoading() {
+    document.getElementById('loading-row')?.remove();
+  }
+
+  function escHtml(s) {
+    return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  // ── 送信処理 ──────────────────────────
+  async function send() {
+    const text = inputEl.value.trim();
+    if (!text || generating) return;
+
+    // サジェスチョン非表示
+    sugEl.style.display = 'none';
+
+    // ユーザーメッセージ表示
+    addBubble('user', text);
+    messages.push({ role: 'user', content: text });
+    inputEl.value = '';
+    inputEl.style.height = '44px';
+
+    generating = true;
+    sendBtn.disabled = true;
+    addLoading();
 
     try {
       const r = await fetch('/api/generate', {
@@ -557,83 +370,45 @@
           model: 'claude-sonnet-4-6',
           max_tokens: 4096,
           system: SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: userMsg }],
+          messages: messages.map(m => ({ role: m.role, content: m.content })),
         }),
       });
       const data = await r.json();
-      if (!r.ok) throw new Error(data.error?.message || 'プロンプト生成に失敗しました');
-      const raw = data.content?.[0]?.text || '';
-      if (!raw.trim()) throw new Error('応答が空です。もう一度お試しください。');
+      if (!r.ok) throw new Error(data.error?.message || 'エラーが発生しました');
+      const reply = data.content?.[0]?.text || '';
+      if (!reply.trim()) throw new Error('応答が空です。もう一度お試しください。');
 
-      renderResult(raw);
-      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      HistoryManager.save(purpose.slice(0, 300), raw);
+      removeLoading();
+      messages.push({ role: 'assistant', content: reply });
+      addBubble('ai', reply);
     } catch (err) {
-      errEl.textContent = err.message;
+      removeLoading();
+      addBubble('ai', `⚠️ ${err.message}`);
     } finally {
-      btn.disabled = false;
-      btn.textContent = 'プロンプトを生成する';
-      document.getElementById('loading').style.display = 'none';
+      generating = false;
+      sendBtn.disabled = false;
+      inputEl.focus();
     }
   }
 
-  // ── 結果レンダリング ──────────────────────────
-  function escHtml(s) {
-    return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
+  // ── イベント ──────────────────────────
+  sendBtn.addEventListener('click', send);
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
 
-  function renderResult(raw) {
-    const el = document.getElementById('result');
+  // テキストエリア自動高さ調整
+  inputEl.addEventListener('input', () => {
+    inputEl.style.height = '44px';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+  });
 
-    // 構成要素の検出
-    const badges = [];
-    if (/指示|インストラクション|instruction/i.test(raw)) badges.push('<span class="element-badge badge-instruction">指示</span>');
-    if (/背景|コンテキスト|context/i.test(raw)) badges.push('<span class="element-badge badge-context">背景</span>');
-    if (/入力|インプット|input/i.test(raw)) badges.push('<span class="element-badge badge-input">入力</span>');
-    if (/出力|アウトプット|output|フォーマット/i.test(raw)) badges.push('<span class="element-badge badge-output">出力形式</span>');
-    // テクニック検出
-    if (/あなたは.*です|You are/i.test(raw)) badges.push('<span class="element-badge badge-technique">役割付与</span>');
-    if (/ステップ|step.?by.?step/i.test(raw)) badges.push('<span class="element-badge badge-technique">ステップバイステップ</span>');
-    if (/例[：:]|Example/i.test(raw)) badges.push('<span class="element-badge badge-technique">Few-shot</span>');
-    if (/<|###|##/i.test(raw)) badges.push('<span class="element-badge badge-technique">構造化</span>');
-
-    el.innerHTML = `
-      <div class="result-header">
-        <span class="result-title">✅ 生成されたプロンプト</span>
-        <button class="copy-prompt-btn" id="copy-prompt-btn">📋 コピー</button>
-      </div>
-      ${badges.length > 0 ? `<div class="element-badges">${badges.join('')}</div>` : ''}
-      <div class="result-card">
-        <div class="result-display" id="result-display">${escHtml(raw)}</div>
-      </div>`;
-
-    document.getElementById('copy-prompt-btn').addEventListener('click', function () {
-      copyToClipboard(raw, this);
+  // サジェスチョンクリック
+  document.querySelectorAll('.sug-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      inputEl.value = chip.dataset.msg;
+      inputEl.focus();
     });
-  }
-
-  // ── イベント登録 ──────────────────────────
-  document.getElementById('generate-btn').addEventListener('click', generate);
-
-  document.getElementById('reset-btn').addEventListener('click', () => {
-    document.getElementById('purpose-input').value = '';
-    document.getElementById('role-input').value = '';
-    document.getElementById('audience-input').value = '';
-    document.getElementById('constraints-input').value = '';
-    document.getElementById('format-select').value = '';
-    document.getElementById('tone-select').value = '';
-    document.getElementById('length-input').value = '';
-    document.getElementById('error-msg').textContent = '';
-    document.getElementById('result').innerHTML = '';
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('purpose-count').textContent = '0';
-    document.querySelectorAll('.technique-check').forEach(label => {
-      label.querySelector('input').checked = false;
-      label.classList.remove('active');
-    });
-    document.querySelectorAll('.template-tab').forEach(t => t.classList.remove('active'));
-    document.querySelector('[data-template="free"]').classList.add('active');
-    currentTemplate = 'free';
   });
 
   HistoryManager.init('Prompt Maker');
