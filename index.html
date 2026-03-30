@@ -526,17 +526,10 @@
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/prompt-maker/">
-          <div class="card-new-badge">NEW</div>
+          <div class="card-update-badge">UPDATE</div>
           <div class="card-icon-wrap">🪄</div>
           <div class="card-name">Prompt Maker</div>
-          <div class="card-desc">AIプロンプトの構造化生成</div>
-          <div class="card-tag card-tag-web">Web App</div>
-        </a>
-        <a class="card" href="apps/prompt-maker/">
-          <div class="card-new-badge">NEW</div>
-          <div class="card-icon-wrap">🪄</div>
-          <div class="card-name">Prompt Maker</div>
-          <div class="card-desc">AIプロンプトの構造化生成</div>
+          <div class="card-desc">ソース参照×AI対話でプロンプト生成</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/youtube-desc/">
@@ -600,6 +593,8 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '🪄', app: 'Prompt Maker',           date: '2026-03-30(月)', desc: 'v3大型アップデート：Vercel KVによるソース永続保存（キャッシュクリア後も復元）・ソース追加者のユーザー名記録・チーム共有・URL実コンテンツ自動取得（fetch-article連携）・ソース検索・全文展開/折りたたみ・クラウド/ローカル自動切替・ストレージ状態バッジ表示' },
+      { icon: '🪄', app: 'Prompt Maker',           date: '2026-03-30(月)', desc: 'NotebookLM風リニューアル：2ペインレイアウト（左ソース管理・右チャット）・テキスト/URL参照ソース追加・ソースを踏まえたプロンプト生成・新規チャットボタン・モバイルタブ切替対応' },
       { icon: '🖼️', app: 'Banner Resizer',      date: '2026-03-30(月)', desc: 'WebP出力のCMSアップロードエラーを修正（ブラウザのフォールバック時に正しい拡張子で出力）' },
       { icon: '📊', app: 'Slide Maker',            date: '2026-03-30(月)', desc: 'UX改善：初見ユーザー向けウェルカムガイド（3ステップ説明）・インポートゾーン折りたたみ化・リサーチボタンにラベル追加・チャット初期メッセージ改善・サジェスチョン4種に拡充・入力プレースホルダーに具体例表示' },
       { icon: '🪄', app: 'Prompt Maker',           date: '2026-03-30(月)', desc: 'AIプロンプト構造化生成ツール新規追加・目的別テンプレート（SNS・メール・企画書・分析・翻訳）・応用テクニック自動適用（役割付与・Few-shot・ステップバイステップ・構造化タグ）・履歴管理対応' },
