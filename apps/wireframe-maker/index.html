@@ -26,7 +26,8 @@
     .navbar-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.15); }
     .navbar-title { color: #fff; font-size: 0.95rem; font-weight: 600; }
 
-    .container { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; flex: 1; width: 100%; }
+    .container { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; flex: 1; width: 100%; transition: max-width 0.3s; }
+    .container.wide { max-width: 1100px; }
 
     /* フェーズバー */
     .phase-bar { display: flex; background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.06); margin-bottom: 20px; }
@@ -111,8 +112,8 @@
     .section-card .sec-desc { font-size: 0.75rem; color: #8a9bb0; }
     .section-card .sec-components { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
     .section-card .comp-tag { font-size: 0.65rem; padding: 2px 6px; background: #f0f2f5; color: #8a9bb0; }
-    .section-card .sec-method { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; padding: 2px 8px; font-size: 0.62rem; font-weight: 600; background: #001f33; color: rgba(255,255,255,0.85); }
-    .section-card .sec-method .sm-dot { width: 5px; height: 5px; background: #ffb81c; border-radius: 50%; }
+    .section-card .sec-method { display: inline-block; margin-top: 4px; font-size: 0.62rem; font-weight: 600; color: #8a9bb0; }
+    .section-card .sec-method .sm-dot { display: none; }
     .section-card .sec-delete { background: none; border: none; color: #ccc; font-size: 1.1rem; cursor: pointer; padding: 4px 8px; transition: color 0.15s; }
     .section-card .sec-delete:hover { color: #c0392b; }
 
@@ -140,8 +141,8 @@
     .preview-toolbar button { background: #fff; border: 1.5px solid #e8ecf0; padding: 6px 14px; font-size: 0.88rem; cursor: pointer; font-family: inherit; color: #4a5568; }
     .preview-toolbar button:hover { border-color: #b0bec5; }
     .preview-toolbar .zoom-level { font-size: 0.78rem; color: #8a9bb0; font-weight: 600; min-width: 44px; text-align: center; }
-    .preview-canvas { background: #fff; border: 1px solid #e8ecf0; overflow: auto; max-height: 600px; padding: 20px; margin-bottom: 16px; }
-    .preview-canvas svg { display: block; margin: 0 auto; transform-origin: top center; transition: transform 0.2s; }
+    .preview-canvas { background: #e8ecf0; border: 1px solid #d0d5dc; overflow: auto; max-height: 75vh; padding: 24px; margin-bottom: 16px; }
+    .preview-canvas svg { display: block; margin: 0 auto; transform-origin: top center; transition: transform 0.2s; box-shadow: 0 2px 16px rgba(0,0,0,0.12); }
     .preview-canvas svg .section-group { cursor: pointer; }
     .preview-canvas svg .section-group:hover rect.section-bg { stroke: #ffb81c; stroke-width: 2; }
     .preview-canvas svg .section-group.selected rect.section-bg { stroke: #001f33; stroke-width: 2.5; stroke-dasharray: 8 4; }
@@ -178,31 +179,26 @@
     .toast { position: fixed; bottom: 28px; right: 28px; background: #001f33; color: #fff; padding: 12px 24px; font-size: 0.82rem; font-weight: 600; z-index: 999; opacity: 0; transform: translateY(8px); transition: opacity 0.3s, transform 0.3s; pointer-events: none; }
     .toast.show { opacity: 1; transform: translateY(0); }
 
-    /* ===== ナレッジバナー ===== */
-    .knowledge-banner { background: #001f33; padding: 20px 20px 16px; margin-bottom: 20px; }
-    .knowledge-banner h2 { color: #fff; font-size: 0.92rem; font-weight: 700; margin-bottom: 12px; }
-    .knowledge-banner p { color: rgba(255,255,255,0.7); font-size: 0.78rem; line-height: 1.6; margin-bottom: 14px; }
-    .knowledge-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-    .knowledge-tag { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; font-size: 0.7rem; font-weight: 600; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.12); }
-    .knowledge-tag .ktag-dot { width: 6px; height: 6px; background: #ffb81c; border-radius: 50%; flex-shrink: 0; }
-    .knowledge-detail { margin-top: 10px; display: none; }
+    /* ===== ナレッジバナー（コンパクト） ===== */
+    .knowledge-banner { background: #001f33; padding: 10px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .knowledge-banner .kb-title { color: #fff; font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+    .knowledge-tags { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+    .knowledge-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; font-size: 0.65rem; font-weight: 600; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); }
+    .knowledge-tag .ktag-dot { width: 5px; height: 5px; background: #ffb81c; border-radius: 50%; flex-shrink: 0; }
+    .kb-toggle { background: none; border: none; color: rgba(255,255,255,0.5); padding: 2px 8px; font-size: 0.68rem; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .kb-toggle:hover { color: rgba(255,255,255,0.9); }
+    .knowledge-detail { display: none; width: 100%; }
+    .knowledge-banner.expanded { flex-wrap: wrap; padding-bottom: 14px; }
     .knowledge-banner.expanded .knowledge-detail { display: block; }
-    .knowledge-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-    .kd-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 14px; }
-    .kd-card h4 { color: #ffb81c; font-size: 0.72rem; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .knowledge-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .kd-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 12px; }
+    .kd-card h4 { color: #ffb81c; font-size: 0.68rem; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
     .kd-card ul { list-style: none; padding: 0; }
-    .kd-card li { color: rgba(255,255,255,0.75); font-size: 0.72rem; line-height: 1.7; padding-left: 12px; position: relative; }
-    .kd-card li::before { content: ''; position: absolute; left: 0; top: 8px; width: 4px; height: 4px; background: #ffb81c; border-radius: 50%; }
-    .kb-toggle { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); padding: 4px 12px; font-size: 0.7rem; cursor: pointer; font-family: inherit; margin-top: 8px; }
-    .kb-toggle:hover { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.9); }
+    .kd-card li { color: rgba(255,255,255,0.75); font-size: 0.68rem; line-height: 1.6; padding-left: 10px; position: relative; }
+    .kd-card li::before { content: ''; position: absolute; left: 0; top: 7px; width: 4px; height: 4px; background: #ffb81c; border-radius: 50%; }
     @media (max-width: 768px) {
       .knowledge-detail-grid { grid-template-columns: 1fr; }
     }
-
-    /* ===== テンプレートメソドロジーラベル ===== */
-    .tpl-chip .tpl-method { display: block; font-size: 0.6rem; color: #8a9bb0; font-weight: 400; margin-top: 2px; }
-    .tpl-chip:hover .tpl-method { color: #001f33; }
-    .tpl-chip.active .tpl-method { color: rgba(255,255,255,0.7); }
 
     footer { background: #001f33; color: rgba(255,255,255,0.8); text-align: center; padding: 16px 40px; font-size: 0.72rem; margin-top: auto; }
     footer strong { color: #ffb81c; }
@@ -243,16 +239,14 @@
 
   <!-- ナレッジバナー -->
   <div class="knowledge-banner" id="knowledge-banner">
-    <h2>LP設計の専門知識を学習済み</h2>
-    <p>才流・WACULなどの調査データに基づく構成最適化ルールを組み込んでいます。テンプレートを選ぶだけで、エビデンスに基づいたワイヤーフレームを自動生成します。</p>
+    <span class="kb-title">学習済みの知識:</span>
     <div class="knowledge-tags">
-      <span class="knowledge-tag"><span class="ktag-dot"></span>才流「売れるロジック」7段階</span>
-      <span class="knowledge-tag"><span class="ktag-dot"></span>WACUL CVR最適化データ</span>
-      <span class="knowledge-tag"><span class="ktag-dot"></span>CTA配置・文言設計</span>
-      <span class="knowledge-tag"><span class="ktag-dot"></span>EFOチェックリスト</span>
-      <span class="knowledge-tag"><span class="ktag-dot"></span>信頼セクション設計</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>才流「売れるロジック」</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>WACUL CVRデータ</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>CTA最適化</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>EFO</span>
     </div>
-    <button class="kb-toggle" onclick="toggleKnowledgeDetail()">詳しく見る ▾</button>
+    <button class="kb-toggle" onclick="toggleKnowledgeDetail()">詳細 ▾</button>
     <div class="knowledge-detail">
       <div class="knowledge-detail-grid">
         <div class="kd-card">
@@ -260,8 +254,8 @@
           <ul>
             <li>「売れるロジック」7段階フレームワーク</li>
             <li>導入事例12パターンの信頼性ランク</li>
-            <li>検討段階別CTA設計（情報収集→比較→導入決定）</li>
-            <li>EFOチェックリスト（フォーム最適化21項目）</li>
+            <li>検討段階別CTA設計</li>
+            <li>EFOチェックリスト21項目</li>
           </ul>
         </div>
         <div class="kd-card">
@@ -293,12 +287,12 @@
       </div>
       <div class="tpl-bar">
         <span class="tpl-label">テンプレート:</span>
-        <button class="tpl-chip" data-tpl="btob-lead-lp" title="資料DL・問い合わせ獲得向け。才流「売れるロジック」準拠">BtoB リードLP<span class="tpl-method">才流7段階+WACUL</span></button>
-        <button class="tpl-chip" data-tpl="btob-awareness-lp" title="認知拡大・ブランディング向け。事例・メディア掲載重視">BtoB 潜在LP<span class="tpl-method">WACUL FV完結型</span></button>
-        <button class="tpl-chip" data-tpl="btob-service-top" title="サービス紹介トップページ。機能一覧・料金・導入事例">サービスサイト<span class="tpl-method">才流+WACUL</span></button>
-        <button class="tpl-chip" data-tpl="btoc-product-lp" title="商品購入・申込み向け。ベネフィット・口コミ・限定オファー">BtoC 商品LP<span class="tpl-method">CTA最適化</span></button>
-        <button class="tpl-chip" data-tpl="blog-article" title="記事・コンテンツページ。本文・関連記事・CTA">ブログ<span class="tpl-method">回遊設計</span></button>
-        <button class="tpl-chip" data-tpl="contact-form" title="お問い合わせ・資料請求フォームページ">お問い合わせ<span class="tpl-method">才流EFO</span></button>
+        <button class="tpl-chip" data-tpl="btob-lead-lp" title="才流「売れるロジック」+WACUL CVRデータ準拠。資料DL・問い合わせ獲得向け">BtoB リードLP</button>
+        <button class="tpl-chip" data-tpl="btob-awareness-lp" title="WACUL FV完結型準拠。認知拡大・ブランディング向け">BtoB 潜在LP</button>
+        <button class="tpl-chip" data-tpl="btob-service-top" title="才流+WACUL準拠。サービス紹介トップページ">サービスサイト</button>
+        <button class="tpl-chip" data-tpl="btoc-product-lp" title="CTA最適化準拠。商品購入・申込み向け">BtoC 商品LP</button>
+        <button class="tpl-chip" data-tpl="blog-article" title="記事・コンテンツページ。回遊設計準拠">ブログ</button>
+        <button class="tpl-chip" data-tpl="contact-form" title="才流EFOチェックリスト準拠。お問い合わせ・資料請求フォーム">お問い合わせ</button>
       </div>
       <div id="chat-messages" class="chat-messages"></div>
       <div id="suggestions-area" class="suggestions"></div>
@@ -477,6 +471,8 @@ function setPhase(phase) {
 
   // ナレッジバナーはchat以外で非表示
   document.getElementById('knowledge-banner').classList.toggle('hidden', phase !== 'chat');
+  // プレビュー・エクスポートはコンテナを広げる
+  document.querySelector('.container').classList.toggle('wide', phase === 'preview' || phase === 'export');
 
   if (phase === 'structure') { renderSectionList(); }
   if (phase === 'export') {
@@ -873,7 +869,8 @@ function drawBtn(g, x, y, w, h, label, primary) {
 }
 function drawCircle(g, cx, cy, r) { g.appendChild(svg('circle', { cx, cy, r, fill: '#e0e0e0' })); }
 function drawLabel(g, y, text) {
-  const t = svg('text', { x: 16, y: y, fill: '#b0b0b0', 'font-size': '11', 'font-family': 'sans-serif' });
+  // Legacy — now handled inline in renderSection with background
+  const t = svg('text', { x: 16, y: y, fill: '#888', 'font-size': '11', 'font-family': 'sans-serif', 'font-weight': '600' });
   t.textContent = text; g.appendChild(t);
 }
 
@@ -882,8 +879,14 @@ function renderSection(sec, yOff) {
   const h = SECTION_HEIGHTS[sec.type] || 280;
 
   // 背景 + 区切り線
-  group.appendChild(svg('rect', { x: 0, y: 0, width: WF_WIDTH, height: h, fill: '#fff', stroke: '#d0d0d0', 'stroke-width': 1.5, class: 'section-bg' }));
-  drawLabel(group, 20, sec.type.toUpperCase() + ' — ' + (sec.label || ''));
+  group.appendChild(svg('rect', { x: 0, y: 0, width: WF_WIDTH, height: h, fill: '#fff', stroke: '#b0b8c0', 'stroke-width': 1, class: 'section-bg' }));
+  // セクションタイプラベル（左上に背景付き）
+  const labelText = sec.type.toUpperCase() + ' — ' + (sec.label || '');
+  const labelBg = svg('rect', { x: 0, y: 0, width: labelText.length * 7 + 24, height: 24, fill: '#f0f2f5' });
+  group.appendChild(labelBg);
+  const labelEl = svg('text', { x: 8, y: 16, fill: '#666', 'font-size': '11', 'font-family': 'sans-serif', 'font-weight': '600' });
+  labelEl.textContent = labelText;
+  group.appendChild(labelEl);
 
   const render = RENDERERS[sec.type] || RENDERERS['content-text'];
   render(group, h);
