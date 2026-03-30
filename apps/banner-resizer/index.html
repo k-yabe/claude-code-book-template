@@ -874,7 +874,7 @@
       item.innerHTML = `
         <div class="preview-item-header">
           <div class="preview-item-header-left">
-            <div class="preview-name">${size.label}${size.forcePng ? ' <span style="font-size:0.7rem;color:#b2bec3;font-weight:400;text-transform:none;">PNG固定</span>' : ''}</div>
+            <div class="preview-name">${size.label}${size.forcePng ? ' <span style="display:inline-block;font-size:0.65rem;color:#001f33;background:#ffb81c;padding:1px 6px;font-weight:600;text-transform:none;">PNG固定</span>' : ''}</div>
             <div class="preview-size">${size.w} × ${size.h}px</div>
           </div>
           ${deleteBtn}
@@ -1033,12 +1033,27 @@
     if (sourceImage) renderAll();
   }
 
+  function getRequestedMimeType(forcePng) {
+    return forcePng ? 'image/png' : format === 'webp' ? 'image/webp' : format === 'jpg' ? 'image/jpeg' : 'image/png';
+  }
+
+  function getExtFromMime(mime) {
+    if (mime === 'image/webp') return 'webp';
+    if (mime === 'image/jpeg') return 'jpg';
+    return 'png';
+  }
+
   function getBlob(canvasId, forcePng) {
     return new Promise(resolve => {
       const canvas = document.getElementById(canvasId);
       if (!canvas) { resolve(null); return; }
-      const mimeType = forcePng ? 'image/png' : format === 'webp' ? 'image/webp' : format === 'jpg' ? 'image/jpeg' : 'image/png';
-      canvas.toBlob(resolve, mimeType, 0.92);
+      const mimeType = getRequestedMimeType(forcePng);
+      canvas.toBlob(blob => {
+        if (blob && blob.type !== mimeType) {
+          blob._actualExt = getExtFromMime(blob.type);
+        }
+        resolve(blob);
+      }, mimeType, 0.92);
     });
   }
 
@@ -1051,9 +1066,9 @@
     const allSizes = [...SIZES, ...customSizes];
     const size = allSizes.find(s => s.id === sizeId);
     if (!size) return;
-    const ext = size.forcePng ? 'png' : format;
     getBlob('canvas-' + sizeId, size.forcePng).then(blob => {
       if (!blob) return;
+      const ext = blob._actualExt || (size.forcePng ? 'png' : format);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -1079,9 +1094,10 @@
 
     const zip = new JSZip();
     for (const size of allSizes) {
-      const ext = size.forcePng ? 'png' : format;
       const blob = await getBlob('canvas-' + size.id, size.forcePng);
-      if (blob) zip.file(`${size.dlName || `${filename}_${size.w}x${size.h}`}.${ext}`, blob);
+      if (!blob) continue;
+      const ext = blob._actualExt || (size.forcePng ? 'png' : format);
+      zip.file(`${size.dlName || `${filename}_${size.w}x${size.h}`}.${ext}`, blob);
     }
 
     const zipBlob = await zip.generateAsync({ type: 'blob' });
