@@ -1,15 +1,94 @@
 {
-  "last_scraped": "2026-03-23T23:24:11Z",
+  "last_scraped": "2026-03-29T23:29:06Z",
   "articles": [
     {
-      "id": "it-engineering-salary-guide-2026",
-      "title": "2026 IT & Engineering Salary Guide: Human + AI Teams",
-      "url": "https://www.akkodis.com/blog/articles/it-engineering-salary-guide-2026",
+      "id": "federated-learning-critical-industries",
+      "title": "Federated Learning in Action Across Critical Industries",
+      "url": "https://www.akkodis.com/blog/articles/federated-learning-critical-industries",
       "source_id": "blog",
       "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-23T23:21:52Z",
-      "published_date": "2026-03-23T00:00:00Z",
-      "summary_ja": "2026年のIT・エンジニア業界では、AIが定型業務を担当する一方で、人間は設計やガバナンス、意思決定といったより高度な仕事にシフトしており、テクノロジー人材の働き方が大きく変わろうとしています。技術者の80%がAI活用で自信を深め、95%が人間とAIの協働に対応する準備ができていますが、単なるツール導入ではなく、信頼性の構築と透明性のあるガバナンスが成功の鍵になります。企業が人材を確保・育成するためには、継続的なスキル開発と明確なキャリアパス、環境や社会への責任姿勢の表現が不可欠であり、給与面だけでなく柔軟な働き方や人間中心の組織設計が求められています。"
+      "first_seen": "2026-03-14T12:15:18Z",
+      "published_date": "2026-03-13T00:00:00Z",
+      "summary_ja": "防衛やエネルギー、医療といった機密性の高い産業では、大量のセンサーデータが分散した場所で生成されるため、従来のクラウドベースのAI学習が難しい課題がありますが、フェデレーテッドラーニングなら生データを移動させず各拠点でローカル学習し、モデルの更新情報だけを共有することで、プライバシーと規制要件を守りながら統合的なAIモデルを構築できます。オフショア施設では予防保全モデルで設備の信頼性を高め、医療では患者データを保護しながら診断精度を向上させるなど、各産業で実際の成果が出ており、データセキュリティの制約がある環境でも運用効率を改善する手段として機能しています。この技術は各拠点で独立したままのデータを活かし、プライバシー確保と業務遂行を両立させることで、組織全体として回復力のある知能システムを実現しているのです。"
+    },
+    {
+      "id": "generative-ai-airlines-optimization-copy",
+      "title": "How Generative AI Enhances Airline Efficiency in Cargo and MRO",
+      "url": "https://www.akkodis.com/blog/articles/generative-ai-airlines-optimization-copy",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-29T23:22:23Z",
+      "published_date": null,
+      "summary_ja": "航空会社の荷物管理や部品保管の最適化にAIやブロックチェーン技術を導入することで、需要予測の精度が向上し、本当に必要な部品だけを必要な時期に配送できるようになります。これにより、余分な在庫を減らしながら、高利益の商品をより多く輸送する貨物スペースを確保し、物流コストを大幅に削減することが可能です。こうした先進技術を活用する航空会社は、運用効率と収益性の面で業界内で競争力を持つようになるでしょう。"
+    },
+    {
+      "id": "generative-ai-airlines-optimization",
+      "title": "How Generative AI Enhances Airline Efficiency in Cargo and MRO",
+      "url": "https://www.akkodis.com/blog/articles/generative-ai-airlines-optimization",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-27T23:23:02Z",
+      "published_date": null,
+      "summary_ja": "航空業界では、生成AIとブロックチェーン技術を活用することで、予測分析に基づいた需要予測と在庫管理が可能になり、必要な部品を必要な時期に必要な場所へ配置できるようになります。これにより、航空会社は貨物スペースを効率的に活用し、高利益率の商品を運べる余裕が生まれるため、コスト削減と売上増加を同時に実現できます。リアルタイムの可視化により供給チェーン全体の透明性が向上し、予期しない運用上の支障を避けながら、より信頼性の高いサービス提供が可能になります。"
+    },
+    {
+      "id": "edge-ai-federated-learning-architecture",
+      "title": "How AI Architecture Changes with Edge and Federated Learning",
+      "url": "https://www.akkodis.com/blog/articles/edge-ai-federated-learning-architecture",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:23Z",
+      "published_date": "2026-03-06T00:00:00Z",
+      "summary_ja": "AIの処理方式が、クラウドの中央集約型から、データが生まれる現場で学習する分散型へと変わりつつあります。従来はデバイスから集めたデータをクラウドに送ってAIを訓練していましたが、フェデレーテッド学習では各デバイス上で個別に学習を行い、その結果だけを共有することで、プライバシーを守りながら全体で賢くなることができます。このような変化に対応するには、エッジデバイスに計算能力を持たせ、ネットワークがない時でも動作できるシステムが必要になり、企業は分散環境で確実に機能するAIの設計という新しい課題に取り組んでいます。"
+    },
+    {
+      "id": "federated-learning-ai-scalability",
+      "title": "Federated Learning Beyond Privacy: Smarter AI at Scale",
+      "url": "https://www.akkodis.com/blog/articles/federated-learning-ai-scalability",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:16Z",
+      "published_date": "2026-03-13T00:00:00Z",
+      "summary_ja": "フェデレーテッドラーニングは、データをローカル環境に置いたまま各デバイスでAIを学習させ、小さなモデル更新だけをやり取りすることで、大量データの転送を避けながら効率的に処理できる仕組みです。各デバイスがそれぞれの環境から学習しながら全体で知識を共有することで、異なる状況に適応できるAIシステムを構築でき、特に通信環境が限られた防衛やオフショア産業での安定運用に向いています。モデル更新のみの共有により帯域幅とエネルギー消費を大幅に削減できるため、運用コストを抑えながら学習と展開の速度を上げられ、将来のAIは分散型で責任あるデータ管理を両立する形へ進んでいくとAkkodisは考えています。"
+    },
+    {
+      "id": "edge-ai-federated-learning",
+      "title": "Moving AI to the Edge with Federated Learning",
+      "url": "https://www.akkodis.com/blog/articles/edge-ai-federated-learning",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-14T12:15:21Z",
+      "published_date": "2026-03-13T00:00:00Z",
+      "summary_ja": "従来、AIは大規模なデータセンターに集約されていましたが、エッジAIと呼ばれる新しい手法により、データが生成される場所の近くでAIの処理を行うことが可能になりました。フェデレーテッドラーニングはこの概念をさらに進め、個々のデバイスでAIモデルの学習を行い、学習結果のみを共有することで、データを一箇所に集めることなくプライバシーを守りながら複数の情報源から学習することができます。このアプローチにより、データ保護規制への対応、処理速度の向上、そして多くの分散ソースからのスケーラブルな学習が同時に実現され、組織が責任あるAI活用を推進できるようになります。"
+    },
+    {
+      "id": "from-digital-to-physical-ai",
+      "title": "From Digital to Physical AI: When AI Leaves the Screen",
+      "url": "https://www.akkodis.com/blog/articles/from-digital-to-physical-ai",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-29T23:23:03Z",
+      "published_date": null
+    },
+    {
+      "id": "ask-the-expert-responsible-ai-eu-ai-act",
+      "title": "Responsible AI in Practice: Navigating the EU AI Act and Building Trust",
+      "url": "https://www.akkodis.com/blog/articles/ask-the-expert-responsible-ai-eu-ai-act",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-26T23:21:38Z",
+      "published_date": "2026-03-24T00:00:00Z",
+      "summary_ja": "# 要約\n\nEUのAI規制法に基づいて、企業がAIシステムを開発する際には透明性と説明責任を重視し、リスク評価を通じて最小限から許容不可能まで4つのレベルに分類して管理する必要があります。特に医療や採用などの高リスク領域では、人間の監督やサイバーセキュリティ対策を含む厳密な要件をクリアすることが求められています。AIの性能だけでなく社会への影響を考慮し、倫理的な原則を開発段階から組み込むことで、信頼性の高い技術として機能するようになります。"
+    },
+    {
+      "id": "ask-the-expert-ai-ethics-bias",
+      "title": "Ethics, Responsibility and Bias in AI: Beyond Innovation",
+      "url": "https://www.akkodis.com/blog/articles/ask-the-expert-ai-ethics-bias",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-24T23:21:58Z",
+      "published_date": "2026-03-24T00:00:00Z",
+      "summary_ja": "AIシステムが採用や医療などの重要な領域で人々の人生に直接影響を与えるようになる中で、企業は倫理性と透明性を確保した設計が不可欠になっています。学習データに含まれた歴史的な不平等やデータの偏りが、大規模運用時に差別につながるリスクがあるため、継続的な監視と検証を通じた対策が求められています。Akkodisは技術専門知識と人間中心の思考を組み合わせることで、革新的な価値を生みながら個人と社会を守るAI開発に取り組んでいます。"
     },
     {
       "id": "ai-skills-resume-2026",
@@ -20,6 +99,16 @@
       "first_seen": "2026-03-23T23:22:07Z",
       "published_date": "2026-03-23T00:00:00Z",
       "summary_ja": "2026年の採用市場では、AIツールの名前を列挙するだけでなく、業務効率の向上や正確性の改善など、AIがもたらした具体的な成果を履歴書に示すことが求められています。エンジニアはAI活用した開発の最適化を、データ専門家は自動化による分析の改善を、プロジェクト管理者はワークフロー改善の事例など、自分の職種に合わせてAIスキルをアピールすることが重要です。同時に、出力結果の検証や責任あるAI利用を判断する人間の専門知識と協働姿勢も組み合わせることで、企業が求める適応力と信頼性を備えた人材として評価される可能性が高まります。"
+    },
+    {
+      "id": "it-engineering-salary-guide-2026",
+      "title": "2026 IT & Engineering Salary Guide: Human + AI Teams",
+      "url": "https://www.akkodis.com/blog/articles/it-engineering-salary-guide-2026",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-23T23:21:52Z",
+      "published_date": "2026-03-23T00:00:00Z",
+      "summary_ja": "2026年のIT・エンジニア業界では、AIが定型業務を担当する一方で、人間は設計やガバナンス、意思決定といったより高度な仕事にシフトしており、テクノロジー人材の働き方が大きく変わろうとしています。技術者の80%がAI活用で自信を深め、95%が人間とAIの協働に対応する準備ができていますが、単なるツール導入ではなく、信頼性の構築と透明性のあるガバナンスが成功の鍵になります。企業が人材を確保・育成するためには、継続的なスキル開発と明確なキャリアパス、環境や社会への責任姿勢の表現が不可欠であり、給与面だけでなく柔軟な働き方や人間中心の組織設計が求められています。"
     },
     {
       "id": "ask-the-expert-edge-ai-performance",
@@ -52,74 +141,33 @@
       "summary_ja": "NVIDIA GTC 2026ではAIインフラの大規模な構築が加速することが明らかになり、同社のBlackwellとVera Rubin プラットフォームで1兆ドル規模の受注が見込まれています。Vera Rubin は複数のチップを統合した新型スーパーコンピュータで、自律的に動作し続けるAIエージェント向けに設計されており、2027年から本格稼働する予定です。同時に発表されたOpenClawはエンタープライズ向けのAIエージェント運用プラットフォームとなり、自動車の自動運転やロボット技術などの産業応用が急速に進展することで、ソフトウェア検証やシステム統合といった複雑な技術課題への対応が企業に求められるようになります。"
     },
     {
-      "id": "from-digital-to-physical-ai",
-      "title": "From Digital to Physical AI: When AI Leaves the Screen",
-      "url": "https://www.akkodis.com/blog/articles/from-digital-to-physical-ai",
+      "id": "ai-career-growth-curiosity",
+      "title": "Stay Ahead in the Age of Intelligence: 3 Career Tips from Joshua Morley",
+      "url": "https://www.akkodis.com/blog/articles/ai-career-growth-curiosity",
       "source_id": "blog",
       "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:44Z",
-      "published_date": "2026-02-26T00:00:00Z",
-      "summary_ja": "自動運転車や製造ロボットなど、AIが物理的な動きを制御する場面では、予測精度だけでなく、遅延時間や安全性、システムの信頼性が成功を左右する重要な要素になります。クラウドの中央集約型AIは学習や分析には適していますが、リアルタイムの制御が必要な現場では通信遅延が問題となるため、機械や センサーの近くで判断できる分散型のコンピュート配置が不可欠です。物理的なAIシステムの設計には、IT部門とOT部門が協力して、センサーから制御まで全体を見通したシステムエンジニアリングが求められます。"
+      "first_seen": "2026-03-29T23:24:03Z",
+      "published_date": null
     },
     {
-      "id": "copilots-agents-designing-enterprise-ai-adoption",
-      "title": "From Copilots to Agents: Designing Enterprise AI Adoption",
-      "url": "https://www.akkodis.com/blog/articles/copilots-agents-designing-enterprise-ai-adoption",
+      "id": "why-most-ai-pilots-fail",
+      "title": "Why Most AI Pilots Fail: Real Constraints To AI Scale",
+      "url": "https://www.akkodis.com/blog/articles/why-most-ai-pilots-fail",
       "source_id": "blog",
       "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:51Z",
-      "published_date": "2026-02-26T00:00:00Z",
-      "summary_ja": "企業のAI導入では、2026年時点で多くのリーダーがAIの有用性を認識していますが、組織全体での進展のばらつきが課題になっています。信頼の欠如やAIリテラシーの不均等、業務の複雑さといった組織的な準備不足が、技術よりも先に障害として現れているのが実情です。このため、完全自動型のAI導入を目指す前に、コパイロット（支援型AI）を活用して組織を段階的に適応させることが重要な戦略となります。コパイロットは既存のツール内に組み込まれるため、人々が普段の業務の中で低リスクで繰り返しAIと関わることで、信頼を構築し、プロセスの問題点を安全に可視化できます。この準備段階を経ることで、自動型AIへの移行時に必要なガバナンス体制、ワークフロー理解、チーム間の責任分担が明確になり、最終的により安全で実効的なAI導入が実現するということです。"
+      "first_seen": "2026-03-29T23:25:15Z",
+      "published_date": null,
+      "summary_ja": "# 要約\n\nAI導入が失敗する理由は技術の性能ではなく、組織の運営体制にあります。パイロット段階では小さなチームが限定的な条件下で成功を収めますが、スケーリング時には企業全体に存在する古いシステム、散らばったデータ、不明確な承認フローといった構造的な問題が浮き彫りになり、展開が停滞してしまいます。多くの企業はより優れたモデルを導入することが解決策だと考えていますが、実は根本的な問題はデータの統一性、意思決定権の明確化、部門を超えた調整の仕組みにあります。成功している企業は、AI導入を急ぐのではなく、まずデータと業務プロセスの基盤を整備した上でAIを組み込む方針を取っており、その結果として段階的な導入でも着実に本番運用まで進められています。"
     },
     {
-      "id": "driving-innovation-and-engineering-a-smarter-future-for-all",
-      "title": "Driving Innovation and Engineering a Smarter Future for All",
-      "url": "https://www.akkodis.com/blog/articles/driving-innovation-and-engineering-a-smarter-future-for-all",
+      "id": "ai-sports-performance-rugby",
+      "title": "Stade Toulousain x Akkodis: Where AI Powers Performance",
+      "url": "https://www.akkodis.com/blog/articles/ai-sports-performance-rugby",
       "source_id": "blog",
       "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:42Z",
-      "published_date": "2026-02-27T00:00:00Z",
-      "summary_ja": "Akkodisグループは、AI技術を単なる業務効率化の手段ではなく、人々の生活を根本的に変えるための力として位置づけており、AIの責任ある活用に力を入れています。同社のAI責任者であるジョシュア・モーレイ氏は、ビジネスリーダーと協力して従業員の充実した職場環境を作ることと、倫理的で透明性のある信頼できるAIシステムの構築が重要だと述べています。Akkodisは、個人の関心や情熱をAIキャリアの原動力とし、社会に良い影響をもたらす革新的なAI技術を通じて、より良い未来を一緒に作っていくことを求めています。"
-    },
-    {
-      "id": "federated-learning-ai-scalability",
-      "title": "Federated Learning Beyond Privacy: Smarter AI at Scale",
-      "url": "https://www.akkodis.com/blog/articles/federated-learning-ai-scalability",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:16Z",
-      "published_date": "2026-03-13T00:00:00Z",
-      "summary_ja": "フェデレーテッドラーニングは、データをローカル環境に置いたまま各デバイスでAIを学習させ、小さなモデル更新だけをやり取りすることで、大量データの転送を避けながら効率的に処理できる仕組みです。各デバイスがそれぞれの環境から学習しながら全体で知識を共有することで、異なる状況に適応できるAIシステムを構築でき、特に通信環境が限られた防衛やオフショア産業での安定運用に向いています。モデル更新のみの共有により帯域幅とエネルギー消費を大幅に削減できるため、運用コストを抑えながら学習と展開の速度を上げられ、将来のAIは分散型で責任あるデータ管理を両立する形へ進んでいくとAkkodisは考えています。"
-    },
-    {
-      "id": "federated-learning-critical-industries",
-      "title": "Federated Learning in Action Across Critical Industries",
-      "url": "https://www.akkodis.com/blog/articles/federated-learning-critical-industries",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:18Z",
-      "published_date": "2026-03-13T00:00:00Z",
-      "summary_ja": "防衛やエネルギー、医療といった機密性の高い産業では、大量のセンサーデータが分散した場所で生成されるため、従来のクラウドベースのAI学習が難しい課題がありますが、フェデレーテッドラーニングなら生データを移動させず各拠点でローカル学習し、モデルの更新情報だけを共有することで、プライバシーと規制要件を守りながら統合的なAIモデルを構築できます。オフショア施設では予防保全モデルで設備の信頼性を高め、医療では患者データを保護しながら診断精度を向上させるなど、各産業で実際の成果が出ており、データセキュリティの制約がある環境でも運用効率を改善する手段として機能しています。この技術は各拠点で独立したままのデータを活かし、プライバシー確保と業務遂行を両立させることで、組織全体として回復力のある知能システムを実現しているのです。"
-    },
-    {
-      "id": "edge-ai-federated-learning",
-      "title": "Moving AI to the Edge with Federated Learning",
-      "url": "https://www.akkodis.com/blog/articles/edge-ai-federated-learning",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:21Z",
-      "published_date": "2026-03-13T00:00:00Z",
-      "summary_ja": "従来、AIは大規模なデータセンターに集約されていましたが、エッジAIと呼ばれる新しい手法により、データが生成される場所の近くでAIの処理を行うことが可能になりました。フェデレーテッドラーニングはこの概念をさらに進め、個々のデバイスでAIモデルの学習を行い、学習結果のみを共有することで、データを一箇所に集めることなくプライバシーを守りながら複数の情報源から学習することができます。このアプローチにより、データ保護規制への対応、処理速度の向上、そして多くの分散ソースからのスケーラブルな学習が同時に実現され、組織が責任あるAI活用を推進できるようになります。"
-    },
-    {
-      "id": "edge-ai-federated-learning-architecture",
-      "title": "How AI Architecture Changes with Edge and Federated Learning",
-      "url": "https://www.akkodis.com/blog/articles/edge-ai-federated-learning-architecture",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:23Z",
-      "published_date": "2026-03-06T00:00:00Z",
-      "summary_ja": "AIの処理方式が、クラウドの中央集約型から、データが生まれる現場で学習する分散型へと変わりつつあります。従来はデバイスから集めたデータをクラウドに送ってAIを訓練していましたが、フェデレーテッド学習では各デバイス上で個別に学習を行い、その結果だけを共有することで、プライバシーを守りながら全体で賢くなることができます。このような変化に対応するには、エッジデバイスに計算能力を持たせ、ネットワークがない時でも動作できるシステムが必要になり、企業は分散環境で確実に機能するAIの設計という新しい課題に取り組んでいます。"
+      "first_seen": "2026-03-29T23:25:50Z",
+      "published_date": null,
+      "summary_ja": "Akkodis IntelligenceはラグビーのStade Toulousainと協力し、AIとデータ分析を活用してトレーニング中の選手の動きや力の入り方を細かく測定し、目に見えない改善点を発見しています。スクラムマシンに搭載したセンサーでは力の分散や衝撃を正確に捉え、怪我リスクの低減と技術向上に役立てています。試合中は低遅延のデータ処理により、選手のワークロード管理や動きの効率性をリアルタイムで分析し、人間の判断と経験をサポートする形で高いパフォーマンスを実現しています。"
     },
     {
       "id": "digital-learning-and-immersive-solutions",
@@ -177,29 +225,9 @@
       "url": "https://www.akkodis.com/blog/articles/software-development-ai-careers",
       "source_id": "blog",
       "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:40Z",
-      "published_date": "2026-02-23T00:00:00Z",
-      "summary_ja": "エレナというシニアコンサルタントは、HTMLの作成から始まった初心者時代を経て、現在はAIを活用した実践的なソフトウェア開発に携わりながらチームを統率しています。彼女の仕事は単なるコード作成ではなく、クライアントのニーズを捉えた戦略的なソリューション提供と、プロセス自動化などの複雑なプロジェクト実行を両立させています。Akkodisではチーム内の多様な視点と専門知識を結集し、研修やメンタリングを通じて社員のスキル向上を支援しながら、イノベーティブで効率的なシステム開発を実現しています。"
-    },
-    {
-      "id": "ai-ev-charging-reliability",
-      "title": "AI-Driven Self-Diagnosing EV Charging Infrastructure",
-      "url": "https://www.akkodis.com/blog/articles/ai-ev-charging-reliability",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-18T01:49:53Z",
+      "first_seen": "2026-03-29T23:27:07Z",
       "published_date": null,
-      "summary_ja": "Akkodisは電気バスなどの大規模な車両充電システムの信頼性向上を目指し、AI診断技術を活用したKI-LOAD研究プロジェクトをミュンヘン工科大学や北ドイツの大手公共交通事業者と共同で推進しています。このプロジェクトでは、充電ステーション間の通信データをリアルタイム分析することで問題を早期に発見し、反応的な対応から予防的なメンテナンスへの転換を目指しており、充電ステーションのダウンタイムを50%削減し信頼性を95%から97.5%以上に高めることを目標としています。Akkodisが提供するEVAcharge充電制御ソフトウェアにこれらのAI診断機能を組み込むことで、ヨーロッパの直流急速充電ポイントの30%以上に対応する包括的な充電ソリューションとなり、電動車両の大規模普及を支えることになります。"
-    },
-    {
-      "id": "life-sciences-consulting-pharma-careers",
-      "title": "Life Sciences Consulting Careers: Innovation & Quality Leadership",
-      "url": "https://www.akkodis.com/blog/articles/life-sciences-consulting-pharma-careers",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:49Z",
-      "published_date": "2026-02-23T00:00:00Z",
-      "summary_ja": "AKKODiSのライフサイエンスコンサルティング部門では、品質保証や規制対応、製造プロセス最適化などの専門家が協力して、医薬品メーカーの複雑なプロジェクトに取り組んでいます。リード・コンサルタントのエリサ・カシラギは、技術移管の調整やプロセス検証を通じて、患者の安全性を最優先としながら規制対応と業務効率の両立を実現しています。同社ではコンサルタントが複数の医薬品プロジェクトに関わることで、品質マネジメントシステムや規制対応を学びながら実務経験を積み重ねる機会が提供されています。"
+      "summary_ja": "Elena は個人用コンピュータでの初心者時代から現在のシニアコンサルタントへと成長し、手を動かしながらコーディングを学び、チームメンバーの調整を通じてクライアントのニーズに応えるソフトウェア開発に携わっています。Akkodis では AI 技術を実際のプロジェクトに組み込むことで、プロセス自動化から複雑なプロジェクト管理まで様々な課題に対応し、効率性と実質的なインパクトの向上を実現しています。多様なバックグラウンドを持つチーム内での協働や、研修・メンターシップ・新技術への露出機会を通じて、ソフトウェア開発の専門知識を深め、新しいイニシアティブをリードできるキャリアパスが形成されています。"
     },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
@@ -601,9 +629,9 @@
       "url": "https://www.akkodis.com/en/blog/client-success/british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
       "source_id": "client_stories",
       "source_label": "Client Stories",
-      "first_seen": "2026-03-23T23:23:50Z",
+      "first_seen": "2026-03-29T23:28:45Z",
       "published_date": null,
-      "summary_ja": "ブリティッシュ・エアウェイズは世界中の空港からのIT問い合わせが急増したため、新たにニューカッスルにIT総合支援センターを設立しましたが、14万人以上のユーザーをサポートする中で人員確保と離職防止が課題となっていました。アッコディスは50名以上の専門スタッフを配置した固定価格の運用サービスを提供し、採用や人材管理の負担を完全に引き継ぐとともに、継続的な技能研修でチームの技術水準を維持しました。これにより同社は英国のサービスセンターを統合しながらグローバル対応を可能にし、運用コストを削減したうえで経営層がIT機能の変革に専念できる環境を整備することができました。"
+      "summary_ja": "ブリティッシュ・エアウェイズは世界140以上の空港をサポートするIT部門が抱えていた通話量の増加と人材流出の課題を解決するために、アッコディスと契約して50人以上のIT専門家から成るサービスチームを設置しました。アッコディスは採用から人材育成、日々の運用管理まで一貫して引き受けることで、航空業界の業務プロセスに精通した安定したサービスを提供できるようにしました。この取り組みによってブリティッシュ・エアウェイズは管理業務の負担を大幅に削減しながら、固定価格で信頼性の高いIT支援体制を整備することができました。"
     },
     {
       "id": "rbc-railway",
@@ -611,9 +639,9 @@
       "url": "https://www.akkodis.com/en/blog/client-success/rbc-railway",
       "source_id": "client_stories",
       "source_label": "Client Stories",
-      "first_seen": "2026-03-23T23:24:01Z",
+      "first_seen": "2026-03-29T23:28:56Z",
       "published_date": null,
-      "summary_ja": "フランスの鉄道インフラメーカーから依頼を受け、ヨーロッパ全域の鉄道を統一する信号制御システム「ERTMS」のソフトウェア検証業務に当たりました。テスト環境でさまざまな運行シナリオを再現し、ソフトウェアの性能や機能が要件を満たしているかを綿密に評価する手法を採用しました。2019年以来、複数の市場向けソフトウェアの同時検証に対応することで、クライアントが世界中で安全かつ確実に鉄道制御システムを運用できるよう支援してきました。"
+      "summary_ja": "フランスの鉄道インフラメーカーが開発した列車制御システムETCS Level 2の安全性を確保するため、アッコディスはテスト環境で各種シナリオを実行して、ソフトウェアの性能と要件への適合性を徹底的に検証しました。検証プロセス全体を記録・追跡することで、改善点の把握と問題解決の追跡を実現し、クライアントに有用なフィードバックを提供しています。複数市場向けの異なるバージョンを同時に検証できる体制を整えることで、世界中の多様な鉄道網における制御システムの安全性と信頼性を確保し、2019年以来クライアントの満足度を維持しています。"
     }
   ]
 }

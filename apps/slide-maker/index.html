@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide Maker | AKKODiS Tools</title>
+  <link rel="manifest" href="/manifest.json">
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; display: flex; flex-direction: column; }
+    .hidden { display: none !important; }
+
+    /* ナビバー */
+    .navbar { background: #001f33; height: 58px; display: flex; align-items: center; padding: 0 40px; gap: 16px; position: sticky; top: 0; z-index: 100; }
+    .navbar-back { color: #fff; text-decoration: none; font-size: 0.82rem; opacity: 0.8; border: 1px solid transparent; padding: 6px 12px; transition: border-color 0.2s, opacity 0.2s; }
+    .navbar-back:hover { border-color: rgba(255,255,255,0.5); opacity: 1; }
+    .navbar-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.15); }
+    .navbar-title { color: #fff; font-size: 0.95rem; font-weight: 600; }
+
+    /* コンテナ */
+    .container { max-width: 860px; margin: 0 auto; padding: 24px 20px 60px; flex: 1; width: 100%; }
+
+    /* ===== フェーズバー ===== */
+    .phase-bar { display: flex; background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.06); margin-bottom: 20px; }
+    .phase-step { flex: 1; text-align: center; padding: 12px 8px; font-size: 0.78rem; font-weight: 600; color: #b0bec5; border-bottom: 3px solid transparent; cursor: pointer; transition: all 0.2s; }
+    .phase-step.active { color: #001f33; border-bottom-color: #ffb81c; }
+    .phase-step.completed { color: #4a5568; border-bottom-color: #001f33; }
+    .phase-step .step-num { display: inline-block; width: 20px; height: 20px; line-height: 20px; text-align: center; font-size: 0.68rem; font-weight: 700; margin-right: 4px; background: #e8ecf0; color: #8a9bb0; }
+    .phase-step.active .step-num { background: #ffb81c; color: #001f33; }
+    .phase-step.completed .step-num { background: #001f33; color: #fff; }
+
+    /* ===== Phase 1: チャット ===== */
+    .chat-section { background: #f7f8fa; box-shadow: 0 2px 16px rgba(0,0,0,0.09); display: flex; flex-direction: column; min-height: 520px; border: 1px solid #e8ecf0; }
+
+    /* インポートゾーン */
+    .import-zone { padding: 10px 16px; background: #fff; border-bottom: 1px solid #e8ecf0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .import-drop { flex: 1; min-width: 180px; border: 1.5px dashed #d0d5dc; padding: 9px 14px; font-size: 0.78rem; color: #8a9bb0; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .import-drop:hover, .import-drop.dragover { border-color: #ffb81c; background: rgba(255,184,28,0.04); color: #4a5568; }
+    .import-drop input[type="file"] { display: none; }
+    .import-url-row { display: flex; gap: 0; flex: 1; min-width: 180px; }
+    .import-url-input { flex: 1; border: 1.5px solid #d0d5dc; padding: 8px 12px; font-size: 0.78rem; font-family: inherit; color: #2d3436; outline: none; }
+    .import-url-input:focus { border-color: #ffb81c; }
+    .import-url-input::placeholder { color: #c0cdd9; }
+    .btn-url-go { background: #001f33; color: #fff; border: none; padding: 8px 14px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    .btn-url-go:hover { opacity: 0.85; }
+
+    /* チャットメッセージ */
+    .chat-messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; max-height: 440px; min-height: 260px; }
+    .chat-row { display: flex; gap: 8px; align-items: flex-end; }
+    .chat-row.ai { align-self: flex-start; }
+    .chat-row.user { align-self: flex-end; flex-direction: row-reverse; }
+    .chat-avatar { width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; line-height: 1; }
+    .chat-avatar.ai { background: #fffbf0; }
+    .chat-avatar.user { background: #e8ecf0; }
+    .chat-bubble { max-width: 78%; padding: 12px 16px; font-size: 0.88rem; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+    .chat-bubble.ai { background: #fff; color: #2d3436; border: 1px solid #e8ecf0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .chat-bubble.user { background: #001f33; color: #fff; }
+    .chat-typing { align-self: flex-start; margin-left: 40px; padding: 10px 16px; background: #fff; color: #8a9bb0; font-size: 0.82rem; border: 1px solid #e8ecf0; }
+    .chat-typing::after { content: '...'; animation: dots 1.2s steps(4) infinite; }
+    @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
+    .chat-action-btn { display: inline-block; margin-top: 10px; background: #ffb81c; color: #001f33; border: none; padding: 9px 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .chat-action-btn:hover { opacity: 0.88; }
+    .chat-suggestions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; margin-left: 40px; align-self: flex-start; }
+    .chat-sug-chip { background: #fff; border: 1.5px solid #d0d5dc; color: #4a5568; padding: 7px 16px; font-size: 0.8rem; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .chat-sug-chip:hover { border-color: #ffb81c; color: #001f33; background: #fffbf0; }
+    .chat-citations { margin-top: 8px; font-size: 0.72rem; }
+    .chat-citation-link { color: #8a9bb0; text-decoration: none; display: block; padding: 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chat-citation-link:hover { color: #001f33; }
+
+    /* チャット入力 */
+    .chat-input-area { background: #fff; border-top: 1px solid #e8ecf0; padding: 12px 16px; display: flex; gap: 10px; align-items: flex-end; }
+    .chat-textarea { flex: 1; border: 1.5px solid #e0e4e8; padding: 10px 18px; font-size: 0.88rem; font-family: inherit; color: #2d3436; resize: none; outline: none; min-height: 44px; max-height: 120px; line-height: 1.5; }
+    .chat-textarea:focus { border-color: #001f33; box-shadow: 0 0 0 3px rgba(0,31,51,0.08); }
+    .chat-textarea::placeholder { color: #b0bec5; }
+    .btn-send { background: #001f33; color: #fff; border: none; width: 42px; height: 42px; font-size: 1rem; cursor: pointer; font-family: inherit; flex-shrink: 0; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; }
+    .btn-send:hover:not(:disabled) { opacity: 0.85; }
+    .btn-send:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn-research-toggle { background: none; border: 1.5px solid #e0e4e8; width: 42px; height: 42px; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .btn-research-toggle:hover { border-color: #001f33; }
+    .btn-research-toggle.active { border-color: #ffb81c; background: #fffbf0; }
+    .research-progress { margin-left: 40px; align-self: flex-start; padding: 10px 16px; background: #fffbf0; border: 1px solid #ffb81c; font-size: 0.82rem; color: #4a5568; }
+    .research-progress .rp-title { font-weight: 700; color: #001f33; margin-bottom: 6px; }
+    .research-progress .rp-item { padding: 2px 0; font-size: 0.78rem; color: #4a5568; }
+    .research-progress .rp-item::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #ffb81c; margin-right: 6px; vertical-align: middle; }
+
+    /* テンプレートバー */
+    .tpl-bar { padding: 10px 16px; border-top: 1px solid #e8ecf0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .tpl-label { font-size: 0.72rem; font-weight: 600; color: #8a9bb0; white-space: nowrap; }
+    .tpl-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+    .tpl-chip { border: 1.5px solid #e0e4e8; background: #fff; color: #4a5568; padding: 4px 10px; font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; font-family: inherit; }
+    .tpl-chip:hover { border-color: #001f33; color: #001f33; }
+    .tpl-chip.selected { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
+    .tpl-chip.dark { background: #001f33; color: rgba(255,255,255,0.7); border-color: #334d66; }
+    .tpl-chip.dark:hover { border-color: #ffb81c; color: #fff; }
+    .tpl-chip.dark.selected { border-color: #ffb81c; background: #0a2540; color: #ffb81c; }
+    .tpl-bar-right { margin-left: auto; }
+    .btn-reset-sm { background: none; border: 1px solid #e0e4e8; color: #b0bec5; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; font-family: inherit; }
+    .btn-reset-sm:hover { border-color: #8a9bb0; color: #4a5568; }
+
+    /* ===== Phase 2: アウトライン ===== */
+    .outline-section { background: #fff; box-shadow: 0 2px 16px rgba(0,0,0,0.09); padding: 20px 24px; }
+    .outline-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .outline-title { font-size: 1rem; font-weight: 700; color: #001f33; }
+    .outline-actions { display: flex; gap: 8px; }
+    .btn-back { background: none; border: 1.5px solid #e0e4e8; color: #4a5568; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-back:hover { border-color: #001f33; color: #001f33; }
+    .btn-primary { background: #ffb81c; color: #001f33; border: none; padding: 8px 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-primary:hover:not(:disabled) { opacity: 0.88; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .outline-list { display: flex; flex-direction: column; gap: 6px; }
+    .outline-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f9fafb; border: 1.5px solid #e8ecf0; transition: all 0.15s; }
+    .outline-item:hover { border-color: #ffb81c; }
+    .outline-item.dragging { opacity: 0.4; }
+    .outline-drag { cursor: grab; color: #b0bec5; font-size: 1rem; flex-shrink: 0; user-select: none; }
+    .outline-num { font-size: 0.72rem; font-weight: 700; color: #8a9bb0; width: 22px; text-align: center; flex-shrink: 0; }
+    .outline-layout-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 6px; background: #001f33; color: #ffb81c; flex-shrink: 0; white-space: nowrap; }
+    .outline-title-edit { flex: 1; font-size: 0.85rem; color: #2d3436; padding: 2px 6px; border: 1px solid transparent; outline: none; min-width: 0; font-family: inherit; background: transparent; }
+    .outline-title-edit:focus { border-color: #ffb81c; background: #fff; }
+    .outline-layout-select { border: 1px solid #e0e4e8; padding: 3px 6px; font-size: 0.72rem; font-family: inherit; color: #4a5568; outline: none; }
+    .outline-btns { display: flex; gap: 4px; flex-shrink: 0; }
+    .outline-btn { background: none; border: 1px solid #e0e4e8; color: #8a9bb0; padding: 3px 7px; font-size: 0.72rem; cursor: pointer; font-family: inherit; }
+    .outline-btn:hover { border-color: #4a5568; color: #4a5568; }
+    .outline-btn.del:hover { border-color: #c0392b; color: #c0392b; }
+    .btn-add-slide { margin-top: 8px; background: none; border: 2px dashed #e0e4e8; padding: 10px; text-align: center; font-size: 0.82rem; color: #8a9bb0; cursor: pointer; width: 100%; font-family: inherit; }
+    .btn-add-slide:hover { border-color: #ffb81c; color: #4a5568; }
+
+    /* ===== Phase 3: プレビュー ===== */
+    .preview-section { }
+    .section-title { font-size: 0.95rem; font-weight: 700; color: #001f33; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .slide-count-badge { font-size: 0.72rem; font-weight: 700; background: #001f33; color: #ffb81c; padding: 2px 8px; }
+
+    /* クイックアクション */
+    .quick-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+    .btn-quick { border: 1.5px solid #e0e4e8; background: #fff; color: #4a5568; padding: 7px 14px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .btn-quick:hover:not(:disabled) { border-color: #001f33; color: #001f33; }
+    .btn-quick:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .slides-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .slide-thumb { aspect-ratio: 16/9; position: relative; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; overflow: hidden; }
+    .slide-thumb:hover { border-color: #ffb81c; }
+    .slide-num { position: absolute; top: 6px; left: 6px; background: rgba(0,31,51,0.7); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; z-index: 2; }
+    .slide-layout-label { position: absolute; bottom: 5px; right: 5px; font-size: 0.58rem; font-weight: 700; background: rgba(0,31,51,0.62); color: rgba(255,255,255,0.9); padding: 1px 5px; z-index: 2; pointer-events: none; }
+
+    /* スライドプレビューカード */
+    .slide-card { width: 100%; height: 100%; display: flex; flex-direction: column; background: #fff; font-family: 'Meiryo UI', 'Segoe UI', sans-serif; overflow: hidden; }
+    .slide-card-header { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #f5f7fa; border-bottom: 1px solid #e8ecf0; }
+    .slide-card-tpl { width: 56px; height: 32px; background-size: cover; background-position: center; flex-shrink: 0; border: 1px solid #e0e4e8; }
+    .slide-card-layout { font-size: 0.6em; font-weight: 700; color: #8a9bb0; }
+    .slide-card-title { font-size: 0.72em; font-weight: 700; color: #001f33; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .slide-card-body { flex: 1; padding: 8px 10px; overflow: hidden; }
+    .slide-card-body .s-text { font-size: 0.58em; color: #4a5568; line-height: 1.5; white-space: pre-wrap; }
+    .slide-card-body .s-meta { font-size: 0.5em; color: #8a9bb0; margin-top: 4px; }
+    .slide-card-body .s-items { font-size: 0.55em; color: #4a5568; }
+    .slide-card-body .s-items div { padding: 1px 0; }
+    .slide-card-boxes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; padding: 0 10px 6px; }
+    .slide-card-box { background: #f5f7fa; padding: 4px 6px; }
+    .slide-card-box .bx-h { font-size: 0.5em; font-weight: 700; color: #001f33; }
+    .slide-card-box .bx-b { font-size: 0.42em; color: #8a9bb0; }
+    .slide-table { width: calc(100% - 20px); border-collapse: collapse; margin: 0 10px; }
+    .slide-table th, .slide-table td { font-size: 0.45em; padding: 3px 5px; }
+    .slide-table th { background: #001f33; color: #fff; font-weight: 600; }
+    .slide-table td { border-bottom: 1px solid #e8ecf0; color: #2d3436; }
+
+    /* リファイン */
+    .refine-section { margin-top: 16px; background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 16px 20px; }
+    .refine-input-row { display: flex; gap: 10px; }
+    .refine-input-row input { flex: 1; border: 1.5px solid #e8ecf0; padding: 8px 12px; font-size: 0.85rem; font-family: inherit; color: #2d3436; background: #fff; outline: none; }
+    .refine-input-row input:focus { border-color: #ffb81c; }
+    .refine-count { font-size: 0.75rem; color: #8a9bb0; margin-top: 6px; }
+    .btn-secondary { background: #001f33; color: #fff; border: none; padding: 10px 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-secondary:hover:not(:disabled) { opacity: 0.8; }
+    .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .refine-history { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .refine-chip { font-size: 0.72rem; color: #4a5568; padding: 3px 10px; cursor: pointer; border: 1px solid #e0e4e8; background: #f7f8fa; font-family: inherit; }
+    .refine-chip:hover { background: #e8ecf0; }
+
+    /* ダウンロード */
+    .download-area { margin-top: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .btn-download { background: #001f33; color: #fff; border: none; padding: 13px 28px; font-size: 0.88rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: inherit; }
+    .btn-download:hover:not(:disabled) { opacity: 0.8; }
+    .btn-download:disabled { opacity: 0.5; cursor: not-allowed; }
+    .download-note { font-size: 0.75rem; color: #8a9bb0; }
+
+    /* ローディング */
+    .loading-area { margin-top: 20px; background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 28px; text-align: center; }
+    .loading-spinner { width: 36px; height: 36px; border: 3px solid #e8ecf0; border-top-color: #ffb81c; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-step { font-size: 0.85rem; color: #4a5568; font-weight: 600; }
+    .progress-bar { width: 100%; height: 4px; background: #e8ecf0; margin-top: 12px; }
+    .progress-fill { height: 100%; background: #ffb81c; transition: width 0.4s ease; }
+
+    /* エラー */
+    .error-msg { padding: 12px 16px; background: #ffeaea; border-left: 3px solid #c0392b; font-size: 0.82rem; color: #c0392b; margin-top: 12px; display: flex; align-items: center; gap: 10px; }
+
+    /* トースト */
+    .toast { position: fixed; bottom: 28px; right: 28px; background: #27ae60; color: #fff; padding: 11px 20px; font-size: 0.85rem; font-weight: 600; z-index: 2000; opacity: 0; transform: translateY(8px); transition: opacity 0.3s, transform 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* モーダル */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.52); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: #fff; max-width: 560px; width: 100%; max-height: 82vh; overflow-y: auto; padding: 28px; position: relative; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .modal-slide-num { font-size: 1rem; font-weight: 700; color: #001f33; }
+    .modal-close { background: none; border: none; font-size: 1.4rem; color: #b0bec5; cursor: pointer; padding: 0; line-height: 1; }
+    .modal-close:hover { color: #001f33; }
+    .modal-layout-badge { display: inline-block; font-size: 0.68rem; font-weight: 700; background: #001f33; color: #ffb81c; padding: 2px 8px; margin-bottom: 16px; }
+    .modal-field { margin-bottom: 12px; }
+    .modal-label { font-size: 0.7rem; font-weight: 700; color: #8a9bb0; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .modal-input { width: 100%; border: 1.5px solid #e8ecf0; padding: 8px 12px; font-size: 0.85rem; font-family: inherit; color: #2d3436; outline: none; }
+    .modal-input:focus { border-color: #ffb81c; }
+    textarea.modal-input { resize: vertical; min-height: 80px; line-height: 1.6; }
+    .modal-divider { border: none; border-top: 1px solid #e8ecf0; margin: 4px 0 12px; }
+    .modal-save { background: #ffb81c; color: #001f33; border: none; padding: 10px 24px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 8px; }
+    .modal-save:hover { opacity: 0.88; }
+
+    /* ノートインジケーター */
+    .slide-notes-icon { position: absolute; bottom: 5px; left: 6px; font-size: 0.6rem; color: rgba(255,255,255,0.8); background: rgba(0,31,51,0.6); padding: 1px 5px; z-index: 2; pointer-events: none; }
+
+    /* プレゼンテーションモード */
+    .pres-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 3000; flex-direction: column; }
+    .pres-overlay.active { display: flex; }
+    .pres-slide-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .pres-slide { width: 100%; max-width: 1200px; aspect-ratio: 16/9; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+    .pres-controls { height: 56px; background: rgba(0,31,51,0.95); display: flex; align-items: center; justify-content: center; gap: 16px; padding: 0 20px; }
+    .pres-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 14px; font-size: 0.82rem; cursor: pointer; font-family: inherit; }
+    .pres-btn:hover { border-color: #ffb81c; color: #ffb81c; }
+    .pres-counter { color: rgba(255,255,255,0.7); font-size: 0.82rem; min-width: 60px; text-align: center; }
+    .pres-notes { background: rgba(0,31,51,0.9); color: rgba(255,255,255,0.8); padding: 10px 20px; font-size: 0.78rem; line-height: 1.6; max-height: 80px; overflow-y: auto; border-top: 1px solid rgba(255,184,28,0.3); }
+    .pres-timer { color: #ffb81c; font-size: 0.85rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+    /* チャート用hidden canvas */
+    #chart-canvas { display: none; position: absolute; top: -9999px; }
+
+    /* フッター */
+    footer { background: #001f33; border-top: 1px solid rgba(255,255,255,0.08); padding: 16px 40px; margin-top: auto; }
+    footer p { font-size: 0.72rem; color: rgba(255,255,255,0.6); }
+    footer strong { color: #ffb81c; }
+
+    @media (max-width: 768px) {
+      .navbar { padding: 0 16px; }
+      .container { padding: 16px 12px 40px; }
+      .import-zone { flex-direction: column; }
+      .chat-messages { max-height: 350px; }
+      .outline-item { flex-wrap: wrap; }
+      .quick-actions { flex-direction: column; }
+      .refine-input-row { flex-direction: column; }
+      .download-area { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="navbar-back">← アプリ一覧へ</a>
+    <div class="navbar-divider"></div>
+    <span class="navbar-title">Slide Maker</span>
+  </nav>
+
+  <div class="container">
+    <!-- フェーズバー -->
+    <div class="phase-bar">
+      <div class="phase-step active" data-phase="chat" onclick="setPhase('chat')"><span class="step-num">1</span>ヒアリング</div>
+      <div class="phase-step" data-phase="outline" onclick="outlineData && setPhase('outline')"><span class="step-num">2</span>構成確認</div>
+      <div class="phase-step" data-phase="preview" onclick="currentSlides && setPhase('preview')"><span class="step-num">3</span>プレビュー</div>
+      <div class="phase-step" data-phase="export" onclick="currentSlides && setPhase('export')"><span class="step-num">4</span>出力</div>
+    </div>
+
+    <!-- Phase 1: チャット -->
+    <div id="phase-chat">
+      <div class="chat-section">
+        <!-- インポートゾーン -->
+        <div class="import-zone">
+          <div class="import-drop" id="import-drop" onclick="document.getElementById('file-input').click()">
+            📎 PDF / Word / PPTX をドロップまたは選択
+            <input type="file" id="file-input" accept=".pdf,.docx,.pptx" onchange="handleFileImport(this.files[0])">
+          </div>
+          <div class="import-url-row">
+            <input type="url" class="import-url-input" id="url-input" placeholder="https:// URL貼り付け" onkeydown="if(event.key==='Enter')handleUrlImport()">
+            <button class="btn-url-go" onclick="handleUrlImport()">読込</button>
+          </div>
+        </div>
+
+        <!-- チャットメッセージ -->
+        <div class="chat-messages" id="chat-messages"></div>
+
+        <!-- チャット入力 -->
+        <div class="chat-input-area">
+          <textarea class="chat-textarea" id="chat-input" placeholder="メッセージを入力..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="btn-research-toggle" id="btn-research-toggle" onclick="toggleDeepResearch()" title="ディープリサーチ">🔍</button>
+          <button class="btn-send" id="btn-send" onclick="sendChat()">&#x27A4;</button>
+        </div>
+
+        <!-- テンプレートバー -->
+        <div class="tpl-bar">
+          <span class="tpl-label">テンプレート</span>
+          <div class="tpl-chips">
+            <button class="tpl-chip selected" data-val="external-white" onclick="selectTpl(this)">社外 WHITE</button>
+            <button class="tpl-chip dark" data-val="external-dark" onclick="selectTpl(this)">社外 DARK</button>
+            <button class="tpl-chip" data-val="internal-white" onclick="selectTpl(this)">社内 WHITE</button>
+            <button class="tpl-chip dark" data-val="internal-dark" onclick="selectTpl(this)">社内 DARK</button>
+          </div>
+          <div class="tpl-bar-right">
+            <button class="btn-reset-sm" onclick="resetAll()" title="リセット">↺ リセット</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2: アウトライン -->
+    <div id="phase-outline" class="hidden">
+      <div class="outline-section">
+        <div class="outline-header">
+          <div class="outline-title">スライド構成（ドラッグで並替・クリックで編集）</div>
+          <div class="outline-actions">
+            <button class="btn-back" onclick="setPhase('chat')">← チャットに戻る</button>
+            <button class="btn-primary" id="btn-gen-from-outline" onclick="generateFromOutline()">この構成で生成 →</button>
+          </div>
+        </div>
+        <div class="outline-list" id="outline-list"></div>
+        <button class="btn-add-slide" onclick="addOutlineSlide()">＋ スライドを追加</button>
+      </div>
+    </div>
+
+    <!-- Phase 3: プレビュー -->
+    <div id="phase-preview" class="hidden">
+      <div class="preview-section">
+        <div class="section-title">
+          プレビュー <span class="slide-count-badge" id="slide-count-badge">0枚</span>
+          <div style="margin-left:auto"><button class="btn-back" onclick="setPhase('outline')">← 構成に戻る</button></div>
+        </div>
+
+        <!-- クイックアクション -->
+        <div class="quick-actions">
+          <button class="btn-quick" onclick="quickAction('レイアウトを最適化。content-with-chartやcontent-with-flowを活用し、contentの連続を避けてください')">🔧 レイアウト修正</button>
+          <button class="btn-quick" onclick="quickAction('全スライドの文章を改善。主張型タイトル、数値・固有名詞を活用してください')">✍️ 文章ブラッシュアップ</button>
+          <button class="btn-quick" onclick="quickAction('冗長な表現を削除し、箇条書きを3行以内に削減してください')">🗜️ シンプルにする</button>
+          <button class="btn-quick" onclick="quickAction('content-with-chartスライドを1枚追加し、既存の数値データからグラフを作成してください')">📊 データスライド追加</button>
+          <button class="btn-quick" onclick="quickAction('全スライドを英語に翻訳してください。タイトル・本文・ノートすべて英訳し、layout構造は変更しないでください')">🌐 英語に翻訳</button>
+        </div>
+
+        <div class="slides-grid" id="slides-grid"></div>
+      </div>
+
+      <!-- リファイン -->
+      <div class="refine-section">
+        <div class="refine-input-row">
+          <input type="text" id="refine-input" placeholder="例：3枚目をシンプルにして　／　比較表のスライドを追加して" onkeydown="if(event.key==='Enter')refine()">
+          <button class="btn-secondary" id="btn-refine" onclick="refine()">修正する</button>
+        </div>
+        <div class="refine-count" id="refine-count">残り5回</div>
+        <div class="refine-history" id="refine-history"></div>
+      </div>
+
+      <!-- ダウンロード・プレゼン -->
+      <div class="download-area">
+        <button class="btn-download" id="btn-download" onclick="downloadPptx()">⬇ PPTX</button>
+        <button class="btn-secondary" onclick="enterPresMode()">▶ プレゼン</button>
+        <span class="download-note">PowerPoint / Keynote で開けます</span>
+      </div>
+    </div>
+
+    <!-- Phase 4: 出力（プレビューと統合 — DL部分にスクロール） -->
+
+    <!-- ローディング -->
+    <div id="loading-area" class="hidden">
+      <div class="loading-area">
+        <div class="loading-spinner"></div>
+        <div class="loading-step" id="loading-step">生成中…</div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:10%"></div></div>
+      </div>
+    </div>
+
+    <!-- エラー -->
+    <div id="error-area" class="hidden">
+      <div class="error-msg"><span id="error-text"></span></div>
+    </div>
+  </div>
+
+  <!-- プレゼンテーションモード -->
+  <div class="pres-overlay" id="pres-overlay">
+    <div class="pres-slide-area" onclick="presNext()">
+      <div class="pres-slide" id="pres-slide"></div>
+    </div>
+    <div class="pres-notes" id="pres-notes"></div>
+    <div class="pres-controls">
+      <button class="pres-btn" onclick="presPrev()">← 前</button>
+      <span class="pres-counter" id="pres-counter">1 / 1</span>
+      <button class="pres-btn" onclick="presNext()">次 →</button>
+      <span class="pres-timer" id="pres-timer">00:00</span>
+      <button class="pres-btn" onclick="exitPresMode()">✕ 終了</button>
+    </div>
+  </div>
+
+  <!-- スライド詳細モーダル（編集可能） -->
+  <div class="modal-overlay" id="modal-overlay" onclick="handleModalClick(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-slide-num" id="modal-slide-num">スライド 1</div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-layout-badge" id="modal-layout-badge">cover</div>
+      <hr class="modal-divider">
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <footer>
+    <p>⚠️ <strong>機密情報・個人情報の入力は禁止</strong>です。社外秘情報はVercel環境変数で管理してください。</p>
+  </footer>
+
+  <canvas id="chart-canvas" width="800" height="450"></canvas>
+
+  <script>
+    // ===== 認証・初期変数 =====
+    if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
+    const USER = localStorage.getItem('user') || '';
+
+    let selectedTemplate = 'external-white';
+    let currentSlides = null;
+    let outlineData = null;
+    let refineCount = 0;
+    const MAX_REFINE = 5;
+    let chatHistory = [];
+    let collectedContext = null;
+    let importedContent = '';
+    let currentPhase = 'chat';
+    let editingSlideIdx = -1;
+    let deepResearchEnabled = false;
+    let researchData = null;
+
+    // pdf.js worker 設定
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';
+    }
+
+    // ===== フェーズ管理 =====
+    function setPhase(phase) {
+      currentPhase = phase;
+      ['chat','outline','preview'].forEach(p => {
+        const el = document.getElementById(`phase-${p}`);
+        if (el) el.classList.toggle('hidden', p !== phase);
+      });
+      document.querySelectorAll('.phase-step').forEach(el => {
+        const p = el.dataset.phase;
+        const phases = ['chat','outline','preview','export'];
+        const idx = phases.indexOf(p);
+        const cur = phases.indexOf(phase === 'export' ? 'preview' : phase);
+        el.classList.remove('active','completed');
+        if (idx === cur) el.classList.add('active');
+        else if (idx < cur) el.classList.add('completed');
+      });
+      if (phase === 'preview' || phase === 'export') {
+        document.getElementById('phase-preview').classList.remove('hidden');
+      }
+    }
+
+    // ===== テンプレート =====
+    function selectTpl(el) {
+      document.querySelectorAll('.tpl-chip').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedTemplate = el.dataset.val;
+      preloadTemplate(selectedTemplate);
+      if (currentSlides) renderPreview(currentSlides);
+    }
+    function selectTplByVal(val) {
+      const chip = document.querySelector(`.tpl-chip[data-val="${val}"]`);
+      if (chip) selectTpl(chip);
+    }
+
+    // ===== チャット =====
+    function initChat() {
+      chatHistory = [];
+      collectedContext = null;
+      importedContent = '';
+      const msgs = document.getElementById('chat-messages');
+      msgs.innerHTML = '';
+      addChatBubble('ai', 'どんなプレゼンを作りますか？テーマと目的を教えてください。\nファイルやURLからの読み込みもできますよ。');
+      showSuggestions(['顧客向けの提案資料', 'マーケ施策の報告', 'サービス紹介スライド']);
+    }
+
+    function showCitations(citations) {
+      if (!citations?.length) return;
+      const msgs = document.getElementById('chat-messages');
+      const rows = msgs.querySelectorAll('.chat-row.ai');
+      const last = rows.length ? rows[rows.length - 1].querySelector('.chat-bubble') : null;
+      if (!last) return;
+      const div = document.createElement('div');
+      div.className = 'chat-citations';
+      citations.forEach(c => {
+        const a = document.createElement('a');
+        a.className = 'chat-citation-link';
+        a.href = c.url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = `📎 ${c.title || c.url}`;
+        div.appendChild(a);
+      });
+      last.appendChild(div);
+    }
+
+    function showSuggestions(suggestions) {
+      // 既存のサジェスチョンを削除
+      document.querySelectorAll('.chat-suggestions').forEach(el => el.remove());
+      if (!suggestions?.length) return;
+
+      const msgs = document.getElementById('chat-messages');
+      const container = document.createElement('div');
+      container.className = 'chat-suggestions';
+      suggestions.forEach(sug => {
+        const chip = document.createElement('button');
+        chip.className = 'chat-sug-chip';
+        chip.textContent = sug;
+        chip.onclick = () => {
+          container.remove();
+          document.getElementById('chat-input').value = sug;
+          sendChat();
+        };
+        container.appendChild(chip);
+      });
+      msgs.appendChild(container);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function addChatBubble(role, text, actionBtn = null) {
+      const msgs = document.getElementById('chat-messages');
+      const row = document.createElement('div');
+      row.className = `chat-row ${role}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = `chat-avatar ${role}`;
+      avatar.textContent = role === 'ai' ? '\u26A1' : '\uD83D\uDE4B';
+
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${role}`;
+      bubble.textContent = text;
+      if (actionBtn) {
+        const btn = document.createElement('button');
+        btn.className = 'chat-action-btn';
+        btn.textContent = actionBtn.label;
+        btn.onclick = actionBtn.action;
+        bubble.appendChild(document.createElement('br'));
+        bubble.appendChild(btn);
+      }
+
+      row.appendChild(avatar);
+      row.appendChild(bubble);
+      msgs.appendChild(row);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function showTyping() {
+      const msgs = document.getElementById('chat-messages');
+      const el = document.createElement('div');
+      el.className = 'chat-typing';
+      el.id = 'typing-indicator';
+      el.textContent = '考え中';
+      msgs.appendChild(el);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+    function hideTyping() {
+      const el = document.getElementById('typing-indicator');
+      if (el) el.remove();
+    }
+
+    function handleChatKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendChat(); }
+    }
+    function autoResize(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    }
+
+    async function sendChat() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      autoResize(input);
+      addChatBubble('user', text);
+      chatHistory.push({ role: 'user', content: text });
+
+      document.getElementById('btn-send').disabled = true;
+      showTyping();
+
+      try {
+        const res = await fetch('/api/slide-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'chat',
+            chatMessages: chatHistory,
+            importedContent: importedContent || undefined,
+            _user: USER,
+          }),
+        });
+
+        hideTyping();
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || `エラー (${res.status})`);
+        }
+
+        const json = await res.json();
+        chatHistory.push({ role: 'assistant', content: json.reply });
+
+        if (json.readyForOutline && json.context) {
+          collectedContext = json.context;
+          addChatBubble('ai', json.reply, {
+            label: '📋 構成を作成する',
+            action: () => generateOutline(),
+          });
+        } else {
+          addChatBubble('ai', json.reply);
+        }
+
+        // 引用情報を表示
+        if (json.citations?.length) {
+          showCitations(json.citations);
+        }
+
+        // サジェスチョンチップを表示
+        if (json.suggestions?.length) {
+          showSuggestions(json.suggestions);
+        }
+      } catch (err) {
+        hideTyping();
+        addChatBubble('ai', `エラーが発生しました: ${err.message}\nもう一度お試しください。`);
+      } finally {
+        document.getElementById('btn-send').disabled = false;
+        document.getElementById('chat-input').focus();
+      }
+    }
+
+    // ===== ディープリサーチ =====
+    function toggleDeepResearch() {
+      deepResearchEnabled = !deepResearchEnabled;
+      document.getElementById('btn-research-toggle').classList.toggle('active', deepResearchEnabled);
+    }
+
+    async function runDeepResearch(topic, context) {
+      researchData = null;
+      const msgs = document.getElementById('chat-messages');
+
+      // リサーチ進捗表示
+      const progressEl = document.createElement('div');
+      progressEl.className = 'research-progress';
+      progressEl.innerHTML = '<div class="rp-title">🔍 ディープリサーチ中...</div>';
+      msgs.appendChild(progressEl);
+      msgs.scrollTop = msgs.scrollHeight;
+
+      try {
+        const res = await fetch('/api/slide-research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic, context, _user: USER }),
+        });
+
+        if (!res.ok) throw new Error(`リサーチAPIエラー (${res.status})`);
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') break;
+
+            try {
+              const event = JSON.parse(data);
+              if (event.type === 'progress') {
+                const item = document.createElement('div');
+                item.className = 'rp-item';
+                item.textContent = event.message;
+                progressEl.appendChild(item);
+                msgs.scrollTop = msgs.scrollHeight;
+              } else if (event.type === 'result') {
+                researchData = event.research || null;
+                const countText = event.searchCount ? `${event.searchCount}件のソースを調査` : '';
+                progressEl.querySelector('.rp-title').textContent = `🔍 リサーチ完了 ${countText}`;
+                if (researchData?.key_insights?.length) {
+                  researchData.key_insights.forEach(insight => {
+                    const item = document.createElement('div');
+                    item.className = 'rp-item';
+                    item.textContent = insight;
+                    progressEl.appendChild(item);
+                  });
+                }
+              }
+            } catch {}
+          }
+        }
+        return researchData;
+      } catch (err) {
+        progressEl.querySelector('.rp-title').textContent = `リサーチに失敗: ${err.message}`;
+        return null;
+      }
+    }
+
+    // ===== ファイルインポート =====
+    const dropZone = document.getElementById('import-drop');
+    if (dropZone) {
+      dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+      dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files[0]) handleFileImport(e.dataTransfer.files[0]); });
+    }
+
+    async function handleFileImport(file) {
+      if (!file) return;
+      const ext = file.name.split('.').pop().toLowerCase();
+      showTyping();
+      try {
+        let text = '';
+        if (ext === 'pdf') text = await extractPdfText(file);
+        else if (ext === 'docx') text = await extractDocxText(file);
+        else if (ext === 'pptx') text = await extractPptxText(file);
+        else { hideTyping(); addChatBubble('ai', '対応形式: PDF, Word(.docx), PPTX'); return; }
+
+        importedContent = text;
+        hideTyping();
+        addChatBubble('ai', `「${file.name}」を読み込みました（${text.length.toLocaleString()}文字）。\nこの内容をもとにスライドを作成しますか？そのまま構成を作成するか、追加の情報を教えてください。`, {
+          label: '📋 この内容で構成を作成',
+          action: () => generateOutlineFromImport(),
+        });
+      } catch (err) {
+        hideTyping();
+        addChatBubble('ai', `ファイルの読み込みに失敗しました: ${err.message}`);
+      }
+    }
+
+    async function handleUrlImport() {
+      const url = document.getElementById('url-input').value.trim();
+      if (!url || !/^https?:\/\/.+/.test(url)) return;
+
+      showTyping();
+      try {
+        const res = await fetch('/api/slide-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'url', url, _user: USER }),
+        });
+        hideTyping();
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (json.error) throw new Error(json.error);
+
+        // URLモードは直接スライドJSONを返す
+        outlineData = json.slides;
+        addChatBubble('ai', `URLからスライド構成を生成しました（${json.slides.length}枚）。構成を確認しますか？`, {
+          label: '📋 構成を確認する',
+          action: () => { renderOutline(); setPhase('outline'); },
+        });
+      } catch (err) {
+        hideTyping();
+        addChatBubble('ai', `URLの読み込みに失敗しました: ${err.message}`);
+      }
+    }
+
+    async function extractPdfText(file) {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      let text = '';
+      for (let i = 1; i <= Math.min(pdf.numPages, 50); i++) {
+        const page = await pdf.getPage(i);
+        const tc = await page.getTextContent();
+        text += tc.items.map(it => it.str).join(' ') + '\n';
+      }
+      return text.trim().slice(0, 15000);
+    }
+
+    async function extractDocxText(file) {
+      const buf = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer: buf });
+      return (result.value || '').trim().slice(0, 15000);
+    }
+
+    async function extractPptxText(file) {
+      const buf = await file.arrayBuffer();
+      const zip = await JSZip.loadAsync(buf);
+      const slideFiles = Object.keys(zip.files)
+        .filter(f => /^ppt\/slides\/slide\d+\.xml$/.test(f))
+        .sort((a, b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]));
+      let text = '';
+      for (const f of slideFiles) {
+        const xml = await zip.file(f).async('string');
+        const matches = xml.match(/<a:t>([^<]*)<\/a:t>/g) || [];
+        const slideText = matches.map(m => m.replace(/<\/?a:t>/g, '')).join(' ');
+        if (slideText.trim()) text += slideText.trim() + '\n---\n';
+      }
+      return text.trim().slice(0, 15000);
+    }
+
+    // ===== アウトライン生成 =====
+    async function generateOutline() {
+      const ctx = collectedContext || {};
+
+      // ディープリサーチが有効な場合、先にリサーチを実行
+      if (deepResearchEnabled && !researchData) {
+        const topic = ctx.topic || chatHistory.filter(m => m.role === 'user').map(m => m.content).join(' ').slice(0, 500);
+        const research = await runDeepResearch(topic, ctx.background || '');
+        if (research) {
+          researchData = research;
+        }
+      }
+
+      showLoading('🔄 スライド構成を生成中…', 20);
+
+      try {
+        let freeText = buildFreeTextFromContext(ctx);
+        // リサーチ結果があればコンテキストに追加
+        if (researchData) {
+          freeText += '\n\n## リサーチ結果（出典付きデータ）\n';
+          if (researchData.sections) {
+            for (const sec of researchData.sections) {
+              freeText += `\n### ${sec.title}\n`;
+              for (const f of (sec.findings || [])) {
+                freeText += `- ${f.fact}${f.source_name ? ` (出典: ${f.source_name})` : ''}\n`;
+              }
+            }
+          }
+          if (researchData.suggested_charts?.length) {
+            freeText += '\n### 推奨チャートデータ\n';
+            for (const c of researchData.suggested_charts) {
+              freeText += `- ${c.title}: ${c.type}グラフ [${c.labels?.join(', ')}] = [${c.data?.join(', ')}] ${c.unit || ''} (${c.source || ''})\n`;
+            }
+          }
+        }
+
+        const body = {
+          mode: 'free',
+          freeText,
+          _user: USER,
+        };
+        const res = await fetch('/api/slide-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (json.error) throw new Error(json.error);
+
+        outlineData = json.slides;
+        hideLoading();
+        renderOutline();
+        setPhase('outline');
+      } catch (err) {
+        hideLoading();
+        addChatBubble('ai', `構成の生成に失敗しました: ${err.message}\nもう一度お試しください。`);
+      }
+    }
+
+    async function generateOutlineFromImport() {
+      showLoading('🔄 スライド構成を生成中…', 20);
+      try {
+        const body = {
+          mode: 'free',
+          freeText: importedContent.slice(0, 10000),
+          _user: USER,
+        };
+        const res = await fetch('/api/slide-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (json.error) throw new Error(json.error);
+
+        outlineData = json.slides;
+        hideLoading();
+        renderOutline();
+        setPhase('outline');
+      } catch (err) {
+        hideLoading();
+        addChatBubble('ai', `構成の生成に失敗しました: ${err.message}`);
+      }
+    }
+
+    function buildFreeTextFromContext(ctx) {
+      let text = '';
+      if (ctx.topic) text += `テーマ: ${ctx.topic}\n`;
+      if (ctx.audience) text += `対象者: ${ctx.audience}\n`;
+      if (ctx.background) text += `背景・課題: ${ctx.background}\n`;
+      if (ctx.messages?.length) text += `伝えたいメッセージ:\n${ctx.messages.map((m,i) => `${i+1}. ${m}`).join('\n')}\n`;
+      if (ctx.data) text += `データ・数値: ${ctx.data}\n`;
+      if (ctx.tone) text += `トーン: ${ctx.tone}\n`;
+      if (ctx.slideCount) text += `枚数: ${ctx.slideCount}枚\n`;
+      if (ctx.language) text += `言語: ${ctx.language}\n`;
+      return text || 'プレゼン資料を作成してください。';
+    }
+
+    // ===== アウトラインエディター =====
+    const LAYOUT_NAMES = {
+      cover:'カバー', agenda:'アジェンダ', chapter:'チャプター',
+      content:'コンテンツ', 'two-column':'2段組',
+      'content-with-chart':'グラフ付き',
+      'content-with-flow':'フロー付き', sixbox:'6ボックス',
+      comparison:'比較表', quote:'引用', closing:'クロージング',
+    };
+    const VALID_LAYOUTS = ['cover','agenda','chapter','content','two-column','content-with-chart','content-with-flow','sixbox','comparison','quote','closing'];
+
+    function renderOutline() {
+      const list = document.getElementById('outline-list');
+      list.innerHTML = '';
+      if (!outlineData) return;
+
+      outlineData.forEach((slide, i) => {
+        const item = document.createElement('div');
+        item.className = 'outline-item';
+        item.draggable = true;
+        item.dataset.idx = i;
+
+        const summary = slide.body ? slide.body.slice(0, 50) + (slide.body.length > 50 ? '…' : '') :
+                         slide.items ? slide.items.join(', ').slice(0, 50) :
+                         slide.message || '';
+
+        item.innerHTML = `
+          <span class="outline-drag" title="ドラッグで並替">⠿</span>
+          <span class="outline-num">${i + 1}</span>
+          <span class="outline-layout-badge">${esc(LAYOUT_NAMES[slide.layout] || slide.layout)}</span>
+          <input class="outline-title-edit" value="${esc(slide.title || slide.message || '')}" data-idx="${i}" onchange="updateOutlineTitle(${i}, this.value)">
+          <select class="outline-layout-select" data-idx="${i}" onchange="updateOutlineLayout(${i}, this.value)">
+            ${VALID_LAYOUTS.map(l => `<option value="${l}" ${l === slide.layout ? 'selected' : ''}>${LAYOUT_NAMES[l]}</option>`).join('')}
+          </select>
+          <div class="outline-btns">
+            <button class="outline-btn" onclick="openEditModal(${i})" title="編集">✎</button>
+            <button class="outline-btn" onclick="duplicateOutlineSlide(${i})" title="複製">⧉</button>
+            <button class="outline-btn" onclick="moveOutline(${i},-1)" title="上へ">↑</button>
+            <button class="outline-btn" onclick="moveOutline(${i},1)" title="下へ">↓</button>
+            <button class="outline-btn del" onclick="deleteOutlineSlide(${i})" title="削除">✕</button>
+          </div>
+        `;
+
+        // ドラッグ&ドロップ
+        item.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); item.classList.add('dragging'); });
+        item.addEventListener('dragend', () => item.classList.remove('dragging'));
+        item.addEventListener('dragover', e => e.preventDefault());
+        item.addEventListener('drop', e => {
+          e.preventDefault();
+          const from = parseInt(e.dataTransfer.getData('text/plain'));
+          const to = i;
+          if (from !== to) { const [moved] = outlineData.splice(from, 1); outlineData.splice(to, 0, moved); renderOutline(); }
+        });
+
+        list.appendChild(item);
+      });
+    }
+
+    function updateOutlineTitle(idx, val) { if (outlineData[idx]) outlineData[idx].title = val; }
+    function updateOutlineLayout(idx, val) { if (outlineData[idx]) outlineData[idx].layout = val; renderOutline(); }
+    function moveOutline(idx, dir) {
+      const to = idx + dir;
+      if (to < 0 || to >= outlineData.length) return;
+      [outlineData[idx], outlineData[to]] = [outlineData[to], outlineData[idx]];
+      renderOutline();
+    }
+    function deleteOutlineSlide(idx) { outlineData.splice(idx, 1); renderOutline(); }
+    function addOutlineSlide() {
+      outlineData.push({ layout: 'content', title: '新しいスライド', body: '' });
+      renderOutline();
+      openEditModal(outlineData.length - 1);
+    }
+
+    function generateFromOutline() {
+      currentSlides = JSON.parse(JSON.stringify(outlineData));
+      refineCount = 0;
+      renderPreview(currentSlides);
+      setPhase('preview');
+    }
+
+    // ===== 編集モーダル =====
+    function openEditModal(idx) {
+      editingSlideIdx = idx;
+      const slide = (currentPhase === 'outline' ? outlineData : currentSlides)[idx];
+      if (!slide) return;
+
+      document.getElementById('modal-slide-num').textContent = `スライド ${idx + 1}`;
+      document.getElementById('modal-layout-badge').textContent = LAYOUT_NAMES[slide.layout] || slide.layout;
+
+      const field = (label, key, type = 'input', val = '') => {
+        const v = esc(val || '');
+        if (type === 'textarea') return `<div class="modal-field"><div class="modal-label">${label}</div><textarea class="modal-input" data-key="${key}">${v}</textarea></div>`;
+        return `<div class="modal-field"><div class="modal-label">${label}</div><input class="modal-input" data-key="${key}" value="${v}"></div>`;
+      };
+
+      let html = '';
+      switch (slide.layout) {
+        case 'cover':
+          html += field('タイトル', 'title', 'input', slide.title);
+          html += field('サブタイトル', 'subtitle', 'input', slide.subtitle);
+          html += field('日付', 'date', 'input', slide.date);
+          break;
+        case 'agenda':
+          html += field('タイトル', 'title', 'input', slide.title);
+          html += field('項目（改行区切り）', 'items', 'textarea', (slide.items || []).join('\n'));
+          break;
+        case 'chapter':
+          html += field('タイトル', 'title', 'input', slide.title);
+          html += field('番号', 'number', 'input', slide.number);
+          break;
+        case 'content':
+          html += field('タイトル', 'title', 'input', slide.title);
+          html += field('本文', 'body', 'textarea', slide.body);
+          break;
+        case 'content-with-chart':
+          html += field('タイトル', 'title', 'input', slide.title);
+          html += field('本文', 'body', 'textarea', slide.body);
+          html += field('グラフタイプ (bar/line/pie)', 'chart.type', 'input', slide.chart?.type);
+          html += field('グラフタイトル', 'chart.title', 'input', slide.chart?.title);
+          html += field('ラベル（カンマ区切り）', 'chart.labels', 'input', (slide.chart?.labels || []).join(', '));
+          html += field('データ（カンマ区切り）', 'chart.data', 'input', (slide.chart?.data || []).join(', '));
+          html += field('単位', 'chart.unit', 'input', slide.chart?.unit);
+          break;
+        case 'content-with-flow':
+          html += field('タイトル', 'title', 'input', slide.title);
+          html += field('本文', 'body', 'textarea', slide.body);
+          html += field('ステップ（改行区切り）', 'flow.steps', 'textarea', (slide.flow?.steps || []).join('\n'));
+          break;
+        case 'comparison':
+          html += field('タイトル', 'title', 'input', slide.title);
+          html += field('ヘッダー（カンマ区切り）', 'table.headers', 'input', (slide.table?.headers || []).join(', '));
+          html += field('行データ（行ごとにカンマ区切り、改行で行分割）', 'table.rows', 'textarea', (slide.table?.rows || []).map(r => r.join(', ')).join('\n'));
+          break;
+        case 'closing':
+          html += field('メッセージ', 'message', 'input', slide.message);
+          break;
+      }
+      // 全レイアウト共通: スピーカーノート
+      html += `<hr class="modal-divider">`;
+      html += field('スピーカーノート', 'notes', 'textarea', slide.notes);
+      html += `<button class="modal-save" onclick="saveModalEdit()">保存</button>`;
+      document.getElementById('modal-body').innerHTML = html;
+      document.getElementById('modal-overlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function saveModalEdit() {
+      const slides = currentPhase === 'outline' ? outlineData : currentSlides;
+      const slide = slides[editingSlideIdx];
+      if (!slide) return;
+
+      document.querySelectorAll('#modal-body .modal-input').forEach(el => {
+        const key = el.dataset.key;
+        const val = el.value;
+        if (key.includes('.')) {
+          const [parent, child] = key.split('.');
+          if (!slide[parent]) slide[parent] = {};
+          if (child === 'labels' || child === 'data') slide[parent][child] = val.split(',').map(s => s.trim()).filter(Boolean);
+          else if (child === 'steps') slide[parent][child] = val.split('\n').filter(Boolean);
+          else if (child === 'headers') slide[parent][child] = val.split(',').map(s => s.trim()).filter(Boolean);
+          else if (child === 'rows') slide[parent][child] = val.split('\n').filter(Boolean).map(r => r.split(',').map(s => s.trim()));
+          else slide[parent][child] = val;
+          // data を数値に変換
+          if (child === 'data' && slide[parent][child]) slide[parent][child] = slide[parent][child].map(v => isNaN(Number(v)) ? v : Number(v));
+        } else if (key === 'items') {
+          slide[key] = val.split('\n').filter(Boolean);
+        } else {
+          slide[key] = val;
+        }
+      });
+
+      closeModal();
+      if (currentPhase === 'outline') renderOutline();
+      else renderPreview(currentSlides);
+      showToast('✅ 保存しました');
+    }
+
+    function openModal(slide, num) { openEditModal(num - 1); }
+    function closeModal() { document.getElementById('modal-overlay').classList.remove('active'); document.body.style.overflow = ''; editingSlideIdx = -1; }
+    function handleModalClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+    // ===== リファイン・クイックアクション =====
+    async function refine() {
+      const instruction = document.getElementById('refine-input').value.trim();
+      if (!instruction || !currentSlides) return;
+      if (refineCount >= MAX_REFINE) { showError('リファイン上限（5回）に達しました。'); return; }
+      await doRefine(instruction);
+      document.getElementById('refine-input').value = '';
+    }
+
+    async function quickAction(instruction) {
+      if (!currentSlides || refineCount >= MAX_REFINE) return;
+      document.querySelectorAll('.btn-quick').forEach(b => b.disabled = true);
+      await doRefine(instruction);
+      document.querySelectorAll('.btn-quick').forEach(b => b.disabled = false);
+    }
+
+    async function doRefine(instruction) {
+      hideError();
+      document.getElementById('btn-refine').disabled = true;
+
+      try {
+        const res = await fetch('/api/slide-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'refine', currentSlides, instruction, _user: USER }),
+        });
+        if (!res.ok) throw new Error(`エラー (${res.status})`);
+        const json = await res.json();
+        if (json.error) throw new Error(json.error);
+
+        currentSlides = json.slides;
+        outlineData = JSON.parse(JSON.stringify(json.slides));
+        refineCount++;
+        addRefineHistory(instruction);
+        renderPreview(currentSlides);
+        updateRefineCount();
+        showToast('✅ スライドを修正しました');
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        document.getElementById('btn-refine').disabled = false;
+      }
+    }
+
+    function updateRefineCount() {
+      const el = document.getElementById('refine-count');
+      const remaining = MAX_REFINE - refineCount;
+      el.textContent = remaining > 0 ? `残り${remaining}回` : 'リファイン上限に達しました';
+    }
+
+    const refineHistory = [];
+    function addRefineHistory(instruction) {
+      const idx = refineHistory.indexOf(instruction);
+      if (idx !== -1) refineHistory.splice(idx, 1);
+      refineHistory.unshift(instruction);
+      if (refineHistory.length > 4) refineHistory.pop();
+      const el = document.getElementById('refine-history');
+      if (!el) return;
+      el.innerHTML = refineHistory.map(h =>
+        `<div class="refine-chip" onclick="document.getElementById('refine-input').value=this.textContent;document.getElementById('refine-input').focus();">${esc(h)}</div>`
+      ).join('');
+    }
+
+    // ===== プレビュー =====
+    function renderPreview(slides) {
+      const grid = document.getElementById('slides-grid');
+      grid.innerHTML = '';
+      document.getElementById('slide-count-badge').textContent = `${slides.length}枚`;
+      slides.forEach((slide, i) => {
+        const thumb = document.createElement('div');
+        thumb.className = 'slide-thumb';
+        const notesIcon = slide.notes ? `<div class="slide-notes-icon">📝</div>` : '';
+        thumb.innerHTML = `<div class="slide-num">${i + 1}</div>${notesIcon}<div class="slide-layout-label">${LAYOUT_NAMES[slide.layout] || slide.layout}</div>${buildSlideHtml(slide)}`;
+        thumb.onclick = () => openEditModal(i);
+        thumb.title = 'クリックで編集';
+        grid.appendChild(thumb);
+      });
+    }
+
+    function esc(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    function buildSlideHtml(slide) {
+      const tplNum = LAYOUT_TO_TEMPLATE_SLIDE[slide.layout] || 7;
+      const tplBg = `background-image:url('templates/previews/slide${tplNum}.png')`;
+      const layoutLabel = LAYOUT_NAMES[slide.layout] || slide.layout;
+      const hdr = `<div class="slide-card-header"><div class="slide-card-tpl" style="${tplBg}"></div><div class="slide-card-layout">${esc(layoutLabel)}</div><div class="slide-card-title">${esc(slide.title || slide.message || '')}</div></div>`;
+
+      let body = '';
+      switch (slide.layout) {
+        case 'cover':
+          body = `<div class="s-text">${esc(slide.subtitle || '')}</div><div class="s-meta">${esc(slide.date || '')}</div>`;
+          break;
+        case 'agenda':
+          body = `<div class="s-items">${(slide.items||[]).map((it,i) => `<div>${i+1}. ${esc(it)}</div>`).join('')}</div>`;
+          break;
+        case 'chapter':
+          body = `<div class="s-meta">CHAPTER ${esc(slide.number || '')}</div>`;
+          break;
+        case 'two-column':
+          body = `<div style="display:flex;gap:8px;"><div style="flex:1"><div class="s-text">${esc(slide.leftBody || '')}</div></div><div style="flex:1;border-left:1px solid #e8ecf0;padding-left:8px"><div class="s-text">${esc(slide.rightBody || '')}</div></div></div>`;
+          break;
+        case 'content': case 'content-with-chart': case 'content-with-flow':
+          body = `<div class="s-text">${esc(slide.body || '')}</div>`;
+          if (slide.chart) body += `<div class="s-meta">📊 ${esc(slide.chart.title||'')} (${esc(slide.chart.type||'bar')})</div>`;
+          if (slide.flow) body += `<div class="s-meta">→ ${(slide.flow.steps||[]).join(' → ')}</div>`;
+          break;
+        case 'sixbox':
+          return `<div class="slide-card">${hdr}<div class="slide-card-body"><div class="s-text" style="margin-bottom:4px">${esc(slide.title||'')}</div></div><div class="slide-card-boxes">${(slide.boxes||[]).slice(0,6).map(b => `<div class="slide-card-box"><div class="bx-h">${esc(b.heading||'')}</div><div class="bx-b">${esc(b.body||'')}</div></div>`).join('')}</div></div>`;
+        case 'comparison':
+          const tb = slide.table || {headers:[],rows:[]};
+          return `<div class="slide-card">${hdr}<div class="slide-card-body"></div><table class="slide-table"><tr>${(tb.headers||[]).map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${(tb.rows||[]).map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
+        case 'quote':
+          body = `<div class="s-text" style="font-style:italic">"${esc(slide.body || '')}"</div><div class="s-meta">${esc(slide.speaker || '')}</div>`;
+          break;
+        case 'closing':
+          body = `<div class="s-text" style="text-align:center;font-weight:700">${esc(slide.message || '')}</div>`;
+          break;
+        default:
+          body = '';
+      }
+      return `<div class="slide-card">${hdr}<div class="slide-card-body">${body}</div></div>`;
+    }
+
+    // ===== ユーティリティ =====
+    function showLoading(step, progress) {
+      document.getElementById('loading-area').classList.remove('hidden');
+      document.getElementById('loading-step').textContent = step;
+      document.getElementById('progress-fill').style.width = progress + '%';
+    }
+    function hideLoading() { document.getElementById('loading-area').classList.add('hidden'); }
+    function showError(msg) { document.getElementById('error-text').textContent = msg; document.getElementById('error-area').classList.remove('hidden'); }
+    function hideError() { document.getElementById('error-area').classList.add('hidden'); }
+    function showToast(msg, duration = 2800) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    // ===== テンプレートキャッシュ =====
+    const templateCache = {};
+    async function preloadTemplate(templateId) {
+      if (templateCache[templateId]) return;
+      try { const res = await fetch(`templates/${templateId}.pptx`); if (res.ok) templateCache[templateId] = await res.arrayBuffer(); } catch {}
+    }
+
+    // ===== PPTX生成 =====
+    async function downloadPptx() {
+      if (!currentSlides) return;
+      const btn = document.getElementById('btn-download');
+      btn.disabled = true; btn.textContent = '⏳ PPTXを生成中…';
+      try {
+        // Python API (python-pptx) でPPTX生成
+        const res = await fetch('/api/slide-export', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slides: currentSlides, template: selectedTemplate }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || `PPTX生成エラー (${res.status})`);
+        }
+        const json = await res.json();
+        // base64 → blob → ダウンロード
+        const bin = atob(json.pptx);
+        const arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        const blob = new Blob([arr], { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${(currentSlides[0]?.title || 'slide').replace(/[/\\:*?"<>|]/g, '_').slice(0, 40)}_${selectedTemplate}.pptx`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('⬇ PPTXをダウンロードしました');
+      } catch (err) { showError('PPTXの生成に失敗しました: ' + err.message); }
+      finally { btn.disabled = false; btn.textContent = '⬇ PPTXをダウンロード'; }
+    }
+
+    // ===== スライド複製 =====
+    function duplicateOutlineSlide(idx) {
+      const clone = JSON.parse(JSON.stringify(outlineData[idx]));
+      clone.title = (clone.title || '') + '（コピー）';
+      outlineData.splice(idx + 1, 0, clone);
+      renderOutline();
+    }
+
+    // ===== プレゼンテーションモード =====
+    let presIndex = 0;
+    let presTimerInterval = null;
+    let presStartTime = null;
+
+    function enterPresMode() {
+      if (!currentSlides || currentSlides.length === 0) return;
+      presIndex = 0;
+      presStartTime = Date.now();
+      document.getElementById('pres-overlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      renderPresSlide();
+      presTimerInterval = setInterval(updatePresTimer, 1000);
+      document.addEventListener('keydown', presKeyHandler);
+    }
+
+    function exitPresMode() {
+      document.getElementById('pres-overlay').classList.remove('active');
+      document.body.style.overflow = '';
+      clearInterval(presTimerInterval);
+      document.removeEventListener('keydown', presKeyHandler);
+    }
+
+    function presKeyHandler(e) {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); presNext(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); presPrev(); }
+      else if (e.key === 'Escape') exitPresMode();
+    }
+
+    function presNext() { if (presIndex < currentSlides.length - 1) { presIndex++; renderPresSlide(); } }
+    function presPrev() { if (presIndex > 0) { presIndex--; renderPresSlide(); } }
+
+    function renderPresSlide() {
+      const slide = currentSlides[presIndex];
+      document.getElementById('pres-slide').innerHTML = buildSlideHtml(slide);
+      document.getElementById('pres-counter').textContent = `${presIndex + 1} / ${currentSlides.length}`;
+      document.getElementById('pres-notes').textContent = slide.notes || '';
+      document.getElementById('pres-notes').style.display = slide.notes ? 'block' : 'none';
+    }
+
+    function updatePresTimer() {
+      const elapsed = Math.floor((Date.now() - presStartTime) / 1000);
+      const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const s = String(elapsed % 60).padStart(2, '0');
+      document.getElementById('pres-timer').textContent = `${m}:${s}`;
+    }
+
+    // ===== リセット =====
+    function resetAll() {
+      if (!confirm('すべてリセットしますか？')) return;
+      chatHistory = []; collectedContext = null; importedContent = '';
+      currentSlides = null; outlineData = null; refineCount = 0;
+      selectTplByVal('external-white');
+      document.getElementById('slides-grid').innerHTML = '';
+      document.getElementById('refine-history').innerHTML = '';
+      document.getElementById('url-input').value = '';
+      hideError();
+      setPhase('chat');
+      initChat();
+    }
+
+    // レイアウト → テンプレートスライド番号マッピング（全16スライドを活用）
+    const LAYOUT_TO_TEMPLATE_SLIDE = {
+      'cover': 1, 'agenda': 5, 'chapter': 3,
+      'content': 7,
+      'two-column': 10,
+      'content-with-chart': 8, 'content-with-flow': 8,
+      'sixbox': 9,
+      'comparison': 12,
+      'quote': 13,
+      'closing': 15,
+    };
+
+    // ===== 旧JSZip PPTXエンジンは廃止。Python API (slide-export.py) に移行済み =====
+
+    // ===== 初期化 =====
+    (function init() {
+      preloadTemplate(selectedTemplate);
+      initChat();
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeModal();
+      });
+    })();
+  </script>
+</body>
+</html>
