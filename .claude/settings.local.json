@@ -13,7 +13,12 @@
       "mcp__ide__*",
       "Agent(*)",
       "Skill(done)",
-      "Skill(done:*)"
+      "Skill(done:*)",
+      "Skill(new-spec)",
+      "Skill(new-spec:*)",
+      "Skill(review)",
+      "Skill(review:*)",
+      "mcp__Claude_Preview__preview_start"
     ]
   },
   "enableAllProjectMcpServers": true,

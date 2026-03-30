@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-28（Slide Maker 完成）
+最終更新: 2026-03-30（Slide Maker V2 設計見直し・Wireframe Maker・Prompt Maker 追加）
 
 ---
 
@@ -96,23 +96,30 @@ State: { columns: [...], tasks: [...], nextColumnId, nextTaskId }
 
 ### Slide Maker（`apps/slide-maker/`）
 
-Claude API + JSZip によるブラウザ完結型PPTXジェネレーター。
+チャット対話 → AI構成生成 → アウトライン編集 → python-pptx PPTX生成。
 
 ```
-ウィザード入力 → /api/slide-generate.js（Vercel Edge Function）
-  → claude-sonnet-4-6 でスライド構成JSON生成（temperature=0.3）
-  → Chart.js / Canvas で図版PNG生成
-  → JSZip でテンプレートPPTX書き換え → Blob → ダウンロード
+[チャット対話] → /api/slide-generate.js (mode: chat)
+  → claude-sonnet-4-6 + web_search でヒアリング
+  → 構成生成 (mode: generate) → スライド構成JSON
+  → /api/slide-export.py (python-pptx)
+  → テンプレートの slide_layout で add_slide → PPTX → Base64 → DL
 ```
 
 | 項目 | 詳細 |
 |------|------|
 | テンプレート | 4種（社外/社内 × WHITE/DARK）、`apps/slide-maker/templates/` |
-| レイアウト | 8種（cover / agenda / chapter / content / content-with-chart / content-with-flow / comparison / closing） |
-| ライブラリ | JSZip 3.10.1 / Chart.js 4.5.1（CDN） |
-| API | `claude-sonnet-4-6`（生成）/ `claude-haiku-4-5-20251001`（リファイン） |
-| リファイン | 最大5往復、履歴チップ表示 |
-| localStorage | ウィザード入力を自動保存・復元 |
+| スライドマスター | 4マスター × 33レイアウト（現行11種使用、V2で16種に拡張予定） |
+| レイアウト（現行） | cover / agenda / chapter / content / two-column / content-with-chart / content-with-flow / sixbox / comparison / quote / closing |
+| PPTX生成 | python-pptx 1.0.2（`api/slide-export.py`）— ネイティブチャート・テーブル・AutoShape・画像挿入 |
+| API | `claude-sonnet-4-6`（チャット・生成）/ `claude-haiku-4-5-20251001`（リファイン） |
+| ファイルインポート | PDF（pdf.js）/ Word（mammoth.js）/ PPTX（JSZip）— クライアント側テキスト抽出 |
+| UXフロー | 4フェーズ（ヒアリング → 構成確認 → プレビュー → 出力）|
+
+**V2 設計見直し（S035 進行中）:**
+- 画像対応レイアウト5種の活用（Unsplash API経由で画像挿入）
+- ディープリサーチ機能（リサーチ→生成→ファクトチェックの3フェーズ分離）
+- SYSTEM_PROMPT強化（16レイアウト + imageQuery + 配分ルール）
 
 ### Todoアプリ（`todo.html`）
 
@@ -189,5 +196,7 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-22 | SNS Post Generator 履歴ラベルを「プラットフォーム ｜ 記事タイトル」形式に改善 | URL のみでは判別しにくいため。保存パターンもおすすめ（recommend）に変更 |
 | 2026-03-20 | ポータルカードUIリニューアル | 正方形カード(190×190px)・`aspect-ratio:1`・グリッドを`justify-content:center`で最終行崩れ防止 |
 | 2026-03-28 | Slide Maker 完成 | AKKODiSブランド準拠PPTXジェネレーター。ウィザード入力・Claude API構成生成・テンプレートPPTX直接操作（JSZip）・図版自動生成3種（グラフ・フロー・比較表）・対話型リファイン・ブラウザプレビュー・UIオンボーディング改善 |
+| 2026-03-29 | Slide Maker V1→V2移行開始 | チャット対話UI・python-pptx移行（JSZip廃止）・アウトライン編集・ファイルインポート・4フェーズUX |
+| 2026-03-30 | Slide Maker V2 設計決定 | アプローチB（python-pptx強化）採用。画像系5レイアウト活用（Unsplash API）、ディープリサーチ3フェーズ分離、SYSTEM_PROMPT 16レイアウト化 |
 | 2026-03-27 | Banner Resizer 新画像サイズ要件対応 | MV: 800×446→1920×1080、一覧プリセット削除、サムネイル余白ガイド（安全ゾーン上下24px左右100px）追加。ブランドガイドライン違反も修正 |
 | 2026-03-30 | Banner Resizer WebPフォールバック修正 | ブラウザがWebP非対応時にPNGにフォールバックされるが拡張子が.webpのままでCMSアップロードエラーになっていた。Blobの実際のMIMEタイプを確認し正しい拡張子で出力するよう修正 |

@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Wireframe Maker | AKKODiS Tools</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+  <link rel="stylesheet" href="/assets/app-styles.css">
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+  <script>if(localStorage.getItem('auth')!=='1')location.href='/';</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; display: flex; flex-direction: column; }
+    .hidden { display: none !important; }
+
+    /* ナビバー */
+    .navbar { background: #001f33; height: 58px; display: flex; align-items: center; padding: 0 40px; gap: 16px; position: sticky; top: 0; z-index: 100; }
+    .navbar-back { color: #fff; text-decoration: none; font-size: 0.82rem; opacity: 0.8; border: 1px solid transparent; padding: 6px 12px; transition: border-color 0.2s, opacity 0.2s; }
+    .navbar-back:hover { border-color: rgba(255,255,255,0.5); opacity: 1; }
+    .navbar-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.15); }
+    .navbar-title { color: #fff; font-size: 0.95rem; font-weight: 600; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; flex: 1; width: 100%; transition: max-width 0.3s; }
+    .container.wide { max-width: 1100px; }
+
+    /* フェーズバー */
+    .phase-bar { display: flex; background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.06); margin-bottom: 20px; }
+    .phase-step { flex: 1; text-align: center; padding: 12px 8px; font-size: 0.78rem; font-weight: 600; color: #b0bec5; border-bottom: 3px solid transparent; cursor: pointer; transition: all 0.2s; user-select: none; }
+    .phase-step.active { color: #001f33; border-bottom-color: #ffb81c; }
+    .phase-step.completed { color: #4a5568; border-bottom-color: #001f33; }
+    .phase-step .step-num { display: inline-block; width: 20px; height: 20px; line-height: 20px; text-align: center; font-size: 0.68rem; font-weight: 700; margin-right: 4px; background: #e8ecf0; color: #8a9bb0; }
+    .phase-step.active .step-num { background: #ffb81c; color: #001f33; }
+    .phase-step.completed .step-num { background: #001f33; color: #fff; }
+
+    /* フェーズ遷移アニメーション */
+    .phase-section { display: none; opacity: 0; transition: opacity 0.25s ease; }
+    .phase-section.active { display: block; opacity: 1; }
+
+    /* ===== チャットフェーズ ===== */
+    .chat-section { background: #f7f8fa; box-shadow: 0 2px 16px rgba(0,0,0,0.09); display: flex; flex-direction: column; min-height: 480px; border: 1px solid #e8ecf0; }
+
+    /* インポートゾーン */
+    .import-zone { padding: 10px 16px; background: #fff; border-bottom: 1px solid #e8ecf0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .import-drop { flex: 1; min-width: 180px; border: 1.5px dashed #d0d5dc; padding: 9px 14px; font-size: 0.78rem; color: #8a9bb0; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .import-drop:hover, .import-drop.dragover { border-color: #ffb81c; background: rgba(255,184,28,0.04); color: #4a5568; }
+    .import-drop input[type="file"] { display: none; }
+    .import-url-row { display: flex; gap: 0; flex: 1; min-width: 180px; }
+    .import-url-input { flex: 1; border: 1.5px solid #d0d5dc; padding: 8px 12px; font-size: 0.78rem; font-family: inherit; color: #2d3436; outline: none; }
+    .import-url-input:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
+    .import-url-input::placeholder { color: #c0cdd9; }
+    .btn-url-go { background: #001f33; color: #fff; border: none; padding: 8px 14px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    .btn-url-go:hover { opacity: 0.85; }
+
+    /* テンプレートチップ */
+    .tpl-bar { padding: 12px 16px; background: #fff; border-bottom: 1px solid #e8ecf0; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .tpl-label { font-size: 0.72rem; color: #8a9bb0; font-weight: 600; white-space: nowrap; }
+    .tpl-chip { padding: 5px 12px; font-size: 0.72rem; background: #f0f2f5; color: #4a5568; border: 1px solid #e8ecf0; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .tpl-chip:hover { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
+    .tpl-chip.active { background: #001f33; color: #fff; border-color: transparent; }
+
+    /* チャットメッセージ */
+    .chat-messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; max-height: 420px; min-height: 200px; }
+    .chat-row { display: flex; gap: 8px; align-items: flex-end; animation: fadeIn 0.3s ease; }
+    .chat-row.ai { align-self: flex-start; }
+    .chat-row.user { align-self: flex-end; flex-direction: row-reverse; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .chat-avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .chat-avatar.ai { background: #fffbf0; }
+    .chat-avatar.user { background: #e8ecf0; }
+    .chat-bubble { max-width: 75%; padding: 10px 14px; font-size: 0.85rem; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+    .chat-bubble.ai { background: #fff; color: #2d3436; border: 1px solid #e8ecf0; }
+    .chat-bubble.user { background: #001f33; color: #fff; }
+    .chat-bubble.loading { color: #9aa5b4; font-size: 0.82rem; display: flex; align-items: center; gap: 6px; }
+    /* アクションボタン付きバブル */
+    .chat-action-btn { display: inline-block; margin-top: 8px; background: #ffb81c; color: #001f33; border: none; padding: 7px 16px; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .chat-action-btn:hover { opacity: 0.85; }
+
+    /* サジェスチョン */
+    .suggestions { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 8px; }
+    .sug-chip { padding: 5px 12px; font-size: 0.72rem; background: #f7f8fa; color: #4a5568; border: 1.5px solid #d0d5dc; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .sug-chip:hover { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
+
+    /* チャット入力 */
+    .chat-input-bar { padding: 12px 16px; background: #fff; border-top: 1px solid #e8ecf0; display: flex; gap: 8px; }
+    .chat-input-bar textarea { flex: 1; border: 1.5px solid #e8ecf0; padding: 10px 14px; font-size: 0.85rem; font-family: inherit; resize: none; height: 42px; outline: none; }
+    .chat-input-bar textarea:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
+    .chat-input-bar button { background: #ffb81c; color: #001f33; border: none; padding: 10px 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .chat-input-bar button:hover { opacity: 0.85; }
+    .chat-input-bar button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* 構成準備完了バナー */
+    .ready-banner { padding: 14px 16px; background: rgba(255,184,28,0.08); border-top: 2px solid #ffb81c; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .ready-banner span { font-size: 0.82rem; color: #001f33; font-weight: 600; }
+    .ready-banner button { background: #ffb81c; color: #001f33; border: none; padding: 10px 24px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+
+    /* ===== 構成編集フェーズ ===== */
+    .section-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .section-card { background: #fff; border: 1.5px solid #e8ecf0; padding: 14px 16px; display: flex; gap: 12px; align-items: center; cursor: grab; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; }
+    .section-card:hover { border-color: #b0bec5; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .section-card.dragging { opacity: 0.5; transform: scale(0.98); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+    .section-card.drag-over { border-color: #ffb81c; border-style: dashed; }
+    .section-card .drag-handle { color: #b0bec5; font-size: 1.1rem; cursor: grab; user-select: none; }
+    .section-card .sec-info { flex: 1; }
+    .section-card .sec-type { font-size: 0.68rem; color: #8a9bb0; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+    .section-card .sec-label { font-size: 0.85rem; font-weight: 600; color: #2d3436; margin: 2px 0; }
+    .section-card .sec-desc { font-size: 0.75rem; color: #8a9bb0; }
+    .section-card .sec-components { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+    .section-card .comp-tag { font-size: 0.65rem; padding: 2px 6px; background: #f0f2f5; color: #8a9bb0; }
+    .section-card .sec-method { display: inline-block; margin-top: 4px; font-size: 0.62rem; font-weight: 600; color: #8a9bb0; }
+    .section-card .sec-method .sm-dot { display: none; }
+    .section-card .sec-delete { background: none; border: none; color: #ccc; font-size: 1.1rem; cursor: pointer; padding: 4px 8px; transition: color 0.15s; }
+    .section-card .sec-delete:hover { color: #c0392b; }
+
+    .add-section-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+    .add-section-bar select { border: 1.5px solid #e8ecf0; padding: 8px 12px; font-size: 0.82rem; font-family: inherit; outline: none; background: #fff; }
+    .add-section-bar select:focus { border-color: #ffb81c; }
+    .btn-add { background: #fff; border: 1.5px solid #e8ecf0; color: #4a5568; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-add:hover { border-color: #ffb81c; color: #001f33; }
+
+    .refine-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+    .refine-bar input { flex: 1; border: 1.5px solid #e8ecf0; padding: 10px 14px; font-size: 0.82rem; font-family: inherit; outline: none; }
+    .refine-bar input:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
+    .refine-bar button { background: #001f33; color: #fff; border: none; padding: 10px 20px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .refine-bar button:hover { opacity: 0.85; }
+    .refine-bar button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-primary { background: #ffb81c; color: #001f33; border: none; padding: 13px 32px; font-size: 0.88rem; font-weight: 700; cursor: pointer; font-family: inherit; display: block; width: 100%; transition: opacity 0.15s; }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-secondary { background: #fff; color: #4a5568; border: 1.5px solid #e8ecf0; padding: 10px 24px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-secondary:hover { border-color: #b0bec5; }
+
+    /* ===== プレビューフェーズ ===== */
+    .preview-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .preview-toolbar button { background: #fff; border: 1.5px solid #e8ecf0; padding: 6px 14px; font-size: 0.88rem; cursor: pointer; font-family: inherit; color: #4a5568; }
+    .preview-toolbar button:hover { border-color: #b0bec5; }
+    .preview-toolbar .zoom-level { font-size: 0.78rem; color: #8a9bb0; font-weight: 600; min-width: 44px; text-align: center; }
+    .preview-canvas { background: #e8ecf0; border: 1px solid #d0d5dc; overflow: auto; max-height: 75vh; padding: 24px; margin-bottom: 16px; }
+    .preview-canvas svg { display: block; margin: 0 auto; transform-origin: top center; transition: transform 0.2s; box-shadow: 0 2px 16px rgba(0,0,0,0.12); }
+    .preview-canvas svg .section-group { cursor: pointer; }
+    .preview-canvas svg .section-group:hover rect.section-bg { stroke: #ffb81c; stroke-width: 2; }
+    .preview-canvas svg .section-group.selected rect.section-bg { stroke: #001f33; stroke-width: 2.5; stroke-dasharray: 8 4; }
+
+    /* セクション根拠パネル */
+    .rationale-panel { background: #001f33; color: #fff; padding: 12px 16px; margin-bottom: 12px; display: none; animation: fadeIn 0.3s ease; }
+    .rationale-panel.visible { display: block; }
+    .rationale-panel .rp-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .rationale-panel .rp-source { font-size: 0.65rem; font-weight: 700; color: #ffb81c; text-transform: uppercase; letter-spacing: 0.5px; }
+    .rationale-panel .rp-section { font-size: 0.82rem; font-weight: 600; }
+    .rationale-panel .rp-text { font-size: 0.75rem; color: rgba(255,255,255,0.8); line-height: 1.6; }
+    .rationale-panel .rp-close { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 1rem; cursor: pointer; margin-left: auto; padding: 0 4px; }
+    .rationale-panel .rp-close:hover { color: #fff; }
+
+    /* ===== エクスポートフェーズ ===== */
+    .export-card { background: #fff; border: 1px solid #e8ecf0; padding: 32px; text-align: center; margin-bottom: 16px; }
+    .export-card h3 { font-size: 1rem; color: #001f33; margin-bottom: 8px; }
+    .export-card p { font-size: 0.82rem; color: #8a9bb0; margin-bottom: 20px; }
+    .export-btns { display: flex; gap: 12px; justify-content: center; }
+    .export-btns button { padding: 12px 28px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+    .export-btns .btn-svg { background: #001f33; color: #fff; border: none; }
+    .export-btns .btn-png { background: #ffb81c; color: #001f33; border: none; }
+    .export-btns button:hover { opacity: 0.85; }
+
+    .error-msg { background: #fff5f4; border: 1.5px solid #fab1a0; border-left: 3px solid #c0392b; color: #c0392b; padding: 10px 14px; font-size: 0.82rem; margin-bottom: 12px; min-height: 0; }
+    .error-msg:empty { display: none; }
+
+    .loading-dots { display: inline-flex; gap: 4px; }
+    .loading-dots span { width: 6px; height: 6px; background: #ffb81c; border-radius: 50%; animation: bounce 1.2s infinite; }
+    .loading-dots span:nth-child(2) { animation-delay: 0.15s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes bounce { 0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-8px)} }
+
+    .toast { position: fixed; bottom: 28px; right: 28px; background: #001f33; color: #fff; padding: 12px 24px; font-size: 0.82rem; font-weight: 600; z-index: 999; opacity: 0; transform: translateY(8px); transition: opacity 0.3s, transform 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ===== ナレッジバナー（コンパクト） ===== */
+    .knowledge-banner { background: #001f33; padding: 10px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .knowledge-banner .kb-title { color: #fff; font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+    .knowledge-tags { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+    .knowledge-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; font-size: 0.65rem; font-weight: 600; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); }
+    .knowledge-tag .ktag-dot { width: 5px; height: 5px; background: #ffb81c; border-radius: 50%; flex-shrink: 0; }
+    .kb-toggle { background: none; border: none; color: rgba(255,255,255,0.5); padding: 2px 8px; font-size: 0.68rem; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .kb-toggle:hover { color: rgba(255,255,255,0.9); }
+    .knowledge-detail { display: none; width: 100%; }
+    .knowledge-banner.expanded { flex-wrap: wrap; padding-bottom: 14px; }
+    .knowledge-banner.expanded .knowledge-detail { display: block; }
+    .knowledge-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .kd-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 12px; }
+    .kd-card h4 { color: #ffb81c; font-size: 0.68rem; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
+    .kd-card ul { list-style: none; padding: 0; }
+    .kd-card li { color: rgba(255,255,255,0.75); font-size: 0.68rem; line-height: 1.6; padding-left: 10px; position: relative; }
+    .kd-card li::before { content: ''; position: absolute; left: 0; top: 7px; width: 4px; height: 4px; background: #ffb81c; border-radius: 50%; }
+    @media (max-width: 768px) {
+      .knowledge-detail-grid { grid-template-columns: 1fr; }
+    }
+
+    footer { background: #001f33; color: rgba(255,255,255,0.8); text-align: center; padding: 16px 40px; font-size: 0.72rem; margin-top: auto; }
+    footer strong { color: #ffb81c; }
+
+    @media (max-width: 768px) {
+      .navbar { padding: 0 20px; }
+      .container { padding: 20px 16px 60px; }
+      .chat-messages { max-height: calc(100vh - 340px); }
+      .tpl-bar { gap: 6px; }
+      .import-zone { flex-direction: column; }
+      .preview-canvas { max-height: 100%; }
+      .preview-canvas svg { max-width: 100%; height: auto; }
+      .export-btns { flex-direction: column; }
+    }
+    @media (max-width: 480px) {
+      .phase-step { padding: 8px 4px; font-size: 0.7rem; }
+      .phase-step .step-num { width: 16px; height: 16px; line-height: 16px; font-size: 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="navbar-back">← アプリ一覧へ</a>
+  <div class="navbar-divider"></div>
+  <span class="navbar-title">Wireframe Maker</span>
+</nav>
+
+<div class="container">
+  <div class="phase-bar">
+    <div class="phase-step active" data-phase="chat" onclick="goToPhase('chat')"><span class="step-num">1</span>ヒアリング</div>
+    <div class="phase-step" data-phase="structure" onclick="goToPhase('structure')"><span class="step-num">2</span>構成編集</div>
+    <div class="phase-step" data-phase="preview" onclick="goToPhase('preview')"><span class="step-num">3</span>プレビュー</div>
+    <div class="phase-step" data-phase="export" onclick="goToPhase('export')"><span class="step-num">4</span>エクスポート</div>
+  </div>
+
+  <div id="error-area" class="error-msg" role="alert"></div>
+
+  <!-- ナレッジバナー -->
+  <div class="knowledge-banner" id="knowledge-banner">
+    <span class="kb-title">学習済みの知識:</span>
+    <div class="knowledge-tags">
+      <span class="knowledge-tag"><span class="ktag-dot"></span>才流「売れるロジック」</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>WACUL CVRデータ</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>CTA最適化</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>EFO</span>
+    </div>
+    <button class="kb-toggle" onclick="toggleKnowledgeDetail()">詳細 ▾</button>
+    <div class="knowledge-detail">
+      <div class="knowledge-detail-grid">
+        <div class="kd-card">
+          <h4>才流（SAIRU）</h4>
+          <ul>
+            <li>「売れるロジック」7段階フレームワーク</li>
+            <li>導入事例12パターンの信頼性ランク</li>
+            <li>検討段階別CTA設計</li>
+            <li>EFOチェックリスト21項目</li>
+          </ul>
+        </div>
+        <div class="kd-card">
+          <h4>WACUL 調査データ</h4>
+          <ul>
+            <li>FV完結型LP → CVR 1.64倍</li>
+            <li>CTA中央配置 → CVR 1.32倍</li>
+            <li>CTA補完文言 → CVR 1.45倍</li>
+            <li>フォーム項目1削減 → 通過率+2%pt</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 1: チャット -->
+  <div id="phase-chat" class="phase-section active">
+    <div class="chat-section">
+      <div class="import-zone">
+        <div class="import-drop" id="import-drop" onclick="document.getElementById('file-input').click()">
+          📎 PDF / Word / PPTX をドロップまたは選択
+          <input type="file" id="file-input" accept=".pdf,.docx,.pptx" onchange="handleFileImport(this.files[0])">
+        </div>
+        <div class="import-url-row">
+          <label for="url-input" class="hidden">URL入力</label>
+          <input type="url" class="import-url-input" id="url-input" placeholder="https:// 参考URLを貼り付け" onkeydown="if(event.key==='Enter')handleUrlImport()">
+          <button class="btn-url-go" onclick="handleUrlImport()">読込</button>
+        </div>
+      </div>
+      <div class="tpl-bar">
+        <span class="tpl-label">テンプレート:</span>
+        <button class="tpl-chip" data-tpl="btob-lead-lp" title="才流「売れるロジック」+WACUL CVRデータ準拠。資料DL・問い合わせ獲得向け">BtoB リードLP</button>
+        <button class="tpl-chip" data-tpl="btob-awareness-lp" title="WACUL FV完結型準拠。認知拡大・ブランディング向け">BtoB 潜在LP</button>
+        <button class="tpl-chip" data-tpl="btob-service-top" title="才流+WACUL準拠。サービス紹介トップページ">サービスサイト</button>
+        <button class="tpl-chip" data-tpl="btoc-product-lp" title="CTA最適化準拠。商品購入・申込み向け">BtoC 商品LP</button>
+        <button class="tpl-chip" data-tpl="blog-article" title="記事・コンテンツページ。回遊設計準拠">ブログ</button>
+        <button class="tpl-chip" data-tpl="contact-form" title="才流EFOチェックリスト準拠。お問い合わせ・資料請求フォーム">お問い合わせ</button>
+      </div>
+      <div id="chat-messages" class="chat-messages"></div>
+      <div id="suggestions-area" class="suggestions"></div>
+      <div id="ready-banner" class="ready-banner hidden">
+        <span>要件の整理が完了しました。構成を生成しましょう。</span>
+        <button onclick="generateFromContext()">構成を生成</button>
+      </div>
+      <div class="chat-input-bar">
+        <label for="chat-input" class="hidden">メッセージ入力</label>
+        <textarea id="chat-input" placeholder="要件や要望を入力（例: 新サービスのリード獲得LPを作りたい）" rows="1"></textarea>
+        <button id="chat-send" onclick="sendChat()">送信</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 2: 構成編集 -->
+  <div id="phase-structure" class="phase-section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <button class="btn-secondary" onclick="goToPhase('chat')" style="font-size:0.78rem;padding:6px 14px">← ヒアリングに戻る</button>
+      <span id="section-count" style="font-size:0.78rem;color:#8a9bb0;font-weight:600"></span>
+    </div>
+    <p style="font-size:0.75rem;color:#8a9bb0;margin-bottom:10px">ドラッグで並び替え、✕で削除できます。下のセレクトからセクションを追加できます。</p>
+    <div id="section-list" class="section-list"></div>
+    <div class="add-section-bar">
+      <label for="add-type" class="hidden">セクションタイプ</label>
+      <select id="add-type">
+        <option value="hero">ヒーロー</option>
+        <option value="features">特徴・メリット</option>
+        <option value="content-text">テキスト</option>
+        <option value="two-column">2カラム</option>
+        <option value="testimonials">お客様の声・実績</option>
+        <option value="pricing">料金プラン</option>
+        <option value="cta-banner">CTAバナー</option>
+        <option value="form">フォーム</option>
+        <option value="faq">FAQ</option>
+        <option value="gallery">ギャラリー</option>
+        <option value="stats">数値・実績</option>
+        <option value="timeline">導入ステップ</option>
+        <option value="cards">カードグリッド</option>
+      </select>
+      <button class="btn-add" onclick="addSection()">+ 追加</button>
+    </div>
+    <div class="refine-bar">
+      <label for="refine-input" class="hidden">AI修正指示</label>
+      <input id="refine-input" placeholder="AI修正指示（例: CTAをもっと目立たせて、信頼セクションを追加して）">
+      <button id="refine-btn" onclick="refineStructure()">AI修正</button>
+    </div>
+    <button class="btn-primary" onclick="generatePreview()">プレビューを生成</button>
+  </div>
+
+  <!-- Phase 3: プレビュー -->
+  <div id="phase-preview" class="phase-section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <button class="btn-secondary" onclick="goToPhase('structure')" style="font-size:0.78rem;padding:6px 14px">← 構成を編集</button>
+      <span id="selected-label" style="font-size:0.78rem;color:#8a9bb0"></span>
+    </div>
+    <div class="preview-toolbar">
+      <button onclick="zoom(-0.1)">−</button>
+      <span id="zoom-level" class="zoom-level">100%</span>
+      <button onclick="zoom(0.1)">＋</button>
+      <span style="flex:1"></span>
+      <span style="font-size:0.72rem;color:#b0bec5">セクションをクリックして選択</span>
+    </div>
+    <div id="rationale-panel" class="rationale-panel">
+      <div class="rp-header">
+        <span class="rp-source" id="rp-source"></span>
+        <span class="rp-section" id="rp-section"></span>
+        <button class="rp-close" onclick="closeRationale()">✕</button>
+      </div>
+      <div class="rp-text" id="rp-text"></div>
+    </div>
+    <div id="preview-canvas" class="preview-canvas"></div>
+    <div class="refine-bar">
+      <label for="section-refine-input" class="hidden">セクション修正指示</label>
+      <input id="section-refine-input" placeholder="選択セクションへの修正指示...">
+      <button id="section-refine-btn" onclick="refineSection()">修正</button>
+    </div>
+    <button class="btn-primary" onclick="setPhase('export')">エクスポートへ</button>
+  </div>
+
+  <!-- Phase 4: エクスポート -->
+  <div id="phase-export" class="phase-section">
+    <div style="margin-bottom:12px">
+      <button class="btn-secondary" onclick="goToPhase('preview')" style="font-size:0.78rem;padding:6px 14px">← プレビューに戻る</button>
+    </div>
+    <div class="export-card">
+      <h3>ワイヤーフレームが完成しました</h3>
+      <p id="export-summary"></p>
+      <div class="export-btns">
+        <button class="btn-svg" onclick="exportSVG()">SVG ダウンロード</button>
+        <button class="btn-png" onclick="exportPNG()">PNG ダウンロード</button>
+      </div>
+    </div>
+    <button class="btn-secondary" onclick="startNew()" style="width:100%">新規ワイヤーフレームを作成</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<footer>
+  <p>⚠️ <strong>機密情報・個人情報の入力は禁止</strong>です。社外秘情報はVercel環境変数で管理してください。</p>
+</footer>
+
+<script src="/assets/copy-utils.js"></script>
+<script src="/assets/history.js"></script>
+<script>
+/* ===== グローバル状態 ===== */
+const USER = localStorage.getItem('user') || '';
+const PHASES = ['chat', 'structure', 'preview', 'export'];
+let currentPhase = 'chat';
+let chatHistory = [];
+let currentContext = null;
+let currentSections = [];
+let selectedSectionId = null;
+let zoomLevel = 1;
+let importedContent = '';
+
+/* ===== メソドロジーマッピング ===== */
+const SECTION_RATIONALE = {
+  navigation: { source: '才流+WACUL', badge: '才流: 行動の後押し', text: 'ナビゲーション右端にCTAボタンを配置。才流の「行動の後押し」原則に基づき、常時アクセス可能なCTA導線を確保します。' },
+  hero: { source: 'WACUL', badge: 'WACUL: FV完結型', text: 'ファーストビュー完結型（サービス名+概要+CTA）でCVR1.64倍。CTA中央配置でさらに1.32倍。補完文言（「無料」「3分で完了」等）でCVR1.45倍。滞在時間の57%はFVに集中するため、最も重要なセクションです。' },
+  features: { source: '才流', badge: '才流: 商品紹介', text: '才流「売れるロジック」第4段階。機能ではなくベネフィットで訴求（「○○できる」形式）。3〜4つに絞り、競合との差別化ポイントを明確にします。' },
+  'content-text': { source: '才流', badge: '才流: 問題提起/原因', text: '才流「売れるロジック」第1〜2段階。顧客が抱える問題を提起し、根本原因を深掘りすることで共感を得て、解決策への導線を作ります。' },
+  'two-column': { source: '才流', badge: '才流: 解決策提示', text: '才流「売れるロジック」第3段階。Before/After、課題と解決策の対比で「○○によって□□を解決する△△です」という位置づけを明確化します。' },
+  testimonials: { source: '才流', badge: '才流: 信頼', text: '才流「売れるロジック」第5段階＋導入事例12パターン。成功事例インタビュー（定量的成果数値付き）が最も効果的。BtoBでは必須セクションです。' },
+  pricing: { source: '才流+WACUL', badge: '才流: 商品紹介', text: '2〜3プラン比較で推奨プランを強調。才流の「検討段階別CTA」に基づき、各プランに異なるCTAを設定します。' },
+  'cta-banner': { source: 'WACUL', badge: 'WACUL: CTA最適化', text: 'ページ中間（testimonials後、faq前が効果的）と最下部に配置。CTA補完文言でCVR1.45倍。「問い合わせする」より「資料をダウンロードする（無料）」が高CVR。' },
+  form: { source: '才流EFO+WACUL', badge: '才流EFO', text: '才流EFOチェックリスト準拠。項目7つ以下（1削減で通過率+2%pt）。確認画面省略（離脱防止）。フォーム遷移ボタンとタイトル文言一致で通過率1.3倍。目標通過率25%。' },
+  faq: { source: '才流', badge: '才流: 安心', text: '才流「売れるロジック」第6段階。BtoB特有の「失敗したくない」心理に対応。検討段階の不安5〜8件を解消し、導入ハードルを下げます。' },
+  gallery: { source: 'WACUL', badge: 'WACUL: 視覚訴求', text: '利用シーン・UI画面・導入先の様子を画像グリッドで表示。テキストだけでは伝わらない具体的なイメージを訴求します。' },
+  stats: { source: '才流', badge: '才流: 信頼', text: '才流「売れるロジック」第5段階。導入社数・満足度・継続率・成果指標を3〜4つの数値で可視化。購買担当者が決裁者を説得する材料になります。' },
+  timeline: { source: '才流', badge: '才流: 安心', text: '才流「売れるロジック」第6段階。検討→申込→導入→運用のプロセスを可視化し、導入後のイメージを明確にして不安を解消します。' },
+  cards: { source: '才流', badge: '才流: 商品紹介', text: '事例一覧・サービス一覧・プラン比較をカードグリッドで表示。情報を整理して比較しやすくすることで意思決定を支援します。' },
+  footer: { source: '才流EFO', badge: 'WACUL: 離脱防止', text: 'LPではフッターのリンクを最小限に。フォームページではヘッダー・フッターのリンクを削除して離脱を防止します（才流EFOチェックリスト準拠）。' }
+};
+
+/* ===== 初期化 ===== */
+HistoryManager.init('Wireframe Maker');
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+addChatMessage('ai', 'ワイヤーフレームの構成を一緒に考えましょう。\n\nこのツールは才流「売れるロジック」やWACULのCVR調査データをもとに、ページ種別に応じた最適な構成を自動で組み立てます。上のテンプレートを選ぶか、作りたいページについて教えてください。');
+showSuggestions(['BtoB向けリード獲得LP', '新サービスの紹介サイト', '既存LPを改善したい']);
+
+/* ===== ユーティリティ ===== */
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function showError(msg) { document.getElementById('error-area').textContent = msg; }
+function clearError() { document.getElementById('error-area').textContent = ''; }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+/* ===== フェーズ管理 ===== */
+function setPhase(phase) {
+  const idx = PHASES.indexOf(phase);
+  const curIdx = PHASES.indexOf(currentPhase);
+  if (phase === 'structure' && currentSections.length === 0) { showError('まず構成を生成してください。'); return; }
+  if (phase === 'preview' && currentSections.length === 0) { showError('まずプレビューを生成してください。'); return; }
+
+  currentPhase = phase;
+  PHASES.forEach(p => {
+    const el = document.getElementById('phase-' + p);
+    el.classList.toggle('active', p === phase);
+  });
+  document.querySelectorAll('.phase-step').forEach(el => {
+    const p = el.dataset.phase;
+    const pIdx = PHASES.indexOf(p);
+    el.classList.remove('active', 'completed');
+    if (p === phase) el.classList.add('active');
+    else if (pIdx < idx) el.classList.add('completed');
+  });
+  clearError();
+
+  // ナレッジバナーはchat以外で非表示
+  document.getElementById('knowledge-banner').classList.toggle('hidden', phase !== 'chat');
+  // プレビュー・エクスポートはコンテナを広げる
+  document.querySelector('.container').classList.toggle('wide', phase === 'preview' || phase === 'export');
+
+  if (phase === 'structure') { renderSectionList(); }
+  if (phase === 'export') {
+    document.getElementById('export-summary').textContent =
+      `${currentSections.length} セクション構成のワイヤーフレームです。SVG または PNG でダウンロードできます。`;
+  }
+}
+
+function goToPhase(phase) {
+  setPhase(phase);
+}
+
+/* ===== ファイルインポート ===== */
+const dropZone = document.getElementById('import-drop');
+if (dropZone) {
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files[0]) handleFileImport(e.dataTransfer.files[0]); });
+}
+
+async function handleFileImport(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  clearError();
+  addLoadingBubble();
+  document.getElementById('chat-send').disabled = true;
+
+  try {
+    let text = '';
+    if (ext === 'pdf') text = await extractPdfText(file);
+    else if (ext === 'docx') text = await extractDocxText(file);
+    else if (ext === 'pptx') text = await extractPptxText(file);
+    else { removeLoadingBubble(); showError('対応形式: PDF, Word(.docx), PPTX'); return; }
+
+    importedContent = text;
+    removeLoadingBubble();
+    addChatMessage('ai', `「${file.name}」を読み込みました（${text.length.toLocaleString()}文字）。\nこの内容をもとにワイヤーフレームの構成を考えましょう。`, {
+      label: 'この内容で構成を作成',
+      action: () => generateFromImport(),
+    });
+  } catch (err) {
+    removeLoadingBubble();
+    showError('ファイルの読み込みに失敗しました: ' + err.message);
+  } finally {
+    document.getElementById('chat-send').disabled = false;
+    document.getElementById('file-input').value = '';
+  }
+}
+
+async function extractPdfText(file) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  let text = '';
+  for (let i = 1; i <= Math.min(pdf.numPages, 50); i++) {
+    const page = await pdf.getPage(i);
+    const tc = await page.getTextContent();
+    text += tc.items.map(it => it.str).join(' ') + '\n';
+  }
+  return text.trim().slice(0, 15000);
+}
+
+async function extractDocxText(file) {
+  const buf = await file.arrayBuffer();
+  const result = await mammoth.extractRawText({ arrayBuffer: buf });
+  return (result.value || '').trim().slice(0, 15000);
+}
+
+async function extractPptxText(file) {
+  const buf = await file.arrayBuffer();
+  const zip = await JSZip.loadAsync(buf);
+  const slideFiles = Object.keys(zip.files).filter(f => /^ppt\/slides\/slide\d+\.xml$/.test(f)).sort((a, b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]));
+  let text = '';
+  for (const f of slideFiles) {
+    const xml = await zip.file(f).async('string');
+    const matches = xml.match(/<a:t>([^<]*)<\/a:t>/g) || [];
+    const slideText = matches.map(m => m.replace(/<\/?a:t>/g, '')).join(' ');
+    if (slideText.trim()) text += slideText.trim() + '\n---\n';
+  }
+  return text.trim().slice(0, 15000);
+}
+
+async function handleUrlImport() {
+  const url = document.getElementById('url-input').value.trim();
+  if (!url || !/^https?:\/\/.+/.test(url)) return;
+  clearError();
+  addChatMessage('user', `参考URL: ${url}`);
+  chatHistory.push({ role: 'user', content: `参考URLを共有します: ${url}\nこのページの構成を参考にワイヤーフレームを作りたいです。` });
+  document.getElementById('url-input').value = '';
+  addLoadingBubble();
+  document.getElementById('chat-send').disabled = true;
+
+  try {
+    const r = await fetch('/api/wireframe-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'chat', chatMessages: chatHistory, _user: USER }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error?.message || data.error || 'エラーが発生しました。');
+    removeLoadingBubble();
+    addChatMessage('ai', data.reply);
+    chatHistory.push({ role: 'assistant', content: data.reply });
+    if (data.suggestions && data.suggestions.length) showSuggestions(data.suggestions);
+    if (data.readyForStructure && data.context) {
+      currentContext = data.context;
+      document.getElementById('ready-banner').classList.remove('hidden');
+    }
+  } catch (e) {
+    removeLoadingBubble();
+    showError(e.message);
+  } finally {
+    document.getElementById('chat-send').disabled = false;
+  }
+}
+
+async function generateFromImport() {
+  clearError();
+  addLoadingBubble();
+  document.getElementById('chat-send').disabled = true;
+  try {
+    const r = await fetch('/api/wireframe-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'free', freeText: importedContent.slice(0, 10000), _user: USER }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error?.message || data.error || '生成に失敗しました。');
+    removeLoadingBubble();
+    currentSections = data.sections;
+    addChatMessage('ai', `資料から構成を生成しました（${data.sections.length}セクション）。構成編集に進みます。`);
+    renderSectionList();
+    setPhase('structure');
+  } catch (e) {
+    removeLoadingBubble();
+    showError(e.message);
+  } finally {
+    document.getElementById('chat-send').disabled = false;
+  }
+}
+
+/* ===== チャット ===== */
+function addChatMessage(role, text, action) {
+  const area = document.getElementById('chat-messages');
+  const row = document.createElement('div');
+  row.className = 'chat-row ' + role;
+  const avatar = document.createElement('div');
+  avatar.className = 'chat-avatar ' + role;
+  avatar.textContent = role === 'ai' ? '🎨' : '👤';
+  avatar.setAttribute('aria-label', role === 'ai' ? 'AI' : 'ユーザー');
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble ' + role;
+  bubble.textContent = text;
+  if (action) {
+    const btn = document.createElement('button');
+    btn.className = 'chat-action-btn';
+    btn.textContent = action.label;
+    btn.onclick = action.action;
+    bubble.appendChild(document.createElement('br'));
+    bubble.appendChild(btn);
+  }
+  row.appendChild(avatar);
+  row.appendChild(bubble);
+  area.appendChild(row);
+  area.scrollTo({ top: area.scrollHeight, behavior: 'smooth' });
+}
+
+function addLoadingBubble() {
+  const area = document.getElementById('chat-messages');
+  const row = document.createElement('div');
+  row.className = 'chat-row ai';
+  row.id = 'loading-row';
+  const avatar = document.createElement('div');
+  avatar.className = 'chat-avatar ai';
+  avatar.textContent = '🎨';
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble ai loading';
+  bubble.innerHTML = '考え中<div class="loading-dots"><span></span><span></span><span></span></div>';
+  row.appendChild(avatar);
+  row.appendChild(bubble);
+  area.appendChild(row);
+  area.scrollTo({ top: area.scrollHeight, behavior: 'smooth' });
+}
+
+function removeLoadingBubble() { const el = document.getElementById('loading-row'); if (el) el.remove(); }
+
+function showSuggestions(items) {
+  const area = document.getElementById('suggestions-area');
+  area.innerHTML = '';
+  items.forEach(text => {
+    const chip = document.createElement('button');
+    chip.className = 'sug-chip';
+    chip.textContent = text;
+    chip.onclick = () => { document.getElementById('chat-input').value = text; sendChat(); };
+    area.appendChild(chip);
+  });
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const btn = document.getElementById('chat-send');
+  const text = input.value.trim();
+  if (!text) return;
+
+  clearError();
+  addChatMessage('user', text);
+  chatHistory.push({ role: 'user', content: text });
+  input.value = '';
+  btn.disabled = true;
+  document.getElementById('suggestions-area').innerHTML = '';
+  addLoadingBubble();
+
+  try {
+    const r = await fetch('/api/wireframe-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'chat', chatMessages: chatHistory, importedContent: importedContent || undefined, _user: USER }),
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      if (r.status === 429) throw new Error('リクエスト上限に達しました。しばらく待ってから再試行してください。');
+      if (r.status >= 500) throw new Error('サーバーエラーが発生しました。しばらく待ってから再試行してください。');
+      throw new Error(data.error?.message || data.error || '生成に失敗しました。');
+    }
+    removeLoadingBubble();
+    addChatMessage('ai', data.reply);
+    chatHistory.push({ role: 'assistant', content: data.reply });
+    if (data.suggestions && data.suggestions.length) showSuggestions(data.suggestions);
+    if (data.readyForStructure && data.context) {
+      currentContext = data.context;
+      document.getElementById('ready-banner').classList.remove('hidden');
+    }
+  } catch (e) {
+    removeLoadingBubble();
+    showError(e.message);
+  } finally {
+    btn.disabled = false;
+    input.focus();
+  }
+}
+
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+});
+
+// テンプレートチップ
+document.querySelectorAll('.tpl-chip').forEach(chip => {
+  chip.addEventListener('click', async () => {
+    const tplId = chip.dataset.tpl;
+    clearError();
+    document.querySelectorAll('.tpl-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    addChatMessage('user', `テンプレート「${chip.textContent}」で構成を生成`);
+    addLoadingBubble();
+    document.getElementById('chat-send').disabled = true;
+    try {
+      const r = await fetch('/api/wireframe-generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'template', templateId: tplId, _user: USER }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error?.message || data.error || '生成に失敗しました。');
+      removeLoadingBubble();
+      currentSections = data.sections;
+      addChatMessage('ai', `「${chip.textContent}」の構成を生成しました（${data.sections.length}セクション）。構成編集に進みます。`);
+      renderSectionList();
+      setPhase('structure');
+    } catch (e) {
+      removeLoadingBubble();
+      showError(e.message);
+    } finally {
+      document.getElementById('chat-send').disabled = false;
+    }
+  });
+});
+
+async function generateFromContext() {
+  clearError();
+  document.getElementById('ready-banner').classList.add('hidden');
+  addLoadingBubble();
+  document.getElementById('chat-send').disabled = true;
+  try {
+    const r = await fetch('/api/wireframe-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'generate', context: currentContext, _user: USER }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error?.message || data.error || '生成に失敗しました。');
+    removeLoadingBubble();
+    currentSections = data.sections;
+    addChatMessage('ai', `構成を生成しました（${data.sections.length}セクション）。構成編集に進みます。`);
+    renderSectionList();
+    setPhase('structure');
+  } catch (e) {
+    removeLoadingBubble();
+    showError(e.message);
+  } finally {
+    document.getElementById('chat-send').disabled = false;
+  }
+}
+
+/* ===== 構成編集 ===== */
+function renderSectionList() {
+  const list = document.getElementById('section-list');
+  list.innerHTML = '';
+  const counter = document.getElementById('section-count');
+  if (counter) counter.textContent = `${currentSections.length} セクション`;
+  currentSections.forEach((sec, i) => {
+    const card = document.createElement('div');
+    card.className = 'section-card';
+    card.draggable = true;
+    card.dataset.index = i;
+    const rationale = SECTION_RATIONALE[sec.type];
+    const methodBadge = rationale ? `<span class="sec-method"><span class="sm-dot"></span>${escHtml(rationale.badge)}</span>` : '';
+    card.innerHTML = `
+      <div class="drag-handle">⠿</div>
+      <div class="sec-info">
+        <div class="sec-type">${escHtml(sec.type)}</div>
+        <div class="sec-label">${escHtml(sec.label)}</div>
+        <div class="sec-desc">${escHtml(sec.description || '')}</div>
+        <div class="sec-components">${(sec.components || []).map(c => '<span class="comp-tag">' + escHtml(c) + '</span>').join('')}</div>
+        ${methodBadge}
+      </div>
+      <button class="sec-delete" onclick="deleteSection(${i})" title="削除">✕</button>`;
+    card.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); card.classList.add('dragging'); });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', e => {
+      e.preventDefault(); card.classList.remove('drag-over');
+      const from = parseInt(e.dataTransfer.getData('text/plain'));
+      if (from !== i) { const item = currentSections.splice(from, 1)[0]; currentSections.splice(i, 0, item); renderSectionList(); }
+    });
+    list.appendChild(card);
+  });
+}
+
+function deleteSection(index) { currentSections.splice(index, 1); renderSectionList(); }
+
+function addSection() {
+  const type = document.getElementById('add-type').value;
+  const defaults = {
+    hero: { label: 'ヒーロー', description: 'キャッチコピー+CTA', height: 'viewport', components: ['heading', 'subtext', 'cta-with-note', 'hero-image', 'logo-bar'] },
+    features: { label: '特徴・メリット', description: 'アイコンカード3列', height: 'auto', components: ['icon-card', 'icon-card', 'icon-card'] },
+    'content-text': { label: 'テキストコンテンツ', description: '見出し+本文+画像', height: 'auto', components: ['heading', 'subtext', 'placeholder-image'] },
+    'two-column': { label: '2カラム', description: '左テキスト・右画像', height: 'auto', components: ['heading', 'subtext', 'placeholder-image'] },
+    testimonials: { label: 'お客様の声・実績', description: '導入ロゴ+引用', height: 'auto', components: ['logo-bar', 'quote-text', 'avatar', 'company-logo'] },
+    pricing: { label: '料金プラン', description: '料金カード2-3列', height: 'auto', components: ['price-card', 'price-card', 'price-card'] },
+    'cta-banner': { label: 'CTAバナー', description: '見出し+補完文言+CTA', height: 'auto', components: ['heading', 'subtext', 'cta-with-note'] },
+    form: { label: 'フォーム', description: '入力フィールド群', height: 'auto', components: ['form-field', 'form-field', 'form-field', 'submit-button'] },
+    faq: { label: 'よくある質問', description: 'アコーディオンQ&A', height: 'auto', components: ['accordion-item', 'accordion-item', 'accordion-item'] },
+    gallery: { label: 'ギャラリー', description: '画像グリッド', height: 'auto', components: ['placeholder-image', 'placeholder-image', 'placeholder-image', 'placeholder-image'] },
+    stats: { label: '数値・実績', description: '数値カード3-4列', height: 'auto', components: ['stat-number', 'stat-number', 'stat-number'] },
+    timeline: { label: '導入ステップ', description: 'ステップ表示', height: 'auto', components: ['step-item', 'step-item', 'step-item'] },
+    cards: { label: 'カードグリッド', description: 'カード一覧', height: 'auto', components: ['card-item', 'card-item', 'card-item'] },
+  };
+  const d = defaults[type] || defaults['content-text'];
+  currentSections.push({ id: 'sec-' + Date.now(), type, ...d });
+  renderSectionList();
+}
+
+async function refineStructure() {
+  const input = document.getElementById('refine-input');
+  const btn = document.getElementById('refine-btn');
+  const text = input.value.trim();
+  if (!text) return;
+  clearError(); btn.disabled = true; btn.textContent = '修正中...';
+  try {
+    const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'refine', currentSections, instruction: text, _user: USER }) });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error?.message || data.error || '修正に失敗しました。');
+    currentSections = data.sections; renderSectionList(); input.value = ''; showToast('構成を修正しました');
+  } catch (e) { showError(e.message); } finally { btn.disabled = false; btn.textContent = 'AI修正'; }
+}
+
+/* ===== SVG レンダリング ===== */
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const WF_WIDTH = 1200;
+const SEC_PAD = 30;
+const SECTION_HEIGHTS = { navigation: 60, hero: 520, features: 380, 'content-text': 320, 'two-column': 340, testimonials: 300, pricing: 400, 'cta-banner': 200, form: 420, faq: 360, gallery: 320, stats: 220, timeline: 340, cards: 360, footer: 160 };
+
+function svg(tag, attrs) { const el = document.createElementNS(SVG_NS, tag); for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v); return el; }
+
+function drawLines(g, x, y, w, n, h, c) { for (let i = 0; i < n; i++) { const lw = w * (0.6 + Math.random() * 0.4); g.appendChild(svg('rect', { x, y: y + i * (h + 8), width: lw, height: h, fill: c })); } }
+function drawImg(g, x, y, w, h) { g.appendChild(svg('rect', { x, y, width: w, height: h, fill: '#eaeaea', stroke: '#d8d8d8', 'stroke-width': 1 })); g.appendChild(svg('line', { x1: x, y1: y, x2: x+w, y2: y+h, stroke: '#d8d8d8', 'stroke-width': 1 })); g.appendChild(svg('line', { x1: x+w, y1: y, x2: x, y2: y+h, stroke: '#d8d8d8', 'stroke-width': 1 })); }
+function drawBtn(g, x, y, w, h, label, primary) {
+  const fill = primary ? '#ffb81c' : '#333';
+  const textFill = primary ? '#001f33' : '#fff';
+  g.appendChild(svg('rect', { x, y, width: w, height: h, fill }));
+  const txt = svg('text', { x: x+w/2, y: y+h/2+5, fill: textFill, 'font-size': '13', 'text-anchor': 'middle', 'font-family': 'sans-serif', 'font-weight': '600' });
+  txt.textContent = label || 'CTA';
+  g.appendChild(txt);
+}
+function drawCircle(g, cx, cy, r) { g.appendChild(svg('circle', { cx, cy, r, fill: '#e0e0e0' })); }
+function drawLabel(g, y, text) {
+  // Legacy — now handled inline in renderSection with background
+  const t = svg('text', { x: 16, y: y, fill: '#888', 'font-size': '11', 'font-family': 'sans-serif', 'font-weight': '600' });
+  t.textContent = text; g.appendChild(t);
+}
+
+function renderSection(sec, yOff) {
+  const group = svg('g', { transform: `translate(0,${yOff})`, class: 'section-group', 'data-id': sec.id });
+  const h = SECTION_HEIGHTS[sec.type] || 280;
+
+  // 背景 + 区切り線
+  group.appendChild(svg('rect', { x: 0, y: 0, width: WF_WIDTH, height: h, fill: '#fff', stroke: '#b0b8c0', 'stroke-width': 1, class: 'section-bg' }));
+  // セクションタイプラベル（左上に背景付き）
+  const labelText = sec.type.toUpperCase() + ' — ' + (sec.label || '');
+  const labelBg = svg('rect', { x: 0, y: 0, width: labelText.length * 7 + 24, height: 24, fill: '#f0f2f5' });
+  group.appendChild(labelBg);
+  const labelEl = svg('text', { x: 8, y: 16, fill: '#666', 'font-size': '11', 'font-family': 'sans-serif', 'font-weight': '600' });
+  labelEl.textContent = labelText;
+  group.appendChild(labelEl);
+
+  const render = RENDERERS[sec.type] || RENDERERS['content-text'];
+  render(group, h);
+
+  group.addEventListener('click', () => selectSection(sec.id));
+  return { group, height: h };
+}
+
+/* --- 各セクションレンダラー --- */
+const RENDERERS = {
+  navigation(g, h) {
+    g.appendChild(svg('rect', { x: 0, y: 0, width: WF_WIDTH, height: h, fill: '#f5f5f5' }));
+    g.appendChild(svg('rect', { x: 40, y: 18, width: 100, height: 24, fill: '#d0d0d0' }));
+    for (let i = 0; i < 4; i++) g.appendChild(svg('rect', { x: 500 + i * 100, y: 24, width: 60, height: 12, fill: '#bbb' }));
+    drawBtn(g, WF_WIDTH - 220, 14, 140, 32, '資料請求', true);
+  },
+  hero(g, h) {
+    g.appendChild(svg('rect', { x: 0, y: SEC_PAD, width: WF_WIDTH, height: h - SEC_PAD, fill: '#f8f8f8' }));
+    // 見出し + サブコピー
+    g.appendChild(svg('rect', { x: 80, y: 100, width: 480, height: 18, fill: '#444' }));
+    g.appendChild(svg('rect', { x: 80, y: 132, width: 380, height: 10, fill: '#888' }));
+    drawLines(g, 80, 156, 320, 2, 7, '#bbb');
+    // CTA + 補完文言
+    drawBtn(g, 80, 210, 200, 48, '無料で資料DL', true);
+    g.appendChild(svg('rect', { x: 86, y: 268, width: 140, height: 6, fill: '#aaa' })); // 「3分で完了」
+    // 権威付けロゴバー
+    for (let i = 0; i < 5; i++) g.appendChild(svg('rect', { x: 80 + i * 90, y: 310, width: 70, height: 24, fill: '#e0e0e0' }));
+    const logoLabel = svg('text', { x: 80, y: 354, fill: '#bbb', 'font-size': '10', 'font-family': 'sans-serif' });
+    logoLabel.textContent = '導入企業'; g.appendChild(logoLabel);
+    // 右: 画像
+    drawImg(g, 640, 70, 480, 360);
+  },
+  features(g, h) {
+    const cols = 3, cw = 300, gap = (WF_WIDTH - cols * cw) / (cols + 1);
+    for (let i = 0; i < cols; i++) {
+      const x = gap + i * (cw + gap), y = 50;
+      g.appendChild(svg('rect', { x, y, width: cw, height: h - 80, fill: '#fafafa', stroke: '#e0e0e0', 'stroke-width': 1.5 }));
+      drawCircle(g, x + cw / 2, y + 50, 28);
+      g.appendChild(svg('rect', { x: x + 40, y: y + 100, width: cw - 80, height: 10, fill: '#555' }));
+      drawLines(g, x + 30, y + 130, cw - 60, 3, 6, '#bbb');
+    }
+  },
+  'content-text'(g, h) {
+    g.appendChild(svg('rect', { x: 80, y: 50, width: 400, height: 14, fill: '#444' }));
+    drawLines(g, 80, 80, 600, 5, 6, '#bbb');
+    drawImg(g, 80, 180, WF_WIDTH - 160, 110);
+  },
+  'two-column'(g, h) {
+    const half = (WF_WIDTH - 120) / 2;
+    g.appendChild(svg('rect', { x: 60, y: 50, width: half * 0.7, height: 14, fill: '#444' }));
+    drawLines(g, 60, 80, half - 20, 6, 6, '#bbb');
+    drawImg(g, 60 + half + 20, 50, half, h - 80);
+  },
+  testimonials(g, h) {
+    // ロゴバー
+    for (let i = 0; i < 6; i++) g.appendChild(svg('rect', { x: 80 + i * 170, y: 50, width: 120, height: 30, fill: '#eee' }));
+    // 引用カード
+    const cols = 2, cw = 480, gap = (WF_WIDTH - cols * cw) / (cols + 1);
+    for (let i = 0; i < cols; i++) {
+      const x = gap + i * (cw + gap);
+      g.appendChild(svg('rect', { x, y: 110, width: cw, height: h - 140, fill: '#fafafa', stroke: '#e0e0e0', 'stroke-width': 1.5 }));
+      g.appendChild(svg('rect', { x, y: 110, width: 4, height: h - 140, fill: '#d0d0d0' }));
+      drawCircle(g, x + 40, 150, 18);
+      g.appendChild(svg('rect', { x: x + 70, y: 140, width: 120, height: 8, fill: '#666' }));
+      g.appendChild(svg('rect', { x: x + 70, y: 156, width: 80, height: 6, fill: '#bbb' }));
+      drawLines(g, x + 30, 186, cw - 60, 3, 6, '#aaa');
+    }
+  },
+  pricing(g, h) {
+    const cols = 3, cw = 320, gap = (WF_WIDTH - cols * cw) / (cols + 1);
+    for (let i = 0; i < cols; i++) {
+      const x = gap + i * (cw + gap), fill = i === 1 ? '#f0f0f0' : '#fafafa';
+      g.appendChild(svg('rect', { x, y: 50, width: cw, height: h - 80, fill, stroke: '#e0e0e0', 'stroke-width': 1.5 }));
+      g.appendChild(svg('rect', { x: x + 60, y: 80, width: cw - 120, height: 12, fill: '#555' }));
+      g.appendChild(svg('rect', { x: x + 80, y: 110, width: cw - 160, height: 20, fill: '#333' }));
+      drawLines(g, x + 40, 160, cw - 80, 4, 6, '#bbb');
+      drawBtn(g, x + 60, h - 100, cw - 120, 36, 'CTA', i === 1);
+    }
+  },
+  'cta-banner'(g, h) {
+    g.appendChild(svg('rect', { x: 0, y: 0, width: WF_WIDTH, height: h, fill: '#f5f5f5' }));
+    g.appendChild(svg('rect', { x: WF_WIDTH / 2 - 200, y: 36, width: 400, height: 14, fill: '#444' }));
+    g.appendChild(svg('rect', { x: WF_WIDTH / 2 - 140, y: 62, width: 280, height: 8, fill: '#999' }));
+    drawBtn(g, WF_WIDTH / 2 - 100, 96, 200, 48, '無料で相談する', true);
+    g.appendChild(svg('rect', { x: WF_WIDTH / 2 - 60, y: 154, width: 120, height: 6, fill: '#aaa' }));
+  },
+  form(g, h) {
+    const fw = 500, fx = (WF_WIDTH - fw) / 2;
+    g.appendChild(svg('rect', { x: fx - 20, y: 40, width: fw + 40, height: h - 70, fill: '#fafafa', stroke: '#e0e0e0', 'stroke-width': 1.5 }));
+    for (let i = 0; i < 4; i++) {
+      const y = 80 + i * 70;
+      g.appendChild(svg('rect', { x: fx, y, width: 100, height: 8, fill: '#888' }));
+      g.appendChild(svg('rect', { x: fx, y: y + 18, width: fw, height: 36, fill: '#fff', stroke: '#d0d0d0', 'stroke-width': 1 }));
+    }
+    drawBtn(g, fx, h - 80, fw, 44, '送信する', true);
+  },
+  faq(g, h) {
+    for (let i = 0; i < 5; i++) {
+      const y = 50 + i * 58;
+      g.appendChild(svg('rect', { x: 80, y, width: WF_WIDTH - 160, height: 48, fill: '#fafafa', stroke: '#e0e0e0', 'stroke-width': 1 }));
+      g.appendChild(svg('rect', { x: 100, y: y + 18, width: 280 + Math.random() * 200, height: 10, fill: '#555' }));
+      const arr = svg('text', { x: WF_WIDTH - 120, y: y + 30, fill: '#aaa', 'font-size': '16', 'text-anchor': 'middle', 'font-family': 'sans-serif' });
+      arr.textContent = '▾'; g.appendChild(arr);
+    }
+  },
+  gallery(g, h) {
+    const cols = 4, iw = 240, ih = 180, gap = (WF_WIDTH - cols * iw) / (cols + 1);
+    for (let i = 0; i < cols; i++) drawImg(g, gap + i * (iw + gap), 50, iw, ih);
+  },
+  stats(g, h) {
+    const cols = 4, cw = 200, gap = (WF_WIDTH - cols * cw) / (cols + 1);
+    for (let i = 0; i < cols; i++) {
+      const x = gap + i * (cw + gap);
+      g.appendChild(svg('rect', { x: x + 30, y: 50, width: cw - 60, height: 28, fill: '#333' }));
+      g.appendChild(svg('rect', { x: x + 50, y: 90, width: cw - 100, height: 8, fill: '#aaa' }));
+      drawLines(g, x + 20, 112, cw - 40, 2, 6, '#ccc');
+    }
+  },
+  timeline(g, h) {
+    const steps = 4, stepH = 66, startY = 50;
+    g.appendChild(svg('rect', { x: 140, y: startY, width: 2, height: steps * stepH, fill: '#d0d0d0' }));
+    for (let i = 0; i < steps; i++) {
+      const y = startY + i * stepH;
+      drawCircle(g, 141, y + 12, 10);
+      g.appendChild(svg('rect', { x: 180, y: y + 4, width: 200, height: 10, fill: '#444' }));
+      g.appendChild(svg('rect', { x: 180, y: y + 22, width: 400, height: 6, fill: '#bbb' }));
+    }
+  },
+  cards(g, h) {
+    const cols = 3, cw = 320, gap = (WF_WIDTH - cols * cw) / (cols + 1);
+    for (let i = 0; i < cols; i++) {
+      const x = gap + i * (cw + gap);
+      g.appendChild(svg('rect', { x, y: 50, width: cw, height: h - 80, fill: '#fafafa', stroke: '#e0e0e0', 'stroke-width': 1.5 }));
+      drawImg(g, x, 50, cw, 140);
+      g.appendChild(svg('rect', { x: x + 16, y: 210, width: cw - 32, height: 10, fill: '#444' }));
+      drawLines(g, x + 16, 232, cw - 32, 3, 6, '#bbb');
+    }
+  },
+  footer(g, h) {
+    g.appendChild(svg('rect', { x: 0, y: 0, width: WF_WIDTH, height: h, fill: '#333' }));
+    for (let i = 0; i < 4; i++) {
+      const x = 80 + i * 280;
+      g.appendChild(svg('rect', { x, y: 30, width: 100, height: 8, fill: '#777' }));
+      for (let j = 0; j < 3; j++) g.appendChild(svg('rect', { x, y: 52 + j * 20, width: 70 + Math.random() * 60, height: 6, fill: '#555' }));
+    }
+    g.appendChild(svg('rect', { x: WF_WIDTH / 2 - 100, y: h - 30, width: 200, height: 6, fill: '#555' }));
+  },
+};
+
+/* ===== プレビュー ===== */
+function generatePreview() {
+  if (currentSections.length === 0) { showError('セクションが存在しません。'); return; }
+  clearError();
+  const canvas = document.getElementById('preview-canvas');
+  canvas.innerHTML = '';
+  selectedSectionId = null;
+  document.getElementById('selected-label').textContent = '';
+  document.getElementById('rationale-panel').classList.remove('visible');
+
+  let y = 0;
+  const svgEl = svg('svg', { xmlns: SVG_NS, width: WF_WIDTH });
+  for (const sec of currentSections) {
+    const { group, height } = renderSection(sec, y);
+    svgEl.appendChild(group);
+    y += height;
+  }
+  svgEl.setAttribute('height', y);
+  svgEl.setAttribute('viewBox', `0 0 ${WF_WIDTH} ${y}`);
+  canvas.appendChild(svgEl);
+  zoomLevel = 1; applyZoom();
+  setPhase('preview');
+}
+
+function selectSection(id) {
+  selectedSectionId = id;
+  const svgEl = document.querySelector('#preview-canvas svg');
+  svgEl.querySelectorAll('.section-group').forEach(g => g.classList.remove('selected'));
+  const target = svgEl.querySelector(`.section-group[data-id="${id}"]`);
+  if (target) {
+    target.classList.add('selected');
+    const sec = currentSections.find(s => s.id === id);
+    document.getElementById('selected-label').textContent = sec ? `選択中: ${sec.label}` : '';
+    // 根拠パネル表示
+    const rationale = sec ? SECTION_RATIONALE[sec.type] : null;
+    const panel = document.getElementById('rationale-panel');
+    if (rationale && sec) {
+      document.getElementById('rp-source').textContent = rationale.source;
+      document.getElementById('rp-section').textContent = sec.label;
+      document.getElementById('rp-text').textContent = rationale.text;
+      panel.classList.add('visible');
+    } else {
+      panel.classList.remove('visible');
+    }
+  }
+}
+
+function closeRationale() {
+  document.getElementById('rationale-panel').classList.remove('visible');
+}
+
+async function refineSection() {
+  const input = document.getElementById('section-refine-input');
+  const btn = document.getElementById('section-refine-btn');
+  const text = input.value.trim();
+  if (!text) return;
+  clearError(); btn.disabled = true; btn.textContent = '修正中...';
+  try {
+    const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'refine', currentSections, targetSectionId: selectedSectionId, instruction: text, _user: USER }) });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error?.message || data.error || '修正に失敗しました。');
+    currentSections = data.sections; input.value = ''; generatePreview(); showToast('セクションを修正しました');
+  } catch (e) { showError(e.message); } finally { btn.disabled = false; btn.textContent = '修正'; }
+}
+
+function zoom(delta) { zoomLevel = Math.max(0.5, Math.min(2, zoomLevel + delta)); applyZoom(); }
+function applyZoom() {
+  const s = document.querySelector('#preview-canvas svg');
+  if (s) s.style.transform = `scale(${zoomLevel})`;
+  document.getElementById('zoom-level').textContent = Math.round(zoomLevel * 100) + '%';
+}
+
+/* ===== エクスポート ===== */
+function exportSVG() {
+  const s = document.querySelector('#preview-canvas svg');
+  if (!s) return;
+  const clone = s.cloneNode(true); clone.style.transform = '';
+  const str = new XMLSerializer().serializeToString(clone);
+  download(new Blob([str], { type: 'image/svg+xml' }), 'wireframe.svg');
+  saveHistory(); showToast('SVG をダウンロードしました');
+}
+
+function exportPNG() {
+  const s = document.querySelector('#preview-canvas svg');
+  if (!s) return;
+  const clone = s.cloneNode(true); clone.style.transform = '';
+  const str = new XMLSerializer().serializeToString(clone);
+  const blob = new Blob([str], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = parseInt(clone.getAttribute('width')) * 2;
+    c.height = parseInt(clone.getAttribute('height')) * 2;
+    const ctx = c.getContext('2d');
+    ctx.scale(2, 2); ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+    c.toBlob(b => { download(b, 'wireframe.png'); saveHistory(); showToast('PNG をダウンロードしました'); }, 'image/png');
+  };
+  img.src = url;
+}
+
+function download(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function saveHistory() {
+  const purpose = currentContext?.purpose || currentSections[0]?.label || 'ワイヤーフレーム';
+  HistoryManager.save(purpose.slice(0, 300), JSON.stringify(currentSections), { pageType: currentContext?.pageType || '', sectionCount: currentSections.length });
+}
+
+function startNew() {
+  currentPhase = 'chat'; chatHistory = []; currentContext = null; currentSections = []; selectedSectionId = null; zoomLevel = 1; importedContent = '';
+  document.getElementById('chat-messages').innerHTML = '';
+  document.getElementById('suggestions-area').innerHTML = '';
+  document.getElementById('ready-banner').classList.add('hidden');
+  document.getElementById('preview-canvas').innerHTML = '';
+  document.getElementById('section-list').innerHTML = '';
+  ['chat-input', 'refine-input', 'section-refine-input', 'url-input'].forEach(id => { document.getElementById(id).value = ''; });
+  document.querySelectorAll('.tpl-chip').forEach(c => c.classList.remove('active'));
+  clearError(); setPhase('chat');
+  document.getElementById('knowledge-banner').classList.remove('expanded');
+  addChatMessage('ai', 'ワイヤーフレームの構成を一緒に考えましょう。\n\nこのツールは才流「売れるロジック」やWACULのCVR調査データをもとに、ページ種別に応じた最適な構成を自動で組み立てます。上のテンプレートを選ぶか、作りたいページについて教えてください。');
+  showSuggestions(['BtoB向けリード獲得LP', '新サービスの紹介サイト', '既存LPを改善したい']);
+}
+
+function toggleKnowledgeDetail() {
+  const banner = document.getElementById('knowledge-banner');
+  const btn = banner.querySelector('.kb-toggle');
+  banner.classList.toggle('expanded');
+  btn.textContent = banner.classList.contains('expanded') ? '閉じる ▴' : '詳しく見る ▾';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+name: AI日報 自動生成・送信
+
+on:
+  schedule:
+    # 毎朝日本時間6:30（UTC 21:30）に実行 → GitHub Actions遅延込みで7時頃に届く
+    # プロンプトは「前日のニュースまとめ」を指示
+    - cron: "30 21 * * *"
+  workflow_dispatch: # 手動実行も可能
+
+permissions:
+  contents: write  # アーカイブのコミットに必要
+
+concurrency:
+  group: ai-daily-news
+  cancel-in-progress: true  # 重複実行時は古い方をキャンセル
+
+jobs:
+  send-daily-ai-news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python 3.12 をセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 依存パッケージをインストール
+        run: pip install -r scripts/requirements.txt
+
+      - name: AI日報を生成して送信
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          TO_EMAIL: ${{ secrets.TO_EMAIL }}
+        run: python scripts/fetch_and_send.py
+
+      - name: アーカイブをコミット
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add archives/ || true
+          git diff --cached --quiet || git commit -m "archive: $(TZ=Asia/Tokyo date +%Y-%m-%d) の日報を保存"
+          git push || true
