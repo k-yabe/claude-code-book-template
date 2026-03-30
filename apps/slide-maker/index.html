@@ -164,6 +164,22 @@
     .slide-thumb:hover { border-color: #ffb81c; }
     .slide-num { position: absolute; top: 6px; left: 6px; background: rgba(0,31,51,0.7); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; z-index: 2; }
     .slide-layout-label { position: absolute; bottom: 5px; right: 5px; font-size: 0.58rem; font-weight: 700; background: rgba(0,31,51,0.62); color: rgba(255,255,255,0.9); padding: 1px 5px; z-index: 2; pointer-events: none; }
+    .btn-factcheck { position: absolute; top: 6px; right: 6px; background: rgba(0,31,51,0.7); color: #fff; border: none; font-size: 0.6rem; font-weight: 600; padding: 3px 8px; cursor: pointer; z-index: 3; font-family: inherit; transition: background 0.2s; }
+    .btn-factcheck:hover { background: rgba(0,31,51,0.9); }
+    .btn-factcheck.checking { opacity: 0.6; cursor: wait; }
+    .btn-factcheck.verified { background: rgba(39,174,96,0.8); }
+    .btn-factcheck.warning { background: rgba(192,57,43,0.8); }
+    .fc-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.95); z-index: 4; display: flex; flex-direction: column; padding: 8px 10px; overflow-y: auto; }
+    .fc-overlay .fc-close { position: absolute; top: 4px; right: 6px; background: none; border: none; font-size: 0.8rem; cursor: pointer; color: #8a9bb0; }
+    .fc-summary { font-size: 0.68rem; color: #4a5568; margin-bottom: 6px; line-height: 1.5; }
+    .fc-claim { font-size: 0.62rem; padding: 4px 6px; margin-bottom: 3px; border-left: 3px solid #e0e4e8; }
+    .fc-claim.ok { border-left-color: #27ae60; }
+    .fc-claim.ng { border-left-color: #c0392b; }
+    .fc-claim.unknown { border-left-color: #f39c12; }
+    .fc-claim-text { color: #2d3436; line-height: 1.4; }
+    .fc-claim-note { color: #8a9bb0; font-size: 0.58rem; margin-top: 2px; }
+    .fc-claim-source { color: #001f33; font-size: 0.55rem; text-decoration: none; display: block; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fc-claim-source:hover { text-decoration: underline; }
 
     /* スライドプレビューカード */
     .slide-card { width: 100%; height: 100%; display: flex; flex-direction: column; background: #fff; font-family: 'Meiryo UI', 'Segoe UI', sans-serif; overflow: hidden; }
@@ -387,6 +403,7 @@
           <button class="btn-quick" onclick="quickAction('冗長な表現を削除し、箇条書きを3行以内に削減してください')">🗜️ シンプルにする</button>
           <button class="btn-quick" onclick="quickAction('content-with-chartスライドを1枚追加し、既存の数値データからグラフを作成してください')">📊 データスライド追加</button>
           <button class="btn-quick" onclick="quickAction('全スライドを英語に翻訳してください。タイトル・本文・ノートすべて英訳し、layout構造は変更しないでください')">🌐 英語に翻訳</button>
+          <button class="btn-quick" onclick="runBatchFactCheck()">🔍 全スライドを検証</button>
         </div>
 
         <div class="slides-grid" id="slides-grid"></div>
@@ -900,10 +917,8 @@
             }
           }
           if (researchData.suggested_charts?.length) {
-            freeText += '\n### 推奨チャートデータ\n';
-            for (const c of researchData.suggested_charts) {
-              freeText += `- ${c.title}: ${c.type}グラフ [${c.labels?.join(', ')}] = [${c.data?.join(', ')}] ${c.unit || ''} (${c.source || ''})\n`;
-            }
+            freeText += '\n### 推奨チャートデータ（以下のJSON構造をcontent-with-chartスライドのchartフィールドにそのまま使用すること）\n';
+            freeText += '```json\n' + JSON.stringify(researchData.suggested_charts, null, 2) + '\n```\n';
           }
         }
 
@@ -974,12 +989,15 @@
     // ===== アウトラインエディター =====
     const LAYOUT_NAMES = {
       cover:'カバー', agenda:'アジェンダ', chapter:'チャプター',
-      content:'コンテンツ', 'two-column':'2段組',
+      content:'コンテンツ', 'two-column':'2段組', 'centered-text':'中央テキスト',
+      'text-left-picture-right':'テキスト左+画像右', 'text-right-picture-left':'テキスト右+画像左',
+      'content-left-full-picture-right':'テキスト+大画像', 'large-image-right':'大画像右',
+      'picture-fullscreen':'全面画像',
       'content-with-chart':'グラフ付き',
       'content-with-flow':'フロー付き', sixbox:'6ボックス',
       comparison:'比較表', quote:'引用', closing:'クロージング',
     };
-    const VALID_LAYOUTS = ['cover','agenda','chapter','content','two-column','content-with-chart','content-with-flow','sixbox','comparison','quote','closing'];
+    const VALID_LAYOUTS = ['cover','agenda','chapter','content','two-column','centered-text','text-left-picture-right','text-right-picture-left','content-left-full-picture-right','large-image-right','picture-fullscreen','content-with-chart','content-with-flow','sixbox','comparison','quote','closing'];
 
     function renderOutline() {
       const list = document.getElementById('outline-list');
@@ -1080,14 +1098,35 @@
           html += field('タイトル', 'title', 'input', slide.title);
           html += field('番号', 'number', 'input', slide.number);
           break;
-        case 'content':
+        case 'content': case 'centered-text':
           html += field('タイトル', 'title', 'input', slide.title);
           html += field('本文', 'body', 'textarea', slide.body);
+          break;
+        case 'text-left-picture-right': case 'text-right-picture-left':
+        case 'content-left-full-picture-right': case 'large-image-right':
+          html += field('タイトル', 'title', 'input', slide.title);
+          html += field('本文', 'body', 'textarea', slide.body);
+          html += field('画像キーワード（英語）', 'imageQuery', 'input', slide.imageQuery);
+          break;
+        case 'picture-fullscreen':
+          html += field('タイトル', 'title', 'input', slide.title);
+          html += field('画像キーワード（英語）', 'imageQuery', 'input', slide.imageQuery);
+          break;
+        case 'quote':
+          html += field('引用文', 'body', 'textarea', slide.body);
+          html += field('引用者（出典）', 'speaker', 'input', slide.speaker);
+          break;
+        case 'sixbox':
+          html += field('タイトル', 'title', 'input', slide.title);
+          for (let bi = 0; bi < 6; bi++) {
+            const box = (slide.boxes || [])[bi] || {};
+            html += `<div style="display:flex;gap:6px;margin-bottom:4px"><div style="flex:1">${field('Box' + (bi+1) + ' 見出し', 'box_h_' + bi, 'input', box.heading)}</div><div style="flex:1">${field('Box' + (bi+1) + ' 本文', 'box_b_' + bi, 'input', box.body)}</div></div>`;
+          }
           break;
         case 'content-with-chart':
           html += field('タイトル', 'title', 'input', slide.title);
           html += field('本文', 'body', 'textarea', slide.body);
-          html += field('グラフタイプ (bar/line/pie)', 'chart.type', 'input', slide.chart?.type);
+          html += `<div class="modal-field"><div class="modal-label">グラフタイプ</div><select class="modal-input" data-key="chart.type"><option value="bar" ${slide.chart?.type==='bar'?'selected':''}>棒グラフ (bar)</option><option value="line" ${slide.chart?.type==='line'?'selected':''}>折れ線 (line)</option><option value="pie" ${slide.chart?.type==='pie'?'selected':''}>円グラフ (pie)</option></select></div>`;
           html += field('グラフタイトル', 'chart.title', 'input', slide.chart?.title);
           html += field('ラベル（カンマ区切り）', 'chart.labels', 'input', (slide.chart?.labels || []).join(', '));
           html += field('データ（カンマ区切り）', 'chart.data', 'input', (slide.chart?.data || []).join(', '));
@@ -1136,6 +1175,12 @@
           if (child === 'data' && slide[parent][child]) slide[parent][child] = slide[parent][child].map(v => isNaN(Number(v)) ? v : Number(v));
         } else if (key === 'items') {
           slide[key] = val.split('\n').filter(Boolean);
+        } else if (key.startsWith('box_h_') || key.startsWith('box_b_')) {
+          const bi = parseInt(key.split('_')[2]);
+          if (!slide.boxes) slide.boxes = Array.from({length: 6}, () => ({heading: '', body: ''}));
+          while (slide.boxes.length <= bi) slide.boxes.push({heading: '', body: ''});
+          if (key.startsWith('box_h_')) slide.boxes[bi].heading = val;
+          else slide.boxes[bi].body = val;
         } else {
           slide[key] = val;
         }
@@ -1223,7 +1268,9 @@
         const thumb = document.createElement('div');
         thumb.className = 'slide-thumb';
         const notesIcon = slide.notes ? `<div class="slide-notes-icon">📝</div>` : '';
-        thumb.innerHTML = `<div class="slide-num">${i + 1}</div>${notesIcon}<div class="slide-layout-label">${LAYOUT_NAMES[slide.layout] || slide.layout}</div>${buildSlideHtml(slide)}`;
+        const fcBtn = (slide.layout !== 'cover' && slide.layout !== 'closing' && slide.layout !== 'chapter' && slide.layout !== 'agenda')
+          ? `<button class="btn-factcheck" data-idx="${i}" onclick="event.stopPropagation();runFactCheck(${i},this)" title="ファクトチェック">✓ 検証</button>` : '';
+        thumb.innerHTML = `<div class="slide-num">${i + 1}</div>${notesIcon}${fcBtn}<div class="slide-layout-label">${LAYOUT_NAMES[slide.layout] || slide.layout}</div>${buildSlideHtml(slide)}`;
         thumb.onclick = () => openEditModal(i);
         thumb.title = 'クリックで編集';
         grid.appendChild(thumb);
@@ -1231,6 +1278,49 @@
     }
 
     function esc(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    // Chart.jsミニチャートをcanvasに描画
+    function renderMiniChart(canvasId, chart) {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(canvasId);
+        if (!el || !chart) return;
+        const typeMap = { bar: 'bar', line: 'line', pie: 'pie' };
+        new Chart(el, {
+          type: typeMap[chart.type] || 'bar',
+          data: {
+            labels: (chart.labels || []).map(l => String(l).slice(0, 8)),
+            datasets: [{ label: chart.title || '', data: (chart.data || []).map(Number),
+              backgroundColor: chart.type === 'line' ? 'rgba(0,31,51,0.1)' : ['#001f33','#ffb81c','#00bfd6','#8a9bb0','#4a5568','#e67e22'],
+              borderColor: chart.type === 'line' ? '#001f33' : undefined,
+              borderWidth: chart.type === 'line' ? 2 : 0 }],
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+            scales: chart.type === 'pie' ? {} : { x: { display: true, ticks: { font: { size: 7 } } }, y: { display: true, ticks: { font: { size: 7 } } } } },
+        });
+      });
+    }
+    let _chartIdCounter = 0;
+
+    // フロー図SVGを生成
+    function buildFlowSvg(steps) {
+      if (!steps || !steps.length) return '';
+      const n = steps.length;
+      const boxW = Math.min(60, Math.floor(240 / n));
+      const gap = 8;
+      const totalW = n * boxW + (n - 1) * gap;
+      let svg = `<svg width="100%" viewBox="0 0 ${totalW} 36" style="margin-top:4px">`;
+      steps.forEach((s, i) => {
+        const x = i * (boxW + gap);
+        svg += `<rect x="${x}" y="4" width="${boxW}" height="28" fill="#001f33" rx="0"/>`;
+        svg += `<text x="${x + boxW/2}" y="21" fill="#fff" font-size="6" text-anchor="middle" font-weight="bold">${esc(String(s).slice(0, 12))}</text>`;
+        if (i < n - 1) {
+          const ax = x + boxW + 1;
+          svg += `<polygon points="${ax},14 ${ax + gap - 2},18 ${ax},22" fill="#ffb81c"/>`;
+        }
+      });
+      svg += '</svg>';
+      return svg;
+    }
 
     function buildSlideHtml(slide) {
       const tplNum = LAYOUT_TO_TEMPLATE_SLIDE[slide.layout] || 7;
@@ -1252,26 +1342,128 @@
         case 'two-column':
           body = `<div style="display:flex;gap:8px;"><div style="flex:1"><div class="s-text">${esc(slide.leftBody || '')}</div></div><div style="flex:1;border-left:1px solid #e8ecf0;padding-left:8px"><div class="s-text">${esc(slide.rightBody || '')}</div></div></div>`;
           break;
-        case 'content': case 'content-with-chart': case 'content-with-flow':
+        case 'centered-text':
+          body = `<div class="s-text" style="text-align:center;padding:8px 4px">${esc(slide.body || '')}</div>`;
+          break;
+        case 'text-left-picture-right': case 'text-right-picture-left':
+        case 'content-left-full-picture-right': case 'large-image-right': {
+          const imgSide = `<div style="flex:1;background:#e8ecf0;display:flex;align-items:center;justify-content:center;min-height:50px"><span style="font-size:0.55em;color:#8a9bb0">${esc(slide.imageQuery || '画像')}</span></div>`;
+          const textSide = `<div style="flex:1"><div class="s-text">${esc(slide.body || '')}</div></div>`;
+          const isRight = slide.layout.includes('right') && !slide.layout.includes('left-picture');
+          body = `<div style="display:flex;gap:6px">${isRight ? imgSide + textSide : textSide + imgSide}</div>`;
+          break;
+        }
+        case 'picture-fullscreen':
+          body = `<div style="flex:1;background:#e8ecf0;display:flex;align-items:center;justify-content:center"><span style="font-size:0.55em;color:#8a9bb0">${esc(slide.imageQuery || '全面画像')}</span></div>`;
+          break;
+        case 'content':
           body = `<div class="s-text">${esc(slide.body || '')}</div>`;
-          if (slide.chart) body += `<div class="s-meta">📊 ${esc(slide.chart.title||'')} (${esc(slide.chart.type||'bar')})</div>`;
-          if (slide.flow) body += `<div class="s-meta">→ ${(slide.flow.steps||[]).join(' → ')}</div>`;
+          break;
+        case 'content-with-chart': {
+          const cId = 'mc' + (++_chartIdCounter);
+          body = `<div class="s-text" style="margin-bottom:4px">${esc((slide.body || '').slice(0, 60))}</div>`;
+          if (slide.chart && slide.chart.labels && slide.chart.data) {
+            body += `<div style="height:70px;position:relative"><canvas id="${cId}"></canvas></div>`;
+            setTimeout(() => renderMiniChart(cId, slide.chart), 50);
+          } else {
+            body += `<div class="s-meta">📊 ${esc(slide.chart?.title || 'グラフ')}</div>`;
+          }
+          break;
+        }
+        case 'content-with-flow':
+          body = `<div class="s-text" style="margin-bottom:2px">${esc((slide.body || '').slice(0, 80))}</div>`;
+          if (slide.flow && slide.flow.steps) {
+            body += buildFlowSvg(slide.flow.steps);
+          }
           break;
         case 'sixbox':
-          return `<div class="slide-card">${hdr}<div class="slide-card-body"><div class="s-text" style="margin-bottom:4px">${esc(slide.title||'')}</div></div><div class="slide-card-boxes">${(slide.boxes||[]).slice(0,6).map(b => `<div class="slide-card-box"><div class="bx-h">${esc(b.heading||'')}</div><div class="bx-b">${esc(b.body||'')}</div></div>`).join('')}</div></div>`;
-        case 'comparison':
+          return `<div class="slide-card">${hdr}<div class="slide-card-body" style="padding:4px 6px"><div class="slide-card-boxes" style="flex:1">${(slide.boxes||[]).slice(0,6).map(b => `<div class="slide-card-box"><div class="bx-h">${esc(b.heading||'')}</div><div class="bx-b">${esc(b.body||'')}</div></div>`).join('')}</div></div></div>`;
+        case 'comparison': {
           const tb = slide.table || {headers:[],rows:[]};
-          return `<div class="slide-card">${hdr}<div class="slide-card-body"></div><table class="slide-table"><tr>${(tb.headers||[]).map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${(tb.rows||[]).map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
+          return `<div class="slide-card">${hdr}<div class="slide-card-body" style="overflow:auto"><table class="slide-table"><tr>${(tb.headers||[]).map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${(tb.rows||[]).map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div></div>`;
+        }
         case 'quote':
-          body = `<div class="s-text" style="font-style:italic">"${esc(slide.body || '')}"</div><div class="s-meta">${esc(slide.speaker || '')}</div>`;
+          body = `<div style="color:#ffb81c;font-size:1.2em;font-weight:700;line-height:1">\u201C</div><div class="s-text" style="font-style:italic;padding:0 4px">${esc(slide.body || '')}</div><div class="s-meta" style="text-align:right">— ${esc(slide.speaker || '')}</div>`;
           break;
         case 'closing':
-          body = `<div class="s-text" style="text-align:center;font-weight:700">${esc(slide.message || '')}</div>`;
+          body = `<div class="s-text" style="text-align:center;font-weight:700;padding-top:12px">${esc(slide.message || '')}</div>`;
           break;
         default:
-          body = '';
+          body = `<div class="s-text">${esc(slide.body || slide.title || '')}</div>`;
       }
       return `<div class="slide-card">${hdr}<div class="slide-card-body">${body}</div></div>`;
+    }
+
+    // ===== ファクトチェック =====
+    async function runFactCheck(idx, btnEl) {
+      if (!currentSlides || !currentSlides[idx]) return;
+      if (btnEl.classList.contains('checking')) return;
+      btnEl.classList.add('checking');
+      btnEl.textContent = '⏳ 検証中…';
+
+      try {
+        const res = await fetch('/api/slide-factcheck', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slide: currentSlides[idx], _user: USER }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || `エラー (${res.status})`);
+        }
+        const result = await res.json();
+        const claims = result.claims || [];
+        const hasIssue = claims.some(c => c.verified === false);
+        const allOk = claims.length > 0 && claims.every(c => c.verified === true);
+
+        btnEl.classList.remove('checking');
+        btnEl.classList.toggle('verified', allOk);
+        btnEl.classList.toggle('warning', hasIssue);
+        btnEl.textContent = hasIssue ? '⚠ 要確認' : allOk ? '✓ 検証済' : '✓ 検証済';
+
+        // 結果オーバーレイを表示
+        const thumb = btnEl.closest('.slide-thumb');
+        const existing = thumb.querySelector('.fc-overlay');
+        if (existing) existing.remove();
+
+        let claimsHtml = '';
+        claims.forEach(c => {
+          const cls = c.verified === true ? 'ok' : c.verified === false ? 'ng' : 'unknown';
+          const icon = c.verified === true ? '✓' : c.verified === false ? '✕' : '?';
+          const src = c.source_url ? `<a class="fc-claim-source" href="${esc(c.source_url)}" target="_blank" rel="noopener">${esc(c.source_name || c.source_url)}</a>` : '';
+          const note = c.note ? `<div class="fc-claim-note">${esc(c.note)}</div>` : '';
+          claimsHtml += `<div class="fc-claim ${cls}"><div class="fc-claim-text">${icon} ${esc(c.text)}</div>${note}${src}</div>`;
+        });
+        if (!claims.length) claimsHtml = '<div class="fc-summary">検証対象の主張が見つかりませんでした。</div>';
+
+        const overlay = document.createElement('div');
+        overlay.className = 'fc-overlay';
+        overlay.innerHTML = `<button class="fc-close" onclick="event.stopPropagation();this.parentElement.remove()">✕</button>
+          <div class="fc-summary">${esc(result.summary || '')}</div>${claimsHtml}`;
+        overlay.onclick = e => e.stopPropagation();
+        thumb.appendChild(overlay);
+      } catch (err) {
+        btnEl.classList.remove('checking');
+        btnEl.textContent = '✓ 検証';
+        showToast('ファクトチェックに失敗: ' + err.message);
+      }
+    }
+
+    async function runBatchFactCheck() {
+      if (!currentSlides || currentSlides.length === 0) { showToast('スライドがありません'); return; }
+      const SKIP = ['cover', 'closing', 'chapter', 'agenda'];
+      const targets = [];
+      document.querySelectorAll('.btn-factcheck').forEach((btn, i) => {
+        if (currentSlides[i] && !SKIP.includes(currentSlides[i].layout)) {
+          targets.push({ idx: i, btn });
+        }
+      });
+      if (targets.length === 0) { showToast('検証対象のスライドがありません'); return; }
+      showToast(`${targets.length}枚のスライドを検証中…`);
+      for (const { idx, btn } of targets) {
+        await runFactCheck(idx, btn);
+      }
+      showToast('全スライドの検証が完了しました');
     }
 
     // ===== ユーティリティ =====
@@ -1412,8 +1604,11 @@
     // レイアウト → テンプレートスライド番号マッピング（全16スライドを活用）
     const LAYOUT_TO_TEMPLATE_SLIDE = {
       'cover': 1, 'agenda': 5, 'chapter': 3,
-      'content': 7,
+      'content': 7, 'centered-text': 6,
       'two-column': 10,
+      'text-left-picture-right': 2, 'text-right-picture-left': 4,
+      'content-left-full-picture-right': 11, 'large-image-right': 14,
+      'picture-fullscreen': 16,
       'content-with-chart': 8, 'content-with-flow': 8,
       'sixbox': 9,
       'comparison': 12,
