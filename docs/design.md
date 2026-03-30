@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-30（Wireframe Maker 追加）
+最終更新: 2026-03-30（Prompt Maker 追加）
 
 ---
 
@@ -57,6 +57,7 @@
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034 |
 | Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035 |
+| Prompt Maker | `apps/prompt-maker/index.html` | ✅ 完成 | S036 |
 
 ---
 
@@ -139,6 +140,24 @@ Claude API + JSZip によるブラウザ完結型PPTXジェネレーター。
 | フェーズ | chat → structure → preview → export（双方向遷移可） |
 | localStorage | ウィザード入力を自動保存・復元 |
 
+### Prompt Maker（`apps/prompt-maker/`）
+
+Claude API を使い、ユーザーの要望から構造化されたAIプロンプトを生成するツール。
+
+```
+ステップ入力（目的・背景・出力形式・テクニック）
+  → /api/generate（Vercel Serverless Function）
+  → claude-sonnet-4-6 でプロンプト生成
+  → 構成要素バッジ表示 → ワンクリックコピー
+```
+
+| 項目 | 詳細 |
+|------|------|
+| テンプレート | 6種（フリー / SNS / メール / 企画書 / 分析 / 翻訳） |
+| テクニック | 5種（役割付与 / ステップバイステップ / Few-shot / 構造化タグ / 制約明示） |
+| API | `claude-sonnet-4-6`（max_tokens: 4096） |
+| 履歴 | HistoryManager 統合（最新10件） |
+
 ### Todoアプリ（`todo.html`）
 
 React 18 + Babel（CDN）。フィルタ（全て / 未完了 / 完了）、LocalStorage 永続化。
@@ -216,3 +235,4 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-30 | Wireframe Maker 追加 | 要件からワイヤーフレームを自動生成。AI対話ヒアリング・テンプレート6種・PDF/DOCX/PPTX/URLインポート・才流/WACUL LP設計メソドロジー準拠・15種セクションタイプ・SVGレンダリング・SVG/PNGエクスポート・HistoryManager統合。Sitecore制約は含めない第一弾 |
 | 2026-03-28 | Slide Maker 完成 | AKKODiSブランド準拠PPTXジェネレーター。ウィザード入力・Claude API構成生成・テンプレートPPTX直接操作（JSZip）・図版自動生成3種（グラフ・フロー・比較表）・対話型リファイン・ブラウザプレビュー・UIオンボーディング改善 |
 | 2026-03-27 | Banner Resizer 新画像サイズ要件対応 | MV: 800×446→1920×1080、一覧プリセット削除、サムネイル余白ガイド（安全ゾーン上下24px左右100px）追加。ブランドガイドライン違反も修正 |
+| 2026-03-30 | Prompt Maker 追加 | AIプロンプト構造化生成ツール。目的別テンプレート6種・応用テクニック5種・構成要素バッジ表示・HistoryManager統合。claude-sonnet-4-6使用 |
