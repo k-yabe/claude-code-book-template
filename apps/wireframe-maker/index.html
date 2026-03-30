@@ -166,6 +166,32 @@
     .toast { position: fixed; bottom: 28px; right: 28px; background: #001f33; color: #fff; padding: 12px 24px; font-size: 0.82rem; font-weight: 600; z-index: 999; opacity: 0; transform: translateY(8px); transition: opacity 0.3s, transform 0.3s; pointer-events: none; }
     .toast.show { opacity: 1; transform: translateY(0); }
 
+    /* ===== ナレッジバナー ===== */
+    .knowledge-banner { background: #001f33; padding: 20px 20px 16px; margin-bottom: 20px; }
+    .knowledge-banner h2 { color: #fff; font-size: 0.92rem; font-weight: 700; margin-bottom: 12px; }
+    .knowledge-banner p { color: rgba(255,255,255,0.7); font-size: 0.78rem; line-height: 1.6; margin-bottom: 14px; }
+    .knowledge-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .knowledge-tag { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; font-size: 0.7rem; font-weight: 600; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.12); }
+    .knowledge-tag .ktag-dot { width: 6px; height: 6px; background: #ffb81c; border-radius: 50%; flex-shrink: 0; }
+    .knowledge-detail { margin-top: 10px; display: none; }
+    .knowledge-banner.expanded .knowledge-detail { display: block; }
+    .knowledge-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+    .kd-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 14px; }
+    .kd-card h4 { color: #ffb81c; font-size: 0.72rem; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .kd-card ul { list-style: none; padding: 0; }
+    .kd-card li { color: rgba(255,255,255,0.75); font-size: 0.72rem; line-height: 1.7; padding-left: 12px; position: relative; }
+    .kd-card li::before { content: ''; position: absolute; left: 0; top: 8px; width: 4px; height: 4px; background: #ffb81c; border-radius: 50%; }
+    .kb-toggle { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); padding: 4px 12px; font-size: 0.7rem; cursor: pointer; font-family: inherit; margin-top: 8px; }
+    .kb-toggle:hover { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.9); }
+    @media (max-width: 768px) {
+      .knowledge-detail-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ===== テンプレートメソドロジーラベル ===== */
+    .tpl-chip .tpl-method { display: block; font-size: 0.6rem; color: #8a9bb0; font-weight: 400; margin-top: 2px; }
+    .tpl-chip:hover .tpl-method { color: #001f33; }
+    .tpl-chip.active .tpl-method { color: rgba(255,255,255,0.7); }
+
     footer { background: #001f33; color: rgba(255,255,255,0.8); text-align: center; padding: 16px 40px; font-size: 0.72rem; margin-top: auto; }
     footer strong { color: #ffb81c; }
 
@@ -203,6 +229,42 @@
 
   <div id="error-area" class="error-msg" role="alert"></div>
 
+  <!-- ナレッジバナー -->
+  <div class="knowledge-banner" id="knowledge-banner">
+    <h2>LP設計の専門知識を学習済み</h2>
+    <p>才流・WACULなどの調査データに基づく構成最適化ルールを組み込んでいます。テンプレートを選ぶだけで、エビデンスに基づいたワイヤーフレームを自動生成します。</p>
+    <div class="knowledge-tags">
+      <span class="knowledge-tag"><span class="ktag-dot"></span>才流「売れるロジック」7段階</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>WACUL CVR最適化データ</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>CTA配置・文言設計</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>EFOチェックリスト</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>信頼セクション設計</span>
+    </div>
+    <button class="kb-toggle" onclick="toggleKnowledgeDetail()">詳しく見る ▾</button>
+    <div class="knowledge-detail">
+      <div class="knowledge-detail-grid">
+        <div class="kd-card">
+          <h4>才流（SAIRU）</h4>
+          <ul>
+            <li>「売れるロジック」7段階フレームワーク</li>
+            <li>導入事例12パターンの信頼性ランク</li>
+            <li>検討段階別CTA設計（情報収集→比較→導入決定）</li>
+            <li>EFOチェックリスト（フォーム最適化21項目）</li>
+          </ul>
+        </div>
+        <div class="kd-card">
+          <h4>WACUL 調査データ</h4>
+          <ul>
+            <li>FV完結型LP → CVR 1.64倍</li>
+            <li>CTA中央配置 → CVR 1.32倍</li>
+            <li>CTA補完文言 → CVR 1.45倍</li>
+            <li>フォーム項目1削減 → 通過率+2%pt</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Phase 1: チャット -->
   <div id="phase-chat" class="phase-section active">
     <div class="chat-section">
@@ -219,12 +281,12 @@
       </div>
       <div class="tpl-bar">
         <span class="tpl-label">テンプレート:</span>
-        <button class="tpl-chip" data-tpl="btob-lead-lp" title="資料DL・問い合わせ獲得向け。才流「売れるロジック」準拠">BtoB リードLP</button>
-        <button class="tpl-chip" data-tpl="btob-awareness-lp" title="認知拡大・ブランディング向け。事例・メディア掲載重視">BtoB 潜在LP</button>
-        <button class="tpl-chip" data-tpl="btob-service-top" title="サービス紹介トップページ。機能一覧・料金・導入事例">サービスサイト</button>
-        <button class="tpl-chip" data-tpl="btoc-product-lp" title="商品購入・申込み向け。ベネフィット・口コミ・限定オファー">BtoC 商品LP</button>
-        <button class="tpl-chip" data-tpl="blog-article" title="記事・コンテンツページ。本文・関連記事・CTA">ブログ</button>
-        <button class="tpl-chip" data-tpl="contact-form" title="お問い合わせ・資料請求フォームページ">お問い合わせ</button>
+        <button class="tpl-chip" data-tpl="btob-lead-lp" title="資料DL・問い合わせ獲得向け。才流「売れるロジック」準拠">BtoB リードLP<span class="tpl-method">才流7段階+WACUL</span></button>
+        <button class="tpl-chip" data-tpl="btob-awareness-lp" title="認知拡大・ブランディング向け。事例・メディア掲載重視">BtoB 潜在LP<span class="tpl-method">WACUL FV完結型</span></button>
+        <button class="tpl-chip" data-tpl="btob-service-top" title="サービス紹介トップページ。機能一覧・料金・導入事例">サービスサイト<span class="tpl-method">才流+WACUL</span></button>
+        <button class="tpl-chip" data-tpl="btoc-product-lp" title="商品購入・申込み向け。ベネフィット・口コミ・限定オファー">BtoC 商品LP<span class="tpl-method">CTA最適化</span></button>
+        <button class="tpl-chip" data-tpl="blog-article" title="記事・コンテンツページ。本文・関連記事・CTA">ブログ<span class="tpl-method">回遊設計</span></button>
+        <button class="tpl-chip" data-tpl="contact-form" title="お問い合わせ・資料請求フォームページ">お問い合わせ<span class="tpl-method">才流EFO</span></button>
       </div>
       <div id="chat-messages" class="chat-messages"></div>
       <div id="suggestions-area" class="suggestions"></div>
@@ -340,7 +402,8 @@ if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
-addChatMessage('ai', 'どんなWebページのワイヤーフレームを作りたいですか？\n\nページの目的（リード獲得、情報提供など）と、ターゲットユーザーを教えてください。\n\n資料がある場合は上部のエリアにドロップするか、参考URLを貼り付けてもOKです。');
+addChatMessage('ai', 'ワイヤーフレームの構成を一緒に考えましょう。\n\nこのツールは才流「売れるロジック」やWACULのCVR調査データをもとに、ページ種別に応じた最適な構成を自動で組み立てます。上のテンプレートを選ぶか、作りたいページについて教えてください。');
+showSuggestions(['BtoB向けリード獲得LP', '新サービスの紹介サイト', '既存LPを改善したい']);
 
 /* ===== ユーティリティ ===== */
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -372,6 +435,9 @@ function setPhase(phase) {
     else if (pIdx < idx) el.classList.add('completed');
   });
   clearError();
+
+  // ナレッジバナーはchat以外で非表示
+  document.getElementById('knowledge-banner').classList.toggle('hidden', phase !== 'chat');
 
   if (phase === 'structure') { renderSectionList(); }
   if (phase === 'export') {
@@ -1033,7 +1099,16 @@ function startNew() {
   ['chat-input', 'refine-input', 'section-refine-input', 'url-input'].forEach(id => { document.getElementById(id).value = ''; });
   document.querySelectorAll('.tpl-chip').forEach(c => c.classList.remove('active'));
   clearError(); setPhase('chat');
-  addChatMessage('ai', 'どんなWebページのワイヤーフレームを作りたいですか？\n\nページの目的（リード獲得、情報提供など）と、ターゲットユーザーを教えてください。\n\n資料がある場合は上部のエリアにドロップするか、参考URLを貼り付けてもOKです。');
+  document.getElementById('knowledge-banner').classList.remove('expanded');
+  addChatMessage('ai', 'ワイヤーフレームの構成を一緒に考えましょう。\n\nこのツールは才流「売れるロジック」やWACULのCVR調査データをもとに、ページ種別に応じた最適な構成を自動で組み立てます。上のテンプレートを選ぶか、作りたいページについて教えてください。');
+  showSuggestions(['BtoB向けリード獲得LP', '新サービスの紹介サイト', '既存LPを改善したい']);
+}
+
+function toggleKnowledgeDetail() {
+  const banner = document.getElementById('knowledge-banner');
+  const btn = banner.querySelector('.kb-toggle');
+  banner.classList.toggle('expanded');
+  btn.textContent = banner.classList.contains('expanded') ? '閉じる ▴' : '詳しく見る ▾';
 }
 </script>
 </body>
