@@ -6,9 +6,11 @@ AI日報自動生成・メール送信スクリプト
 Gmail SMTP経由でリッチHTML形式のメールを送信する。
 """
 
+import functools
 import html
 import json
 import os
+import random
 import re
 import smtplib
 import sys
@@ -73,8 +75,9 @@ def is_weekend(dt: datetime) -> bool:
     return dt.weekday() >= 5  # 5=土, 6=日
 
 
+@functools.lru_cache(maxsize=1)
 def get_volume_number() -> int:
-    """アーカイブフォルダからVol.番号（配信回数）を算出する。"""
+    """アーカイブフォルダからVol.番号（配信回数）を算出する。結果はキャッシュされる。"""
     archive_dir = os.path.join(os.path.dirname(__file__), "..", "archives", "daily")
     if not os.path.isdir(archive_dir):
         return 1
@@ -296,6 +299,16 @@ def generate_news_json(today_str: str, dt: datetime) -> dict:
         elapsed = time.time() - t0
         print(f"[INFO] API応答時間: {elapsed:.1f}秒")
 
+        # トークン使用量ログ（コスト把握用）
+        if hasattr(message, "usage") and message.usage:
+            u = message.usage
+            input_t = getattr(u, "input_tokens", 0)
+            output_t = getattr(u, "output_tokens", 0)
+            # Sonnet: input $3/1M, output $15/1M
+            est_cost = (input_t * 3 + output_t * 15) / 1_000_000
+            print(f"[INFO] トークン使用量: input={input_t}, output={output_t}, "
+                  f"推定コスト=${est_cost:.4f}")
+
         if message.stop_reason == "max_tokens":
             print("[WARN] レスポンスがmax_tokensで打ち切られました。", file=sys.stderr)
 
@@ -337,6 +350,21 @@ def generate_news_json(today_str: str, dt: datetime) -> dict:
             else:
                 print("[ERROR] JSON解析に最終的に失敗", file=sys.stderr)
                 sys.exit(1)
+
+    # データバリデーション: 必須フィールドのフォールバック
+    if not data.get("greeting"):
+        data["greeting"] = "今日もAIニュースをお届けします！"
+    if not data.get("daily_action"):
+        data["daily_action"] = "気になったニュースのリンクを1つ開いてみよう"
+    if not data.get("b2b_news"):
+        data["b2b_news"] = []
+    # b2b_newsの各アイテムに必須フィールドを保証
+    for news in data.get("b2b_news", []):
+        news.setdefault("title", "（タイトル未取得）")
+        news.setdefault("tldr", "")
+        news.setdefault("what_happened", "")
+        news.setdefault("why_it_matters", "")
+        news.setdefault("how_to_use", "")
 
     b2b_count = len(data.get("b2b_news", []))
     bigtech_count = len(data.get("bigtech_moves", []))
@@ -760,9 +788,13 @@ def build_html(data: dict, today_str: str) -> str:
         pick_url = pick_news.get("source_url", "")
         pick_link = ""
         if pick_url:
-            pick_link = f' <a href="{esc(pick_url)}" style="color:#ffffff; text-decoration:underline;" target="_blank">&#8594; 詳しく</a>'
+            pick_link = f' <a href="{esc(pick_url)}" style="color:#1a73e8; text-decoration:underline; font-weight:600;" target="_blank">&#8594; 詳しく</a>'
         todays_pick_html = f"""
-    <div style="background:linear-gradient(135deg,#f7971e,#ffd200); border-radius:14px;
+    <!--[if mso]>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+    <tr><td style="background-color:#f7971e; padding:20px 24px;">
+    <![endif]-->
+    <div style="background-color:#f7971e; background:linear-gradient(135deg,#f7971e,#ffd200); border-radius:14px;
                 padding:20px 24px; margin-bottom:24px; color:#333333;">
       <div style="font-size:11px; font-weight:800; letter-spacing:1.5px; margin-bottom:6px;
                   color:#333333; opacity:0.8;">&#127942; TODAY'S PICK</div>
@@ -770,7 +802,10 @@ def build_html(data: dict, today_str: str) -> str:
         {esc(pick.get('title', ''))}</div>
       <div style="font-size:13px; color:#333333; opacity:0.85; line-height:1.5;">
         {esc(pick.get('reason', ''))}{pick_link}</div>
-    </div>"""
+    </div>
+    <!--[if mso]>
+    </td></tr></table>
+    <![endif]-->"""
 
     # Tool of the Day
     tool_html = ""
@@ -928,7 +963,11 @@ def build_html(data: dict, today_str: str) -> str:
     {tool_html}
 
     <!-- 今日のアクション -->
-    <div style="background:linear-gradient(135deg,#ff6b6b,#ffa502); border-radius:16px;
+    <!--[if mso]>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+    <tr><td style="background-color:#ff6b6b; padding:24px 28px;">
+    <![endif]-->
+    <div style="background-color:#ff6b6b; background:linear-gradient(135deg,#ff6b6b,#ffa502); border-radius:16px;
                 padding:24px 28px; margin-bottom:28px; color:#ffffff;">
       <div style="font-size:12px; font-weight:700; letter-spacing:1px; margin-bottom:8px;
                   color:#ffffff; opacity:0.9;">
@@ -937,6 +976,9 @@ def build_html(data: dict, today_str: str) -> str:
         {daily_action}
       </div>
     </div>
+    <!--[if mso]>
+    </td></tr></table>
+    <![endif]-->
 
     <!-- フッター -->
     <div style="text-align:center; padding:20px 16px; font-size:11px; color:#999999; line-height:1.8;">
@@ -963,6 +1005,8 @@ def send_email(subject: str, html_content: str, plain_content: str):
     msg["Subject"] = subject
     msg["From"] = GMAIL_ADDRESS
     msg["To"] = ", ".join(recipients)
+    msg["Reply-To"] = GMAIL_ADDRESS
+    msg["X-Mailer"] = "AI-Daily-Report/1.0"
     # プレーンテキスト版（HTML非対応クライアント向け）
     msg.attach(MIMEText(plain_content, "plain", "utf-8"))
     # HTML版（優先表示）
@@ -1035,7 +1079,7 @@ def send_error_notification(error_msg: str, today_str: str):
     msg.attach(MIMEText(error_html, "html", "utf-8"))
 
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as server:
             server.starttls()
             server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
             server.send_message(msg)
@@ -1069,12 +1113,20 @@ def main():
         if data.get("b2b_news"):
             top_tldr = data["b2b_news"][0].get("tldr", data["b2b_news"][0].get("title", ""))
 
+        vol = get_volume_number()
         if is_wkend:
-            subject = f"☀️【AI週報】{today_str}｜今週の振り返り＆来週の注目"
+            weekend_subjects = [
+                f"☀️【AI週報 Vol.{vol}】{today_str}｜今週の振り返り＆来週の注目",
+                f"🏖️【AI週報 Vol.{vol}】{today_str}｜週末まとめ読み",
+                f"📚【AI週報 Vol.{vol}】{today_str}｜今週のAIハイライト",
+            ]
+            subject = random.choice(weekend_subjects)
         elif top_tldr:
-            subject = f"🤖【AI日報】{today_str}｜{top_tldr}"
+            weekday_prefixes = ["🤖", "⚡", "🔥", "📡", "🧠"]
+            prefix = random.choice(weekday_prefixes)
+            subject = f"{prefix}【AI日報 Vol.{vol}】{today_str}｜{top_tldr}"
         else:
-            subject = f"🤖【AI日報】{today_str}"
+            subject = f"🤖【AI日報 Vol.{vol}】{today_str}"
         if len(subject) > 80:
             subject = subject[:77] + "..."
 
@@ -1089,7 +1141,11 @@ def main():
         send_email(subject, html_content, plain_content)
 
         elapsed = time.time() - t_start
-        print(f"[INFO] 全処理完了（所要時間: {elapsed:.1f}秒）")
+        b2b_count = len(data.get("b2b_news", []))
+        total = b2b_count + len(data.get("bigtech_moves", [])) + \
+                len(data.get("claude_code_tips", [])) + \
+                len(data.get("x_buzz", [])) + len(data.get("trending", []))
+        print(f"[INFO] 全処理完了（所要時間: {elapsed:.1f}秒, 記事数: {total}件, Vol.{get_volume_number()}）")
 
     except Exception as e:
         elapsed = time.time() - t_start
