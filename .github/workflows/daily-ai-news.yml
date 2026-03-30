@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write  # アーカイブのコミットに必要
 
+concurrency:
+  group: ai-daily-news
+  cancel-in-progress: true  # 重複実行時は古い方をキャンセル
+
 jobs:
   send-daily-ai-news:
     runs-on: ubuntu-latest
