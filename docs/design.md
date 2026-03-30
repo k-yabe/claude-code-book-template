@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-31（Prompt Maker v4 NotebookLM超え・Slide Maker 16レイアウト完全対応）
+最終更新: 2026-03-31（Wireframe Maker V3 スプリットペインUI・CVRスコア・カラースキーム）
 
 ---
 
@@ -57,7 +57,7 @@
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
 | Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js` | ✅ 完成 | S035, S037, S038, S039 |
-| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037 |
+| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037, S038 |
 
 ---
 
@@ -148,6 +148,31 @@ NotebookLM風の2ペインレイアウトでプロンプトを対話生成する
 | UXフロー | 4フェーズ（ヒアリング → 構成確認 → プレビュー → 出力）|
 | 動的SYSTEM_PROMPT | `buildSystemPrompt(imageEnabled)` — Unsplash API有無でレイアウト配分を自動切替 |
 
+### Wireframe Maker V3（`apps/wireframe-maker/`）
+
+スプリットペインUIでリアルタイムプレビュー付きワイヤーフレーム生成ツール。
+
+```
+[左パネル: タブ切替]          [右パネル: ライブプレビュー]
+  チャット / 構成編集 / 出力    SVG常時表示 + ミニマップ
+  → /api/wireframe-generate.js  → リアルタイム同期
+```
+
+| 項目 | 詳細 |
+|------|------|
+| レイアウト | スプリットペイン（左380px + 右flex-1）、リサイズ可能、モバイル縦積み |
+| セクションタイプ | 19種（navigation〜sticky-cta） |
+| SVGレンダリング | カラースキーム3種（grayscale/brand/blueprint）、ドロップシャドウ、テキスト要素 |
+| CVRスコア | WACUL/Unbounceデータに基づくヒューリスティック採点（0-100点） |
+| セクション影響度 | HIGH/MID/LOWバッジ表示 |
+| Undo/Redo | 30ステップ、JSON直列化 |
+| デバイスプレビュー | PC(1200px)/Tab(768px)/SP(375px) |
+| グリッド | 12カラムオーバーレイ |
+| ミニマップ | 右下にSVG縮小版常時表示 |
+| ショートカット | Ctrl+Z/Y/S/G/P/E、1/2/3タブ切替、Delete、? |
+| テンプレート | 10種（BtoB LP、SaaS、EC商品、採用、イベント等） |
+| API | claude-sonnet-4-6（生成）/ claude-haiku-4-5-20251001（リファイン） |
+
 ### Todoアプリ（`todo.html`）
 
 React 18 + Babel（CDN）。フィルタ（全て / 未完了 / 完了）、LocalStorage 永続化。
@@ -228,3 +253,4 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-30 | Slide Maker 16レイアウト完全対応 | フロントエンド全17レイアウト対応（VALID_LAYOUTS/編集モーダル/プレビュー描画）、Chart.jsミニチャート・SVGフロー図プレビュー、ファクトチェック（個別+一括）、動的SYSTEM_PROMPT（画像有無切替）、closing/画像レイアウト空スライド修正 |
 | 2026-03-27 | Banner Resizer 新画像サイズ要件対応 | MV: 800×446→1920×1080、一覧プリセット削除、サムネイル余白ガイド（安全ゾーン上下24px左右100px）追加。ブランドガイドライン違反も修正 |
 | 2026-03-30 | Banner Resizer WebPフォールバック修正 | ブラウザがWebP非対応時にPNGにフォールバックされるが拡張子が.webpのままでCMSアップロードエラーになっていた。Blobの実際のMIMEタイプを確認し正しい拡張子で出力するよう修正 |
+| 2026-03-31 | Wireframe Maker V3 大規模アップグレード | スプリットペインUI（左パネル+右ライブプレビュー）、CVRスコアリング、カラースキーム3種、ミニマップ、強化SVGレンダリング、ショートカット拡張 |
