@@ -812,7 +812,13 @@ def build_html(data: dict, today_str: str) -> str:
   <style>
     body, table, td, div, p, h1, h2, h3, span, a {{
       font-family: Arial, sans-serif !important;
+    }}
+    /* カード内テキストのみダーク色を強制（ヘッダー・バッジの白文字は維持） */
+    .card, .card td, .card div, .card p, .card span {{
       color: #333333 !important;
+    }}
+    .card h2, .card h3 {{
+      color: #1a1a1a !important;
     }}
   </style>
   <noscript>
@@ -832,12 +838,12 @@ def build_html(data: dict, today_str: str) -> str:
     [data-ogsc] .card-text {{ color: #333333 !important; }}
     [data-ogsc] .card-sub {{ color: #555555 !important; }}
     [data-ogsc] .card-muted {{ color: #999999 !important; }}
-    [data-ogsc] h1, [data-ogsc] h2, [data-ogsc] h3 {{ color: #1a1a1a !important; }}
+    [data-ogsc] .card h2, [data-ogsc] .card h3 {{ color: #1a1a1a !important; }}
     /* Dark mode prevention */
     @media (prefers-color-scheme: dark) {{
       body, .body-bg {{ background-color: #f0f2f5 !important; }}
       .card {{ background-color: #ffffff !important; }}
-      h1, h2, h3 {{ color: #1a1a1a !important; }}
+      .card h2, .card h3 {{ color: #1a1a1a !important; }}
       .card-text {{ color: #333333 !important; }}
       .card-sub {{ color: #555555 !important; }}
     }}
@@ -852,10 +858,19 @@ def build_html(data: dict, today_str: str) -> str:
     {preheader}
   </div>
 
+  <!-- Outlook用テーブルラッパー（max-widthが効かないため） -->
+  <!--[if mso]>
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" align="center" style="width:600px;">
+  <tr><td style="padding:20px 0; background-color:#f0f2f5;">
+  <![endif]-->
   <div style="max-width:600px; margin:0 auto; padding:20px 16px; background-color:#f0f2f5;">
 
     <!-- ヘッダー -->
-    <div style="background:{header_gradient}; color:#ffffff;
+    <!--[if mso]>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+    <tr><td style="background-color:{'#f5576c' if is_wkend else '#764ba2'}; padding:32px 28px; text-align:center;">
+    <![endif]-->
+    <div style="background-color:{'#f5576c' if is_wkend else '#764ba2'}; background:{header_gradient}; color:#ffffff;
                 border-radius:16px; padding:32px 28px; margin-bottom:24px; text-align:center;">
       <div style="font-size:40px; margin-bottom:8px;">{"&#127774;" if is_wkend else "&#129302;"}</div>
       <h1 style="margin:0 0 4px; font-size:26px; font-weight:800; letter-spacing:1px; color:#ffffff;">
@@ -869,6 +884,9 @@ def build_html(data: dict, today_str: str) -> str:
       <div style="margin-top:16px; font-size:12px; color:#ffffff; opacity:0.7;">
         &#128230; {total_news} 件 &#12288;&#9200; 約{read_minutes}分で読めます &#12288;&#127760; Web検索ベース</div>
     </div>
+    <!--[if mso]>
+    </td></tr></table>
+    <![endif]-->
 
     <!-- Today's Pick -->
     {todays_pick_html}
@@ -930,6 +948,9 @@ def build_html(data: dict, today_str: str) -> str:
     </div>
 
   </div>
+  <!--[if mso]>
+  </td></tr></table>
+  <![endif]-->
 </body>
 </html>"""
 
