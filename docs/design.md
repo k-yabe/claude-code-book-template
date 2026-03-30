@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-31（Slide Maker UI全面刷新 — 2ペインエディタ・デザインシステム・プレゼンモード改善）
+最終更新: 2026-03-31（Slide Maker UI全面刷新 + Wireframe Maker V3）
 
 ---
 
@@ -56,8 +56,8 @@
 | SNS Post Generator | `apps/sns-post-generator/index.html` | ✅ 完成 | S024, S028 |
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
-| Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js` | ✅ 完成 | S035, S037, S038 |
-| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037 |
+| Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js` | ✅ 完成 | S035, S037, S038, S039 |
+| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037, S038 |
 
 ---
 
@@ -137,13 +137,43 @@ NotebookLM風の2ペインレイアウトでプロンプトを対話生成する
 
 | 項目 | 詳細 |
 |------|------|
-| レイアウト | デスクトップ: 左360px + 右flex-1、モバイル(900px以下): タブ切替 |
-| ソース永続保存 | Vercel KV（`@vercel/kv`）→ `/api/sources.js` CRUD API、KV未設定時はlocalStorageフォールバック |
+| レイアウト | デスクトップ: 左380px + 右flex-1、モバイル(900px以下): タブ切替 |
+| ソース永続保存 | Vercel KV（`@vercel/kv`）→ `/api/sources.js` CRUD+PATCH API、KV未設定時はlocalStorageフォールバック |
 | ソース帰属 | 各ソースに追加者ユーザー名・追加日時を記録、チーム全員で共有 |
+| AI自動要約 | ソース追加時に`claude-haiku-4-5`で3行要約を自動生成・KV保存・再生成対応 |
+| 動的サジェスチョン | ソース内容を分析しAIが5つのタスク案を提案（ソース変更時に自動更新） |
+| ソース横断分析 | 全ソースの共通テーマ/矛盾/キーポイント/推奨方針を`claude-sonnet-4-6`で分析 |
+| 品質スコア | 生成プロンプトを5軸（明確性/具体性/構造/再利用性/テクニック）で0-100点評価+改善ヒント |
+| メモ機能 | 各ソースにユーザーメモを追加可能（デバウンス自動保存） |
 | URL取得 | `/api/fetch-article.js` で実コンテンツ自動抽出（タイトル・本文） |
 | プロンプト生成 | 3フェーズ（ヒアリング → 生成 → 洗練）、4構成要素（指示・背景・入力・出力） |
-| API | `claude-sonnet-4-6`（チャット・プロンプト生成） |
+| API | `claude-sonnet-4-6`（チャット・プロンプト生成・横断分析）/ `claude-haiku-4-5`（要約・サジェスチョン・品質スコア） |
 | 共通モジュール | `copy-utils.js`（コピー）/ `history.js`（履歴パネル） |
+
+### Wireframe Maker V3（`apps/wireframe-maker/`）
+
+スプリットペインUIでリアルタイムプレビュー付きワイヤーフレーム生成ツール。
+
+```
+[左パネル: タブ切替]          [右パネル: ライブプレビュー]
+  チャット / 構成編集 / 出力    SVG常時表示 + ミニマップ
+  → /api/wireframe-generate.js  → リアルタイム同期
+```
+
+| 項目 | 詳細 |
+|------|------|
+| レイアウト | スプリットペイン（左380px + 右flex-1）、リサイズ可能、モバイル縦積み |
+| セクションタイプ | 19種（navigation〜sticky-cta） |
+| SVGレンダリング | カラースキーム3種（grayscale/brand/blueprint）、ドロップシャドウ、テキスト要素 |
+| CVRスコア | WACUL/Unbounceデータに基づくヒューリスティック採点（0-100点） |
+| セクション影響度 | HIGH/MID/LOWバッジ表示 |
+| Undo/Redo | 30ステップ、JSON直列化 |
+| デバイスプレビュー | PC(1200px)/Tab(768px)/SP(375px) |
+| グリッド | 12カラムオーバーレイ |
+| ミニマップ | 右下にSVG縮小版常時表示 |
+| ショートカット | Ctrl+Z/Y/S/G/P/E、1/2/3タブ切替、Delete、? |
+| テンプレート | 10種（BtoB LP、SaaS、EC商品、採用、イベント等） |
+| API | claude-sonnet-4-6（生成）/ claude-haiku-4-5-20251001（リファイン） |
 
 ### Todoアプリ（`todo.html`）
 
@@ -226,3 +256,4 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-27 | Banner Resizer 新画像サイズ要件対応 | MV: 800×446→1920×1080、一覧プリセット削除、サムネイル余白ガイド（安全ゾーン上下24px左右100px）追加。ブランドガイドライン違反も修正 |
 | 2026-03-30 | Banner Resizer WebPフォールバック修正 | ブラウザがWebP非対応時にPNGにフォールバックされるが拡張子が.webpのままでCMSアップロードエラーになっていた。Blobの実際のMIMEタイプを確認し正しい拡張子で出力するよう修正 |
 | 2026-03-31 | Slide Maker UI全面刷新 | GoogleSlides風2ペインエディタ（左サムネイル＋右キャンバス）、CSS変数デザインシステム（shadow/spacing/typography/transition）、フェーズプログレスバー、シマーローディング、レイアウト自動修正AI、プレゼンモード改善（プログレスバー+スライド番号）、キーボードナビゲーション |
+| 2026-03-31 | Wireframe Maker V3 大規模アップグレード | スプリットペインUI（左パネル+右ライブプレビュー）、CVRスコアリング、カラースキーム3種、ミニマップ、強化SVGレンダリング、ショートカット拡張 |
