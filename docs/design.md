@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-30（Wireframe Maker 改善: 履歴復元・インライン編集・複製・SVGコピー）
+最終更新: 2026-03-31（Prompt Maker v3 永続ソース保存・Wireframe Maker 改善）
 
 ---
 
@@ -56,6 +56,7 @@
 | SNS Post Generator | `apps/sns-post-generator/index.html` | ✅ 完成 | S024, S028 |
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034 |
+| Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js` | ✅ 完成 | S035, S037, S038 |
 | Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037 |
 
 ---
@@ -115,6 +116,27 @@ State: { columns: [...], tasks: [...], nextColumnId, nextTaskId }
 | PPTX生成 | python-pptx 1.0.2（`api/slide-export.py`）— ネイティブチャート・テーブル・AutoShape・画像挿入 |
 | API | `claude-sonnet-4-6`（チャット・生成）/ `claude-haiku-4-5-20251001`（リファイン） |
 | ファイルインポート | PDF（pdf.js）/ Word（mammoth.js）/ PPTX（JSZip）— クライアント側テキスト抽出 |
+
+### Prompt Maker（`apps/prompt-maker/`）
+
+NotebookLM風の2ペインレイアウトでプロンプトを対話生成するツール。ソースはVercel KVでサーバーサイド永続保存。
+
+```
+[左ペイン: ソース管理]    [右ペイン: チャット]
+  テキスト/URL追加  →  buildSourceContext() で SYSTEM_PROMPT に注入
+  /api/sources.js (KV)    → /api/generate.js (claude-sonnet-4-6)
+  /api/fetch-article.js    → ヒアリング → プロンプト生成（---PROMPT_START/END--- パース）
+```
+
+| 項目 | 詳細 |
+|------|------|
+| レイアウト | デスクトップ: 左360px + 右flex-1、モバイル(900px以下): タブ切替 |
+| ソース永続保存 | Vercel KV（`@vercel/kv`）→ `/api/sources.js` CRUD API、KV未設定時はlocalStorageフォールバック |
+| ソース帰属 | 各ソースに追加者ユーザー名・追加日時を記録、チーム全員で共有 |
+| URL取得 | `/api/fetch-article.js` で実コンテンツ自動抽出（タイトル・本文） |
+| プロンプト生成 | 3フェーズ（ヒアリング → 生成 → 洗練）、4構成要素（指示・背景・入力・出力） |
+| API | `claude-sonnet-4-6`（チャット・プロンプト生成） |
+| 共通モジュール | `copy-utils.js`（コピー）/ `history.js`（履歴パネル） |
 | UXフロー | 4フェーズ（ヒアリング → 構成確認 → プレビュー → 出力）|
 
 **V2 設計見直し（S035 進行中）:**
