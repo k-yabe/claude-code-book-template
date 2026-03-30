@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-30（Prompt Maker NotebookLM風リニューアル・Slide Maker V2 設計見直し・Wireframe Maker 追加）
+最終更新: 2026-03-31（Prompt Maker v3 永続ソース保存・Wireframe Maker 改善）
 
 ---
 
@@ -57,6 +57,7 @@
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034 |
 | Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js` | ✅ 完成 | S035, S037, S038 |
+| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037 |
 
 ---
 
