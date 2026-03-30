@@ -114,8 +114,14 @@
     .section-card .comp-tag { font-size: 0.65rem; padding: 2px 6px; background: #f0f2f5; color: #8a9bb0; }
     .section-card .sec-method { display: inline-block; margin-top: 4px; font-size: 0.62rem; font-weight: 600; color: #8a9bb0; }
     .section-card .sec-method .sm-dot { display: none; }
-    .section-card .sec-delete { background: none; border: none; color: #ccc; font-size: 1.1rem; cursor: pointer; padding: 4px 8px; transition: color 0.15s; }
-    .section-card .sec-delete:hover { color: #c0392b; }
+    .section-card .sec-actions { display: flex; gap: 2px; flex-shrink: 0; }
+    .section-card .sec-action-btn { background: none; border: none; color: #ccc; font-size: 1.1rem; cursor: pointer; padding: 4px 8px; transition: color 0.15s; }
+    .section-card .sec-action-btn:hover { color: #001f33; }
+    .section-card .sec-action-btn.sec-delete:hover { color: #c0392b; }
+    .section-card .sec-label[contenteditable="true"],
+    .section-card .sec-desc[contenteditable="true"] { outline: none; background: #fffbf0; border-bottom: 2px solid #ffb81c; cursor: text; }
+    .section-card .sec-label { cursor: text; }
+    .section-card .sec-desc { cursor: text; }
 
     .add-section-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
     .add-section-bar select { border: 1.5px solid #e8ecf0; padding: 8px 12px; font-size: 0.82rem; font-family: inherit; outline: none; background: #fff; }
@@ -140,6 +146,8 @@
     .preview-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .preview-toolbar button { background: #fff; border: 1.5px solid #e8ecf0; padding: 6px 14px; font-size: 0.88rem; cursor: pointer; font-family: inherit; color: #4a5568; }
     .preview-toolbar button:hover { border-color: #b0bec5; }
+    .preview-toolbar .device-btn { font-size: 0.75rem; padding: 5px 10px; }
+    .preview-toolbar .device-btn.active { background: #001f33; color: #fff; border-color: #001f33; }
     .preview-toolbar .zoom-level { font-size: 0.78rem; color: #8a9bb0; font-weight: 600; min-width: 44px; text-align: center; }
     .preview-canvas { background: #e8ecf0; border: 1px solid #d0d5dc; overflow: auto; max-height: 75vh; padding: 24px; margin-bottom: 16px; }
     .preview-canvas svg { display: block; margin: 0 auto; transform-origin: top center; transition: transform 0.2s; box-shadow: 0 2px 16px rgba(0,0,0,0.12); }
@@ -165,6 +173,7 @@
     .export-btns button { padding: 12px 28px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
     .export-btns .btn-svg { background: #001f33; color: #fff; border: none; }
     .export-btns .btn-png { background: #ffb81c; color: #001f33; border: none; }
+    .export-btns .btn-copy { background: #fff; color: #001f33; border: 2px solid #001f33; }
     .export-btns button:hover { opacity: 0.85; }
 
     .error-msg { background: #fff5f4; border: 1.5px solid #fab1a0; border-left: 3px solid #c0392b; color: #c0392b; padding: 10px 14px; font-size: 0.82rem; margin-bottom: 12px; min-height: 0; }
@@ -243,8 +252,11 @@
     <div class="knowledge-tags">
       <span class="knowledge-tag"><span class="ktag-dot"></span>才流「売れるロジック」</span>
       <span class="knowledge-tag"><span class="ktag-dot"></span>WACUL CVRデータ</span>
-      <span class="knowledge-tag"><span class="ktag-dot"></span>CTA最適化</span>
-      <span class="knowledge-tag"><span class="ktag-dot"></span>EFO</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>Nielsen Norman UX</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>Baymard Institute</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>HubSpot統計</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>Unbounce CVR</span>
+      <span class="knowledge-tag"><span class="ktag-dot"></span>コピーライティング</span>
     </div>
     <button class="kb-toggle" onclick="toggleKnowledgeDetail()">詳細 ▾</button>
     <div class="knowledge-detail">
@@ -265,6 +277,24 @@
             <li>CTA中央配置 → CVR 1.32倍</li>
             <li>CTA補完文言 → CVR 1.45倍</li>
             <li>フォーム項目1削減 → 通過率+2%pt</li>
+          </ul>
+        </div>
+        <div class="kd-card">
+          <h4>Nielsen Norman Group</h4>
+          <ul>
+            <li>F字パターン走査モデル</li>
+            <li>ミラーの法則（7±2項目）</li>
+            <li>ヒックの法則（選択肢を絞る）</li>
+            <li>フィッツの法則（CTA 44px以上）</li>
+          </ul>
+        </div>
+        <div class="kd-card">
+          <h4>Baymard / HubSpot / Unbounce</h4>
+          <ul>
+            <li>セキュリティバッジ → CVR +11-42%</li>
+            <li>動画付きLP → CVR +86%</li>
+            <li>ナビ非表示LP → CVR +16%</li>
+            <li>業界別CVRベンチマーク</li>
           </ul>
         </div>
       </div>
@@ -293,6 +323,10 @@
         <button class="tpl-chip" data-tpl="btoc-product-lp" title="CTA最適化準拠。商品購入・申込み向け">BtoC 商品LP</button>
         <button class="tpl-chip" data-tpl="blog-article" title="記事・コンテンツページ。回遊設計準拠">ブログ</button>
         <button class="tpl-chip" data-tpl="contact-form" title="才流EFOチェックリスト準拠。お問い合わせ・資料請求フォーム">お問い合わせ</button>
+        <button class="tpl-chip" data-tpl="saas-product" title="SaaS LP。無料トライアル+機能比較+プラン">SaaS LP</button>
+        <button class="tpl-chip" data-tpl="ec-product" title="EC商品ページ。画像+レビュー+カート">EC商品</button>
+        <button class="tpl-chip" data-tpl="recruitment" title="採用LP。ミッション+社員の声+選考フロー">採用LP</button>
+        <button class="tpl-chip" data-tpl="event-seminar" title="イベント/セミナーLP。日時+登壇者+申込">イベント</button>
       </div>
       <div id="chat-messages" class="chat-messages"></div>
       <div id="suggestions-area" class="suggestions"></div>
@@ -332,6 +366,10 @@
         <option value="stats">数値・実績</option>
         <option value="timeline">導入ステップ</option>
         <option value="cards">カードグリッド</option>
+        <option value="video">動画セクション</option>
+        <option value="logo-bar">ロゴバー</option>
+        <option value="comparison">比較表</option>
+        <option value="sticky-cta">スティッキーCTA</option>
       </select>
       <button class="btn-add" onclick="addSection()">+ 追加</button>
     </div>
@@ -353,6 +391,10 @@
       <button onclick="zoom(-0.1)">−</button>
       <span id="zoom-level" class="zoom-level">100%</span>
       <button onclick="zoom(0.1)">＋</button>
+      <span style="width:1px;height:20px;background:#e8ecf0;margin:0 4px"></span>
+      <button class="device-btn active" onclick="setDevicePreview('desktop')" title="デスクトップ">PC</button>
+      <button class="device-btn" onclick="setDevicePreview('tablet')" title="タブレット">Tab</button>
+      <button class="device-btn" onclick="setDevicePreview('mobile')" title="モバイル">SP</button>
       <span style="flex:1"></span>
       <span style="font-size:0.72rem;color:#b0bec5">セクションをクリックして選択</span>
     </div>
@@ -384,6 +426,7 @@
       <div class="export-btns">
         <button class="btn-svg" onclick="exportSVG()">SVG ダウンロード</button>
         <button class="btn-png" onclick="exportPNG()">PNG ダウンロード</button>
+        <button class="btn-copy" id="btn-copy-svg" onclick="copySVG()">SVG をコピー</button>
       </div>
     </div>
     <button class="btn-secondary" onclick="startNew()" style="width:100%">新規ワイヤーフレームを作成</button>
@@ -426,11 +469,35 @@ const SECTION_RATIONALE = {
   stats: { source: '才流', badge: '才流: 信頼', text: '才流「売れるロジック」第5段階。導入社数・満足度・継続率・成果指標を3〜4つの数値で可視化。購買担当者が決裁者を説得する材料になります。' },
   timeline: { source: '才流', badge: '才流: 安心', text: '才流「売れるロジック」第6段階。検討→申込→導入→運用のプロセスを可視化し、導入後のイメージを明確にして不安を解消します。' },
   cards: { source: '才流', badge: '才流: 商品紹介', text: '事例一覧・サービス一覧・プラン比較をカードグリッドで表示。情報を整理して比較しやすくすることで意思決定を支援します。' },
-  footer: { source: '才流EFO', badge: 'WACUL: 離脱防止', text: 'LPではフッターのリンクを最小限に。フォームページではヘッダー・フッターのリンクを削除して離脱を防止します（才流EFOチェックリスト準拠）。' }
+  footer: { source: '才流EFO', badge: 'WACUL: 離脱防止', text: 'LPではフッターのリンクを最小限に。フォームページではヘッダー・フッターのリンクを削除して離脱を防止します（才流EFOチェックリスト準拠）。' },
+  video: { source: 'HubSpot', badge: 'HubSpot: 動画CTA', text: '動画付きLPはCVR+86%（HubSpot調査）。プロダクトデモや説明動画をヒーロー直下に配置し、視覚的に価値を伝えます。' },
+  'logo-bar': { source: 'HubSpot+才流', badge: '才流: 信頼', text: '導入企業・メディア掲載・パートナーロゴを横並び表示。ソーシャルプルーフでCVR+15-34%（HubSpot）。才流の信頼セクション設計にも準拠。' },
+  comparison: { source: 'Unbounce', badge: 'Unbounce: 比較表', text: '競合比較・機能比較をチェックマーク形式で視覚化。高CVR LPの共通特徴の一つ（Unbounce調査）。自社優位性を明確にします。' },
+  'sticky-cta': { source: 'WACUL+NNg', badge: 'WACUL: モバイルCTA', text: 'モバイル画面下部に固定CTAを表示。スクロールしても常時アクセス可能にし、コンバージョン機会を逃しません。フィッツの法則（NNg）に基づく設計。' }
 };
 
 /* ===== 初期化 ===== */
 HistoryManager.init('Wireframe Maker');
+
+// 履歴パネルに「復元」ボタンを追加するためrenderBodyを拡張
+const _origRenderBody = HistoryManager._renderBody.bind(HistoryManager);
+HistoryManager._renderBody = function() {
+  _origRenderBody();
+  const body = document.getElementById('hm-body');
+  if (!body) return;
+  body.querySelectorAll('.hm-entry').forEach(entryEl => {
+    const copyBtn = entryEl.querySelector('.hm-copy-btn');
+    if (!copyBtn) return;
+    const id = Number(copyBtn.dataset.id);
+    const restoreBtn = document.createElement('button');
+    restoreBtn.className = 'hm-copy-btn';
+    restoreBtn.style.marginLeft = '6px';
+    restoreBtn.textContent = '🔄 復元';
+    restoreBtn.onclick = () => restoreFromHistory(id);
+    copyBtn.parentNode.insertBefore(restoreBtn, copyBtn.nextSibling);
+  });
+};
+
 if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
@@ -792,12 +859,25 @@ function renderSectionList() {
       <div class="drag-handle">⠿</div>
       <div class="sec-info">
         <div class="sec-type">${escHtml(sec.type)}</div>
-        <div class="sec-label">${escHtml(sec.label)}</div>
-        <div class="sec-desc">${escHtml(sec.description || '')}</div>
+        <div class="sec-label" contenteditable="false" data-field="label" data-index="${i}">${escHtml(sec.label)}</div>
+        <div class="sec-desc" contenteditable="false" data-field="description" data-index="${i}">${escHtml(sec.description || '')}</div>
         <div class="sec-components">${(sec.components || []).map(c => '<span class="comp-tag">' + escHtml(c) + '</span>').join('')}</div>
         ${methodBadge}
       </div>
-      <button class="sec-delete" onclick="deleteSection(${i})" title="削除">✕</button>`;
+      <div class="sec-actions">
+        <button class="sec-action-btn" onclick="duplicateSection(${i})" title="複製">⧉</button>
+        <button class="sec-action-btn sec-delete" onclick="deleteSection(${i})" title="削除">✕</button>
+      </div>`;
+    // インライン編集
+    card.querySelectorAll('.sec-label, .sec-desc').forEach(el => {
+      el.addEventListener('click', e => { e.stopPropagation(); el.contentEditable = 'true'; el.focus(); });
+      el.addEventListener('blur', () => {
+        el.contentEditable = 'false';
+        const idx = parseInt(el.dataset.index);
+        currentSections[idx][el.dataset.field] = el.textContent.trim();
+      });
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+    });
     card.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); card.classList.add('dragging'); });
     card.addEventListener('dragend', () => card.classList.remove('dragging'));
     card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
@@ -812,6 +892,15 @@ function renderSectionList() {
 }
 
 function deleteSection(index) { currentSections.splice(index, 1); renderSectionList(); }
+
+function duplicateSection(index) {
+  const orig = currentSections[index];
+  const clone = JSON.parse(JSON.stringify(orig));
+  clone.id = 'sec-' + Date.now();
+  currentSections.splice(index + 1, 0, clone);
+  renderSectionList();
+  showToast('セクションを複製しました');
+}
 
 function addSection() {
   const type = document.getElementById('add-type').value;
@@ -829,6 +918,10 @@ function addSection() {
     stats: { label: '数値・実績', description: '数値カード3-4列', height: 'auto', components: ['stat-number', 'stat-number', 'stat-number'] },
     timeline: { label: '導入ステップ', description: 'ステップ表示', height: 'auto', components: ['step-item', 'step-item', 'step-item'] },
     cards: { label: 'カードグリッド', description: 'カード一覧', height: 'auto', components: ['card-item', 'card-item', 'card-item'] },
+    video: { label: '動画セクション', description: 'プロダクトデモ動画', height: 'auto', components: ['video-placeholder', 'heading', 'subtext'] },
+    'logo-bar': { label: 'ロゴバー', description: '導入企業・パートナーロゴ', height: 'auto', components: ['company-logo', 'company-logo', 'company-logo', 'company-logo', 'company-logo', 'company-logo'] },
+    comparison: { label: '比較表', description: '競合比較チェックマーク形式', height: 'auto', components: ['comparison-row', 'comparison-row', 'comparison-row'] },
+    'sticky-cta': { label: 'スティッキーCTA', description: '画面下部固定CTA', height: 'auto', components: ['heading', 'cta-button', 'sticky-bar'] },
   };
   const d = defaults[type] || defaults['content-text'];
   currentSections.push({ id: 'sec-' + Date.now(), type, ...d });
@@ -853,7 +946,7 @@ async function refineStructure() {
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const WF_WIDTH = 1200;
 const SEC_PAD = 30;
-const SECTION_HEIGHTS = { navigation: 60, hero: 520, features: 380, 'content-text': 320, 'two-column': 340, testimonials: 300, pricing: 400, 'cta-banner': 200, form: 420, faq: 360, gallery: 320, stats: 220, timeline: 340, cards: 360, footer: 160 };
+const SECTION_HEIGHTS = { navigation: 60, hero: 520, features: 380, 'content-text': 320, 'two-column': 340, testimonials: 300, pricing: 400, 'cta-banner': 200, form: 420, faq: 360, gallery: 320, stats: 220, timeline: 340, cards: 360, footer: 160, video: 400, 'logo-bar': 100, comparison: 380, 'sticky-cta': 60 };
 
 function svg(tag, attrs) { const el = document.createElementNS(SVG_NS, tag); for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v); return el; }
 
@@ -1034,6 +1127,52 @@ const RENDERERS = {
     }
     g.appendChild(svg('rect', { x: WF_WIDTH / 2 - 100, y: h - 30, width: 200, height: 6, fill: '#555' }));
   },
+  video(g, h) {
+    // 動画プレースホルダー
+    const vw = 800, vh = 300, vx = (WF_WIDTH - vw) / 2, vy = 50;
+    g.appendChild(svg('rect', { x: vx, y: vy, width: vw, height: vh, fill: '#1a1a2e', stroke: '#333', 'stroke-width': 1 }));
+    // 再生ボタン（三角形）
+    const play = svg('polygon', { points: `${vx+vw/2-20},${vy+vh/2-25} ${vx+vw/2-20},${vy+vh/2+25} ${vx+vw/2+25},${vy+vh/2}`, fill: '#fff', opacity: '0.8' });
+    g.appendChild(play);
+    g.appendChild(svg('rect', { x: vx + vw/2 - 60, y: vy + vh + 10, width: 120, height: 8, fill: '#888' }));
+  },
+  'logo-bar'(g, h) {
+    const count = 6, lw = 120, gap = (WF_WIDTH - count * lw) / (count + 1);
+    const label = svg('text', { x: WF_WIDTH / 2, y: 24, fill: '#999', 'font-size': '10', 'text-anchor': 'middle', 'font-family': 'sans-serif' });
+    label.textContent = 'TRUSTED BY'; g.appendChild(label);
+    for (let i = 0; i < count; i++) {
+      g.appendChild(svg('rect', { x: gap + i * (lw + gap), y: 40, width: lw, height: 36, fill: '#eee' }));
+    }
+  },
+  comparison(g, h) {
+    const tw = 900, tx = (WF_WIDTH - tw) / 2;
+    // ヘッダー行
+    g.appendChild(svg('rect', { x: tx, y: 50, width: tw, height: 36, fill: '#f0f0f0' }));
+    const cols = ['機能', '自社', '競合A', '競合B'];
+    const cw = tw / 4;
+    cols.forEach((c, i) => {
+      const t = svg('text', { x: tx + i * cw + cw / 2, y: 73, fill: '#444', 'font-size': '11', 'text-anchor': 'middle', 'font-family': 'sans-serif', 'font-weight': '600' });
+      t.textContent = c; g.appendChild(t);
+    });
+    // データ行
+    for (let r = 0; r < 6; r++) {
+      const ry = 86 + r * 44;
+      g.appendChild(svg('rect', { x: tx, y: ry, width: tw, height: 44, fill: r % 2 === 0 ? '#fafafa' : '#fff', stroke: '#eee', 'stroke-width': 1 }));
+      g.appendChild(svg('rect', { x: tx + 20, y: ry + 17, width: 100 + Math.random() * 80, height: 8, fill: '#888' }));
+      // チェックマーク
+      for (let ci = 1; ci < 4; ci++) {
+        const cx = tx + ci * cw + cw / 2;
+        const isChecked = ci === 1 || Math.random() > 0.4;
+        const mark = svg('text', { x: cx, y: ry + 28, fill: isChecked ? '#22c55e' : '#ddd', 'font-size': '16', 'text-anchor': 'middle', 'font-family': 'sans-serif' });
+        mark.textContent = isChecked ? '✓' : '—'; g.appendChild(mark);
+      }
+    }
+  },
+  'sticky-cta'(g, h) {
+    g.appendChild(svg('rect', { x: 0, y: 0, width: WF_WIDTH, height: h, fill: '#fff', stroke: '#e0e0e0', 'stroke-width': 1 }));
+    g.appendChild(svg('rect', { x: 40, y: 14, width: 200, height: 8, fill: '#666' }));
+    drawBtn(g, WF_WIDTH - 280, 10, 200, 40, '今すぐ申し込む', true);
+  },
 };
 
 /* ===== プレビュー ===== */
@@ -1101,10 +1240,29 @@ async function refineSection() {
   } catch (e) { showError(e.message); } finally { btn.disabled = false; btn.textContent = '修正'; }
 }
 
+let currentDevice = 'desktop';
+const DEVICE_WIDTHS = { desktop: WF_WIDTH, tablet: 768, mobile: 375 };
+
+function setDevicePreview(device) {
+  currentDevice = device;
+  document.querySelectorAll('.device-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === { desktop: 'PC', tablet: 'Tab', mobile: 'SP' }[device]));
+  const s = document.querySelector('#preview-canvas svg');
+  if (!s) return;
+  const dw = DEVICE_WIDTHS[device];
+  const scale = dw / WF_WIDTH;
+  s.style.width = dw + 'px';
+  s.style.transform = `scale(${zoomLevel})`;
+  s.style.transformOrigin = 'top center';
+}
+
 function zoom(delta) { zoomLevel = Math.max(0.5, Math.min(2, zoomLevel + delta)); applyZoom(); }
 function applyZoom() {
   const s = document.querySelector('#preview-canvas svg');
-  if (s) s.style.transform = `scale(${zoomLevel})`;
+  if (s) {
+    const dw = DEVICE_WIDTHS[currentDevice];
+    s.style.width = dw + 'px';
+    s.style.transform = `scale(${zoomLevel})`;
+  }
   document.getElementById('zoom-level').textContent = Math.round(zoomLevel * 100) + '%';
 }
 
@@ -1136,6 +1294,34 @@ function exportPNG() {
     c.toBlob(b => { download(b, 'wireframe.png'); saveHistory(); showToast('PNG をダウンロードしました'); }, 'image/png');
   };
   img.src = url;
+}
+
+function copySVG() {
+  const s = document.querySelector('#preview-canvas svg');
+  if (!s) return;
+  const clone = s.cloneNode(true); clone.style.transform = '';
+  const str = new XMLSerializer().serializeToString(clone);
+  navigator.clipboard.writeText(str).then(() => {
+    const btn = document.getElementById('btn-copy-svg');
+    btn.textContent = 'コピー済み';
+    setTimeout(() => { btn.textContent = 'SVG をコピー'; }, 2000);
+    showToast('SVG をクリップボードにコピーしました');
+  });
+}
+
+function restoreFromHistory(id) {
+  const entry = HistoryManager.getAll().find(e => e.id === id);
+  if (!entry) return;
+  try {
+    const sections = JSON.parse(entry.output);
+    if (!Array.isArray(sections)) return;
+    currentSections = sections;
+    currentContext = null;
+    HistoryManager.closePanel();
+    renderSectionList();
+    setPhase('structure');
+    showToast('履歴からワイヤーフレームを復元しました');
+  } catch { showError('履歴データの読み込みに失敗しました。'); }
 }
 
 function download(blob, filename) {
