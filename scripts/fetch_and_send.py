@@ -484,7 +484,7 @@ def build_html(data: dict, today_str: str) -> str:
             &#9889; 一言で: {tldr}</div>"""
 
         b2b_cards += f"""
-        <div style="background-color:#ffffff; border-radius:12px; padding:24px; margin-bottom:16px;
+        <div class="card" style="background-color:#ffffff; border-radius:12px; padding:24px; margin-bottom:16px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid #1a73e8;">
           <div style="font-size:11px; color:#1a73e8; font-weight:700; letter-spacing:1px;
                       margin-bottom:8px;">NEWS {num:02d}</div>
@@ -536,7 +536,7 @@ def build_html(data: dict, today_str: str) -> str:
             &#9889; {bt_tldr}</div>"""
 
         bigtech_cards += f"""
-        <div style="background-color:#ffffff; border-radius:12px; padding:20px; margin-bottom:12px;
+        <div class="card" style="background-color:#ffffff; border-radius:12px; padding:20px; margin-bottom:12px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid {color};">
           <div style="margin-bottom:10px;">
             <span style="background:{color}; color:#ffffff; font-size:11px; font-weight:700;
@@ -565,7 +565,7 @@ def build_html(data: dict, today_str: str) -> str:
           </div>"""
 
         cc_tips_items += f"""
-        <div style="background-color:#ffffff; border-radius:12px; padding:20px; margin-bottom:12px;
+        <div class="card" style="background-color:#ffffff; border-radius:12px; padding:20px; margin-bottom:12px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid #d97706;">
           <div style="margin-bottom:10px;">
             <span style="background:#d97706; color:#ffffff; font-size:10px; font-weight:700;
@@ -598,7 +598,7 @@ def build_html(data: dict, today_str: str) -> str:
           </div>"""
 
         x_buzz_items += f"""
-        <div style="background-color:#ffffff; border-radius:12px; padding:20px; margin-bottom:12px;
+        <div class="card" style="background-color:#ffffff; border-radius:12px; padding:20px; margin-bottom:12px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid #1d9bf0;">
           <div style="font-size:16px; font-weight:700; color:#1a1a1a; margin-bottom:8px;">
             {esc(topic['title'])}{engagement_html}
@@ -621,9 +621,9 @@ def build_html(data: dict, today_str: str) -> str:
           </div>"""
 
         trending_items += f"""
-        <div style="background-color:#ffffff; border-radius:12px; padding:20px; margin-bottom:12px;
+        <div class="card" style="background-color:#ffffff; border-radius:12px; padding:20px; margin-bottom:12px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-          <div style="font-size:16px; font-weight:700; color:#1a1a1a; margin-bottom:8px;">
+          <div class="card-text" style="font-size:16px; font-weight:700; color:#1a1a1a; margin-bottom:8px;">
             {icon} {esc(topic['title'])}
           </div>
           <div style="font-size:14px; color:#555555; line-height:1.7;">{esc(topic['summary'])}</div>{source_link}
@@ -640,7 +640,7 @@ def build_html(data: dict, today_str: str) -> str:
         if key_number.get("source"):
             source_text = f'<div style="font-size:11px; color:#aaaaaa; margin-top:6px;">出典: {esc(key_number["source"])}</div>'
         key_number_html = f"""
-    <div style="background-color:#ffffff; border-radius:16px; padding:24px; margin-bottom:24px;
+    <div class="card" style="background-color:#ffffff; border-radius:16px; padding:24px; margin-bottom:24px;
                 box-shadow:0 2px 8px rgba(0,0,0,0.06); text-align:center;">
       <div style="font-size:11px; color:#764ba2; font-weight:700; letter-spacing:1px;
                   margin-bottom:8px;">&#128202; KEY NUMBER</div>
@@ -784,7 +784,7 @@ def build_html(data: dict, today_str: str) -> str:
              text-decoration:none; margin-top:12px;" target="_blank">&#128279; 試してみる</a>"""
 
         tool_html = f"""
-    <div style="background:#ffffff; border-radius:14px; padding:20px 24px; margin-bottom:24px;
+    <div class="card" style="background-color:#ffffff; border-radius:14px; padding:20px 24px; margin-bottom:24px;
                 box-shadow:0 2px 8px rgba(0,0,0,0.06); border:2px dashed #10b981;">
       <div style="font-size:11px; font-weight:800; letter-spacing:1.5px; margin-bottom:8px;
                   color:#10b981;">&#128736;&#65039; TOOL OF THE DAY</div>
@@ -806,13 +806,44 @@ def build_html(data: dict, today_str: str) -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="light">
-  <meta name="supported-color-schemes" content="light">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light only">
   <!--[if mso]>
-  <style>body, table, td {{font-family: Arial, sans-serif !important; color: #333333 !important;}}</style>
+  <style>
+    body, table, td, div, p, h1, h2, h3, span, a {{
+      font-family: Arial, sans-serif !important;
+      color: #333333 !important;
+    }}
+  </style>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
   <![endif]-->
+  <style>
+    :root {{ color-scheme: light only; }}
+    /* Outlook.com / Outlook 365 ダークモード対策 */
+    [data-ogsc] body {{ background-color: #f0f2f5 !important; color: #333333 !important; }}
+    [data-ogsc] .card {{ background-color: #ffffff !important; color: #333333 !important; }}
+    [data-ogsc] .card-text {{ color: #333333 !important; }}
+    [data-ogsc] .card-sub {{ color: #555555 !important; }}
+    [data-ogsc] .card-muted {{ color: #999999 !important; }}
+    [data-ogsc] h1, [data-ogsc] h2, [data-ogsc] h3 {{ color: #1a1a1a !important; }}
+    /* Dark mode prevention */
+    @media (prefers-color-scheme: dark) {{
+      body, .body-bg {{ background-color: #f0f2f5 !important; }}
+      .card {{ background-color: #ffffff !important; }}
+      h1, h2, h3 {{ color: #1a1a1a !important; }}
+      .card-text {{ color: #333333 !important; }}
+      .card-sub {{ color: #555555 !important; }}
+    }}
+  </style>
 </head>
-<body style="margin:0; padding:0; background-color:#f0f2f5;
+<body class="body-bg" style="margin:0; padding:0; background-color:#f0f2f5;
              font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Kaku Gothic ProN',
              'Noto Sans JP',Arial,sans-serif; color:#333333; -webkit-text-size-adjust:100%;">
 
@@ -843,7 +874,7 @@ def build_html(data: dict, today_str: str) -> str:
     {todays_pick_html}
 
     <!-- 目次 -->
-    <div style="background-color:#ffffff; border-radius:12px; padding:16px 20px; margin-bottom:24px;
+    <div class="card" style="background-color:#ffffff; border-radius:12px; padding:16px 20px; margin-bottom:24px;
                 box-shadow:0 2px 8px rgba(0,0,0,0.06); text-align:center;">
       <div style="font-size:11px; color:#999999; font-weight:700; letter-spacing:1px; margin-bottom:6px;">
         TODAY'S CONTENTS</div>
