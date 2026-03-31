@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-31（Prompt Maker v7 フラッシュカード/FAQ/インフォグラフィック・Wireframe Maker V6）
+最終更新: 2026-03-31（Wireframe Maker V7 共同編集・コンポーネントライブラリ・Figmaインポート・ABテスト連携・LP公開）
 
 ---
 
@@ -57,7 +57,7 @@
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
 | Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040, S041, S042 |
-| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037, S038, S040 |
+| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043 |
 
 ---
 
@@ -282,3 +282,4 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-31 | Wireframe Maker V5 5機能追加 | AIコピーライティング、ヒートマップ予測（F字パターン）、レスポンシブ3画面同時プレビュー、プロトタイプ再生モード、セクションコメント/注釈 |
 | 2026-03-31 | Wireframe Maker V6 5機能追加 | アクセシビリティチェッカー、競合サイト構成分析、セクションアニメーション、HTML/CSS/Tailwindエクスポート、デザイントークン自動生成 |
 | 2026-03-31 | Banner Resizer 安全ゾーンダウンロードバグ修正 | ダウンロード画像に安全ゾーンオーバーレイが焼き込まれるバグを修正。data-safe-zone-overlay属性マーカー方式でプレビュー表示とダウンロード出力を分離。AIアップスケール時の品質劣化も防止 |
+| 2026-03-31 | Wireframe Maker V7 Figma完全超え5機能 | リアルタイム共同編集（BroadcastChannel P2P）、コンポーネントライブラリ、Figmaインポート（API連携）、ABテスト連携（GO/VWO設定出力）、LP公開（Vercelデプロイ） |
