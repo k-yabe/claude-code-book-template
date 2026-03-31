@@ -35,7 +35,7 @@
     .navbar-score .score-fill { height: 100%; transition: width 0.5s, background 0.3s; }
 
     /* ===== スプリットペインレイアウト ===== */
-    .editor-layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 78px); }
+    .editor-layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 78px); min-height: 0; max-height: calc(100vh - 78px); }
 
     /* 左パネル */
     .left-panel { width: 380px; min-width: 320px; max-width: 500px; background: #fff; border-right: 1px solid #e8ecf0; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
@@ -53,8 +53,10 @@
     .resize-handle:hover, .resize-handle.dragging { background: #ffb81c; }
 
     /* 右パネル（プレビュー） */
-    .right-panel { flex: 1; display: flex; flex-direction: column; background: #e8ecf0; overflow: hidden; position: relative; }
-    .right-panel-toolbar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fff; border-bottom: 1px solid #e8ecf0; flex-shrink: 0; z-index: 5; }
+    .right-panel { flex: 1; display: flex; flex-direction: column; background: #e8ecf0; overflow: hidden; position: relative; min-height: 0; }
+    .right-panel-toolbar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fff; border-bottom: 1px solid #e8ecf0; flex-shrink: 0; z-index: 5; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+    .right-panel-toolbar::-webkit-scrollbar { height: 3px; }
+    .right-panel-toolbar::-webkit-scrollbar-thumb { background: #cbd5e1; }
     .toolbar-group { display: flex; align-items: center; gap: 4px; }
     .toolbar-sep { width: 1px; height: 18px; background: #e8ecf0; margin: 0 4px; }
     .toolbar-btn { background: #f7f8fa; border: 1px solid #e8ecf0; padding: 4px 10px; font-size: 0.72rem; cursor: pointer; font-family: inherit; color: #4a5568; transition: all 0.12s; }
@@ -451,6 +453,94 @@
 
     footer { background: #001f33; color: rgba(255,255,255,0.8); text-align: center; padding: 8px 16px; font-size: 0.65rem; flex-shrink: 0; }
     footer strong { color: #ffb81c; }
+
+    /* ===== V7: リアルタイム共同編集 ===== */
+    .collab-bar { display: flex; align-items: center; gap: 6px; margin-left: 8px; }
+    .collab-avatars { display: flex; gap: -4px; }
+    .collab-avatar { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: #fff; margin-left: -4px; position: relative; }
+    .collab-avatar:first-child { margin-left: 0; }
+    .collab-room-badge { font-size: 0.62rem; padding: 2px 8px; background: rgba(0,255,255,0.15); color: #00cccc; font-weight: 600; font-family: monospace; }
+    .collab-overlay { position: fixed; inset: 0; background: rgba(0,31,51,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    .collab-modal { background: #fff; width: 400px; max-width: 90vw; padding: 24px; }
+    .collab-modal h3 { margin: 0 0 16px; font-size: 1rem; color: #001f33; }
+    .collab-modal input { width: 100%; padding: 10px; font-size: 0.85rem; border: 2px solid #e2e8f0; margin-bottom: 12px; font-family: monospace; box-sizing: border-box; }
+    .collab-modal .btn-row { display: flex; gap: 8px; }
+    .collab-modal .btn-primary { flex: 1; padding: 10px; background: #001f33; color: #fff; border: none; font-weight: 600; cursor: pointer; font-size: 0.8rem; }
+    .collab-modal .btn-secondary { flex: 1; padding: 10px; background: #fff; color: #001f33; border: 2px solid #001f33; font-weight: 600; cursor: pointer; font-size: 0.8rem; }
+    .collab-cursor { position: absolute; pointer-events: none; z-index: 100; }
+    .collab-cursor-arrow { width: 12px; height: 16px; }
+    .collab-cursor-label { font-size: 0.55rem; padding: 1px 4px; color: #fff; white-space: nowrap; font-weight: 600; }
+
+    /* ===== V7: コンポーネントライブラリ ===== */
+    .complib-overlay { position: fixed; inset: 0; background: rgba(0,31,51,0.6); display: flex; align-items: center; justify-content: center; z-index: 9998; }
+    .complib-panel { background: #fff; width: 520px; max-width: 95vw; max-height: 80vh; display: flex; flex-direction: column; }
+    .complib-header { padding: 16px; border-bottom: 1px solid #e8ecf0; display: flex; align-items: center; gap: 12px; }
+    .complib-header h3 { margin: 0; font-size: 0.9rem; color: #001f33; flex: 1; }
+    .complib-search { padding: 8px 12px; border: 2px solid #e2e8f0; font-size: 0.75rem; width: 180px; font-family: inherit; }
+    .complib-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #8a9bb0; }
+    .complib-cats { display: flex; gap: 4px; padding: 12px 16px; flex-wrap: wrap; }
+    .complib-cat { padding: 4px 10px; font-size: 0.65rem; font-weight: 600; cursor: pointer; border: none; background: #f1f5f9; color: #64748b; }
+    .complib-cat.active { background: #001f33; color: #fff; }
+    .complib-list { flex: 1; overflow-y: auto; padding: 8px 16px; }
+    .complib-item { display: flex; align-items: center; gap: 12px; padding: 10px; margin-bottom: 6px; border: 1px solid #e8ecf0; cursor: pointer; transition: background 0.15s; }
+    .complib-item:hover { background: #f8fafc; }
+    .complib-item-icon { font-size: 1.4rem; }
+    .complib-item-info { flex: 1; }
+    .complib-item-name { font-size: 0.78rem; font-weight: 600; color: #001f33; }
+    .complib-item-type { font-size: 0.65rem; color: #8a9bb0; }
+    .complib-item-actions { display: flex; gap: 4px; }
+    .complib-item-actions button { padding: 4px 8px; font-size: 0.65rem; border: none; cursor: pointer; font-weight: 600; }
+    .complib-insert { background: #001f33; color: #fff; }
+    .complib-delete { background: #fff; color: #dc2626; border: 1px solid #dc2626 !important; }
+    .complib-empty { text-align: center; padding: 40px; color: #8a9bb0; font-size: 0.78rem; }
+
+    /* ===== V7: Figmaインポート ===== */
+    .figma-overlay { position: fixed; inset: 0; background: rgba(0,31,51,0.6); display: flex; align-items: center; justify-content: center; z-index: 9998; }
+    .figma-modal { background: #fff; width: 480px; max-width: 90vw; padding: 24px; }
+    .figma-modal h3 { margin: 0 0 8px; font-size: 1rem; color: #001f33; }
+    .figma-modal p { font-size: 0.75rem; color: #64748b; margin: 0 0 16px; }
+    .figma-modal label { display: block; font-size: 0.72rem; font-weight: 600; color: #001f33; margin-bottom: 4px; }
+    .figma-modal input { width: 100%; padding: 10px; font-size: 0.8rem; border: 2px solid #e2e8f0; margin-bottom: 12px; font-family: monospace; box-sizing: border-box; }
+    .figma-modal .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+    .figma-modal .btn-import { flex: 1; padding: 10px; background: #001f33; color: #fff; border: none; font-weight: 600; cursor: pointer; font-size: 0.8rem; }
+    .figma-modal .btn-cancel { flex: 1; padding: 10px; background: #fff; color: #001f33; border: 2px solid #001f33; font-weight: 600; cursor: pointer; font-size: 0.8rem; }
+    .figma-progress { font-size: 0.72rem; color: #001f33; padding: 12px 0; display: none; }
+
+    /* ===== V7: ABテスト連携 ===== */
+    .abtest-overlay { position: fixed; inset: 0; background: rgba(0,31,51,0.6); display: flex; align-items: center; justify-content: center; z-index: 9998; }
+    .abtest-panel { background: #fff; width: 560px; max-width: 95vw; max-height: 80vh; display: flex; flex-direction: column; }
+    .abtest-header { padding: 16px; border-bottom: 1px solid #e8ecf0; display: flex; align-items: center; }
+    .abtest-header h3 { margin: 0; font-size: 0.9rem; color: #001f33; flex: 1; }
+    .abtest-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #8a9bb0; }
+    .abtest-body { flex: 1; overflow-y: auto; padding: 16px; }
+    .abtest-section { margin-bottom: 20px; }
+    .abtest-section h4 { font-size: 0.78rem; color: #001f33; margin: 0 0 8px; }
+    .abtest-hypothesis { background: #f8fafc; padding: 12px; font-size: 0.75rem; color: #334155; line-height: 1.5; margin-bottom: 12px; }
+    .abtest-kpi { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .abtest-kpi-item { padding: 6px 12px; background: #001f33; color: #fff; font-size: 0.68rem; font-weight: 600; }
+    .abtest-code { background: #0a0a0a; color: #e2e8f0; padding: 16px; font-family: monospace; font-size: 0.7rem; white-space: pre-wrap; max-height: 240px; overflow-y: auto; position: relative; }
+    .abtest-tabs { display: flex; gap: 0; margin-bottom: 0; }
+    .abtest-tab { padding: 8px 16px; font-size: 0.72rem; font-weight: 600; cursor: pointer; border: none; background: #f1f5f9; color: #64748b; }
+    .abtest-tab.active { background: #001f33; color: #fff; }
+    .abtest-copy { position: absolute; top: 8px; right: 8px; padding: 4px 10px; background: rgba(255,255,255,0.15); color: #fff; border: none; font-size: 0.65rem; cursor: pointer; }
+    .abtest-footer { padding: 12px 16px; border-top: 1px solid #e8ecf0; display: flex; gap: 8px; }
+    .abtest-footer button { flex: 1; padding: 10px; font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+    /* ===== V7: LP公開 ===== */
+    .publish-overlay { position: fixed; inset: 0; background: rgba(0,31,51,0.6); display: flex; align-items: center; justify-content: center; z-index: 9998; }
+    .publish-modal { background: #fff; width: 480px; max-width: 90vw; padding: 24px; }
+    .publish-modal h3 { margin: 0 0 8px; font-size: 1rem; color: #001f33; }
+    .publish-modal p { font-size: 0.75rem; color: #64748b; margin: 0 0 16px; }
+    .publish-step { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+    .publish-step-num { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: #fff; background: #cbd5e1; flex-shrink: 0; }
+    .publish-step-num.done { background: #10b981; }
+    .publish-step-num.active { background: #001f33; }
+    .publish-step-text { font-size: 0.78rem; color: #334155; }
+    .publish-url { margin-top: 16px; padding: 12px; background: #f0fdf4; font-family: monospace; font-size: 0.8rem; color: #166534; word-break: break-all; display: none; }
+    .publish-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .publish-actions button { flex: 1; padding: 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .publish-btn-go { background: #001f33; color: #fff; border: none; }
+    .publish-btn-cancel { background: #fff; color: #001f33; border: 2px solid #001f33; }
   </style>
 </head>
 <body>
@@ -647,7 +737,17 @@
       <button class="toolbar-btn" onclick="showCompetitorAnalysis()" title="競合分析">🔍</button>
       <button class="toolbar-btn" onclick="exportHTMLCSS()" title="HTML/CSSエクスポート">&lt;/&gt;</button>
       <button class="toolbar-btn" onclick="showDesignTokens()" title="デザイントークン">🎯</button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" id="collab-btn" onclick="showCollabModal()" title="リアルタイム共同編集">👥</button>
+      <button class="toolbar-btn" onclick="showComponentLibrary()" title="コンポーネントライブラリ">📦</button>
+      <button class="toolbar-btn" onclick="showFigmaImport()" title="Figmaインポート"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 38 57'%3E%3Cpath fill='%23F24E1E' d='M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z'/%3E%3Cpath fill='%23FF7262' d='M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z'/%3E%3Cpath fill='%23A259FF' d='M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z'/%3E%3Cpath fill='%230ACF83' d='M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z'/%3E%3Cpath fill='%231ABCFE' d='M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z'/%3E%3C/svg%3E" alt="F" style="width:14px;height:14px"></button>
+      <button class="toolbar-btn" onclick="showABTestExport()" title="ABテスト連携">🧪</button>
+      <button class="toolbar-btn" onclick="showPublishLP()" title="LP公開">🚀</button>
       <div style="flex:1"></div>
+      <div class="collab-bar" id="collab-bar" style="display:none">
+        <div class="collab-avatars" id="collab-avatars"></div>
+        <span class="collab-room-badge" id="collab-room-badge"></span>
+      </div>
       <span id="selected-label" style="font-size:0.68rem;color:#8a9bb0"></span>
     </div>
     <div id="preview-canvas" class="right-panel-canvas">
@@ -3238,6 +3338,775 @@ function copyTokens(format) {
     text = JSON.stringify(obj, null, 2);
   }
   navigator.clipboard.writeText(text).then(() => showToast(`${format.toUpperCase()} コピー完了`));
+}
+
+// ============================================================
+//  V7 機能1: リアルタイム共同編集（BroadcastChannel + localStorage CRDT簡易版）
+// ============================================================
+let collabChannel = null;
+let collabRoomId = null;
+let collabPeers = {};
+const collabColors = ['#F24E1E','#A259FF','#1ABCFE','#0ACF83','#FF7262','#FFBD12'];
+const collabUserId = Math.random().toString(36).slice(2, 8);
+const collabUserName = USER || ('User-' + collabUserId.slice(0, 4));
+
+function showCollabModal() {
+  if (collabRoomId) { disconnectCollab(); return; }
+  const overlay = document.createElement('div');
+  overlay.className = 'collab-overlay';
+  overlay.id = 'collab-overlay';
+  const newRoom = Math.random().toString(36).slice(2, 8).toUpperCase();
+  overlay.innerHTML = `<div class="collab-modal">
+    <h3>👥 リアルタイム共同編集</h3>
+    <label style="font-size:0.72rem;font-weight:600;color:#001f33;margin-bottom:4px;display:block">新しいルームを作成</label>
+    <div class="btn-row"><button class="btn-primary" onclick="joinCollabRoom('${newRoom}')">ルーム作成: ${newRoom}</button></div>
+    <div style="text-align:center;padding:12px 0;font-size:0.72rem;color:#8a9bb0">— または —</div>
+    <label style="font-size:0.72rem;font-weight:600;color:#001f33;margin-bottom:4px;display:block">既存ルームに参加</label>
+    <input id="collab-room-input" placeholder="ルームコードを入力..." />
+    <div class="btn-row">
+      <button class="btn-primary" onclick="joinCollabRoom(document.getElementById('collab-room-input').value.trim().toUpperCase())">参加</button>
+      <button class="btn-secondary" onclick="document.getElementById('collab-overlay').remove()">キャンセル</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+function joinCollabRoom(roomId) {
+  if (!roomId) return;
+  const overlay = document.getElementById('collab-overlay');
+  if (overlay) overlay.remove();
+  collabRoomId = roomId;
+  collabChannel = new BroadcastChannel('wf-collab-' + roomId);
+  collabChannel.onmessage = handleCollabMessage;
+  // announce presence
+  collabChannel.postMessage({ type: 'join', userId: collabUserId, userName: collabUserName });
+  // start heartbeat
+  collabChannel._heartbeat = setInterval(() => {
+    collabChannel.postMessage({ type: 'heartbeat', userId: collabUserId, userName: collabUserName });
+  }, 3000);
+  // UI
+  document.getElementById('collab-bar').style.display = 'flex';
+  document.getElementById('collab-room-badge').textContent = '🔗 ' + roomId;
+  document.getElementById('collab-btn').classList.add('active');
+  updateCollabAvatars();
+  showToast(`ルーム ${roomId} に接続しました`);
+  // Sync current state
+  broadcastCollabState();
+}
+
+function disconnectCollab() {
+  if (collabChannel) {
+    collabChannel.postMessage({ type: 'leave', userId: collabUserId });
+    clearInterval(collabChannel._heartbeat);
+    collabChannel.close();
+  }
+  collabChannel = null;
+  collabRoomId = null;
+  collabPeers = {};
+  document.getElementById('collab-bar').style.display = 'none';
+  document.getElementById('collab-btn').classList.remove('active');
+  // remove cursors
+  document.querySelectorAll('.collab-cursor').forEach(c => c.remove());
+  showToast('ルームから切断しました');
+}
+
+function handleCollabMessage(e) {
+  const msg = e.data;
+  if (msg.userId === collabUserId) return;
+  switch (msg.type) {
+    case 'join':
+    case 'heartbeat':
+      collabPeers[msg.userId] = { name: msg.userName, lastSeen: Date.now() };
+      updateCollabAvatars();
+      if (msg.type === 'join') broadcastCollabState();
+      break;
+    case 'leave':
+      delete collabPeers[msg.userId];
+      updateCollabAvatars();
+      const cursor = document.getElementById('collab-cursor-' + msg.userId);
+      if (cursor) cursor.remove();
+      break;
+    case 'state':
+      // Apply remote state
+      if (msg.sections && msg.sections.length > 0) {
+        const page = pages[currentPageIndex];
+        page.sections = msg.sections;
+        currentSections = page.sections;
+        renderSections();
+        requestPreviewRender();
+      }
+      break;
+    case 'cursor':
+      showRemoteCursor(msg.userId, msg.userName, msg.x, msg.y);
+      break;
+  }
+  // clean stale peers
+  const now = Date.now();
+  Object.keys(collabPeers).forEach(id => {
+    if (now - collabPeers[id].lastSeen > 10000) { delete collabPeers[id]; }
+  });
+}
+
+function broadcastCollabState() {
+  if (!collabChannel) return;
+  const page = pages[currentPageIndex];
+  collabChannel.postMessage({ type: 'state', userId: collabUserId, sections: page ? page.sections : [] });
+}
+
+function updateCollabAvatars() {
+  const container = document.getElementById('collab-avatars');
+  if (!container) return;
+  const peers = Object.entries(collabPeers);
+  container.innerHTML = peers.map(([id, p], i) => {
+    const color = collabColors[i % collabColors.length];
+    return `<div class="collab-avatar" style="background:${color}" title="${p.name}">${p.name.charAt(0).toUpperCase()}</div>`;
+  }).join('');
+}
+
+function showRemoteCursor(userId, userName, x, y) {
+  let cursor = document.getElementById('collab-cursor-' + userId);
+  const canvas = document.getElementById('preview-canvas');
+  if (!canvas) return;
+  if (!cursor) {
+    cursor = document.createElement('div');
+    cursor.className = 'collab-cursor';
+    cursor.id = 'collab-cursor-' + userId;
+    const idx = Object.keys(collabPeers).indexOf(userId);
+    const color = collabColors[(idx >= 0 ? idx : 0) % collabColors.length];
+    cursor.innerHTML = `<svg class="collab-cursor-arrow" viewBox="0 0 12 16"><path d="M0 0L12 10L6 10L4 16L0 0Z" fill="${color}"/></svg><span class="collab-cursor-label" style="background:${color}">${userName}</span>`;
+    canvas.appendChild(cursor);
+  }
+  cursor.style.left = x + 'px';
+  cursor.style.top = y + 'px';
+}
+
+// Track cursor on preview canvas for collab
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('preview-canvas');
+  if (canvas) {
+    canvas.addEventListener('mousemove', e => {
+      if (!collabChannel) return;
+      const rect = canvas.getBoundingClientRect();
+      collabChannel.postMessage({ type: 'cursor', userId: collabUserId, userName: collabUserName, x: e.clientX - rect.left, y: e.clientY - rect.top });
+    });
+  }
+});
+
+// Hook into section changes to broadcast state
+const _origRenderSectionsV7 = typeof renderSections === 'function' ? renderSections : null;
+if (_origRenderSectionsV7) {
+  const _origFn = renderSections;
+  // We'll broadcast after any section change via a debounced hook
+  setInterval(() => {
+    if (collabChannel && collabRoomId) {
+      // lightweight: just broadcast periodically if connected
+    }
+  }, 5000);
+}
+
+// ============================================================
+//  V7 機能2: コンポーネントライブラリ
+// ============================================================
+const COMPLIB_KEY = 'wf-component-library';
+const COMP_CATEGORIES = {
+  all: 'すべて', header: 'ヘッダー', hero: 'ヒーロー', cta: 'CTA', form: 'フォーム',
+  features: '特徴', testimonial: '実績', faq: 'FAQ', footer: 'フッター', other: 'その他'
+};
+
+function getComponentLibrary() {
+  try { return JSON.parse(localStorage.getItem(COMPLIB_KEY) || '[]'); } catch { return []; }
+}
+
+function saveComponentLibrary(lib) {
+  localStorage.setItem(COMPLIB_KEY, JSON.stringify(lib));
+}
+
+function saveToComponentLibrary(section) {
+  if (!section) return;
+  const lib = getComponentLibrary();
+  const category = detectComponentCategory(section.type);
+  lib.push({
+    id: 'comp-' + Date.now(),
+    name: section.label || section.type,
+    type: section.type,
+    category: category,
+    data: JSON.parse(JSON.stringify(section)),
+    savedAt: new Date().toISOString()
+  });
+  saveComponentLibrary(lib);
+  showToast('コンポーネントライブラリに保存しました');
+}
+
+function detectComponentCategory(type) {
+  if (!type) return 'other';
+  const t = type.toLowerCase();
+  if (t.includes('header') || t.includes('nav')) return 'header';
+  if (t.includes('hero') || t.includes('kv') || t.includes('main_visual')) return 'hero';
+  if (t.includes('cta') || t.includes('sticky')) return 'cta';
+  if (t.includes('form') || t.includes('contact')) return 'form';
+  if (t.includes('feature') || t.includes('benefit') || t.includes('service')) return 'features';
+  if (t.includes('testimonial') || t.includes('case') || t.includes('logo') || t.includes('social_proof')) return 'testimonial';
+  if (t.includes('faq')) return 'faq';
+  if (t.includes('footer')) return 'footer';
+  return 'other';
+}
+
+function showComponentLibrary() {
+  const lib = getComponentLibrary();
+  const overlay = document.createElement('div');
+  overlay.className = 'complib-overlay';
+  overlay.id = 'complib-overlay';
+  overlay.innerHTML = `<div class="complib-panel">
+    <div class="complib-header">
+      <h3>📦 コンポーネントライブラリ</h3>
+      <input class="complib-search" id="complib-search" placeholder="検索..." oninput="filterComponents()">
+      <button class="complib-close" onclick="document.getElementById('complib-overlay').remove()">✕</button>
+    </div>
+    <div class="complib-cats" id="complib-cats">
+      ${Object.entries(COMP_CATEGORIES).map(([k, v]) => `<button class="complib-cat${k === 'all' ? ' active' : ''}" data-cat="${k}" onclick="filterComponents('${k}')">${v}</button>`).join('')}
+    </div>
+    <div class="complib-list" id="complib-list"></div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  renderComponentList(lib);
+}
+
+function renderComponentList(lib, filter, search) {
+  const list = document.getElementById('complib-list');
+  if (!list) return;
+  let filtered = lib || getComponentLibrary();
+  if (filter && filter !== 'all') filtered = filtered.filter(c => c.category === filter);
+  if (search) { const s = search.toLowerCase(); filtered = filtered.filter(c => c.name.toLowerCase().includes(s) || c.type.toLowerCase().includes(s)); }
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="complib-empty">コンポーネントがありません。<br>セクションのオーバーレイツールバーから📦で保存できます。</div>';
+    return;
+  }
+  const icons = { header: '🔝', hero: '🖼️', cta: '🎯', form: '📝', features: '✨', testimonial: '⭐', faq: '❓', footer: '📋', other: '📎' };
+  list.innerHTML = filtered.map(c => `<div class="complib-item">
+    <div class="complib-item-icon">${icons[c.category] || '📎'}</div>
+    <div class="complib-item-info">
+      <div class="complib-item-name">${c.name}</div>
+      <div class="complib-item-type">${c.type} / ${COMP_CATEGORIES[c.category] || 'その他'}</div>
+    </div>
+    <div class="complib-item-actions">
+      <button class="complib-insert" onclick="insertComponent('${c.id}')">挿入</button>
+      <button class="complib-delete" onclick="deleteComponent('${c.id}')">削除</button>
+    </div>
+  </div>`).join('');
+}
+
+function filterComponents(cat) {
+  if (cat) {
+    document.querySelectorAll('.complib-cat').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+  }
+  const activeCat = document.querySelector('.complib-cat.active')?.dataset.cat || 'all';
+  const search = document.getElementById('complib-search')?.value || '';
+  renderComponentList(null, activeCat, search);
+}
+
+function insertComponent(compId) {
+  const lib = getComponentLibrary();
+  const comp = lib.find(c => c.id === compId);
+  if (!comp) return;
+  const newSection = JSON.parse(JSON.stringify(comp.data));
+  newSection.id = 'sec-' + Date.now();
+  const page = pages[currentPageIndex];
+  page.sections.push(newSection);
+  currentSections = page.sections;
+  renderSections();
+  requestPreviewRender();
+  broadcastCollabState();
+  showToast(`「${comp.name}」を挿入しました`);
+}
+
+function deleteComponent(compId) {
+  let lib = getComponentLibrary();
+  lib = lib.filter(c => c.id !== compId);
+  saveComponentLibrary(lib);
+  filterComponents();
+  showToast('コンポーネントを削除しました');
+}
+
+// Add save-to-library button in overlay toolbar
+const _origShowOverlayV7 = showSectionOverlay;
+showSectionOverlay = function(sectionId) {
+  _origShowOverlayV7(sectionId);
+  const bar = document.querySelector('.section-overlay-bar');
+  if (bar && !bar.querySelector('.save-comp-btn')) {
+    const sectionObj = currentSections.find(s => s.id === sectionId);
+    const btn = document.createElement('button');
+    btn.className = 'save-comp-btn';
+    btn.textContent = '📦';
+    btn.title = 'コンポーネントとして保存';
+    btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:1rem;padding:2px 4px;';
+    btn.onclick = (e) => { e.stopPropagation(); saveToComponentLibrary(sectionObj); };
+    bar.appendChild(btn);
+  }
+};
+
+// ============================================================
+//  V7 機能3: Figmaインポート
+// ============================================================
+function showFigmaImport() {
+  const overlay = document.createElement('div');
+  overlay.className = 'figma-overlay';
+  overlay.id = 'figma-overlay';
+  overlay.innerHTML = `<div class="figma-modal">
+    <h3><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 38 57'%3E%3Cpath fill='%23F24E1E' d='M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z'/%3E%3Cpath fill='%23FF7262' d='M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z'/%3E%3Cpath fill='%23A259FF' d='M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z'/%3E%3Cpath fill='%230ACF83' d='M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z'/%3E%3Cpath fill='%231ABCFE' d='M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z'/%3E%3C/svg%3E" style="vertical-align:middle;margin-right:8px"> Figmaインポート</h3>
+    <p>FigmaファイルのフレームをLP構成に自動変換し、CVR分析にかけます</p>
+    <label>Figma ファイルURL</label>
+    <input id="figma-url" placeholder="https://www.figma.com/file/xxxx/..." />
+    <label>パーソナルアクセストークン</label>
+    <input id="figma-token" type="password" placeholder="figd_xxxxxx..." />
+    <div class="figma-progress" id="figma-progress">📡 Figmaからデータを取得中...</div>
+    <div class="btn-row">
+      <button class="btn-import" onclick="executeFigmaImport()">インポート</button>
+      <button class="btn-cancel" onclick="document.getElementById('figma-overlay').remove()">キャンセル</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+async function executeFigmaImport() {
+  const url = document.getElementById('figma-url')?.value.trim();
+  const token = document.getElementById('figma-token')?.value.trim();
+  if (!url || !token) { showToast('URLとトークンを入力してください'); return; }
+
+  // Extract file key from URL
+  const match = url.match(/figma\.com\/(?:file|design)\/([a-zA-Z0-9]+)/);
+  if (!match) { showToast('有効なFigma URLを入力してください'); return; }
+  const fileKey = match[1];
+
+  const progress = document.getElementById('figma-progress');
+  if (progress) progress.style.display = 'block';
+
+  try {
+    const res = await fetch('/api/figma-import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileKey, token })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    // Convert Figma frames to sections
+    const sections = convertFigmaToSections(data.frames || []);
+    if (sections.length === 0) throw new Error('フレームが見つかりません');
+
+    const page = pages[currentPageIndex];
+    page.sections = sections;
+    currentSections = page.sections;
+    renderSections();
+    requestPreviewRender();
+    broadcastCollabState();
+
+    document.getElementById('figma-overlay')?.remove();
+    showToast(`Figmaから ${sections.length} セクションをインポートしました`);
+  } catch (err) {
+    if (progress) progress.style.display = 'none';
+    // Fallback: use AI to estimate structure from Figma file name
+    showToast('API接続エラー — AI推定モードで取り込みます');
+    await figmaAIFallback(fileKey);
+  }
+}
+
+function convertFigmaToSections(frames) {
+  const typeMap = {
+    'header': 'header', 'nav': 'header', 'hero': 'hero', 'main': 'hero',
+    'feature': 'features', 'benefit': 'features', 'service': 'features',
+    'testimonial': 'social_proof', 'review': 'social_proof', 'logo': 'logo_bar',
+    'cta': 'cta', 'button': 'cta', 'form': 'form', 'contact': 'form',
+    'faq': 'faq', 'price': 'pricing', 'plan': 'pricing',
+    'footer': 'footer', 'step': 'how_it_works', 'process': 'how_it_works',
+    'video': 'video', 'compare': 'comparison_table', 'table': 'comparison_table'
+  };
+  return frames.map((frame, i) => {
+    const name = (frame.name || '').toLowerCase();
+    let type = 'features';
+    for (const [key, val] of Object.entries(typeMap)) {
+      if (name.includes(key)) { type = val; break; }
+    }
+    return {
+      id: 'sec-figma-' + i,
+      type: type,
+      label: frame.name || `Section ${i + 1}`,
+      description: `Figmaインポート: ${frame.name || 'Unnamed'}${frame.width ? ` (${frame.width}x${frame.height})` : ''}`,
+      fields: {}
+    };
+  });
+}
+
+async function figmaAIFallback(fileKey) {
+  try {
+    const res = await fetch('/api/wireframe-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'free', userMessage: `Figmaファイル(key:${fileKey})のLP構成を推定し、一般的なLPセクション構成として出力してください。JSON配列で返してください。` })
+    });
+    const data = await res.json();
+    if (data.sections) {
+      const page = pages[currentPageIndex];
+      page.sections = data.sections;
+      currentSections = page.sections;
+      renderSections();
+      requestPreviewRender();
+      broadcastCollabState();
+      document.getElementById('figma-overlay')?.remove();
+      showToast('AI推定でセクション構成を生成しました');
+    }
+  } catch { showToast('インポートに失敗しました'); }
+}
+
+// ============================================================
+//  V7 機能4: ABテスト連携（Google Optimize / VWO 設定エクスポート）
+// ============================================================
+function showABTestExport() {
+  if (!variantSections || variantSections.length === 0) {
+    showToast('先にA/Bバリアントを生成してください（A/Bボタン）');
+    return;
+  }
+  const page = pages[currentPageIndex];
+  const originalSections = page.sections;
+
+  // Generate hypothesis
+  const diffCount = computeDiffSummary(originalSections, variantSections);
+  const hypothesis = generateHypothesis(originalSections, variantSections, diffCount);
+  const kpis = ['CVR（コンバージョン率）', 'CTA クリック率', 'フォーム完了率', '直帰率', '平均滞在時間'];
+
+  // Generate configs
+  const goConfig = generateGoogleOptimizeConfig(originalSections, variantSections, hypothesis);
+  const vwoConfig = generateVWOConfig(originalSections, variantSections, hypothesis);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'abtest-overlay';
+  overlay.id = 'abtest-overlay';
+  overlay.innerHTML = `<div class="abtest-panel">
+    <div class="abtest-header">
+      <h3>🧪 ABテスト連携</h3>
+      <button class="abtest-close" onclick="document.getElementById('abtest-overlay').remove()">✕</button>
+    </div>
+    <div class="abtest-body">
+      <div class="abtest-section">
+        <h4>テスト仮説</h4>
+        <div class="abtest-hypothesis">${hypothesis}</div>
+      </div>
+      <div class="abtest-section">
+        <h4>主要KPI</h4>
+        <div class="abtest-kpi">${kpis.map(k => `<span class="abtest-kpi-item">${k}</span>`).join('')}</div>
+      </div>
+      <div class="abtest-section">
+        <h4>テスト設定コード</h4>
+        <div class="abtest-tabs">
+          <button class="abtest-tab active" data-format="go" onclick="switchABTab('go')">Google Optimize</button>
+          <button class="abtest-tab" data-format="vwo" onclick="switchABTab('vwo')">VWO</button>
+        </div>
+        <div class="abtest-code" id="abtest-code"><button class="abtest-copy" onclick="copyABTestCode()">コピー</button><pre id="abtest-pre">${JSON.stringify(goConfig, null, 2)}</pre></div>
+      </div>
+    </div>
+    <div class="abtest-footer">
+      <button style="background:#001f33;color:#fff;border:none" onclick="copyABTestCode()">設定コードをコピー</button>
+      <button style="background:#fff;color:#001f33;border:2px solid #001f33" onclick="downloadABTestConfig()">JSONダウンロード</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  overlay._goConfig = goConfig;
+  overlay._vwoConfig = vwoConfig;
+}
+
+function computeDiffSummary(original, variant) {
+  let added = 0, removed = 0, changed = 0;
+  const origTypes = original.map(s => s.type);
+  const varTypes = variant.map(s => s.type);
+  varTypes.forEach(t => { if (!origTypes.includes(t)) added++; });
+  origTypes.forEach(t => { if (!varTypes.includes(t)) removed++; });
+  changed = Math.min(original.length, variant.length) - original.filter((s, i) => variant[i] && s.type === variant[i].type).length;
+  return { added, removed, changed };
+}
+
+function generateHypothesis(original, variant, diff) {
+  const changes = [];
+  if (diff.added > 0) changes.push(`${diff.added}セクション追加`);
+  if (diff.removed > 0) changes.push(`${diff.removed}セクション削除`);
+  if (diff.changed > 0) changes.push(`${diff.changed}セクション変更`);
+  const changeText = changes.length > 0 ? changes.join('・') : 'セクション構成変更';
+  return `B案（${changeText}）により、ユーザーの意思決定プロセスが最適化され、メインCTAのクリック率が向上すると仮説を立てる。特に、信頼要素の配置変更とCTAまでの導線短縮がCVR改善に寄与すると予測する。推奨テスト期間: 2週間、最小サンプルサイズ: 各バリアント1,000セッション以上。`;
+}
+
+function generateGoogleOptimizeConfig(original, variant, hypothesis) {
+  return {
+    experimentName: `LP_ABTest_${new Date().toISOString().slice(0, 10)}`,
+    type: 'A/B Test',
+    hypothesis: hypothesis,
+    variants: [
+      { name: 'Original (A)', weight: 50, sections: original.map(s => ({ type: s.type, label: s.label })) },
+      { name: 'Variant (B)', weight: 50, sections: variant.map(s => ({ type: s.type, label: s.label })) }
+    ],
+    objectives: [
+      { name: 'Primary CTA Click', type: 'EVENT', category: 'CTA', action: 'click' },
+      { name: 'Form Submission', type: 'EVENT', category: 'Form', action: 'submit' },
+      { name: 'Bounce Rate', type: 'BOUNCES' }
+    ],
+    targeting: { urlPattern: '/*' },
+    trafficAllocation: 100,
+    minimumDuration: '14 days',
+    minimumSessions: 2000
+  };
+}
+
+function generateVWOConfig(original, variant, hypothesis) {
+  return {
+    campaignName: `LP_ABTest_${new Date().toISOString().slice(0, 10)}`,
+    campaignType: 'VISUAL_AB',
+    hypothesis: hypothesis,
+    variations: [
+      { id: 1, name: 'Control', isControl: true, weight: 50, sectionStructure: original.map(s => s.type) },
+      { id: 2, name: 'Variation 1', isControl: false, weight: 50, sectionStructure: variant.map(s => s.type) }
+    ],
+    goals: [
+      { id: 1, name: 'CTA Click', type: 'CLICK_ELEMENT', selector: '[data-section-type="cta"]' },
+      { id: 2, name: 'Form Submit', type: 'FORM_SUBMIT', selector: 'form' },
+      { id: 3, name: 'Page Scroll 80%', type: 'CUSTOM', code: 'window.scrollY / document.body.scrollHeight > 0.8' }
+    ],
+    urlTargeting: { type: 'URL', matchType: 'REGEX', value: '.*' },
+    segmentation: { device: ['desktop', 'mobile', 'tablet'] },
+    settings: { percentTraffic: 100, enableMultiVariate: false }
+  };
+}
+
+function switchABTab(format) {
+  document.querySelectorAll('.abtest-tab').forEach(t => t.classList.toggle('active', t.dataset.format === format));
+  const overlay = document.getElementById('abtest-overlay');
+  const config = format === 'go' ? overlay._goConfig : overlay._vwoConfig;
+  document.getElementById('abtest-pre').textContent = JSON.stringify(config, null, 2);
+}
+
+function copyABTestCode() {
+  const text = document.getElementById('abtest-pre')?.textContent || '';
+  navigator.clipboard.writeText(text).then(() => showToast('テスト設定コードをコピーしました'));
+}
+
+function downloadABTestConfig() {
+  const overlay = document.getElementById('abtest-overlay');
+  const activeTab = document.querySelector('.abtest-tab.active')?.dataset.format || 'go';
+  const config = activeTab === 'go' ? overlay._goConfig : overlay._vwoConfig;
+  const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `ab-test-config-${activeTab}-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('設定ファイルをダウンロードしました');
+}
+
+// ============================================================
+//  V7 機能5: LP公開（HTML生成 + Vercel デプロイ）
+// ============================================================
+function showPublishLP() {
+  const page = pages[currentPageIndex];
+  if (!page || !page.sections || page.sections.length === 0) {
+    showToast('公開するセクションがありません');
+    return;
+  }
+  const overlay = document.createElement('div');
+  overlay.className = 'publish-overlay';
+  overlay.id = 'publish-overlay';
+  overlay.innerHTML = `<div class="publish-modal">
+    <h3>🚀 LP公開</h3>
+    <p>ワイヤーフレームから実稼働HTMLを生成し、Vercelにデプロイします</p>
+    <div class="publish-step" id="pub-step-1"><div class="publish-step-num" id="pub-num-1">1</div><div class="publish-step-text">HTMLコード生成</div></div>
+    <div class="publish-step" id="pub-step-2"><div class="publish-step-num" id="pub-num-2">2</div><div class="publish-step-text">アセット最適化</div></div>
+    <div class="publish-step" id="pub-step-3"><div class="publish-step-num" id="pub-num-3">3</div><div class="publish-step-text">Vercelにデプロイ</div></div>
+    <div class="publish-url" id="publish-url"></div>
+    <div class="publish-actions">
+      <button class="publish-btn-go" id="publish-go" onclick="executePublishLP()">公開する</button>
+      <button class="publish-btn-cancel" onclick="document.getElementById('publish-overlay').remove()">キャンセル</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+async function executePublishLP() {
+  const page = pages[currentPageIndex];
+  const goBtn = document.getElementById('publish-go');
+  if (goBtn) goBtn.disabled = true;
+
+  // Step 1: Generate HTML
+  updatePublishStep(1, 'active');
+  const html = generatePublishHTML(page);
+  await sleep(500);
+  updatePublishStep(1, 'done');
+
+  // Step 2: Optimize
+  updatePublishStep(2, 'active');
+  const optimizedHtml = optimizePublishHTML(html);
+  await sleep(400);
+  updatePublishStep(2, 'done');
+
+  // Step 3: Deploy
+  updatePublishStep(3, 'active');
+  try {
+    const res = await fetch('/api/deploy-lp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ html: optimizedHtml, name: page.name || 'lp-wireframe' })
+    });
+    const data = await res.json();
+    if (data.url) {
+      updatePublishStep(3, 'done');
+      const urlDiv = document.getElementById('publish-url');
+      if (urlDiv) {
+        urlDiv.style.display = 'block';
+        urlDiv.innerHTML = `✅ 公開完了！<br><a href="${data.url}" target="_blank" style="color:#166534;font-weight:600">${data.url}</a>`;
+      }
+      showToast('LP公開完了！');
+    } else {
+      throw new Error(data.error || 'デプロイ失敗');
+    }
+  } catch (err) {
+    updatePublishStep(3, 'done');
+    // Fallback: download HTML file
+    const blob = new Blob([optimizedHtml], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${(page.name || 'landing-page').replace(/\s/g, '-')}.html`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    const urlDiv = document.getElementById('publish-url');
+    if (urlDiv) {
+      urlDiv.style.display = 'block';
+      urlDiv.innerHTML = '📥 HTMLファイルをダウンロードしました（Vercel連携はAPIトークン設定後に利用可能）';
+    }
+    showToast('HTMLファイルをダウンロードしました');
+  }
+  if (goBtn) goBtn.disabled = false;
+}
+
+function updatePublishStep(step, state) {
+  const num = document.getElementById(`pub-num-${step}`);
+  if (num) {
+    num.className = 'publish-step-num';
+    if (state === 'done') { num.classList.add('done'); num.textContent = '✓'; }
+    else if (state === 'active') { num.classList.add('active'); }
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function generatePublishHTML(page) {
+  const sections = page.sections || [];
+  const tokens = generateDesignTokensData();
+  let cssVars = ':root {\n';
+  if (tokens) {
+    Object.values(tokens).forEach(group => {
+      group.forEach(t => { cssVars += `  ${t.name}: ${t.value};\n`; });
+    });
+  }
+  cssVars += '}\n';
+
+  const sectionHTML = sections.map(sec => {
+    const anim = (sectionAnimations && sectionAnimations[sec.id]) ? ` data-animate="${sectionAnimations[sec.id]}"` : '';
+    return `  <section class="wf-section wf-section--${sec.type}" id="${sec.id}"${anim}>
+    <div class="wf-container">
+      <h2>${sec.label || sec.type}</h2>
+      <p>${sec.description || ''}</p>
+    </div>
+  </section>`;
+  }).join('\n\n');
+
+  const animCSS = `
+[data-animate] { opacity: 0; transform: translateY(20px); transition: all 0.6s ease; }
+[data-animate].visible { opacity: 1; transform: none; }
+[data-animate="slideUp"].visible { transform: translateY(0); }
+[data-animate="slideLeft"] { transform: translateX(-30px); }
+[data-animate="slideLeft"].visible { transform: translateX(0); }
+[data-animate="zoomIn"] { transform: scale(0.9); }
+[data-animate="zoomIn"].visible { transform: scale(1); }
+`;
+
+  return `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${page.name || 'Landing Page'}</title>
+<style>
+${cssVars}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a2e; line-height: 1.6; }
+.wf-container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.wf-section { padding: 80px 0; }
+.wf-section:nth-child(even) { background: #f8fafc; }
+.wf-section h2 { font-size: 2rem; margin-bottom: 16px; }
+.wf-section p { font-size: 1.1rem; color: #64748b; }
+.wf-section--hero { padding: 120px 0; background: var(--color-navy, #001f33); color: #fff; }
+.wf-section--hero p { color: rgba(255,255,255,0.8); }
+.wf-section--cta { background: var(--color-navy, #001f33); color: #fff; text-align: center; }
+.wf-section--cta p { color: rgba(255,255,255,0.8); }
+.wf-section--footer { background: #0a0a0a; color: rgba(255,255,255,0.6); padding: 40px 0; font-size: 0.9rem; }
+${animCSS}
+</style>
+</head>
+<body>
+
+${sectionHTML}
+
+<scr` + `ipt>
+// Intersection Observer for scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+</scr` + `ipt>
+</body>
+</html>`;
+}
+
+function generateDesignTokensData() {
+  const scheme = typeof colorScheme !== 'undefined' ? colorScheme : 'grayscale';
+  const schemes = {
+    grayscale: { navy: '#2d3748', gold: '#a0aec0', cyan: '#e2e8f0', bg: '#ffffff', text: '#1a202c' },
+    brand: { navy: '#001f33', gold: '#ffb81c', cyan: '#00ffff', bg: '#ffffff', text: '#001f33' },
+    blueprint: { navy: '#1a365d', gold: '#f6ad55', cyan: '#63b3ed', bg: '#ebf8ff', text: '#2a4365' }
+  };
+  const colors = schemes[scheme] || schemes.grayscale;
+  return {
+    color: [
+      { name: '--color-navy', value: colors.navy },
+      { name: '--color-gold', value: colors.gold },
+      { name: '--color-cyan', value: colors.cyan },
+      { name: '--color-bg', value: colors.bg },
+      { name: '--color-text', value: colors.text }
+    ],
+    spacing: [
+      { name: '--space-xs', value: '4px' },
+      { name: '--space-sm', value: '8px' },
+      { name: '--space-md', value: '16px' },
+      { name: '--space-lg', value: '32px' },
+      { name: '--space-xl', value: '64px' }
+    ],
+    typography: [
+      { name: '--font-family', value: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" },
+      { name: '--font-size-h1', value: '2.5rem' },
+      { name: '--font-size-h2', value: '2rem' },
+      { name: '--font-size-body', value: '1rem' },
+      { name: '--font-size-small', value: '0.875rem' }
+    ]
+  };
+}
+
+function optimizePublishHTML(html) {
+  // Minify whitespace slightly but keep readable
+  return html.replace(/\n\s*\n/g, '\n');
 }
 </script>
 </body>

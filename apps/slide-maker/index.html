@@ -131,7 +131,9 @@
     .research-progress .rp-item::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #ffb81c; margin-right: 6px; vertical-align: middle; }
 
     /* テンプレートバー */
-    .tpl-bar { padding: 10px 16px; border-top: 1px solid #e8ecf0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .tpl-bar { padding: 10px 16px; border-top: 1px solid #e8ecf0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; overflow-x: auto; }
+    .tpl-chip-preview { display: flex; gap: 2px; margin-top: 2px; }
+    .tpl-chip-dot { width: 8px; height: 8px; border-radius: 50%; }
     .tpl-label { font-size: 0.72rem; font-weight: 600; color: #8a9bb0; white-space: nowrap; }
     .tpl-chips { display: flex; gap: 5px; flex-wrap: wrap; }
     .tpl-chip { border: 1.5px solid #e0e4e8; background: #fff; color: #4a5568; padding: 4px 10px; font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; font-family: inherit; }
@@ -345,6 +347,23 @@
     .pres-progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--cyan)); transition: width 0.3s var(--ease); }
     .pres-slide-number { position: absolute; top: var(--sp-3); right: var(--sp-4); font-size: 1.2rem; font-weight: 700; color: rgba(255,255,255,0.3); z-index: 3001; font-variant-numeric: tabular-nums; }
 
+    /* プレゼン: スライド遷移アニメーション */
+    .pres-slide.anim-fade { animation: presFade 0.5s var(--ease); }
+    .pres-slide.anim-slide-left { animation: presSlideLeft 0.4s var(--ease); }
+    .pres-slide.anim-slide-right { animation: presSlideRight 0.4s var(--ease); }
+    .pres-slide.anim-zoom { animation: presZoom 0.5s var(--ease); }
+    @keyframes presFade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes presSlideLeft { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes presSlideRight { from { transform: translateX(-60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes presZoom { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      .pres-slide.anim-fade, .pres-slide.anim-slide-left, .pres-slide.anim-slide-right, .pres-slide.anim-zoom { animation: none; }
+    }
+
+    /* アニメーション選択 */
+    .pres-anim-select { background: none; border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.7); padding: 4px 10px; font-size: 0.72rem; cursor: pointer; font-family: inherit; outline: none; }
+    .pres-anim-select option { background: #001f33; color: #fff; }
+
     /* チャート用hidden canvas */
     #chart-canvas { display: none; position: absolute; top: -9999px; }
 
@@ -446,12 +465,7 @@
         <!-- テンプレートバー -->
         <div class="tpl-bar">
           <span class="tpl-label">デザイン</span>
-          <div class="tpl-chips">
-            <button class="tpl-chip selected" data-val="external-white" onclick="selectTpl(this)">社外 WHITE</button>
-            <button class="tpl-chip dark" data-val="external-dark" onclick="selectTpl(this)">社外 DARK</button>
-            <button class="tpl-chip" data-val="internal-white" onclick="selectTpl(this)">社内 WHITE</button>
-            <button class="tpl-chip dark" data-val="internal-dark" onclick="selectTpl(this)">社内 DARK</button>
-          </div>
+          <div class="tpl-chips" id="tpl-chips"></div>
           <div class="tpl-bar-right">
             <button class="btn-reset-sm" onclick="resetAll()" title="リセット">↺ リセット</button>
           </div>
@@ -563,6 +577,12 @@
       <span class="pres-counter" id="pres-counter">1 / 1</span>
       <button class="pres-btn" onclick="presNext()">次 →</button>
       <span class="pres-timer" id="pres-timer">00:00</span>
+      <select class="pres-anim-select" id="pres-anim-select" onchange="presTransition=this.value" title="遷移アニメーション">
+        <option value="fade">Fade</option>
+        <option value="slide">Slide</option>
+        <option value="zoom">Zoom</option>
+        <option value="none">なし</option>
+      </select>
       <button class="pres-btn" onclick="exitPresMode()">✕ 終了</button>
     </div>
   </div>
@@ -593,9 +613,22 @@
     if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
     const USER = localStorage.getItem('user') || '';
 
-    let selectedTemplate = 'external-white';
+    let selectedTemplate = localStorage.getItem('slide-tpl') || 'external-white';
     let currentSlides = null;
     let outlineData = null;
+    let presTransition = 'fade';
+
+    // ===== テンプレート定義（8種） =====
+    const TEMPLATES = [
+      { id: 'external-white', label: '社外 WHITE', dark: false, colors: ['#001f33','#ffb81c','#ffffff'], desc: '営業・提案資料向け' },
+      { id: 'external-dark', label: '社外 DARK', dark: true, colors: ['#001f33','#ffb81c','#00ffff'], desc: '高級感のある提案向け' },
+      { id: 'internal-white', label: '社内 WHITE', dark: false, colors: ['#001f33','#ffb81c','#f0f2f5'], desc: '社内報告・施策共有向け' },
+      { id: 'internal-dark', label: '社内 DARK', dark: true, colors: ['#001f33','#ffb81c','#334d66'], desc: '経営会議・戦略報告向け' },
+      { id: 'tech-cyan', label: 'Tech Cyan', dark: true, colors: ['#001f33','#00ffff','#ffffff'], desc: 'テクノロジー・DX提案向け' },
+      { id: 'minimal-white', label: 'Minimal', dark: false, colors: ['#2d3436','#ffb81c','#ffffff'], desc: 'シンプル・研修資料向け' },
+      { id: 'bold-gold', label: 'Bold Gold', dark: true, colors: ['#001f33','#ffb81c','#ffc94d'], desc: 'インパクト重視の営業向け' },
+      { id: 'corporate-navy', label: 'Corporate', dark: true, colors: ['#001f33','#ccd4dd','#667a99'], desc: '経営層・フォーマル向け' },
+    ];
     let refineCount = 0;
     const MAX_REFINE = 5;
     let chatHistory = [];
@@ -656,10 +689,24 @@
     }
 
     // ===== テンプレート =====
+    function renderTplChips() {
+      const container = document.getElementById('tpl-chips');
+      container.innerHTML = '';
+      TEMPLATES.forEach(t => {
+        const btn = document.createElement('button');
+        btn.className = 'tpl-chip' + (t.dark ? ' dark' : '') + (t.id === selectedTemplate ? ' selected' : '');
+        btn.dataset.val = t.id;
+        btn.title = t.desc;
+        btn.onclick = () => selectTpl(btn);
+        btn.innerHTML = `${esc(t.label)}<div class="tpl-chip-preview">${t.colors.map(c => `<span class="tpl-chip-dot" style="background:${c}"></span>`).join('')}</div>`;
+        container.appendChild(btn);
+      });
+    }
     function selectTpl(el) {
       document.querySelectorAll('.tpl-chip').forEach(c => c.classList.remove('selected'));
       el.classList.add('selected');
       selectedTemplate = el.dataset.val;
+      localStorage.setItem('slide-tpl', selectedTemplate);
       preloadTemplate(selectedTemplate);
       if (currentSlides) renderPreview(currentSlides);
     }
@@ -1408,6 +1455,9 @@
 
       // 選択スライドをキャンバスに表示
       selectSlide(selectedSlideIdx, true);
+
+      // 画像解決（バックグラウンド）
+      resolveImages(slides);
     }
 
     function selectSlide(idx, skipThumbUpdate) {
@@ -1500,27 +1550,38 @@
       return svg;
     }
 
+    function getTemplateColors() {
+      const tpl = TEMPLATES.find(t => t.id === selectedTemplate) || TEMPLATES[0];
+      const isDark = tpl.dark;
+      const primary = tpl.colors[0];
+      const accent = tpl.colors[1];
+      const third = tpl.colors[2];
+      return {
+        isDark,
+        bg: isDark ? primary : '#ffffff',
+        fg: isDark ? '#ffffff' : '#2d3436',
+        titleC: isDark ? '#ffffff' : primary,
+        accent,
+        muted: isDark ? 'rgba(255,255,255,0.5)' : '#8a9bb0',
+        subtleBg: isDark ? 'rgba(255,255,255,0.06)' : '#f5f7fa',
+        dividerC: isDark ? '#ffffff' : primary,
+        imgBg: isDark ? 'rgba(255,255,255,0.08)' : '#e8ecf0',
+        thBg: isDark ? `${accent}33` : primary,
+        thFg: isDark ? accent : '#ffffff',
+        coverBg: primary,
+        third,
+      };
+    }
+
     function buildSlideHtml(slide) {
-      const tpl = selectedTemplate || 'external-white';
-      const isDark = tpl.includes('dark');
-      // Color palette based on template
-      const bg = isDark ? '#001f33' : '#ffffff';
-      const fg = isDark ? '#ffffff' : '#2d3436';
-      const titleC = isDark ? '#ffffff' : '#001f33';
-      const accent = '#ffb81c';
-      const muted = isDark ? 'rgba(255,255,255,0.5)' : '#8a9bb0';
-      const subtleBg = isDark ? 'rgba(255,255,255,0.06)' : '#f5f7fa';
-      const dividerC = isDark ? '#ffffff' : '#001f33';
-      const imgBg = isDark ? 'rgba(255,255,255,0.08)' : '#e8ecf0';
-      const thBg = isDark ? 'rgba(255,184,28,0.2)' : '#001f33';
-      const thFg = isDark ? accent : '#ffffff';
+      const { isDark, bg, fg, titleC, accent, muted, subtleBg, dividerC, imgBg, thBg, thFg, coverBg } = getTemplateColors();
 
       const wrap = (inner, style = '') => `<div class="sp" style="background:${bg};color:${fg};${style}">${inner}</div>`;
       const accentLine = `<div class="sp-accent-line" style="background:${accent}"></div>`;
 
       switch (slide.layout) {
         case 'cover':
-          return wrap(`<div class="sp-full" style="background:${isDark ? bg : '#001f33'};color:#fff">
+          return wrap(`<div class="sp-full" style="background:${coverBg};color:#fff">
             ${accentLine}
             <div class="sp-title" style="font-size:1.2em;color:#fff">${esc(slide.title || '')}</div>
             <div class="sp-sub" style="color:rgba(255,255,255,0.7)">${esc(slide.subtitle || '')}</div>
@@ -1532,7 +1593,7 @@
             <div class="sp-body"><div class="sp-body-items">${(slide.items||[]).map((it,i) => `<div style="color:${fg}"><span style="color:${accent};font-weight:700;margin-right:0.5em">${i+1}.</span>${esc(it)}</div>`).join('')}</div></div>`);
 
         case 'chapter':
-          return wrap(`<div class="sp-full" style="background:${isDark ? bg : '#001f33'};color:#fff">
+          return wrap(`<div class="sp-full" style="background:${coverBg};color:#fff">
             <div class="sp-chapter-num" style="color:${accent}">CHAPTER ${esc(slide.number || '')}</div>
             ${accentLine}
             <div class="sp-title" style="font-size:1.1em;color:#fff">${esc(slide.title || '')}</div>
@@ -1552,13 +1613,18 @@
         case 'text-left-picture-right': case 'text-right-picture-left':
         case 'content-left-full-picture-right': case 'large-image-right': {
           const textEl = `<div class="sp-col" style="color:${fg};white-space:pre-wrap">${esc(slide.body || '')}</div>`;
-          const imgEl = `<div class="sp-col sp-img-placeholder" style="background:${imgBg}">🖼 ${esc(slide.imageQuery || '画像')}</div>`;
+          const imgEl = slide.imageUrl
+            ? `<div class="sp-col" style="background:url('${esc(slide.imageUrl)}') center/cover no-repeat"></div>`
+            : `<div class="sp-col sp-img-placeholder" style="background:${imgBg}">🖼 ${esc(slide.imageQuery || '画像')}</div>`;
           const isTextLeft = slide.layout.includes('text-left') || slide.layout.includes('content-left');
           return wrap(`<div class="sp-title-bar"><div class="sp-title" style="color:${titleC}">${esc(slide.title || '')}</div>${accentLine}</div>
             <div class="sp-cols">${isTextLeft ? textEl + imgEl : imgEl + textEl}</div>`);
         }
 
         case 'picture-fullscreen':
+          if (slide.imageUrl) {
+            return wrap(`<div class="sp-full" style="background:url('${esc(slide.imageUrl)}') center/cover no-repeat">${slide.title ? `<div style="font-size:0.55em;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.6);position:absolute;bottom:8%;left:7%">${esc(slide.title)}</div>` : ''}</div>`);
+          }
           return wrap(`<div class="sp-full sp-img-placeholder" style="background:${imgBg}"><div><div style="font-size:0.7em;margin-bottom:0.3em">🖼</div><div style="font-size:0.5em;opacity:0.5">${esc(slide.imageQuery || '全面画像')}</div>${slide.title ? `<div style="font-size:0.55em;font-weight:700;margin-top:0.5em;color:${titleC}">${esc(slide.title)}</div>` : ''}</div></div>`);
 
         case 'content-with-chart': {
@@ -1597,7 +1663,7 @@
           </div>`);
 
         case 'closing':
-          return wrap(`<div class="sp-full" style="background:${isDark ? bg : '#001f33'};color:#fff">
+          return wrap(`<div class="sp-full" style="background:${coverBg};color:#fff">
             ${accentLine}
             <div style="font-size:0.8em;font-weight:700;color:#fff">${esc(slide.message || '')}</div>
             <div style="font-size:0.45em;color:${accent};margin-top:0.8em">Thank you</div>
@@ -1747,6 +1813,42 @@
       renderOutline();
     }
 
+    // ===== 画像解決（Unsplash API） =====
+    const imageCache = {};
+    async function resolveImages(slides) {
+      const queries = [];
+      slides.forEach((s, i) => {
+        if (s.imageQuery && !s.imageUrl && !imageCache[s.imageQuery]) {
+          queries.push({ idx: i, q: s.imageQuery });
+        } else if (s.imageQuery && imageCache[s.imageQuery]) {
+          s.imageUrl = imageCache[s.imageQuery];
+        }
+      });
+      if (queries.length === 0) return;
+
+      try {
+        const res = await fetch('/api/slide-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ queries: queries.map(q => q.q) }),
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json.fallback || !json.images) return;
+
+        json.images.forEach((img, i) => {
+          if (img.url && queries[i]) {
+            const slide = slides[queries[i].idx];
+            slide.imageUrl = img.url;
+            slide.imageCredit = img.credit;
+            imageCache[img.query || queries[i].q] = img.url;
+          }
+        });
+        // 再描画
+        renderPreview(slides);
+      } catch {}
+    }
+
     // ===== プレゼンテーションモード =====
     let presIndex = 0;
     let presTimerInterval = null;
@@ -1776,16 +1878,26 @@
       else if (e.key === 'Escape') exitPresMode();
     }
 
-    function presNext() { if (presIndex < currentSlides.length - 1) { presIndex++; renderPresSlide(); } }
-    function presPrev() { if (presIndex > 0) { presIndex--; renderPresSlide(); } }
+    function presNext() { if (presIndex < currentSlides.length - 1) { presIndex++; renderPresSlide('next'); } }
+    function presPrev() { if (presIndex > 0) { presIndex--; renderPresSlide('prev'); } }
 
-    function renderPresSlide() {
+    function renderPresSlide(direction) {
       const slide = currentSlides[presIndex];
-      document.getElementById('pres-slide').innerHTML = buildSlideHtml(slide);
+      const el = document.getElementById('pres-slide');
+      el.innerHTML = buildSlideHtml(slide);
+
+      // 遷移アニメーション適用
+      el.className = 'pres-slide';
+      if (presTransition !== 'none' && direction) {
+        void el.offsetWidth; // reflow trigger
+        if (presTransition === 'fade') el.classList.add('anim-fade');
+        else if (presTransition === 'slide') el.classList.add(direction === 'next' ? 'anim-slide-left' : 'anim-slide-right');
+        else if (presTransition === 'zoom') el.classList.add('anim-zoom');
+      }
+
       document.getElementById('pres-counter').textContent = `${presIndex + 1} / ${currentSlides.length}`;
       document.getElementById('pres-notes').textContent = slide.notes || '';
       document.getElementById('pres-notes').style.display = slide.notes ? 'block' : 'none';
-      // プログレスバー＆スライド番号
       const pct = ((presIndex + 1) / currentSlides.length * 100);
       document.getElementById('pres-progress-fill').style.width = pct + '%';
       document.getElementById('pres-slide-number').textContent = `${presIndex + 1}`;
@@ -1805,7 +1917,9 @@
       currentSlides = null; outlineData = null; refineCount = 0;
       deepResearchEnabled = false; researchData = null;
       document.getElementById('btn-research-toggle').classList.remove('active');
-      selectTplByVal('external-white');
+      selectedTemplate = 'external-white';
+      localStorage.setItem('slide-tpl', 'external-white');
+      renderTplChips();
       document.getElementById('editor-left').innerHTML = '';
       document.getElementById('canvas-slide').innerHTML = '';
       selectedSlideIdx = 0;
@@ -1842,6 +1956,7 @@
 
     // ===== 初期化 =====
     (function init() {
+      renderTplChips();
       preloadTemplate(selectedTemplate);
       initChat();
 
