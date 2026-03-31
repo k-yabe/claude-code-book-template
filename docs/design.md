@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-31（Prompt Maker v6 マインドマップ・Slide Maker UI全面刷新・Wireframe Maker V3）
+最終更新: 2026-03-31（Prompt Maker v6 マインドマップ・Wireframe Maker V5・Slide Maker UI全面刷新）
 
 ---
 
@@ -57,7 +57,7 @@
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
 | Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040, S041 |
-| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037, S038 |
+| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037, S038, S040 |
 
 ---
 
@@ -178,7 +178,15 @@ NotebookLM超えの2ペインレイアウトでプロンプトを対話生成す
 | ミニマップ | 右下にSVG縮小版常時表示 |
 | ショートカット | Ctrl+Z/Y/S/G/P/E、1/2/3タブ切替、Delete、? |
 | テンプレート | 10種（BtoB LP、SaaS、EC商品、採用、イベント等） |
-| API | claude-sonnet-4-6（生成）/ claude-haiku-4-5-20251001（リファイン） |
+| API | claude-sonnet-4-6（生成/バリアント）/ claude-haiku-4-5-20251001（リファイン） |
+| SVGダイレクト操作 | プレビュー上でドラッグ並べ替え、オーバーレイツールバー（↑↓複製削除編集リンク） |
+| A/Bバリアント | AI代替構成生成、サイドバイサイドdiff比較、セクション単位チェリーピック、B案一括採用 |
+| マルチページ | ページ追加/削除/名前変更、ページ間リンク設定、SVG上リンクインジケータ、クリック遷移 |
+| AIコピーライティング | refineモードでプレースホルダーを実コピーに一括変換 |
+| ヒートマップ予測 | F字パターン・CTA集中度のCanvasオーバーレイ（mix-blend-mode: multiply） |
+| レスポンシブ3画面 | PC(1200)/Tab(768)/SP(375)を横並び同時プレビュー |
+| プロトタイプ再生 | フルスクリーン、ページ遷移、矢印キー操作、ドットナビゲーション |
+| セクションコメント | レビュー用注釈、バッジ表示、ポップオーバー入力 |
 
 ### Todoアプリ（`todo.html`）
 
@@ -262,3 +270,5 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-30 | Banner Resizer WebPフォールバック修正 | ブラウザがWebP非対応時にPNGにフォールバックされるが拡張子が.webpのままでCMSアップロードエラーになっていた。Blobの実際のMIMEタイプを確認し正しい拡張子で出力するよう修正 |
 | 2026-03-31 | Slide Maker UI全面刷新 | GoogleSlides風2ペインエディタ（左サムネイル＋右キャンバス）、CSS変数デザインシステム（shadow/spacing/typography/transition）、フェーズプログレスバー、シマーローディング、レイアウト自動修正AI、プレゼンモード改善（プログレスバー+スライド番号）、キーボードナビゲーション |
 | 2026-03-31 | Wireframe Maker V3 大規模アップグレード | スプリットペインUI（左パネル+右ライブプレビュー）、CVRスコアリング、カラースキーム3種、ミニマップ、強化SVGレンダリング、ショートカット拡張 |
+| 2026-03-31 | Wireframe Maker V4 Figma超え3機能 | SVGダイレクト操作（ドラッグ並べ替え+オーバーレイツールバー）、A/Bバリアント生成（AI代替構成diff比較+チェリーピック）、マルチページプロトタイプ（ページ管理+ページ間リンク+遷移） |
+| 2026-03-31 | Wireframe Maker V5 5機能追加 | AIコピーライティング、ヒートマップ予測（F字パターン）、レスポンシブ3画面同時プレビュー、プロトタイプ再生モード、セクションコメント/注釈 |

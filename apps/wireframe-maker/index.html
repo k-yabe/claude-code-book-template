@@ -35,7 +35,7 @@
     .navbar-score .score-fill { height: 100%; transition: width 0.5s, background 0.3s; }
 
     /* ===== スプリットペインレイアウト ===== */
-    .editor-layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 48px); }
+    .editor-layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 78px); }
 
     /* 左パネル */
     .left-panel { width: 380px; min-width: 320px; max-width: 500px; background: #fff; border-right: 1px solid #e8ecf0; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
@@ -262,6 +262,115 @@
       .minimap { display: none; }
     }
 
+    /* ===== ページバー ===== */
+    .page-bar { display: flex; align-items: center; background: #0a2940; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 16px; height: 30px; flex-shrink: 0; gap: 4px; }
+    .page-tabs { display: flex; gap: 2px; flex: 1; overflow-x: auto; }
+    .page-tab { display: flex; align-items: center; gap: 4px; padding: 4px 12px; font-size: 0.65rem; color: rgba(255,255,255,0.5); cursor: pointer; border: none; background: none; font-family: inherit; white-space: nowrap; transition: all 0.12s; }
+    .page-tab:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.05); }
+    .page-tab.active { color: #fff; background: rgba(255,184,28,0.12); }
+    .page-tab .pt-name { outline: none; cursor: pointer; }
+    .page-tab .pt-name[contenteditable="true"] { cursor: text; background: rgba(255,255,255,0.1); padding: 0 4px; }
+    .page-tab .pt-close { opacity: 0; font-size: 0.55rem; padding: 1px 3px; cursor: pointer; transition: opacity 0.12s; }
+    .page-tab:hover .pt-close { opacity: 0.5; }
+    .page-tab .pt-close:hover { opacity: 1; color: #ef4444; }
+    .page-tab .pt-link { font-size: 0.5rem; color: #ffb81c; opacity: 0.6; }
+    .page-add-btn { background: none; border: 1px dashed rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); padding: 2px 8px; font-size: 0.6rem; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .page-add-btn:hover { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.7); }
+
+    /* ===== セクションオーバーレイツールバー改良 ===== */
+    .section-overlay-bar { position: absolute; display: flex; gap: 1px; background: #001f33; padding: 2px 3px; z-index: 20; pointer-events: auto; box-shadow: 0 2px 12px rgba(0,0,0,0.25); transform: translateY(-100%); margin-top: -4px; }
+    .section-overlay-bar button { background: none; border: none; color: rgba(255,255,255,0.75); font-size: 0.7rem; cursor: pointer; padding: 4px 7px; transition: all 0.12s; white-space: nowrap; }
+    .section-overlay-bar button:hover { color: #ffb81c; background: rgba(255,255,255,0.08); }
+    .section-overlay-bar button.danger:hover { color: #ef4444; }
+
+    /* SVGドラッグリオーダー */
+    .right-panel-canvas svg .section-group.svg-dragging { opacity: 0.35; }
+    .svg-drop-indicator { position: absolute; left: 24px; right: 24px; height: 3px; background: #ffb81c; z-index: 25; pointer-events: none; box-shadow: 0 0 8px rgba(255,184,28,0.5); }
+
+    /* ===== A/Bバリアント比較 ===== */
+    .variant-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 150; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
+    .variant-panel { background: #fff; width: 95vw; max-width: 1400px; height: 85vh; display: flex; flex-direction: column; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+    .variant-header { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #e8ecf0; gap: 12px; }
+    .variant-header h3 { font-size: 0.92rem; color: #001f33; flex: 1; }
+    .variant-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #8a9bb0; padding: 4px 8px; }
+    .variant-close:hover { color: #001f33; }
+    .variant-body { display: flex; flex: 1; overflow: hidden; }
+    .variant-col { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .variant-col + .variant-col { border-left: 2px solid #e8ecf0; }
+    .variant-col-header { padding: 8px 12px; background: #f7f8fa; border-bottom: 1px solid #e8ecf0; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .vc-label { font-size: 0.78rem; font-weight: 700; color: #001f33; }
+    .vc-score { font-size: 0.68rem; color: #8a9bb0; margin-left: 4px; }
+    .vc-adopt { background: #ffb81c; color: #001f33; border: none; padding: 4px 12px; font-size: 0.68rem; font-weight: 700; cursor: pointer; font-family: inherit; margin-left: auto; }
+    .vc-adopt:hover { opacity: 0.85; }
+    .variant-col-body { flex: 1; overflow-y: auto; padding: 8px; }
+    .variant-sec { display: flex; align-items: center; gap: 8px; padding: 6px 10px; margin-bottom: 4px; border: 1px solid #e8ecf0; cursor: pointer; transition: all 0.12s; font-size: 0.75rem; }
+    .variant-sec:hover { background: #fffbf0; }
+    .variant-sec.diff-add { background: rgba(34,197,94,0.05); border-left: 3px solid #22c55e; }
+    .variant-sec.diff-remove { background: rgba(239,68,68,0.05); border-left: 3px solid #ef4444; }
+    .variant-sec.diff-change { background: rgba(255,184,28,0.05); border-left: 3px solid #ffb81c; }
+    .variant-sec .vs-type { font-size: 0.55rem; text-transform: uppercase; font-weight: 700; color: #8a9bb0; background: #f0f2f5; padding: 1px 5px; flex-shrink: 0; }
+    .variant-sec .vs-label { flex: 1; font-weight: 600; color: #2d3436; }
+    .variant-sec .vs-diff-tag { font-size: 0.55rem; font-weight: 700; padding: 1px 5px; flex-shrink: 0; }
+    .variant-sec .vs-diff-tag.add { color: #16a34a; background: rgba(34,197,94,0.1); }
+    .variant-sec .vs-diff-tag.remove { color: #dc2626; background: rgba(239,68,68,0.1); }
+    .variant-sec .vs-diff-tag.change { color: #d97706; background: rgba(255,184,28,0.1); }
+    .variant-sec .vs-pick { background: none; border: 1px solid #d0d5dc; color: #8a9bb0; font-size: 0.58rem; padding: 2px 8px; cursor: pointer; font-family: inherit; opacity: 0; transition: opacity 0.12s; flex-shrink: 0; }
+    .variant-sec:hover .vs-pick { opacity: 1; }
+    .variant-sec .vs-pick:hover { color: #001f33; background: #fffbf0; }
+    .variant-loading { display: flex; align-items: center; justify-content: center; height: 100%; color: #8a9bb0; font-size: 0.82rem; gap: 8px; }
+    .page-link-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 0.55rem; color: #ffb81c; background: rgba(255,184,28,0.08); padding: 1px 5px; margin-left: 4px; cursor: pointer; }
+    .page-link-badge:hover { background: rgba(255,184,28,0.15); }
+
+    /* ===== ヒートマップオーバーレイ ===== */
+    .heatmap-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 18; mix-blend-mode: multiply; }
+
+    /* ===== レスポンシブ3画面同時プレビュー ===== */
+    .responsive-preview-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 150; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
+    .responsive-preview-panel { background: #e8ecf0; width: 96vw; height: 90vh; display: flex; flex-direction: column; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+    .rp-header { display: flex; align-items: center; padding: 10px 16px; background: #001f33; gap: 12px; flex-shrink: 0; }
+    .rp-header h3 { font-size: 0.85rem; color: #fff; flex: 1; }
+    .rp-header .rp-close { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 1.1rem; cursor: pointer; padding: 4px 8px; }
+    .rp-header .rp-close:hover { color: #fff; }
+    .rp-body { display: flex; flex: 1; gap: 16px; padding: 16px; overflow: hidden; align-items: flex-start; }
+    .rp-device { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+    .rp-device-label { font-size: 0.68rem; font-weight: 700; color: #001f33; }
+    .rp-device-size { font-size: 0.58rem; color: #8a9bb0; }
+    .rp-device-frame { background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.12); overflow-y: auto; overflow-x: hidden; }
+    .rp-device-frame svg { display: block; }
+
+    /* ===== プロトタイプ再生モード ===== */
+    .proto-overlay { position: fixed; inset: 0; background: #1a1a2e; z-index: 200; display: flex; flex-direction: column; animation: fadeIn 0.2s ease; }
+    .proto-toolbar { display: flex; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.5); gap: 12px; flex-shrink: 0; z-index: 5; }
+    .proto-toolbar .pt-title { color: #fff; font-size: 0.78rem; font-weight: 600; flex: 1; }
+    .proto-toolbar .pt-page-info { color: rgba(255,255,255,0.5); font-size: 0.68rem; }
+    .proto-toolbar button { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); padding: 4px 12px; font-size: 0.68rem; cursor: pointer; font-family: inherit; }
+    .proto-toolbar button:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+    .proto-canvas { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 24px; }
+    .proto-canvas svg { box-shadow: 0 4px 32px rgba(0,0,0,0.4); cursor: default; }
+    .proto-canvas svg .link-indicator { cursor: pointer !important; }
+    .proto-canvas svg .link-indicator:hover rect { fill: rgba(255,184,28,0.3) !important; }
+    .proto-page-dots { display: flex; gap: 6px; align-items: center; justify-content: center; padding: 10px; flex-shrink: 0; }
+    .proto-dot { width: 8px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 50%; cursor: pointer; transition: all 0.2s; }
+    .proto-dot.active { background: #ffb81c; transform: scale(1.3); }
+
+    /* ===== セクションコメント ===== */
+    .comment-badge { position: absolute; display: flex; align-items: center; gap: 3px; background: #001f33; color: #fff; font-size: 0.58rem; padding: 2px 6px; z-index: 15; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+    .comment-badge:hover { background: #ffb81c; color: #001f33; }
+    .comment-popover { position: absolute; z-index: 30; width: 260px; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid #e8ecf0; }
+    .comment-popover-header { display: flex; align-items: center; padding: 8px 10px; background: #f7f8fa; border-bottom: 1px solid #e8ecf0; }
+    .comment-popover-header span { font-size: 0.72rem; font-weight: 700; color: #001f33; flex: 1; }
+    .comment-popover-header button { background: none; border: none; color: #8a9bb0; font-size: 0.85rem; cursor: pointer; }
+    .comment-list { max-height: 160px; overflow-y: auto; padding: 6px 10px; }
+    .comment-item { padding: 4px 0; border-bottom: 1px solid #f0f2f5; font-size: 0.7rem; color: #4a5568; line-height: 1.4; }
+    .comment-item .ci-author { font-weight: 600; color: #001f33; font-size: 0.62rem; }
+    .comment-input-row { display: flex; gap: 4px; padding: 6px 10px; border-top: 1px solid #e8ecf0; }
+    .comment-input-row input { flex: 1; border: 1px solid #e8ecf0; padding: 4px 6px; font-size: 0.68rem; font-family: inherit; outline: none; }
+    .comment-input-row input:focus { border-color: #ffb81c; }
+    .comment-input-row button { background: #001f33; color: #fff; border: none; padding: 4px 8px; font-size: 0.62rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+    /* ===== AIコピー生成ローディング ===== */
+    .copy-generating { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(0,31,51,0.9); color: #fff; padding: 12px 24px; font-size: 0.78rem; font-weight: 600; z-index: 30; display: flex; align-items: center; gap: 8px; }
+
     footer { background: #001f33; color: rgba(255,255,255,0.8); text-align: center; padding: 8px 16px; font-size: 0.65rem; flex-shrink: 0; }
     footer strong { color: #ffb81c; }
   </style>
@@ -283,6 +392,12 @@
   <button class="navbar-btn" onclick="showShortcuts()" title="ショートカット一覧">⌨ ?</button>
   <button class="navbar-btn" onclick="HistoryManager.togglePanel()">履歴</button>
 </nav>
+
+<!-- ページバー（マルチページプロトタイプ） -->
+<div class="page-bar" id="page-bar">
+  <div class="page-tabs" id="page-tabs"></div>
+  <button class="page-add-btn" onclick="addPage()">+ ページ追加</button>
+</div>
 
 <!-- メインレイアウト -->
 <div class="editor-layout">
@@ -441,6 +556,14 @@
       <div class="toolbar-sep"></div>
       <button class="toolbar-btn" id="grid-toggle" onclick="toggleGrid()">Grid</button>
       <button class="toolbar-btn" id="scheme-toggle" onclick="cycleColorScheme()">🎨</button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" id="variant-btn" onclick="generateVariant()" title="A/Bバリアント生成">A/B</button>
+      <button class="toolbar-btn" id="link-btn" onclick="addPageLink()" title="ページ間リンク追加">🔗</button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" id="heatmap-btn" onclick="toggleHeatmap()" title="ヒートマップ予測">🔥</button>
+      <button class="toolbar-btn" onclick="showResponsivePreview()" title="レスポンシブ3画面">📱</button>
+      <button class="toolbar-btn" onclick="startPrototypeMode()" title="プロトタイプ再生">▶</button>
+      <button class="toolbar-btn" id="copy-gen-btn" onclick="generateAICopy()" title="AIコピー生成">✍</button>
       <div style="flex:1"></div>
       <span id="selected-label" style="font-size:0.68rem;color:#8a9bb0"></span>
     </div>
@@ -479,6 +602,11 @@ let selectedSectionId = null;
 let zoomLevel = 1;
 let importedContent = '';
 let colorScheme = 'grayscale'; // grayscale | brand | blueprint
+
+/* ===== マルチページ状態 ===== */
+let pages = [{ id: 'page-1', name: 'トップ', sections: [], links: {} }];
+let currentPageIndex = 0;
+let variantSections = null; // A/B比較用
 
 /* ===== メソドロジーマッピング ===== */
 const SECTION_RATIONALE = {
@@ -883,9 +1011,12 @@ async function generateFromContext() {
 
 /* ===== セクション変更時の統合処理 ===== */
 function onSectionsChanged() {
+  // マルチページと同期
+  pages[currentPageIndex].sections = currentSections;
   renderPreview();
   renderSectionList();
   updateCVRDisplay();
+  renderPageTabs();
   switchTab('structure');
   document.getElementById('empty-preview').classList.add('hidden');
 }
@@ -1504,6 +1635,7 @@ function saveHistory() {
 
 function startNew() {
   chatHistory = []; currentContext = null; currentSections = []; selectedSectionId = null; zoomLevel = 1; importedContent = '';
+  pages = [{ id: 'page-1', name: 'トップ', sections: [], links: {} }]; currentPageIndex = 0; variantSections = null;
   document.getElementById('chat-messages').innerHTML = '';
   document.getElementById('suggestions-area').innerHTML = '';
   document.getElementById('ready-banner').classList.add('hidden');
@@ -1573,6 +1705,925 @@ document.addEventListener('keydown', e => {
   if (!ctrl && e.key === '2' && currentSections.length > 0) { e.preventDefault(); switchTab('structure'); }
   if (!ctrl && e.key === '3' && currentSections.length > 0) { e.preventDefault(); switchTab('export'); }
 });
+
+/* ================================================================
+   機能1: SVGダイレクト操作（オーバーレイツールバー＋ドラッグリオーダー）
+   ================================================================ */
+
+// オーバーレイツールバーを表示
+function showSectionOverlay(sectionId) {
+  document.querySelectorAll('.section-overlay-bar').forEach(o => o.remove());
+  const svgRoot = document.querySelector('#preview-canvas svg');
+  const canvas = document.getElementById('preview-canvas');
+  if (!svgRoot || !canvas) return;
+  const group = svgRoot.querySelector(`.section-group[data-id="${sectionId}"]`);
+  if (!group) return;
+
+  const idx = currentSections.findIndex(s => s.id === sectionId);
+  if (idx < 0) return;
+
+  const groupRect = group.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+
+  const bar = document.createElement('div');
+  bar.className = 'section-overlay-bar';
+  bar.style.left = (groupRect.left - canvasRect.left + canvas.scrollLeft) + 'px';
+  bar.style.top = (groupRect.top - canvasRect.top + canvas.scrollTop) + 'px';
+
+  const btns = [
+    { label: '↑ 上へ', action: () => moveSection(idx, -1), hide: idx === 0 },
+    { label: '↓ 下へ', action: () => moveSection(idx, 1), hide: idx === currentSections.length - 1 },
+    { label: '⧉ 複製', action: () => { duplicateSection(idx); showSectionOverlay(sectionId); } },
+    { label: '✎ 編集', action: () => { switchTab('structure'); setTimeout(() => { const card = document.querySelector(`.section-card[data-id="${sectionId}"]`); if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); const lbl = card.querySelector('.sec-label'); if (lbl) { lbl.contentEditable = 'true'; lbl.focus(); } } }, 100); } },
+    { label: '🔗 リンク', action: () => showLinkPicker(sectionId) },
+    { label: '✕', action: () => { deleteSection(idx); }, cls: 'danger' },
+  ];
+  btns.forEach(b => {
+    if (b.hide) return;
+    const btn = document.createElement('button');
+    btn.textContent = b.label;
+    if (b.cls) btn.className = b.cls;
+    btn.onclick = e => { e.stopPropagation(); b.action(); };
+    bar.appendChild(btn);
+  });
+  canvas.appendChild(bar);
+}
+
+function moveSection(fromIdx, dir) {
+  const toIdx = fromIdx + dir;
+  if (toIdx < 0 || toIdx >= currentSections.length) return;
+  saveUndoState();
+  const item = currentSections.splice(fromIdx, 1)[0];
+  currentSections.splice(toIdx, 0, item);
+  onSectionsChanged();
+  setTimeout(() => showSectionOverlay(item.id), 50);
+}
+
+// selectSectionを拡張してオーバーレイ表示を含める
+const _origSelectSection = selectSection;
+selectSection = function(id) {
+  _origSelectSection(id);
+  showSectionOverlay(id);
+};
+
+// SVGドラッグリオーダー
+(function initSVGDrag() {
+  const canvas = document.getElementById('preview-canvas');
+  let dragIdx = -1, dragStartY = 0, dropIdx = -1, indicator = null;
+
+  canvas.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    const group = e.target.closest('.section-group');
+    if (!group) return;
+    const id = group.dataset.id;
+    const idx = currentSections.findIndex(s => s.id === id);
+    if (idx < 0) return;
+
+    dragStartY = e.clientY;
+    const startIdx = idx;
+
+    const onMove = e2 => {
+      const dy = Math.abs(e2.clientY - dragStartY);
+      if (dy < 8 && dragIdx < 0) return; // デッドゾーン
+
+      if (dragIdx < 0) {
+        // ドラッグ開始
+        dragIdx = startIdx;
+        group.classList.add('svg-dragging');
+        document.querySelectorAll('.section-overlay-bar').forEach(o => o.remove());
+        indicator = document.createElement('div');
+        indicator.className = 'svg-drop-indicator';
+        canvas.appendChild(indicator);
+      }
+
+      // ドロップ位置計算
+      const svgRoot = canvas.querySelector('svg');
+      if (!svgRoot) return;
+      const svgRect = svgRoot.getBoundingClientRect();
+      const mouseY = e2.clientY;
+
+      let accY = svgRect.top;
+      let bestIdx = 0;
+      let bestDist = Infinity;
+      for (let i = 0; i <= currentSections.length; i++) {
+        const dist = Math.abs(mouseY - accY);
+        if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+        if (i < currentSections.length) {
+          const h = SECTION_HEIGHTS[currentSections[i].type] || 280;
+          accY += h * zoomLevel;
+        }
+      }
+      dropIdx = bestIdx;
+
+      // インジケータ位置
+      let indicatorY = 0;
+      for (let i = 0; i < dropIdx; i++) {
+        indicatorY += SECTION_HEIGHTS[currentSections[i].type] || 280;
+      }
+      indicator.style.top = (svgRect.top - canvas.getBoundingClientRect().top + canvas.scrollTop + indicatorY * zoomLevel) + 'px';
+    };
+
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      if (indicator) { indicator.remove(); indicator = null; }
+      group.classList.remove('svg-dragging');
+
+      if (dragIdx >= 0 && dropIdx >= 0 && dropIdx !== dragIdx && dropIdx !== dragIdx + 1) {
+        saveUndoState();
+        const item = currentSections.splice(dragIdx, 1)[0];
+        const insertAt = dropIdx > dragIdx ? dropIdx - 1 : dropIdx;
+        currentSections.splice(insertAt, 0, item);
+        onSectionsChanged();
+      }
+      dragIdx = -1; dropIdx = -1;
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // キャンバスクリックでオーバーレイ非表示
+  canvas.addEventListener('click', e => {
+    if (!e.target.closest('.section-group') && !e.target.closest('.section-overlay-bar')) {
+      document.querySelectorAll('.section-overlay-bar').forEach(o => o.remove());
+    }
+  });
+})();
+
+/* ================================================================
+   機能2: A/Bバリアント生成
+   ================================================================ */
+
+async function generateVariant() {
+  if (currentSections.length === 0) { showToast('まず構成を生成してください'); return; }
+
+  // バリアント比較オーバーレイを作成
+  const overlay = document.createElement('div');
+  overlay.className = 'variant-overlay';
+  overlay.id = 'variant-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  const scoreA = calculateCVRScore(currentSections).total;
+
+  overlay.innerHTML = `
+    <div class="variant-panel">
+      <div class="variant-header">
+        <h3>A/B バリアント比較</h3>
+        <button class="variant-close" onclick="document.getElementById('variant-overlay').remove()">✕</button>
+      </div>
+      <div class="variant-body">
+        <div class="variant-col">
+          <div class="variant-col-header">
+            <span class="vc-label">A: 現在の構成</span>
+            <span class="vc-score">CVR ${scoreA}</span>
+          </div>
+          <div class="variant-col-body" id="variant-col-a"></div>
+        </div>
+        <div class="variant-col">
+          <div class="variant-col-header">
+            <span class="vc-label">B: AIバリアント</span>
+            <span class="vc-score" id="variant-score-b">CVR --</span>
+            <button class="vc-adopt" id="variant-adopt-btn" onclick="adoptVariant()" style="display:none">B案を採用</button>
+          </div>
+          <div class="variant-col-body" id="variant-col-b">
+            <div class="variant-loading">
+              <div class="loading-dots"><span></span><span></span><span></span></div>
+              AIが代替構成を生成中...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  // A列を描画
+  renderVariantColumn('variant-col-a', currentSections, null, false);
+
+  // API呼び出し
+  try {
+    const r = await fetch('/api/wireframe-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'variant', currentSections, context: currentContext, _user: USER })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error?.message || data.error || 'バリアント生成失敗');
+
+    variantSections = data.sections;
+    const scoreB = calculateCVRScore(variantSections).total;
+    const scoreBEl = document.getElementById('variant-score-b');
+    if (scoreBEl) scoreBEl.textContent = `CVR ${scoreB}`;
+    const adoptBtn = document.getElementById('variant-adopt-btn');
+    if (adoptBtn) adoptBtn.style.display = '';
+
+    // diff計算
+    const diff = computeDiff(currentSections, variantSections);
+    renderVariantColumn('variant-col-a', currentSections, diff.aMarks, false);
+    renderVariantColumn('variant-col-b', variantSections, diff.bMarks, true);
+
+  } catch (e) {
+    const colB = document.getElementById('variant-col-b');
+    if (colB) colB.innerHTML = `<div style="padding:20px;color:#c0392b;font-size:0.78rem">エラー: ${escHtml(e.message)}</div>`;
+  }
+}
+
+function computeDiff(sectionsA, sectionsB) {
+  const typesA = sectionsA.map(s => s.type);
+  const typesB = sectionsB.map(s => s.type);
+  const aMarks = new Array(sectionsA.length).fill(null);
+  const bMarks = new Array(sectionsB.length).fill(null);
+
+  // マッチしたインデックスをトラック
+  const matched = new Set();
+  typesB.forEach((tb, bi) => {
+    const ai = typesA.findIndex((ta, i) => ta === tb && !matched.has(i));
+    if (ai >= 0) {
+      matched.add(ai);
+      // ラベルが違えばchanged
+      if (sectionsA[ai].label !== sectionsB[bi].label) {
+        aMarks[ai] = 'change';
+        bMarks[bi] = 'change';
+      }
+    } else {
+      bMarks[bi] = 'add';
+    }
+  });
+  typesA.forEach((ta, ai) => {
+    if (!matched.has(ai)) aMarks[ai] = 'remove';
+  });
+
+  return { aMarks, bMarks };
+}
+
+function renderVariantColumn(containerId, sections, marks, showPick) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  sections.forEach((sec, i) => {
+    const mark = marks ? marks[i] : null;
+    const div = document.createElement('div');
+    div.className = 'variant-sec' + (mark ? ` diff-${mark}` : '');
+    let diffTag = '';
+    if (mark === 'add') diffTag = '<span class="vs-diff-tag add">NEW</span>';
+    else if (mark === 'remove') diffTag = '<span class="vs-diff-tag remove">DEL</span>';
+    else if (mark === 'change') diffTag = '<span class="vs-diff-tag change">CHG</span>';
+    const pickBtn = showPick ? `<button class="vs-pick" onclick="event.stopPropagation();cherryPickSection(${i})">← 採用</button>` : '';
+    div.innerHTML = `<span class="vs-type">${escHtml(sec.type)}</span><span class="vs-label">${escHtml(sec.label)}</span>${diffTag}${pickBtn}`;
+    container.appendChild(div);
+  });
+}
+
+function adoptVariant() {
+  if (!variantSections) return;
+  saveUndoState();
+  currentSections = JSON.parse(JSON.stringify(variantSections));
+  onSectionsChanged();
+  document.getElementById('variant-overlay')?.remove();
+  showToast('バリアントBを採用しました');
+}
+
+function cherryPickSection(variantIdx) {
+  if (!variantSections || !variantSections[variantIdx]) return;
+  saveUndoState();
+  const sec = JSON.parse(JSON.stringify(variantSections[variantIdx]));
+  sec.id = 'sec-' + Date.now();
+  currentSections.push(sec);
+  onSectionsChanged();
+  // A列を再描画
+  const diff = computeDiff(currentSections, variantSections);
+  renderVariantColumn('variant-col-a', currentSections, diff.aMarks, false);
+  const scoreA = calculateCVRScore(currentSections).total;
+  const colAHeader = document.querySelector('#variant-overlay .variant-col:first-child .vc-score');
+  if (colAHeader) colAHeader.textContent = `CVR ${scoreA}`;
+  showToast(`「${sec.label}」を追加`);
+}
+
+/* ================================================================
+   機能3: マルチページプロトタイプ
+   ================================================================ */
+
+function renderPageTabs() {
+  const tabsEl = document.getElementById('page-tabs');
+  tabsEl.innerHTML = '';
+  pages.forEach((page, i) => {
+    const tab = document.createElement('div');
+    tab.className = 'page-tab' + (i === currentPageIndex ? ' active' : '');
+
+    const linkCount = Object.keys(page.links || {}).length;
+    const linkBadge = linkCount > 0 ? `<span class="pt-link">🔗${linkCount}</span>` : '';
+
+    const closeBtn = pages.length > 1 ? `<span class="pt-close" onclick="event.stopPropagation();deletePage(${i})">✕</span>` : '';
+
+    tab.innerHTML = `<span class="pt-name" data-page-idx="${i}">${escHtml(page.name)}</span>${linkBadge}${closeBtn}`;
+    tab.addEventListener('click', () => switchPage(i));
+
+    // ダブルクリックで名前編集
+    const nameEl = tab.querySelector('.pt-name');
+    nameEl.addEventListener('dblclick', e => {
+      e.stopPropagation();
+      nameEl.contentEditable = 'true';
+      nameEl.focus();
+      const range = document.createRange();
+      range.selectNodeContents(nameEl);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+    });
+    nameEl.addEventListener('blur', () => {
+      nameEl.contentEditable = 'false';
+      pages[i].name = nameEl.textContent.trim() || `ページ${i + 1}`;
+    });
+    nameEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); nameEl.blur(); } });
+
+    tabsEl.appendChild(tab);
+  });
+}
+
+function switchPage(index) {
+  if (index < 0 || index >= pages.length || index === currentPageIndex) return;
+  // 現在のページのセクションを保存
+  pages[currentPageIndex].sections = currentSections;
+  currentPageIndex = index;
+  currentSections = pages[index].sections;
+  selectedSectionId = null;
+  renderPageTabs();
+  if (currentSections.length > 0) {
+    renderPreview();
+    renderSectionList();
+    updateCVRDisplay();
+    document.getElementById('empty-preview').classList.add('hidden');
+  } else {
+    const canvas = document.getElementById('preview-canvas');
+    const existingSvg = canvas.querySelector('svg');
+    if (existingSvg) existingSvg.remove();
+    document.getElementById('empty-preview').classList.remove('hidden');
+    document.getElementById('section-list').innerHTML = '';
+    document.getElementById('section-count').textContent = '0 セクション';
+    updateCVRDisplay();
+  }
+  document.querySelectorAll('.section-overlay-bar').forEach(o => o.remove());
+  showToast(`ページ: ${pages[index].name}`);
+}
+
+function addPage() {
+  const newPage = {
+    id: 'page-' + Date.now(),
+    name: `ページ${pages.length + 1}`,
+    sections: [],
+    links: {}
+  };
+  pages.push(newPage);
+  switchPage(pages.length - 1);
+  // 新ページではチャットタブに戻す
+  switchTab('chat');
+}
+
+function deletePage(index) {
+  if (pages.length <= 1) return;
+  // リンク先がこのページの場合、リンクを削除
+  const deletedId = pages[index].id;
+  pages.forEach(p => {
+    Object.keys(p.links || {}).forEach(secId => {
+      if (p.links[secId] === deletedId) delete p.links[secId];
+    });
+  });
+  pages.splice(index, 1);
+  if (currentPageIndex >= pages.length) currentPageIndex = pages.length - 1;
+  currentSections = pages[currentPageIndex].sections;
+  selectedSectionId = null;
+  renderPageTabs();
+  if (currentSections.length > 0) {
+    renderPreview();
+    renderSectionList();
+    updateCVRDisplay();
+    document.getElementById('empty-preview').classList.add('hidden');
+  } else {
+    const canvas = document.getElementById('preview-canvas');
+    const existingSvg = canvas.querySelector('svg');
+    if (existingSvg) existingSvg.remove();
+    document.getElementById('empty-preview').classList.remove('hidden');
+    document.getElementById('section-list').innerHTML = '';
+    updateCVRDisplay();
+  }
+  showToast('ページを削除');
+}
+
+// ページ間リンク追加
+function addPageLink() {
+  if (!selectedSectionId) { showToast('先にセクションを選択してください'); return; }
+  if (pages.length < 2) { showToast('リンク先のページを追加してください'); return; }
+  showLinkPicker(selectedSectionId);
+}
+
+function showLinkPicker(sectionId) {
+  if (pages.length < 2) { showToast('リンク先のページを先に追加してください'); return; }
+  const overlay = document.createElement('div');
+  overlay.className = 'shortcuts-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  const currentPage = pages[currentPageIndex];
+  const existingLink = (currentPage.links || {})[sectionId];
+
+  let optionsHtml = pages.map((p, i) => {
+    if (i === currentPageIndex) return '';
+    const selected = existingLink === p.id ? ' style="background:#fffbf0;font-weight:700"' : '';
+    return `<div class="variant-sec"${selected} onclick="setPageLink('${sectionId}','${p.id}');this.closest('.shortcuts-overlay').remove()" style="cursor:pointer">
+      <span class="vs-type">PAGE</span><span class="vs-label">${escHtml(p.name)}</span>
+    </div>`;
+  }).join('');
+
+  if (existingLink) {
+    optionsHtml += `<div class="variant-sec" onclick="removePageLink('${sectionId}');this.closest('.shortcuts-overlay').remove()" style="cursor:pointer;border-color:#ef4444">
+      <span class="vs-label" style="color:#c0392b">リンクを削除</span>
+    </div>`;
+  }
+
+  overlay.innerHTML = `<div class="shortcuts-card" style="max-width:350px">
+    <h3 style="font-size:0.85rem">リンク先ページを選択</h3>
+    <div style="margin:12px 0;display:flex;flex-direction:column;gap:4px">${optionsHtml}</div>
+    <button class="sc-close" onclick="this.closest('.shortcuts-overlay').remove()">閉じる</button>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
+function setPageLink(sectionId, targetPageId) {
+  if (!pages[currentPageIndex].links) pages[currentPageIndex].links = {};
+  pages[currentPageIndex].links[sectionId] = targetPageId;
+  renderPreview();
+  renderPageTabs();
+  const targetPage = pages.find(p => p.id === targetPageId);
+  showToast(`リンク設定: → ${targetPage?.name || '不明'}`);
+}
+
+function removePageLink(sectionId) {
+  if (pages[currentPageIndex].links) {
+    delete pages[currentPageIndex].links[sectionId];
+  }
+  renderPreview();
+  renderPageTabs();
+  showToast('リンクを削除');
+}
+
+// SVGにリンクインジケータを描画
+const _origRenderSection = renderSection;
+renderSection = function(sec, yOff) {
+  const result = _origRenderSection(sec, yOff);
+  // リンクがある場合、アイコンを追加
+  const links = pages[currentPageIndex]?.links || {};
+  if (links[sec.id]) {
+    const targetPage = pages.find(p => p.id === links[sec.id]);
+    if (targetPage) {
+      const h = SECTION_HEIGHTS[sec.type] || 280;
+      const linkG = svgEl('g', { class: 'link-indicator', style: 'cursor:pointer' });
+      linkG.appendChild(svgEl('rect', { x: WF_WIDTH - 140, y: 4, width: 130, height: 18, fill: 'rgba(255,184,28,0.12)' }));
+      const linkText = svgEl('text', { x: WF_WIDTH - 135, y: 16, fill: '#ffb81c', 'font-size': '9', 'font-family': 'sans-serif', 'font-weight': '600' });
+      linkText.textContent = `🔗 → ${targetPage.name}`;
+      linkG.appendChild(linkText);
+      linkG.addEventListener('click', e => {
+        e.stopPropagation();
+        const idx = pages.findIndex(p => p.id === links[sec.id]);
+        if (idx >= 0) switchPage(idx);
+      });
+      result.group.appendChild(linkG);
+    }
+  }
+  return result;
+};
+
+// 初期ページタブ描画
+renderPageTabs();
+
+// startNewにページタブ再描画を追加
+const _origStartNew = startNew;
+startNew = function() {
+  _origStartNew();
+  sectionComments = {};
+  renderPageTabs();
+};
+
+/* ================================================================
+   機能V5-1: AIコピーライティング（セクションテキストをAI生成コピーで埋める）
+   ================================================================ */
+
+// カスタムコピーを保持
+let sectionCopyData = {};
+
+async function generateAICopy() {
+  if (currentSections.length === 0) { showToast('まず構成を生成してください'); return; }
+
+  const canvas = document.getElementById('preview-canvas');
+  const indicator = document.createElement('div');
+  indicator.className = 'copy-generating';
+  indicator.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>AIコピー生成中...';
+  canvas.appendChild(indicator);
+
+  try {
+    const sectionSummary = currentSections.map(s => `${s.type}: ${s.label}`).join('\n');
+    const r = await fetch('/api/wireframe-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mode: 'refine',
+        currentSections,
+        instruction: `各セクションに実際のマーケティングコピーを追加してください。以下のルールに従ってください:
+- labelはキャッチーなコピーに書き換え
+- descriptionは具体的な説明文に書き換え
+- componentsは変更しない
+- typeは変更しない
+- 才流/WACULの知見に基づくコピーにする
+- 数字を具体的に入れる（例: 導入企業12,847社、満足度99.7%）`,
+        _user: USER
+      })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error?.message || data.error || 'コピー生成失敗');
+
+    saveUndoState();
+    // ID を保持しつつlabel/descriptionを更新
+    data.sections.forEach((newSec, i) => {
+      if (currentSections[i]) {
+        currentSections[i].label = newSec.label;
+        currentSections[i].description = newSec.description || currentSections[i].description;
+      }
+    });
+    onSectionsChanged();
+    showToast('AIコピーを適用しました');
+  } catch (e) {
+    showError(e.message);
+  } finally {
+    indicator.remove();
+  }
+}
+
+/* ================================================================
+   機能V5-2: ヒートマップ予測（F字/Z字パターン視線予測オーバーレイ）
+   ================================================================ */
+
+let heatmapVisible = false;
+
+function toggleHeatmap() {
+  heatmapVisible = !heatmapVisible;
+  const btn = document.getElementById('heatmap-btn');
+  btn.classList.toggle('active', heatmapVisible);
+
+  // 既存のヒートマップを削除
+  document.querySelectorAll('.heatmap-overlay').forEach(o => o.remove());
+
+  if (!heatmapVisible || currentSections.length === 0) return;
+
+  const svgRoot = document.querySelector('#preview-canvas svg');
+  const canvas = document.getElementById('preview-canvas');
+  if (!svgRoot || !canvas) return;
+
+  const svgRect = svgRoot.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+
+  // ヒートマップキャンバス作成
+  const hm = document.createElement('canvas');
+  hm.className = 'heatmap-overlay';
+  hm.width = svgRect.width;
+  hm.height = svgRect.height;
+  hm.style.left = (svgRect.left - canvasRect.left + canvas.scrollLeft) + 'px';
+  hm.style.top = (svgRect.top - canvasRect.top + canvas.scrollTop) + 'px';
+  hm.style.width = svgRect.width + 'px';
+  hm.style.height = svgRect.height + 'px';
+
+  const ctx = hm.getContext('2d');
+
+  // セクションごとのヒート計算
+  let accY = 0;
+  const totalH = parseInt(svgRoot.getAttribute('height')) || 1;
+  const scaleX = svgRect.width / WF_WIDTH;
+  const scaleY = svgRect.height / totalH;
+
+  currentSections.forEach((sec, i) => {
+    const h = SECTION_HEIGHTS[sec.type] || 280;
+    const impact = getSectionCVRImpact(sec.type);
+    const intensity = impact === 'high' ? 0.55 : impact === 'mid' ? 0.3 : 0.15;
+
+    // F字パターン: 上部・左側が高い
+    const yTop = accY * scaleY;
+    const yBot = (accY + h) * scaleY;
+    const secH = yBot - yTop;
+
+    // 上位20%がホットゾーン（F字上部走査）
+    const hotZoneH = secH * 0.25;
+    const grad1 = ctx.createLinearGradient(0, yTop, 0, yBot);
+    grad1.addColorStop(0, `rgba(255,0,0,${intensity})`);
+    grad1.addColorStop(0.3, `rgba(255,165,0,${intensity * 0.6})`);
+    grad1.addColorStop(0.7, `rgba(255,255,0,${intensity * 0.3})`);
+    grad1.addColorStop(1, `rgba(0,128,0,${intensity * 0.1})`);
+    ctx.fillStyle = grad1;
+    ctx.fillRect(0, yTop, hm.width, secH);
+
+    // 左側バイアス（F字の縦棒）
+    const leftGrad = ctx.createLinearGradient(0, 0, hm.width, 0);
+    leftGrad.addColorStop(0, `rgba(255,0,0,${intensity * 0.3})`);
+    leftGrad.addColorStop(0.4, `rgba(255,165,0,${intensity * 0.1})`);
+    leftGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = leftGrad;
+    ctx.fillRect(0, yTop, hm.width, secH);
+
+    // CTAセクションは中央にホットスポット
+    if (['hero', 'cta-banner', 'form', 'sticky-cta'].includes(sec.type)) {
+      const cx = hm.width * 0.4;
+      const cy = yTop + secH * 0.5;
+      const radGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(hm.width * 0.3, secH * 0.8));
+      radGrad.addColorStop(0, `rgba(255,0,0,${intensity * 0.5})`);
+      radGrad.addColorStop(0.5, `rgba(255,165,0,${intensity * 0.2})`);
+      radGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = radGrad;
+      ctx.fillRect(0, yTop, hm.width, secH);
+    }
+
+    accY += h;
+  });
+
+  canvas.appendChild(hm);
+}
+
+// プレビュー再レンダリング時にヒートマップを再描画
+const _origDoRenderPreview = _doRenderPreview;
+_doRenderPreview = function() {
+  _origDoRenderPreview();
+  if (heatmapVisible) {
+    heatmapVisible = false;
+    toggleHeatmap();
+  }
+};
+
+/* ================================================================
+   機能V5-3: レスポンシブ3画面同時プレビュー
+   ================================================================ */
+
+function showResponsivePreview() {
+  if (currentSections.length === 0) { showToast('まず構成を生成してください'); return; }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'responsive-preview-overlay';
+  overlay.id = 'responsive-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  overlay.innerHTML = `
+    <div class="responsive-preview-panel">
+      <div class="rp-header">
+        <h3>レスポンシブプレビュー</h3>
+        <button class="rp-close" onclick="document.getElementById('responsive-overlay').remove()">✕</button>
+      </div>
+      <div class="rp-body">
+        <div class="rp-device">
+          <span class="rp-device-label">Desktop</span>
+          <span class="rp-device-size">1200px</span>
+          <div class="rp-device-frame" id="rp-desktop" style="width:480px;max-height:calc(90vh - 80px)"></div>
+        </div>
+        <div class="rp-device">
+          <span class="rp-device-label">Tablet</span>
+          <span class="rp-device-size">768px</span>
+          <div class="rp-device-frame" id="rp-tablet" style="width:307px;max-height:calc(90vh - 80px)"></div>
+        </div>
+        <div class="rp-device">
+          <span class="rp-device-label">Mobile</span>
+          <span class="rp-device-size">375px</span>
+          <div class="rp-device-frame" id="rp-mobile" style="width:150px;max-height:calc(90vh - 80px)"></div>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  // 各デバイスにSVGを複製して表示
+  const svgRoot = document.querySelector('#preview-canvas svg');
+  if (!svgRoot) return;
+
+  const devices = [
+    { id: 'rp-desktop', w: 1200, frameW: 480 },
+    { id: 'rp-tablet', w: 768, frameW: 307 },
+    { id: 'rp-mobile', w: 375, frameW: 150 },
+  ];
+
+  devices.forEach(d => {
+    const clone = svgRoot.cloneNode(true);
+    clone.style.transform = '';
+    clone.style.width = d.frameW + 'px';
+    clone.style.height = 'auto';
+    // グリッドを除去
+    const gridG = clone.querySelector('.grid-group');
+    if (gridG) gridG.remove();
+    document.getElementById(d.id).appendChild(clone);
+  });
+}
+
+/* ================================================================
+   機能V5-4: プロトタイプ再生モード
+   ================================================================ */
+
+let protoCurrentPage = 0;
+
+function startPrototypeMode() {
+  if (currentSections.length === 0 && pages.every(p => p.sections.length === 0)) {
+    showToast('まず構成を生成してください');
+    return;
+  }
+
+  // 現在のページを保存
+  pages[currentPageIndex].sections = currentSections;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'proto-overlay';
+  overlay.id = 'proto-overlay';
+  protoCurrentPage = currentPageIndex;
+
+  renderProtoPage(overlay);
+  document.body.appendChild(overlay);
+
+  // ESCで終了
+  const escHandler = e => {
+    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); }
+    if (e.key === 'ArrowRight') navigateProto(1);
+    if (e.key === 'ArrowLeft') navigateProto(-1);
+  };
+  document.addEventListener('keydown', escHandler);
+}
+
+function renderProtoPage(overlay) {
+  if (!overlay) overlay = document.getElementById('proto-overlay');
+  if (!overlay) return;
+
+  const page = pages[protoCurrentPage];
+  const sections = page.sections;
+
+  overlay.innerHTML = `
+    <div class="proto-toolbar">
+      <span class="pt-title">${escHtml(page.name)}</span>
+      <span class="pt-page-info">${protoCurrentPage + 1} / ${pages.length}</span>
+      <button onclick="navigateProto(-1)" ${protoCurrentPage === 0 ? 'disabled style="opacity:0.3"' : ''}>← 前へ</button>
+      <button onclick="navigateProto(1)" ${protoCurrentPage === pages.length - 1 ? 'disabled style="opacity:0.3"' : ''}>次へ →</button>
+      <button onclick="document.getElementById('proto-overlay').remove()">✕ 終了</button>
+    </div>
+    <div class="proto-canvas" id="proto-canvas"></div>
+    <div class="proto-page-dots" id="proto-dots"></div>`;
+
+  // SVGを生成
+  const protoCanvas = overlay.querySelector('#proto-canvas');
+  if (sections.length > 0) {
+    let y = 0;
+    const s = svgEl('svg', { xmlns: SVG_NS, width: WF_WIDTH });
+    s.appendChild(createDefs());
+    for (const sec of sections) {
+      const { group, height } = _origRenderSection(sec, y);
+      // リンクインジケータを追加
+      const links = page.links || {};
+      if (links[sec.id]) {
+        const targetPage = pages.find(p => p.id === links[sec.id]);
+        if (targetPage) {
+          const linkG = svgEl('g', { class: 'link-indicator', style: 'cursor:pointer' });
+          linkG.appendChild(svgEl('rect', { x: WF_WIDTH - 140, y: 4, width: 130, height: 18, fill: 'rgba(255,184,28,0.12)' }));
+          const linkText = svgEl('text', { x: WF_WIDTH - 135, y: 16, fill: '#ffb81c', 'font-size': '9', 'font-family': 'sans-serif', 'font-weight': '600' });
+          linkText.textContent = `🔗 → ${targetPage.name}`;
+          linkG.appendChild(linkText);
+          const targetIdx = pages.findIndex(p => p.id === links[sec.id]);
+          linkG.addEventListener('click', () => { protoCurrentPage = targetIdx; renderProtoPage(); });
+          group.appendChild(linkG);
+        }
+      }
+      s.appendChild(group);
+      y += height;
+    }
+    s.setAttribute('height', y);
+    s.setAttribute('viewBox', `0 0 ${WF_WIDTH} ${y}`);
+    s.style.width = '900px';
+    protoCanvas.appendChild(s);
+  } else {
+    protoCanvas.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-size:0.85rem;text-align:center;padding:60px">このページにはまだ構成がありません</div>';
+  }
+
+  // ドット
+  const dots = overlay.querySelector('#proto-dots');
+  pages.forEach((p, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'proto-dot' + (i === protoCurrentPage ? ' active' : '');
+    dot.title = p.name;
+    dot.onclick = () => { protoCurrentPage = i; renderProtoPage(); };
+    dots.appendChild(dot);
+  });
+}
+
+function navigateProto(dir) {
+  const next = protoCurrentPage + dir;
+  if (next < 0 || next >= pages.length) return;
+  protoCurrentPage = next;
+  renderProtoPage();
+}
+
+/* ================================================================
+   機能V5-5: セクションコメント/注釈機能
+   ================================================================ */
+
+let sectionComments = {}; // { sectionId: [{ author, text, time }] }
+
+function addComment(sectionId, text) {
+  if (!text || !text.trim()) return;
+  if (!sectionComments[sectionId]) sectionComments[sectionId] = [];
+  sectionComments[sectionId].push({
+    author: USER || 'Guest',
+    text: text.trim(),
+    time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+  });
+  renderCommentBadges();
+}
+
+function renderCommentBadges() {
+  // 既存のバッジとポップオーバーを削除
+  document.querySelectorAll('.comment-badge, .comment-popover').forEach(e => e.remove());
+
+  const svgRoot = document.querySelector('#preview-canvas svg');
+  const canvas = document.getElementById('preview-canvas');
+  if (!svgRoot || !canvas) return;
+  const canvasRect = canvas.getBoundingClientRect();
+
+  currentSections.forEach(sec => {
+    const comments = sectionComments[sec.id];
+    if (!comments || comments.length === 0) return;
+
+    const group = svgRoot.querySelector(`.section-group[data-id="${sec.id}"]`);
+    if (!group) return;
+    const groupRect = group.getBoundingClientRect();
+
+    const badge = document.createElement('div');
+    badge.className = 'comment-badge';
+    badge.style.left = (groupRect.right - canvasRect.left + canvas.scrollLeft - 40) + 'px';
+    badge.style.top = (groupRect.top - canvasRect.top + canvas.scrollTop + 4) + 'px';
+    badge.textContent = `💬 ${comments.length}`;
+    badge.onclick = e => { e.stopPropagation(); toggleCommentPopover(sec.id, badge); };
+    canvas.appendChild(badge);
+  });
+}
+
+function toggleCommentPopover(sectionId, badge) {
+  const existing = document.querySelector('.comment-popover');
+  if (existing) { existing.remove(); return; }
+
+  const comments = sectionComments[sectionId] || [];
+  const sec = currentSections.find(s => s.id === sectionId);
+  const popover = document.createElement('div');
+  popover.className = 'comment-popover';
+  const badgeRect = badge.getBoundingClientRect();
+  const canvas = document.getElementById('preview-canvas');
+  const canvasRect = canvas.getBoundingClientRect();
+  popover.style.left = (badgeRect.left - canvasRect.left + canvas.scrollLeft - 220) + 'px';
+  popover.style.top = (badgeRect.bottom - canvasRect.top + canvas.scrollTop + 4) + 'px';
+
+  popover.innerHTML = `
+    <div class="comment-popover-header">
+      <span>${escHtml(sec?.label || 'セクション')}</span>
+      <button onclick="this.closest('.comment-popover').remove()">✕</button>
+    </div>
+    <div class="comment-list" id="cl-${sectionId}">
+      ${comments.map(c => `<div class="comment-item"><span class="ci-author">${escHtml(c.author)} ${c.time}</span><br>${escHtml(c.text)}</div>`).join('')}
+    </div>
+    <div class="comment-input-row">
+      <input id="ci-input-${sectionId}" placeholder="コメントを追加..." onkeydown="if(event.key==='Enter'){submitComment('${sectionId}');event.preventDefault()}">
+      <button onclick="submitComment('${sectionId}')">送信</button>
+    </div>`;
+  canvas.appendChild(popover);
+  document.getElementById(`ci-input-${sectionId}`)?.focus();
+}
+
+function submitComment(sectionId) {
+  const input = document.getElementById(`ci-input-${sectionId}`);
+  if (!input) return;
+  addComment(sectionId, input.value);
+  document.querySelector('.comment-popover')?.remove();
+}
+
+// オーバーレイツールバーにコメントボタンを追加
+const _origShowOverlay = showSectionOverlay;
+showSectionOverlay = function(sectionId) {
+  _origShowOverlay(sectionId);
+  const bar = document.querySelector('.section-overlay-bar');
+  if (!bar) return;
+  const commentCount = (sectionComments[sectionId] || []).length;
+  const btn = document.createElement('button');
+  btn.textContent = `💬${commentCount > 0 ? commentCount : ''}`;
+  btn.onclick = e => {
+    e.stopPropagation();
+    const badges = document.querySelectorAll('.comment-badge');
+    // コメント入力ポップオーバーを直接開く
+    if (!sectionComments[sectionId]) sectionComments[sectionId] = [];
+    const fakeEl = { getBoundingClientRect: () => bar.getBoundingClientRect() };
+    toggleCommentPopover(sectionId, fakeEl);
+  };
+  // 削除ボタンの前に挿入
+  const dangerBtn = bar.querySelector('.danger');
+  if (dangerBtn) bar.insertBefore(btn, dangerBtn);
+  else bar.appendChild(btn);
+};
+
+// プレビュー更新時にコメントバッジ再描画
+const _origDoRender2 = _doRenderPreview;
+_doRenderPreview = function() {
+  _origDoRender2();
+  setTimeout(renderCommentBadges, 50);
+};
 </script>
 </body>
 </html>
