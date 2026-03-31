@@ -13,7 +13,7 @@
     /* ナビバー */
     .navbar {
       background: #001f33; height: 58px; display: flex; align-items: center;
-      padding: 0 40px; gap: 14px; position: sticky; top: 0; z-index: 10;
+      padding: 0 40px; gap: 14px; position: sticky; top: 0; z-index: 100;
     }
     .navbar-brand { display: flex; align-items: center; gap: 14px; }
     .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
@@ -24,125 +24,330 @@
       text-decoration: none; transition: all 0.15s;
     }
     .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+    .storage-badge {
+      margin-left: auto; font-size: 0.68rem; padding: 3px 10px;
+      font-weight: 700; display: flex; align-items: center; gap: 5px;
+    }
+    .storage-badge.cloud { background: rgba(0,255,255,0.15); color: #00ffff; }
+    .storage-badge.local { background: rgba(255,184,28,0.15); color: #ffb81c; }
 
-    /* メインコンテナ */
-    .container { max-width: 800px; margin: 0 auto; padding: 24px 24px 60px; flex: 1; width: 100%; }
-
-    /* チャットエリア */
-    .chat-box {
-      background: #fff; border: 1.5px solid #e8ecf0;
-      display: flex; flex-direction: column; min-height: 520px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    /* メインレイアウト */
+    .main-layout {
+      display: flex; flex: 1; max-width: 1200px; width: 100%;
+      margin: 0 auto; padding: 20px; gap: 20px;
     }
 
-    /* サジェスチョン（初期表示） */
+    /* モバイルタブ */
+    .mobile-tabs { display: none; background: #fff; border-bottom: 1px solid #e8ecf0; padding: 0 16px; }
+    .mobile-tab {
+      background: none; border: none; border-bottom: 2px solid transparent;
+      padding: 12px 20px; font-size: 0.82rem; font-weight: 700;
+      color: #8a9bb0; cursor: pointer; font-family: inherit; transition: all 0.15s;
+    }
+    .mobile-tab.active { color: #001f33; border-bottom-color: #ffb81c; }
+
+    /* ── 左ペイン ── */
+    .source-panel {
+      width: 380px; flex-shrink: 0; background: #fff;
+      border: 1px solid #e8ecf0; display: flex; flex-direction: column;
+      max-height: calc(100vh - 118px);
+    }
+    .source-header {
+      background: #001f33; padding: 14px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .source-header-title { font-size: 0.88rem; font-weight: 700; color: #fff; }
+    .source-count { font-size: 0.68rem; color: rgba(255,255,255,0.6); }
+
+    /* 横断分析 */
+    .analysis-panel {
+      display: none; padding: 12px 14px; background: #f0f7ff;
+      border-bottom: 1px solid #e8ecf0; max-height: 200px; overflow-y: auto;
+    }
+    .analysis-panel.show { display: block; }
+    .analysis-title { font-size: 0.75rem; font-weight: 700; color: #001f33; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .analysis-content { font-size: 0.75rem; color: #4a5568; line-height: 1.7; white-space: pre-wrap; }
+    .analysis-close {
+      background: none; border: none; color: #8a9bb0; cursor: pointer;
+      font-size: 0.8rem; margin-left: auto; padding: 0;
+    }
+    .analysis-close:hover { color: #e17055; }
+
+    /* 検索 + 分析ボタン */
+    .source-toolbar {
+      padding: 10px 14px; border-bottom: 1px solid #e8ecf0;
+      display: flex; gap: 8px; align-items: center;
+    }
+    .source-toolbar input {
+      flex: 1; border: 1.5px solid #e8ecf0; padding: 8px 12px;
+      font-size: 0.78rem; font-family: inherit; color: #2d3436; outline: none;
+    }
+    .source-toolbar input:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
+    .source-toolbar input::placeholder { color: #c8d0da; }
+    .analyze-btn {
+      background: #001f33; color: #fff; border: none; padding: 8px 14px;
+      font-size: 0.72rem; font-weight: 700; cursor: pointer; font-family: inherit;
+      white-space: nowrap; transition: opacity 0.15s;
+    }
+    .analyze-btn:hover { opacity: 0.85; }
+    .analyze-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ソース追加 */
+    .source-add-area { padding: 14px; border-bottom: 1px solid #e8ecf0; }
+    .source-add-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+    .source-add-tab {
+      background: none; border: 1px solid #e8ecf0; color: #8a9bb0;
+      font-size: 0.72rem; font-weight: 700; padding: 5px 12px;
+      cursor: pointer; font-family: inherit; transition: all 0.15s;
+    }
+    .source-add-tab:hover { border-color: #001f33; color: #001f33; }
+    .source-add-tab.active { background: #001f33; border-color: #001f33; color: #fff; }
+    .source-input-group { display: flex; flex-direction: column; gap: 8px; }
+    .source-input-group textarea {
+      border: 1.5px solid #e8ecf0; padding: 10px 12px; font-size: 0.82rem;
+      font-family: inherit; resize: vertical; min-height: 70px; max-height: 140px;
+      color: #2d3436; line-height: 1.5; outline: none;
+    }
+    .source-input-group textarea:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
+    .source-input-group input {
+      border: 1.5px solid #e8ecf0; padding: 8px 12px; font-size: 0.78rem;
+      font-family: inherit; color: #2d3436; outline: none; width: 100%;
+    }
+    .source-input-group input:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
+    .source-input-group input::placeholder { color: #c8d0da; }
+    .source-add-row { display: flex; gap: 8px; align-items: center; }
+    .source-add-btn {
+      background: #ffb81c; color: #001f33; border: none; padding: 8px 18px;
+      font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: opacity 0.15s; white-space: nowrap;
+    }
+    .source-add-btn:hover { opacity: 0.85; }
+    .source-add-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .url-status { font-size: 0.68rem; color: #8a9bb0; }
+
+    /* ソースリスト */
+    .source-list { flex: 1; overflow-y: auto; padding: 10px; }
+    .source-empty { text-align: center; color: #b2bec3; font-size: 0.82rem; padding: 30px 14px; line-height: 1.8; }
+    .source-item {
+      border: 1px solid #e8ecf0; border-left: 3px solid #001f33;
+      padding: 10px 12px; margin-bottom: 8px; transition: background 0.15s;
+    }
+    .source-item:hover { background: #fafbfc; }
+    .source-item.expanded { border-left-color: #ffb81c; }
+    .source-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .source-item-title { font-size: 0.78rem; font-weight: 700; color: #001f33; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .source-item-type { font-size: 0.62rem; font-weight: 800; padding: 1px 6px; background: #f0f2f5; color: #8a9bb0; flex-shrink: 0; margin-left: 6px; }
+    .source-item-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .source-item-user { font-size: 0.68rem; font-weight: 600; color: #4a5568; display: flex; align-items: center; gap: 3px; }
+    .source-item-date { font-size: 0.65rem; color: #b2bec3; }
+
+    /* AI要約 */
+    .source-item-summary {
+      font-size: 0.72rem; color: #2d3436; line-height: 1.6;
+      padding: 8px 10px; background: #fffbf0; border-left: 2px solid #ffb81c;
+      margin: 6px 0; white-space: pre-wrap;
+    }
+    .source-item-summary.loading { color: #8a9bb0; font-style: italic; }
+    .source-item-summary-label {
+      font-size: 0.62rem; font-weight: 800; color: #ffb81c; margin-bottom: 2px;
+    }
+
+    /* メモ */
+    .source-item-note {
+      margin: 6px 0;
+    }
+    .source-item-note textarea {
+      width: 100%; border: 1px solid #e8ecf0; padding: 6px 8px;
+      font-size: 0.72rem; font-family: inherit; resize: vertical;
+      min-height: 36px; max-height: 80px; color: #4a5568; outline: none;
+    }
+    .source-item-note textarea:focus { border-color: #ffb81c; }
+    .source-item-note textarea::placeholder { color: #c8d0da; }
+
+    .source-item-preview { font-size: 0.72rem; color: #8a9bb0; line-height: 1.5; max-height: 40px; overflow: hidden; margin-bottom: 6px; }
+    .source-item-full {
+      display: none; font-size: 0.78rem; color: #2d3436; line-height: 1.7;
+      padding: 10px; background: #f7f8fa; border: 1px solid #e8ecf0;
+      margin: 8px 0; max-height: 250px; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+    }
+    .source-item.expanded .source-item-preview { display: none; }
+    .source-item.expanded .source-item-full { display: block; }
+    .source-item-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .source-item-btn {
+      background: none; border: 1px solid #e8ecf0; color: #8a9bb0;
+      font-size: 0.68rem; padding: 2px 8px; cursor: pointer;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .source-item-btn:hover { border-color: #001f33; color: #001f33; }
+    .source-item-btn.delete:hover { border-color: #e17055; color: #e17055; }
+
+    /* ── 右ペイン ── */
+    .chat-panel {
+      flex: 1; background: #fff; border: 1px solid #e8ecf0;
+      display: flex; flex-direction: column; max-height: calc(100vh - 118px);
+    }
+
+    /* ソースインジケータ */
+    .source-indicator {
+      padding: 6px 16px; background: #f0f7ff; border-bottom: 1px solid #e8ecf0;
+      font-size: 0.72rem; color: #4a5568; display: none; align-items: center; gap: 6px;
+    }
+    .source-indicator.show { display: flex; }
+    .source-indicator-dot { width: 6px; height: 6px; background: #00b894; flex-shrink: 0; }
+
+    /* サジェスチョン */
     .suggestions { padding: 12px 16px; background: #fafbfc; border-bottom: 1px solid #e8ecf0; }
-    .suggestions-label { font-size: 0.72rem; color: #8a9bb0; font-weight: 600; margin-bottom: 8px; }
+    .suggestions-label { font-size: 0.72rem; color: #8a9bb0; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .suggestions-label .ai-tag { font-size: 0.58rem; background: #ffb81c; color: #001f33; padding: 1px 5px; font-weight: 800; }
     .sug-chips { display: flex; gap: 6px; flex-wrap: wrap; }
     .sug-chip {
       padding: 6px 14px; font-size: 0.75rem; background: #fff; color: #4a5568;
       border: 1.5px solid #e8ecf0; cursor: pointer; font-family: inherit; transition: all 0.15s;
     }
     .sug-chip:hover { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
+    .sug-loading { font-size: 0.72rem; color: #8a9bb0; padding: 6px 0; }
 
-    /* チャットメッセージ */
-    .chat-messages {
-      flex: 1; overflow-y: auto; padding: 20px 16px;
-      display: flex; flex-direction: column; gap: 14px;
-      min-height: 300px; max-height: 500px;
-    }
+    /* チャット */
+    .chat-messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
     .chat-row { display: flex; gap: 10px; align-items: flex-start; animation: fadeIn 0.3s ease; }
     .chat-row.ai { align-self: flex-start; }
     .chat-row.user { align-self: flex-end; flex-direction: row-reverse; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-    .chat-avatar {
-      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
-    }
+    .chat-avatar { width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
     .chat-avatar.ai { background: #fffbf0; }
     .chat-avatar.user { background: #e8ecf0; }
-
-    .chat-bubble {
-      max-width: 78%; padding: 12px 16px; font-size: 0.85rem;
-      line-height: 1.7; white-space: pre-wrap; word-break: break-word;
-    }
+    .chat-bubble { max-width: 78%; padding: 12px 16px; font-size: 0.85rem; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
     .chat-bubble.ai { background: #f7f8fa; color: #2d3436; border: 1px solid #e8ecf0; }
     .chat-bubble.user { background: #001f33; color: #fff; }
 
-    /* プロンプト結果バブル */
-    .prompt-result {
-      background: #fff; border: 1.5px solid #001f33; padding: 0; max-width: 90%;
-    }
-    .prompt-result-header {
-      background: #001f33; color: #fff; padding: 10px 16px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
+    /* プロンプト結果 */
+    .prompt-result { background: #fff; border: 1.5px solid #001f33; padding: 0; max-width: 90%; }
+    .prompt-result-header { background: #001f33; color: #fff; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
     .prompt-result-title { font-size: 0.82rem; font-weight: 700; }
-    .prompt-copy-btn {
-      background: #ffb81c; color: #001f33; border: none;
-      font-size: 0.75rem; font-weight: 700; padding: 5px 14px;
-      cursor: pointer; font-family: inherit; transition: opacity 0.15s;
-    }
+    .prompt-copy-btn { background: #ffb81c; color: #001f33; border: none; font-size: 0.75rem; font-weight: 700; padding: 5px 14px; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
     .prompt-copy-btn:hover { opacity: 0.85; }
-    .prompt-result-body {
-      padding: 14px 16px; font-size: 0.84rem; line-height: 1.8;
-      font-family: 'Consolas', 'Monaco', monospace; color: #2d3436;
-      white-space: pre-wrap; word-break: break-word; max-height: 400px;
-      overflow-y: auto;
+    .prompt-result-body { padding: 14px 16px; font-size: 0.84rem; line-height: 1.8; font-family: 'Consolas', 'Monaco', monospace; color: #2d3436; white-space: pre-wrap; word-break: break-word; max-height: 400px; overflow-y: auto; }
+    .prompt-result-hint { padding: 8px 16px; background: #fafbfc; border-top: 1px solid #e8ecf0; font-size: 0.72rem; color: #8a9bb0; }
+
+    /* 品質スコア */
+    .quality-score {
+      padding: 12px 16px; border-top: 1px solid #e8ecf0; background: #f7f8fa;
     }
-    .prompt-result-hint {
-      padding: 8px 16px; background: #fafbfc; border-top: 1px solid #e8ecf0;
-      font-size: 0.72rem; color: #8a9bb0;
+    .quality-score-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .quality-score-value {
+      font-size: 1.4rem; font-weight: 800; min-width: 48px; text-align: center;
+      padding: 4px 10px;
     }
+    .quality-score-value.high { background: rgba(0,184,148,0.12); color: #00b894; }
+    .quality-score-value.mid { background: rgba(255,184,28,0.12); color: #e17055; }
+    .quality-score-value.low { background: rgba(225,112,85,0.12); color: #e17055; }
+    .quality-score-label { font-size: 0.72rem; font-weight: 700; color: #001f33; }
+    .quality-axes { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .quality-axis {
+      font-size: 0.65rem; padding: 2px 8px; border: 1px solid #e8ecf0;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .quality-axis-bar { height: 4px; background: #00b894; }
+    .quality-hint { font-size: 0.72rem; color: #4a5568; line-height: 1.6; }
+    .quality-loading { font-size: 0.72rem; color: #8a9bb0; padding: 8px 16px; border-top: 1px solid #e8ecf0; }
 
     /* ローディング */
     .chat-bubble.loading { color: #9aa5b4; font-size: 0.82rem; display: flex; align-items: center; gap: 6px; }
     .loading-dots { display: inline-flex; gap: 4px; }
-    .loading-dot { width: 5px; height: 5px; background: #ffb81c; border-radius: 50%; animation: bounce 1.2s ease-in-out infinite; }
+    .loading-dot { width: 5px; height: 5px; background: #ffb81c; animation: bounce 1.2s ease-in-out infinite; }
     .loading-dot:nth-child(2) { animation-delay: 0.2s; }
     .loading-dot:nth-child(3) { animation-delay: 0.4s; }
     @keyframes bounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.35; } 40% { transform: scale(1); opacity: 1; } }
 
     /* 入力バー */
-    .chat-input-bar {
-      padding: 12px 16px; background: #fff; border-top: 1px solid #e8ecf0;
-      display: flex; gap: 8px;
-    }
-    .chat-input-bar textarea {
-      flex: 1; border: 1.5px solid #e8ecf0; padding: 10px 14px;
-      font-size: 0.85rem; font-family: inherit; resize: none; height: 44px;
-      outline: none; color: #2d3436; line-height: 1.5;
-    }
+    .chat-input-bar { padding: 12px 16px; background: #fff; border-top: 1px solid #e8ecf0; display: flex; gap: 8px; }
+    .chat-input-bar textarea { flex: 1; border: 1.5px solid #e8ecf0; padding: 10px 14px; font-size: 0.85rem; font-family: inherit; resize: none; height: 44px; outline: none; color: #2d3436; line-height: 1.5; }
     .chat-input-bar textarea:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
     .chat-input-bar textarea::placeholder { color: #c8d0da; }
-    .send-btn {
-      background: #ffb81c; color: #001f33; border: none; padding: 10px 20px;
-      font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit;
-      white-space: nowrap; transition: opacity 0.15s;
-    }
+    .send-btn { background: #ffb81c; color: #001f33; border: none; padding: 10px 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; transition: opacity 0.15s; }
     .send-btn:hover { opacity: 0.85; }
     .send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .new-chat-btn { background: none; border: 1px solid #e8ecf0; color: #8a9bb0; padding: 10px 14px; font-size: 0.82rem; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+    .new-chat-btn:hover { border-color: #001f33; color: #001f33; }
 
     /* フッター */
-    .app-footer {
-      background: #001f33; border-top: 1px solid rgba(255,255,255,0.08);
-      padding: 16px 40px; display: flex; align-items: center;
-      justify-content: space-between; margin-top: 40px;
-    }
+    .app-footer { background: #001f33; border-top: 1px solid rgba(255,255,255,0.08); padding: 16px 40px; display: flex; align-items: center; justify-content: space-between; }
     .app-footer-text { font-size: 0.72rem; color: rgba(255,255,255,0.8); }
 
-    @media (max-width: 768px) {
-      .container { padding: 16px 16px 60px; }
+    /* レスポンシブ */
+    @media (max-width: 900px) {
+      .main-layout { flex-direction: column; padding: 0; gap: 0; }
+      .mobile-tabs { display: flex; }
+      .source-panel { width: 100%; max-height: none; border: none; border-bottom: 1px solid #e8ecf0; }
+      .chat-panel { max-height: none; min-height: 60vh; border: none; }
+      .source-panel.hidden { display: none; }
+      .chat-panel.hidden { display: none; }
       .navbar { padding: 0 20px; }
-      .chat-bubble { max-width: 88%; }
-      .prompt-result { max-width: 95%; }
     }
     @media (max-width: 600px) {
       .navbar { padding: 0 16px; }
+      .chat-bubble { max-width: 88%; }
+      .prompt-result { max-width: 95%; }
     }
+    /* マインドマップモーダル */
+    .mindmap-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,31,51,0.85);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .mindmap-overlay.show { display: flex; }
+    .mindmap-modal {
+      background: #fff; width: 92vw; height: 85vh; display: flex; flex-direction: column;
+      position: relative;
+    }
+    .mindmap-header {
+      background: #001f33; padding: 12px 20px; display: flex; align-items: center;
+      justify-content: space-between; flex-shrink: 0;
+    }
+    .mindmap-header-title { font-size: 0.88rem; font-weight: 700; color: #fff; }
+    .mindmap-header-actions { display: flex; gap: 8px; }
+    .mindmap-header-btn {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; font-size: 0.72rem; padding: 5px 14px; cursor: pointer;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .mindmap-header-btn:hover { background: rgba(255,255,255,0.2); }
+    .mindmap-header-btn.close { background: none; border: none; font-size: 1.2rem; padding: 0 4px; }
+    .mindmap-body { flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; background: #f7f8fa; }
+    .mindmap-body svg { max-width: 100%; max-height: 100%; }
+    .mindmap-loading { font-size: 0.85rem; color: #8a9bb0; display: flex; align-items: center; gap: 8px; }
+
+    /* 引用マーカー */
+    .citation-marker {
+      display: inline-block; background: #001f33; color: #fff;
+      font-size: 0.6rem; font-weight: 800; padding: 1px 5px;
+      cursor: pointer; vertical-align: super; margin: 0 1px;
+      transition: background 0.15s;
+    }
+    .citation-marker:hover { background: #ffb81c; color: #001f33; }
+
+    /* 引用フッター */
+    .chat-citations { margin-top: 10px; padding-top: 8px; border-top: 1px solid #e8ecf0; }
+    .chat-citation-link {
+      display: inline-block; font-size: 0.68rem; color: #4a5568; padding: 2px 8px;
+      border: 1px solid #e8ecf0; margin: 2px 4px 2px 0; cursor: pointer;
+      transition: all 0.15s; text-decoration: none;
+    }
+    .chat-citation-link:hover { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
+
+    /* ソースハイライト */
+    .source-item.highlighted { border-left-color: #ffb81c; background: #fffbf0; animation: highlightPulse 1.5s ease; }
+    @keyframes highlightPulse { 0% { box-shadow: 0 0 0 3px rgba(255,184,28,0.4); } 100% { box-shadow: none; } }
+
+    /* PDF入力 */
+    .pdf-drop-zone {
+      border: 2px dashed #e8ecf0; padding: 14px; text-align: center;
+      font-size: 0.78rem; color: #8a9bb0; cursor: pointer; transition: all 0.15s;
+    }
+    .pdf-drop-zone:hover { border-color: #ffb81c; background: #fffbf0; }
+    .pdf-drop-zone.dragover { border-color: #ffb81c; background: #fffbf0; }
   </style>
   <link rel="stylesheet" href="../../assets/app-styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
@@ -154,14 +359,95 @@
     <div class="navbar-divider"></div>
     <span class="navbar-title">Prompt Maker</span>
   </div>
+  <span class="storage-badge local" id="storage-badge">⏳ 接続中…</span>
 </nav>
 
-<div class="container">
-  <div class="chat-box">
-    <!-- サジェスチョン -->
+<div class="mobile-tabs" id="mobile-tabs">
+  <button class="mobile-tab active" data-pane="source">📚 ソース</button>
+  <button class="mobile-tab" data-pane="chat">💬 チャット</button>
+</div>
+
+<div class="main-layout">
+  <!-- 左ペイン -->
+  <div class="source-panel" id="source-panel">
+    <div class="source-header">
+      <span class="source-header-title">📚 ソース</span>
+      <span class="source-count" id="source-count">0件</span>
+    </div>
+
+    <!-- 横断分析 -->
+    <div class="analysis-panel" id="analysis-panel">
+      <div class="analysis-title">
+        🔍 ソース横断分析
+        <button class="analysis-close" id="analysis-close">✕</button>
+      </div>
+      <div class="analysis-content" id="analysis-content"></div>
+    </div>
+
+    <!-- 検索 + 分析 -->
+    <div class="source-toolbar">
+      <input type="text" id="source-search" placeholder="🔍 ソースを検索…">
+      <button class="analyze-btn" id="analyze-btn" title="全ソースを横断分析">🔍 分析</button>
+      <button class="analyze-btn" id="mindmap-btn" title="ソース関係性マインドマップ">🧠 MAP</button>
+    </div>
+
+    <!-- ソース追加 -->
+    <div class="source-add-area">
+      <div class="source-add-tabs">
+        <button class="source-add-tab active" data-type="text">テキスト</button>
+        <button class="source-add-tab" data-type="url">URL</button>
+        <button class="source-add-tab" data-type="pdf">PDF</button>
+        <button class="source-add-tab" data-type="youtube">YouTube</button>
+      </div>
+      <div class="source-input-group" id="source-text-input">
+        <input id="source-title" placeholder="ソース名（任意）">
+        <textarea id="source-text" placeholder="参考資料のテキストを貼り付けてください。"></textarea>
+        <div class="source-add-row">
+          <button class="source-add-btn" id="add-source-btn">＋ ソース追加</button>
+        </div>
+      </div>
+      <div class="source-input-group" id="source-url-input" style="display:none;">
+        <input id="source-url-title" placeholder="ソース名（任意）">
+        <input id="source-url" placeholder="https://example.com/document">
+        <div class="source-add-row">
+          <button class="source-add-btn" id="add-url-btn">＋ URL追加</button>
+          <span class="url-status" id="url-status"></span>
+        </div>
+      </div>
+      <div class="source-input-group" id="source-pdf-input" style="display:none;">
+        <div class="pdf-drop-zone" id="pdf-drop-zone">
+          📄 PDFファイルをドラッグ＆ドロップ、またはクリックして選択
+          <input type="file" id="pdf-file" accept=".pdf" style="display:none;">
+        </div>
+        <div class="source-add-row">
+          <span class="url-status" id="pdf-status"></span>
+        </div>
+      </div>
+      <div class="source-input-group" id="source-youtube-input" style="display:none;">
+        <input id="source-yt-title" placeholder="ソース名（任意）">
+        <input id="source-yt-url" placeholder="https://www.youtube.com/watch?v=...">
+        <div class="source-add-row">
+          <button class="source-add-btn" id="add-yt-btn">＋ YouTube追加</button>
+          <span class="url-status" id="yt-status"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="source-list" id="source-list">
+      <div class="source-loading" id="source-loading">読み込み中…</div>
+    </div>
+  </div>
+
+  <!-- 右ペイン -->
+  <div class="chat-panel" id="chat-panel">
+    <div class="source-indicator" id="source-indicator">
+      <span class="source-indicator-dot"></span>
+      <span id="source-indicator-text">ソース 0件を参照中</span>
+    </div>
+
     <div class="suggestions" id="suggestions">
       <div class="suggestions-label">💡 こんな用途で使えます — クリックで入力</div>
-      <div class="sug-chips">
+      <div class="sug-chips" id="sug-chips">
         <button class="sug-chip" data-msg="LinkedIn投稿でセミナーの集客をしたい">SNS投稿</button>
         <button class="sug-chip" data-msg="セミナー参加者にフォローアップメールを送りたい">メール文面</button>
         <button class="sug-chip" data-msg="新規事業の企画書のアウトラインを作りたい">企画書</button>
@@ -171,23 +457,42 @@
       </div>
     </div>
 
-    <!-- チャットメッセージ -->
     <div class="chat-messages" id="chat-messages">
       <div class="chat-row ai">
         <div class="chat-avatar ai">🪄</div>
         <div class="chat-bubble ai">AIの力を最大限引き出すプロンプトを一緒に作りましょう！
 
 何をしたいか、ざっくりで構いません。
-例えば「セミナー集客用のSNS投稿を作りたい」のように教えてください。
 
-こちらから質問しながら、最適なプロンプトに仕上げていきます。</div>
+📚 左の「ソース」に参考資料を追加すると:
+  - AIが自動要約を生成
+  - ソースに基づくサジェスチョンを提案
+  - 全ソースの横断分析が可能
+  - 回答に引用マーカー [ソース1] を自動付与
+
+📎 対応形式: テキスト / URL / PDF / YouTube</div>
       </div>
     </div>
 
-    <!-- 入力バー -->
     <div class="chat-input-bar">
-      <textarea id="user-input" placeholder="やりたいことを入力してください（例: セミナー集客用のLinkedIn投稿を作りたい）" rows="1"></textarea>
+      <button class="new-chat-btn" id="new-chat-btn" title="新しいチャット">🔄</button>
+      <textarea id="user-input" placeholder="やりたいことを入力してください" rows="1"></textarea>
       <button class="send-btn" id="send-btn">送信</button>
+    </div>
+  </div>
+</div>
+
+<div class="mindmap-overlay" id="mindmap-overlay">
+  <div class="mindmap-modal">
+    <div class="mindmap-header">
+      <span class="mindmap-header-title">🧠 ソース関係性マインドマップ</span>
+      <div class="mindmap-header-actions">
+        <button class="mindmap-header-btn" id="mindmap-download">📥 SVG保存</button>
+        <button class="mindmap-header-btn close" id="mindmap-close">✕</button>
+      </div>
+    </div>
+    <div class="mindmap-body" id="mindmap-body">
+      <div class="mindmap-loading" id="mindmap-loading">ソースを分析してマインドマップを生成中…</div>
     </div>
   </div>
 </div>
@@ -195,10 +500,767 @@
 <script src="../../assets/copy-utils.js"></script>
 <script src="../../assets/history.js"></script>
 <script>
-  // ── 状態管理 ──────────────────────────
-  const messages = []; // { role: 'user'|'assistant', content: '' }
+  // ── SourceStore ──────────────────────────
+  const SourceStore = {
+    mode: 'local',
+    _cache: [],
+
+    async init() {
+      try {
+        const r = await fetch('/api/sources');
+        if (r.ok) {
+          const data = await r.json();
+          this._cache = data.sources || [];
+          this.mode = 'cloud';
+        } else { this.mode = 'local'; this._loadLocal(); }
+      } catch { this.mode = 'local'; this._loadLocal(); }
+      this._updateBadge();
+      return this._cache;
+    },
+
+    async add(title, content, type) {
+      const user = sessionStorage.getItem('username') || 'unknown';
+      if (this.mode === 'cloud') {
+        try {
+          const r = await fetch('/api/sources', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, content, type, user }),
+          });
+          if (r.ok) { const d = await r.json(); this._cache.unshift(d.source); return d.source; }
+          else throw new Error();
+        } catch { return this._addLocal(title, content, type, user); }
+      } else { return this._addLocal(title, content, type, user); }
+    },
+
+    async remove(id) {
+      if (this.mode === 'cloud') {
+        try { await fetch('/api/sources', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) }); } catch {}
+      }
+      this._cache = this._cache.filter(s => s.id !== id);
+      if (this.mode === 'local') this._saveLocal();
+    },
+
+    async updateSummary(id, summary) {
+      const s = this._cache.find(x => x.id === id);
+      if (s) s.summary = summary;
+      if (this.mode === 'cloud') {
+        try { await fetch('/api/sources', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, summary }) }); } catch {}
+      } else { this._saveLocal(); }
+    },
+
+    async updateNote(id, note) {
+      const s = this._cache.find(x => x.id === id);
+      if (s) s.note = note;
+      if (this.mode === 'cloud') {
+        try { await fetch('/api/sources', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, note }) }); } catch {}
+      } else { this._saveLocal(); }
+    },
+
+    _addLocal(title, content, type, user) {
+      const source = { id: Date.now().toString(), title: title || content.trim().slice(0, 40), content: content.trim(), type, user, createdAt: new Date().toISOString() };
+      this._cache.unshift(source);
+      this._saveLocal();
+      return source;
+    },
+    _loadLocal() { try { this._cache = JSON.parse(localStorage.getItem('pm_sources') || '[]'); } catch { this._cache = []; } },
+    _saveLocal() { localStorage.setItem('pm_sources', JSON.stringify(this._cache)); },
+    _updateBadge() {
+      const b = document.getElementById('storage-badge');
+      if (this.mode === 'cloud') { b.className = 'storage-badge cloud'; b.textContent = '☁️ クラウド保存'; }
+      else { b.className = 'storage-badge local'; b.textContent = '💾 ローカル保存'; }
+    },
+  };
+
+  // ── AI自動サマリー生成 ──────────────────────────
+  async function generateSummary(source) {
+    try {
+      const r = await fetch('/api/generate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
+          model: 'claude-haiku-4-5-20251001', max_tokens: 300,
+          system: 'ソースの要約を3行以内で日本語で簡潔に生成してください。箇条書きではなく自然な文で。',
+          messages: [{ role: 'user', content: `以下のソースを要約してください:\n\nタイトル: ${source.title}\n\n${source.content.slice(0, 3000)}` }],
+        }),
+      });
+      const data = await r.json();
+      return data.content?.[0]?.text || '';
+    } catch { return ''; }
+  }
+
+  // ── 動的サジェスチョン生成 ──────────────────────────
+  let sugDebounce = null;
+  async function generateDynamicSuggestions() {
+    const sources = SourceStore._cache;
+    if (sources.length === 0) { showStaticSuggestions(); return; }
+
+    const sugLabel = document.querySelector('.suggestions-label');
+    const chipsEl = document.getElementById('sug-chips');
+    sugLabel.innerHTML = '🤖 ソースに基づくサジェスチョン <span class="ai-tag">AI</span>';
+    chipsEl.innerHTML = '<div class="sug-loading">ソースを分析してサジェスチョンを生成中…</div>';
+
+    const summaries = sources.map(s => `- ${s.title}: ${(s.summary || s.content).slice(0, 200)}`).join('\n');
+    try {
+      const r = await fetch('/api/generate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
+          model: 'claude-haiku-4-5-20251001', max_tokens: 400,
+          system: 'ユーザーが追加したソースの内容を踏まえて、AIプロンプト生成に使える具体的なタスク案を5つ提案してください。各案は1行で、「〜したい」の形式で、短く具体的に書いてください。番号なし、箇条書きのみ。',
+          messages: [{ role: 'user', content: `以下のソース一覧からタスク案を5つ提案してください:\n${summaries}` }],
+        }),
+      });
+      const data = await r.json();
+      const text = data.content?.[0]?.text || '';
+      const suggestions = text.split('\n').map(l => l.replace(/^[-・●]\s*/, '').trim()).filter(l => l.length > 3 && l.length < 80).slice(0, 5);
+
+      if (suggestions.length > 0) {
+        chipsEl.innerHTML = '';
+        suggestions.forEach(s => {
+          const btn = document.createElement('button');
+          btn.className = 'sug-chip';
+          btn.textContent = s;
+          btn.dataset.msg = s;
+          btn.addEventListener('click', () => { inputEl.value = s; inputEl.focus(); switchMobileTab('chat'); });
+          chipsEl.appendChild(btn);
+        });
+      } else { showStaticSuggestions(); }
+    } catch { showStaticSuggestions(); }
+  }
+
+  function showStaticSuggestions() {
+    const sugLabel = document.querySelector('.suggestions-label');
+    const chipsEl = document.getElementById('sug-chips');
+    sugLabel.innerHTML = '💡 こんな用途で使えます — クリックで入力';
+    const statics = [
+      { label: 'SNS投稿', msg: 'LinkedIn投稿でセミナーの集客をしたい' },
+      { label: 'メール文面', msg: 'セミナー参加者にフォローアップメールを送りたい' },
+      { label: '企画書', msg: '新規事業の企画書のアウトラインを作りたい' },
+      { label: '分析レポート', msg: '四半期の売上データを分析して改善提案をまとめたい' },
+      { label: '翻訳', msg: '製品紹介ページを自然な英語に翻訳したい' },
+      { label: 'プレゼン資料', msg: '社内勉強会のスライド構成を考えたい' },
+    ];
+    chipsEl.innerHTML = '';
+    statics.forEach(s => {
+      const btn = document.createElement('button');
+      btn.className = 'sug-chip';
+      btn.textContent = s.label;
+      btn.dataset.msg = s.msg;
+      btn.addEventListener('click', () => { inputEl.value = s.msg; inputEl.focus(); switchMobileTab('chat'); });
+      chipsEl.appendChild(btn);
+    });
+  }
+
+  function scheduleSuggestionUpdate() {
+    clearTimeout(sugDebounce);
+    sugDebounce = setTimeout(() => generateDynamicSuggestions(), 1500);
+  }
+
+  // ── ソース横断分析 ──────────────────────────
+  async function analyzeAllSources() {
+    const sources = SourceStore._cache;
+    if (sources.length < 1) return;
+
+    const btn = document.getElementById('analyze-btn');
+    const panel = document.getElementById('analysis-panel');
+    const content = document.getElementById('analysis-content');
+    btn.disabled = true; btn.textContent = '分析中…';
+    panel.classList.add('show');
+    content.textContent = 'ソースを横断分析しています…';
+
+    const allContent = sources.map((s, i) => `[ソース${i + 1}: ${s.title}]\n${(s.summary || s.content).slice(0, 1000)}`).join('\n\n');
+
+    try {
+      const r = await fetch('/api/generate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
+          model: 'claude-sonnet-4-6', max_tokens: 1000,
+          system: `あなたは複数のソースを横断分析する専門家です。以下の形式で分析結果を出力してください:
+
+【共通テーマ】
+全ソースに共通するテーマや概念を2-3点
+
+【矛盾・相違点】
+ソース間で矛盾する点や異なる視点を1-2点（なければ「特になし」）
+
+【キーポイント】
+プロンプト生成に活用できる重要ポイントを3-4点
+
+【推奨プロンプト方針】
+これらのソースを最大限活用するためのプロンプト設計の方針を2-3文で`,
+          messages: [{ role: 'user', content: `以下の${sources.length}件のソースを横断分析してください:\n\n${allContent}` }],
+        }),
+      });
+      const data = await r.json();
+      content.textContent = data.content?.[0]?.text || '分析に失敗しました';
+    } catch { content.textContent = '分析中にエラーが発生しました'; }
+    finally { btn.disabled = false; btn.textContent = '🔍 分析'; }
+  }
+
+  // ── マインドマップ生成 ──────────────────────────
+  async function generateMindmap() {
+    const sources = SourceStore._cache;
+    if (sources.length < 2) return;
+
+    const overlay = document.getElementById('mindmap-overlay');
+    const body = document.getElementById('mindmap-body');
+    const btn = document.getElementById('mindmap-btn');
+    overlay.classList.add('show');
+    body.innerHTML = '<div class="mindmap-loading">🧠 ソースを分析してマインドマップを生成中…</div>';
+    btn.disabled = true; btn.textContent = '生成中…';
+
+    const summaries = sources.map((s, i) => `ソース${i + 1}: ${s.title}\n${(s.summary || s.content).slice(0, 500)}`).join('\n\n');
+
+    try {
+      const r = await fetch('/api/generate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
+          model: 'claude-sonnet-4-6', max_tokens: 1500,
+          system: `ソース間の関係性をマインドマップ用のJSON構造で出力してください。JSON以外は出力しないでください。
+
+{
+  "central": "全ソースに共通する中心テーマ（10文字以内）",
+  "themes": [
+    {
+      "name": "サブテーマ名（8文字以内）",
+      "sources": [1, 2],
+      "keywords": ["キーワード1", "キーワード2"]
+    }
+  ],
+  "connections": [
+    { "from": 1, "to": 2, "label": "関連性の説明（10文字以内）" }
+  ]
+}
+
+ルール:
+- themesは3〜6個
+- 各themeのsourcesにはソース番号（1始まり）を配列で
+- keywordsは各テーマ2〜3個
+- connectionsはソース間の直接的な関連（最大5個）
+- ソース番号は1〜${sources.length}`,
+          messages: [{ role: 'user', content: `以下の${sources.length}件のソースの関係性を分析してください:\n\n${summaries}` }],
+        }),
+      });
+      const data = await r.json();
+      const text = data.content?.[0]?.text || '';
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('分析結果の解析に失敗');
+      const map = JSON.parse(jsonMatch[0]);
+      body.innerHTML = '';
+      body.appendChild(renderMindmapSVG(map, sources));
+    } catch (err) {
+      body.innerHTML = `<div class="mindmap-loading">⚠️ マインドマップ生成に失敗: ${err.message}</div>`;
+    } finally {
+      btn.disabled = false; btn.textContent = '🧠 MAP';
+    }
+  }
+
+  function renderMindmapSVG(map, sources) {
+    const W = 1000, H = 700;
+    const CX = W / 2, CY = H / 2;
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.id = 'mindmap-svg';
+
+    // 背景
+    const bg = document.createElementNS(ns, 'rect');
+    bg.setAttribute('width', W); bg.setAttribute('height', H);
+    bg.setAttribute('fill', '#f7f8fa');
+    svg.appendChild(bg);
+
+    // 中心ノード
+    drawNode(svg, ns, CX, CY, map.central, 60, '#001f33', '#fff', 14, null);
+
+    // テーマノード（中心の周りに放射状配置）
+    const themes = map.themes || [];
+    const themeRadius = 220;
+    const themePositions = [];
+
+    themes.forEach((theme, i) => {
+      const angle = (2 * Math.PI * i / themes.length) - Math.PI / 2;
+      const tx = CX + themeRadius * Math.cos(angle);
+      const ty = CY + themeRadius * Math.sin(angle);
+      themePositions.push({ x: tx, y: ty, theme });
+
+      // 中心→テーマの線
+      drawLine(svg, ns, CX, CY, tx, ty, '#e8ecf0', 2);
+      // テーマノード
+      drawNode(svg, ns, tx, ty, theme.name, 45, '#ffb81c', '#001f33', 11, null);
+
+      // キーワードノード（テーマの周りに）
+      const keywords = theme.keywords || [];
+      const kwRadius = 85;
+      keywords.forEach((kw, ki) => {
+        const kwAngle = angle + (ki - (keywords.length - 1) / 2) * 0.5;
+        const kx = tx + kwRadius * Math.cos(kwAngle);
+        const ky = ty + kwRadius * Math.sin(kwAngle);
+        drawLine(svg, ns, tx, ty, kx, ky, '#e8ecf0', 1);
+        drawNode(svg, ns, kx, ky, kw, 30, '#fff', '#4a5568', 9, null, '#e8ecf0');
+      });
+
+      // ソースノード（テーマから伸ばす）
+      const srcIds = theme.sources || [];
+      srcIds.forEach((srcNum, si) => {
+        const idx = srcNum - 1;
+        if (idx < 0 || idx >= sources.length) return;
+        const srcAngle = angle + (si - (srcIds.length - 1) / 2) * 0.35 + Math.PI;
+        const srcR = 110;
+        const sx = tx + srcR * Math.cos(srcAngle);
+        const sy = ty + srcR * Math.sin(srcAngle);
+        drawLine(svg, ns, tx, ty, sx, sy, '#001f33', 1.5, '4,4');
+        const label = sources[idx].title.length > 12 ? sources[idx].title.slice(0, 11) + '…' : sources[idx].title;
+        const typeIcon = ({url:'🔗',pdf:'📄',youtube:'🎬'})[sources[idx].type] || '📝';
+        drawNode(svg, ns, sx, sy, `${typeIcon}${label}`, 35, '#001f33', '#fff', 8, idx);
+      });
+    });
+
+    // ソース間コネクション（曲線）
+    const connections = map.connections || [];
+    connections.forEach(conn => {
+      const fromIdx = conn.from - 1, toIdx = conn.to - 1;
+      if (fromIdx < 0 || toIdx < 0 || fromIdx >= sources.length || toIdx >= sources.length) return;
+      // テーマポジションからソースの位置を推定（簡易的に中心テーマ間に線を引く）
+      const fromTheme = themePositions.find(tp => (tp.theme.sources || []).includes(conn.from));
+      const toTheme = themePositions.find(tp => (tp.theme.sources || []).includes(conn.to));
+      if (fromTheme && toTheme && fromTheme !== toTheme) {
+        drawCurve(svg, ns, fromTheme.x, fromTheme.y, toTheme.x, toTheme.y, conn.label);
+      }
+    });
+
+    return svg;
+  }
+
+  function drawNode(svg, ns, x, y, text, r, fill, textColor, fontSize, sourceIdx, stroke) {
+    const g = document.createElementNS(ns, 'g');
+    g.style.cursor = sourceIdx !== null && sourceIdx !== undefined ? 'pointer' : 'default';
+    if (sourceIdx !== null && sourceIdx !== undefined) {
+      g.dataset.sourceIdx = sourceIdx;
+      g.addEventListener('click', () => {
+        const source = SourceStore._cache[sourceIdx];
+        if (!source) return;
+        document.getElementById('mindmap-overlay').classList.remove('show');
+        switchMobileTab('source');
+        const items = document.getElementById('source-list').querySelectorAll('.source-item');
+        items.forEach(item => item.classList.remove('highlighted'));
+        const target = [...items].find(item => item.dataset.id === source.id);
+        if (target) {
+          target.classList.add('highlighted');
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => target.classList.remove('highlighted'), 3000);
+        }
+      });
+    }
+    const circle = document.createElementNS(ns, 'circle');
+    circle.setAttribute('cx', x); circle.setAttribute('cy', y); circle.setAttribute('r', r);
+    circle.setAttribute('fill', fill);
+    if (stroke) { circle.setAttribute('stroke', stroke); circle.setAttribute('stroke-width', 1.5); }
+    g.appendChild(circle);
+
+    const txt = document.createElementNS(ns, 'text');
+    txt.setAttribute('x', x); txt.setAttribute('y', y + fontSize * 0.35);
+    txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('fill', textColor);
+    txt.setAttribute('font-size', fontSize); txt.setAttribute('font-weight', '700');
+    txt.setAttribute('font-family', "'Segoe UI','Helvetica Neue',sans-serif");
+    txt.textContent = text;
+    g.appendChild(txt);
+    svg.appendChild(g);
+  }
+
+  function drawLine(svg, ns, x1, y1, x2, y2, color, width, dash) {
+    const line = document.createElementNS(ns, 'line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', color); line.setAttribute('stroke-width', width);
+    if (dash) line.setAttribute('stroke-dasharray', dash);
+    svg.appendChild(line);
+  }
+
+  function drawCurve(svg, ns, x1, y1, x2, y2, label) {
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - 40;
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', `M${x1},${y1} Q${mx},${my} ${x2},${y2}`);
+    path.setAttribute('fill', 'none'); path.setAttribute('stroke', '#00ffff');
+    path.setAttribute('stroke-width', 1.5); path.setAttribute('stroke-dasharray', '6,3');
+    svg.appendChild(path);
+    if (label) {
+      const txt = document.createElementNS(ns, 'text');
+      txt.setAttribute('x', mx); txt.setAttribute('y', my - 6);
+      txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('fill', '#4a5568');
+      txt.setAttribute('font-size', 8); txt.setAttribute('font-weight', '600');
+      txt.setAttribute('font-family', "'Segoe UI','Helvetica Neue',sans-serif");
+      txt.textContent = label;
+      svg.appendChild(txt);
+    }
+  }
+
+  // マインドマップイベント
+  document.getElementById('mindmap-btn').addEventListener('click', generateMindmap);
+  document.getElementById('mindmap-close').addEventListener('click', () => document.getElementById('mindmap-overlay').classList.remove('show'));
+  document.getElementById('mindmap-overlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+  document.getElementById('mindmap-download').addEventListener('click', () => {
+    const svgEl = document.getElementById('mindmap-svg');
+    if (!svgEl) return;
+    const blob = new Blob([new XMLSerializer().serializeToString(svgEl)], { type: 'image/svg+xml' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'mindmap.svg'; a.click(); URL.revokeObjectURL(a.href);
+  });
+
+  // ── プロンプト品質スコア ──────────────────────────
+  async function scorePrompt(promptText, cardElement) {
+    const scoreContainer = document.createElement('div');
+    scoreContainer.className = 'quality-loading';
+    scoreContainer.textContent = '📊 品質スコアを計算中…';
+    cardElement.appendChild(scoreContainer);
+
+    try {
+      const r = await fetch('/api/generate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
+          model: 'claude-haiku-4-5-20251001', max_tokens: 500,
+          system: `プロンプトの品質を評価してください。以下のJSON形式で出力してください。JSON以外は出力しないでください。
+
+{
+  "score": 0-100の整数,
+  "axes": {
+    "clarity": 0-100,
+    "specificity": 0-100,
+    "structure": 0-100,
+    "reusability": 0-100,
+    "techniques": 0-100
+  },
+  "hint": "改善ポイントを1-2文で"
+}`,
+          messages: [{ role: 'user', content: `このプロンプトを評価してください:\n\n${promptText.slice(0, 3000)}` }],
+        }),
+      });
+      const data = await r.json();
+      const text = data.content?.[0]?.text || '';
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error();
+      const result = JSON.parse(jsonMatch[0]);
+
+      const scoreClass = result.score >= 75 ? 'high' : result.score >= 50 ? 'mid' : 'low';
+      const axisNames = { clarity: '明確性', specificity: '具体性', structure: '構造', reusability: '再利用性', techniques: 'テクニック' };
+
+      scoreContainer.className = 'quality-score';
+      scoreContainer.innerHTML = `
+        <div class="quality-score-header">
+          <div class="quality-score-value ${scoreClass}">${result.score}</div>
+          <div class="quality-score-label">プロンプト品質スコア</div>
+        </div>
+        <div class="quality-axes">
+          ${Object.entries(result.axes || {}).map(([k, v]) =>
+            `<div class="quality-axis"><span>${axisNames[k] || k}</span> <div class="quality-axis-bar" style="width:${v * 0.4}px;"></div> ${v}</div>`
+          ).join('')}
+        </div>
+        <div class="quality-hint">💡 ${escHtml(result.hint || '')}</div>`;
+    } catch {
+      scoreContainer.className = 'quality-score';
+      scoreContainer.innerHTML = '<div style="font-size:0.72rem;color:#8a9bb0;">品質スコアの取得に失敗しました</div>';
+    }
+  }
+
+  // ── ソースUI ──────────────────────────
+  let searchQuery = '';
+
+  function renderSources() {
+    const listEl = document.getElementById('source-list');
+    const countEl = document.getElementById('source-count');
+    const sources = SourceStore._cache;
+    const filtered = searchQuery ? sources.filter(s => s.title.toLowerCase().includes(searchQuery) || s.content.toLowerCase().includes(searchQuery) || (s.user || '').toLowerCase().includes(searchQuery)) : sources;
+    countEl.textContent = sources.length + '件';
+    listEl.innerHTML = '';
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = sources.length === 0
+        ? '<div class="source-empty">📚 ソースを追加すると<br>AIが自動で要約を生成し<br>最適なサジェスチョンを提案します</div>'
+        : '<div class="source-empty">検索結果なし</div>';
+      updateSourceIndicator();
+      return;
+    }
+
+    filtered.forEach(s => {
+      const item = document.createElement('div');
+      item.className = 'source-item';
+      item.dataset.id = s.id;
+      const date = s.createdAt ? formatDate(s.createdAt) : '';
+      item.innerHTML = `
+        <div class="source-item-header">
+          <span class="source-item-title">${escHtml(s.title)}</span>
+          <span class="source-item-type">${({url:'URL',pdf:'PDF',youtube:'YT'})[s.type] || 'TEXT'}</span>
+        </div>
+        <div class="source-item-meta">
+          <span class="source-item-user">👤 ${escHtml(s.user || 'unknown')}</span>
+          <span class="source-item-date">${date}</span>
+        </div>
+        ${s.summary ? `<div class="source-item-summary"><div class="source-item-summary-label">AI要約</div>${escHtml(s.summary)}</div>` : '<div class="source-item-summary loading" data-summary-slot="' + s.id + '">AI要約を生成中…</div>'}
+        <div class="source-item-preview">${escHtml(s.content.slice(0, 100))}${s.content.length > 100 ? '…' : ''}</div>
+        <div class="source-item-full">${escHtml(s.content)}</div>
+        <div class="source-item-note"><textarea placeholder="📝 メモを追加…" data-note-id="${s.id}">${escHtml(s.note || '')}</textarea></div>
+        <div class="source-item-actions">
+          <button class="source-item-btn toggle">展開</button>
+          <button class="source-item-btn resummarize" data-id="${s.id}">🔄 再要約</button>
+          <button class="source-item-btn delete" data-id="${s.id}">削除</button>
+        </div>`;
+      listEl.appendChild(item);
+
+      item.querySelector('.toggle').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const expanded = item.classList.toggle('expanded');
+        e.target.textContent = expanded ? '折りたたむ' : '展開';
+      });
+      item.querySelector('.delete').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await SourceStore.remove(s.id);
+        renderSources();
+        updateSourceIndicator();
+        scheduleSuggestionUpdate();
+      });
+      item.querySelector('.resummarize').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const summaryEl = item.querySelector('.source-item-summary');
+        summaryEl.className = 'source-item-summary loading';
+        summaryEl.innerHTML = '<div class="source-item-summary-label">AI要約</div>再生成中…';
+        const summary = await generateSummary(s);
+        if (summary) {
+          await SourceStore.updateSummary(s.id, summary);
+          summaryEl.className = 'source-item-summary';
+          summaryEl.innerHTML = `<div class="source-item-summary-label">AI要約</div>${escHtml(summary)}`;
+        }
+      });
+      // メモ保存（デバウンス）
+      const noteEl = item.querySelector(`textarea[data-note-id="${s.id}"]`);
+      let noteTimer;
+      noteEl.addEventListener('input', () => {
+        clearTimeout(noteTimer);
+        noteTimer = setTimeout(() => SourceStore.updateNote(s.id, noteEl.value), 1000);
+      });
+
+      // 要約がないソースは自動生成をキック
+      if (!s.summary) {
+        generateSummary(s).then(summary => {
+          if (summary) {
+            SourceStore.updateSummary(s.id, summary);
+            const slot = item.querySelector(`[data-summary-slot="${s.id}"]`);
+            if (slot) {
+              slot.className = 'source-item-summary';
+              slot.innerHTML = `<div class="source-item-summary-label">AI要約</div>${escHtml(summary)}`;
+            }
+          }
+        });
+      }
+    });
+    updateSourceIndicator();
+  }
+
+  function updateSourceIndicator() {
+    const ind = document.getElementById('source-indicator');
+    const text = document.getElementById('source-indicator-text');
+    const count = SourceStore._cache.length;
+    if (count > 0) { ind.classList.add('show'); text.textContent = `ソース ${count}件を参照中（${SourceStore.mode === 'cloud' ? 'クラウド' : 'ローカル'}）`; }
+    else { ind.classList.remove('show'); }
+  }
+
+  function buildSourceContext() {
+    const sources = SourceStore._cache;
+    if (sources.length === 0) return '';
+    let ctx = '\n\n## ユーザーが提供した参考資料（ソース）\n以下のソースを踏まえて、プロンプトを設計してください。ソースの内容をプロンプトに適切に反映し、具体性を高めてください。\n';
+    sources.forEach((s, i) => {
+      ctx += `\n### ソース${i + 1}: ${s.title}（追加者: ${s.user || 'unknown'}）\n`;
+      if (s.summary) ctx += `[AI要約] ${s.summary}\n`;
+      if (s.note) ctx += `[ユーザーメモ] ${s.note}\n`;
+      ctx += `${s.content.slice(0, 2000)}\n`;
+    });
+    return ctx;
+  }
+
+  function formatDate(iso) { const d = new Date(iso); return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`; }
+  function escHtml(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  // ── 引用マーカー変換 ──────────────────────────
+  function renderCitations(htmlContent) {
+    // [ソース1] [ソース2] のパターンを検出してクリッカブルなバッジに変換
+    const citationRegex = /\[ソース(\d+)\]/g;
+    const usedSources = new Set();
+    let result = htmlContent.replace(citationRegex, (match, num) => {
+      const idx = parseInt(num, 10) - 1;
+      if (idx >= 0 && idx < SourceStore._cache.length) {
+        usedSources.add(idx);
+        return `<span class="citation-marker" data-source-idx="${idx}" title="${escHtml(SourceStore._cache[idx].title)}">${num}</span>`;
+      }
+      return match;
+    });
+    // 引用フッター（使用されたソース一覧）
+    if (usedSources.size > 0) {
+      result += '<div class="chat-citations">';
+      [...usedSources].sort((a, b) => a - b).forEach(idx => {
+        const s = SourceStore._cache[idx];
+        result += `<span class="chat-citation-link" data-source-idx="${idx}">[${idx + 1}] ${escHtml(s.title)}</span>`;
+      });
+      result += '</div>';
+    }
+    return result;
+  }
+
+  // 引用クリック → 左ペインの該当ソースをハイライト
+  document.getElementById('chat-messages').addEventListener('click', (e) => {
+    const marker = e.target.closest('[data-source-idx]');
+    if (!marker) return;
+    const idx = parseInt(marker.dataset.sourceIdx, 10);
+    const source = SourceStore._cache[idx];
+    if (!source) return;
+    // モバイルではソースパネルに切替
+    switchMobileTab('source');
+    // 該当ソースアイテムを探してハイライト＆スクロール
+    const listEl = document.getElementById('source-list');
+    const items = listEl.querySelectorAll('.source-item');
+    items.forEach(item => item.classList.remove('highlighted'));
+    const target = [...items].find(item => item.dataset.id === source.id);
+    if (target) {
+      target.classList.add('highlighted');
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => target.classList.remove('highlighted'), 3000);
+    }
+  });
+
+  // ── ソース追加 ──────────────────────────
+  document.querySelectorAll('.source-add-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.source-add-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const type = tab.dataset.type;
+      document.getElementById('source-text-input').style.display = type === 'text' ? 'flex' : 'none';
+      document.getElementById('source-url-input').style.display = type === 'url' ? 'flex' : 'none';
+      document.getElementById('source-pdf-input').style.display = type === 'pdf' ? 'flex' : 'none';
+      document.getElementById('source-youtube-input').style.display = type === 'youtube' ? 'flex' : 'none';
+    });
+  });
+
+  document.getElementById('add-source-btn').addEventListener('click', async () => {
+    const title = document.getElementById('source-title').value;
+    const text = document.getElementById('source-text').value;
+    if (!text.trim()) return;
+    const btn = document.getElementById('add-source-btn');
+    btn.disabled = true; btn.textContent = '追加中…';
+    await SourceStore.add(title, text, 'text');
+    renderSources();
+    scheduleSuggestionUpdate();
+    document.getElementById('source-title').value = '';
+    document.getElementById('source-text').value = '';
+    btn.disabled = false; btn.textContent = '＋ ソース追加';
+  });
+
+  document.getElementById('add-url-btn').addEventListener('click', async () => {
+    const title = document.getElementById('source-url-title').value;
+    const url = document.getElementById('source-url').value.trim();
+    if (!url) return;
+    const btn = document.getElementById('add-url-btn');
+    const status = document.getElementById('url-status');
+    btn.disabled = true; btn.textContent = '取得中…';
+    status.textContent = 'ページを解析しています…';
+    try {
+      const r = await fetch('/api/fetch-article', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+      if (!r.ok) { const err = await r.json(); throw new Error(err.error || '取得失敗'); }
+      const data = await r.json();
+      await SourceStore.add(title || data.title || url.slice(0, 50), `[URL: ${url}]\n[タイトル: ${data.title || '不明'}]\n\n${data.text}`, 'url');
+      renderSources();
+      scheduleSuggestionUpdate();
+      status.textContent = '✅ 追加完了';
+    } catch (err) {
+      status.textContent = `⚠️ ${err.message}`;
+      await SourceStore.add(title || url.slice(0, 40), `URL: ${url}\n（コンテンツ取得失敗）`, 'url');
+      renderSources();
+      scheduleSuggestionUpdate();
+    } finally {
+      btn.disabled = false; btn.textContent = '＋ URL追加';
+      document.getElementById('source-url-title').value = '';
+      document.getElementById('source-url').value = '';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  });
+
+  // ── PDF ソース追加 ──────────────────────────
+  const pdfDropZone = document.getElementById('pdf-drop-zone');
+  const pdfFileInput = document.getElementById('pdf-file');
+  const pdfStatus = document.getElementById('pdf-status');
+
+  pdfDropZone.addEventListener('click', () => pdfFileInput.click());
+  pdfDropZone.addEventListener('dragover', (e) => { e.preventDefault(); pdfDropZone.classList.add('dragover'); });
+  pdfDropZone.addEventListener('dragleave', () => pdfDropZone.classList.remove('dragover'));
+  pdfDropZone.addEventListener('drop', (e) => { e.preventDefault(); pdfDropZone.classList.remove('dragover'); if (e.dataTransfer.files[0]) handlePdfFile(e.dataTransfer.files[0]); });
+  pdfFileInput.addEventListener('change', () => { if (pdfFileInput.files[0]) handlePdfFile(pdfFileInput.files[0]); });
+
+  async function handlePdfFile(file) {
+    if (!file.name.toLowerCase().endsWith('.pdf')) { pdfStatus.textContent = '⚠️ PDFファイルを選択してください'; return; }
+    pdfStatus.textContent = 'PDFを解析中…';
+    try {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      let text = '';
+      const maxPages = Math.min(pdf.numPages, 50);
+      for (let i = 1; i <= maxPages; i++) {
+        pdfStatus.textContent = `PDFを解析中… (${i}/${maxPages}ページ)`;
+        const page = await pdf.getPage(i);
+        const tc = await page.getTextContent();
+        text += tc.items.map(it => it.str).join(' ') + '\n';
+      }
+      text = text.trim().slice(0, 15000);
+      if (text.length < 50) { pdfStatus.textContent = '⚠️ テキストを抽出できませんでした（画像PDFの可能性）'; return; }
+      const title = file.name.replace(/\.pdf$/i, '');
+      await SourceStore.add(title, `[PDF: ${file.name} / ${pdf.numPages}ページ]\n\n${text}`, 'pdf');
+      renderSources();
+      scheduleSuggestionUpdate();
+      pdfStatus.textContent = `✅ ${title} を追加しました（${maxPages}ページ）`;
+      pdfFileInput.value = '';
+      setTimeout(() => { pdfStatus.textContent = ''; }, 3000);
+    } catch (err) {
+      pdfStatus.textContent = `⚠️ PDF解析エラー: ${err.message}`;
+    }
+  }
+
+  // ── YouTube ソース追加 ──────────────────────────
+  const ytUrlRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/;
+
+  document.getElementById('add-yt-btn').addEventListener('click', async () => {
+    const title = document.getElementById('source-yt-title').value;
+    const url = document.getElementById('source-yt-url').value.trim();
+    if (!url) return;
+    if (!ytUrlRegex.test(url)) { document.getElementById('yt-status').textContent = '⚠️ YouTube URLを入力してください'; return; }
+    const btn = document.getElementById('add-yt-btn');
+    const status = document.getElementById('yt-status');
+    btn.disabled = true; btn.textContent = '取得中…';
+    status.textContent = '字幕を取得しています…';
+    try {
+      const r = await fetch('/api/fetch-transcript', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+      if (!r.ok) { const err = await r.json(); throw new Error(err.error || '字幕取得失敗'); }
+      const data = await r.json();
+      await SourceStore.add(title || data.title || url.slice(0, 50), `[YouTube: ${url}]\n[タイトル: ${data.title || '不明'}]\n[字幕言語: ${data.language || '不明'}]\n\n${data.text}`, 'youtube');
+      renderSources();
+      scheduleSuggestionUpdate();
+      status.textContent = `✅ 追加完了（${data.language || ''}字幕）`;
+    } catch (err) {
+      status.textContent = `⚠️ ${err.message}`;
+    } finally {
+      btn.disabled = false; btn.textContent = '＋ YouTube追加';
+      document.getElementById('source-yt-title').value = '';
+      document.getElementById('source-yt-url').value = '';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  });
+
+  document.getElementById('source-search').addEventListener('input', (e) => { searchQuery = e.target.value.toLowerCase(); renderSources(); });
+  document.getElementById('analyze-btn').addEventListener('click', analyzeAllSources);
+  document.getElementById('analysis-close').addEventListener('click', () => { document.getElementById('analysis-panel').classList.remove('show'); });
+
+  // ── チャット ──────────────────────────
+  const messages = [];
   let generating = false;
-  let promptGenerated = false;
 
   const SYSTEM_PROMPT = `あなたは「プロのプロンプトエンジニア」です。ユーザーの抽象的な要望を具体化し、AIの性能を最大限に引き出す最適なプロンプトを設計してください。
 
@@ -219,41 +1281,45 @@
 ユーザーが質問に回答したら、以下のルールでプロンプトを生成してください:
 
 1. まず「📋 プロンプトを生成しました！」と一行書く
-2. 次の行に「---PROMPT_START---」と書く（これは区切り記号です）
+2. 次の行に「---PROMPT_START---」と書く
 3. プロンプト本文を出力する
 4. 最後の行に「---PROMPT_END---」と書く
 5. その後に「このプロンプトをコピーしてAIに貼り付けるだけで使えます。修正したい点があれば教えてください。」と書く
 
 プロンプト本文のルール:
-- 4つの構成要素を含む: インストラクション（指示）・コンテキスト（背景）・インプット（入力データ）・アウトプット（出力形式）
+- 4つの構成要素: インストラクション（指示）/ コンテキスト（背景）/ インプット（入力）/ アウトプット（出力形式）
 - セクションを##見出しで分ける
-- プレースホルダーは【】で囲む（例: 【ここに製品名を入力】）
+- プレースホルダーは【】で囲む
 - 日本語で記述
-- コピーしてそのまま使える完成度にする
+- コピーしてそのまま使える完成度
+
+応用テクニック（必要に応じて適用）:
+- 役割の付与 / Few-shotプロンプティング / ステップ・バイ・ステップ思考 / 構造化タグ
 
 ### フェーズ3: 洗練
-ユーザーから修正依頼が来たら、同じフォーマット（---PROMPT_START--- 〜 ---PROMPT_END---）で改善版を出力してください。`;
+修正依頼には同じフォーマット（---PROMPT_START--- 〜 ---PROMPT_END---）で改善版を出力。
 
-  // ── DOM ──────────────────────────
+## 引用ルール（重要）
+ソースが提供されている場合、回答やプロンプト内でソースの情報を参照したら、該当箇所の直後に [ソース1] [ソース2] のような引用マーカーを付けてください。
+- ソース番号は「## ユーザーが提供した参考資料（ソース）」セクションのソース番号に対応
+- 1つの文に複数ソースを参照する場合は [ソース1][ソース3] のように連続で記載
+- 引用マーカーはプロンプト本文（---PROMPT_START--- 〜 ---PROMPT_END---の中）には含めず、説明文や質問の中でのみ使用
+- ソースを参照していない一般的な発言には引用マーカーは不要`;
+
   const chatEl = document.getElementById('chat-messages');
   const inputEl = document.getElementById('user-input');
   const sendBtn = document.getElementById('send-btn');
   const sugEl = document.getElementById('suggestions');
 
-  // ── チャット描画 ──────────────────────────
   function addBubble(role, content) {
-    // プロンプト結果を含むか検出
     const hasPrompt = content.includes('---PROMPT_START---') && content.includes('---PROMPT_END---');
-
     const row = document.createElement('div');
     row.className = `chat-row ${role}`;
-
     const avatar = document.createElement('div');
     avatar.className = `chat-avatar ${role}`;
     avatar.textContent = role === 'ai' ? '🪄' : '👤';
 
     if (hasPrompt) {
-      // プロンプト結果を特別表示
       const parts = content.split('---PROMPT_START---');
       const beforePrompt = parts[0].trim();
       const afterParts = parts[1].split('---PROMPT_END---');
@@ -263,113 +1329,71 @@
       const wrapper = document.createElement('div');
       wrapper.style.cssText = 'display:flex;flex-direction:column;gap:10px;max-width:90%;';
 
-      // 前置きテキスト
-      if (beforePrompt) {
-        const pre = document.createElement('div');
-        pre.className = 'chat-bubble ai';
-        pre.textContent = beforePrompt;
-        wrapper.appendChild(pre);
-      }
+      if (beforePrompt) { const pre = document.createElement('div'); pre.className = 'chat-bubble ai'; if (SourceStore._cache.length > 0) { pre.innerHTML = renderCitations(escHtml(beforePrompt)); } else { pre.textContent = beforePrompt; } wrapper.appendChild(pre); }
 
-      // プロンプト結果カード
       const card = document.createElement('div');
       card.className = 'prompt-result';
+      const copyBtnId = 'copy-prompt-btn-' + Date.now();
       card.innerHTML = `
         <div class="prompt-result-header">
           <span class="prompt-result-title">✅ 生成されたプロンプト</span>
-          <button class="prompt-copy-btn" id="copy-prompt-btn">📋 コピー</button>
+          <button class="prompt-copy-btn" id="${copyBtnId}">📋 コピー</button>
         </div>
         <div class="prompt-result-body">${escHtml(promptText)}</div>
         <div class="prompt-result-hint">💡 このプロンプトをコピーしてChatGPT・Claude・Geminiなどに貼り付けてください</div>`;
       wrapper.appendChild(card);
 
-      // 後続テキスト
-      if (afterPrompt) {
-        const post = document.createElement('div');
-        post.className = 'chat-bubble ai';
-        post.textContent = afterPrompt;
-        wrapper.appendChild(post);
-      }
+      if (afterPrompt) { const post = document.createElement('div'); post.className = 'chat-bubble ai'; post.textContent = afterPrompt; wrapper.appendChild(post); }
 
       row.appendChild(avatar);
       row.appendChild(wrapper);
       chatEl.appendChild(row);
 
-      // コピーボタン
-      card.querySelector('#copy-prompt-btn').addEventListener('click', function() {
-        copyToClipboard(promptText, this);
-      });
-
-      // 履歴保存
+      card.querySelector(`#${copyBtnId}`).addEventListener('click', function() { copyToClipboard(promptText, this); });
       const userFirstMsg = messages.find(m => m.role === 'user')?.content || '';
       HistoryManager.save(userFirstMsg.slice(0, 300), promptText);
-      promptGenerated = true;
+
+      // 品質スコアを自動算出
+      scorePrompt(promptText, card);
     } else {
       const bubble = document.createElement('div');
       bubble.className = `chat-bubble ${role}`;
-      bubble.textContent = content;
+      if (role === 'ai' && SourceStore._cache.length > 0) {
+        bubble.innerHTML = renderCitations(escHtml(content));
+      } else {
+        bubble.textContent = content;
+      }
       row.appendChild(avatar);
       row.appendChild(bubble);
       chatEl.appendChild(row);
     }
-
     chatEl.scrollTop = chatEl.scrollHeight;
   }
 
   function addLoading() {
     const row = document.createElement('div');
-    row.className = 'chat-row ai';
-    row.id = 'loading-row';
-    row.innerHTML = `
-      <div class="chat-avatar ai">🪄</div>
-      <div class="chat-bubble ai loading">
-        考え中
-        <span class="loading-dots">
-          <span class="loading-dot"></span>
-          <span class="loading-dot"></span>
-          <span class="loading-dot"></span>
-        </span>
-      </div>`;
-    chatEl.appendChild(row);
-    chatEl.scrollTop = chatEl.scrollHeight;
+    row.className = 'chat-row ai'; row.id = 'loading-row';
+    row.innerHTML = `<div class="chat-avatar ai">🪄</div><div class="chat-bubble ai loading">考え中<span class="loading-dots"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></span></div>`;
+    chatEl.appendChild(row); chatEl.scrollTop = chatEl.scrollHeight;
   }
+  function removeLoading() { document.getElementById('loading-row')?.remove(); }
 
-  function removeLoading() {
-    document.getElementById('loading-row')?.remove();
-  }
-
-  function escHtml(s) {
-    return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
-
-  // ── 送信処理 ──────────────────────────
   async function send() {
     const text = inputEl.value.trim();
     if (!text || generating) return;
-
-    // サジェスチョン非表示
     sugEl.style.display = 'none';
-
-    // ユーザーメッセージ表示
     addBubble('user', text);
     messages.push({ role: 'user', content: text });
-    inputEl.value = '';
-    inputEl.style.height = '44px';
-
-    generating = true;
-    sendBtn.disabled = true;
+    inputEl.value = ''; inputEl.style.height = '44px';
+    generating = true; sendBtn.disabled = true;
     addLoading();
-
     try {
       const r = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          _user: sessionStorage.getItem('username') || 'unknown',
-          _app: 'Prompt Maker',
-          model: 'claude-sonnet-4-6',
-          max_tokens: 4096,
-          system: SYSTEM_PROMPT,
+          _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
+          model: 'claude-sonnet-4-6', max_tokens: 4096,
+          system: SYSTEM_PROMPT + buildSourceContext(),
           messages: messages.map(m => ({ role: m.role, content: m.content })),
         }),
       });
@@ -377,39 +1401,43 @@
       if (!r.ok) throw new Error(data.error?.message || 'エラーが発生しました');
       const reply = data.content?.[0]?.text || '';
       if (!reply.trim()) throw new Error('応答が空です。もう一度お試しください。');
-
       removeLoading();
       messages.push({ role: 'assistant', content: reply });
       addBubble('ai', reply);
-    } catch (err) {
-      removeLoading();
-      addBubble('ai', `⚠️ ${err.message}`);
-    } finally {
-      generating = false;
-      sendBtn.disabled = false;
-      inputEl.focus();
-    }
+    } catch (err) { removeLoading(); addBubble('ai', `⚠️ ${err.message}`); }
+    finally { generating = false; sendBtn.disabled = false; inputEl.focus(); }
+  }
+
+  function resetChat() {
+    messages.length = 0; chatEl.innerHTML = ''; sugEl.style.display = 'block';
+    if (SourceStore._cache.length > 0) generateDynamicSuggestions();
+    else showStaticSuggestions();
+    addBubble('ai', 'AIの力を最大限引き出すプロンプトを一緒に作りましょう！\n\n何をしたいか、ざっくりで構いません。\n\n📚 左の「ソース」に参考資料を追加すると:\n  - AIが自動要約を生成\n  - ソースに基づくサジェスチョンを提案\n  - 全ソースの横断分析が可能\n  - 回答に引用マーカー [ソース1] を自動付与\n\n📎 対応形式: テキスト / URL / PDF / YouTube');
   }
 
   // ── イベント ──────────────────────────
   sendBtn.addEventListener('click', send);
-  inputEl.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
-  });
-
-  // テキストエリア自動高さ調整
-  inputEl.addEventListener('input', () => {
-    inputEl.style.height = '44px';
-    inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
-  });
-
-  // サジェスチョンクリック
+  inputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+  inputEl.addEventListener('input', () => { inputEl.style.height = '44px'; inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px'; });
   document.querySelectorAll('.sug-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      inputEl.value = chip.dataset.msg;
-      inputEl.focus();
-    });
+    chip.addEventListener('click', () => { inputEl.value = chip.dataset.msg; inputEl.focus(); switchMobileTab('chat'); });
   });
+  document.getElementById('new-chat-btn').addEventListener('click', resetChat);
+
+  function switchMobileTab(pane) {
+    document.querySelectorAll('.mobile-tab').forEach(t => t.classList.toggle('active', t.dataset.pane === pane));
+    document.getElementById('source-panel').classList.toggle('hidden', pane !== 'source');
+    document.getElementById('chat-panel').classList.toggle('hidden', pane !== 'chat');
+  }
+  document.querySelectorAll('.mobile-tab').forEach(tab => { tab.addEventListener('click', () => switchMobileTab(tab.dataset.pane)); });
+
+  // ── 初期化 ──────────────────────────
+  (async () => {
+    await SourceStore.init();
+    document.getElementById('source-loading')?.remove();
+    renderSources();
+    if (SourceStore._cache.length > 0) generateDynamicSuggestions();
+  })();
 
   HistoryManager.init('Prompt Maker');
 </script>
