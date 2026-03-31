@@ -572,6 +572,27 @@ ${ctx.notes ? `- 特記事項: ${ctx.notes}` : ''}
 
 navigation と footer を必ず含めてください。`,
       }];
+    } else if (mode === 'variant') {
+      // A/Bバリアント生成: 現在の構成を元に代替案を提案
+      model = 'claude-sonnet-4-6';
+      messages = [{
+        role: 'user',
+        content: `以下のワイヤーフレーム構成に対して、CVRを改善する代替バリアント（B案）を生成してください。
+
+## 現在の構成（A案）
+${JSON.stringify(currentSections, null, 2)}
+
+${context ? `## コンテキスト\n- ページ目的: ${context.purpose || '不明'}\n- ページタイプ: ${context.pageType || '不明'}\n- ターゲット: ${context.target || '不明'}\n` : ''}
+
+## バリアント生成ルール
+- 現在の構成を参考にしつつ、セクションの順序変更・追加・削除・置換を行う
+- 才流/WACUL/NNgなどの知見に基づいて改善ポイントを反映する
+- CVRを向上させる構成にする（信頼要素の追加、CTA配置の最適化など）
+- セクション数は現在と大きく変えない（±3以内）
+- 既存セクションのlabelは改善できれば変更してよい
+
+B案の構成をJSON形式で返してください。`,
+      }];
     } else if (mode === 'refine') {
       model = 'claude-haiku-4-5-20251001';
       systemPrompt = REFINE_SYSTEM_PROMPT;
@@ -593,7 +614,7 @@ navigation と footer を必ず含めてください。`,
       body: JSON.stringify({
         model,
         max_tokens: mode === 'refine' ? 2000 : 4000,
-        temperature: mode === 'refine' ? 0.2 : 0.3,
+        temperature: mode === 'variant' ? 0.7 : mode === 'refine' ? 0.2 : 0.3,
         system: systemPrompt,
         messages,
       }),
