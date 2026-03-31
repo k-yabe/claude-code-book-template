@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-31（Prompt Maker v7 フラッシュカード/FAQ/インフォグラフィック・Wireframe Maker V6）
+最終更新: 2026-03-31（Wireframe Maker バグ修正 — 構成パネルスクロール・SVGテキスト直接編集）
 
 ---
 
@@ -56,8 +56,8 @@
 | SNS Post Generator | `apps/sns-post-generator/index.html` | ✅ 完成 | S024, S028 |
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
-| Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040, S041, S042 |
-| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037, S038, S040 |
+| Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040, S041, S042, S043, S044 |
+| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043 |
 
 ---
 
@@ -150,6 +150,8 @@ NotebookLM超えの2ペインレイアウトでプロンプトを対話生成す
 | フラッシュカード | AIがソースからQ&Aペア10枚を自動生成、フリップカードUI（CSS 3Dトランスフォーム）、「覚えた/もう一回」ボタンで進捗管理、モーダル表示 |
 | FAQ自動生成 | AIがソースからFAQ 8-10件を生成、アコーディオンUI（クリックで回答展開）、コピー機能 |
 | インフォグラフィック | AIがソースのキー数値・統計・比較をJSON抽出→SVGで統計サークル・比較バー・キーポイントを描画、SVGダウンロード |
+| UIポリッシュ(v8) | シマーローダー、トースト通知（成功/エラー/情報）、モーダルフェードイン+backdrop-filter、ESCキー閉じ、ボタンhoverリフト統一、ブランドカラー準拠修正、検索クリアボタン+件数、品質スコアバー改善、PDFプログレスバー、引用マーカー視認性向上 |
+| ソース選択(v9) | 各ソースにチェックボックスON/OFF、選択ソースのみAIコンテキストに含める、全選択/全解除ボタン、「N/M件をAIに使用中」インジケータ、初回3ステップガイド、ソースヒントバナー、全ボタンにツールチップ |
 | 品質スコア | 生成プロンプトを5軸（明確性/具体性/構造/再利用性/テクニック）で0-100点評価+改善ヒント |
 | メモ機能 | 各ソースにユーザーメモを追加可能（デバウンス自動保存） |
 | URL取得 | `/api/fetch-article.js` で実コンテンツ自動抽出（タイトル・本文） |
@@ -281,3 +283,7 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-31 | Wireframe Maker V4 Figma超え3機能 | SVGダイレクト操作（ドラッグ並べ替え+オーバーレイツールバー）、A/Bバリアント生成（AI代替構成diff比較+チェリーピック）、マルチページプロトタイプ（ページ管理+ページ間リンク+遷移） |
 | 2026-03-31 | Wireframe Maker V5 5機能追加 | AIコピーライティング、ヒートマップ予測（F字パターン）、レスポンシブ3画面同時プレビュー、プロトタイプ再生モード、セクションコメント/注釈 |
 | 2026-03-31 | Wireframe Maker V6 5機能追加 | アクセシビリティチェッカー、競合サイト構成分析、セクションアニメーション、HTML/CSS/Tailwindエクスポート、デザイントークン自動生成 |
+| 2026-03-31 | Banner Resizer 安全ゾーンダウンロードバグ修正 | ダウンロード画像に安全ゾーンオーバーレイが焼き込まれるバグを修正。data-safe-zone-overlay属性マーカー方式でプレビュー表示とダウンロード出力を分離。AIアップスケール時の品質劣化も防止 |
+| 2026-03-31 | Wireframe Maker V7 Figma完全超え5機能 | リアルタイム共同編集（BroadcastChannel P2P）、コンポーネントライブラリ、Figmaインポート（API連携）、ABテスト連携（GO/VWO設定出力）、LP公開（Vercelデプロイ） |
+| 2026-03-31 | Wireframe Maker V8 分析・ハンドオフ5機能 | AIデザインレビュー（改善提案+優先度）、ユーザーフロー自動生成（ページ遷移図SVG）、デザインハンドオフモード（スペック表示）、テンプレートマーケットプレイス（公開/取込/JSON）、パフォーマンス予測（CWV推定+最適化提案） |
+| 2026-03-31 | Wireframe Maker バグ修正 | 構成パネルのスクロール不具合修正（flexbox min-height問題）、SVGプレビュー上のダブルクリックテキスト直接編集追加、左パネルのテキスト編集をシングルクリックに変更 |
