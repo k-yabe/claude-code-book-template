@@ -1043,9 +1043,15 @@
     return 'png';
   }
 
-  function getBlob(canvasId, forcePng) {
+  function getBlob(canvasId, forcePng, size) {
     return new Promise(resolve => {
-      const canvas = document.getElementById(canvasId);
+      let canvas;
+      // If size has safeZone, re-render without overlay for clean download
+      if (size && size.safeZone && sourceImage) {
+        canvas = createResized(sourceImage, size.w, size.h);
+      } else {
+        canvas = document.getElementById(canvasId);
+      }
       if (!canvas) { resolve(null); return; }
       const mimeType = getRequestedMimeType(forcePng);
       canvas.toBlob(blob => {
@@ -1066,7 +1072,7 @@
     const allSizes = [...SIZES, ...customSizes];
     const size = allSizes.find(s => s.id === sizeId);
     if (!size) return;
-    getBlob('canvas-' + sizeId, size.forcePng).then(blob => {
+    getBlob('canvas-' + sizeId, size.forcePng, size).then(blob => {
       if (!blob) return;
       const ext = blob._actualExt || (size.forcePng ? 'png' : format);
       const url = URL.createObjectURL(blob);
@@ -1094,7 +1100,7 @@
 
     const zip = new JSZip();
     for (const size of allSizes) {
-      const blob = await getBlob('canvas-' + size.id, size.forcePng);
+      const blob = await getBlob('canvas-' + size.id, size.forcePng, size);
       if (!blob) continue;
       const ext = blob._actualExt || (size.forcePng ? 'png' : format);
       zip.file(`${size.dlName || `${filename}_${size.w}x${size.h}`}.${ext}`, blob);
