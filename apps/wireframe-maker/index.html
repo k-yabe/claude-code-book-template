@@ -659,6 +659,8 @@
     <div class="score-bar"><div class="score-fill" id="cvr-score-fill" style="width:0%;background:#8a9bb0"></div></div>
   </div>
   <div class="toolbar-sep"></div>
+  <button class="navbar-btn" onclick="saveProject()" title="プロジェクト保存 (Ctrl+S)" id="save-btn">💾 保存</button>
+  <button class="navbar-btn" onclick="showProjectList()" title="プロジェクト一覧">📂 開く</button>
   <button class="navbar-btn" onclick="showShortcuts()" title="ショートカット一覧">⌨ ?</button>
   <button class="navbar-btn" onclick="HistoryManager.togglePanel()">履歴</button>
 </nav>
@@ -1473,14 +1475,16 @@ function drawImg(g, x, y, w, h, sectionImage) {
     icon.textContent = '🖼'; g.appendChild(icon);
   }
 }
-function drawBtn(g, x, y, w, h, label, primary) {
+function drawBtn(g, x, y, w, h, label, primary, editKey) {
   g.appendChild(svgEl('rect', { x, y, width: w, height: h, fill: primary ? cs('accent') : cs('dark'), filter: 'url(#card-shadow)' }));
   const txt = svgEl('text', { x: x+w/2, y: y+h/2+5, fill: primary ? cs('accentText') : '#fff', 'font-size': '13', 'text-anchor': 'middle', 'font-family': 'sans-serif', 'font-weight': '600' });
+  if (editKey) { txt.setAttribute('data-edit-key', editKey); txt.style.cursor = 'text'; }
   txt.textContent = label || 'CTA'; g.appendChild(txt);
 }
 function drawCircle(g, cx, cy, r) { g.appendChild(svgEl('circle', { cx, cy, r, fill: cs('img') })); }
-function drawText(g, x, y, text, size, color, weight, anchor) {
+function drawText(g, x, y, text, size, color, weight, anchor, editKey) {
   const t = svgEl('text', { x, y, fill: color || cs('heading'), 'font-size': size || '14', 'font-family': "'Segoe UI', sans-serif", 'font-weight': weight || '400', 'text-anchor': anchor || 'start' });
+  if (editKey) { t.setAttribute('data-edit-key', editKey); t.style.cursor = 'text'; }
   t.textContent = text; g.appendChild(t);
 }
 function drawCard(g, x, y, w, h) {
@@ -1504,7 +1508,16 @@ function renderSection(sec, yOff) {
   render(group, h, sec);
 
   group.addEventListener('click', () => selectSection(sec.id));
-  group.addEventListener('dblclick', e => { e.stopPropagation(); showInlineEdit(sec.id); });
+  group.addEventListener('dblclick', e => {
+    e.stopPropagation();
+    // テキスト要素をクリックした場合はその場でテキスト編集
+    const textEl = e.target.closest('text[data-edit-key]');
+    if (textEl) {
+      editSVGText(sec.id, textEl);
+    } else {
+      showInlineEdit(sec.id);
+    }
+  });
   return { group, height: h };
 }
 
@@ -1520,46 +1533,47 @@ const RENDERERS = {
     drawBtn(g, WF_WIDTH - 220, 14, 150, 32, '無料で資料請求', true);
   },
   hero(g, h, sec) {
+    const t = (sec && sec.texts) || {};
     g.appendChild(svgEl('rect', { x: 0, y: SEC_PAD, width: WF_WIDTH, height: h - SEC_PAD, fill: cs('card') }));
-    // 見出し
-    drawText(g, 80, 120, 'キャッチコピーが入ります', '28', cs('heading'), '700');
-    drawText(g, 80, 152, 'サブコピー — サービスの価値を一言で伝えるメッセージ', '14', cs('body'));
+    drawText(g, 80, 120, t.heading || 'キャッチコピーが入ります', '28', cs('heading'), '700', null, 'heading');
+    drawText(g, 80, 152, t.subheading || 'サブコピー — サービスの価値を一言で伝えるメッセージ', '14', cs('body'), null, null, 'subheading');
     drawLines(g, 80, 170, 380, 2, 6, cs('line'));
-    // CTA + 補完文言
-    drawBtn(g, 80, 220, 220, 52, '無料で資料ダウンロード', true);
-    drawText(g, 86, 290, '3分で完了 / 営業電話なし', '10', cs('body'));
-    // ロゴバー
+    drawBtn(g, 80, 220, 220, 52, t.cta || '無料で資料ダウンロード', true, 'cta');
+    drawText(g, 86, 290, t.ctaSub || '3分で完了 / 営業電話なし', '10', cs('body'), null, null, 'ctaSub');
     for (let i = 0; i < 5; i++) g.appendChild(svgEl('rect', { x: 80 + i * 90, y: 320, width: 70, height: 24, fill: cs('img') }));
-    drawText(g, 80, 364, '導入企業 12,847社', '10', cs('body'));
-    // 右: 画像
+    drawText(g, 80, 364, t.social || '導入企業 12,847社', '10', cs('body'), null, null, 'social');
     drawImg(g, 640, 70, 480, 360, sec && sec.image);
   },
-  features(g, h) {
-    drawText(g, WF_WIDTH / 2, 40, '選ばれる3つの理由', '20', cs('heading'), '700', 'middle');
+  features(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 40, t.heading || '選ばれる3つの理由', '20', cs('heading'), '700', 'middle', 'heading');
     const cols = 3, cw = 300, gap = (WF_WIDTH - cols * cw) / (cols + 1);
     for (let i = 0; i < cols; i++) {
       const x = gap + i * (cw + gap), y = 70;
       drawCard(g, x, y, cw, h - 100);
       drawCircle(g, x + cw / 2, y + 50, 28);
-      drawText(g, x + cw / 2, y + 105, `特徴 ${i + 1} のタイトル`, '14', cs('heading'), '600', 'middle');
+      drawText(g, x + cw / 2, y + 105, t['feat' + i] || `特徴 ${i + 1} のタイトル`, '14', cs('heading'), '600', 'middle', 'feat' + i);
       drawLines(g, x + 30, y + 125, cw - 60, 3, 5, cs('line'));
     }
   },
   'content-text'(g, h, sec) {
-    drawText(g, 80, 60, 'こんなお悩みはありませんか？', '20', cs('heading'), '700');
-    drawText(g, 80, 88, '多くの企業が直面する課題とその解決策をご紹介します', '12', cs('body'));
+    const t = (sec && sec.texts) || {};
+    drawText(g, 80, 60, t.heading || 'こんなお悩みはありませんか？', '20', cs('heading'), '700', null, 'heading');
+    drawText(g, 80, 88, t.subheading || '多くの企業が直面する課題とその解決策をご紹介します', '12', cs('body'), null, null, 'subheading');
     drawLines(g, 80, 110, 600, 4, 6, cs('line'));
     drawImg(g, 80, 190, WF_WIDTH - 160, 100, sec && sec.image);
   },
   'two-column'(g, h, sec) {
+    const t = (sec && sec.texts) || {};
     const half = (WF_WIDTH - 120) / 2;
-    drawText(g, 60, 70, '解決策のタイトル', '18', cs('heading'), '700');
+    drawText(g, 60, 70, t.heading || '解決策のタイトル', '18', cs('heading'), '700', null, 'heading');
     drawLines(g, 60, 90, half - 20, 5, 6, cs('line'));
-    drawBtn(g, 60, 240, 180, 40, '詳しく見る', false);
+    drawBtn(g, 60, 240, 180, 40, t.cta || '詳しく見る', false, 'cta');
     drawImg(g, 60 + half + 20, 50, half, h - 80, sec && sec.image);
   },
-  testimonials(g, h) {
-    drawText(g, WF_WIDTH / 2, 38, 'お客様の声', '18', cs('heading'), '700', 'middle');
+  testimonials(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || 'お客様の声', '18', cs('heading'), '700', 'middle', 'heading');
     for (let i = 0; i < 6; i++) g.appendChild(svgEl('rect', { x: 80 + i * 170, y: 55, width: 120, height: 28, fill: cs('img') }));
     const cols = 2, cw = 480, gap = (WF_WIDTH - cols * cw) / (cols + 1);
     for (let i = 0; i < cols; i++) {
@@ -1567,16 +1581,18 @@ const RENDERERS = {
       drawCard(g, x, 110, cw, h - 140);
       g.appendChild(svgEl('rect', { x, y: 110, width: 4, height: h - 140, fill: cs('accent') }));
       drawCircle(g, x + 40, 150, 18);
-      drawText(g, x + 70, 148, '山田 太郎', '12', cs('heading'), '600');
-      drawText(g, x + 70, 164, '株式会社サンプル / マーケティング部長', '9', cs('body'));
-      // 星評価
+      drawText(g, x + 70, 148, t['name' + i] || '山田 太郎', '12', cs('heading'), '600', null, 'name' + i);
+      drawText(g, x + 70, 164, t['title' + i] || '株式会社サンプル / マーケティング部長', '9', cs('body'), null, null, 'title' + i);
       for (let s = 0; s < 5; s++) { const star = svgEl('text', { x: x + 30 + s * 16, y: 196, fill: '#ffb81c', 'font-size': '12', 'font-family': 'sans-serif' }); star.textContent = '★'; g.appendChild(star); }
       drawLines(g, x + 30, 210, cw - 60, 3, 5, cs('line'));
     }
   },
-  pricing(g, h) {
-    drawText(g, WF_WIDTH / 2, 38, '料金プラン', '20', cs('heading'), '700', 'middle');
+  pricing(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || '料金プラン', '20', cs('heading'), '700', 'middle', 'heading');
     const cols = 3, cw = 320, gap = (WF_WIDTH - cols * cw) / (cols + 1);
+    const defNames = ['ライト', 'スタンダード', 'エンタープライズ'];
+    const defPrices = ['¥9,800/月', '¥29,800/月', '要問合せ'];
     for (let i = 0; i < cols; i++) {
       const x = gap + i * (cw + gap), isRec = i === 1;
       drawCard(g, x, 60, cw, h - 90);
@@ -1584,9 +1600,8 @@ const RENDERERS = {
         g.appendChild(svgEl('rect', { x: x, y: 60, width: cw, height: 24, fill: cs('accent') }));
         drawText(g, x + cw / 2, 77, 'RECOMMENDED', '10', cs('accentText'), '700', 'middle');
       }
-      drawText(g, x + cw / 2, isRec ? 108 : 92, ['ライト', 'スタンダード', 'エンタープライズ'][i], '14', cs('heading'), '600', 'middle');
-      drawText(g, x + cw / 2, isRec ? 140 : 124, ['¥9,800/月', '¥29,800/月', '要問合せ'][i], '22', cs('heading'), '700', 'middle');
-      // 機能リスト
+      drawText(g, x + cw / 2, isRec ? 108 : 92, t['plan' + i] || defNames[i], '14', cs('heading'), '600', 'middle', 'plan' + i);
+      drawText(g, x + cw / 2, isRec ? 140 : 124, t['price' + i] || defPrices[i], '22', cs('heading'), '700', 'middle', 'price' + i);
       const features = ['基本機能', 'メールサポート', 'API連携', 'カスタマイズ'];
       features.forEach((f, fi) => {
         const fy = (isRec ? 165 : 150) + fi * 28;
@@ -1594,20 +1609,22 @@ const RENDERERS = {
         drawText(g, x + 30, fy, check ? '✓' : '—', '12', check ? '#22c55e' : cs('line'), '600');
         drawText(g, x + 50, fy, f, '11', cs('body'));
       });
-      drawBtn(g, x + 40, h - 90, cw - 80, 36, isRec ? '今すぐ始める' : 'お問い合わせ', isRec);
+      drawBtn(g, x + 40, h - 90, cw - 80, 36, isRec ? (t.ctaRec || '今すぐ始める') : (t.cta || 'お問い合わせ'), isRec, isRec ? 'ctaRec' : 'cta');
     }
   },
-  'cta-banner'(g, h) {
+  'cta-banner'(g, h, sec) {
+    const t = (sec && sec.texts) || {};
     g.appendChild(svgEl('rect', { x: 0, y: 0, width: WF_WIDTH, height: h, fill: cs('card') }));
-    drawText(g, WF_WIDTH / 2, 50, 'まずは無料で試してみませんか？', '20', cs('heading'), '700', 'middle');
-    drawText(g, WF_WIDTH / 2, 76, 'お気軽にご相談ください。専門スタッフが対応します。', '12', cs('body'), '400', 'middle');
-    drawBtn(g, WF_WIDTH / 2 - 110, 100, 220, 50, '無料で相談する', true);
-    drawText(g, WF_WIDTH / 2, 168, '3分で完了 / 営業電話なし', '10', cs('body'), '400', 'middle');
+    drawText(g, WF_WIDTH / 2, 50, t.heading || 'まずは無料で試してみませんか？', '20', cs('heading'), '700', 'middle', 'heading');
+    drawText(g, WF_WIDTH / 2, 76, t.subheading || 'お気軽にご相談ください。専門スタッフが対応します。', '12', cs('body'), '400', 'middle', 'subheading');
+    drawBtn(g, WF_WIDTH / 2 - 110, 100, 220, 50, t.cta || '無料で相談する', true, 'cta');
+    drawText(g, WF_WIDTH / 2, 168, t.ctaSub || '3分で完了 / 営業電話なし', '10', cs('body'), '400', 'middle', 'ctaSub');
   },
-  form(g, h) {
+  form(g, h, sec) {
+    const t = (sec && sec.texts) || {};
     const fw = 500, fx = (WF_WIDTH - fw) / 2;
     drawCard(g, fx - 20, 30, fw + 40, h - 60);
-    drawText(g, WF_WIDTH / 2, 60, '資料請求フォーム', '16', cs('heading'), '700', 'middle');
+    drawText(g, WF_WIDTH / 2, 60, t.heading || '資料請求フォーム', '16', cs('heading'), '700', 'middle', 'heading');
     const fields = ['会社名', 'お名前', 'メールアドレス', '電話番号'];
     fields.forEach((f, i) => {
       const y = 85 + i * 70;
@@ -1615,57 +1632,62 @@ const RENDERERS = {
       g.appendChild(svgEl('rect', { x: fx, y: y + 16, width: fw, height: 36, fill: '#fff', stroke: cs('border'), 'stroke-width': 1 }));
       drawText(g, fx + 10, y + 38, f + 'を入力', '10', cs('line'));
     });
-    drawBtn(g, fx, h - 75, fw, 44, '無料で資料をダウンロード', true);
+    drawBtn(g, fx, h - 75, fw, 44, t.cta || '無料で資料をダウンロード', true, 'cta');
   },
-  faq(g, h) {
-    drawText(g, WF_WIDTH / 2, 38, 'よくある質問', '18', cs('heading'), '700', 'middle');
-    const questions = ['導入までどのくらいかかりますか？', 'セキュリティ対策はどうなっていますか？', '他社からの乗り換えは可能ですか？', 'サポート体制について教えてください', '解約はいつでもできますか？'];
-    questions.forEach((q, i) => {
+  faq(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || 'よくある質問', '18', cs('heading'), '700', 'middle', 'heading');
+    const defQ = ['導入までどのくらいかかりますか？', 'セキュリティ対策はどうなっていますか？', '他社からの乗り換えは可能ですか？', 'サポート体制について教えてください', '解約はいつでもできますか？'];
+    defQ.forEach((q, i) => {
       const y = 55 + i * 56;
       drawCard(g, 80, y, WF_WIDTH - 160, 48);
-      drawText(g, 110, y + 30, 'Q. ' + q, '12', cs('heading'), '500');
+      drawText(g, 110, y + 30, 'Q. ' + (t['q' + i] || q), '12', cs('heading'), '500', null, 'q' + i);
       const arr = svgEl('text', { x: WF_WIDTH - 120, y: y + 30, fill: cs('line'), 'font-size': '14', 'text-anchor': 'middle', 'font-family': 'sans-serif' });
       arr.textContent = '▾'; g.appendChild(arr);
     });
   },
   gallery(g, h, sec) {
-    drawText(g, WF_WIDTH / 2, 38, '導入イメージ', '18', cs('heading'), '700', 'middle');
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || '導入イメージ', '18', cs('heading'), '700', 'middle', 'heading');
     const cols = 4, iw = 240, ih = 180, gap = (WF_WIDTH - cols * iw) / (cols + 1);
     for (let i = 0; i < cols; i++) drawImg(g, gap + i * (iw + gap), 55, iw, ih, sec && sec.image);
   },
-  stats(g, h) {
-    drawText(g, WF_WIDTH / 2, 38, '実績', '16', cs('heading'), '700', 'middle');
+  stats(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || '実績', '16', cs('heading'), '700', 'middle', 'heading');
     const cols = 4, cw = 220, gap = (WF_WIDTH - cols * cw) / (cols + 1);
-    const numbers = ['12,847', '99.7%', '4.8', '150+'];
-    const labels = ['導入企業', '継続率', '満足度', '連携サービス'];
+    const defNums = ['12,847', '99.7%', '4.8', '150+'];
+    const defLabels = ['導入企業', '継続率', '満足度', '連携サービス'];
     for (let i = 0; i < cols; i++) {
       const x = gap + i * (cw + gap);
-      drawText(g, x + cw / 2, 100, numbers[i], '32', cs('heading'), '700', 'middle');
-      drawText(g, x + cw / 2, 124, labels[i], '11', cs('body'), '500', 'middle');
+      drawText(g, x + cw / 2, 100, t['num' + i] || defNums[i], '32', cs('heading'), '700', 'middle', 'num' + i);
+      drawText(g, x + cw / 2, 124, t['stat' + i] || defLabels[i], '11', cs('body'), '500', 'middle', 'stat' + i);
     }
   },
-  timeline(g, h) {
-    drawText(g, WF_WIDTH / 2, 38, '導入の流れ', '18', cs('heading'), '700', 'middle');
-    const steps = ['お問い合わせ', 'ヒアリング', 'ご提案', '導入開始'];
-    g.appendChild(svgEl('rect', { x: 140, y: 60, width: 2, height: steps.length * 66, fill: cs('border') }));
-    steps.forEach((s, i) => {
+  timeline(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || '導入の流れ', '18', cs('heading'), '700', 'middle', 'heading');
+    const defSteps = ['お問い合わせ', 'ヒアリング', 'ご提案', '導入開始'];
+    g.appendChild(svgEl('rect', { x: 140, y: 60, width: 2, height: defSteps.length * 66, fill: cs('border') }));
+    defSteps.forEach((s, i) => {
       const y = 60 + i * 66;
       drawCircle(g, 141, y + 12, 12);
       drawText(g, 141, y + 16, `${i + 1}`, '10', cs('heading'), '700', 'middle');
-      drawText(g, 180, y + 12, s, '14', cs('heading'), '600');
-      drawText(g, 180, y + 32, 'ステップの説明テキストが入ります', '10', cs('body'));
+      drawText(g, 180, y + 12, t['step' + i] || s, '14', cs('heading'), '600', null, 'step' + i);
+      drawText(g, 180, y + 32, t['stepDesc' + i] || 'ステップの説明テキストが入ります', '10', cs('body'), null, null, 'stepDesc' + i);
     });
   },
   cards(g, h, sec) {
-    drawText(g, WF_WIDTH / 2, 38, '導入事例', '18', cs('heading'), '700', 'middle');
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || '導入事例', '18', cs('heading'), '700', 'middle', 'heading');
     const cols = 3, cw = 320, gap = (WF_WIDTH - cols * cw) / (cols + 1);
     for (let i = 0; i < cols; i++) {
       const x = gap + i * (cw + gap);
       drawCard(g, x, 55, cw, h - 85);
       drawImg(g, x, 55, cw, 130, sec && sec.image);
-      drawText(g, x + 16, 210, '事例タイトル', '13', cs('heading'), '600');
+      drawText(g, x + 16, 210, t['card' + i] || '事例タイトル', '13', cs('heading'), '600', null, 'card' + i);
       drawLines(g, x + 16, 225, cw - 32, 2, 5, cs('line'));
-      drawBtn(g, x + 16, h - 70, cw - 32, 30, '詳しく見る', false);
+      drawBtn(g, x + 16, h - 70, cw - 32, 30, t.cta || '詳しく見る', false, 'cta');
     }
   },
   footer(g, h) {
@@ -2013,7 +2035,7 @@ document.addEventListener('keydown', e => {
   const ctrl = e.ctrlKey || e.metaKey;
   if (ctrl && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
   if (ctrl && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); redo(); }
-  if (ctrl && e.key === 's') { e.preventDefault(); exportSVG(); }
+  if (ctrl && e.key === 's') { e.preventDefault(); saveProject(); }
   if (ctrl && e.key === 'g') { e.preventDefault(); toggleGrid(); }
   if (ctrl && e.key === 'p') { e.preventDefault(); renderPreview(); }
   if (ctrl && e.key === 'e') { e.preventDefault(); switchTab('export'); }
@@ -2126,6 +2148,70 @@ function applyInlineEdit(sectionId) {
     showToast('セクション更新');
   }
   panel.remove();
+}
+
+// SVGテキスト要素のその場編集
+function editSVGText(sectionId, textEl) {
+  document.querySelectorAll('.svg-text-input').forEach(e => e.remove());
+  const key = textEl.getAttribute('data-edit-key');
+  const sec = currentSections.find(s => s.id === sectionId);
+  if (!sec || !key) return;
+
+  const canvas = document.getElementById('preview-canvas');
+  const rect = textEl.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+  const fontSize = parseFloat(textEl.getAttribute('font-size') || '14');
+  const anchor = textEl.getAttribute('text-anchor') || 'start';
+  const zf = zoomLevel || 1;
+
+  const input = document.createElement('input');
+  input.className = 'svg-text-input';
+  input.value = textEl.textContent;
+  input.style.position = 'absolute';
+  input.style.top = (rect.top - canvasRect.top + canvas.scrollTop - 4) + 'px';
+  input.style.fontSize = (fontSize * zf) + 'px';
+  input.style.fontWeight = textEl.getAttribute('font-weight') || '400';
+  input.style.color = textEl.getAttribute('fill') || '#000';
+  input.style.background = 'rgba(255,251,240,0.95)';
+  input.style.border = '2px solid #ffb81c';
+  input.style.outline = 'none';
+  input.style.padding = '2px 6px';
+  input.style.fontFamily = "'Segoe UI', sans-serif";
+  input.style.zIndex = '40';
+  input.style.minWidth = '120px';
+
+  if (anchor === 'middle') {
+    input.style.left = (rect.left - canvasRect.left + canvas.scrollLeft - 60) + 'px';
+    input.style.textAlign = 'center';
+    input.style.width = Math.max(rect.width + 120, 200) + 'px';
+  } else {
+    input.style.left = (rect.left - canvasRect.left + canvas.scrollLeft - 4) + 'px';
+    input.style.width = Math.max(rect.width + 80, 200) + 'px';
+  }
+
+  input.onclick = e => e.stopPropagation();
+
+  const commit = () => {
+    const val = input.value.trim();
+    if (val && val !== textEl.textContent) {
+      saveUndoState();
+      if (!sec.texts) sec.texts = {};
+      sec.texts[key] = val;
+      onSectionsChanged();
+      showToast('テキスト更新');
+    }
+    input.remove();
+  };
+
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { input.value = textEl.textContent; input.blur(); }
+  });
+
+  canvas.appendChild(input);
+  input.focus();
+  input.select();
 }
 
 // 画像アップロード
@@ -4887,6 +4973,191 @@ function predictPerformance(sections) {
     warnings
   };
 }
+
+/* ================================================================
+   V10: プロジェクト保存/読込/自動保存
+   ================================================================ */
+
+const PROJECTS_KEY = 'wf-projects';
+let currentProjectId = null;
+let autoSaveTimer = null;
+
+function getProjects() {
+  try { return JSON.parse(localStorage.getItem(PROJECTS_KEY) || '[]'); } catch { return []; }
+}
+function setProjects(list) { localStorage.setItem(PROJECTS_KEY, JSON.stringify(list)); }
+
+function getProjectData() {
+  return {
+    sections: currentSections,
+    pages: typeof pages !== 'undefined' ? pages : [],
+    currentPageIndex: typeof currentPageIndex !== 'undefined' ? currentPageIndex : 0,
+    context: currentContext,
+    chatHistory: typeof chatHistory !== 'undefined' ? chatHistory : [],
+  };
+}
+
+function saveProject() {
+  const projects = getProjects();
+  const data = getProjectData();
+  const name = currentContext?.purpose || currentSections[0]?.label || 'ワイヤーフレーム';
+  if (currentProjectId) {
+    const idx = projects.findIndex(p => p.id === currentProjectId);
+    if (idx >= 0) {
+      projects[idx].data = data;
+      projects[idx].name = name;
+      projects[idx].updatedAt = new Date().toISOString();
+      projects[idx].sectionCount = currentSections.length;
+    }
+  } else {
+    currentProjectId = 'proj-' + Date.now();
+    projects.unshift({ id: currentProjectId, name, data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), sectionCount: currentSections.length });
+  }
+  setProjects(projects);
+  document.getElementById('save-btn').textContent = '✅ 保存済';
+  setTimeout(() => { document.getElementById('save-btn').textContent = '💾 保存'; }, 1500);
+  showToast('プロジェクトを保存しました');
+}
+
+function loadProject(projId) {
+  const projects = getProjects();
+  const proj = projects.find(p => p.id === projId);
+  if (!proj) return;
+  currentProjectId = proj.id;
+  currentSections = proj.data.sections || [];
+  if (proj.data.pages) { pages = proj.data.pages; currentPageIndex = proj.data.currentPageIndex || 0; }
+  if (proj.data.context) currentContext = proj.data.context;
+  if (proj.data.chatHistory) chatHistory = proj.data.chatHistory;
+  onSectionsChanged();
+  showToast(`「${proj.name}」を読み込みました`);
+}
+
+function deleteProject(projId) {
+  let projects = getProjects();
+  projects = projects.filter(p => p.id !== projId);
+  setProjects(projects);
+  if (currentProjectId === projId) currentProjectId = null;
+  showProjectList();
+}
+
+function showProjectList() {
+  document.querySelectorAll('.project-list-overlay').forEach(e => e.remove());
+  const projects = getProjects();
+  const overlay = document.createElement('div');
+  overlay.className = 'project-list-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:center;justify-content:center;';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  const panel = document.createElement('div');
+  panel.style.cssText = 'background:#fff;width:520px;max-height:70vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,0.2);';
+  panel.innerHTML = `<div style="padding:16px 20px;background:#001f33;color:#fff;display:flex;align-items:center;justify-content:space-between;">
+    <h3 style="font-size:0.9rem;margin:0;">📂 プロジェクト一覧</h3>
+    <div style="display:flex;gap:8px;">
+      <button onclick="exportProjectJSON()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:#fff;padding:4px 10px;font-size:0.7rem;cursor:pointer;">JSON出力</button>
+      <button onclick="document.getElementById('proj-import-file').click()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:#fff;padding:4px 10px;font-size:0.7rem;cursor:pointer;">JSON読込</button>
+      <input type="file" id="proj-import-file" accept=".json" style="display:none" onchange="importProjectJSON(this.files[0])">
+      <button onclick="this.closest('.project-list-overlay').remove()" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:1.1rem;cursor:pointer;">✕</button>
+    </div>
+  </div>`;
+
+  const list = document.createElement('div');
+  list.style.cssText = 'flex:1;overflow-y:auto;padding:8px;';
+  if (projects.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:#8a9bb0;font-size:0.82rem;">保存済みプロジェクトはありません</div>';
+  } else {
+    projects.forEach(p => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:12px 16px;border-bottom:1px solid #f0f2f5;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background 0.1s;';
+      item.onmouseenter = () => item.style.background = '#f7f8fa';
+      item.onmouseleave = () => item.style.background = '';
+      const isCurrent = p.id === currentProjectId;
+      item.innerHTML = `<div style="flex:1;min-width:0;">
+        <div style="font-size:0.82rem;font-weight:600;color:#2d3436;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${isCurrent ? '● ' : ''}${escHtml(p.name)}</div>
+        <div style="font-size:0.68rem;color:#8a9bb0;margin-top:2px;">${p.sectionCount || 0}セクション · ${new Date(p.updatedAt).toLocaleString('ja-JP')}</div>
+      </div>
+      <button onclick="event.stopPropagation();loadProject('${p.id}');this.closest('.project-list-overlay').remove()" style="background:#001f33;color:#fff;border:none;padding:4px 12px;font-size:0.7rem;cursor:pointer;">開く</button>
+      <button onclick="event.stopPropagation();if(confirm('削除しますか？'))deleteProject('${p.id}')" style="background:none;border:1px solid #e8ecf0;color:#c0392b;padding:4px 8px;font-size:0.7rem;cursor:pointer;">削除</button>`;
+      list.appendChild(item);
+    });
+  }
+  panel.appendChild(list);
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+}
+
+function exportProjectJSON() {
+  const data = getProjectData();
+  const name = currentContext?.purpose || 'wireframe';
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name.slice(0, 30) + '.json'; a.click();
+  showToast('JSONエクスポート完了');
+}
+
+function importProjectJSON(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.sections) throw new Error('invalid');
+      currentSections = data.sections;
+      if (data.pages) { pages = data.pages; currentPageIndex = data.currentPageIndex || 0; }
+      if (data.context) currentContext = data.context;
+      if (data.chatHistory) chatHistory = data.chatHistory;
+      currentProjectId = null;
+      onSectionsChanged();
+      showToast('JSONインポート完了');
+      document.querySelectorAll('.project-list-overlay').forEach(o => o.remove());
+    } catch { showToast('JSONの読み込みに失敗しました'); }
+  };
+  reader.readAsText(file);
+}
+
+// 自動保存（編集のたびにデバウンス3秒で保存）
+function scheduleAutoSave() {
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+  if (currentSections.length === 0) return;
+  autoSaveTimer = setTimeout(() => {
+    if (currentSections.length > 0) {
+      const projects = getProjects();
+      const data = getProjectData();
+      const name = currentContext?.purpose || currentSections[0]?.label || 'ワイヤーフレーム';
+      if (currentProjectId) {
+        const idx = projects.findIndex(p => p.id === currentProjectId);
+        if (idx >= 0) { projects[idx].data = data; projects[idx].updatedAt = new Date().toISOString(); projects[idx].sectionCount = currentSections.length; }
+      } else {
+        currentProjectId = 'proj-' + Date.now();
+        projects.unshift({ id: currentProjectId, name, data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), sectionCount: currentSections.length });
+      }
+      setProjects(projects);
+    }
+  }, 3000);
+}
+
+// onSectionsChanged にフックして自動保存
+const _origOnSectionsChanged = typeof onSectionsChanged === 'function' ? onSectionsChanged : null;
+if (_origOnSectionsChanged) {
+  const _origFn = onSectionsChanged;
+  onSectionsChanged = function() { _origFn(); scheduleAutoSave(); };
+}
+
+// 起動時に最後のプロジェクトを自動復元
+(function autoRestore() {
+  const projects = getProjects();
+  if (projects.length > 0) {
+    const latest = projects[0];
+    if (latest.data && latest.data.sections && latest.data.sections.length > 0 && currentSections.length === 0) {
+      currentProjectId = latest.id;
+      currentSections = latest.data.sections;
+      if (latest.data.pages) { pages = latest.data.pages; currentPageIndex = latest.data.currentPageIndex || 0; }
+      if (latest.data.context) currentContext = latest.data.context;
+      renderPreview();
+      renderSectionList();
+      if (typeof renderPageTabs === 'function') renderPageTabs();
+    }
+  }
+})();
+
 </script>
 </body>
 </html>
