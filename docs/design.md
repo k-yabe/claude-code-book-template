@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-31（Prompt Maker v5 NotebookLM完全超え・Slide Maker 16レイアウト完全対応）
+最終更新: 2026-03-31（Prompt Maker v5 NotebookLM完全超え・Slide Maker UI全面刷新・Wireframe Maker V3）
 
 ---
 
@@ -57,7 +57,7 @@
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
 | Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040 |
-| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037 |
+| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037, S038 |
 
 ---
 
@@ -116,9 +116,13 @@ State: { columns: [...], tasks: [...], nextColumnId, nextTaskId }
 | PPTX生成 | python-pptx 1.0.2（`api/slide-export.py`）— ネイティブチャート・テーブル・AutoShape・Unsplash画像挿入 |
 | API | `claude-sonnet-4-6`（チャット・生成）/ `claude-haiku-4-5-20251001`（リファイン・ファクトチェック） |
 | ファイルインポート | PDF（pdf.js）/ Word（mammoth.js）/ PPTX（JSZip）— クライアント側テキスト抽出 |
-
 | ファクトチェック | `api/slide-factcheck.js` — claude-haiku + web_search で主張検証（個別+一括） |
-| プレビュー | Chart.jsミニチャート・SVGフロー図・画像プレースホルダ描画 |
+| プレビュー | GoogleSlides風2ペインエディタ（左サムネイル220px＋右キャンバス16:9）・Chart.jsミニチャート・SVGフロー図・画像プレースホルダ描画 |
+| UXフロー | 4フェーズ（ヒアリング → 構成確認 → プレビュー → 出力）|
+| デザインシステム | CSS変数（shadow xs-xl / spacing 4px基準 / typography xs-xl / transition ease）|
+| エディタ操作 | サムネイルクリック選択・ダブルクリック編集・キーボードナビ（矢印/Enter/Delete）・レイアウト自動修正AI |
+| プレゼンモード | フルスクリーン・プログレスバー・スライド番号表示・矢印キー操作 |
+| 動的SYSTEM_PROMPT | `buildSystemPrompt(imageEnabled)` — Unsplash API有無でレイアウト配分を自動切替 |
 
 ### Prompt Maker（`apps/prompt-maker/`）
 
@@ -149,6 +153,31 @@ NotebookLM超えの2ペインレイアウトでプロンプトを対話生成す
 | プロンプト生成 | 3フェーズ（ヒアリング → 生成 → 洗練）、4構成要素（指示・背景・入力・出力） |
 | API | `claude-sonnet-4-6`（チャット・プロンプト生成・横断分析）/ `claude-haiku-4-5`（要約・サジェスチョン・品質スコア） |
 | 共通モジュール | `copy-utils.js`（コピー）/ `history.js`（履歴パネル） |
+
+### Wireframe Maker V3（`apps/wireframe-maker/`）
+
+スプリットペインUIでリアルタイムプレビュー付きワイヤーフレーム生成ツール。
+
+```
+[左パネル: タブ切替]          [右パネル: ライブプレビュー]
+  チャット / 構成編集 / 出力    SVG常時表示 + ミニマップ
+  → /api/wireframe-generate.js  → リアルタイム同期
+```
+
+| 項目 | 詳細 |
+|------|------|
+| レイアウト | スプリットペイン（左380px + 右flex-1）、リサイズ可能、モバイル縦積み |
+| セクションタイプ | 19種（navigation〜sticky-cta） |
+| SVGレンダリング | カラースキーム3種（grayscale/brand/blueprint）、ドロップシャドウ、テキスト要素 |
+| CVRスコア | WACUL/Unbounceデータに基づくヒューリスティック採点（0-100点） |
+| セクション影響度 | HIGH/MID/LOWバッジ表示 |
+| Undo/Redo | 30ステップ、JSON直列化 |
+| デバイスプレビュー | PC(1200px)/Tab(768px)/SP(375px) |
+| グリッド | 12カラムオーバーレイ |
+| ミニマップ | 右下にSVG縮小版常時表示 |
+| ショートカット | Ctrl+Z/Y/S/G/P/E、1/2/3タブ切替、Delete、? |
+| テンプレート | 10種（BtoB LP、SaaS、EC商品、採用、イベント等） |
+| API | claude-sonnet-4-6（生成）/ claude-haiku-4-5-20251001（リファイン） |
 
 ### Todoアプリ（`todo.html`）
 
@@ -230,3 +259,5 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-30 | Slide Maker 16レイアウト完全対応 | フロントエンド全17レイアウト対応（VALID_LAYOUTS/編集モーダル/プレビュー描画）、Chart.jsミニチャート・SVGフロー図プレビュー、ファクトチェック（個別+一括）、動的SYSTEM_PROMPT（画像有無切替）、closing/画像レイアウト空スライド修正 |
 | 2026-03-27 | Banner Resizer 新画像サイズ要件対応 | MV: 800×446→1920×1080、一覧プリセット削除、サムネイル余白ガイド（安全ゾーン上下24px左右100px）追加。ブランドガイドライン違反も修正 |
 | 2026-03-30 | Banner Resizer WebPフォールバック修正 | ブラウザがWebP非対応時にPNGにフォールバックされるが拡張子が.webpのままでCMSアップロードエラーになっていた。Blobの実際のMIMEタイプを確認し正しい拡張子で出力するよう修正 |
+| 2026-03-31 | Slide Maker UI全面刷新 | GoogleSlides風2ペインエディタ（左サムネイル＋右キャンバス）、CSS変数デザインシステム（shadow/spacing/typography/transition）、フェーズプログレスバー、シマーローディング、レイアウト自動修正AI、プレゼンモード改善（プログレスバー+スライド番号）、キーボードナビゲーション |
+| 2026-03-31 | Wireframe Maker V3 大規模アップグレード | スプリットペインUI（左パネル+右ライブプレビュー）、CVRスコアリング、カラースキーム3種、ミニマップ、強化SVGレンダリング、ショートカット拡張 |
