@@ -895,9 +895,10 @@
       if (!needsAI) {
         const canvas = createResized(sourceImage, size.w, size.h);
         canvas.id = 'canvas-' + size.id;
-        // Draw safe zone overlay on preview canvas
+        // Draw safe zone overlay on preview canvas (mark for clean re-render on download)
         if (size.safeZone) {
           drawSafeZoneOverlay(canvas, size.safeZone);
+          canvas.dataset.safeZoneOverlay = '1';
         }
         document.getElementById('wrap-' + size.id).appendChild(canvas);
       }
@@ -1045,12 +1046,13 @@
 
   function getBlob(canvasId, forcePng, size) {
     return new Promise(resolve => {
+      const domCanvas = document.getElementById(canvasId);
       let canvas;
-      // If size has safeZone, re-render without overlay for clean download
-      if (size && size.safeZone && sourceImage) {
+      // Re-render without overlay only when the canvas actually has it burned in
+      if (domCanvas && domCanvas.dataset.safeZoneOverlay && sourceImage) {
         canvas = createResized(sourceImage, size.w, size.h);
       } else {
-        canvas = document.getElementById(canvasId);
+        canvas = domCanvas;
       }
       if (!canvas) { resolve(null); return; }
       const mimeType = getRequestedMimeType(forcePng);
