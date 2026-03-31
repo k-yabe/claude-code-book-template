@@ -371,6 +371,84 @@
     /* ===== AIコピー生成ローディング ===== */
     .copy-generating { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(0,31,51,0.9); color: #fff; padding: 12px 24px; font-size: 0.78rem; font-weight: 600; z-index: 30; display: flex; align-items: center; gap: 8px; }
 
+    /* ===== アクセシビリティチェッカー ===== */
+    .a11y-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 150; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
+    .a11y-panel { background: #fff; width: 600px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+    .a11y-header { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid #e8ecf0; }
+    .a11y-header h3 { font-size: 0.92rem; color: #001f33; flex: 1; }
+    .a11y-header .a11y-score { font-size: 1.1rem; font-weight: 700; padding: 4px 12px; }
+    .a11y-header .a11y-score.pass { color: #16a34a; background: rgba(34,197,94,0.1); }
+    .a11y-header .a11y-score.warn { color: #d97706; background: rgba(255,184,28,0.1); }
+    .a11y-header .a11y-score.fail { color: #dc2626; background: rgba(239,68,68,0.1); }
+    .a11y-header button { background: none; border: none; font-size: 1rem; cursor: pointer; color: #8a9bb0; padding: 4px 8px; }
+    .a11y-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+    .a11y-category { margin-bottom: 16px; }
+    .a11y-cat-title { font-size: 0.78rem; font-weight: 700; color: #001f33; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .a11y-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f0f2f5; font-size: 0.72rem; }
+    .a11y-icon { font-size: 0.85rem; flex-shrink: 0; margin-top: 1px; }
+    .a11y-msg { flex: 1; color: #4a5568; line-height: 1.5; }
+    .a11y-msg strong { color: #001f33; }
+
+    /* ===== 競合分析パネル ===== */
+    .competitor-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 150; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
+    .competitor-panel { background: #fff; width: 700px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+    .comp-header { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid #e8ecf0; gap: 8px; }
+    .comp-header h3 { font-size: 0.88rem; color: #001f33; }
+    .comp-header button { background: none; border: none; font-size: 1rem; cursor: pointer; color: #8a9bb0; padding: 4px 8px; margin-left: auto; }
+    .comp-input-row { display: flex; gap: 6px; padding: 12px 16px; border-bottom: 1px solid #e8ecf0; }
+    .comp-input-row input { flex: 1; border: 1.5px solid #e8ecf0; padding: 8px 10px; font-size: 0.78rem; font-family: inherit; outline: none; }
+    .comp-input-row input:focus { border-color: #ffb81c; }
+    .comp-input-row button { background: #001f33; color: #fff; border: none; padding: 8px 16px; font-size: 0.72rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .comp-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+    .comp-comparison { display: flex; gap: 12px; }
+    .comp-col { flex: 1; }
+    .comp-col-title { font-size: 0.72rem; font-weight: 700; color: #001f33; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 2px solid #e8ecf0; }
+    .comp-sec-item { padding: 4px 8px; margin-bottom: 3px; font-size: 0.68rem; border-left: 3px solid transparent; }
+    .comp-sec-item.match { border-left-color: #22c55e; background: rgba(34,197,94,0.05); }
+    .comp-sec-item.missing { border-left-color: #ef4444; background: rgba(239,68,68,0.05); }
+    .comp-sec-item.extra { border-left-color: #ffb81c; background: rgba(255,184,28,0.05); }
+
+    /* ===== アニメーション設定 ===== */
+    .anim-picker { position: absolute; z-index: 30; background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.15); border: 1px solid #e8ecf0; padding: 8px; width: 180px; }
+    .anim-option { padding: 5px 8px; font-size: 0.68rem; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #4a5568; transition: all 0.12s; }
+    .anim-option:hover { background: #fffbf0; color: #001f33; }
+    .anim-option.active { background: rgba(255,184,28,0.1); font-weight: 600; color: #001f33; }
+    .anim-badge { font-size: 0.5rem; color: #ffb81c; background: rgba(255,184,28,0.1); padding: 1px 4px; font-weight: 700; }
+
+    /* ===== HTML/CSSエクスポート ===== */
+    .code-export-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 150; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
+    .code-export-panel { background: #1a1a2e; width: 800px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+    .ce-header { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); gap: 8px; }
+    .ce-header h3 { font-size: 0.85rem; color: #fff; flex: 1; }
+    .ce-header button { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 1rem; cursor: pointer; padding: 4px 8px; }
+    .ce-header button:hover { color: #fff; }
+    .ce-tabs { display: flex; gap: 2px; padding: 0 16px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .ce-tab { padding: 8px 14px; font-size: 0.7rem; color: rgba(255,255,255,0.4); cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; background: none; border-top: none; border-left: none; border-right: none; }
+    .ce-tab:hover { color: rgba(255,255,255,0.7); }
+    .ce-tab.active { color: #ffb81c; border-bottom-color: #ffb81c; }
+    .ce-body { flex: 1; overflow: auto; padding: 0; position: relative; }
+    .ce-code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.72rem; color: #e2e8f0; line-height: 1.6; padding: 16px; white-space: pre; overflow-x: auto; margin: 0; background: transparent; }
+    .ce-copy { position: absolute; top: 8px; right: 8px; background: rgba(255,184,28,0.15); color: #ffb81c; border: 1px solid rgba(255,184,28,0.3); padding: 4px 10px; font-size: 0.62rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .ce-copy:hover { background: rgba(255,184,28,0.25); }
+
+    /* ===== デザイントークン ===== */
+    .token-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 150; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
+    .token-panel { background: #fff; width: 550px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+    .token-header { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid #e8ecf0; }
+    .token-header h3 { font-size: 0.88rem; color: #001f33; flex: 1; }
+    .token-header button { background: none; border: none; font-size: 1rem; cursor: pointer; color: #8a9bb0; padding: 4px 8px; }
+    .token-body { flex: 1; overflow-y: auto; padding: 16px; }
+    .token-group { margin-bottom: 16px; }
+    .token-group-title { font-size: 0.72rem; font-weight: 700; color: #001f33; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .token-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.72rem; }
+    .token-swatch { width: 24px; height: 24px; flex-shrink: 0; }
+    .token-name { font-family: monospace; color: #4a5568; flex: 1; }
+    .token-value { font-family: monospace; color: #8a9bb0; }
+    .token-export-btns { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #e8ecf0; }
+    .token-export-btns button { flex: 1; padding: 8px; font-size: 0.72rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .token-export-btns .btn-css { background: #001f33; color: #fff; border: none; }
+    .token-export-btns .btn-json { background: #fff; color: #001f33; border: 2px solid #001f33; }
+
     footer { background: #001f33; color: rgba(255,255,255,0.8); text-align: center; padding: 8px 16px; font-size: 0.65rem; flex-shrink: 0; }
     footer strong { color: #ffb81c; }
   </style>
@@ -564,6 +642,11 @@
       <button class="toolbar-btn" onclick="showResponsivePreview()" title="レスポンシブ3画面">📱</button>
       <button class="toolbar-btn" onclick="startPrototypeMode()" title="プロトタイプ再生">▶</button>
       <button class="toolbar-btn" id="copy-gen-btn" onclick="generateAICopy()" title="AIコピー生成">✍</button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" onclick="runA11yCheck()" title="アクセシビリティチェック">♿</button>
+      <button class="toolbar-btn" onclick="showCompetitorAnalysis()" title="競合分析">🔍</button>
+      <button class="toolbar-btn" onclick="exportHTMLCSS()" title="HTML/CSSエクスポート">&lt;/&gt;</button>
+      <button class="toolbar-btn" onclick="showDesignTokens()" title="デザイントークン">🎯</button>
       <div style="flex:1"></div>
       <span id="selected-label" style="font-size:0.68rem;color:#8a9bb0"></span>
     </div>
@@ -2624,6 +2707,538 @@ _doRenderPreview = function() {
   _origDoRender2();
   setTimeout(renderCommentBadges, 50);
 };
+
+/* ================================================================
+   機能V6-1: アクセシビリティチェッカー
+   ================================================================ */
+
+function runA11yCheck() {
+  if (currentSections.length === 0) { showToast('まず構成を生成してください'); return; }
+
+  const checks = [];
+  const types = currentSections.map(s => s.type);
+
+  // 見出し階層チェック
+  const hasH1 = types.includes('hero');
+  if (hasH1) checks.push({ cat: '見出し階層', icon: '✅', msg: '<strong>H1</strong>: ヒーローセクションが存在（ページの主見出し）' });
+  else checks.push({ cat: '見出し階層', icon: '❌', msg: '<strong>H1が未設定</strong>: ヒーローセクションを追加してください。スクリーンリーダーがページの主題を認識できません' });
+
+  const headingSections = types.filter(t => ['hero', 'features', 'testimonials', 'pricing', 'faq', 'stats', 'cards', 'gallery', 'comparison', 'timeline'].includes(t));
+  if (headingSections.length >= 3) checks.push({ cat: '見出し階層', icon: '✅', msg: `<strong>見出しセクション ${headingSections.length}個</strong>: 十分な情報構造` });
+
+  // CTA・フォームのアクセシビリティ
+  const ctaCount = types.filter(t => ['cta-banner', 'sticky-cta', 'hero'].includes(t)).length;
+  if (ctaCount >= 1) checks.push({ cat: 'CTA・フォーム', icon: '✅', msg: `<strong>CTAボタン ${ctaCount}箇所</strong>: フィッツの法則準拠（44px以上推奨）` });
+  else checks.push({ cat: 'CTA・フォーム', icon: '⚠️', msg: '<strong>CTAボタンなし</strong>: 行動導線が不足しています' });
+
+  if (types.includes('form')) {
+    checks.push({ cat: 'CTA・フォーム', icon: '✅', msg: '<strong>フォーム設置済み</strong>: ラベルとプレースホルダーを必ず併用してください' });
+    checks.push({ cat: 'CTA・フォーム', icon: '⚠️', msg: '<strong>EFO注意</strong>: 入力項目は7つ以下に（1項目削減で通過率+2%pt）' });
+  }
+
+  // ナビゲーション
+  if (types.includes('navigation')) checks.push({ cat: 'ナビゲーション', icon: '✅', msg: '<strong>ナビゲーション</strong>: グローバルナビ設置済み。ランドマーク &lt;nav&gt; を使用してください' });
+  else checks.push({ cat: 'ナビゲーション', icon: '⚠️', msg: '<strong>ナビゲーション未設置</strong>: LPでは意図的に省略する場合もあります（CVR+16%）' });
+
+  if (types.includes('footer')) checks.push({ cat: 'ナビゲーション', icon: '✅', msg: '<strong>フッター</strong>: 補助ナビゲーション設置済み' });
+
+  // コンテンツ構造
+  if (types.includes('faq')) checks.push({ cat: 'コンテンツ構造', icon: '✅', msg: '<strong>FAQ</strong>: アコーディオンには aria-expanded 属性を使用' });
+
+  const trustSections = types.filter(t => ['testimonials', 'stats', 'logo-bar'].includes(t)).length;
+  if (trustSections >= 2) checks.push({ cat: 'コンテンツ構造', icon: '✅', msg: `<strong>信頼要素 ${trustSections}箇所</strong>: ソーシャルプルーフが十分` });
+  else if (trustSections === 0) checks.push({ cat: 'コンテンツ構造', icon: '❌', msg: '<strong>信頼要素なし</strong>: 導入実績・お客様の声を追加してください' });
+
+  // セクション数チェック
+  if (currentSections.length > 15) checks.push({ cat: 'ページ構造', icon: '⚠️', msg: `<strong>セクション数 ${currentSections.length}</strong>: 多すぎる可能性。認知負荷が高くなります（NNg: 1セクション1メッセージ）` });
+  else if (currentSections.length >= 8) checks.push({ cat: 'ページ構造', icon: '✅', msg: `<strong>セクション数 ${currentSections.length}</strong>: 適切な範囲` });
+
+  // 画像alt
+  const imgSections = types.filter(t => ['gallery', 'hero', 'two-column', 'cards'].includes(t)).length;
+  if (imgSections > 0) checks.push({ cat: '画像・メディア', icon: '⚠️', msg: `<strong>画像セクション ${imgSections}箇所</strong>: 実装時に必ず alt 属性を設定してください` });
+  if (types.includes('video')) checks.push({ cat: '画像・メディア', icon: '⚠️', msg: '<strong>動画セクション</strong>: 字幕（CC）とテキスト代替を必ず提供してください' });
+
+  // スコア算出
+  const passCount = checks.filter(c => c.icon === '✅').length;
+  const totalCount = checks.length;
+  const score = Math.round((passCount / totalCount) * 100);
+  const scoreClass = score >= 80 ? 'pass' : score >= 50 ? 'warn' : 'fail';
+
+  // カテゴリごとにグルーピング
+  const cats = {};
+  checks.forEach(c => { if (!cats[c.cat]) cats[c.cat] = []; cats[c.cat].push(c); });
+
+  const overlay = document.createElement('div');
+  overlay.className = 'a11y-overlay';
+  overlay.id = 'a11y-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  overlay.innerHTML = `
+    <div class="a11y-panel">
+      <div class="a11y-header">
+        <h3>♿ アクセシビリティチェック</h3>
+        <span class="a11y-score ${scoreClass}">${score}/100</span>
+        <button onclick="document.getElementById('a11y-overlay').remove()">✕</button>
+      </div>
+      <div class="a11y-body">
+        ${Object.entries(cats).map(([cat, items]) => `
+          <div class="a11y-category">
+            <div class="a11y-cat-title">${cat} <span style="font-weight:400;color:#8a9bb0;font-size:0.65rem">(${items.filter(i=>i.icon==='✅').length}/${items.length})</span></div>
+            ${items.map(item => `<div class="a11y-item"><span class="a11y-icon">${item.icon}</span><span class="a11y-msg">${item.msg}</span></div>`).join('')}
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+/* ================================================================
+   機能V6-2: 競合サイト構成分析
+   ================================================================ */
+
+function showCompetitorAnalysis() {
+  if (currentSections.length === 0) { showToast('まず構成を生成してください'); return; }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'competitor-overlay';
+  overlay.id = 'competitor-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  overlay.innerHTML = `
+    <div class="competitor-panel">
+      <div class="comp-header">
+        <h3>🔍 競合サイト構成分析</h3>
+        <button onclick="document.getElementById('competitor-overlay').remove()">✕</button>
+      </div>
+      <div class="comp-input-row">
+        <input type="url" id="comp-url-input" placeholder="競合サイトのURLを入力..." onkeydown="if(event.key==='Enter')analyzeCompetitor()">
+        <button onclick="analyzeCompetitor()">分析</button>
+      </div>
+      <div class="comp-body" id="comp-body">
+        <div style="text-align:center;color:#8a9bb0;padding:40px;font-size:0.78rem">
+          競合サイトのURLを入力してAIが構成を推定します
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+async function analyzeCompetitor() {
+  const url = document.getElementById('comp-url-input')?.value.trim();
+  if (!url || !/^https?:\/\/.+/.test(url)) { showToast('有効なURLを入力してください'); return; }
+
+  const body = document.getElementById('comp-body');
+  body.innerHTML = '<div class="variant-loading"><div class="loading-dots"><span></span><span></span><span></span></div>AIが競合サイトを分析中...</div>';
+
+  try {
+    const r = await fetch('/api/wireframe-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mode: 'chat',
+        chatMessages: [{ role: 'user', content: `以下のURLのWebページの構成を推定して、セクション構成をJSON形式で返してください。一般的なWebサイトのパターンから推測してください。URL: ${url}` }],
+        _user: USER
+      })
+    });
+    const data = await r.json();
+
+    // AIの応答からセクション構成を推定（freeモードで再生成）
+    const r2 = await fetch('/api/wireframe-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'free', freeText: `競合サイト ${url} のページ構成を分析し、一般的な${url.includes('saas') || url.includes('app') ? 'SaaS' : 'BtoB'} Webサイトのパターンに基づいて推定されるセクション構成を生成してください。`, _user: USER })
+    });
+    const data2 = await r2.json();
+    if (!r2.ok) throw new Error(data2.error?.message || '分析失敗');
+
+    const competitorSections = data2.sections;
+    renderCompetitorComparison(body, competitorSections, url);
+  } catch (e) {
+    body.innerHTML = `<div style="padding:20px;color:#c0392b;font-size:0.78rem">エラー: ${escHtml(e.message)}</div>`;
+  }
+}
+
+function renderCompetitorComparison(container, compSections, url) {
+  const myTypes = currentSections.map(s => s.type);
+  const compTypes = compSections.map(s => s.type);
+  const allTypes = [...new Set([...myTypes, ...compTypes])];
+
+  container.innerHTML = `
+    <div style="margin-bottom:12px;font-size:0.72rem;color:#8a9bb0">分析対象: ${escHtml(url)}</div>
+    <div class="comp-comparison">
+      <div class="comp-col">
+        <div class="comp-col-title">自サイト (${currentSections.length}セクション)</div>
+        ${currentSections.map(s => {
+          const inComp = compTypes.includes(s.type);
+          return `<div class="comp-sec-item ${inComp ? 'match' : 'extra'}"><strong>${s.type}</strong> ${escHtml(s.label)}</div>`;
+        }).join('')}
+      </div>
+      <div class="comp-col">
+        <div class="comp-col-title">競合推定 (${compSections.length}セクション)</div>
+        ${compSections.map(s => {
+          const inMy = myTypes.includes(s.type);
+          return `<div class="comp-sec-item ${inMy ? 'match' : 'missing'}"><strong>${s.type}</strong> ${escHtml(s.label)}</div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div style="margin-top:12px;padding:10px;background:#f7f8fa;font-size:0.68rem;color:#4a5568">
+      <strong>分析:</strong>
+      🟢 共通: ${allTypes.filter(t => myTypes.includes(t) && compTypes.includes(t)).length}セクション |
+      🟡 自サイトのみ: ${myTypes.filter(t => !compTypes.includes(t)).length} |
+      🔴 競合のみ: ${compTypes.filter(t => !myTypes.includes(t)).length}
+      ${compTypes.filter(t => !myTypes.includes(t)).length > 0 ? `<br><strong>追加推奨:</strong> ${compTypes.filter(t => !myTypes.includes(t)).join(', ')}` : ''}
+    </div>`;
+}
+
+/* ================================================================
+   機能V6-3: セクションアニメーション設定
+   ================================================================ */
+
+let sectionAnimations = {}; // { sectionId: 'fadeIn' | 'slideLeft' | 'slideUp' | 'zoomIn' | 'none' }
+
+const ANIM_OPTIONS = [
+  { value: 'none', label: 'なし', icon: '—' },
+  { value: 'fadeIn', label: 'フェードイン', icon: '💨' },
+  { value: 'slideLeft', label: 'スライド（左から）', icon: '➡' },
+  { value: 'slideUp', label: 'スライド（下から）', icon: '⬆' },
+  { value: 'zoomIn', label: 'ズームイン', icon: '🔍' },
+];
+
+// オーバーレイツールバーにアニメーション設定ボタンを追加
+const _origShowOverlay2 = showSectionOverlay;
+showSectionOverlay = function(sectionId) {
+  _origShowOverlay2(sectionId);
+  const bar = document.querySelector('.section-overlay-bar');
+  if (!bar) return;
+  const currentAnim = sectionAnimations[sectionId] || 'none';
+  const btn = document.createElement('button');
+  btn.textContent = currentAnim !== 'none' ? '🎬' : '🎬';
+  btn.title = 'アニメーション設定';
+  btn.onclick = e => {
+    e.stopPropagation();
+    showAnimPicker(sectionId, btn);
+  };
+  const dangerBtn = bar.querySelector('.danger');
+  if (dangerBtn) bar.insertBefore(btn, dangerBtn);
+  else bar.appendChild(btn);
+
+  // アニメーションバッジ表示
+  if (currentAnim !== 'none') {
+    const badgeEl = document.createElement('span');
+    badgeEl.style.cssText = 'font-size:0.5rem;color:#ffb81c;background:rgba(255,184,28,0.1);padding:1px 4px;font-weight:700;margin-left:2px';
+    badgeEl.textContent = ANIM_OPTIONS.find(a => a.value === currentAnim)?.label || '';
+    btn.after(badgeEl);
+  }
+};
+
+function showAnimPicker(sectionId, anchorEl) {
+  document.querySelectorAll('.anim-picker').forEach(p => p.remove());
+  const canvas = document.getElementById('preview-canvas');
+  const rect = anchorEl.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+
+  const picker = document.createElement('div');
+  picker.className = 'anim-picker';
+  picker.style.left = (rect.left - canvasRect.left + canvas.scrollLeft) + 'px';
+  picker.style.top = (rect.bottom - canvasRect.top + canvas.scrollTop + 4) + 'px';
+
+  const current = sectionAnimations[sectionId] || 'none';
+  ANIM_OPTIONS.forEach(opt => {
+    const div = document.createElement('div');
+    div.className = 'anim-option' + (current === opt.value ? ' active' : '');
+    div.innerHTML = `<span>${opt.icon}</span> ${opt.label}`;
+    div.onclick = () => {
+      sectionAnimations[sectionId] = opt.value;
+      picker.remove();
+      showToast(`アニメーション: ${opt.label}`);
+      // プレビューでアニメーションデモ
+      if (opt.value !== 'none') demoAnimation(sectionId, opt.value);
+    };
+    picker.appendChild(div);
+  });
+  canvas.appendChild(picker);
+  // 外部クリックで閉じる
+  setTimeout(() => {
+    const close = e => { if (!picker.contains(e.target)) { picker.remove(); document.removeEventListener('click', close); } };
+    document.addEventListener('click', close);
+  }, 10);
+}
+
+function demoAnimation(sectionId, animType) {
+  const svgRoot = document.querySelector('#preview-canvas svg');
+  if (!svgRoot) return;
+  const group = svgRoot.querySelector(`.section-group[data-id="${sectionId}"]`);
+  if (!group) return;
+
+  const anims = {
+    fadeIn: [{ opacity: 0 }, { opacity: 1 }],
+    slideLeft: [{ transform: 'translateX(-60px)', opacity: 0 }, { transform: 'translateX(0)', opacity: 1 }],
+    slideUp: [{ transform: 'translateY(40px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }],
+    zoomIn: [{ transform: 'scale(0.85)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }],
+  };
+  if (anims[animType]) {
+    group.animate(anims[animType], { duration: 600, easing: 'ease-out', fill: 'forwards' });
+  }
+}
+
+/* ================================================================
+   機能V6-4: HTML/CSSコードエクスポート
+   ================================================================ */
+
+function exportHTMLCSS() {
+  if (currentSections.length === 0) { showToast('まず構成を生成してください'); return; }
+
+  const htmlCode = generateHTMLCode();
+  const cssCode = generateCSSCode();
+  const tailwindCode = generateTailwindCode();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'code-export-overlay';
+  overlay.id = 'code-export-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  overlay.innerHTML = `
+    <div class="code-export-panel">
+      <div class="ce-header">
+        <h3>&lt;/&gt; HTML/CSS エクスポート</h3>
+        <button onclick="document.getElementById('code-export-overlay').remove()">✕</button>
+      </div>
+      <div class="ce-tabs">
+        <button class="ce-tab active" onclick="switchCodeTab('html',this)">HTML</button>
+        <button class="ce-tab" onclick="switchCodeTab('css',this)">CSS</button>
+        <button class="ce-tab" onclick="switchCodeTab('tailwind',this)">Tailwind</button>
+      </div>
+      <div class="ce-body">
+        <button class="ce-copy" onclick="copyCodeExport()">コピー</button>
+        <pre class="ce-code" id="ce-code-content">${escHtml(htmlCode)}</pre>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  overlay._codes = { html: htmlCode, css: cssCode, tailwind: tailwindCode };
+  overlay._currentTab = 'html';
+}
+
+function switchCodeTab(tab, btn) {
+  const overlay = document.getElementById('code-export-overlay');
+  if (!overlay) return;
+  overlay.querySelectorAll('.ce-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  overlay._currentTab = tab;
+  document.getElementById('ce-code-content').textContent = overlay._codes[tab];
+}
+
+function copyCodeExport() {
+  const overlay = document.getElementById('code-export-overlay');
+  if (!overlay) return;
+  navigator.clipboard.writeText(overlay._codes[overlay._currentTab]).then(() => {
+    const btn = overlay.querySelector('.ce-copy');
+    btn.textContent = 'コピー済み';
+    setTimeout(() => btn.textContent = 'コピー', 2000);
+  });
+}
+
+function generateHTMLCode() {
+  const lines = ['<!DOCTYPE html>', '<html lang="ja">', '<head>', '  <meta charset="UTF-8">', '  <meta name="viewport" content="width=device-width, initial-scale=1.0">', '  <title>Wireframe Page</title>', '  <link rel="stylesheet" href="style.css">', '</head>', '<body>', ''];
+
+  currentSections.forEach(sec => {
+    const tag = sec.type === 'navigation' ? 'nav' : sec.type === 'footer' ? 'footer' : 'section';
+    const cls = sec.type;
+    const anim = sectionAnimations[sec.id];
+    const animAttr = anim && anim !== 'none' ? ` data-animate="${anim}"` : '';
+    lines.push(`  <${tag} class="${cls}"${animAttr}>`);
+    lines.push(`    <div class="container">`);
+    lines.push(`      <h2>${escHtml(sec.label)}</h2>`);
+    if (sec.description) lines.push(`      <p>${escHtml(sec.description)}</p>`);
+    if (['hero', 'cta-banner'].includes(sec.type)) lines.push('      <a href="#" class="btn-primary">CTA</a>');
+    if (sec.type === 'features') { lines.push('      <div class="grid grid-3">'); for (let i = 1; i <= 3; i++) lines.push(`        <div class="card">特徴 ${i}</div>`); lines.push('      </div>'); }
+    if (sec.type === 'form') { lines.push('      <form>'); ['会社名','お名前','メール'].forEach(f => lines.push(`        <label>${f}<input type="text"></label>`)); lines.push('        <button type="submit">送信</button>'); lines.push('      </form>'); }
+    lines.push('    </div>');
+    lines.push(`  </${tag}>`);
+    lines.push('');
+  });
+
+  lines.push('</body>', '</html>');
+  return lines.join('\n');
+}
+
+function generateCSSCode() {
+  const lines = [
+    '/* Base styles */',
+    ':root {',
+    '  --color-primary: #001f33;',
+    '  --color-accent: #ffb81c;',
+    '  --color-text: #2d3436;',
+    '  --color-muted: #8a9bb0;',
+    '  --color-bg: #ffffff;',
+    '  --color-card: #f7f8fa;',
+    '  --max-width: 1200px;',
+    '}',
+    '',
+    '* { box-sizing: border-box; margin: 0; padding: 0; }',
+    "body { font-family: 'Segoe UI', sans-serif; color: var(--color-text); }",
+    '.container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }',
+    '.btn-primary { display: inline-block; background: var(--color-accent); color: var(--color-primary); padding: 12px 32px; font-weight: 700; text-decoration: none; }',
+    '.grid { display: grid; gap: 24px; }',
+    '.grid-3 { grid-template-columns: repeat(3, 1fr); }',
+    '.card { background: var(--color-card); padding: 24px; }',
+    '',
+  ];
+
+  currentSections.forEach(sec => {
+    lines.push(`.${sec.type} {`);
+    lines.push(`  padding: 60px 0;`);
+    if (['hero', 'cta-banner'].includes(sec.type)) lines.push('  text-align: center;');
+    if (sec.type === 'hero') lines.push('  min-height: 520px;');
+    if (sec.type === 'footer') lines.push(`  background: var(--color-primary); color: #fff;`);
+    if (sec.type === 'navigation') lines.push(`  background: var(--color-primary); color: #fff; padding: 16px 0;`);
+    lines.push('}');
+    lines.push('');
+  });
+
+  lines.push('/* Animations */');
+  lines.push('[data-animate] { opacity: 0; transition: all 0.6s ease; }');
+  lines.push('[data-animate].visible { opacity: 1; transform: none; }');
+  lines.push('[data-animate="slideUp"] { transform: translateY(40px); }');
+  lines.push('[data-animate="slideLeft"] { transform: translateX(-60px); }');
+  lines.push('[data-animate="zoomIn"] { transform: scale(0.85); }');
+
+  return lines.join('\n');
+}
+
+function generateTailwindCode() {
+  const lines = ['<!-- Tailwind CSS implementation -->', '<div class="min-h-screen font-sans text-gray-800">', ''];
+
+  currentSections.forEach(sec => {
+    const anim = sectionAnimations[sec.id];
+    const animCls = anim && anim !== 'none' ? ` data-animate="${anim}"` : '';
+    const tag = sec.type === 'navigation' ? 'nav' : sec.type === 'footer' ? 'footer' : 'section';
+
+    const bgClass = sec.type === 'footer' ? 'bg-gray-900 text-white' :
+                    sec.type === 'navigation' ? 'bg-gray-900 text-white py-4' :
+                    sec.type === 'hero' ? 'bg-white min-h-[520px] flex items-center' :
+                    'bg-white';
+
+    lines.push(`  <${tag} class="${bgClass} py-16"${animCls}>`);
+    lines.push('    <div class="max-w-7xl mx-auto px-6">');
+    lines.push(`      <h2 class="text-2xl font-bold mb-4">${escHtml(sec.label)}</h2>`);
+    if (sec.description) lines.push(`      <p class="text-gray-500 mb-6">${escHtml(sec.description)}</p>`);
+    if (['hero', 'cta-banner'].includes(sec.type)) lines.push('      <a href="#" class="inline-block bg-yellow-500 text-gray-900 font-bold px-8 py-3">CTA</a>');
+    if (sec.type === 'features') lines.push('      <div class="grid grid-cols-3 gap-6">\n        <div class="bg-gray-50 p-6">Feature 1</div>\n        <div class="bg-gray-50 p-6">Feature 2</div>\n        <div class="bg-gray-50 p-6">Feature 3</div>\n      </div>');
+    lines.push('    </div>');
+    lines.push(`  </${tag}>`);
+    lines.push('');
+  });
+
+  lines.push('</div>');
+  return lines.join('\n');
+}
+
+/* ================================================================
+   機能V6-5: デザイントークン自動生成
+   ================================================================ */
+
+function showDesignTokens() {
+  if (currentSections.length === 0) { showToast('まず構成を生成してください'); return; }
+
+  const scheme = COLOR_SCHEMES[colorScheme];
+  const tokens = {
+    colors: [
+      { name: '--wf-bg', value: scheme.bg, label: '背景' },
+      { name: '--wf-card', value: scheme.card, label: 'カード' },
+      { name: '--wf-heading', value: scheme.heading, label: '見出し' },
+      { name: '--wf-body', value: scheme.body, label: '本文' },
+      { name: '--wf-accent', value: scheme.accent, label: 'アクセント' },
+      { name: '--wf-accent-text', value: scheme.accentText, label: 'アクセントテキスト' },
+      { name: '--wf-border', value: scheme.border, label: 'ボーダー' },
+      { name: '--wf-dark', value: scheme.dark, label: 'ダーク' },
+      { name: '--wf-line', value: scheme.line, label: 'ライン' },
+    ],
+    spacing: [
+      { name: '--wf-space-xs', value: '4px' },
+      { name: '--wf-space-sm', value: '8px' },
+      { name: '--wf-space-md', value: '16px' },
+      { name: '--wf-space-lg', value: '24px' },
+      { name: '--wf-space-xl', value: '40px' },
+      { name: '--wf-space-2xl', value: '60px' },
+      { name: '--wf-section-pad', value: '60px' },
+    ],
+    typography: [
+      { name: '--wf-font-family', value: "'Segoe UI', 'Helvetica Neue', sans-serif" },
+      { name: '--wf-font-size-xs', value: '10px' },
+      { name: '--wf-font-size-sm', value: '12px' },
+      { name: '--wf-font-size-base', value: '14px' },
+      { name: '--wf-font-size-lg', value: '18px' },
+      { name: '--wf-font-size-xl', value: '22px' },
+      { name: '--wf-font-size-2xl', value: '28px' },
+    ],
+    layout: [
+      { name: '--wf-max-width', value: WF_WIDTH + 'px' },
+      { name: '--wf-columns', value: '12' },
+      { name: '--wf-gutter', value: '24px' },
+      { name: '--wf-margin', value: '60px' },
+    ],
+  };
+
+  const overlay = document.createElement('div');
+  overlay.className = 'token-overlay';
+  overlay.id = 'token-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  const renderGroup = (title, items, showSwatch) => `
+    <div class="token-group">
+      <div class="token-group-title">${title}</div>
+      ${items.map(t => `
+        <div class="token-row">
+          ${showSwatch ? `<div class="token-swatch" style="background:${t.value}"></div>` : ''}
+          <span class="token-name">${t.name}</span>
+          <span class="token-value">${t.value}</span>
+        </div>`).join('')}
+    </div>`;
+
+  overlay.innerHTML = `
+    <div class="token-panel">
+      <div class="token-header">
+        <h3>🎯 デザイントークン (${colorScheme})</h3>
+        <button onclick="document.getElementById('token-overlay').remove()">✕</button>
+      </div>
+      <div class="token-body">
+        ${renderGroup('Colors', tokens.colors, true)}
+        ${renderGroup('Spacing', tokens.spacing, false)}
+        ${renderGroup('Typography', tokens.typography, false)}
+        ${renderGroup('Layout', tokens.layout, false)}
+      </div>
+      <div class="token-export-btns">
+        <button class="btn-css" onclick="copyTokens('css')">CSS変数をコピー</button>
+        <button class="btn-json" onclick="copyTokens('json')">JSONをコピー</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay._tokens = tokens;
+}
+
+function copyTokens(format) {
+  const overlay = document.getElementById('token-overlay');
+  if (!overlay || !overlay._tokens) return;
+  const tokens = overlay._tokens;
+  let text;
+  if (format === 'css') {
+    const lines = [':root {'];
+    Object.values(tokens).forEach(group => {
+      group.forEach(t => lines.push(`  ${t.name}: ${t.value};`));
+    });
+    lines.push('}');
+    text = lines.join('\n');
+  } else {
+    const obj = {};
+    Object.entries(tokens).forEach(([key, group]) => {
+      obj[key] = {};
+      group.forEach(t => { obj[key][t.name] = t.value; });
+    });
+    text = JSON.stringify(obj, null, 2);
+  }
+  navigator.clipboard.writeText(text).then(() => showToast(`${format.toUpperCase()} コピー完了`));
+}
 </script>
 </body>
 </html>
