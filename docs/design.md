@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-31（Wireframe Maker V6 アクセシビリティ・競合分析・アニメーション・コードエクスポート・デザイントークン）
+最終更新: 2026-03-31（Prompt Maker v7 フラッシュカード/FAQ/インフォグラフィック・Wireframe Maker V6）
 
 ---
 
@@ -56,7 +56,7 @@
 | SNS Post Generator | `apps/sns-post-generator/index.html` | ✅ 完成 | S024, S028 |
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
-| Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040, S041 |
+| Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040, S041, S042 |
 | Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037, S038, S040 |
 
 ---
@@ -147,6 +147,9 @@ NotebookLM超えの2ペインレイアウトでプロンプトを対話生成す
 | ソース横断分析 | 全ソースの共通テーマ/矛盾/キーポイント/推奨方針を`claude-sonnet-4-6`で分析 |
 | 引用・出典表示 | 回答にインライン引用マーカー[ソース1]を自動付与、クリックで左ペインの該当ソースをハイライト＆スクロール |
 | マインドマップ | AIがソース間の関係性を分析→SVGマインドマップ自動生成（中心テーマ/サブテーマ/キーワード/ソース接続/コネクション）、ノードクリックでソースジャンプ、SVGダウンロード |
+| フラッシュカード | AIがソースからQ&Aペア10枚を自動生成、フリップカードUI（CSS 3Dトランスフォーム）、「覚えた/もう一回」ボタンで進捗管理、モーダル表示 |
+| FAQ自動生成 | AIがソースからFAQ 8-10件を生成、アコーディオンUI（クリックで回答展開）、コピー機能 |
+| インフォグラフィック | AIがソースのキー数値・統計・比較をJSON抽出→SVGで統計サークル・比較バー・キーポイントを描画、SVGダウンロード |
 | 品質スコア | 生成プロンプトを5軸（明確性/具体性/構造/再利用性/テクニック）で0-100点評価+改善ヒント |
 | メモ機能 | 各ソースにユーザーメモを追加可能（デバウンス自動保存） |
 | URL取得 | `/api/fetch-article.js` で実コンテンツ自動抽出（タイトル・本文） |
