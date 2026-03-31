@@ -44,9 +44,9 @@
     .panel-tab:hover { color: #4a5568; }
     .panel-tab.active { color: #001f33; border-bottom-color: #ffb81c; background: #fff; }
     .panel-tab .tab-icon { display: block; font-size: 1rem; margin-bottom: 2px; }
-    .panel-body { flex: 1; overflow-y: auto; overflow-x: hidden; }
-    .panel-content { display: none; height: 100%; }
-    .panel-content.active { display: flex; flex-direction: column; }
+    .panel-body { flex: 1; overflow: hidden; min-height: 0; }
+    .panel-content { display: none; height: 100%; min-height: 0; }
+    .panel-content.active { display: flex; flex-direction: column; min-height: 0; }
 
     /* リサイズハンドル */
     .resize-handle { width: 4px; cursor: col-resize; background: transparent; flex-shrink: 0; transition: background 0.15s; position: relative; z-index: 10; }
@@ -91,6 +91,15 @@
     .rationale-bar .rb-text { font-size: 0.7rem; color: rgba(255,255,255,0.8); line-height: 1.5; flex: 1; }
     .rationale-bar .rb-close { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 0.85rem; cursor: pointer; padding: 0 2px; flex-shrink: 0; }
     .rationale-bar .rb-close:hover { color: #fff; }
+
+    /* SVGインライン編集 */
+    .svg-inline-edit { position: absolute; z-index: 30; background: #fff; border: 2px solid #ffb81c; box-shadow: 0 4px 16px rgba(0,0,0,0.15); padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 280px; }
+    .svg-inline-edit label { font-size: 0.68rem; color: #8a9bb0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .svg-inline-edit input { border: 1px solid #e8ecf0; padding: 6px 8px; font-size: 0.82rem; font-family: inherit; outline: none; width: 100%; }
+    .svg-inline-edit input:focus { border-color: #ffb81c; }
+    .svg-inline-edit .edit-actions { display: flex; gap: 4px; justify-content: flex-end; }
+    .svg-inline-edit .edit-actions button { padding: 4px 12px; font-size: 0.72rem; font-family: inherit; cursor: pointer; border: 1px solid #e8ecf0; background: #f7f8fa; color: #4a5568; }
+    .svg-inline-edit .edit-actions button.primary { background: #001f33; color: #fff; border-color: #001f33; }
 
     /* 空状態 */
     .empty-preview { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #b0bec5; text-align: center; padding: 40px; }
@@ -1332,7 +1341,7 @@ function renderSectionList() {
     card.addEventListener('click', () => selectSection(sec.id));
     // インライン編集
     card.querySelectorAll('.sec-label, .sec-desc').forEach(el => {
-      el.addEventListener('dblclick', e => { e.stopPropagation(); el.contentEditable = 'true'; el.focus(); });
+      el.addEventListener('click', e => { e.stopPropagation(); el.contentEditable = 'true'; el.focus(); });
       el.addEventListener('blur', () => { el.contentEditable = 'false'; const idx = parseInt(el.dataset.index); currentSections[idx][el.dataset.field] = el.textContent.trim(); saveUndoState(); renderPreview(); });
       el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
     });
@@ -1465,6 +1474,7 @@ function renderSection(sec, yOff) {
   render(group, h, sec);
 
   group.addEventListener('click', () => selectSection(sec.id));
+  group.addEventListener('dblclick', e => { e.stopPropagation(); showInlineEdit(sec.id); });
   return { group, height: h };
 }
 
@@ -2031,6 +2041,62 @@ function showSectionOverlay(sectionId) {
   canvas.appendChild(bar);
 }
 
+// SVGプレビュー上でダブルクリック → インライン編集
+function showInlineEdit(sectionId) {
+  document.querySelectorAll('.svg-inline-edit').forEach(e => e.remove());
+  const sec = currentSections.find(s => s.id === sectionId);
+  if (!sec) return;
+  const svgRoot = document.querySelector('#preview-canvas svg');
+  const canvas = document.getElementById('preview-canvas');
+  if (!svgRoot || !canvas) return;
+  const group = svgRoot.querySelector(`.section-group[data-id="${sectionId}"]`);
+  if (!group) return;
+
+  const groupRect = group.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+
+  const panel = document.createElement('div');
+  panel.className = 'svg-inline-edit';
+  panel.style.left = (groupRect.left - canvasRect.left + canvas.scrollLeft + 20) + 'px';
+  panel.style.top = (groupRect.top - canvasRect.top + canvas.scrollTop + 30) + 'px';
+  panel.onclick = e => e.stopPropagation();
+
+  panel.innerHTML = `
+    <label>セクション名</label>
+    <input class="edit-label" value="${escHtml(sec.label || '')}">
+    <label>説明</label>
+    <input class="edit-desc" value="${escHtml(sec.description || '')}">
+    <div class="edit-actions">
+      <button onclick="this.closest('.svg-inline-edit').remove()">キャンセル</button>
+      <button class="primary" onclick="applyInlineEdit('${sectionId}')">適用</button>
+    </div>`;
+  canvas.appendChild(panel);
+  const labelInput = panel.querySelector('.edit-label');
+  labelInput.focus();
+  labelInput.select();
+  // Enterで適用
+  panel.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyInlineEdit(sectionId); } if (e.key === 'Escape') { panel.remove(); } });
+  });
+}
+
+function applyInlineEdit(sectionId) {
+  const panel = document.querySelector('.svg-inline-edit');
+  if (!panel) return;
+  const sec = currentSections.find(s => s.id === sectionId);
+  if (!sec) return;
+  const newLabel = panel.querySelector('.edit-label').value.trim();
+  const newDesc = panel.querySelector('.edit-desc').value.trim();
+  if (newLabel !== sec.label || newDesc !== sec.description) {
+    saveUndoState();
+    sec.label = newLabel;
+    sec.description = newDesc;
+    onSectionsChanged();
+    showToast('セクション更新');
+  }
+  panel.remove();
+}
+
 function moveSection(fromIdx, dir) {
   const toIdx = fromIdx + dir;
   if (toIdx < 0 || toIdx >= currentSections.length) return;
@@ -2127,8 +2193,9 @@ selectSection = function(id) {
 
   // キャンバスクリックでオーバーレイ非表示
   canvas.addEventListener('click', e => {
-    if (!e.target.closest('.section-group') && !e.target.closest('.section-overlay-bar')) {
+    if (!e.target.closest('.section-group') && !e.target.closest('.section-overlay-bar') && !e.target.closest('.svg-inline-edit')) {
       document.querySelectorAll('.section-overlay-bar').forEach(o => o.remove());
+      document.querySelectorAll('.svg-inline-edit').forEach(o => o.remove());
     }
   });
 })();
