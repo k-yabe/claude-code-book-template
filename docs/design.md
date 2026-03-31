@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-31（Slide Maker UI全面刷新 + Wireframe Maker V3）
+最終更新: 2026-03-31（Wireframe Maker V6 アクセシビリティ・競合分析・アニメーション・コードエクスポート・デザイントークン）
 
 ---
 
@@ -56,8 +56,8 @@
 | SNS Post Generator | `apps/sns-post-generator/index.html` | ✅ 完成 | S024, S028 |
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
-| Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js` | ✅ 完成 | S035, S037, S038, S039 |
-| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037, S038 |
+| Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040, S041 |
+| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037, S038, S040 |
 
 ---
 
@@ -126,26 +126,31 @@ State: { columns: [...], tasks: [...], nextColumnId, nextTaskId }
 
 ### Prompt Maker（`apps/prompt-maker/`）
 
-NotebookLM風の2ペインレイアウトでプロンプトを対話生成するツール。ソースはVercel KVでサーバーサイド永続保存。
+NotebookLM超えの2ペインレイアウトでプロンプトを対話生成するツール。ソースはVercel KVでサーバーサイド永続保存。4種のソース（テキスト/URL/PDF/YouTube）に対応し、回答に引用マーカーを自動付与。
 
 ```
 [左ペイン: ソース管理]    [右ペイン: チャット]
-  テキスト/URL追加  →  buildSourceContext() で SYSTEM_PROMPT に注入
+  テキスト/URL/PDF/YT追加 →  buildSourceContext() で SYSTEM_PROMPT に注入
   /api/sources.js (KV)    → /api/generate.js (claude-sonnet-4-6)
-  /api/fetch-article.js    → ヒアリング → プロンプト生成（---PROMPT_START/END--- パース）
+  /api/fetch-article.js   → ヒアリング → プロンプト生成（---PROMPT_START/END--- パース）
+  /api/fetch-transcript.js → YouTube字幕取得        → 回答に引用マーカー [ソース1] 自動付与
 ```
 
 | 項目 | 詳細 |
 |------|------|
 | レイアウト | デスクトップ: 左380px + 右flex-1、モバイル(900px以下): タブ切替 |
+| ソース種類 | テキスト / URL / PDF（pdf.jsクライアントサイド抽出、最大50p・15000字） / YouTube（字幕自動取得、日英自動選択） |
 | ソース永続保存 | Vercel KV（`@vercel/kv`）→ `/api/sources.js` CRUD+PATCH API、KV未設定時はlocalStorageフォールバック |
 | ソース帰属 | 各ソースに追加者ユーザー名・追加日時を記録、チーム全員で共有 |
 | AI自動要約 | ソース追加時に`claude-haiku-4-5`で3行要約を自動生成・KV保存・再生成対応 |
 | 動的サジェスチョン | ソース内容を分析しAIが5つのタスク案を提案（ソース変更時に自動更新） |
 | ソース横断分析 | 全ソースの共通テーマ/矛盾/キーポイント/推奨方針を`claude-sonnet-4-6`で分析 |
+| 引用・出典表示 | 回答にインライン引用マーカー[ソース1]を自動付与、クリックで左ペインの該当ソースをハイライト＆スクロール |
+| マインドマップ | AIがソース間の関係性を分析→SVGマインドマップ自動生成（中心テーマ/サブテーマ/キーワード/ソース接続/コネクション）、ノードクリックでソースジャンプ、SVGダウンロード |
 | 品質スコア | 生成プロンプトを5軸（明確性/具体性/構造/再利用性/テクニック）で0-100点評価+改善ヒント |
 | メモ機能 | 各ソースにユーザーメモを追加可能（デバウンス自動保存） |
 | URL取得 | `/api/fetch-article.js` で実コンテンツ自動抽出（タイトル・本文） |
+| YouTube字幕 | `/api/fetch-transcript.js` でYouTube動画の字幕テキストを自動抽出（日本語優先→英語→最初のトラック） |
 | プロンプト生成 | 3フェーズ（ヒアリング → 生成 → 洗練）、4構成要素（指示・背景・入力・出力） |
 | API | `claude-sonnet-4-6`（チャット・プロンプト生成・横断分析）/ `claude-haiku-4-5`（要約・サジェスチョン・品質スコア） |
 | 共通モジュール | `copy-utils.js`（コピー）/ `history.js`（履歴パネル） |
@@ -173,7 +178,20 @@ NotebookLM風の2ペインレイアウトでプロンプトを対話生成する
 | ミニマップ | 右下にSVG縮小版常時表示 |
 | ショートカット | Ctrl+Z/Y/S/G/P/E、1/2/3タブ切替、Delete、? |
 | テンプレート | 10種（BtoB LP、SaaS、EC商品、採用、イベント等） |
-| API | claude-sonnet-4-6（生成）/ claude-haiku-4-5-20251001（リファイン） |
+| API | claude-sonnet-4-6（生成/バリアント）/ claude-haiku-4-5-20251001（リファイン） |
+| SVGダイレクト操作 | プレビュー上でドラッグ並べ替え、オーバーレイツールバー（↑↓複製削除編集リンク） |
+| A/Bバリアント | AI代替構成生成、サイドバイサイドdiff比較、セクション単位チェリーピック、B案一括採用 |
+| マルチページ | ページ追加/削除/名前変更、ページ間リンク設定、SVG上リンクインジケータ、クリック遷移 |
+| AIコピーライティング | refineモードでプレースホルダーを実コピーに一括変換 |
+| ヒートマップ予測 | F字パターン・CTA集中度のCanvasオーバーレイ（mix-blend-mode: multiply） |
+| レスポンシブ3画面 | PC(1200)/Tab(768)/SP(375)を横並び同時プレビュー |
+| プロトタイプ再生 | フルスクリーン、ページ遷移、矢印キー操作、ドットナビゲーション |
+| セクションコメント | レビュー用注釈、バッジ表示、ポップオーバー入力 |
+| アクセシビリティチェック | WCAG準拠チェック（見出し階層・CTA配置・フォームEFO・信頼要素・セクション数）、スコア0-100 |
+| 競合サイト分析 | URLから競合ページ構成をAI推定、自サイトとの差分比較（共通/自サイトのみ/競合のみ） |
+| セクションアニメーション | fadeIn/slideLeft/slideUp/zoomIn設定、プレビューデモ再生、HTML出力に data-animate 属性 |
+| HTML/CSSエクスポート | セマンティックHTML/CSS変数/Tailwind CSSの3形式でコード出力 |
+| デザイントークン | カラースキームからCSS変数/JSONを自動生成（色・スペーシング・タイポグラフィ・レイアウト） |
 
 ### Todoアプリ（`todo.html`）
 
@@ -257,3 +275,6 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-30 | Banner Resizer WebPフォールバック修正 | ブラウザがWebP非対応時にPNGにフォールバックされるが拡張子が.webpのままでCMSアップロードエラーになっていた。Blobの実際のMIMEタイプを確認し正しい拡張子で出力するよう修正 |
 | 2026-03-31 | Slide Maker UI全面刷新 | GoogleSlides風2ペインエディタ（左サムネイル＋右キャンバス）、CSS変数デザインシステム（shadow/spacing/typography/transition）、フェーズプログレスバー、シマーローディング、レイアウト自動修正AI、プレゼンモード改善（プログレスバー+スライド番号）、キーボードナビゲーション |
 | 2026-03-31 | Wireframe Maker V3 大規模アップグレード | スプリットペインUI（左パネル+右ライブプレビュー）、CVRスコアリング、カラースキーム3種、ミニマップ、強化SVGレンダリング、ショートカット拡張 |
+| 2026-03-31 | Wireframe Maker V4 Figma超え3機能 | SVGダイレクト操作（ドラッグ並べ替え+オーバーレイツールバー）、A/Bバリアント生成（AI代替構成diff比較+チェリーピック）、マルチページプロトタイプ（ページ管理+ページ間リンク+遷移） |
+| 2026-03-31 | Wireframe Maker V5 5機能追加 | AIコピーライティング、ヒートマップ予測（F字パターン）、レスポンシブ3画面同時プレビュー、プロトタイプ再生モード、セクションコメント/注釈 |
+| 2026-03-31 | Wireframe Maker V6 5機能追加 | アクセシビリティチェッカー、競合サイト構成分析、セクションアニメーション、HTML/CSS/Tailwindエクスポート、デザイントークン自動生成 |

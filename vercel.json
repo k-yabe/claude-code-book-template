@@ -6,7 +6,8 @@
     "api/slide-export.py": { "maxDuration": 60 },
     "api/slide-research.js": { "maxDuration": 120 },
     "api/fetch-article.js": { "maxDuration": 30 },
-    "api/sources.js": { "maxDuration": 10 }
+    "api/sources.js": { "maxDuration": 10 },
+    "api/fetch-transcript.js": { "maxDuration": 30 }
   },
   "headers": [
     {
