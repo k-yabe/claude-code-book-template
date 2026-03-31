@@ -713,8 +713,8 @@
             </div>
             <div class="import-url-row">
               <label for="url-input" class="hidden">URL</label>
-              <input type="url" class="import-url-input" id="url-input" placeholder="参考URL" onkeydown="if(event.key==='Enter')handleUrlImport()">
-              <button class="btn-url-go" onclick="handleUrlImport()">読込</button>
+              <input type="url" class="import-url-input" id="url-input" placeholder="URLからコピー（例: https://example.com）" onkeydown="if(event.key==='Enter')handleUrlImport()">
+              <button class="btn-url-go" onclick="handleUrlImport()">コピー生成</button>
             </div>
           </div>
           <div class="tpl-bar">
@@ -1146,20 +1146,37 @@ async function handleUrlImport() {
   const url = document.getElementById('url-input').value.trim();
   if (!url || !/^https?:\/\/.+/.test(url)) return;
   clearError();
-  addChatMessage('user', `参考URL: ${url}`);
-  chatHistory.push({ role: 'user', content: `参考URLを共有します: ${url}\nこのページの構成を参考にワイヤーフレームを作りたいです。` });
   document.getElementById('url-input').value = '';
+  addChatMessage('user', `🌐 サイトをインポート: ${url}`);
   addLoadingBubble();
   document.getElementById('chat-send').disabled = true;
   try {
-    const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'chat', chatMessages: chatHistory, _user: USER }) });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error?.message || data.error || 'エラー');
+    // Step 1: サイトのHTMLコンテンツを取得
+    const fetchRes = await fetch('/api/fetch-article', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+    const fetchData = await fetchRes.json();
+    if (!fetchRes.ok) throw new Error(fetchData.error || 'サイトの取得に失敗しました');
+    const siteContent = `[インポートしたサイト: ${url}]\nタイトル: ${fetchData.title}\n\n${fetchData.text}`;
+    importedContent = siteContent;
     removeLoadingBubble();
-    addChatMessage('ai', data.reply);
-    chatHistory.push({ role: 'assistant', content: data.reply });
-    if (data.suggestions?.length) showSuggestions(data.suggestions);
-    if (data.readyForStructure && data.context) { currentContext = data.context; document.getElementById('ready-banner').classList.remove('hidden'); }
+    addChatMessage('ai', `「${fetchData.title}」の内容を読み込みました。このサイトの構成をコピーしてワイヤーフレームを生成します...`);
+
+    // Step 2: AI で構造を自動生成
+    addLoadingBubble();
+    const genRes = await fetch('/api/wireframe-generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mode: 'free',
+        freeText: `以下の既存サイトの構成をそのまま再現するワイヤーフレームを生成してください。セクションの順序・種類・内容をできるだけ忠実にコピーしてください。\n\n${siteContent.slice(0, 10000)}`,
+        _user: USER
+      })
+    });
+    const genData = await genRes.json();
+    if (!genRes.ok) throw new Error(genData.error?.message || genData.error || '生成失敗');
+    removeLoadingBubble();
+    currentSections = genData.sections;
+    onSectionsChanged();
+    addChatMessage('ai', `✅ 「${fetchData.title}」をもとに ${genData.sections.length} セクションのワイヤーフレームを生成しました。左パネルの構成タブで自由に編集できます。`);
+    showToast('URLインポート完了');
   } catch (e) { removeLoadingBubble(); showError(e.message); }
   finally { document.getElementById('chat-send').disabled = false; }
 }
@@ -1433,15 +1450,28 @@ function createDefs() {
 }
 
 function drawLines(g, x, y, w, n, h, c) { for (let i = 0; i < n; i++) { const lw = w * (0.6 + Math.random() * 0.4); g.appendChild(svgEl('rect', { x, y: y + i * (h + 8), width: lw, height: h, fill: c || cs('line') })); } }
-function drawImg(g, x, y, w, h) {
-  g.appendChild(svgEl('rect', { x, y, width: w, height: h, fill: cs('img'), stroke: cs('imgStroke'), 'stroke-width': 1 }));
-  g.appendChild(svgEl('line', { x1: x, y1: y, x2: x+w, y2: y+h, stroke: cs('imgStroke'), 'stroke-width': 1 }));
-  g.appendChild(svgEl('line', { x1: x+w, y1: y, x2: x, y2: y+h, stroke: cs('imgStroke'), 'stroke-width': 1 }));
-  // 画像アイコン
-  const iconY = y + h/2 - 8;
-  const iconX = x + w/2 - 10;
-  const icon = svgEl('text', { x: iconX + 10, y: iconY + 14, fill: cs('imgStroke'), 'font-size': '16', 'text-anchor': 'middle', 'font-family': 'sans-serif', opacity: '0.5' });
-  icon.textContent = '🖼'; g.appendChild(icon);
+function drawImg(g, x, y, w, h, sectionImage) {
+  if (sectionImage) {
+    // 実画像を表示
+    g.appendChild(svgEl('rect', { x, y, width: w, height: h, fill: cs('img') }));
+    const img = document.createElementNS(SVG_NS, 'image');
+    img.setAttribute('x', x);
+    img.setAttribute('y', y);
+    img.setAttribute('width', w);
+    img.setAttribute('height', h);
+    img.setAttribute('href', sectionImage);
+    img.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    g.appendChild(img);
+  } else {
+    // プレースホルダー
+    g.appendChild(svgEl('rect', { x, y, width: w, height: h, fill: cs('img'), stroke: cs('imgStroke'), 'stroke-width': 1 }));
+    g.appendChild(svgEl('line', { x1: x, y1: y, x2: x+w, y2: y+h, stroke: cs('imgStroke'), 'stroke-width': 1 }));
+    g.appendChild(svgEl('line', { x1: x+w, y1: y, x2: x, y2: y+h, stroke: cs('imgStroke'), 'stroke-width': 1 }));
+    const iconY = y + h/2 - 8;
+    const iconX = x + w/2 - 10;
+    const icon = svgEl('text', { x: iconX + 10, y: iconY + 14, fill: cs('imgStroke'), 'font-size': '16', 'text-anchor': 'middle', 'font-family': 'sans-serif', opacity: '0.5' });
+    icon.textContent = '🖼'; g.appendChild(icon);
+  }
 }
 function drawBtn(g, x, y, w, h, label, primary) {
   g.appendChild(svgEl('rect', { x, y, width: w, height: h, fill: primary ? cs('accent') : cs('dark'), filter: 'url(#card-shadow)' }));
@@ -1489,7 +1519,7 @@ const RENDERERS = {
     links.forEach((l, i) => drawText(g, 480 + i * 110, 38, l, '12', cs('body'), '500'));
     drawBtn(g, WF_WIDTH - 220, 14, 150, 32, '無料で資料請求', true);
   },
-  hero(g, h) {
+  hero(g, h, sec) {
     g.appendChild(svgEl('rect', { x: 0, y: SEC_PAD, width: WF_WIDTH, height: h - SEC_PAD, fill: cs('card') }));
     // 見出し
     drawText(g, 80, 120, 'キャッチコピーが入ります', '28', cs('heading'), '700');
@@ -1502,7 +1532,7 @@ const RENDERERS = {
     for (let i = 0; i < 5; i++) g.appendChild(svgEl('rect', { x: 80 + i * 90, y: 320, width: 70, height: 24, fill: cs('img') }));
     drawText(g, 80, 364, '導入企業 12,847社', '10', cs('body'));
     // 右: 画像
-    drawImg(g, 640, 70, 480, 360);
+    drawImg(g, 640, 70, 480, 360, sec && sec.image);
   },
   features(g, h) {
     drawText(g, WF_WIDTH / 2, 40, '選ばれる3つの理由', '20', cs('heading'), '700', 'middle');
@@ -1515,18 +1545,18 @@ const RENDERERS = {
       drawLines(g, x + 30, y + 125, cw - 60, 3, 5, cs('line'));
     }
   },
-  'content-text'(g, h) {
+  'content-text'(g, h, sec) {
     drawText(g, 80, 60, 'こんなお悩みはありませんか？', '20', cs('heading'), '700');
     drawText(g, 80, 88, '多くの企業が直面する課題とその解決策をご紹介します', '12', cs('body'));
     drawLines(g, 80, 110, 600, 4, 6, cs('line'));
-    drawImg(g, 80, 190, WF_WIDTH - 160, 100);
+    drawImg(g, 80, 190, WF_WIDTH - 160, 100, sec && sec.image);
   },
-  'two-column'(g, h) {
+  'two-column'(g, h, sec) {
     const half = (WF_WIDTH - 120) / 2;
     drawText(g, 60, 70, '解決策のタイトル', '18', cs('heading'), '700');
     drawLines(g, 60, 90, half - 20, 5, 6, cs('line'));
     drawBtn(g, 60, 240, 180, 40, '詳しく見る', false);
-    drawImg(g, 60 + half + 20, 50, half, h - 80);
+    drawImg(g, 60 + half + 20, 50, half, h - 80, sec && sec.image);
   },
   testimonials(g, h) {
     drawText(g, WF_WIDTH / 2, 38, 'お客様の声', '18', cs('heading'), '700', 'middle');
@@ -1598,10 +1628,10 @@ const RENDERERS = {
       arr.textContent = '▾'; g.appendChild(arr);
     });
   },
-  gallery(g, h) {
+  gallery(g, h, sec) {
     drawText(g, WF_WIDTH / 2, 38, '導入イメージ', '18', cs('heading'), '700', 'middle');
     const cols = 4, iw = 240, ih = 180, gap = (WF_WIDTH - cols * iw) / (cols + 1);
-    for (let i = 0; i < cols; i++) drawImg(g, gap + i * (iw + gap), 55, iw, ih);
+    for (let i = 0; i < cols; i++) drawImg(g, gap + i * (iw + gap), 55, iw, ih, sec && sec.image);
   },
   stats(g, h) {
     drawText(g, WF_WIDTH / 2, 38, '実績', '16', cs('heading'), '700', 'middle');
@@ -1626,13 +1656,13 @@ const RENDERERS = {
       drawText(g, 180, y + 32, 'ステップの説明テキストが入ります', '10', cs('body'));
     });
   },
-  cards(g, h) {
+  cards(g, h, sec) {
     drawText(g, WF_WIDTH / 2, 38, '導入事例', '18', cs('heading'), '700', 'middle');
     const cols = 3, cw = 320, gap = (WF_WIDTH - cols * cw) / (cols + 1);
     for (let i = 0; i < cols; i++) {
       const x = gap + i * (cw + gap);
       drawCard(g, x, 55, cw, h - 85);
-      drawImg(g, x, 55, cw, 130);
+      drawImg(g, x, 55, cw, 130, sec && sec.image);
       drawText(g, x + 16, 210, '事例タイトル', '13', cs('heading'), '600');
       drawLines(g, x + 16, 225, cw - 32, 2, 5, cs('line'));
       drawBtn(g, x + 16, h - 70, cw - 32, 30, '詳しく見る', false);
@@ -2027,6 +2057,7 @@ function showSectionOverlay(sectionId) {
     { label: '↓ 下へ', action: () => moveSection(idx, 1), hide: idx === currentSections.length - 1 },
     { label: '⧉ 複製', action: () => { duplicateSection(idx); showSectionOverlay(sectionId); } },
     { label: '✎ 編集', action: () => { switchTab('structure'); setTimeout(() => { const card = document.querySelector(`.section-card[data-id="${sectionId}"]`); if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); const lbl = card.querySelector('.sec-label'); if (lbl) { lbl.contentEditable = 'true'; lbl.focus(); } } }, 100); } },
+    { label: '🖼 画像', action: () => uploadSectionImage(sectionId) },
     { label: '🔗 リンク', action: () => showLinkPicker(sectionId) },
     { label: '✕', action: () => { deleteSection(idx); }, cls: 'danger' },
   ];
@@ -2096,6 +2127,30 @@ function applyInlineEdit(sectionId) {
   }
   panel.remove();
 }
+
+// 画像アップロード
+function uploadSectionImage(sectionId) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/png,image/jpeg,image/gif,image/webp';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { showToast('画像は5MB以下にしてください'); return; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const sec = currentSections.find(s => s.id === sectionId);
+      if (!sec) return;
+      saveUndoState();
+      sec.image = ev.target.result;
+      onSectionsChanged();
+      showToast('画像を挿入しました');
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
 
 function moveSection(fromIdx, dir) {
   const toIdx = fromIdx + dir;
