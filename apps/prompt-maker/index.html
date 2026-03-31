@@ -408,7 +408,112 @@
       font-size: 0.78rem; color: #8a9bb0; cursor: pointer; transition: all 0.15s;
     }
     .pdf-drop-zone:hover { border-color: #ffb81c; background: #fffbf0; }
-    .pdf-drop-zone.dragover { border-color: #ffb81c; background: #fffbf0; }
+    .pdf-drop-zone.dragover { border-color: #ffb81c; background: #fffbf0; transform: scale(1.01); box-shadow: 0 0 12px rgba(255,184,28,0.25); }
+
+    /* ── v8 UIポリッシュ ── */
+
+    /* シマーローダー */
+    @keyframes shimmer {
+      0% { background-position: -600px 0; }
+      100% { background-position: 600px 0; }
+    }
+    .summary-shimmer {
+      height: 48px; margin: 6px 0;
+      background: linear-gradient(90deg, #f0f2f5 25%, #e8ecf0 37%, #f0f2f5 63%);
+      background-size: 600px 100%; animation: shimmer 1.8s infinite;
+    }
+
+    /* トースト通知 */
+    .toast-container {
+      position: fixed; bottom: 24px; right: 24px; z-index: 2000;
+      display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto; padding: 12px 20px; font-size: 0.78rem; font-weight: 600;
+      font-family: inherit; display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15); animation: toastIn 0.35s cubic-bezier(0.16,1,0.3,1);
+      max-width: 360px;
+    }
+    .toast.success { background: #001f33; color: #fff; }
+    .toast.error { background: #001f33; color: #ffb81c; }
+    .toast.info { background: #fff; color: #001f33; border: 1px solid #e8ecf0; }
+    .toast.fade-out { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(10px); } }
+
+    /* モーダルアニメーション */
+    .mindmap-overlay { backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+    .mindmap-overlay.show { opacity: 1; pointer-events: auto; }
+    .mindmap-modal { transform: scale(0.95) translateY(12px); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+    .mindmap-overlay.show .mindmap-modal { transform: scale(1) translateY(0); }
+
+    /* ボタンhoverリフト統一 */
+    .analyze-btn:hover:not(:disabled) { box-shadow: 0 2px 8px rgba(0,31,51,0.18); transform: translateY(-1px); }
+    .source-add-btn:hover:not(:disabled) { box-shadow: 0 2px 8px rgba(255,184,28,0.25); transform: translateY(-1px); }
+    .send-btn:hover:not(:disabled) { box-shadow: 0 2px 8px rgba(255,184,28,0.25); transform: translateY(-1px); }
+    .output-tool-btn:hover:not(:disabled) { box-shadow: 0 2px 8px rgba(255,184,28,0.15); transform: translateY(-1px); }
+    .analyze-btn, .source-add-btn, .send-btn, .output-tool-btn { transition: all 0.2s cubic-bezier(0.16,1,0.3,1); }
+    .source-item-btn { transition: all 0.2s cubic-bezier(0.16,1,0.3,1); }
+    .source-item-btn:hover { transform: translateY(-1px); }
+
+    /* ブランドカラー修正 */
+    .source-indicator-dot { background: #ffb81c; }
+    .quality-score-value.high { background: rgba(255,184,28,0.15); color: #001f33; }
+    .quality-score-value.mid { background: rgba(255,184,28,0.1); color: #001f33; }
+    .quality-score-value.low { background: rgba(0,31,51,0.08); color: #001f33; }
+    .quality-axis-bar { background: #ffb81c; }
+    .chat-avatar.ai { background: rgba(255,184,28,0.12); }
+    .chat-avatar.user { background: rgba(0,31,51,0.08); }
+    .source-item-type { background: #001f33; color: #fff; }
+
+    /* 品質スコア軸 改善 */
+    .quality-axes { flex-direction: column; gap: 6px; }
+    .quality-axis {
+      display: flex; align-items: center; gap: 8px; border: none; padding: 0;
+      font-size: 0.72rem;
+    }
+    .quality-axis-name { min-width: 64px; color: #4a5568; font-weight: 600; }
+    .quality-axis-track { flex: 1; height: 10px; background: rgba(0,31,51,0.06); position: relative; }
+    .quality-axis-bar { height: 100%; transition: width 0.6s cubic-bezier(0.16,1,0.3,1); }
+    .quality-axis-val { min-width: 32px; text-align: right; font-weight: 700; color: #001f33; }
+
+    /* 引用マーカー視認性改善 */
+    .citation-marker { font-size: 0.68rem; padding: 2px 6px; }
+    .citation-marker:hover { box-shadow: 0 2px 6px rgba(255,184,28,0.3); transform: translateY(-1px); }
+    .chat-citation-link { font-size: 0.72rem; padding: 4px 10px; }
+    .chat-citation-link:hover { box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .source-item.highlighted { animation: highlightPulse 4s ease; }
+    @keyframes highlightPulse { 0%,70% { box-shadow: 0 0 0 3px rgba(255,184,28,0.4); background: #fffbf0; } 100% { box-shadow: none; background: transparent; } }
+
+    /* ローディングドット改善 */
+    .loading-dot { width: 7px; height: 7px; }
+    @keyframes bounce { 0%,80%,100% { transform: scale(0.4); opacity: 0.3; } 40% { transform: scale(1.2); opacity: 1; } }
+
+    /* 検索UX改善 */
+    .source-toolbar { position: relative; }
+    .search-wrapper { flex: 1; position: relative; }
+    .search-clear {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: #8a9bb0; cursor: pointer;
+      font-size: 0.82rem; display: none; padding: 2px 4px; line-height: 1;
+    }
+    .search-clear:hover { color: #001f33; }
+    .search-count { font-size: 0.62rem; color: #8a9bb0; white-space: nowrap; }
+
+    /* PDF プログレスバー */
+    .pdf-progress { height: 3px; background: rgba(0,31,51,0.06); margin-top: 8px; overflow: hidden; display: none; }
+    .pdf-progress.show { display: block; }
+    .pdf-progress-bar { height: 100%; background: #ffb81c; transition: width 0.2s ease; }
+
+    /* 空ステート改善 */
+    .source-empty { padding: 40px 20px; }
+    .source-empty-icon { font-size: 2.4rem; margin-bottom: 12px; opacity: 0.6; }
+    .source-empty-title { font-size: 0.88rem; font-weight: 700; color: #001f33; margin-bottom: 8px; }
+    .source-empty-desc { font-size: 0.75rem; color: #8a9bb0; line-height: 1.7; }
+
+    /* フラッシュカード進捗バー */
+    .flashcard-progress-bar { width: 300px; max-width: 80%; height: 4px; background: rgba(0,31,51,0.08); }
+    .flashcard-progress-fill { height: 100%; background: #ffb81c; transition: width 0.3s ease; }
   </style>
   <link rel="stylesheet" href="../../assets/app-styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
@@ -450,7 +555,11 @@
 
     <!-- 検索 + 分析 -->
     <div class="source-toolbar">
-      <input type="text" id="source-search" placeholder="🔍 ソースを検索…">
+      <div class="search-wrapper">
+        <input type="text" id="source-search" placeholder="🔍 ソースを検索…">
+        <button class="search-clear" id="search-clear">✕</button>
+      </div>
+      <span class="search-count" id="search-count"></span>
       <button class="analyze-btn" id="analyze-btn" title="全ソースを横断分析">🔍 分析</button>
       <button class="analyze-btn" id="mindmap-btn" title="ソース関係性マインドマップ">🧠 MAP</button>
     </div>
@@ -483,6 +592,7 @@
           📄 PDFファイルをドラッグ＆ドロップ、またはクリックして選択
           <input type="file" id="pdf-file" accept=".pdf" style="display:none;">
         </div>
+        <div class="pdf-progress" id="pdf-progress"><div class="pdf-progress-bar" id="pdf-progress-bar"></div></div>
         <div class="source-add-row">
           <span class="url-status" id="pdf-status"></span>
         </div>
@@ -615,9 +725,28 @@
   </div>
 </div>
 
+<div class="toast-container" id="toast-container"></div>
+
 <script src="../../assets/copy-utils.js"></script>
 <script src="../../assets/history.js"></script>
 <script>
+  // ── トースト通知 ──────────────────────────
+  function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => { toast.classList.add('fade-out'); setTimeout(() => toast.remove(), 300); }, 4000);
+  }
+
+  // ── ESCキーで全モーダル閉じる ──────────────────────────
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.mindmap-overlay.show').forEach(o => o.classList.remove('show'));
+    }
+  });
+
   // ── SourceStore ──────────────────────────
   const SourceStore = {
     mode: 'local',
@@ -969,7 +1098,7 @@
         if (target) {
           target.classList.add('highlighted');
           target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          setTimeout(() => target.classList.remove('highlighted'), 3000);
+          setTimeout(() => target.classList.remove('highlighted'), 5000);
         }
       });
     }
@@ -1069,7 +1198,8 @@
       }
       const c = cards[idx];
       container.innerHTML = `<div class="flashcard-container">
-        <div class="flashcard-progress">${idx+1} / ${cards.length}（正解: ${got}）</div>
+        <div class="flashcard-progress">${idx+1} / ${cards.length} &nbsp;|&nbsp; 正解: ${got}</div>
+        <div class="flashcard-progress-bar"><div class="flashcard-progress-fill" style="width:${((idx+1)/cards.length)*100}%"></div></div>
         <div class="flashcard" id="fc-card"><div class="flashcard-inner"><div class="flashcard-front">${escHtml(c.q)}</div><div class="flashcard-back">${escHtml(c.a)}</div></div></div>
         <div class="flashcard-nav">
           <button class="flashcard-nav-btn got" id="fc-got">✅ 覚えた</button>
@@ -1316,7 +1446,7 @@
         </div>
         <div class="quality-axes">
           ${Object.entries(result.axes || {}).map(([k, v]) =>
-            `<div class="quality-axis"><span>${axisNames[k] || k}</span> <div class="quality-axis-bar" style="width:${v * 0.4}px;"></div> ${v}</div>`
+            `<div class="quality-axis"><span class="quality-axis-name">${axisNames[k] || k}</span><div class="quality-axis-track"><div class="quality-axis-bar" style="width:${v}%;"></div></div><span class="quality-axis-val">${v}</span></div>`
           ).join('')}
         </div>
         <div class="quality-hint">💡 ${escHtml(result.hint || '')}</div>`;
@@ -1339,7 +1469,11 @@
 
     if (filtered.length === 0) {
       listEl.innerHTML = sources.length === 0
-        ? '<div class="source-empty">📚 ソースを追加すると<br>AIが自動で要約を生成し<br>最適なサジェスチョンを提案します</div>'
+        ? `<div class="source-empty">
+            <div class="source-empty-icon">📚</div>
+            <div class="source-empty-title">ソースを追加してAIを強化</div>
+            <div class="source-empty-desc">テキスト・URL・PDF・YouTubeを追加すると<br>AIが自動要約を生成し、最適なサジェスチョンを提案します</div>
+          </div>`
         : '<div class="source-empty">検索結果なし</div>';
       updateSourceIndicator();
       return;
@@ -1359,7 +1493,7 @@
           <span class="source-item-user">👤 ${escHtml(s.user || 'unknown')}</span>
           <span class="source-item-date">${date}</span>
         </div>
-        ${s.summary ? `<div class="source-item-summary"><div class="source-item-summary-label">AI要約</div>${escHtml(s.summary)}</div>` : '<div class="source-item-summary loading" data-summary-slot="' + s.id + '">AI要約を生成中…</div>'}
+        ${s.summary ? `<div class="source-item-summary"><div class="source-item-summary-label">AI要約</div>${escHtml(s.summary)}</div>` : '<div data-summary-slot="' + s.id + '"><div class="source-item-summary-label">AI要約</div><div class="summary-shimmer"></div></div>'}
         <div class="source-item-preview">${escHtml(s.content.slice(0, 100))}${s.content.length > 100 ? '…' : ''}</div>
         <div class="source-item-full">${escHtml(s.content)}</div>
         <div class="source-item-note"><textarea placeholder="📝 メモを追加…" data-note-id="${s.id}">${escHtml(s.note || '')}</textarea></div>
@@ -1412,6 +1546,9 @@
               slot.className = 'source-item-summary';
               slot.innerHTML = `<div class="source-item-summary-label">AI要約</div>${escHtml(summary)}`;
             }
+          } else {
+            const slot = item.querySelector(`[data-summary-slot="${s.id}"]`);
+            if (slot) slot.innerHTML = '<div class="source-item-summary-label">AI要約</div><span style="color:#8a9bb0;font-size:0.72rem;">要約の取得に失敗しました</span>';
           }
         });
       }
@@ -1488,7 +1625,7 @@
     if (target) {
       target.classList.add('highlighted');
       target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => target.classList.remove('highlighted'), 3000);
+      setTimeout(() => target.classList.remove('highlighted'), 5000);
     }
   });
 
@@ -1517,6 +1654,7 @@
     document.getElementById('source-title').value = '';
     document.getElementById('source-text').value = '';
     btn.disabled = false; btn.textContent = '＋ ソース追加';
+    showToast('ソースを追加しました', 'success');
   });
 
   document.getElementById('add-url-btn').addEventListener('click', async () => {
@@ -1534,9 +1672,11 @@
       await SourceStore.add(title || data.title || url.slice(0, 50), `[URL: ${url}]\n[タイトル: ${data.title || '不明'}]\n\n${data.text}`, 'url');
       renderSources();
       scheduleSuggestionUpdate();
-      status.textContent = '✅ 追加完了';
+      status.textContent = '';
+      showToast('URLソースを追加しました', 'success');
     } catch (err) {
-      status.textContent = `⚠️ ${err.message}`;
+      status.textContent = '';
+      showToast(`URL取得失敗: ${err.message}`, 'error');
       await SourceStore.add(title || url.slice(0, 40), `URL: ${url}\n（コンテンツ取得失敗）`, 'url');
       renderSources();
       scheduleSuggestionUpdate();
@@ -1544,7 +1684,6 @@
       btn.disabled = false; btn.textContent = '＋ URL追加';
       document.getElementById('source-url-title').value = '';
       document.getElementById('source-url').value = '';
-      setTimeout(() => { status.textContent = ''; }, 3000);
     }
   });
 
@@ -1561,7 +1700,10 @@
 
   async function handlePdfFile(file) {
     if (!file.name.toLowerCase().endsWith('.pdf')) { pdfStatus.textContent = '⚠️ PDFファイルを選択してください'; return; }
+    const progressEl = document.getElementById('pdf-progress');
+    const progressBar = document.getElementById('pdf-progress-bar');
     pdfStatus.textContent = 'PDFを解析中…';
+    progressEl.classList.add('show'); progressBar.style.width = '0%';
     try {
       const buf = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
@@ -1569,21 +1711,24 @@
       const maxPages = Math.min(pdf.numPages, 50);
       for (let i = 1; i <= maxPages; i++) {
         pdfStatus.textContent = `PDFを解析中… (${i}/${maxPages}ページ)`;
+        progressBar.style.width = `${(i / maxPages) * 100}%`;
         const page = await pdf.getPage(i);
         const tc = await page.getTextContent();
         text += tc.items.map(it => it.str).join(' ') + '\n';
       }
       text = text.trim().slice(0, 15000);
-      if (text.length < 50) { pdfStatus.textContent = '⚠️ テキストを抽出できませんでした（画像PDFの可能性）'; return; }
+      if (text.length < 50) { pdfStatus.textContent = '⚠️ テキストを抽出できませんでした（画像PDFの可能性）'; progressEl.classList.remove('show'); return; }
       const title = file.name.replace(/\.pdf$/i, '');
       await SourceStore.add(title, `[PDF: ${file.name} / ${pdf.numPages}ページ]\n\n${text}`, 'pdf');
       renderSources();
       scheduleSuggestionUpdate();
-      pdfStatus.textContent = `✅ ${title} を追加しました（${maxPages}ページ）`;
+      showToast(`${title} を追加しました（${maxPages}ページ）`, 'success');
+      pdfStatus.textContent = '';
       pdfFileInput.value = '';
-      setTimeout(() => { pdfStatus.textContent = ''; }, 3000);
+      progressEl.classList.remove('show');
     } catch (err) {
       pdfStatus.textContent = `⚠️ PDF解析エラー: ${err.message}`;
+      progressEl.classList.remove('show');
     }
   }
 
@@ -1606,18 +1751,37 @@
       await SourceStore.add(title || data.title || url.slice(0, 50), `[YouTube: ${url}]\n[タイトル: ${data.title || '不明'}]\n[字幕言語: ${data.language || '不明'}]\n\n${data.text}`, 'youtube');
       renderSources();
       scheduleSuggestionUpdate();
-      status.textContent = `✅ 追加完了（${data.language || ''}字幕）`;
+      status.textContent = '';
+      showToast(`YouTube字幕を追加しました（${data.language || ''}）`, 'success');
     } catch (err) {
-      status.textContent = `⚠️ ${err.message}`;
+      status.textContent = '';
+      showToast(`YouTube字幕取得失敗: ${err.message}`, 'error');
     } finally {
       btn.disabled = false; btn.textContent = '＋ YouTube追加';
       document.getElementById('source-yt-title').value = '';
       document.getElementById('source-yt-url').value = '';
-      setTimeout(() => { status.textContent = ''; }, 3000);
     }
   });
 
-  document.getElementById('source-search').addEventListener('input', (e) => { searchQuery = e.target.value.toLowerCase(); renderSources(); });
+  document.getElementById('source-search').addEventListener('input', (e) => {
+    searchQuery = e.target.value.toLowerCase();
+    document.getElementById('search-clear').style.display = searchQuery ? 'block' : 'none';
+    const sources = SourceStore._cache;
+    if (searchQuery) {
+      const count = sources.filter(s => s.title.toLowerCase().includes(searchQuery) || s.content.toLowerCase().includes(searchQuery) || (s.user || '').toLowerCase().includes(searchQuery)).length;
+      document.getElementById('search-count').textContent = `${count}/${sources.length}`;
+    } else {
+      document.getElementById('search-count').textContent = '';
+    }
+    renderSources();
+  });
+  document.getElementById('search-clear').addEventListener('click', () => {
+    document.getElementById('source-search').value = '';
+    searchQuery = '';
+    document.getElementById('search-clear').style.display = 'none';
+    document.getElementById('search-count').textContent = '';
+    renderSources();
+  });
   document.getElementById('analyze-btn').addEventListener('click', analyzeAllSources);
   document.getElementById('analysis-close').addEventListener('click', () => { document.getElementById('analysis-panel').classList.remove('show'); });
 
