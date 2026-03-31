@@ -35,7 +35,7 @@
     .navbar-score .score-fill { height: 100%; transition: width 0.5s, background 0.3s; }
 
     /* ===== スプリットペインレイアウト ===== */
-    .editor-layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 78px); }
+    .editor-layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 78px); min-height: 0; max-height: calc(100vh - 78px); }
 
     /* 左パネル */
     .left-panel { width: 380px; min-width: 320px; max-width: 500px; background: #fff; border-right: 1px solid #e8ecf0; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
@@ -53,8 +53,10 @@
     .resize-handle:hover, .resize-handle.dragging { background: #ffb81c; }
 
     /* 右パネル（プレビュー） */
-    .right-panel { flex: 1; display: flex; flex-direction: column; background: #e8ecf0; overflow: hidden; position: relative; }
-    .right-panel-toolbar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fff; border-bottom: 1px solid #e8ecf0; flex-shrink: 0; z-index: 5; }
+    .right-panel { flex: 1; display: flex; flex-direction: column; background: #e8ecf0; overflow: hidden; position: relative; min-height: 0; }
+    .right-panel-toolbar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fff; border-bottom: 1px solid #e8ecf0; flex-shrink: 0; z-index: 5; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+    .right-panel-toolbar::-webkit-scrollbar { height: 3px; }
+    .right-panel-toolbar::-webkit-scrollbar-thumb { background: #cbd5e1; }
     .toolbar-group { display: flex; align-items: center; gap: 4px; }
     .toolbar-sep { width: 1px; height: 18px; background: #e8ecf0; margin: 0 4px; }
     .toolbar-btn { background: #f7f8fa; border: 1px solid #e8ecf0; padding: 4px 10px; font-size: 0.72rem; cursor: pointer; font-family: inherit; color: #4a5568; transition: all 0.12s; }
@@ -3628,11 +3630,12 @@ function deleteComponent(compId) {
 }
 
 // Add save-to-library button in overlay toolbar
-const _origShowOverlayV7 = showOverlayToolbar;
-showOverlayToolbar = function(secEl, sectionObj) {
-  _origShowOverlayV7(secEl, sectionObj);
-  const bar = document.getElementById('section-overlay-bar');
+const _origShowOverlayV7 = showSectionOverlay;
+showSectionOverlay = function(sectionId) {
+  _origShowOverlayV7(sectionId);
+  const bar = document.querySelector('.section-overlay-bar');
   if (bar && !bar.querySelector('.save-comp-btn')) {
+    const sectionObj = currentSections.find(s => s.id === sectionId);
     const btn = document.createElement('button');
     btn.className = 'save-comp-btn';
     btn.textContent = '📦';
