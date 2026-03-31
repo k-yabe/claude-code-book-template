@@ -316,6 +316,70 @@
     .mindmap-body svg { max-width: 100%; max-height: 100%; }
     .mindmap-loading { font-size: 0.85rem; color: #8a9bb0; display: flex; align-items: center; gap: 8px; }
 
+    /* ── 出力ツールバー（分析・MAP の横） ── */
+    .output-tools {
+      padding: 8px 14px; border-bottom: 1px solid #e8ecf0;
+      display: none; gap: 6px; flex-wrap: wrap;
+    }
+    .output-tools.show { display: flex; }
+    .output-tool-btn {
+      background: #fff; border: 1.5px solid #e8ecf0; color: #4a5568;
+      font-size: 0.68rem; font-weight: 700; padding: 5px 12px; cursor: pointer;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .output-tool-btn:hover { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
+    .output-tool-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* フラッシュカード */
+    .flashcard-container { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 30px; width: 100%; }
+    .flashcard {
+      width: 480px; max-width: 90%; height: 260px; perspective: 800px; cursor: pointer;
+    }
+    .flashcard-inner {
+      width: 100%; height: 100%; position: relative; transition: transform 0.5s;
+      transform-style: preserve-3d;
+    }
+    .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+    .flashcard-front, .flashcard-back {
+      position: absolute; inset: 0; backface-visibility: hidden;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px; font-size: 0.92rem; line-height: 1.7; text-align: center;
+    }
+    .flashcard-front { background: #001f33; color: #fff; font-weight: 700; }
+    .flashcard-back { background: #fffbf0; color: #001f33; transform: rotateY(180deg); border: 2px solid #ffb81c; }
+    .flashcard-nav { display: flex; gap: 10px; align-items: center; }
+    .flashcard-nav-btn {
+      padding: 8px 20px; font-size: 0.78rem; font-weight: 700; border: none;
+      cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+    }
+    .flashcard-nav-btn.got { background: #001f33; color: #fff; }
+    .flashcard-nav-btn.again { background: #ffb81c; color: #001f33; }
+    .flashcard-progress { font-size: 0.75rem; color: #8a9bb0; font-weight: 600; }
+
+    /* FAQ */
+    .faq-container { width: 100%; max-width: 680px; margin: 0 auto; padding: 20px; }
+    .faq-item { border-bottom: 1px solid #e8ecf0; }
+    .faq-question {
+      padding: 14px 0; font-size: 0.85rem; font-weight: 700; color: #001f33;
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+      user-select: none;
+    }
+    .faq-question:hover { color: #ffb81c; }
+    .faq-arrow { font-size: 0.7rem; transition: transform 0.2s; }
+    .faq-item.open .faq-arrow { transform: rotate(90deg); }
+    .faq-answer {
+      display: none; padding: 0 0 14px 0; font-size: 0.82rem; color: #4a5568;
+      line-height: 1.7; white-space: pre-wrap;
+    }
+    .faq-item.open .faq-answer { display: block; }
+    .faq-copy-btn {
+      background: none; border: 1px solid #e8ecf0; font-size: 0.68rem; color: #8a9bb0;
+      padding: 2px 8px; cursor: pointer; float: right; margin-top: -4px;
+    }
+
+    /* インフォグラフィック */
+    .infographic-container { width: 100%; display: flex; align-items: center; justify-content: center; padding: 20px; }
+
     /* 引用マーカー */
     .citation-marker {
       display: inline-block; background: #001f33; color: #fff;
@@ -433,6 +497,13 @@
       </div>
     </div>
 
+    <!-- 出力ツール（ソース2件以上で表示） -->
+    <div class="output-tools" id="output-tools">
+      <button class="output-tool-btn" id="flashcard-btn">🃏 フラッシュカード</button>
+      <button class="output-tool-btn" id="faq-btn">❓ FAQ生成</button>
+      <button class="output-tool-btn" id="infographic-btn">📊 インフォグラフィック</button>
+    </div>
+
     <div class="source-list" id="source-list">
       <div class="source-loading" id="source-loading">読み込み中…</div>
     </div>
@@ -493,6 +564,53 @@
     </div>
     <div class="mindmap-body" id="mindmap-body">
       <div class="mindmap-loading" id="mindmap-loading">ソースを分析してマインドマップを生成中…</div>
+    </div>
+  </div>
+</div>
+
+<!-- フラッシュカードモーダル -->
+<div class="mindmap-overlay" id="flashcard-overlay">
+  <div class="mindmap-modal">
+    <div class="mindmap-header">
+      <span class="mindmap-header-title">🃏 フラッシュカード</span>
+      <div class="mindmap-header-actions">
+        <button class="mindmap-header-btn close" id="flashcard-close">✕</button>
+      </div>
+    </div>
+    <div class="mindmap-body" id="flashcard-body">
+      <div class="mindmap-loading">フラッシュカードを生成中…</div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQモーダル -->
+<div class="mindmap-overlay" id="faq-overlay">
+  <div class="mindmap-modal">
+    <div class="mindmap-header">
+      <span class="mindmap-header-title">❓ FAQ（よくある質問）</span>
+      <div class="mindmap-header-actions">
+        <button class="mindmap-header-btn" id="faq-copy-all">📋 全コピー</button>
+        <button class="mindmap-header-btn close" id="faq-close">✕</button>
+      </div>
+    </div>
+    <div class="mindmap-body" id="faq-body" style="align-items:flex-start;">
+      <div class="mindmap-loading">FAQを生成中…</div>
+    </div>
+  </div>
+</div>
+
+<!-- インフォグラフィックモーダル -->
+<div class="mindmap-overlay" id="infographic-overlay">
+  <div class="mindmap-modal">
+    <div class="mindmap-header">
+      <span class="mindmap-header-title">📊 インフォグラフィック</span>
+      <div class="mindmap-header-actions">
+        <button class="mindmap-header-btn" id="infographic-download">📥 SVG保存</button>
+        <button class="mindmap-header-btn close" id="infographic-close">✕</button>
+      </div>
+    </div>
+    <div class="mindmap-body" id="infographic-body">
+      <div class="mindmap-loading">インフォグラフィックを生成中…</div>
     </div>
   </div>
 </div>
@@ -910,6 +1028,248 @@
     a.download = 'mindmap.svg'; a.click(); URL.revokeObjectURL(a.href);
   });
 
+  // ── フラッシュカード生成 ──────────────────────────
+  async function generateFlashcards() {
+    const sources = SourceStore._cache;
+    if (sources.length < 1) return;
+    const overlay = document.getElementById('flashcard-overlay');
+    const body = document.getElementById('flashcard-body');
+    overlay.classList.add('show');
+    body.innerHTML = '<div class="mindmap-loading">🃏 ソースからフラッシュカードを生成中…</div>';
+
+    const summaries = sources.map((s, i) => `ソース${i+1}: ${s.title}\n${(s.summary || s.content).slice(0, 500)}`).join('\n\n');
+    try {
+      const r = await fetch('/api/generate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
+          model: 'claude-haiku-4-5-20251001', max_tokens: 1200,
+          system: `ソースの内容から学習用フラッシュカード（Q&Aペア）を10個生成してください。JSON配列で出力。JSON以外は出力しないでください。
+[{"q":"質問文","a":"回答文（2-3文）"}]
+質問は具体的に、回答は簡潔に。日本語で。`,
+          messages: [{ role: 'user', content: summaries }],
+        }),
+      });
+      const data = await r.json();
+      const text = data.content?.[0]?.text || '';
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) throw new Error();
+      const cards = JSON.parse(jsonMatch[0]);
+      renderFlashcards(body, cards);
+    } catch { body.innerHTML = '<div class="mindmap-loading">⚠️ フラッシュカード生成に失敗しました</div>'; }
+  }
+
+  function renderFlashcards(container, cards) {
+    let idx = 0, got = 0;
+    const render = () => {
+      if (idx >= cards.length) {
+        container.innerHTML = `<div class="flashcard-container"><div style="font-size:1.2rem;font-weight:700;color:#001f33;">🎉 完了！</div><div style="font-size:0.85rem;color:#4a5568;">${got}/${cards.length} 問正解</div><button class="flashcard-nav-btn again" id="fc-restart">もう一度</button></div>`;
+        document.getElementById('fc-restart').addEventListener('click', () => { idx = 0; got = 0; render(); });
+        return;
+      }
+      const c = cards[idx];
+      container.innerHTML = `<div class="flashcard-container">
+        <div class="flashcard-progress">${idx+1} / ${cards.length}（正解: ${got}）</div>
+        <div class="flashcard" id="fc-card"><div class="flashcard-inner"><div class="flashcard-front">${escHtml(c.q)}</div><div class="flashcard-back">${escHtml(c.a)}</div></div></div>
+        <div class="flashcard-nav">
+          <button class="flashcard-nav-btn got" id="fc-got">✅ 覚えた</button>
+          <button class="flashcard-nav-btn again" id="fc-again">🔄 もう一回</button>
+        </div>
+      </div>`;
+      document.getElementById('fc-card').addEventListener('click', () => document.getElementById('fc-card').classList.toggle('flipped'));
+      document.getElementById('fc-got').addEventListener('click', () => { got++; idx++; render(); });
+      document.getElementById('fc-again').addEventListener('click', () => { idx++; render(); });
+    };
+    render();
+  }
+
+  // ── FAQ自動生成 ──────────────────────────
+  async function generateFAQ() {
+    const sources = SourceStore._cache;
+    if (sources.length < 1) return;
+    const overlay = document.getElementById('faq-overlay');
+    const body = document.getElementById('faq-body');
+    overlay.classList.add('show');
+    body.innerHTML = '<div class="mindmap-loading">❓ FAQを生成中…</div>';
+
+    const summaries = sources.map((s, i) => `ソース${i+1}: ${s.title}\n${(s.summary || s.content).slice(0, 500)}`).join('\n\n');
+    try {
+      const r = await fetch('/api/generate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
+          model: 'claude-haiku-4-5-20251001', max_tokens: 1500,
+          system: `ソースの内容からFAQ（よくある質問と回答）を8-10個生成してください。JSON配列で出力。JSON以外は出力しないでください。
+[{"q":"質問","a":"回答（3-5文で詳しく）"}]
+ソースの内容を正確に反映し、実用的なQ&Aにしてください。日本語で。`,
+          messages: [{ role: 'user', content: summaries }],
+        }),
+      });
+      const data = await r.json();
+      const text = data.content?.[0]?.text || '';
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) throw new Error();
+      const faqs = JSON.parse(jsonMatch[0]);
+      renderFAQ(body, faqs);
+    } catch { body.innerHTML = '<div class="mindmap-loading">⚠️ FAQ生成に失敗しました</div>'; }
+  }
+
+  function renderFAQ(container, faqs) {
+    const div = document.createElement('div');
+    div.className = 'faq-container';
+    faqs.forEach((f, i) => {
+      const item = document.createElement('div');
+      item.className = 'faq-item';
+      item.innerHTML = `<div class="faq-question"><span>Q${i+1}. ${escHtml(f.q)}</span><span class="faq-arrow">▶</span></div><div class="faq-answer">${escHtml(f.a)}<br><button class="faq-copy-btn" data-text="${escHtml(f.q + '\n' + f.a)}">📋 コピー</button></div>`;
+      item.querySelector('.faq-question').addEventListener('click', () => item.classList.toggle('open'));
+      item.querySelector('.faq-copy-btn').addEventListener('click', function(e) { e.stopPropagation(); copyToClipboard(f.q + '\n' + f.a, this); });
+      div.appendChild(item);
+    });
+    container.innerHTML = '';
+    container.appendChild(div);
+    // 全コピー
+    document.getElementById('faq-copy-all').onclick = () => {
+      const allText = faqs.map((f, i) => `Q${i+1}. ${f.q}\nA. ${f.a}`).join('\n\n');
+      copyToClipboard(allText, document.getElementById('faq-copy-all'));
+    };
+  }
+
+  // ── インフォグラフィック生成 ──────────────────────────
+  async function generateInfographic() {
+    const sources = SourceStore._cache;
+    if (sources.length < 1) return;
+    const overlay = document.getElementById('infographic-overlay');
+    const body = document.getElementById('infographic-body');
+    overlay.classList.add('show');
+    body.innerHTML = '<div class="mindmap-loading">📊 インフォグラフィックを生成中…</div>';
+
+    const summaries = sources.map((s, i) => `ソース${i+1}: ${s.title}\n${(s.summary || s.content).slice(0, 600)}`).join('\n\n');
+    try {
+      const r = await fetch('/api/generate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
+          model: 'claude-sonnet-4-6', max_tokens: 1500,
+          system: `ソースの内容からインフォグラフィック用のデータをJSON形式で抽出してください。JSON以外は出力しないでください。
+{
+  "title": "インフォグラフィックのタイトル（15文字以内）",
+  "subtitle": "サブタイトル（20文字以内）",
+  "stats": [
+    { "label": "項目名", "value": "数値や短いテキスト", "icon": "絵文字1つ" }
+  ],
+  "comparison": [
+    { "label": "比較項目", "values": [{"name":"A","score":80},{"name":"B","score":60}] }
+  ],
+  "keypoints": ["ポイント1", "ポイント2", "ポイント3"],
+  "sources_used": [1, 2]
+}
+ルール:
+- statsは3-5個（数値データ、パーセンテージ、キー指標など）
+- comparisonは0-3個（比較できるデータがある場合のみ、scoreは0-100）
+- keypointsは3-5個
+- ソースに数値がない場合は定性的な特徴をstatsに入れてOK`,
+          messages: [{ role: 'user', content: summaries }],
+        }),
+      });
+      const data = await r.json();
+      const text = data.content?.[0]?.text || '';
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error();
+      const info = JSON.parse(jsonMatch[0]);
+      body.innerHTML = '';
+      const div = document.createElement('div');
+      div.className = 'infographic-container';
+      div.appendChild(renderInfographicSVG(info));
+      body.appendChild(div);
+    } catch { body.innerHTML = '<div class="mindmap-loading">⚠️ インフォグラフィック生成に失敗しました</div>'; }
+  }
+
+  function renderInfographicSVG(info) {
+    const W = 800, ns = 'http://www.w3.org/2000/svg';
+    let Y = 0;
+    const elements = [];
+
+    // タイトル
+    Y += 50;
+    elements.push(`<rect x="0" y="0" width="${W}" height="70" fill="#001f33"/>`);
+    elements.push(`<text x="${W/2}" y="35" text-anchor="middle" fill="#fff" font-size="20" font-weight="800" font-family="'Segoe UI',sans-serif">${esc(info.title || '')}</text>`);
+    elements.push(`<text x="${W/2}" y="58" text-anchor="middle" fill="#ffb81c" font-size="12" font-weight="600" font-family="'Segoe UI',sans-serif">${esc(info.subtitle || '')}</text>`);
+    Y = 90;
+
+    // Stats
+    const stats = info.stats || [];
+    if (stats.length > 0) {
+      const sw = W / stats.length;
+      stats.forEach((s, i) => {
+        const cx = sw * i + sw / 2;
+        elements.push(`<circle cx="${cx}" cy="${Y + 35}" r="28" fill="#fffbf0" stroke="#ffb81c" stroke-width="2"/>`);
+        elements.push(`<text x="${cx}" y="${Y + 40}" text-anchor="middle" fill="#001f33" font-size="18">${s.icon || '📌'}</text>`);
+        elements.push(`<text x="${cx}" y="${Y + 80}" text-anchor="middle" fill="#001f33" font-size="14" font-weight="800" font-family="'Segoe UI',sans-serif">${esc(s.value)}</text>`);
+        elements.push(`<text x="${cx}" y="${Y + 98}" text-anchor="middle" fill="#8a9bb0" font-size="10" font-family="'Segoe UI',sans-serif">${esc(s.label)}</text>`);
+      });
+      Y += 120;
+    }
+
+    // Comparison bars
+    const comps = info.comparison || [];
+    if (comps.length > 0) {
+      elements.push(`<text x="30" y="${Y + 16}" fill="#001f33" font-size="13" font-weight="700" font-family="'Segoe UI',sans-serif">比較</text>`);
+      Y += 30;
+      comps.forEach(comp => {
+        elements.push(`<text x="30" y="${Y + 14}" fill="#4a5568" font-size="11" font-family="'Segoe UI',sans-serif">${esc(comp.label)}</text>`);
+        Y += 22;
+        (comp.values || []).forEach(v => {
+          const barW = Math.max(20, (v.score / 100) * (W - 180));
+          elements.push(`<rect x="120" y="${Y}" width="${barW}" height="18" fill="#001f33"/>`);
+          elements.push(`<text x="125" y="${Y + 13}" fill="#fff" font-size="10" font-weight="600" font-family="'Segoe UI',sans-serif">${esc(v.name)} ${v.score}</text>`);
+          Y += 24;
+        });
+        Y += 8;
+      });
+    }
+
+    // Keypoints
+    const kps = info.keypoints || [];
+    if (kps.length > 0) {
+      elements.push(`<rect x="0" y="${Y}" width="${W}" height="${kps.length * 30 + 40}" fill="#f7f8fa"/>`);
+      elements.push(`<text x="30" y="${Y + 24}" fill="#001f33" font-size="13" font-weight="700" font-family="'Segoe UI',sans-serif">💡 キーポイント</text>`);
+      Y += 40;
+      kps.forEach((kp, i) => {
+        elements.push(`<circle cx="42" cy="${Y + 8}" r="4" fill="#ffb81c"/>`);
+        elements.push(`<text x="56" y="${Y + 12}" fill="#2d3436" font-size="12" font-family="'Segoe UI',sans-serif">${esc(kp)}</text>`);
+        Y += 30;
+      });
+    }
+
+    Y += 20;
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${W} ${Y}`);
+    svg.setAttribute('width', '100%'); svg.setAttribute('height', '100%');
+    svg.id = 'infographic-svg';
+    svg.innerHTML = `<rect width="${W}" height="${Y}" fill="#fff"/>` + elements.join('');
+    return svg;
+
+    function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  }
+
+  // 出力ツールイベント
+  document.getElementById('flashcard-btn').addEventListener('click', generateFlashcards);
+  document.getElementById('faq-btn').addEventListener('click', generateFAQ);
+  document.getElementById('infographic-btn').addEventListener('click', generateInfographic);
+  document.getElementById('flashcard-close').addEventListener('click', () => document.getElementById('flashcard-overlay').classList.remove('show'));
+  document.getElementById('faq-close').addEventListener('click', () => document.getElementById('faq-overlay').classList.remove('show'));
+  document.getElementById('infographic-close').addEventListener('click', () => document.getElementById('infographic-overlay').classList.remove('show'));
+  document.getElementById('flashcard-overlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+  document.getElementById('faq-overlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+  document.getElementById('infographic-overlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+  document.getElementById('infographic-download').addEventListener('click', () => {
+    const svgEl = document.getElementById('infographic-svg');
+    if (!svgEl) return;
+    const blob = new Blob([new XMLSerializer().serializeToString(svgEl)], { type: 'image/svg+xml' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'infographic.svg'; a.click(); URL.revokeObjectURL(a.href);
+  });
+
   // ── プロンプト品質スコア ──────────────────────────
   async function scorePrompt(promptText, cardElement) {
     const scoreContainer = document.createElement('div');
@@ -1065,6 +1425,9 @@
     const count = SourceStore._cache.length;
     if (count > 0) { ind.classList.add('show'); text.textContent = `ソース ${count}件を参照中（${SourceStore.mode === 'cloud' ? 'クラウド' : 'ローカル'}）`; }
     else { ind.classList.remove('show'); }
+    // 出力ツール表示切替
+    const tools = document.getElementById('output-tools');
+    if (count >= 1) { tools.classList.add('show'); } else { tools.classList.remove('show'); }
   }
 
   function buildSourceContext() {
