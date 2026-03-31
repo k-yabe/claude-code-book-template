@@ -289,6 +289,33 @@
       .chat-bubble { max-width: 88%; }
       .prompt-result { max-width: 95%; }
     }
+    /* マインドマップモーダル */
+    .mindmap-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,31,51,0.85);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .mindmap-overlay.show { display: flex; }
+    .mindmap-modal {
+      background: #fff; width: 92vw; height: 85vh; display: flex; flex-direction: column;
+      position: relative;
+    }
+    .mindmap-header {
+      background: #001f33; padding: 12px 20px; display: flex; align-items: center;
+      justify-content: space-between; flex-shrink: 0;
+    }
+    .mindmap-header-title { font-size: 0.88rem; font-weight: 700; color: #fff; }
+    .mindmap-header-actions { display: flex; gap: 8px; }
+    .mindmap-header-btn {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; font-size: 0.72rem; padding: 5px 14px; cursor: pointer;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .mindmap-header-btn:hover { background: rgba(255,255,255,0.2); }
+    .mindmap-header-btn.close { background: none; border: none; font-size: 1.2rem; padding: 0 4px; }
+    .mindmap-body { flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; background: #f7f8fa; }
+    .mindmap-body svg { max-width: 100%; max-height: 100%; }
+    .mindmap-loading { font-size: 0.85rem; color: #8a9bb0; display: flex; align-items: center; gap: 8px; }
+
     /* 引用マーカー */
     .citation-marker {
       display: inline-block; background: #001f33; color: #fff;
@@ -361,6 +388,7 @@
     <div class="source-toolbar">
       <input type="text" id="source-search" placeholder="🔍 ソースを検索…">
       <button class="analyze-btn" id="analyze-btn" title="全ソースを横断分析">🔍 分析</button>
+      <button class="analyze-btn" id="mindmap-btn" title="ソース関係性マインドマップ">🧠 MAP</button>
     </div>
 
     <!-- ソース追加 -->
@@ -450,6 +478,21 @@
       <button class="new-chat-btn" id="new-chat-btn" title="新しいチャット">🔄</button>
       <textarea id="user-input" placeholder="やりたいことを入力してください" rows="1"></textarea>
       <button class="send-btn" id="send-btn">送信</button>
+    </div>
+  </div>
+</div>
+
+<div class="mindmap-overlay" id="mindmap-overlay">
+  <div class="mindmap-modal">
+    <div class="mindmap-header">
+      <span class="mindmap-header-title">🧠 ソース関係性マインドマップ</span>
+      <div class="mindmap-header-actions">
+        <button class="mindmap-header-btn" id="mindmap-download">📥 SVG保存</button>
+        <button class="mindmap-header-btn close" id="mindmap-close">✕</button>
+      </div>
+    </div>
+    <div class="mindmap-body" id="mindmap-body">
+      <div class="mindmap-loading" id="mindmap-loading">ソースを分析してマインドマップを生成中…</div>
     </div>
   </div>
 </div>
@@ -654,6 +697,218 @@
     } catch { content.textContent = '分析中にエラーが発生しました'; }
     finally { btn.disabled = false; btn.textContent = '🔍 分析'; }
   }
+
+  // ── マインドマップ生成 ──────────────────────────
+  async function generateMindmap() {
+    const sources = SourceStore._cache;
+    if (sources.length < 2) return;
+
+    const overlay = document.getElementById('mindmap-overlay');
+    const body = document.getElementById('mindmap-body');
+    const btn = document.getElementById('mindmap-btn');
+    overlay.classList.add('show');
+    body.innerHTML = '<div class="mindmap-loading">🧠 ソースを分析してマインドマップを生成中…</div>';
+    btn.disabled = true; btn.textContent = '生成中…';
+
+    const summaries = sources.map((s, i) => `ソース${i + 1}: ${s.title}\n${(s.summary || s.content).slice(0, 500)}`).join('\n\n');
+
+    try {
+      const r = await fetch('/api/generate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
+          model: 'claude-sonnet-4-6', max_tokens: 1500,
+          system: `ソース間の関係性をマインドマップ用のJSON構造で出力してください。JSON以外は出力しないでください。
+
+{
+  "central": "全ソースに共通する中心テーマ（10文字以内）",
+  "themes": [
+    {
+      "name": "サブテーマ名（8文字以内）",
+      "sources": [1, 2],
+      "keywords": ["キーワード1", "キーワード2"]
+    }
+  ],
+  "connections": [
+    { "from": 1, "to": 2, "label": "関連性の説明（10文字以内）" }
+  ]
+}
+
+ルール:
+- themesは3〜6個
+- 各themeのsourcesにはソース番号（1始まり）を配列で
+- keywordsは各テーマ2〜3個
+- connectionsはソース間の直接的な関連（最大5個）
+- ソース番号は1〜${sources.length}`,
+          messages: [{ role: 'user', content: `以下の${sources.length}件のソースの関係性を分析してください:\n\n${summaries}` }],
+        }),
+      });
+      const data = await r.json();
+      const text = data.content?.[0]?.text || '';
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('分析結果の解析に失敗');
+      const map = JSON.parse(jsonMatch[0]);
+      body.innerHTML = '';
+      body.appendChild(renderMindmapSVG(map, sources));
+    } catch (err) {
+      body.innerHTML = `<div class="mindmap-loading">⚠️ マインドマップ生成に失敗: ${err.message}</div>`;
+    } finally {
+      btn.disabled = false; btn.textContent = '🧠 MAP';
+    }
+  }
+
+  function renderMindmapSVG(map, sources) {
+    const W = 1000, H = 700;
+    const CX = W / 2, CY = H / 2;
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.id = 'mindmap-svg';
+
+    // 背景
+    const bg = document.createElementNS(ns, 'rect');
+    bg.setAttribute('width', W); bg.setAttribute('height', H);
+    bg.setAttribute('fill', '#f7f8fa');
+    svg.appendChild(bg);
+
+    // 中心ノード
+    drawNode(svg, ns, CX, CY, map.central, 60, '#001f33', '#fff', 14, null);
+
+    // テーマノード（中心の周りに放射状配置）
+    const themes = map.themes || [];
+    const themeRadius = 220;
+    const themePositions = [];
+
+    themes.forEach((theme, i) => {
+      const angle = (2 * Math.PI * i / themes.length) - Math.PI / 2;
+      const tx = CX + themeRadius * Math.cos(angle);
+      const ty = CY + themeRadius * Math.sin(angle);
+      themePositions.push({ x: tx, y: ty, theme });
+
+      // 中心→テーマの線
+      drawLine(svg, ns, CX, CY, tx, ty, '#e8ecf0', 2);
+      // テーマノード
+      drawNode(svg, ns, tx, ty, theme.name, 45, '#ffb81c', '#001f33', 11, null);
+
+      // キーワードノード（テーマの周りに）
+      const keywords = theme.keywords || [];
+      const kwRadius = 85;
+      keywords.forEach((kw, ki) => {
+        const kwAngle = angle + (ki - (keywords.length - 1) / 2) * 0.5;
+        const kx = tx + kwRadius * Math.cos(kwAngle);
+        const ky = ty + kwRadius * Math.sin(kwAngle);
+        drawLine(svg, ns, tx, ty, kx, ky, '#e8ecf0', 1);
+        drawNode(svg, ns, kx, ky, kw, 30, '#fff', '#4a5568', 9, null, '#e8ecf0');
+      });
+
+      // ソースノード（テーマから伸ばす）
+      const srcIds = theme.sources || [];
+      srcIds.forEach((srcNum, si) => {
+        const idx = srcNum - 1;
+        if (idx < 0 || idx >= sources.length) return;
+        const srcAngle = angle + (si - (srcIds.length - 1) / 2) * 0.35 + Math.PI;
+        const srcR = 110;
+        const sx = tx + srcR * Math.cos(srcAngle);
+        const sy = ty + srcR * Math.sin(srcAngle);
+        drawLine(svg, ns, tx, ty, sx, sy, '#001f33', 1.5, '4,4');
+        const label = sources[idx].title.length > 12 ? sources[idx].title.slice(0, 11) + '…' : sources[idx].title;
+        const typeIcon = ({url:'🔗',pdf:'📄',youtube:'🎬'})[sources[idx].type] || '📝';
+        drawNode(svg, ns, sx, sy, `${typeIcon}${label}`, 35, '#001f33', '#fff', 8, idx);
+      });
+    });
+
+    // ソース間コネクション（曲線）
+    const connections = map.connections || [];
+    connections.forEach(conn => {
+      const fromIdx = conn.from - 1, toIdx = conn.to - 1;
+      if (fromIdx < 0 || toIdx < 0 || fromIdx >= sources.length || toIdx >= sources.length) return;
+      // テーマポジションからソースの位置を推定（簡易的に中心テーマ間に線を引く）
+      const fromTheme = themePositions.find(tp => (tp.theme.sources || []).includes(conn.from));
+      const toTheme = themePositions.find(tp => (tp.theme.sources || []).includes(conn.to));
+      if (fromTheme && toTheme && fromTheme !== toTheme) {
+        drawCurve(svg, ns, fromTheme.x, fromTheme.y, toTheme.x, toTheme.y, conn.label);
+      }
+    });
+
+    return svg;
+  }
+
+  function drawNode(svg, ns, x, y, text, r, fill, textColor, fontSize, sourceIdx, stroke) {
+    const g = document.createElementNS(ns, 'g');
+    g.style.cursor = sourceIdx !== null && sourceIdx !== undefined ? 'pointer' : 'default';
+    if (sourceIdx !== null && sourceIdx !== undefined) {
+      g.dataset.sourceIdx = sourceIdx;
+      g.addEventListener('click', () => {
+        const source = SourceStore._cache[sourceIdx];
+        if (!source) return;
+        document.getElementById('mindmap-overlay').classList.remove('show');
+        switchMobileTab('source');
+        const items = document.getElementById('source-list').querySelectorAll('.source-item');
+        items.forEach(item => item.classList.remove('highlighted'));
+        const target = [...items].find(item => item.dataset.id === source.id);
+        if (target) {
+          target.classList.add('highlighted');
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => target.classList.remove('highlighted'), 3000);
+        }
+      });
+    }
+    const circle = document.createElementNS(ns, 'circle');
+    circle.setAttribute('cx', x); circle.setAttribute('cy', y); circle.setAttribute('r', r);
+    circle.setAttribute('fill', fill);
+    if (stroke) { circle.setAttribute('stroke', stroke); circle.setAttribute('stroke-width', 1.5); }
+    g.appendChild(circle);
+
+    const txt = document.createElementNS(ns, 'text');
+    txt.setAttribute('x', x); txt.setAttribute('y', y + fontSize * 0.35);
+    txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('fill', textColor);
+    txt.setAttribute('font-size', fontSize); txt.setAttribute('font-weight', '700');
+    txt.setAttribute('font-family', "'Segoe UI','Helvetica Neue',sans-serif");
+    txt.textContent = text;
+    g.appendChild(txt);
+    svg.appendChild(g);
+  }
+
+  function drawLine(svg, ns, x1, y1, x2, y2, color, width, dash) {
+    const line = document.createElementNS(ns, 'line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', color); line.setAttribute('stroke-width', width);
+    if (dash) line.setAttribute('stroke-dasharray', dash);
+    svg.appendChild(line);
+  }
+
+  function drawCurve(svg, ns, x1, y1, x2, y2, label) {
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - 40;
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', `M${x1},${y1} Q${mx},${my} ${x2},${y2}`);
+    path.setAttribute('fill', 'none'); path.setAttribute('stroke', '#00ffff');
+    path.setAttribute('stroke-width', 1.5); path.setAttribute('stroke-dasharray', '6,3');
+    svg.appendChild(path);
+    if (label) {
+      const txt = document.createElementNS(ns, 'text');
+      txt.setAttribute('x', mx); txt.setAttribute('y', my - 6);
+      txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('fill', '#4a5568');
+      txt.setAttribute('font-size', 8); txt.setAttribute('font-weight', '600');
+      txt.setAttribute('font-family', "'Segoe UI','Helvetica Neue',sans-serif");
+      txt.textContent = label;
+      svg.appendChild(txt);
+    }
+  }
+
+  // マインドマップイベント
+  document.getElementById('mindmap-btn').addEventListener('click', generateMindmap);
+  document.getElementById('mindmap-close').addEventListener('click', () => document.getElementById('mindmap-overlay').classList.remove('show'));
+  document.getElementById('mindmap-overlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+  document.getElementById('mindmap-download').addEventListener('click', () => {
+    const svgEl = document.getElementById('mindmap-svg');
+    if (!svgEl) return;
+    const blob = new Blob([new XMLSerializer().serializeToString(svgEl)], { type: 'image/svg+xml' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'mindmap.svg'; a.click(); URL.revokeObjectURL(a.href);
+  });
 
   // ── プロンプト品質スコア ──────────────────────────
   async function scorePrompt(promptText, cardElement) {
