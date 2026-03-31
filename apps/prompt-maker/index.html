@@ -514,6 +514,95 @@
     /* フラッシュカード進捗バー */
     .flashcard-progress-bar { width: 300px; max-width: 80%; height: 4px; background: rgba(0,31,51,0.08); }
     .flashcard-progress-fill { height: 100%; background: #ffb81c; transition: width 0.3s ease; }
+
+    /* ── v9 ソース選択・初心者UX ── */
+
+    /* ソース選択チェックボックス */
+    .source-item-check {
+      width: 18px; height: 18px; flex-shrink: 0; cursor: pointer;
+      accent-color: #ffb81c; margin-right: 8px;
+    }
+    .source-item.deselected { opacity: 0.5; border-left-color: #e8ecf0; }
+    .source-item.deselected .source-item-summary { display: none; }
+    .source-select-bar {
+      padding: 6px 14px; border-bottom: 1px solid #e8ecf0; display: none;
+      align-items: center; justify-content: space-between; font-size: 0.68rem;
+    }
+    .source-select-bar.show { display: flex; }
+    .source-select-info { color: #4a5568; font-weight: 600; }
+    .source-select-actions { display: flex; gap: 8px; }
+    .source-select-link {
+      background: none; border: none; color: #ffb81c; font-size: 0.68rem;
+      font-weight: 700; cursor: pointer; font-family: inherit; padding: 0;
+    }
+    .source-select-link:hover { text-decoration: underline; }
+
+    /* ステップガイド */
+    .step-guide-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,31,51,0.6);
+      z-index: 3000; align-items: center; justify-content: center;
+      backdrop-filter: blur(2px);
+    }
+    .step-guide-overlay.show { display: flex; }
+    .step-guide {
+      background: #fff; width: 480px; max-width: 92vw; padding: 32px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.2); animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1);
+    }
+    .step-guide-title {
+      font-size: 1.1rem; font-weight: 800; color: #001f33; margin-bottom: 4px;
+    }
+    .step-guide-sub {
+      font-size: 0.78rem; color: #8a9bb0; margin-bottom: 24px;
+    }
+    .step-guide-steps { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+    .step-guide-item {
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .step-num {
+      width: 28px; height: 28px; background: #001f33; color: #fff;
+      font-size: 0.78rem; font-weight: 800; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .step-content { flex: 1; }
+    .step-label { font-size: 0.82rem; font-weight: 700; color: #001f33; margin-bottom: 2px; }
+    .step-desc { font-size: 0.72rem; color: #4a5568; line-height: 1.6; }
+    .step-guide-btn {
+      background: #ffb81c; color: #001f33; border: none; padding: 10px 28px;
+      font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit;
+      width: 100%; transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+    }
+    .step-guide-btn:hover { box-shadow: 0 2px 8px rgba(255,184,28,0.3); transform: translateY(-1px); }
+    .step-guide-skip {
+      background: none; border: none; color: #8a9bb0; font-size: 0.72rem;
+      cursor: pointer; margin-top: 10px; width: 100%; text-align: center;
+      font-family: inherit;
+    }
+    .step-guide-skip:hover { color: #001f33; }
+
+    /* ツールチップ */
+    .tooltip-wrap { position: relative; }
+    .tooltip-wrap .tooltip {
+      display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%); background: #001f33; color: #fff;
+      font-size: 0.65rem; padding: 6px 10px; white-space: nowrap; z-index: 500;
+      pointer-events: none; font-weight: 600;
+    }
+    .tooltip-wrap .tooltip::after {
+      content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+      border: 5px solid transparent; border-top-color: #001f33;
+    }
+    .tooltip-wrap:hover .tooltip { display: block; }
+
+    /* ソースヒントバナー */
+    .source-hint {
+      padding: 8px 14px; background: rgba(255,184,28,0.08); border-bottom: 1px solid #e8ecf0;
+      font-size: 0.68rem; color: #4a5568; display: flex; align-items: center; gap: 6px;
+    }
+    .source-hint-close {
+      background: none; border: none; color: #8a9bb0; cursor: pointer;
+      font-size: 0.72rem; margin-left: auto; padding: 0 4px;
+    }
+    .source-hint-close:hover { color: #001f33; }
   </style>
   <link rel="stylesheet" href="../../assets/app-styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
@@ -544,6 +633,12 @@
       <span class="source-count" id="source-count">0件</span>
     </div>
 
+    <!-- ソースヒント -->
+    <div class="source-hint" id="source-hint" style="display:none;">
+      💡 ソースを追加すると、AIがその情報を踏まえてプロンプトを作成します。チェックボックスでAIに渡すソースを選べます。
+      <button class="source-hint-close" id="source-hint-close">✕</button>
+    </div>
+
     <!-- 横断分析 -->
     <div class="analysis-panel" id="analysis-panel">
       <div class="analysis-title">
@@ -560,8 +655,14 @@
         <button class="search-clear" id="search-clear">✕</button>
       </div>
       <span class="search-count" id="search-count"></span>
-      <button class="analyze-btn" id="analyze-btn" title="全ソースを横断分析">🔍 分析</button>
-      <button class="analyze-btn" id="mindmap-btn" title="ソース関係性マインドマップ">🧠 MAP</button>
+      <div class="tooltip-wrap">
+        <button class="analyze-btn" id="analyze-btn">🔍 分析</button>
+        <span class="tooltip">全ソースの共通点・矛盾・キーポイントを分析</span>
+      </div>
+      <div class="tooltip-wrap">
+        <button class="analyze-btn" id="mindmap-btn">🧠 MAP</button>
+        <span class="tooltip">ソース間の関係性をマインドマップで可視化</span>
+      </div>
     </div>
 
     <!-- ソース追加 -->
@@ -607,11 +708,29 @@
       </div>
     </div>
 
-    <!-- 出力ツール（ソース2件以上で表示） -->
+    <!-- ソース選択バー -->
+    <div class="source-select-bar" id="source-select-bar">
+      <span class="source-select-info" id="source-select-info"></span>
+      <div class="source-select-actions">
+        <button class="source-select-link" id="select-all-btn">全選択</button>
+        <button class="source-select-link" id="deselect-all-btn">全解除</button>
+      </div>
+    </div>
+
+    <!-- 出力ツール（ソース1件以上で表示） -->
     <div class="output-tools" id="output-tools">
-      <button class="output-tool-btn" id="flashcard-btn">🃏 フラッシュカード</button>
-      <button class="output-tool-btn" id="faq-btn">❓ FAQ生成</button>
-      <button class="output-tool-btn" id="infographic-btn">📊 インフォグラフィック</button>
+      <div class="tooltip-wrap">
+        <button class="output-tool-btn" id="flashcard-btn">🃏 フラッシュカード</button>
+        <span class="tooltip">ソースからQ&Aカード10枚を自動生成</span>
+      </div>
+      <div class="tooltip-wrap">
+        <button class="output-tool-btn" id="faq-btn">❓ FAQ生成</button>
+        <span class="tooltip">よくある質問と回答を自動生成</span>
+      </div>
+      <div class="tooltip-wrap">
+        <button class="output-tool-btn" id="infographic-btn">📊 インフォグラフィック</button>
+        <span class="tooltip">数値・統計をSVGで可視化</span>
+      </div>
     </div>
 
     <div class="source-list" id="source-list">
@@ -725,6 +844,39 @@
   </div>
 </div>
 
+<!-- ステップガイド（初回訪問時） -->
+<div class="step-guide-overlay" id="step-guide-overlay">
+  <div class="step-guide">
+    <div class="step-guide-title">Prompt Maker の使い方</div>
+    <div class="step-guide-sub">3ステップでAIプロンプトを作成できます</div>
+    <div class="step-guide-steps">
+      <div class="step-guide-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-label">📚 ソースを追加</div>
+          <div class="step-desc">左パネルでテキスト・URL・PDF・YouTubeを追加。AIが自動で要約し、チェックボックスで使うソースを選択できます。</div>
+        </div>
+      </div>
+      <div class="step-guide-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-label">💬 やりたいことを入力</div>
+          <div class="step-desc">右のチャットに「メール文面を作りたい」「企画書のアウトラインを考えたい」など、ざっくりでOK。AIが質問で深掘りします。</div>
+        </div>
+      </div>
+      <div class="step-guide-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-label">✅ プロンプトをコピーして使う</div>
+          <div class="step-desc">生成されたプロンプトをコピーして、ChatGPT・Claude・Geminiに貼り付けるだけ。品質スコアも自動で表示されます。</div>
+        </div>
+      </div>
+    </div>
+    <button class="step-guide-btn" id="step-guide-start">はじめる</button>
+    <button class="step-guide-skip" id="step-guide-skip">次回から表示しない</button>
+  </div>
+</div>
+
 <div class="toast-container" id="toast-container"></div>
 
 <script src="../../assets/copy-utils.js"></script>
@@ -745,6 +897,59 @@
     if (e.key === 'Escape') {
       document.querySelectorAll('.mindmap-overlay.show').forEach(o => o.classList.remove('show'));
     }
+  });
+
+  // ── ステップガイド（初回訪問） ──────────────────────────
+  (function initStepGuide() {
+    if (localStorage.getItem('pm_guide_seen')) return;
+    const overlay = document.getElementById('step-guide-overlay');
+    overlay.classList.add('show');
+    document.getElementById('step-guide-start').addEventListener('click', () => {
+      overlay.classList.remove('show');
+      localStorage.setItem('pm_guide_seen', '1');
+      // ソースヒントも表示
+      document.getElementById('source-hint').style.display = 'flex';
+    });
+    document.getElementById('step-guide-skip').addEventListener('click', () => {
+      overlay.classList.remove('show');
+      localStorage.setItem('pm_guide_seen', '1');
+    });
+  })();
+
+  // ── ソースヒント ──────────────────────────
+  document.getElementById('source-hint-close').addEventListener('click', () => {
+    document.getElementById('source-hint').style.display = 'none';
+  });
+
+  // ── ソース選択状態 ──────────────────────────
+  const selectedSources = new Set(); // source IDs that are selected
+
+  function initSourceSelection() {
+    // 全ソースをデフォルトで選択
+    SourceStore._cache.forEach(s => selectedSources.add(s.id));
+    updateSelectBar();
+  }
+
+  function updateSelectBar() {
+    const bar = document.getElementById('source-select-bar');
+    const info = document.getElementById('source-select-info');
+    const total = SourceStore._cache.length;
+    const selected = SourceStore._cache.filter(s => selectedSources.has(s.id)).length;
+    if (total > 0) {
+      bar.classList.add('show');
+      info.textContent = `${selected}/${total}件をAIに使用中`;
+    } else {
+      bar.classList.remove('show');
+    }
+  }
+
+  document.getElementById('select-all-btn').addEventListener('click', () => {
+    SourceStore._cache.forEach(s => selectedSources.add(s.id));
+    renderSources(); updateSelectBar(); updateSourceIndicator();
+  });
+  document.getElementById('deselect-all-btn').addEventListener('click', () => {
+    selectedSources.clear();
+    renderSources(); updateSelectBar(); updateSourceIndicator();
   });
 
   // ── SourceStore ──────────────────────────
@@ -1481,11 +1686,13 @@
 
     filtered.forEach(s => {
       const item = document.createElement('div');
-      item.className = 'source-item';
+      item.className = 'source-item' + (selectedSources.has(s.id) ? '' : ' deselected');
       item.dataset.id = s.id;
       const date = s.createdAt ? formatDate(s.createdAt) : '';
+      const checked = selectedSources.has(s.id) ? 'checked' : '';
       item.innerHTML = `
         <div class="source-item-header">
+          <input type="checkbox" class="source-item-check" data-id="${s.id}" ${checked} title="AIに渡すソースを選択">
           <span class="source-item-title">${escHtml(s.title)}</span>
           <span class="source-item-type">${({url:'URL',pdf:'PDF',youtube:'YT'})[s.type] || 'TEXT'}</span>
         </div>
@@ -1528,6 +1735,14 @@
           summaryEl.innerHTML = `<div class="source-item-summary-label">AI要約</div>${escHtml(summary)}`;
         }
       });
+      // ソース選択チェックボックス
+      item.querySelector(`.source-item-check`).addEventListener('change', (e) => {
+        e.stopPropagation();
+        if (e.target.checked) { selectedSources.add(s.id); item.classList.remove('deselected'); }
+        else { selectedSources.delete(s.id); item.classList.add('deselected'); }
+        updateSelectBar(); updateSourceIndicator();
+      });
+
       // メモ保存（デバウンス）
       const noteEl = item.querySelector(`textarea[data-note-id="${s.id}"]`);
       let noteTimer;
@@ -1559,16 +1774,20 @@
   function updateSourceIndicator() {
     const ind = document.getElementById('source-indicator');
     const text = document.getElementById('source-indicator-text');
-    const count = SourceStore._cache.length;
-    if (count > 0) { ind.classList.add('show'); text.textContent = `ソース ${count}件を参照中（${SourceStore.mode === 'cloud' ? 'クラウド' : 'ローカル'}）`; }
-    else { ind.classList.remove('show'); }
+    const total = SourceStore._cache.length;
+    const selected = SourceStore._cache.filter(s => selectedSources.has(s.id)).length;
+    if (total > 0) {
+      ind.classList.add('show');
+      text.textContent = `ソース ${selected}/${total}件を使用中（${SourceStore.mode === 'cloud' ? 'クラウド' : 'ローカル'}）`;
+    } else { ind.classList.remove('show'); }
     // 出力ツール表示切替
     const tools = document.getElementById('output-tools');
-    if (count >= 1) { tools.classList.add('show'); } else { tools.classList.remove('show'); }
+    if (total >= 1) { tools.classList.add('show'); } else { tools.classList.remove('show'); }
+    updateSelectBar();
   }
 
   function buildSourceContext() {
-    const sources = SourceStore._cache;
+    const sources = SourceStore._cache.filter(s => selectedSources.has(s.id));
     if (sources.length === 0) return '';
     let ctx = '\n\n## ユーザーが提供した参考資料（ソース）\n以下のソースを踏まえて、プロンプトを設計してください。ソースの内容をプロンプトに適切に反映し、具体性を高めてください。\n';
     sources.forEach((s, i) => {
@@ -1648,7 +1867,8 @@
     if (!text.trim()) return;
     const btn = document.getElementById('add-source-btn');
     btn.disabled = true; btn.textContent = '追加中…';
-    await SourceStore.add(title, text, 'text');
+    const newSource = await SourceStore.add(title, text, 'text');
+    if (newSource) selectedSources.add(newSource.id);
     renderSources();
     scheduleSuggestionUpdate();
     document.getElementById('source-title').value = '';
@@ -1669,7 +1889,8 @@
       const r = await fetch('/api/fetch-article', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
       if (!r.ok) { const err = await r.json(); throw new Error(err.error || '取得失敗'); }
       const data = await r.json();
-      await SourceStore.add(title || data.title || url.slice(0, 50), `[URL: ${url}]\n[タイトル: ${data.title || '不明'}]\n\n${data.text}`, 'url');
+      const ns = await SourceStore.add(title || data.title || url.slice(0, 50), `[URL: ${url}]\n[タイトル: ${data.title || '不明'}]\n\n${data.text}`, 'url');
+      if (ns) selectedSources.add(ns.id);
       renderSources();
       scheduleSuggestionUpdate();
       status.textContent = '';
@@ -1677,7 +1898,8 @@
     } catch (err) {
       status.textContent = '';
       showToast(`URL取得失敗: ${err.message}`, 'error');
-      await SourceStore.add(title || url.slice(0, 40), `URL: ${url}\n（コンテンツ取得失敗）`, 'url');
+      const nsErr = await SourceStore.add(title || url.slice(0, 40), `URL: ${url}\n（コンテンツ取得失敗）`, 'url');
+      if (nsErr) selectedSources.add(nsErr.id);
       renderSources();
       scheduleSuggestionUpdate();
     } finally {
@@ -1719,7 +1941,8 @@
       text = text.trim().slice(0, 15000);
       if (text.length < 50) { pdfStatus.textContent = '⚠️ テキストを抽出できませんでした（画像PDFの可能性）'; progressEl.classList.remove('show'); return; }
       const title = file.name.replace(/\.pdf$/i, '');
-      await SourceStore.add(title, `[PDF: ${file.name} / ${pdf.numPages}ページ]\n\n${text}`, 'pdf');
+      const nsPdf = await SourceStore.add(title, `[PDF: ${file.name} / ${pdf.numPages}ページ]\n\n${text}`, 'pdf');
+      if (nsPdf) selectedSources.add(nsPdf.id);
       renderSources();
       scheduleSuggestionUpdate();
       showToast(`${title} を追加しました（${maxPages}ページ）`, 'success');
@@ -1748,7 +1971,8 @@
       const r = await fetch('/api/fetch-transcript', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
       if (!r.ok) { const err = await r.json(); throw new Error(err.error || '字幕取得失敗'); }
       const data = await r.json();
-      await SourceStore.add(title || data.title || url.slice(0, 50), `[YouTube: ${url}]\n[タイトル: ${data.title || '不明'}]\n[字幕言語: ${data.language || '不明'}]\n\n${data.text}`, 'youtube');
+      const nsYt = await SourceStore.add(title || data.title || url.slice(0, 50), `[YouTube: ${url}]\n[タイトル: ${data.title || '不明'}]\n[字幕言語: ${data.language || '不明'}]\n\n${data.text}`, 'youtube');
+      if (nsYt) selectedSources.add(nsYt.id);
       renderSources();
       scheduleSuggestionUpdate();
       status.textContent = '';
@@ -1962,6 +2186,7 @@
   (async () => {
     await SourceStore.init();
     document.getElementById('source-loading')?.remove();
+    initSourceSelection();
     renderSources();
     if (SourceStore._cache.length > 0) generateDynamicSuggestions();
   })();
