@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-31（Prompt Maker v4 NotebookLM超え・Slide Maker 16レイアウト完全対応）
+最終更新: 2026-03-31（Prompt Maker v5 NotebookLM完全超え・Slide Maker 16レイアウト完全対応）
 
 ---
 
@@ -56,7 +56,7 @@
 | SNS Post Generator | `apps/sns-post-generator/index.html` | ✅ 完成 | S024, S028 |
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
-| Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js` | ✅ 完成 | S035, S037, S038, S039 |
+| Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040 |
 | Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js` | ✅ 完成 | S035, S037 |
 
 ---
@@ -122,31 +122,33 @@ State: { columns: [...], tasks: [...], nextColumnId, nextTaskId }
 
 ### Prompt Maker（`apps/prompt-maker/`）
 
-NotebookLM風の2ペインレイアウトでプロンプトを対話生成するツール。ソースはVercel KVでサーバーサイド永続保存。
+NotebookLM超えの2ペインレイアウトでプロンプトを対話生成するツール。ソースはVercel KVでサーバーサイド永続保存。4種のソース（テキスト/URL/PDF/YouTube）に対応し、回答に引用マーカーを自動付与。
 
 ```
 [左ペイン: ソース管理]    [右ペイン: チャット]
-  テキスト/URL追加  →  buildSourceContext() で SYSTEM_PROMPT に注入
+  テキスト/URL/PDF/YT追加 →  buildSourceContext() で SYSTEM_PROMPT に注入
   /api/sources.js (KV)    → /api/generate.js (claude-sonnet-4-6)
-  /api/fetch-article.js    → ヒアリング → プロンプト生成（---PROMPT_START/END--- パース）
+  /api/fetch-article.js   → ヒアリング → プロンプト生成（---PROMPT_START/END--- パース）
+  /api/fetch-transcript.js → YouTube字幕取得        → 回答に引用マーカー [ソース1] 自動付与
 ```
 
 | 項目 | 詳細 |
 |------|------|
 | レイアウト | デスクトップ: 左380px + 右flex-1、モバイル(900px以下): タブ切替 |
+| ソース種類 | テキスト / URL / PDF（pdf.jsクライアントサイド抽出、最大50p・15000字） / YouTube（字幕自動取得、日英自動選択） |
 | ソース永続保存 | Vercel KV（`@vercel/kv`）→ `/api/sources.js` CRUD+PATCH API、KV未設定時はlocalStorageフォールバック |
 | ソース帰属 | 各ソースに追加者ユーザー名・追加日時を記録、チーム全員で共有 |
 | AI自動要約 | ソース追加時に`claude-haiku-4-5`で3行要約を自動生成・KV保存・再生成対応 |
 | 動的サジェスチョン | ソース内容を分析しAIが5つのタスク案を提案（ソース変更時に自動更新） |
 | ソース横断分析 | 全ソースの共通テーマ/矛盾/キーポイント/推奨方針を`claude-sonnet-4-6`で分析 |
+| 引用・出典表示 | 回答にインライン引用マーカー[ソース1]を自動付与、クリックで左ペインの該当ソースをハイライト＆スクロール |
 | 品質スコア | 生成プロンプトを5軸（明確性/具体性/構造/再利用性/テクニック）で0-100点評価+改善ヒント |
 | メモ機能 | 各ソースにユーザーメモを追加可能（デバウンス自動保存） |
 | URL取得 | `/api/fetch-article.js` で実コンテンツ自動抽出（タイトル・本文） |
+| YouTube字幕 | `/api/fetch-transcript.js` でYouTube動画の字幕テキストを自動抽出（日本語優先→英語→最初のトラック） |
 | プロンプト生成 | 3フェーズ（ヒアリング → 生成 → 洗練）、4構成要素（指示・背景・入力・出力） |
 | API | `claude-sonnet-4-6`（チャット・プロンプト生成・横断分析）/ `claude-haiku-4-5`（要約・サジェスチョン・品質スコア） |
 | 共通モジュール | `copy-utils.js`（コピー）/ `history.js`（履歴パネル） |
-| UXフロー | 4フェーズ（ヒアリング → 構成確認 → プレビュー → 出力）|
-| 動的SYSTEM_PROMPT | `buildSystemPrompt(imageEnabled)` — Unsplash API有無でレイアウト配分を自動切替 |
 
 ### Todoアプリ（`todo.html`）
 

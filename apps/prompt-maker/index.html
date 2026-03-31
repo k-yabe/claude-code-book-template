@@ -290,7 +290,38 @@
       .prompt-result { max-width: 95%; }
     }
   </style>
+    /* 引用マーカー */
+    .citation-marker {
+      display: inline-block; background: #001f33; color: #fff;
+      font-size: 0.6rem; font-weight: 800; padding: 1px 5px;
+      cursor: pointer; vertical-align: super; margin: 0 1px;
+      transition: background 0.15s;
+    }
+    .citation-marker:hover { background: #ffb81c; color: #001f33; }
+
+    /* 引用フッター */
+    .chat-citations { margin-top: 10px; padding-top: 8px; border-top: 1px solid #e8ecf0; }
+    .chat-citation-link {
+      display: inline-block; font-size: 0.68rem; color: #4a5568; padding: 2px 8px;
+      border: 1px solid #e8ecf0; margin: 2px 4px 2px 0; cursor: pointer;
+      transition: all 0.15s; text-decoration: none;
+    }
+    .chat-citation-link:hover { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
+
+    /* ソースハイライト */
+    .source-item.highlighted { border-left-color: #ffb81c; background: #fffbf0; animation: highlightPulse 1.5s ease; }
+    @keyframes highlightPulse { 0% { box-shadow: 0 0 0 3px rgba(255,184,28,0.4); } 100% { box-shadow: none; } }
+
+    /* PDF入力 */
+    .pdf-drop-zone {
+      border: 2px dashed #e8ecf0; padding: 14px; text-align: center;
+      font-size: 0.78rem; color: #8a9bb0; cursor: pointer; transition: all 0.15s;
+    }
+    .pdf-drop-zone:hover { border-color: #ffb81c; background: #fffbf0; }
+    .pdf-drop-zone.dragover { border-color: #ffb81c; background: #fffbf0; }
+  </style>
   <link rel="stylesheet" href="../../assets/app-styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
@@ -338,6 +369,8 @@
       <div class="source-add-tabs">
         <button class="source-add-tab active" data-type="text">テキスト</button>
         <button class="source-add-tab" data-type="url">URL</button>
+        <button class="source-add-tab" data-type="pdf">PDF</button>
+        <button class="source-add-tab" data-type="youtube">YouTube</button>
       </div>
       <div class="source-input-group" id="source-text-input">
         <input id="source-title" placeholder="ソース名（任意）">
@@ -352,6 +385,23 @@
         <div class="source-add-row">
           <button class="source-add-btn" id="add-url-btn">＋ URL追加</button>
           <span class="url-status" id="url-status"></span>
+        </div>
+      </div>
+      <div class="source-input-group" id="source-pdf-input" style="display:none;">
+        <div class="pdf-drop-zone" id="pdf-drop-zone">
+          📄 PDFファイルをドラッグ＆ドロップ、またはクリックして選択
+          <input type="file" id="pdf-file" accept=".pdf" style="display:none;">
+        </div>
+        <div class="source-add-row">
+          <span class="url-status" id="pdf-status"></span>
+        </div>
+      </div>
+      <div class="source-input-group" id="source-youtube-input" style="display:none;">
+        <input id="source-yt-title" placeholder="ソース名（任意）">
+        <input id="source-yt-url" placeholder="https://www.youtube.com/watch?v=...">
+        <div class="source-add-row">
+          <button class="source-add-btn" id="add-yt-btn">＋ YouTube追加</button>
+          <span class="url-status" id="yt-status"></span>
         </div>
       </div>
     </div>
@@ -391,7 +441,9 @@
   - AIが自動要約を生成
   - ソースに基づくサジェスチョンを提案
   - 全ソースの横断分析が可能
-  - より精度の高いプロンプトを生成</div>
+  - 回答に引用マーカー [ソース1] を自動付与
+
+📎 対応形式: テキスト / URL / PDF / YouTube</div>
       </div>
     </div>
 
@@ -687,7 +739,7 @@
       item.innerHTML = `
         <div class="source-item-header">
           <span class="source-item-title">${escHtml(s.title)}</span>
-          <span class="source-item-type">${s.type === 'url' ? 'URL' : 'TEXT'}</span>
+          <span class="source-item-type">${({url:'URL',pdf:'PDF',youtube:'YT'})[s.type] || 'TEXT'}</span>
         </div>
         <div class="source-item-meta">
           <span class="source-item-user">👤 ${escHtml(s.user || 'unknown')}</span>
@@ -777,13 +829,62 @@
   function formatDate(iso) { const d = new Date(iso); return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`; }
   function escHtml(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
+  // ── 引用マーカー変換 ──────────────────────────
+  function renderCitations(htmlContent) {
+    // [ソース1] [ソース2] のパターンを検出してクリッカブルなバッジに変換
+    const citationRegex = /\[ソース(\d+)\]/g;
+    const usedSources = new Set();
+    let result = htmlContent.replace(citationRegex, (match, num) => {
+      const idx = parseInt(num, 10) - 1;
+      if (idx >= 0 && idx < SourceStore._cache.length) {
+        usedSources.add(idx);
+        return `<span class="citation-marker" data-source-idx="${idx}" title="${escHtml(SourceStore._cache[idx].title)}">${num}</span>`;
+      }
+      return match;
+    });
+    // 引用フッター（使用されたソース一覧）
+    if (usedSources.size > 0) {
+      result += '<div class="chat-citations">';
+      [...usedSources].sort((a, b) => a - b).forEach(idx => {
+        const s = SourceStore._cache[idx];
+        result += `<span class="chat-citation-link" data-source-idx="${idx}">[${idx + 1}] ${escHtml(s.title)}</span>`;
+      });
+      result += '</div>';
+    }
+    return result;
+  }
+
+  // 引用クリック → 左ペインの該当ソースをハイライト
+  document.getElementById('chat-messages').addEventListener('click', (e) => {
+    const marker = e.target.closest('[data-source-idx]');
+    if (!marker) return;
+    const idx = parseInt(marker.dataset.sourceIdx, 10);
+    const source = SourceStore._cache[idx];
+    if (!source) return;
+    // モバイルではソースパネルに切替
+    switchMobileTab('source');
+    // 該当ソースアイテムを探してハイライト＆スクロール
+    const listEl = document.getElementById('source-list');
+    const items = listEl.querySelectorAll('.source-item');
+    items.forEach(item => item.classList.remove('highlighted'));
+    const target = [...items].find(item => item.dataset.id === source.id);
+    if (target) {
+      target.classList.add('highlighted');
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => target.classList.remove('highlighted'), 3000);
+    }
+  });
+
   // ── ソース追加 ──────────────────────────
   document.querySelectorAll('.source-add-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.source-add-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      document.getElementById('source-text-input').style.display = tab.dataset.type === 'text' ? 'flex' : 'none';
-      document.getElementById('source-url-input').style.display = tab.dataset.type === 'url' ? 'flex' : 'none';
+      const type = tab.dataset.type;
+      document.getElementById('source-text-input').style.display = type === 'text' ? 'flex' : 'none';
+      document.getElementById('source-url-input').style.display = type === 'url' ? 'flex' : 'none';
+      document.getElementById('source-pdf-input').style.display = type === 'pdf' ? 'flex' : 'none';
+      document.getElementById('source-youtube-input').style.display = type === 'youtube' ? 'flex' : 'none';
     });
   });
 
@@ -826,6 +927,75 @@
       btn.disabled = false; btn.textContent = '＋ URL追加';
       document.getElementById('source-url-title').value = '';
       document.getElementById('source-url').value = '';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  });
+
+  // ── PDF ソース追加 ──────────────────────────
+  const pdfDropZone = document.getElementById('pdf-drop-zone');
+  const pdfFileInput = document.getElementById('pdf-file');
+  const pdfStatus = document.getElementById('pdf-status');
+
+  pdfDropZone.addEventListener('click', () => pdfFileInput.click());
+  pdfDropZone.addEventListener('dragover', (e) => { e.preventDefault(); pdfDropZone.classList.add('dragover'); });
+  pdfDropZone.addEventListener('dragleave', () => pdfDropZone.classList.remove('dragover'));
+  pdfDropZone.addEventListener('drop', (e) => { e.preventDefault(); pdfDropZone.classList.remove('dragover'); if (e.dataTransfer.files[0]) handlePdfFile(e.dataTransfer.files[0]); });
+  pdfFileInput.addEventListener('change', () => { if (pdfFileInput.files[0]) handlePdfFile(pdfFileInput.files[0]); });
+
+  async function handlePdfFile(file) {
+    if (!file.name.toLowerCase().endsWith('.pdf')) { pdfStatus.textContent = '⚠️ PDFファイルを選択してください'; return; }
+    pdfStatus.textContent = 'PDFを解析中…';
+    try {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      let text = '';
+      const maxPages = Math.min(pdf.numPages, 50);
+      for (let i = 1; i <= maxPages; i++) {
+        pdfStatus.textContent = `PDFを解析中… (${i}/${maxPages}ページ)`;
+        const page = await pdf.getPage(i);
+        const tc = await page.getTextContent();
+        text += tc.items.map(it => it.str).join(' ') + '\n';
+      }
+      text = text.trim().slice(0, 15000);
+      if (text.length < 50) { pdfStatus.textContent = '⚠️ テキストを抽出できませんでした（画像PDFの可能性）'; return; }
+      const title = file.name.replace(/\.pdf$/i, '');
+      await SourceStore.add(title, `[PDF: ${file.name} / ${pdf.numPages}ページ]\n\n${text}`, 'pdf');
+      renderSources();
+      scheduleSuggestionUpdate();
+      pdfStatus.textContent = `✅ ${title} を追加しました（${maxPages}ページ）`;
+      pdfFileInput.value = '';
+      setTimeout(() => { pdfStatus.textContent = ''; }, 3000);
+    } catch (err) {
+      pdfStatus.textContent = `⚠️ PDF解析エラー: ${err.message}`;
+    }
+  }
+
+  // ── YouTube ソース追加 ──────────────────────────
+  const ytUrlRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/;
+
+  document.getElementById('add-yt-btn').addEventListener('click', async () => {
+    const title = document.getElementById('source-yt-title').value;
+    const url = document.getElementById('source-yt-url').value.trim();
+    if (!url) return;
+    if (!ytUrlRegex.test(url)) { document.getElementById('yt-status').textContent = '⚠️ YouTube URLを入力してください'; return; }
+    const btn = document.getElementById('add-yt-btn');
+    const status = document.getElementById('yt-status');
+    btn.disabled = true; btn.textContent = '取得中…';
+    status.textContent = '字幕を取得しています…';
+    try {
+      const r = await fetch('/api/fetch-transcript', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+      if (!r.ok) { const err = await r.json(); throw new Error(err.error || '字幕取得失敗'); }
+      const data = await r.json();
+      await SourceStore.add(title || data.title || url.slice(0, 50), `[YouTube: ${url}]\n[タイトル: ${data.title || '不明'}]\n[字幕言語: ${data.language || '不明'}]\n\n${data.text}`, 'youtube');
+      renderSources();
+      scheduleSuggestionUpdate();
+      status.textContent = `✅ 追加完了（${data.language || ''}字幕）`;
+    } catch (err) {
+      status.textContent = `⚠️ ${err.message}`;
+    } finally {
+      btn.disabled = false; btn.textContent = '＋ YouTube追加';
+      document.getElementById('source-yt-title').value = '';
+      document.getElementById('source-yt-url').value = '';
       setTimeout(() => { status.textContent = ''; }, 3000);
     }
   });
@@ -873,7 +1043,14 @@
 - 役割の付与 / Few-shotプロンプティング / ステップ・バイ・ステップ思考 / 構造化タグ
 
 ### フェーズ3: 洗練
-修正依頼には同じフォーマット（---PROMPT_START--- 〜 ---PROMPT_END---）で改善版を出力。`;
+修正依頼には同じフォーマット（---PROMPT_START--- 〜 ---PROMPT_END---）で改善版を出力。
+
+## 引用ルール（重要）
+ソースが提供されている場合、回答やプロンプト内でソースの情報を参照したら、該当箇所の直後に [ソース1] [ソース2] のような引用マーカーを付けてください。
+- ソース番号は「## ユーザーが提供した参考資料（ソース）」セクションのソース番号に対応
+- 1つの文に複数ソースを参照する場合は [ソース1][ソース3] のように連続で記載
+- 引用マーカーはプロンプト本文（---PROMPT_START--- 〜 ---PROMPT_END---の中）には含めず、説明文や質問の中でのみ使用
+- ソースを参照していない一般的な発言には引用マーカーは不要`;
 
   const chatEl = document.getElementById('chat-messages');
   const inputEl = document.getElementById('user-input');
@@ -898,7 +1075,7 @@
       const wrapper = document.createElement('div');
       wrapper.style.cssText = 'display:flex;flex-direction:column;gap:10px;max-width:90%;';
 
-      if (beforePrompt) { const pre = document.createElement('div'); pre.className = 'chat-bubble ai'; pre.textContent = beforePrompt; wrapper.appendChild(pre); }
+      if (beforePrompt) { const pre = document.createElement('div'); pre.className = 'chat-bubble ai'; if (SourceStore._cache.length > 0) { pre.innerHTML = renderCitations(escHtml(beforePrompt)); } else { pre.textContent = beforePrompt; } wrapper.appendChild(pre); }
 
       const card = document.createElement('div');
       card.className = 'prompt-result';
@@ -927,7 +1104,11 @@
     } else {
       const bubble = document.createElement('div');
       bubble.className = `chat-bubble ${role}`;
-      bubble.textContent = content;
+      if (role === 'ai' && SourceStore._cache.length > 0) {
+        bubble.innerHTML = renderCitations(escHtml(content));
+      } else {
+        bubble.textContent = content;
+      }
       row.appendChild(avatar);
       row.appendChild(bubble);
       chatEl.appendChild(row);
@@ -977,7 +1158,7 @@
     messages.length = 0; chatEl.innerHTML = ''; sugEl.style.display = 'block';
     if (SourceStore._cache.length > 0) generateDynamicSuggestions();
     else showStaticSuggestions();
-    addBubble('ai', 'AIの力を最大限引き出すプロンプトを一緒に作りましょう！\n\n何をしたいか、ざっくりで構いません。\n\n📚 左の「ソース」に参考資料を追加すると:\n  - AIが自動要約を生成\n  - ソースに基づくサジェスチョンを提案\n  - 全ソースの横断分析が可能\n  - より精度の高いプロンプトを生成');
+    addBubble('ai', 'AIの力を最大限引き出すプロンプトを一緒に作りましょう！\n\n何をしたいか、ざっくりで構いません。\n\n📚 左の「ソース」に参考資料を追加すると:\n  - AIが自動要約を生成\n  - ソースに基づくサジェスチョンを提案\n  - 全ソースの横断分析が可能\n  - 回答に引用マーカー [ソース1] を自動付与\n\n📎 対応形式: テキスト / URL / PDF / YouTube');
   }
 
   // ── イベント ──────────────────────────
