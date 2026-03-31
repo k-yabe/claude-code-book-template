@@ -548,8 +548,8 @@
 <script>
   if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
   const SIZES = [
-    { id: 'ogp',    label: 'OGP',          w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp' },
-    { id: 'banner', label: 'バナー（MV）',   w: 1920, h: 1080, dlName: 'img-mv', safeZone: { top: 24, bottom: 24, left: 100, right: 100 } },
+    { id: 'ogp',    label: 'OGP',          w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 100 * 1024 },
+    { id: 'banner', label: 'バナー（MV）',   w: 1920, h: 1080, dlName: 'img-mv', safeZone: { top: 24, bottom: 24, left: 100, right: 100 }, maxBytes: 1 * 1024 * 1024 },
   ];
 
   let format = 'webp';
@@ -887,6 +887,7 @@
         <div class="preview-canvas-wrap" id="wrap-${size.id}">
           ${needsAI ? '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AIアップスケール中...</div>' : ''}
         </div>
+        <div class="file-size-info" id="filesize-${size.id}" style="font-size:0.8rem;color:#667;margin:4px 0 8px;min-height:1.2em;">${size.maxBytes ? '<span style="opacity:0.6">上限: ' + (size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024) + 'MB' : (size.maxBytes/1024) + 'KB') + '</span>' : ''}</div>
         <button class="dl-btn" onclick="downloadSingle('${size.id}')">ダウンロード</button>
       `;
       grid.appendChild(item);
@@ -901,6 +902,7 @@
           canvas.dataset.safeZoneOverlay = '1';
         }
         document.getElementById('wrap-' + size.id).appendChild(canvas);
+        updateFileSizeDisplay(size.id);
       }
     }
 
@@ -917,7 +919,28 @@
         wrap.innerHTML = '';
         wrap.appendChild(canvas);
       }
+      updateFileSizeDisplay(size.id);
     }
+  }
+
+  // Show estimated file size on preview card
+  async function updateFileSizeDisplay(sizeId) {
+    const allSizes = [...SIZES, ...customSizes];
+    const size = allSizes.find(s => s.id === sizeId);
+    if (!size) return;
+    const el = document.getElementById('filesize-' + sizeId);
+    if (!el) return;
+    const blob = await getBlob('canvas-' + sizeId, size.forcePng, size);
+    if (!blob) return;
+    const kb = (blob.size / 1024).toFixed(0);
+    const label = blob.size >= 1024 * 1024 ? (blob.size / 1024 / 1024).toFixed(1) + 'MB' : kb + 'KB';
+    const maxLabel = size.maxBytes ? (size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024) + 'MB' : (size.maxBytes/1024) + 'KB') : '';
+    const over = size.maxBytes && blob.size > size.maxBytes;
+    const formatNote = blob._formatNote === 'jpeg' ? ' <span style="color:#1565c0;font-weight:600;">→ JPEG自動変換済</span>' : '';
+    const overMsg = over
+      ? ' <span style="color:#e53935;font-weight:600;">⚠ 超過</span>'
+      : ' <span style="color:#43a047;">✓</span>';
+    el.innerHTML = `📦 ${label}` + (maxLabel ? ` / 上限 ${maxLabel}` : '') + overMsg + formatNote;
   }
 
   function drawSafeZoneOverlay(canvas, sz) {
@@ -1045,7 +1068,7 @@
   }
 
   function getBlob(canvasId, forcePng, size) {
-    return new Promise(resolve => {
+    return new Promise(async resolve => {
       const domCanvas = document.getElementById(canvasId);
       let canvas;
       // Re-render without overlay only when the canvas actually has it burned in
@@ -1056,12 +1079,37 @@
       }
       if (!canvas) { resolve(null); return; }
       const mimeType = getRequestedMimeType(forcePng);
-      canvas.toBlob(blob => {
-        if (blob && blob.type !== mimeType) {
-          blob._actualExt = getExtFromMime(blob.type);
+      const maxBytes = size && size.maxBytes;
+
+      // Helper: convert canvas to blob at given quality
+      const toBlob = (q) => new Promise(r => canvas.toBlob(b => r(b), mimeType, q));
+
+      let blob = await toBlob(0.92);
+      // Auto-compress: reduce quality stepwise (min 0.70 to preserve visual quality)
+      if (maxBytes && blob && blob.size > maxBytes) {
+        if (mimeType !== 'image/png') {
+          // Lossy format — reduce quality
+          const steps = [0.85, 0.78, 0.70];
+          for (const q of steps) {
+            blob = await toBlob(q);
+            if (blob.size <= maxBytes) break;
+          }
+        } else {
+          // PNG exceeds limit — auto-fallback to JPEG with quality steps
+          const toBlobJpeg = (q) => new Promise(r => canvas.toBlob(b => r(b), 'image/jpeg', q));
+          const jpegSteps = [0.92, 0.85, 0.78, 0.70];
+          for (const q of jpegSteps) {
+            blob = await toBlobJpeg(q);
+            if (blob.size <= maxBytes) break;
+          }
+          blob._actualExt = 'jpg';
+          blob._formatNote = 'jpeg';
         }
-        resolve(blob);
-      }, mimeType, 0.92);
+      }
+      if (blob && blob.type !== mimeType && !blob._actualExt) {
+        blob._actualExt = getExtFromMime(blob.type);
+      }
+      resolve(blob);
     });
   }
 
