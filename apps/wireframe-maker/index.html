@@ -1263,7 +1263,17 @@ async function handleUrlImport() {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         mode: 'free',
-        freeText: `以下の既存サイトの構成をそのまま再現するワイヤーフレームを生成してください。セクションの順序・種類・内容をできるだけ忠実にコピーしてください。\n\n${siteContent.slice(0, 10000)}`,
+        freeText: `【重要】これは「URLインポート」です。以下は既存サイトから抽出したコンテンツです。
+このサイトの実際のページ構成を忠実にワイヤーフレームとして再現してください。
+
+ルール:
+1. サイトに実際に存在するセクションだけを使う（勝手に追加しない）
+2. セクションの順序はサイトの上から下の順序をそのまま維持する
+3. 各セクションのlabelとdescriptionにサイトの実際のテキスト・見出しを反映する
+4. 「キャッチコピーが入ります」等のプレースホルダーは使わない — 実際のテキストを入れる
+5. navigationとfooterはサイトにあれば含める
+
+${siteContent.slice(0, 10000)}`,
         _user: USER
       })
     });
