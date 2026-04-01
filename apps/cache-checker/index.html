@@ -28,114 +28,61 @@
     }
     .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 
-    .container { max-width: 800px; margin: 0 auto; padding: 36px 24px 80px; }
+    .container { max-width: 960px; margin: 0 auto; padding: 36px 24px 80px; }
 
     /* ── ページヘッダー ── */
     .page-header { margin-bottom: 20px; }
-    .page-header h1 { font-size: 1.4rem; font-weight: 700; color: #001f33; letter-spacing: -0.01em; margin-bottom: 4px; }
-    .page-header p { font-size: 0.82rem; color: #8a9bb0; }
+    .page-header h1 { font-size: 1.4rem; font-weight: 700; color: #001f33; margin-bottom: 4px; }
+    .page-header p { font-size: 0.82rem; color: #8a9bb0; line-height: 1.6; }
 
     /* ── ガイドカード ── */
     .guide-card {
-      background: #fff;
-      border: 1.5px solid #e8ecf0;
-      padding: 18px 20px;
-      margin-bottom: 16px;
+      background: #fff; border: 1.5px solid #e8ecf0;
+      padding: 18px 20px; margin-bottom: 16px;
     }
-    .guide-title {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: #001f33;
-      margin-bottom: 10px;
-    }
-    .guide-steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-    @media (max-width: 600px) {
-      .guide-steps { grid-template-columns: 1fr; }
-    }
-    .guide-step {
-      text-align: center;
-      padding: 14px 10px;
-      background: rgba(0,31,51,0.02);
-    }
+    .guide-title { font-size: 0.82rem; font-weight: 700; color: #001f33; margin-bottom: 10px; }
+    .guide-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 600px) { .guide-steps { grid-template-columns: 1fr; } }
+    .guide-step { text-align: center; padding: 14px 10px; background: rgba(0,31,51,0.02); }
     .guide-step-icon { font-size: 1.5rem; margin-bottom: 6px; }
     .guide-step-text { font-size: 0.75rem; color: #636e72; line-height: 1.5; }
 
-    /* ── ステップ ── */
-    .step {
+    /* ── 入力エリア ── */
+    .input-area {
       background: #fff; border: 1.5px solid #e8ecf0;
-      margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      padding: 20px; margin-bottom: 16px;
     }
-    .step-header {
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 18px; border-bottom: 1px solid #f0f2f5; background: #fafbfc;
-    }
-    .step-num {
-      width: 24px; height: 24px; background: #001f33; color: #fff;
-      font-size: 0.72rem; font-weight: 800; display: flex; align-items: center;
-      justify-content: center; flex-shrink: 0;
-    }
-    .step-title { font-size: 0.85rem; font-weight: 700; color: #001f33; }
-    .step-body { padding: 16px 18px; }
-
-    /* ── 入力フィールド ── */
+    .input-label { font-size: 0.85rem; font-weight: 700; color: #001f33; margin-bottom: 8px; }
+    .input-row { display: flex; gap: 8px; }
     .input-field {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid #e8ecf0;
-      font-size: 0.9rem;
-      font-family: inherit;
-      color: #2d3436;
-      background: #fff;
-      outline: none;
-      transition: border-color 0.15s;
+      flex: 1; padding: 12px 14px; border: 1.5px solid #e8ecf0;
+      font-size: 0.9rem; font-family: inherit; color: #2d3436; background: #fff; outline: none;
     }
     .input-field::placeholder { color: #b2bec3; }
-    .input-field:focus {
-      border-color: #ffb81c;
-      box-shadow: 0 0 0 3px rgba(255,184,28,0.12);
+    .input-field:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
+    .check-btn {
+      padding: 12px 24px; background: #ffb81c; border: none; color: #001f33;
+      font-size: 0.9rem; font-weight: 800; font-family: inherit; cursor: pointer;
+      white-space: nowrap; transition: all 0.15s;
     }
-    .url-note {
-      font-size: 0.75rem;
-      color: #8a9bb0;
-      margin-top: 6px;
-    }
-
-    /* ── サンプルボタン ── */
-    .sample-row {
-      display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap;
-    }
+    .check-btn:hover { opacity: 0.92; }
+    .check-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .sample-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
     .sample-label { font-size: 0.72rem; color: #b2bec3; }
     .sample-btn {
       background: none; border: 1px solid #e8ecf0; color: #636e72;
-      font-size: 0.72rem; padding: 3px 10px; cursor: pointer; transition: all 0.15s;
-      font-family: inherit;
+      font-size: 0.72rem; padding: 3px 10px; cursor: pointer; font-family: inherit;
     }
     .sample-btn:hover { border-color: #ffb81c; color: #001f33; }
 
-    /* ── CTAボタン ── */
-    .cta-btn {
-      width: 100%;
-      padding: 14px;
-      background: #ffb81c;
-      border: none;
-      color: #001f33;
-      font-size: 0.95rem;
-      font-weight: 800;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.15s;
-      margin-top: 6px;
+    /* ── エラー・ローディング ── */
+    .error-msg {
+      background: #fff5f4; border: 1.5px solid #fab1a0; color: #c0392b;
+      padding: 10px 14px; font-size: 0.85rem; display: none; margin-bottom: 16px;
     }
-    .cta-btn:hover { opacity: 0.92; box-shadow: 0 4px 16px rgba(255,184,28,0.3); }
-    .cta-btn:active { transform: scale(0.99); }
-
-    /* ── ローディング ── */
-    .loading-area { text-align: center; padding: 40px 0; display: none; }
-    .loading-area.show { display: block; }
+    .error-msg.show { display: block; }
+    .loading { text-align: center; padding: 60px 0; display: none; }
+    .loading.show { display: block; }
     .loading-text { font-size: 0.9rem; color: #636e72; margin-bottom: 12px; }
     .loading-dots { display: inline-flex; gap: 6px; }
     .loading-dots span {
@@ -144,49 +91,96 @@
     }
     .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
     .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce {
-      0%, 80%, 100% { transform: scale(0); }
-      40% { transform: scale(1); }
+    @keyframes bounce { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
+
+    /* ── 判定バナー ── */
+    .verdict {
+      padding: 20px 24px; margin-bottom: 20px; display: none;
+    }
+    .verdict.synced { background: #eafaf1; border: 1.5px solid #00b894; }
+    .verdict.diff { background: #fff5f4; border: 1.5px solid #e17055; }
+    .verdict-title { font-size: 1.1rem; font-weight: 800; color: #001f33; margin-bottom: 4px; }
+    .verdict-desc { font-size: 0.85rem; color: #636e72; line-height: 1.6; }
+
+    /* ── 比較グリッド ── */
+    .compare-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      margin-bottom: 20px; display: none;
+    }
+    @media (max-width: 768px) { .compare-grid { grid-template-columns: 1fr; } }
+
+    .compare-col {
+      background: #fff; border: 1.5px solid #e8ecf0; overflow: hidden;
+    }
+    .compare-col.has-diff { border-color: #e17055; }
+    .col-header {
+      padding: 10px 16px; background: #fafbfc; border-bottom: 1px solid #e8ecf0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .col-label { font-size: 0.82rem; font-weight: 700; color: #001f33; }
+    .col-sublabel { font-size: 0.7rem; color: #8a9bb0; }
+    .col-url {
+      font-size: 0.68rem; color: #8a9bb0; padding: 6px 16px;
+      background: rgba(0,31,51,0.02); border-bottom: 1px solid #e8ecf0;
+      word-break: break-all; font-family: 'SFMono-Regular', monospace;
+    }
+    .col-body { padding: 16px; }
+
+    /* ── OGP セクション ── */
+    .ogp-section { margin-bottom: 16px; }
+    .ogp-image {
+      width: 100%; aspect-ratio: 1.91/1; object-fit: cover;
+      background: #f0f2f5; border: 1px solid #e8ecf0; display: block;
+    }
+    .ogp-image-placeholder {
+      width: 100%; aspect-ratio: 1.91/1; background: #f0f2f5;
+      border: 1px solid #e8ecf0; display: flex; align-items: center;
+      justify-content: center; color: #b2bec3; font-size: 0.82rem;
+    }
+    .ogp-title { font-size: 0.95rem; font-weight: 700; color: #001f33; margin-top: 8px; }
+    .ogp-desc { font-size: 0.78rem; color: #636e72; margin-top: 4px; line-height: 1.5; }
+
+    /* ── 画像一覧 ── */
+    .images-section { margin-bottom: 16px; }
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; color: #8a9bb0;
+      text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px;
+      padding-bottom: 4px; border-bottom: 1px solid #e8ecf0;
+    }
+    .image-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .image-thumb {
+      aspect-ratio: 1; object-fit: cover; width: 100%;
+      background: #f0f2f5; border: 1px solid #e8ecf0; cursor: pointer;
+    }
+    .image-thumb:hover { border-color: #ffb81c; }
+    .image-count { font-size: 0.72rem; color: #8a9bb0; margin-top: 4px; }
+    .no-images { font-size: 0.78rem; color: #b2bec3; padding: 12px 0; }
+
+    /* ── テキスト内容 ── */
+    .text-section { margin-bottom: 8px; }
+    .text-content {
+      font-size: 0.78rem; color: #636e72; line-height: 1.7;
+      max-height: 200px; overflow-y: auto; white-space: pre-wrap;
     }
 
-    /* ── エラー ── */
-    .error-msg {
-      background: #fff5f4; border: 1.5px solid #fab1a0; color: #c0392b;
-      padding: 10px 14px; font-size: 0.85rem; display: none; margin-top: 10px;
-    }
-    .error-msg.show { display: block; }
+    /* ── 差分ハイライト ── */
+    .diff-highlight { background: rgba(225,112,85,0.15); padding: 0 2px; }
+    .match-highlight { background: rgba(0,184,148,0.15); padding: 0 2px; }
 
-    /* ── 結果セクション ── */
-    .result-section { margin-top: 24px; }
-
-    /* ── メイン結果カード ── */
-    .result-hero {
-      background: #fff; border: 1.5px solid #e8ecf0;
-      padding: 40px 30px; margin-bottom: 16px; text-align: center;
+    /* ── 画像モーダル ── */
+    .img-modal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      z-index: 100; align-items: center; justify-content: center; cursor: pointer;
     }
-    .result-hero.synced { border-top: 4px solid #00b894; }
-    .result-hero.diff { border-top: 4px solid #e17055; }
-    .result-hero-icon { font-size: 3rem; margin-bottom: 12px; }
-    .result-hero-title { font-size: 1.2rem; font-weight: 800; color: #001f33; margin-bottom: 8px; }
-    .result-hero-desc { font-size: 0.88rem; color: #636e72; line-height: 1.7; max-width: 500px; margin: 0 auto; }
-    .result-hero-meta { margin-top: 16px; font-size: 0.75rem; color: #8a9bb0; }
-
-    /* ── 待ち時間メッセージ ── */
-    .ttl-message {
-      background: rgba(0,31,51,0.03); border: 1px solid #e8ecf0;
-      padding: 14px 18px; margin-bottom: 16px; display: none;
-      font-size: 0.85rem; color: #636e72; line-height: 1.6;
-    }
-    .ttl-message strong { color: #001f33; }
+    .img-modal.show { display: flex; }
+    .img-modal img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
 
     /* ── 次にやること ── */
     .next-steps {
       background: #fff; border: 1.5px solid #e8ecf0;
       padding: 20px; margin-bottom: 16px; display: none;
     }
-    .next-steps-title {
-      font-size: 0.85rem; font-weight: 700; color: #001f33; margin-bottom: 10px;
-    }
+    .next-steps-title { font-size: 0.85rem; font-weight: 700; color: #001f33; margin-bottom: 10px; }
     .next-step-item {
       display: flex; align-items: flex-start; gap: 10px;
       padding: 8px 0; font-size: 0.82rem; color: #636e72; line-height: 1.5;
@@ -198,70 +192,15 @@
       justify-content: center; flex-shrink: 0;
     }
 
-    /* ── 技術者向け詳細（折りたたみ） ── */
-    .tech-details {
-      margin-bottom: 16px;
-    }
-    .tech-details-toggle {
-      background: none; border: 1.5px solid #e8ecf0; color: #8a9bb0;
-      font-size: 0.78rem; font-weight: 600; padding: 8px 16px; cursor: pointer;
-      width: 100%; text-align: left; font-family: inherit; transition: all 0.15s;
-    }
-    .tech-details-toggle:hover { border-color: #001f33; color: #001f33; }
-    .tech-details-toggle::after { content: ' ▼'; font-size: 0.65rem; }
-    .tech-details-toggle.open::after { content: ' ▲'; }
-    .tech-details-body {
-      display: none; border: 1.5px solid #e8ecf0; border-top: none;
-      background: #fff; padding: 20px;
-    }
-    .tech-details-body.open { display: block; }
-
-    .tech-section-title {
-      font-size: 0.82rem; font-weight: 700; color: #001f33;
-      margin: 16px 0 8px; padding-bottom: 4px; border-bottom: 1px solid #e8ecf0;
-    }
-    .tech-section-title:first-child { margin-top: 0; }
-
-    /* ── ヘッダー比較 ── */
-    .header-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-    .header-table th {
-      text-align: left; padding: 5px 8px; background: rgba(0,31,51,0.04);
-      color: #636e72; font-weight: 600; white-space: nowrap; width: 140px;
-    }
-    .header-table td { padding: 5px 8px; color: #2d3436; word-break: break-all; }
-    .header-table tr + tr th, .header-table tr + tr td { border-top: 1px solid #e8ecf0; }
-    .header-table tr.header-diff th { color: #e17055; }
-    .header-table tr.header-diff td { color: #e17055; font-weight: 600; }
-    .header-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 768px) { .header-compare { grid-template-columns: 1fr; } }
-    .header-compare-label {
-      font-size: 0.72rem; font-weight: 700; color: #8a9bb0;
-      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;
-    }
-
-    /* ── diff表示 ── */
-    .diff-container {
-      background: #fff; border: 1px solid #e8ecf0;
-      font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
-      font-size: 0.75rem; line-height: 1.5; overflow-x: auto; max-height: 400px; overflow-y: auto;
-    }
-    .diff-line { padding: 1px 10px; white-space: pre-wrap; word-break: break-all; }
-    .diff-added { background: rgba(0,184,148,0.12); color: #00b894; }
-    .diff-removed { background: rgba(225,112,85,0.12); color: #e17055; }
-    .diff-info { font-size: 0.78rem; color: #8a9bb0; margin-bottom: 6px; }
-
     /* ── 結果アクション ── */
-    .result-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .result-actions { display: flex; gap: 10px; flex-wrap: wrap; display: none; }
     .result-action-btn {
       background: #fff; border: 1.5px solid #e8ecf0; color: #636e72;
       font-size: 0.82rem; font-weight: 600; padding: 9px 18px;
-      cursor: pointer; transition: all 0.15s; flex: 1; min-width: 140px;
-      text-align: center; font-family: inherit;
+      cursor: pointer; flex: 1; min-width: 140px; text-align: center; font-family: inherit;
     }
     .result-action-btn:hover { border-color: #001f33; color: #001f33; }
-    .result-action-btn.primary {
-      background: #ffb81c; border-color: #ffb81c; color: #001f33; font-weight: 800;
-    }
+    .result-action-btn.primary { background: #ffb81c; border-color: #ffb81c; color: #001f33; font-weight: 800; }
     .result-action-btn.primary:hover { opacity: 0.92; }
 
     /* ── フッター ── */
@@ -272,13 +211,11 @@
     }
     .app-footer-text { font-size: 0.72rem; color: #b2bec3; }
 
-    /* ── タブレット ── */
     @media (max-width: 768px) {
       .navbar { padding: 0 20px; }
-      .container { padding: 24px 20px 60px; }
-    }
-    @media (max-width: 480px) {
-      .navbar { padding: 0 16px; }
+      .container { padding: 24px 16px 60px; }
+      .input-row { flex-direction: column; }
+      .image-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -296,258 +233,261 @@
   <div class="container">
     <div class="page-header">
       <h1>ページ更新チェッカー</h1>
-      <p>CMSで更新した内容がWebサイトに反映されているか確認できます</p>
+      <p>CMSで更新した内容が、Webサイトに正しく反映されているか目で確認できます。<br>画像の差し替え・テキスト変更・OGP情報をビジュアルで比較します。</p>
     </div>
 
-    <!-- 使い方ガイド -->
     <div class="guide-card">
-      <div class="guide-title">こんなときに使えます</div>
+      <div class="guide-title">このツールでできること</div>
       <div class="guide-steps">
         <div class="guide-step">
-          <div class="guide-step-icon">📝</div>
-          <div class="guide-step-text">CMSでページを<br>更新・公開した</div>
+          <div class="guide-step-icon">👀</div>
+          <div class="guide-step-text">今サイトに表示されている<br>内容をそのまま確認</div>
         </div>
         <div class="guide-step">
-          <div class="guide-step-icon">🤔</div>
-          <div class="guide-step-text">サイトを見たけど<br>まだ古い内容のまま</div>
+          <div class="guide-step-icon">🔄</div>
+          <div class="guide-step-text">最新版（パラメータ付与）と<br>並べて比較</div>
         </div>
         <div class="guide-step">
-          <div class="guide-step-icon">🔍</div>
-          <div class="guide-step-text">このツールで<br>反映状況を確認</div>
+          <div class="guide-step-icon">🖼️</div>
+          <div class="guide-step-text">画像・テキスト・OGPの<br>変更を目視で確認</div>
         </div>
       </div>
     </div>
 
-    <div class="step">
-      <div class="step-header">
-        <div class="step-num">1</div>
-        <div class="step-title">確認したいページのURLを入力</div>
-      </div>
-      <div class="step-body">
+    <div class="input-area">
+      <div class="input-label">確認したいページのURL</div>
+      <div class="input-row">
         <input type="url" id="url-input" class="input-field" placeholder="https://www.akkodis.co.jp/..." autocomplete="url">
-        <p class="url-note">URLを入力すると、現在表示されている内容と最新の内容を自動で比較します</p>
-        <div class="sample-row">
-          <span class="sample-label">テスト用:</span>
-          <button class="sample-btn" onclick="fillSample('https://www.google.com')">google.com</button>
-          <button class="sample-btn" onclick="fillSample('https://example.com')">example.com</button>
-          <button class="sample-btn" onclick="fillSample('https://httpbin.org/cache/60')">httpbin (60秒キャッシュ)</button>
-        </div>
+        <button id="check-btn" class="check-btn" onclick="runCheck()">チェック</button>
+      </div>
+      <div class="sample-row">
+        <span class="sample-label">テスト用:</span>
+        <button class="sample-btn" onclick="fillSample('https://www.google.com')">google.com</button>
+        <button class="sample-btn" onclick="fillSample('https://example.com')">example.com</button>
+        <button class="sample-btn" onclick="fillSample('https://httpbin.org/cache/60')">httpbin (60秒キャッシュ)</button>
       </div>
     </div>
-
-    <button id="check-btn" class="cta-btn" onclick="runCheck()">更新状況をチェック</button>
 
     <div class="error-msg" id="error-msg"></div>
 
-    <div class="loading-area" id="loading">
-      <div class="loading-text">ページの状態を確認しています...</div>
+    <div class="loading" id="loading">
+      <div class="loading-text">ページの内容を取得しています...</div>
       <div class="loading-dots"><span></span><span></span><span></span></div>
     </div>
 
-    <div id="result" class="result-section" style="display:none;">
+    <!-- 判定バナー -->
+    <div class="verdict" id="verdict">
+      <div class="verdict-title" id="verdict-title"></div>
+      <div class="verdict-desc" id="verdict-desc"></div>
+    </div>
 
-      <!-- メイン結果：大きく分かりやすく -->
-      <div class="result-hero" id="result-hero">
-        <div class="result-hero-icon" id="result-icon"></div>
-        <div class="result-hero-title" id="result-title"></div>
-        <div class="result-hero-desc" id="result-desc"></div>
-        <div class="result-hero-meta" id="result-meta"></div>
+    <!-- 2カラム比較 -->
+    <div class="compare-grid" id="compare-grid">
+      <!-- 現在の表示版 -->
+      <div class="compare-col" id="col-current">
+        <div class="col-header">
+          <span class="col-label">現在の表示</span>
+          <span class="col-sublabel">（ユーザーに見えている状態）</span>
+        </div>
+        <div class="col-url" id="url-current"></div>
+        <div class="col-body" id="body-current"></div>
       </div>
-
-      <!-- 待ち時間メッセージ（TTLがある場合のみ） -->
-      <div class="ttl-message" id="ttl-message"></div>
-
-      <!-- 次にやること（未反映の場合のみ） -->
-      <div class="next-steps" id="next-steps">
-        <div class="next-steps-title">次にやること</div>
-        <div class="next-step-item">
-          <span class="next-step-num">1</span>
-          <span>しばらく待ってから「もう一度チェック」を押す<br>（サイトは一定時間ごとに自動で最新化されます）</span>
+      <!-- 最新版 -->
+      <div class="compare-col" id="col-latest">
+        <div class="col-header">
+          <span class="col-label">最新版</span>
+          <span class="col-sublabel">（パラメータ付与でキャッシュ回避）</span>
         </div>
-        <div class="next-step-item">
-          <span class="next-step-num">2</span>
-          <span>急ぎの場合は、IT部門に「キャッシュクリア」を依頼する</span>
-        </div>
-        <div class="next-step-item">
-          <span class="next-step-num">3</span>
-          <span>CMSの管理画面で、ページが正しく「公開」になっているか確認する</span>
-        </div>
-      </div>
-
-      <!-- 結果アクション -->
-      <div class="result-actions">
-        <button class="result-action-btn primary" onclick="runCheck()">もう一度チェック</button>
-        <button class="result-action-btn" onclick="copyReport()">結果をコピー</button>
-      </div>
-
-      <!-- 技術者向け詳細（折りたたみ） -->
-      <div class="tech-details" style="margin-top: 16px;">
-        <button class="tech-details-toggle" onclick="toggleTechDetails(this)">技術者向け詳細を表示</button>
-        <div class="tech-details-body" id="tech-details-body">
-          <div class="tech-section-title">レスポンスヘッダー比較</div>
-          <div class="header-compare">
-            <div>
-              <div class="header-compare-label">現在の表示版</div>
-              <table class="header-table" id="headers-normal"></table>
-            </div>
-            <div>
-              <div class="header-compare-label">最新版</div>
-              <table class="header-table" id="headers-bypass"></table>
-            </div>
-          </div>
-          <div id="diff-section" style="display:none;">
-            <div class="tech-section-title">ボディ差分</div>
-            <p class="diff-info" id="diff-info"></p>
-            <div class="diff-container" id="diff-view"></div>
-          </div>
-        </div>
+        <div class="col-url" id="url-latest"></div>
+        <div class="col-body" id="body-latest"></div>
       </div>
     </div>
+
+    <!-- 次にやること -->
+    <div class="next-steps" id="next-steps">
+      <div class="next-steps-title">次にやること</div>
+      <div class="next-step-item">
+        <span class="next-step-num">1</span>
+        <span>しばらく待ってから「もう一度チェック」を押す<br>（サイトは一定時間ごとに自動で最新化されます）</span>
+      </div>
+      <div class="next-step-item">
+        <span class="next-step-num">2</span>
+        <span>急ぎの場合は、IT部門に「キャッシュクリア」を依頼する</span>
+      </div>
+      <div class="next-step-item">
+        <span class="next-step-num">3</span>
+        <span>CMSの管理画面で、ページが正しく「公開」になっているか確認する</span>
+      </div>
+    </div>
+
+    <!-- アクション -->
+    <div class="result-actions" id="result-actions">
+      <button class="result-action-btn primary" onclick="runCheck()">もう一度チェック</button>
+      <button class="result-action-btn" onclick="copyReport()">結果をコピー</button>
+    </div>
+  </div>
+
+  <!-- 画像モーダル -->
+  <div class="img-modal" id="img-modal" onclick="this.classList.remove('show')">
+    <img id="modal-img" src="" alt="">
   </div>
 
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/diff@5/dist/diff.min.js"></script>
   <script src="../../assets/copy-utils.js"></script>
   <script src="../../assets/history.js"></script>
   <script>
     const urlInput = document.getElementById('url-input');
     const checkBtn = document.getElementById('check-btn');
-    const errorMsg = document.getElementById('error-msg');
-    const loading = document.getElementById('loading');
-    const resultSection = document.getElementById('result');
+    const errorEl = document.getElementById('error-msg');
+    const loadingEl = document.getElementById('loading');
 
     const PROXY_URL = '/api/proxy';
-    const DISPLAY_HEADERS = ['cache-control', 'age', 'last-modified', 'etag', 'x-cache', 'x-cache-hits', 'cf-cache-status', 'expires', 'date', 'content-type'];
-
-    const HEADER_HINTS = {
-      'cache-control': 'キャッシュの方針を指定（max-age=秒数 で有効期間を設定）',
-      'age': 'キャッシュに保存されてからの経過秒数',
-      'last-modified': 'ページが最後に更新された日時',
-      'etag': 'ページのバージョン識別子（変更があると値が変わる）',
-      'x-cache': 'キャッシュのヒット状況（HIT=キャッシュから配信, MISS=元サーバーから取得）',
-      'x-cache-hits': 'キャッシュがヒットした回数',
-      'cf-cache-status': 'Cloudflareのキャッシュ状態',
-      'expires': 'キャッシュの有効期限（日時）',
-      'date': 'レスポンスが生成された日時',
-      'content-type': 'コンテンツの種類（text/html 等）',
-    };
-
     let lastResult = null;
 
     function escHtml(s) {
-      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    function showError(msg) {
-      errorMsg.textContent = msg;
-      errorMsg.classList.add('show');
-    }
-
-    function clearError() {
-      errorMsg.textContent = '';
-      errorMsg.classList.remove('show');
-    }
+    function showError(msg) { errorEl.textContent = msg; errorEl.classList.add('show'); }
+    function clearError() { errorEl.textContent = ''; errorEl.classList.remove('show'); }
 
     function setLoading(on) {
-      loading.classList.toggle('show', on);
+      loadingEl.classList.toggle('show', on);
       checkBtn.disabled = on;
-      checkBtn.textContent = on ? 'チェック中...' : '更新状況をチェック';
+      checkBtn.textContent = on ? 'チェック中...' : 'チェック';
     }
 
-    function fillSample(url) {
-      urlInput.value = url;
-      urlInput.focus();
+    function fillSample(url) { urlInput.value = url; urlInput.focus(); }
+
+    function showModal(src) {
+      document.getElementById('modal-img').src = src;
+      document.getElementById('img-modal').classList.add('show');
     }
 
-    function renderHeaders(tableEl, headers, otherHeaders) {
-      const rows = DISPLAY_HEADERS
-        .filter(k => headers[k] || (otherHeaders && otherHeaders[k]))
-        .map(k => {
-          const val = headers[k] || '—';
-          const otherVal = otherHeaders ? (otherHeaders[k] || '—') : null;
-          const isDiff = otherVal !== null && val !== otherVal;
-          const hint = HEADER_HINTS[k] || '';
-          const hintHtml = hint ? `<span class="header-hint">${escHtml(hint)}</span>` : '';
-          return `<tr${isDiff ? ' class="header-diff"' : ''}><th>${escHtml(k)}${hintHtml}</th><td>${escHtml(val)}</td></tr>`;
-        })
-        .join('');
-      tableEl.innerHTML = rows || '<tr><td colspan="2" style="color:#b2bec3;padding:8px 10px;">ヘッダー情報なし</td></tr>';
-    }
+    // ── HTML解析：OGP・画像・テキストを抽出 ──
+    function parsePageContent(html, baseUrl) {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const base = new URL(baseUrl);
 
-    function renderTTL(headers) {
-      const ttlMsg = document.getElementById('ttl-message');
-      const cc = headers['cache-control'] || '';
-      const ageStr = headers['age'];
+      function resolveUrl(src) {
+        if (!src) return '';
+        try { return new URL(src, base).href; } catch { return src; }
+      }
 
-      const maxAgeMatch = cc.match(/max-age=(\d+)/);
-      const maxAge = maxAgeMatch ? parseInt(maxAgeMatch[1], 10) : null;
-      const age = ageStr ? parseInt(ageStr, 10) : null;
+      function getMeta(name) {
+        const el = doc.querySelector(`meta[property="${name}"], meta[name="${name}"]`);
+        return el ? el.getAttribute('content') : '';
+      }
 
-      if (maxAge !== null && age !== null) {
-        const remaining = Math.max(0, maxAge - age);
-        if (remaining > 0) {
-          ttlMsg.innerHTML = `⏱ このページは<strong>あと${formatDuration(remaining)}</strong>で自動的に最新化される見込みです。`;
-        } else {
-          ttlMsg.innerHTML = `⏱ キャッシュの有効期限は切れています。すでに最新版が配信されている可能性があります。`;
+      // OGP
+      const ogp = {
+        title: getMeta('og:title') || doc.title || '',
+        description: getMeta('og:description') || getMeta('description') || '',
+        image: resolveUrl(getMeta('og:image')),
+        siteName: getMeta('og:site_name') || '',
+      };
+
+      // 画像一覧（重複排除、data:除外、小さいアイコン系除外）
+      const imgEls = doc.querySelectorAll('img[src]');
+      const seen = new Set();
+      const images = [];
+      imgEls.forEach(img => {
+        const src = resolveUrl(img.getAttribute('src'));
+        if (!src || src.startsWith('data:') || seen.has(src)) return;
+        seen.add(src);
+        const alt = img.getAttribute('alt') || '';
+        images.push({ src, alt });
+      });
+
+      // テキスト内容（見出し・段落を優先）
+      const textEls = doc.querySelectorAll('h1, h2, h3, h4, p, li, td, th, figcaption');
+      const textParts = [];
+      const seenText = new Set();
+      textEls.forEach(el => {
+        const t = el.textContent.trim();
+        if (t && t.length > 2 && !seenText.has(t)) {
+          seenText.add(t);
+          textParts.push(t);
         }
-        ttlMsg.style.display = '';
-      } else {
-        ttlMsg.style.display = 'none';
-      }
+      });
+      const textContent = textParts.join('\n');
+
+      return { ogp, images, textContent, title: doc.title || '' };
     }
 
-    function toggleTechDetails(btn) {
-      btn.classList.toggle('open');
-      document.getElementById('tech-details-body').classList.toggle('open');
-      btn.textContent = btn.classList.contains('open') ? '技術者向け詳細を閉じる' : '技術者向け詳細を表示';
-    }
-
-    function formatDuration(seconds) {
-      if (seconds < 60) return seconds + '秒';
-      if (seconds < 3600) return Math.floor(seconds / 60) + '分' + (seconds % 60 > 0 ? seconds % 60 + '秒' : '');
-      const h = Math.floor(seconds / 3600);
-      const m = Math.floor((seconds % 3600) / 60);
-      return h + '時間' + (m > 0 ? m + '分' : '');
-    }
-
-    function renderDiff(normalBody, bypassBody) {
-      const diffSection = document.getElementById('diff-section');
-      const diffView = document.getElementById('diff-view');
-      const diffInfo = document.getElementById('diff-info');
-
-      if (normalBody === bypassBody) {
-        diffSection.style.display = 'none';
-        return 0;
-      }
-
-      diffSection.style.display = '';
-      const changes = Diff.diffLines(normalBody, bypassBody);
-      let added = 0, removed = 0;
+    // ── カラムにコンテンツを描画 ──
+    function renderColumn(containerId, data) {
+      const el = document.getElementById(containerId);
       let html = '';
 
-      for (const part of changes) {
-        const lines = part.value.split('\n');
-        if (lines[lines.length - 1] === '') lines.pop();
-
-        for (const line of lines) {
-          if (part.added) {
-            added++;
-            html += `<div class="diff-line diff-added">+ ${escHtml(line)}</div>`;
-          } else if (part.removed) {
-            removed++;
-            html += `<div class="diff-line diff-removed">- ${escHtml(line)}</div>`;
-          }
-        }
+      // OGPセクション
+      html += '<div class="ogp-section">';
+      if (data.ogp.image) {
+        html += `<img class="ogp-image" src="${escHtml(data.ogp.image)}" alt="OGP画像" onerror="this.outerHTML='<div class=ogp-image-placeholder>画像を読み込めません</div>'" onclick="showModal('${escHtml(data.ogp.image)}')">`;
+      } else {
+        html += '<div class="ogp-image-placeholder">OGP画像なし</div>';
       }
+      html += `<div class="ogp-title">${escHtml(data.ogp.title || data.title || '(タイトルなし)')}</div>`;
+      if (data.ogp.description) {
+        html += `<div class="ogp-desc">${escHtml(data.ogp.description)}</div>`;
+      }
+      html += '</div>';
 
-      diffInfo.textContent = `追加: ${added}行 / 削除: ${removed}行（合計 ${added + removed}行の差分）`;
-      diffView.innerHTML = html;
-      return added + removed;
+      // 画像一覧
+      html += '<div class="images-section">';
+      html += `<div class="section-label">ページ内の画像（${data.images.length}枚）</div>`;
+      if (data.images.length > 0) {
+        const showImages = data.images.slice(0, 9);
+        html += '<div class="image-grid">';
+        showImages.forEach(img => {
+          html += `<img class="image-thumb" src="${escHtml(img.src)}" alt="${escHtml(img.alt)}" title="${escHtml(img.alt || img.src)}" onclick="showModal('${escHtml(img.src)}')" onerror="this.style.display='none'">`;
+        });
+        html += '</div>';
+        if (data.images.length > 9) {
+          html += `<div class="image-count">他 ${data.images.length - 9} 枚</div>`;
+        }
+      } else {
+        html += '<div class="no-images">画像が見つかりませんでした</div>';
+      }
+      html += '</div>';
+
+      // テキスト内容
+      html += '<div class="text-section">';
+      html += '<div class="section-label">ページのテキスト内容</div>';
+      const displayText = data.textContent.slice(0, 1000) + (data.textContent.length > 1000 ? '\n...' : '');
+      html += `<div class="text-content">${escHtml(displayText) || '(テキストを抽出できませんでした)'}</div>`;
+      html += '</div>';
+
+      el.innerHTML = html;
     }
 
+    // ── 差分判定 ──
+    function compareResults(current, latest) {
+      const diffs = [];
+
+      // OGP比較
+      if (current.ogp.title !== latest.ogp.title) diffs.push('タイトル');
+      if (current.ogp.description !== latest.ogp.description) diffs.push('説明文');
+      if (current.ogp.image !== latest.ogp.image) diffs.push('OGP画像');
+
+      // 画像URL比較
+      const currentImgSet = new Set(current.images.map(i => i.src));
+      const latestImgSet = new Set(latest.images.map(i => i.src));
+      let imgDiff = 0;
+      latestImgSet.forEach(src => { if (!currentImgSet.has(src)) imgDiff++; });
+      currentImgSet.forEach(src => { if (!latestImgSet.has(src)) imgDiff++; });
+      if (imgDiff > 0) diffs.push(`画像${imgDiff}枚`);
+
+      // テキスト比較
+      if (current.textContent !== latest.textContent) diffs.push('テキスト内容');
+
+      return diffs;
+    }
+
+    // ── プロキシ経由で取得 ──
     async function fetchViaProxy(url) {
       const res = await fetch(PROXY_URL, {
         method: 'POST',
@@ -555,90 +495,86 @@
         body: JSON.stringify({ url }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || `Proxy error (${res.status})`);
-      }
+      if (!res.ok) throw new Error(data.error || `Proxy error (${res.status})`);
       return data;
     }
 
-    function generateCacheBuster() {
-      return Date.now() + '-' + Math.random().toString(36).slice(2);
-    }
-
-    function addParam(url, key, value) {
-      const u = new URL(url);
-      u.searchParams.set(key, value);
-      return u.toString();
-    }
-
+    // ── メイン処理 ──
     async function runCheck() {
       clearError();
-      resultSection.style.display = 'none';
+      document.getElementById('verdict').style.display = 'none';
+      document.getElementById('compare-grid').style.display = 'none';
+      document.getElementById('next-steps').style.display = 'none';
+      document.getElementById('result-actions').style.display = 'none';
 
       const rawUrl = urlInput.value.trim();
-      if (!rawUrl) {
-        showError('URLを入力してください');
-        urlInput.focus();
-        return;
-      }
+      if (!rawUrl) { showError('URLを入力してください'); urlInput.focus(); return; }
 
       let parsed;
-      try {
-        parsed = new URL(rawUrl);
-      } catch {
+      try { parsed = new URL(rawUrl); } catch {
         showError('有効なURLを入力してください（例: https://www.akkodis.co.jp/）');
-        urlInput.focus();
-        return;
+        urlInput.focus(); return;
       }
-
       if (!['http:', 'https:'].includes(parsed.protocol)) {
-        showError('HTTP/HTTPS のURLを入力してください');
-        return;
+        showError('HTTP/HTTPS のURLを入力してください'); return;
       }
 
       setLoading(true);
-      const startTime = performance.now();
 
       try {
-        const bypassUrl = addParam(rawUrl, '_', generateCacheBuster());
-        const [normalRes, bypassRes] = await Promise.all([
+        // キャッシュバイパス用URL
+        const bypassUrl = new URL(rawUrl);
+        bypassUrl.searchParams.set('_cb', Date.now() + '-' + Math.random().toString(36).slice(2));
+        const bypassUrlStr = bypassUrl.toString();
+
+        // 並列取得
+        const [currentRes, latestRes] = await Promise.all([
           fetchViaProxy(rawUrl),
-          fetchViaProxy(bypassUrl),
+          fetchViaProxy(bypassUrlStr),
         ]);
 
-        const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
+        // HTML解析
+        const currentData = parsePageContent(currentRes.body, rawUrl);
+        const latestData = parsePageContent(latestRes.body, rawUrl);
 
-        renderHeaders(document.getElementById('headers-normal'), normalRes.headers, bypassRes.headers);
-        renderHeaders(document.getElementById('headers-bypass'), bypassRes.headers, normalRes.headers);
-        renderTTL(normalRes.headers);
+        // URL表示
+        document.getElementById('url-current').textContent = rawUrl;
+        document.getElementById('url-latest').textContent = bypassUrlStr;
 
-        const diffCount = renderDiff(normalRes.body, bypassRes.body);
+        // カラム描画
+        renderColumn('body-current', currentData);
+        renderColumn('body-latest', latestData);
 
-        const hero = document.getElementById('result-hero');
-        const nextSteps = document.getElementById('next-steps');
+        // 差分判定
+        const diffs = compareResults(currentData, latestData);
+        const verdict = document.getElementById('verdict');
+        const verdictTitle = document.getElementById('verdict-title');
+        const verdictDesc = document.getElementById('verdict-desc');
 
-        if (diffCount === 0) {
-          hero.className = 'result-hero synced';
-          document.getElementById('result-icon').textContent = '✅';
-          document.getElementById('result-title').textContent = '更新が反映されています！';
-          document.getElementById('result-desc').textContent = 'CMSで公開した内容がWebサイトに正しく表示されています。追加の対応は不要です。';
-          nextSteps.style.display = 'none';
+        if (diffs.length === 0) {
+          verdict.className = 'verdict synced';
+          verdictTitle.textContent = '✅ 更新が正しく反映されています';
+          verdictDesc.textContent = '現在の表示と最新版に違いはありません。CMSの更新が正しく反映されています。';
+          document.getElementById('next-steps').style.display = 'none';
+          document.getElementById('col-current').classList.remove('has-diff');
+          document.getElementById('col-latest').classList.remove('has-diff');
         } else {
-          hero.className = 'result-hero diff';
-          document.getElementById('result-icon').textContent = '⚠️';
-          document.getElementById('result-title').textContent = 'まだ更新が反映されていません';
-          document.getElementById('result-desc').textContent = 'CMSで更新した内容が、まだWebサイトには表示されていません。\nサイトの一時保存データ（キャッシュ）が古いままの可能性があります。';
-          nextSteps.style.display = '';
+          verdict.className = 'verdict diff';
+          verdictTitle.textContent = '⚠️ 現在の表示と最新版に違いがあります';
+          verdictDesc.textContent = '変更箇所: ' + diffs.join('、') + '\n左が今ユーザーに見えている状態、右が最新版です。下の2つを見比べて確認してください。';
+          document.getElementById('next-steps').style.display = '';
+          document.getElementById('col-current').classList.add('has-diff');
+          document.getElementById('col-latest').classList.remove('has-diff');
         }
 
-        document.getElementById('result-meta').textContent = parsed.hostname + ' ・ チェック時間 ' + elapsed + '秒';
+        verdict.style.display = '';
+        document.getElementById('compare-grid').style.display = '';
+        document.getElementById('result-actions').style.display = '';
 
-        resultSection.style.display = '';
-
-        lastResult = { url: rawUrl, diffCount, elapsed, normalHeaders: normalRes.headers, bypassHeaders: bypassRes.headers };
+        lastResult = { url: rawUrl, bypassUrl: bypassUrlStr, diffs, currentData, latestData };
 
         if (typeof HistoryManager !== 'undefined' && HistoryManager.save) {
-          HistoryManager.save(`${rawUrl} → ${diffCount === 0 ? '反映済み' : diffCount + '箇所の差分'}`, rawUrl);
+          HistoryManager.save(`${rawUrl} → ${diffs.length === 0 ? '反映済み' : diffs.join('・') + 'に差分'}`, rawUrl);
         }
       } catch (err) {
         showError(err.message || 'チェック中にエラーが発生しました');
@@ -653,20 +589,20 @@
       const lines = [
         `## ページ更新チェック結果`,
         `- **URL**: ${r.url}`,
-        `- **結果**: ${r.diffCount === 0 ? '✅ 反映済み' : '⚠️ 未反映（' + r.diffCount + '箇所の差分）'}`,
-        `- **チェック時間**: ${r.elapsed}秒`,
+        `- **最新版URL**: ${r.bypassUrl}`,
+        `- **結果**: ${r.diffs.length === 0 ? '✅ 反映済み' : '⚠️ 差分あり（' + r.diffs.join('、') + '）'}`,
         `- **日時**: ${new Date().toLocaleString('ja-JP')}`,
         ``,
-        `### 現在の表示版ヘッダー`,
+        `### 現在の表示`,
+        `- タイトル: ${r.currentData.ogp.title || r.currentData.title}`,
+        `- 説明文: ${r.currentData.ogp.description}`,
+        `- 画像数: ${r.currentData.images.length}枚`,
+        ``,
+        `### 最新版`,
+        `- タイトル: ${r.latestData.ogp.title || r.latestData.title}`,
+        `- 説明文: ${r.latestData.ogp.description}`,
+        `- 画像数: ${r.latestData.images.length}枚`,
       ];
-      for (const k of DISPLAY_HEADERS) {
-        if (r.normalHeaders[k]) lines.push(`- ${k}: ${r.normalHeaders[k]}`);
-      }
-      lines.push('', '### 最新版ヘッダー');
-      for (const k of DISPLAY_HEADERS) {
-        if (r.bypassHeaders[k]) lines.push(`- ${k}: ${r.bypassHeaders[k]}`);
-      }
-
       const text = lines.join('\n');
       const btn = document.querySelector('.result-action-btn:not(.primary)');
       if (typeof copyToClipboard === 'function') {
@@ -679,10 +615,7 @@
       }
     }
 
-    urlInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') runCheck();
-    });
-
+    urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') runCheck(); });
     HistoryManager.init('Cache Checker');
   </script>
 </body>
