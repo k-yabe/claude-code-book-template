@@ -25,18 +25,118 @@
       align-items: center;
       gap: 8px;
     }
+
+    /* ── ステータスカード ── */
+    .status-card {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      border-left: 4px solid #e8ecf0;
+      padding: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .status-card.synced { border-left-color: #00b894; }
+    .status-card.diff { border-left-color: #e17055; }
+    .status-icon {
+      font-size: 1.8rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .status-content { flex: 1; }
+    .status-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .status-label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #001f33;
+    }
     .status-badge {
       display: inline-block;
-      padding: 3px 10px;
-      font-size: 0.72rem;
+      padding: 2px 8px;
+      font-size: 0.68rem;
       font-weight: 700;
       letter-spacing: 0.04em;
       color: #fff;
     }
     .status-badge.synced { background: #00b894; }
     .status-badge.diff { background: #e17055; }
-    .status-badge.error { background: #c0392b; }
+    .status-text {
+      font-size: 0.85rem;
+      color: #636e72;
+      margin: 0;
+    }
+    .status-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: #8a9bb0;
+    }
 
+    /* ── アクションガイド ── */
+    .action-guide {
+      background: rgba(0,31,51,0.03);
+      border: 1px solid #e8ecf0;
+      padding: 14px 16px;
+      margin-top: 12px;
+      font-size: 0.82rem;
+      color: #636e72;
+    }
+    .action-guide-title {
+      font-weight: 700;
+      color: #001f33;
+      margin-bottom: 6px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .action-guide ol {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .action-guide li { margin-bottom: 3px; }
+
+    /* ── キャッシュTTL ── */
+    .ttl-card {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      padding: 20px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .ttl-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .ttl-grid { grid-template-columns: 1fr; }
+    }
+    .ttl-item {
+      text-align: center;
+      padding: 12px 8px;
+      background: rgba(0,31,51,0.02);
+      border: 1px solid #e8ecf0;
+    }
+    .ttl-value {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #001f33;
+      line-height: 1.2;
+    }
+    .ttl-label {
+      font-size: 0.72rem;
+      color: #8a9bb0;
+      margin-top: 4px;
+    }
+
+    /* ── ヘッダー比較 ── */
     .header-table {
       width: 100%;
       border-collapse: collapse;
@@ -50,7 +150,25 @@
       font-weight: 600;
       white-space: nowrap;
       width: 160px;
+      cursor: help;
+      position: relative;
     }
+    .header-table th .header-hint {
+      display: none;
+      position: absolute;
+      left: 0;
+      top: 100%;
+      background: #001f33;
+      color: #fff;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      font-weight: 400;
+      white-space: normal;
+      width: 240px;
+      z-index: 10;
+      line-height: 1.4;
+    }
+    .header-table th:hover .header-hint { display: block; }
     .header-table td {
       padding: 6px 10px;
       color: #2d3436;
@@ -60,6 +178,8 @@
     .header-table tr + tr td {
       border-top: 1px solid #e8ecf0;
     }
+    .header-table tr.header-diff th { color: #e17055; }
+    .header-table tr.header-diff td { color: #e17055; font-weight: 600; }
     .header-compare {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -77,6 +197,7 @@
       margin-bottom: 6px;
     }
 
+    /* ── diff表示 ── */
     .diff-container {
       background: #fff;
       border: 1px solid #e8ecf0;
@@ -96,6 +217,7 @@
       margin-bottom: 8px;
     }
 
+    /* ── ローディング ── */
     .loading-area {
       text-align: center;
       padding: 32px 0;
@@ -121,6 +243,7 @@
       40% { transform: scale(1); }
     }
 
+    /* ── エラー ── */
     .error-msg {
       background: #fff5f4;
       border: 1.5px solid #fab1a0;
@@ -131,11 +254,69 @@
     }
     .error-msg.show { display: block; }
 
+    /* ── サンプルボタン ── */
+    .sample-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .sample-label {
+      font-size: 0.72rem;
+      color: #b2bec3;
+    }
+    .sample-btn {
+      background: none;
+      border: 1px solid #e8ecf0;
+      color: #636e72;
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .sample-btn:hover {
+      border-color: #ffb81c;
+      color: #001f33;
+    }
+
     .url-note {
       font-size: 0.75rem;
       color: #8a9bb0;
       margin-top: 6px;
     }
+
+    /* ── 結果フッターボタン ── */
+    .result-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .result-action-btn {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      color: #636e72;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 9px 18px;
+      cursor: pointer;
+      transition: all 0.15s;
+      flex: 1;
+      min-width: 140px;
+      text-align: center;
+    }
+    .result-action-btn:hover {
+      border-color: #001f33;
+      color: #001f33;
+    }
+    .result-action-btn.primary {
+      background: #ffb81c;
+      border-color: #ffb81c;
+      color: #001f33;
+      font-weight: 800;
+    }
+    .result-action-btn.primary:hover { opacity: 0.92; }
   </style>
 </head>
 <body>
@@ -152,7 +333,7 @@
   <div class="container">
     <div class="page-header">
       <h1>Cache Checker</h1>
-      <p class="page-desc">URLを入力してキャッシュの反映状況を確認できます</p>
+      <p class="page-desc">URLのキャッシュ反映状況を通常版とバイパス版の比較で確認します</p>
     </div>
 
     <div class="step">
@@ -162,7 +343,13 @@
       </div>
       <div class="step-body">
         <input type="url" id="url-input" class="input-field" placeholder="https://example.com/page" autocomplete="url">
-        <p class="url-note">通常版と、ランダムパラメータ付き（キャッシュバイパス）版を取得して比較します</p>
+        <p class="url-note">ランダムパラメータを自動付与してキャッシュバイパス版を取得し、通常版と比較します</p>
+        <div class="sample-row">
+          <span class="sample-label">サンプル:</span>
+          <button class="sample-btn" onclick="fillSample('https://www.google.com')">google.com</button>
+          <button class="sample-btn" onclick="fillSample('https://example.com')">example.com</button>
+          <button class="sample-btn" onclick="fillSample('https://httpbin.org/cache/60')">httpbin (60s cache)</button>
+        </div>
       </div>
     </div>
 
@@ -177,14 +364,51 @@
 
     <div id="result" class="result-section" style="display:none;">
 
-      <div class="result-card">
-        <div class="result-card-title">
-          <span>ステータス</span>
-          <span class="status-badge" id="status-badge"></span>
+      <!-- ステータスカード -->
+      <div class="status-card" id="status-card">
+        <div class="status-icon" id="status-icon"></div>
+        <div class="status-content">
+          <div class="status-header">
+            <span class="status-label" id="status-label"></span>
+            <span class="status-badge" id="status-badge"></span>
+          </div>
+          <p class="status-text" id="status-text"></p>
+          <div class="status-meta">
+            <span id="meta-time"></span>
+            <span id="meta-url"></span>
+          </div>
+          <!-- アクションガイド（DIFF時のみ） -->
+          <div class="action-guide" id="action-guide" style="display:none;">
+            <div class="action-guide-title">対応方法</div>
+            <ol>
+              <li>CDN/サーバーのキャッシュをクリア（パージ）する</li>
+              <li>CMS側のパブリッシュ状態を確認する</li>
+              <li>キャッシュTTL経過後に自動反映される場合は、下記の残り時間を確認する</li>
+            </ol>
+          </div>
         </div>
-        <p id="status-text" style="font-size:0.85rem;color:#636e72;"></p>
       </div>
 
+      <!-- キャッシュTTLカード -->
+      <div class="ttl-card" id="ttl-card">
+        <div class="result-card-title">キャッシュ情報</div>
+        <div class="ttl-grid">
+          <div class="ttl-item">
+            <div class="ttl-value" id="ttl-max-age">—</div>
+            <div class="ttl-label">max-age（有効期間）</div>
+          </div>
+          <div class="ttl-item">
+            <div class="ttl-value" id="ttl-age">—</div>
+            <div class="ttl-label">age（経過時間）</div>
+          </div>
+          <div class="ttl-item">
+            <div class="ttl-value" id="ttl-remaining">—</div>
+            <div class="ttl-label">残り時間</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ヘッダー比較 -->
       <div class="result-card">
         <div class="result-card-title">レスポンスヘッダー比較</div>
         <div class="header-compare">
@@ -199,10 +423,17 @@
         </div>
       </div>
 
+      <!-- ボディ差分 -->
       <div class="result-card" id="diff-card" style="display:none;">
         <div class="result-card-title">ボディ差分</div>
         <p class="diff-info" id="diff-info"></p>
         <div class="diff-container" id="diff-view"></div>
+      </div>
+
+      <!-- 結果アクション -->
+      <div class="result-actions">
+        <button class="result-action-btn primary" onclick="runCheck()">再チェック</button>
+        <button class="result-action-btn" onclick="copyReport()">レポートをコピー</button>
       </div>
     </div>
   </div>
@@ -224,6 +455,22 @@
     const PROXY_URL = '/api/proxy';
     const DISPLAY_HEADERS = ['cache-control', 'age', 'last-modified', 'etag', 'x-cache', 'x-cache-hits', 'cf-cache-status', 'expires', 'date', 'content-type'];
 
+    const HEADER_HINTS = {
+      'cache-control': 'キャッシュの方針を指定（max-age=秒数 で有効期間を設定）',
+      'age': 'キャッシュサーバーに保存されてからの経過秒数',
+      'last-modified': 'コンテンツが最後に更新された日時',
+      'etag': 'コンテンツのバージョン識別子（変更があると値が変わる）',
+      'x-cache': 'CDNキャッシュのヒット状況（HIT=キャッシュから配信, MISS=オリジンから取得）',
+      'x-cache-hits': 'CDNキャッシュがヒットした回数',
+      'cf-cache-status': 'Cloudflareのキャッシュ状態',
+      'expires': 'キャッシュの有効期限（日時）',
+      'date': 'レスポンスが生成された日時',
+      'content-type': 'コンテンツの種類（text/html 等）',
+    };
+
+    // 最後のチェック結果を保持（レポート用）
+    let lastResult = null;
+
     function escHtml(s) {
       return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
@@ -244,12 +491,60 @@
       checkBtn.textContent = on ? 'チェック中...' : 'キャッシュをチェック';
     }
 
-    function renderHeaders(tableEl, headers) {
+    function fillSample(url) {
+      urlInput.value = url;
+      urlInput.focus();
+    }
+
+    // ── ヘッダー描画（差分ハイライト + ツールチップ対応） ──
+    function renderHeaders(tableEl, headers, otherHeaders) {
       const rows = DISPLAY_HEADERS
-        .filter(k => headers[k])
-        .map(k => `<tr><th>${escHtml(k)}</th><td>${escHtml(headers[k])}</td></tr>`)
+        .filter(k => headers[k] || (otherHeaders && otherHeaders[k]))
+        .map(k => {
+          const val = headers[k] || '—';
+          const otherVal = otherHeaders ? (otherHeaders[k] || '—') : null;
+          const isDiff = otherVal !== null && val !== otherVal;
+          const hint = HEADER_HINTS[k] || '';
+          const hintHtml = hint ? `<span class="header-hint">${escHtml(hint)}</span>` : '';
+          return `<tr${isDiff ? ' class="header-diff"' : ''}><th>${escHtml(k)}${hintHtml}</th><td>${escHtml(val)}</td></tr>`;
+        })
         .join('');
       tableEl.innerHTML = rows || '<tr><td colspan="2" style="color:#b2bec3;padding:8px 10px;">ヘッダー情報なし</td></tr>';
+    }
+
+    // ── キャッシュTTL計算 ──
+    function renderTTL(headers) {
+      const ttlCard = document.getElementById('ttl-card');
+      const cc = headers['cache-control'] || '';
+      const ageStr = headers['age'];
+
+      const maxAgeMatch = cc.match(/max-age=(\d+)/);
+      const maxAge = maxAgeMatch ? parseInt(maxAgeMatch[1], 10) : null;
+      const age = ageStr ? parseInt(ageStr, 10) : null;
+
+      if (maxAge === null && age === null) {
+        ttlCard.style.display = 'none';
+        return;
+      }
+
+      ttlCard.style.display = '';
+      document.getElementById('ttl-max-age').textContent = maxAge !== null ? formatDuration(maxAge) : '—';
+      document.getElementById('ttl-age').textContent = age !== null ? formatDuration(age) : '—';
+
+      if (maxAge !== null && age !== null) {
+        const remaining = Math.max(0, maxAge - age);
+        document.getElementById('ttl-remaining').textContent = remaining > 0 ? formatDuration(remaining) : '期限切れ';
+      } else {
+        document.getElementById('ttl-remaining').textContent = '—';
+      }
+    }
+
+    function formatDuration(seconds) {
+      if (seconds < 60) return seconds + '秒';
+      if (seconds < 3600) return Math.floor(seconds / 60) + '分' + (seconds % 60 > 0 ? seconds % 60 + '秒' : '');
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      return h + '時間' + (m > 0 ? m + '分' : '');
     }
 
     function renderDiff(normalBody, bypassBody) {
@@ -336,6 +631,7 @@
       }
 
       setLoading(true);
+      const startTime = performance.now();
 
       try {
         const bypassUrl = addParam(rawUrl, '_', generateCacheBuster());
@@ -344,25 +640,52 @@
           fetchViaProxy(bypassUrl),
         ]);
 
-        renderHeaders(document.getElementById('headers-normal'), normalRes.headers);
-        renderHeaders(document.getElementById('headers-bypass'), bypassRes.headers);
+        const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
 
+        // ヘッダー描画（差分ハイライト付き）
+        renderHeaders(document.getElementById('headers-normal'), normalRes.headers, bypassRes.headers);
+        renderHeaders(document.getElementById('headers-bypass'), bypassRes.headers, normalRes.headers);
+
+        // TTL計算
+        renderTTL(normalRes.headers);
+
+        // ボディ差分
         const diffCount = renderDiff(normalRes.body, bypassRes.body);
 
+        // ステータスカード
+        const statusCard = document.getElementById('status-card');
+        const statusIcon = document.getElementById('status-icon');
+        const statusLabel = document.getElementById('status-label');
         const badge = document.getElementById('status-badge');
         const statusText = document.getElementById('status-text');
+        const actionGuide = document.getElementById('action-guide');
 
         if (diffCount === 0) {
+          statusCard.className = 'status-card synced';
+          statusIcon.textContent = '✅';
+          statusLabel.textContent = 'キャッシュは最新';
           badge.textContent = 'SYNCED';
           badge.className = 'status-badge synced';
-          statusText.textContent = 'キャッシュは最新の状態です。通常版とバイパス版に差分はありません。';
+          statusText.textContent = '通常版とバイパス版に差分はありません。キャッシュは正しく反映されています。';
+          actionGuide.style.display = 'none';
         } else {
-          badge.textContent = 'DIFF DETECTED';
+          statusCard.className = 'status-card diff';
+          statusIcon.textContent = '⚠️';
+          statusLabel.textContent = '未反映の更新あり';
+          badge.textContent = diffCount + '行の差分';
           badge.className = 'status-badge diff';
-          statusText.textContent = `通常版とバイパス版に ${diffCount}行の差分があります。キャッシュが古い可能性があります。`;
+          statusText.textContent = '通常版（キャッシュ）とバイパス版（最新）に差分があります。キャッシュが古い可能性があります。';
+          actionGuide.style.display = '';
         }
 
+        // メタ情報
+        document.getElementById('meta-time').textContent = 'チェック時間: ' + elapsed + '秒';
+        document.getElementById('meta-url').textContent = parsed.hostname;
+
         resultSection.style.display = '';
+
+        // 結果を保持
+        lastResult = { url: rawUrl, diffCount, elapsed, normalHeaders: normalRes.headers, bypassHeaders: bypassRes.headers };
 
         // 履歴に保存
         if (typeof HistoryManager !== 'undefined' && HistoryManager.save) {
@@ -372,6 +695,39 @@
         showError(err.message || 'チェック中にエラーが発生しました');
       } finally {
         setLoading(false);
+      }
+    }
+
+    // ── レポートコピー ──
+    function copyReport() {
+      if (!lastResult) return;
+      const r = lastResult;
+      const lines = [
+        `## Cache Check Report`,
+        `- **URL**: ${r.url}`,
+        `- **ステータス**: ${r.diffCount === 0 ? '✅ SYNCED（反映済み）' : '⚠️ ' + r.diffCount + '行の差分（未反映）'}`,
+        `- **チェック時間**: ${r.elapsed}秒`,
+        `- **日時**: ${new Date().toLocaleString('ja-JP')}`,
+        ``,
+        `### 通常版ヘッダー`,
+      ];
+      for (const k of DISPLAY_HEADERS) {
+        if (r.normalHeaders[k]) lines.push(`- ${k}: ${r.normalHeaders[k]}`);
+      }
+      lines.push('', '### バイパス版ヘッダー');
+      for (const k of DISPLAY_HEADERS) {
+        if (r.bypassHeaders[k]) lines.push(`- ${k}: ${r.bypassHeaders[k]}`);
+      }
+
+      const text = lines.join('\n');
+      const btn = document.querySelector('.result-action-btn:not(.primary)');
+      if (typeof copyToClipboard === 'function') {
+        copyToClipboard(text, btn);
+      } else {
+        navigator.clipboard.writeText(text).then(() => {
+          btn.textContent = '✅ コピーしました';
+          setTimeout(() => { btn.textContent = 'レポートをコピー'; }, 2000);
+        });
       }
     }
 
