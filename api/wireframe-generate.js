@@ -599,6 +599,58 @@ ${context ? `## コンテキスト\n- ページ目的: ${context.purpose || '不
 
 B案の構成をJSON形式で返してください。`,
       }];
+    } else if (mode === 'url-import') {
+      // URLインポート専用: サイト構造を忠実に再現
+      model = 'claude-sonnet-4-6';
+      systemPrompt = `あなたはWebサイトの構造を忠実にワイヤーフレームとして再現する専門家です。
+入力されたサイトの構造情報をもとに、そのサイトのページ構成をできるだけ正確にワイヤーフレームのセクションJSONとして再現してください。
+
+## 最重要ルール
+- これは「新規LP設計」ではなく「既存サイトの構造コピー」です
+- あなたの知識に基づく「理想のLP構成」を作るのではなく、入力された構造情報に忠実に再現してください
+- サイトに存在しないセクションを勝手に追加しないでください
+- セクションの順序は元サイトの上から下の順序をそのまま維持してください
+- 「キャッチコピーが入ります」等のプレースホルダーは使わない — サイトから抽出した実際のテキストを使ってください
+
+## 出力形式（必ずこのJSON形式のみを返す）
+
+{"sections":[...]}
+
+## セクション構造
+\`\`\`
+{
+  "id": "sec-1",
+  "type": "...",
+  "label": "実際のサイトの見出しテキスト（20文字以内）",
+  "description": "実際のサイトの内容（50文字以内）",
+  "height": "viewport" | "auto",
+  "components": [...],
+  "rationale": "元サイトのどの部分に対応するか"
+}
+\`\`\`
+
+## 使用可能なtype
+navigation, hero, features, content-text, two-column, testimonials, pricing, cta-banner, form, faq, gallery, stats, timeline, cards, footer, video, logo-bar, comparison, sticky-cta
+
+## 使用可能なcomponents
+heading, subtext, cta-button, cta-with-note, hero-image, placeholder-image, icon-card, form-field, submit-button, nav-logo, nav-menu, nav-cta, quote-text, avatar, company-logo, logo-bar, price-card, accordion-item, stat-number, step-item, card-item, link-list, copyright, social-icons, search-bar, breadcrumb, video-placeholder, divider, badge, before-after, review-stars, security-badge, progress-bar, comparison-row, sticky-bar, media-logo, award-badge, countdown-timer, chat-widget
+
+## 構造判定のヒント
+- navItemsがある → navigation セクション
+- h1 + 大きなテキスト + ボタン → hero セクション
+- 複数の同構造要素の繰り返し → features or cards
+- フォーム要素がある → form セクション
+- 画像が多いエリア → gallery セクション
+- 数値データの列挙 → stats セクション
+- 引用やレビュー → testimonials セクション
+- FAQ/Q&A → faq セクション
+- footerLinksがある → footer セクション
+
+必ずJSON形式のみを返してください。`;
+      messages = [{
+        role: 'user',
+        content: freeText,
+      }];
     } else if (mode === 'refine') {
       model = 'claude-haiku-4-5-20251001';
       systemPrompt = REFINE_SYSTEM_PROMPT;
