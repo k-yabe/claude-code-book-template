@@ -799,6 +799,7 @@
             <div class="export-btns">
               <button class="btn-svg" onclick="exportSVG()">SVG ダウンロード</button>
               <button class="btn-png" onclick="exportPNG()">PNG ダウンロード</button>
+              <button class="btn-png" onclick="exportPDF()">PDF ダウンロード</button>
               <button class="btn-copy" id="btn-copy-svg" onclick="copySVG()">SVG コピー</button>
             </div>
           </div>
@@ -2080,6 +2081,7 @@ function showSectionOverlay(sectionId) {
     { label: '⧉ 複製', action: () => { duplicateSection(idx); showSectionOverlay(sectionId); } },
     { label: '✎ 編集', action: () => { switchTab('structure'); setTimeout(() => { const card = document.querySelector(`.section-card[data-id="${sectionId}"]`); if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); const lbl = card.querySelector('.sec-label'); if (lbl) { lbl.contentEditable = 'true'; lbl.focus(); } } }, 100); } },
     { label: '🖼 画像', action: () => uploadSectionImage(sectionId) },
+    { label: '🎨 色', action: () => showSectionStyleEditor(sectionId) },
     { label: '🔗 リンク', action: () => showLinkPicker(sectionId) },
     { label: '✕', action: () => { deleteSection(idx); }, cls: 'danger' },
   ];
@@ -4972,6 +4974,171 @@ function predictPerformance(sections) {
     weight: { kb: totalKB, display: totalKB < 1024 ? `${Math.round(totalKB)}KB` : `${(totalKB / 1024).toFixed(1)}MB` },
     warnings
   };
+}
+
+/* ================================================================
+   V10b: セクション個別スタイル + PDFエクスポート
+   ================================================================ */
+
+function showSectionStyleEditor(sectionId) {
+  document.querySelectorAll('.svg-inline-edit').forEach(e => e.remove());
+  const sec = currentSections.find(s => s.id === sectionId);
+  if (!sec) return;
+  const canvas = document.getElementById('preview-canvas');
+  const svgRoot = canvas.querySelector('svg');
+  const group = svgRoot?.querySelector(`.section-group[data-id="${sectionId}"]`);
+  if (!group) return;
+
+  const groupRect = group.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+  const style = sec.style || {};
+
+  const panel = document.createElement('div');
+  panel.className = 'svg-inline-edit';
+  panel.style.left = (groupRect.left - canvasRect.left + canvas.scrollLeft + 20) + 'px';
+  panel.style.top = (groupRect.top - canvasRect.top + canvas.scrollTop + 30) + 'px';
+  panel.onclick = e => e.stopPropagation();
+
+  panel.innerHTML = `
+    <label>背景色</label>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <input type="color" class="style-bg" value="${style.bg || '#ffffff'}" style="width:36px;height:28px;border:1px solid #e8ecf0;cursor:pointer;">
+      <button onclick="this.previousElementSibling.value='#ffffff'" style="font-size:0.65rem;padding:2px 6px;border:1px solid #e8ecf0;background:#f7f8fa;cursor:pointer;">リセット</button>
+    </div>
+    <label>テキスト色</label>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <input type="color" class="style-text" value="${style.textColor || '#2d3436'}" style="width:36px;height:28px;border:1px solid #e8ecf0;cursor:pointer;">
+      <button onclick="this.previousElementSibling.value='#2d3436'" style="font-size:0.65rem;padding:2px 6px;border:1px solid #e8ecf0;background:#f7f8fa;cursor:pointer;">リセット</button>
+    </div>
+    <label>アクセント色</label>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <input type="color" class="style-accent" value="${style.accent || '#ffb81c'}" style="width:36px;height:28px;border:1px solid #e8ecf0;cursor:pointer;">
+      <button onclick="this.previousElementSibling.value='#ffb81c'" style="font-size:0.65rem;padding:2px 6px;border:1px solid #e8ecf0;background:#f7f8fa;cursor:pointer;">リセット</button>
+    </div>
+    <div class="edit-actions">
+      <button onclick="this.closest('.svg-inline-edit').remove()">キャンセル</button>
+      <button class="primary" onclick="applySectionStyle('${sectionId}')">適用</button>
+    </div>`;
+  canvas.appendChild(panel);
+}
+
+function applySectionStyle(sectionId) {
+  const panel = document.querySelector('.svg-inline-edit');
+  if (!panel) return;
+  const sec = currentSections.find(s => s.id === sectionId);
+  if (!sec) return;
+  saveUndoState();
+  sec.style = {
+    bg: panel.querySelector('.style-bg').value,
+    textColor: panel.querySelector('.style-text').value,
+    accent: panel.querySelector('.style-accent').value,
+  };
+  onSectionsChanged();
+  panel.remove();
+  showToast('スタイル適用');
+}
+
+// renderSection で個別スタイルを適用するため、cs() をセクション別に上書き
+const _origCs = cs;
+let _currentSecStyle = null;
+cs = function(key) {
+  if (_currentSecStyle) {
+    if (key === 'bg' || key === 'card') return _currentSecStyle.bg || _origCs(key);
+    if (key === 'heading' || key === 'body' || key === 'label') return _currentSecStyle.textColor || _origCs(key);
+    if (key === 'accent' || key === 'accentText') return _currentSecStyle.accent || _origCs(key);
+  }
+  return _origCs(key);
+};
+
+// renderSection をラップしてセクション個別スタイルを注入
+const _origRenderSec = renderSection;
+renderSection = function(sec, yOff) {
+  _currentSecStyle = sec.style || null;
+  const result = _origRenderSec(sec, yOff);
+  _currentSecStyle = null;
+  return result;
+};
+
+// PDFエクスポート
+function exportPDF() {
+  const svgRoot = document.querySelector('#preview-canvas svg');
+  if (!svgRoot) { showToast('プレビューがありません'); return; }
+
+  showToast('PDF生成中...');
+  const svgData = new XMLSerializer().serializeToString(svgRoot);
+  const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(svgBlob);
+
+  const img = new Image();
+  img.onload = () => {
+    const w = img.naturalWidth;
+    const h = img.naturalHeight;
+    // A4横: 297x210mm → ピクセル比に合わせてスケール
+    const pageW = 842; // A4横 72dpi
+    const pageH = Math.ceil(pageW * (h / w));
+
+    const c = document.createElement('canvas');
+    c.width = pageW; c.height = pageH;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, pageW, pageH);
+    ctx.drawImage(img, 0, 0, pageW, pageH);
+
+    c.toBlob(blob => {
+      // 簡易PDF生成（単一画像埋め込み）
+      const reader = new FileReader();
+      reader.onload = () => {
+        const imgBytes = new Uint8Array(reader.result);
+        const pdf = buildSimplePDF(pageW, pageH, imgBytes);
+        const pdfBlob = new Blob([pdf], { type: 'application/pdf' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(pdfBlob);
+        a.download = (currentContext?.purpose || 'wireframe') + '.pdf';
+        a.click();
+        showToast('PDFダウンロード完了');
+      };
+      reader.readAsArrayBuffer(blob);
+    }, 'image/jpeg', 0.92);
+    URL.revokeObjectURL(url);
+  };
+  img.src = url;
+}
+
+function buildSimplePDF(w, h, jpegBytes) {
+  const enc = new TextEncoder();
+  const parts = [];
+  let offset = 0;
+  const offsets = [];
+  function add(str) { const b = enc.encode(str); parts.push(b); offset += b.length; }
+  function addObj(n, content) { offsets[n] = offset; add(`${n} 0 obj\n${content}\nendobj\n`); }
+
+  add('%PDF-1.4\n');
+  addObj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+  addObj(2, `<< /Type /Pages /Kids [3 0 R] /Count 1 >>`);
+  addObj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] /Contents 5 0 R /Resources << /XObject << /Img 4 0 R >> >> >>`);
+
+  const imgStream = `<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`;
+  offsets[4] = offset;
+  add(`4 0 obj\n${imgStream}`);
+  parts.push(jpegBytes); offset += jpegBytes.length;
+  add('\nendstream\nendobj\n');
+
+  const contentStr = `q ${w} 0 0 ${h} 0 0 cm /Img Do Q`;
+  addObj(5, `<< /Length ${contentStr.length} >>\nstream\n${contentStr}\nendstream`);
+
+  const xrefOffset = offset;
+  add('xref\n');
+  add(`0 6\n`);
+  add('0000000000 65535 f \n');
+  for (let i = 1; i <= 5; i++) add(String(offsets[i]).padStart(10, '0') + ' 00000 n \n');
+  add(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
+
+  let totalLen = 0;
+  parts.forEach(p => totalLen += p.length);
+  const result = new Uint8Array(totalLen);
+  let pos = 0;
+  parts.forEach(p => { result.set(p, pos); pos += p.length; });
+  return result;
 }
 
 /* ================================================================
