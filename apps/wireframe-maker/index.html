@@ -887,6 +887,9 @@
 <script src="/assets/history.js"></script>
 <script>
 /* ===== グローバル状態 ===== */
+// ローカル開発時は Vercel 本番 API にフォールバック
+const API_BASE = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+  ? 'https://kunito-yabe.vercel.app' : '';
 const USER = localStorage.getItem('user') || '';
 let currentTab = 'chat';
 let chatHistory = [];
@@ -1155,7 +1158,7 @@ async function handleUrlImport() {
   document.getElementById('chat-send').disabled = true;
   try {
     // Step 1: サイトのHTMLコンテンツを取得
-    const fetchRes = await fetch('/api/fetch-article', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+    const fetchRes = await fetch(API_BASE + '/api/fetch-article', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
     const fetchData = await fetchRes.json();
     if (!fetchRes.ok) throw new Error(fetchData.error || 'サイトの取得に失敗しました');
     const siteContent = `[インポートしたサイト: ${url}]\nタイトル: ${fetchData.title}\n\n${fetchData.text}`;
@@ -1165,7 +1168,7 @@ async function handleUrlImport() {
 
     // Step 2: AI で構造を自動生成
     addLoadingBubble();
-    const genRes = await fetch('/api/wireframe-generate', {
+    const genRes = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         mode: 'free',
@@ -1188,7 +1191,7 @@ async function generateFromImport() {
   clearError(); addLoadingBubble();
   document.getElementById('chat-send').disabled = true;
   try {
-    const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'free', freeText: importedContent.slice(0, 10000), _user: USER }) });
+    const r = await fetch(API_BASE + '/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'free', freeText: importedContent.slice(0, 10000), _user: USER }) });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error?.message || data.error || '生成失敗');
     removeLoadingBubble();
@@ -1264,7 +1267,7 @@ async function sendChat() {
   document.getElementById('suggestions-area').innerHTML = '';
   addLoadingBubble();
   try {
-    const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'chat', chatMessages: chatHistory, importedContent: importedContent || undefined, _user: USER }) });
+    const r = await fetch(API_BASE + '/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'chat', chatMessages: chatHistory, importedContent: importedContent || undefined, _user: USER }) });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error?.message || data.error || '生成失敗');
     removeLoadingBubble();
@@ -1291,7 +1294,7 @@ document.querySelectorAll('.tpl-chip').forEach(chip => {
     addLoadingBubble();
     document.getElementById('chat-send').disabled = true;
     try {
-      const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'template', templateId: tplId, _user: USER }) });
+      const r = await fetch(API_BASE + '/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'template', templateId: tplId, _user: USER }) });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error?.message || data.error || '生成失敗');
       removeLoadingBubble();
@@ -1309,7 +1312,7 @@ async function generateFromContext() {
   addLoadingBubble();
   document.getElementById('chat-send').disabled = true;
   try {
-    const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'generate', context: currentContext, _user: USER }) });
+    const r = await fetch(API_BASE + '/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'generate', context: currentContext, _user: USER }) });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error?.message || data.error || '生成失敗');
     removeLoadingBubble();
@@ -1424,7 +1427,7 @@ async function refineStructure() {
   if (!text) return;
   clearError(); btn.disabled = true; btn.textContent = '修正中...';
   try {
-    const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'refine', currentSections, instruction: text, _user: USER }) });
+    const r = await fetch(API_BASE + '/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'refine', currentSections, instruction: text, _user: USER }) });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error?.message || data.error || '修正失敗');
     currentSections = data.sections; input.value = '';
@@ -2394,7 +2397,7 @@ async function generateVariant() {
 
   // API呼び出し
   try {
-    const r = await fetch('/api/wireframe-generate', {
+    const r = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode: 'variant', currentSections, context: currentContext, _user: USER })
@@ -2711,7 +2714,7 @@ async function generateAICopy() {
 
   try {
     const sectionSummary = currentSections.map(s => `${s.type}: ${s.label}`).join('\n');
-    const r = await fetch('/api/wireframe-generate', {
+    const r = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -3240,7 +3243,7 @@ async function analyzeCompetitor() {
   body.innerHTML = '<div class="variant-loading"><div class="loading-dots"><span></span><span></span><span></span></div>AIが競合サイトを分析中...</div>';
 
   try {
-    const r = await fetch('/api/wireframe-generate', {
+    const r = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -3252,7 +3255,7 @@ async function analyzeCompetitor() {
     const data = await r.json();
 
     // AIの応答からセクション構成を推定（freeモードで再生成）
-    const r2 = await fetch('/api/wireframe-generate', {
+    const r2 = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode: 'free', freeText: `競合サイト ${url} のページ構成を分析し、一般的な${url.includes('saas') || url.includes('app') ? 'SaaS' : 'BtoB'} Webサイトのパターンに基づいて推定されるセクション構成を生成してください。`, _user: USER })
@@ -3993,7 +3996,7 @@ async function executeFigmaImport() {
   if (progress) progress.style.display = 'block';
 
   try {
-    const res = await fetch('/api/figma-import', {
+    const res = await fetch(API_BASE + '/api/figma-import', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fileKey, token })
@@ -4050,7 +4053,7 @@ function convertFigmaToSections(frames) {
 
 async function figmaAIFallback(fileKey) {
   try {
-    const res = await fetch('/api/wireframe-generate', {
+    const res = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode: 'free', userMessage: `Figmaファイル(key:${fileKey})のLP構成を推定し、一般的なLPセクション構成として出力してください。JSON配列で返してください。` })
@@ -4259,7 +4262,7 @@ async function executePublishLP() {
   // Step 3: Deploy
   updatePublishStep(3, 'active');
   try {
-    const res = await fetch('/api/deploy-lp', {
+    const res = await fetch(API_BASE + '/api/deploy-lp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ html: optimizedHtml, name: page.name || 'lp-wireframe' })
