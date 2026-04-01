@@ -78,6 +78,20 @@
     .section-overlay button { background: none; border: none; color: rgba(255,255,255,0.8); font-size: 0.75rem; cursor: pointer; padding: 3px 6px; transition: color 0.12s; }
     .section-overlay button:hover { color: #ffb81c; }
 
+    /* ===== クローンモード（サイト再現） ===== */
+    #clone-frame { width: 100%; height: 100%; border: none; background: #fff; display: block; }
+    .clone-toolbar { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: #0a2940; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+    .clone-toolbar .ct-label { font-size: 0.68rem; color: rgba(255,255,255,0.5); }
+    .clone-toolbar .ct-btn { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); padding: 3px 10px; font-size: 0.65rem; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .clone-toolbar .ct-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+    .clone-toolbar .ct-btn.active { background: rgba(255,184,28,0.15); border-color: #ffb81c; color: #ffb81c; }
+    .clone-toolbar .ct-sep { width: 1px; height: 16px; background: rgba(255,255,255,0.1); }
+    .clone-toolbar .ct-url { flex: 1; font-size: 0.62rem; color: rgba(255,255,255,0.35); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .clone-edit-hint { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #001f33; color: #fff; padding: 8px 20px; font-size: 0.75rem; z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease; pointer-events: none; }
+    .mode-toggle { display: flex; background: #f0f2f5; padding: 2px; gap: 1px; }
+    .mode-toggle .mt-btn { padding: 4px 12px; font-size: 0.65rem; font-weight: 600; background: none; border: none; color: #8a9bb0; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .mode-toggle .mt-btn.active { background: #fff; color: #001f33; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
     /* ミニマップ */
     .minimap { position: absolute; bottom: 12px; right: 12px; width: 120px; background: #fff; border: 1px solid #d0d5dc; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 15; overflow: hidden; cursor: pointer; }
     .minimap svg { width: 100%; height: auto; display: block; }
@@ -752,8 +766,8 @@
             </div>
             <div class="import-url-row" style="flex:2">
               <label for="url-input" class="hidden">URL</label>
-              <input type="url" class="import-url-input" id="url-input" placeholder="URLを入力してサイト構成をコピー" onkeydown="if(event.key==='Enter')handleUrlImport()">
-              <button class="btn-url-go" onclick="handleUrlImport()" title="URLからワイヤーフレームを自動生成">🌐 コピー生成</button>
+              <input type="url" class="import-url-input" id="url-input" placeholder="URLを入力してサイトをそのまま再現" onkeydown="if(event.key==='Enter')handleUrlImport()">
+              <button class="btn-url-go" onclick="handleUrlImport()" title="URLのサイトをそのまま表示して編集可能に">🌐 サイト再現</button>
             </div>
           </div>
           <div class="tpl-bar">
@@ -958,6 +972,23 @@
         <p>左パネルからテンプレートを選択するか、<br>チャットで要件を伝えてください</p>
         <div class="empty-hint">構成が生成されると、ここにリアルタイムプレビューが表示されます</div>
       </div>
+    </div>
+    <!-- クローンモード（サイト再現） -->
+    <div id="clone-container" class="hidden" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+      <div class="clone-toolbar" id="clone-toolbar">
+        <span class="ct-label">サイト再現</span>
+        <div class="ct-sep"></div>
+        <button class="ct-btn active" id="ct-edit-btn" onclick="toggleCloneEdit()">✏️ 編集モード</button>
+        <button class="ct-btn" onclick="cloneAIRewrite()">🤖 AIリライト</button>
+        <button class="ct-btn" onclick="cloneReplaceImage()">🖼️ 画像差替</button>
+        <button class="ct-btn" onclick="cloneHideSection()">👁️ セクション非表示</button>
+        <button class="ct-btn" onclick="cloneExportHTML()">💾 HTML保存</button>
+        <div class="ct-sep"></div>
+        <button class="ct-btn" onclick="switchToWireframe()">📐 ワイヤーフレームに変換</button>
+        <div style="flex:1"></div>
+        <span class="ct-url" id="clone-url-label"></span>
+      </div>
+      <iframe id="clone-frame" sandbox="allow-same-origin allow-scripts"></iframe>
     </div>
     <div class="rationale-bar" id="rationale-bar">
       <span class="rb-badge" id="rb-badge"></span>
@@ -1239,6 +1270,11 @@ async function extractPptxText(file) {
   return text.trim().slice(0, 15000);
 }
 
+let cloneMode = false;
+let cloneSourceUrl = '';
+let cloneEditMode = true;
+let cloneSelectedElement = null;
+
 async function handleUrlImport() {
   const url = document.getElementById('url-input').value.trim();
   if (!url || !/^https?:\/\/.+/.test(url)) return;
@@ -1248,95 +1284,390 @@ async function handleUrlImport() {
   addLoadingBubble();
   document.getElementById('chat-send').disabled = true;
   try {
-    // Step 1: サイトのHTML構造を抽出（structure mode）
-    const fetchRes = await fetch(API_BASE + '/api/fetch-article?mode=structure', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url })
-    });
-    const structure = await fetchRes.json();
-    if (!fetchRes.ok) throw new Error(structure.error || 'サイトの取得に失敗しました');
+    // OGPモードでHTMLを丸ごと取得
+    const fetchRes = await fetch(API_BASE + '/api/fetch-article?mode=ogp&url=' + encodeURIComponent(url));
+    if (!fetchRes.ok) throw new Error('サイトの取得に失敗しました');
+    const rawHtml = await fetchRes.text();
 
-    // 構造情報をテキストに整形
-    const structureText = formatStructureForAI(structure);
-    importedContent = `[インポートしたサイト: ${url}]\nタイトル: ${structure.title}\n\n${structureText}`;
+    // URLからベースURLを生成
+    const parsed = new URL(url);
+    const baseUrl = parsed.origin;
+
+    // HTMLに<base>タグを注入して相対URLを解決
+    let processedHtml = rawHtml;
+
+    // 既存の<base>タグがあれば除去
+    processedHtml = processedHtml.replace(/<base[^>]*>/gi, '');
+
+    // <head>直後に<base>を注入
+    const headIdx = processedHtml.search(/<head[^>]*>/i);
+    if (headIdx !== -1) {
+      const headEnd = processedHtml.indexOf('>', headIdx) + 1;
+      processedHtml = processedHtml.slice(0, headEnd) +
+        `\n<base href="${baseUrl}/">\n` +
+        processedHtml.slice(headEnd);
+    }
+
+    // 編集用のスタイルとスクリプトを注入
+    const editScript = `
+<style>
+  [data-clone-hover] { outline: 2px solid rgba(255,184,28,0.7) !important; outline-offset: 2px; cursor: text !important; }
+  [data-clone-selected] { outline: 3px solid #001f33 !important; outline-offset: 2px; }
+  .clone-img-hover { outline: 2px dashed #00ffff !important; outline-offset: 2px; cursor: pointer !important; }
+  .clone-section-hidden { opacity: 0.15 !important; pointer-events: none; position: relative; }
+  .clone-section-hidden::after { content: '非表示'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #001f33; color: #fff; padding: 4px 12px; font-size: 14px; z-index: 9999; }
+</style>
+<script>
+  // 編集モードの制御
+  document.addEventListener('click', function(e) {
+    if (!window.__cloneEditMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    // 画像クリック → 親ウィンドウに通知
+    if (e.target.tagName === 'IMG') {
+      window.parent.postMessage({ type: 'clone-img-click', src: e.target.src, tagPath: getTagPath(e.target) }, '*');
+      return;
+    }
+
+    // テキスト要素をcontentEditable化
+    const el = findEditableParent(e.target);
+    if (el) {
+      // 以前の選択を解除
+      document.querySelectorAll('[data-clone-selected]').forEach(s => { s.removeAttribute('data-clone-selected'); s.contentEditable = 'false'; });
+      el.setAttribute('data-clone-selected', '');
+      el.contentEditable = 'true';
+      el.focus();
+      window.parent.postMessage({ type: 'clone-text-select', text: el.textContent, tagPath: getTagPath(el) }, '*');
+    }
+  }, true);
+
+  document.addEventListener('mouseover', function(e) {
+    if (!window.__cloneEditMode) return;
+    document.querySelectorAll('[data-clone-hover]').forEach(h => h.removeAttribute('data-clone-hover'));
+    document.querySelectorAll('.clone-img-hover').forEach(h => h.classList.remove('clone-img-hover'));
+    if (e.target.tagName === 'IMG') {
+      e.target.classList.add('clone-img-hover');
+    } else {
+      const el = findEditableParent(e.target);
+      if (el) el.setAttribute('data-clone-hover', '');
+    }
+  }, true);
+
+  function findEditableParent(el) {
+    const editTags = ['H1','H2','H3','H4','H5','H6','P','SPAN','A','LI','TD','TH','LABEL','BUTTON','FIGCAPTION','BLOCKQUOTE','DT','DD'];
+    let cur = el;
+    while (cur && cur !== document.body) {
+      if (editTags.includes(cur.tagName)) return cur;
+      cur = cur.parentElement;
+    }
+    return null;
+  }
+
+  function getTagPath(el) {
+    const parts = [];
+    let cur = el;
+    while (cur && cur !== document.body) {
+      let idx = 0;
+      let sib = cur;
+      while (sib.previousElementSibling) { sib = sib.previousElementSibling; idx++; }
+      parts.unshift(cur.tagName.toLowerCase() + '[' + idx + ']');
+      cur = cur.parentElement;
+    }
+    return parts.join(' > ');
+  }
+
+  window.__cloneEditMode = true;
+
+  // 親からのメッセージ受信
+  window.addEventListener('message', function(e) {
+    if (e.data.type === 'set-edit-mode') window.__cloneEditMode = e.data.value;
+    if (e.data.type === 'replace-text') {
+      const selected = document.querySelector('[data-clone-selected]');
+      if (selected) selected.textContent = e.data.text;
+    }
+    if (e.data.type === 'replace-image') {
+      const imgs = document.querySelectorAll('img');
+      imgs.forEach(img => {
+        if (img.src === e.data.oldSrc) img.src = e.data.newSrc;
+      });
+    }
+    if (e.data.type === 'hide-section') {
+      const sections = document.querySelectorAll('section, header, footer, nav, [class*="section"], [class*="block"], [class*="area"]');
+      sections.forEach((sec, i) => {
+        if (i === e.data.index) sec.classList.toggle('clone-section-hidden');
+      });
+    }
+    if (e.data.type === 'get-html') {
+      // 編集用属性を除去してHTMLを返す
+      const clone = document.documentElement.cloneNode(true);
+      clone.querySelectorAll('[data-clone-hover],[data-clone-selected]').forEach(el => {
+        el.removeAttribute('data-clone-hover');
+        el.removeAttribute('data-clone-selected');
+        el.removeAttribute('contenteditable');
+      });
+      clone.querySelectorAll('.clone-img-hover').forEach(el => el.classList.remove('clone-img-hover'));
+      // 注入したscript/styleを除去
+      const scripts = clone.querySelectorAll('script');
+      scripts.forEach(s => { if (s.textContent.includes('__cloneEditMode')) s.remove(); });
+      const styles = clone.querySelectorAll('style');
+      styles.forEach(s => { if (s.textContent.includes('clone-hover')) s.remove(); });
+      window.parent.postMessage({ type: 'clone-html', html: clone.outerHTML }, '*');
+    }
+    if (e.data.type === 'get-sections') {
+      const sections = document.querySelectorAll('section, header, footer, nav, [class*="section"], [class*="block"], [class*="area"]');
+      const list = [];
+      sections.forEach((sec, i) => {
+        const h = sec.querySelector('h1,h2,h3,h4,h5,h6');
+        list.push({ index: i, tag: sec.tagName.toLowerCase(), heading: h ? h.textContent.trim().slice(0, 40) : '', hidden: sec.classList.contains('clone-section-hidden') });
+      });
+      window.parent.postMessage({ type: 'clone-sections', sections: list }, '*');
+    }
+  });
+<\/script>`;
+
+    // </body>の前にスクリプトを注入
+    const bodyCloseIdx = processedHtml.lastIndexOf('</body>');
+    if (bodyCloseIdx !== -1) {
+      processedHtml = processedHtml.slice(0, bodyCloseIdx) + editScript + processedHtml.slice(bodyCloseIdx);
+    } else {
+      processedHtml += editScript;
+    }
+
+    // クローンモードに切替
+    cloneSourceUrl = url;
+    cloneMode = true;
+    document.getElementById('preview-canvas').classList.add('hidden');
+    const cc = document.getElementById('clone-container');
+    cc.classList.remove('hidden');
+    cc.style.display = 'flex';
+    document.getElementById('clone-url-label').textContent = url;
+
+    // iframeにHTMLをロード
+    const frame = document.getElementById('clone-frame');
+    frame.srcdoc = processedHtml;
+
     removeLoadingBubble();
-    addChatMessage('ai', `「${structure.title}」のページ構造を解析しました（見出し${structure.headings.length}個、セクション${structure.sections.length}個検出）。忠実に再現します...`);
 
-    // Step 2: AI で構造を忠実に再現（url-import mode）
-    addLoadingBubble();
-    const genRes = await fetch(API_BASE + '/api/wireframe-generate', {
+    // タイトルを抽出
+    const titleMatch = rawHtml.match(/<title[^>]*>([^<]+)<\/title>/i);
+    const title = titleMatch ? titleMatch[1].trim() : url;
+    importedContent = `[クローンしたサイト: ${url}]\nタイトル: ${title}`;
+
+    addChatMessage('ai', `✅ 「${title}」をそのまま読み込みました。画像・CSS含め完全再現しています。\n\n編集モードがONです:\n・テキストをクリックして直接編集\n・画像をクリックして差替\n・AIリライトで文章を改善\n・セクション非表示でLPO検証`);
+    showToast('サイト再現完了 — 編集モードON');
+  } catch (e) { removeLoadingBubble(); showError(e.message); }
+  finally { document.getElementById('chat-send').disabled = false; }
+}
+
+// クローンモード: 編集切替
+function toggleCloneEdit() {
+  cloneEditMode = !cloneEditMode;
+  document.getElementById('ct-edit-btn').classList.toggle('active', cloneEditMode);
+  const frame = document.getElementById('clone-frame');
+  frame.contentWindow.postMessage({ type: 'set-edit-mode', value: cloneEditMode }, '*');
+  showToast(cloneEditMode ? '編集モード ON' : '編集モード OFF');
+}
+
+// クローンモード: AIリライト
+async function cloneAIRewrite() {
+  const frame = document.getElementById('clone-frame');
+  const selected = frame.contentDocument?.querySelector('[data-clone-selected]');
+  if (!selected) { showToast('リライトするテキストをクリックして選択してください'); return; }
+
+  const originalText = selected.textContent.trim();
+  if (!originalText) return;
+
+  addChatMessage('user', `AIリライト: 「${originalText.slice(0, 50)}...」`);
+  addLoadingBubble();
+
+  try {
+    const res = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        mode: 'url-import',
-        freeText: structureText,
+        mode: 'chat',
+        chatMessages: [{
+          role: 'user',
+          content: `以下のWebサイトのテキストをLPO（ランディングページ最適化）の観点でリライトしてください。
+元サイト: ${cloneSourceUrl}
+
+リライト対象テキスト:
+「${originalText}」
+
+ルール:
+- CVR向上を意識したコピーライティング
+- 元のトーン・文体は維持
+- 長さは元テキストと同程度
+- リライト結果のテキストのみを返す（説明不要）`
+        }],
         _user: USER
       })
+    });
+    const data = await res.json();
+    removeLoadingBubble();
+
+    if (data.reply) {
+      // ##SUGGESTIONS## を除去
+      let rewritten = data.reply.replace(/##SUGGESTIONS##[\s\S]*$/m, '').trim();
+      frame.contentWindow.postMessage({ type: 'replace-text', text: rewritten }, '*');
+      addChatMessage('ai', `リライト完了:\n元: 「${originalText.slice(0, 40)}...」\n→ 「${rewritten.slice(0, 40)}...」`);
+      showToast('リライト適用');
+    }
+  } catch (e) { removeLoadingBubble(); showError(e.message); }
+}
+
+// クローンモード: 画像差替
+function cloneReplaceImage() {
+  showToast('画像をクリックしてください。ファイル選択ダイアログが開きます');
+  // イベントはiframe側のpostMessageで処理
+}
+
+// 親ウィンドウのメッセージ受信
+window.addEventListener('message', function(e) {
+  if (e.data.type === 'clone-img-click') {
+    // 画像差替ダイアログ
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = function() {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function() {
+        const frame = document.getElementById('clone-frame');
+        frame.contentWindow.postMessage({ type: 'replace-image', oldSrc: e.data.src, newSrc: reader.result }, '*');
+        showToast('画像を差替えました');
+        addChatMessage('ai', '画像を差替えました。');
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  }
+  if (e.data.type === 'clone-text-select') {
+    // 選択テキストの表示（将来用）
+  }
+  if (e.data.type === 'clone-html') {
+    // HTML保存処理
+    const blob = new Blob([e.data.html], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'edited-page.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('HTMLを保存しました');
+  }
+  if (e.data.type === 'clone-sections') {
+    // セクション一覧をオーバーレイ表示
+    showCloneSectionPicker(e.data.sections);
+  }
+});
+
+// クローンモード: セクション非表示
+function cloneHideSection() {
+  const frame = document.getElementById('clone-frame');
+  frame.contentWindow.postMessage({ type: 'get-sections' }, '*');
+}
+
+function showCloneSectionPicker(sections) {
+  const ov = document.createElement('div');
+  ov.className = 'section-picker-overlay';
+  ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
+  const panel = document.createElement('div');
+  panel.className = 'section-picker-panel';
+  panel.innerHTML = '<div class="sp-title">セクションの表示/非表示</div>';
+  sections.forEach(sec => {
+    const card = document.createElement('div');
+    card.className = 'sp-card';
+    card.style.opacity = sec.hidden ? '0.4' : '1';
+    card.innerHTML = `<span class="sp-icon">${sec.hidden ? '👁️‍🗨️' : '👁️'}</span><span class="sp-name">${sec.tag.toUpperCase()}: ${sec.heading || '(見出しなし)'}</span>`;
+    card.onclick = () => {
+      const frame = document.getElementById('clone-frame');
+      frame.contentWindow.postMessage({ type: 'hide-section', index: sec.index }, '*');
+      sec.hidden = !sec.hidden;
+      card.style.opacity = sec.hidden ? '0.4' : '1';
+      card.querySelector('.sp-icon').textContent = sec.hidden ? '👁️‍🗨️' : '👁️';
+    };
+    panel.appendChild(card);
+  });
+  ov.appendChild(panel);
+  document.body.appendChild(ov);
+}
+
+// クローンモード: HTML保存
+function cloneExportHTML() {
+  const frame = document.getElementById('clone-frame');
+  frame.contentWindow.postMessage({ type: 'get-html' }, '*');
+}
+
+// ワイヤーフレームモードに切替
+function switchToWireframe() {
+  if (!cloneMode) return;
+  cloneMode = false;
+  document.getElementById('clone-container').classList.add('hidden');
+  document.getElementById('clone-container').style.display = '';
+  document.getElementById('preview-canvas').classList.remove('hidden');
+  showToast('ワイヤーフレームモードに切替');
+  // 構造抽出してワイヤーフレーム生成
+  if (cloneSourceUrl) {
+    addChatMessage('ai', 'サイト構造からワイヤーフレームを生成しています...');
+    generateWireframeFromClone();
+  }
+}
+
+async function generateWireframeFromClone() {
+  addLoadingBubble();
+  try {
+    const fetchRes = await fetch(API_BASE + '/api/fetch-article?mode=structure', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: cloneSourceUrl })
+    });
+    const structure = await fetchRes.json();
+    if (!fetchRes.ok) throw new Error(structure.error || '構造取得失敗');
+    const structureText = formatStructureForAI(structure);
+    const genRes = await fetch(API_BASE + '/api/wireframe-generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'url-import', freeText: structureText, _user: USER })
     });
     const genData = await genRes.json();
     if (!genRes.ok) throw new Error(genData.error?.message || genData.error || '生成失敗');
     removeLoadingBubble();
     currentSections = genData.sections;
     onSectionsChanged();
-    addChatMessage('ai', `✅ 「${structure.title}」の構成を ${genData.sections.length} セクションで再現しました。左パネルの構成タブで確認・編集できます。`);
-    showToast('URLインポート完了');
+    addChatMessage('ai', `ワイヤーフレームに変換しました（${genData.sections.length}セクション）。`);
   } catch (e) { removeLoadingBubble(); showError(e.message); }
-  finally { document.getElementById('chat-send').disabled = false; }
 }
 
 function formatStructureForAI(s) {
-  let out = `# サイト構造解析結果\n\n`;
-  out += `サイトタイトル: ${s.title}\n`;
+  let out = `# サイト構造解析結果\n\nサイトタイトル: ${s.title}\n`;
   if (s.ogDesc) out += `説明: ${s.ogDesc}\n`;
   out += `URL: ${s.url}\n\n`;
-
-  if (s.navItems.length > 0) {
-    out += `## ナビゲーション\nメニュー項目: ${s.navItems.join(' | ')}\n\n`;
-  }
-
+  if (s.navItems.length > 0) out += `## ナビゲーション\nメニュー項目: ${s.navItems.join(' | ')}\n\n`;
   if (s.headings.length > 0) {
     out += `## 見出し構造（上から順）\n`;
-    for (const h of s.headings) {
-      out += `${'  '.repeat(h.level - 1)}H${h.level}: ${h.text}\n`;
-    }
+    for (const h of s.headings) out += `${'  '.repeat(h.level - 1)}H${h.level}: ${h.text}\n`;
     out += '\n';
   }
-
   if (s.sections.length > 0) {
     out += `## セクション構造（上から順）\n`;
     for (let i = 0; i < s.sections.length; i++) {
       const sec = s.sections[i];
       out += `\n### セクション${i + 1}`;
-      if (sec.tag === 'header') {
-        out += `（ヘッダー）\n内容: ${sec.text}\n`;
-      } else {
+      if (sec.tag === 'header') { out += `（ヘッダー）\n内容: ${sec.text}\n`; }
+      else {
         if (sec.idOrClass) out += ` [${sec.idOrClass}]`;
         out += '\n';
-        if (sec.headings.length > 0) out += `見出し: ${sec.headings.join(' / ')}\n`;
+        if (sec.headings?.length > 0) out += `見出し: ${sec.headings.join(' / ')}\n`;
         if (sec.text) out += `内容: ${sec.text.slice(0, 200)}\n`;
         if (sec.imgCount > 0) out += `画像: ${sec.imgCount}枚\n`;
         if (sec.hasForm) out += `フォーム: あり\n`;
-        if (sec.ctaTexts.length > 0) out += `CTAボタン: ${sec.ctaTexts.join(', ')}\n`;
+        if (sec.ctaTexts?.length > 0) out += `CTAボタン: ${sec.ctaTexts.join(', ')}\n`;
       }
     }
     out += '\n';
   }
-
-  if (s.forms.length > 0) {
-    out += `## フォーム\n`;
-    for (let i = 0; i < s.forms.length; i++) {
-      out += `フォーム${i + 1}: 入力項目${s.forms[i].inputCount}個`;
-      if (s.forms[i].submitText) out += `, ボタン「${s.forms[i].submitText}」`;
-      out += '\n';
-    }
-    out += '\n';
-  }
-
+  if (s.forms?.length > 0) { out += `## フォーム\n`; s.forms.forEach((f, i) => { out += `フォーム${i + 1}: 入力項目${f.inputCount}個${f.submitText ? `, ボタン「${f.submitText}」` : ''}\n`; }); out += '\n'; }
   if (s.hasVideo) out += `## 動画: あり\n\n`;
   out += `## 画像: 合計${s.totalImages}枚\n\n`;
-
-  if (s.footerLinks.length > 0) {
-    out += `## フッター\nリンク: ${s.footerLinks.join(' | ')}\n`;
-  }
-
+  if (s.footerLinks?.length > 0) out += `## フッター\nリンク: ${s.footerLinks.join(' | ')}\n`;
   return out;
 }
 
