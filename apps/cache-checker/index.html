@@ -104,9 +104,10 @@
 
     /* ── 比較グリッド ── */
     .compare-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-      margin-bottom: 20px; display: none;
+      display: none; grid-template-columns: 1fr 1fr; gap: 16px;
+      margin-bottom: 20px;
     }
+    .compare-grid.show { display: grid; }
     @media (max-width: 768px) { .compare-grid { grid-template-columns: 1fr; } }
 
     .compare-col {
@@ -193,7 +194,8 @@
     }
 
     /* ── 結果アクション ── */
-    .result-actions { display: flex; gap: 10px; flex-wrap: wrap; display: none; }
+    .result-actions { display: none; gap: 10px; flex-wrap: wrap; }
+    .result-actions.show { display: flex; }
     .result-action-btn {
       background: #fff; border: 1.5px solid #e8ecf0; color: #636e72;
       font-size: 0.82rem; font-weight: 600; padding: 9px 18px;
@@ -503,9 +505,9 @@
     async function runCheck() {
       clearError();
       document.getElementById('verdict').style.display = 'none';
-      document.getElementById('compare-grid').style.display = 'none';
+      document.getElementById('compare-grid').classList.remove('show');
       document.getElementById('next-steps').style.display = 'none';
-      document.getElementById('result-actions').style.display = 'none';
+      document.getElementById('result-actions').classList.remove('show');
 
       const rawUrl = urlInput.value.trim();
       if (!rawUrl) { showError('URLを入力してください'); urlInput.focus(); return; }
@@ -568,8 +570,8 @@
         }
 
         verdict.style.display = '';
-        document.getElementById('compare-grid').style.display = '';
-        document.getElementById('result-actions').style.display = '';
+        document.getElementById('compare-grid').classList.add('show');
+        document.getElementById('result-actions').classList.add('show');
 
         lastResult = { url: rawUrl, bypassUrl: bypassUrlStr, diffs, currentData, latestData };
 
