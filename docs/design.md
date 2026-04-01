@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-03-30（Slide Maker V2 設計見直し・Wireframe Maker・Prompt Maker 追加）
+最終更新: 2026-04-01（Cache Checker 追加）
 
 ---
 
@@ -56,6 +56,7 @@
 | SNS Post Generator | `apps/sns-post-generator/index.html` | ✅ 完成 | S024, S028 |
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034 |
+| Cache Checker | `apps/cache-checker/index.html`, `api/proxy.js` | ✅ 完成 | S037 |
 
 ---
 
@@ -200,3 +201,4 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-30 | Slide Maker V2 設計決定 | アプローチB（python-pptx強化）採用。画像系5レイアウト活用（Unsplash API）、ディープリサーチ3フェーズ分離、SYSTEM_PROMPT 16レイアウト化 |
 | 2026-03-27 | Banner Resizer 新画像サイズ要件対応 | MV: 800×446→1920×1080、一覧プリセット削除、サムネイル余白ガイド（安全ゾーン上下24px左右100px）追加。ブランドガイドライン違反も修正 |
 | 2026-03-30 | Banner Resizer WebPフォールバック修正 | ブラウザがWebP非対応時にPNGにフォールバックされるが拡張子が.webpのままでCMSアップロードエラーになっていた。Blobの実際のMIMEタイプを確認し正しい拡張子で出力するよう修正 |
+| 2026-04-01 | Cache Checker 新規追加 | CMSキャッシュ反映状況チェックツール。通常版とキャッシュバイパス版（ランダムパラメータ付与）を比較し差分を可視化。Vercel Serverless Function（api/proxy.js）でCORS回避。jsdiffによる行単位diff表示 |
