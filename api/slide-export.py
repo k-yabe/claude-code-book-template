@@ -585,7 +585,15 @@ def apply_data(slide, layout, data):
         qp.font.bold = True
 
     elif layout == 'closing':
-        pass
+        msg = data.get('message', '')
+        # Thank you テンプレートの利用可能なplaceholderに書き込む
+        for idx in (29, 30, 31, 32, 0, 10):
+            if idx in ph_map:
+                try:
+                    ph_map[idx].text = str(msg).strip() if msg else ''
+                    break
+                except Exception:
+                    continue
 
 
 def build_layout_map(prs):
@@ -629,7 +637,11 @@ class handler(BaseHTTPRequestHandler):
             if not UNSPLASH_ACCESS_KEY:
                 for sd in slides_data:
                     if sd.get('layout') in IMAGE_LAYOUTS:
+                        sd['_original_layout'] = sd['layout']
                         sd['layout'] = 'content'
+                        # bodyが空の場合、imageQueryからヒントテキストを補完
+                        if not sd.get('body') and sd.get('imageQuery'):
+                            sd['body'] = sd.get('title', '')
 
             # 画像を並列取得
             image_map = fetch_images_batch(slides_data)
