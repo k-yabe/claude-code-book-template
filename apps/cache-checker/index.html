@@ -159,96 +159,99 @@
     /* ── 結果セクション ── */
     .result-section { margin-top: 24px; }
 
-    /* ── ステータスカード ── */
-    .status-card {
-      background: #fff; border: 1.5px solid #e8ecf0; border-left: 4px solid #e8ecf0;
-      padding: 20px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 16px;
+    /* ── メイン結果カード ── */
+    .result-hero {
+      background: #fff; border: 1.5px solid #e8ecf0;
+      padding: 40px 30px; margin-bottom: 16px; text-align: center;
     }
-    .status-card.synced { border-left-color: #00b894; }
-    .status-card.diff { border-left-color: #e17055; }
-    .status-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; }
-    .status-content { flex: 1; }
-    .status-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-    .status-label { font-size: 1rem; font-weight: 700; color: #001f33; }
-    .status-badge {
-      display: inline-block; padding: 2px 8px;
-      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; color: #fff;
-    }
-    .status-badge.synced { background: #00b894; }
-    .status-badge.diff { background: #e17055; }
-    .status-text { font-size: 0.85rem; color: #636e72; margin: 0; line-height: 1.6; }
-    .status-meta { display: flex; gap: 16px; margin-top: 10px; font-size: 0.75rem; color: #8a9bb0; }
+    .result-hero.synced { border-top: 4px solid #00b894; }
+    .result-hero.diff { border-top: 4px solid #e17055; }
+    .result-hero-icon { font-size: 3rem; margin-bottom: 12px; }
+    .result-hero-title { font-size: 1.2rem; font-weight: 800; color: #001f33; margin-bottom: 8px; }
+    .result-hero-desc { font-size: 0.88rem; color: #636e72; line-height: 1.7; max-width: 500px; margin: 0 auto; }
+    .result-hero-meta { margin-top: 16px; font-size: 0.75rem; color: #8a9bb0; }
 
-    /* ── アクションガイド ── */
-    .action-guide {
+    /* ── 待ち時間メッセージ ── */
+    .ttl-message {
       background: rgba(0,31,51,0.03); border: 1px solid #e8ecf0;
-      padding: 14px 16px; margin-top: 12px; font-size: 0.82rem; color: #636e72;
+      padding: 14px 18px; margin-bottom: 16px; display: none;
+      font-size: 0.85rem; color: #636e72; line-height: 1.6;
     }
-    .action-guide-title {
-      font-weight: 700; color: #001f33; margin-bottom: 6px;
-      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em;
-    }
-    .action-guide ol { margin: 0; padding-left: 18px; }
-    .action-guide li { margin-bottom: 3px; }
+    .ttl-message strong { color: #001f33; }
 
-    /* ── 結果カード ── */
-    .result-card {
-      background: #fff; border: 1.5px solid #e8ecf0; padding: 20px; margin-bottom: 16px;
+    /* ── 次にやること ── */
+    .next-steps {
+      background: #fff; border: 1.5px solid #e8ecf0;
+      padding: 20px; margin-bottom: 16px; display: none;
     }
-    .result-card-title {
-      font-size: 0.9rem; font-weight: 700; color: #001f33;
-      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    .next-steps-title {
+      font-size: 0.85rem; font-weight: 700; color: #001f33; margin-bottom: 10px;
+    }
+    .next-step-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 0; font-size: 0.82rem; color: #636e72; line-height: 1.5;
+    }
+    .next-step-item + .next-step-item { border-top: 1px solid #f0f2f5; }
+    .next-step-num {
+      width: 22px; height: 22px; background: #001f33; color: #fff;
+      font-size: 0.68rem; font-weight: 800; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
     }
 
-    /* ── キャッシュTTL ── */
-    .ttl-card {
-      background: #fff; border: 1.5px solid #e8ecf0; padding: 20px; margin-bottom: 16px;
-      display: none;
+    /* ── 技術者向け詳細（折りたたみ） ── */
+    .tech-details {
+      margin-bottom: 16px;
     }
-    .ttl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    @media (max-width: 600px) { .ttl-grid { grid-template-columns: 1fr; } }
-    .ttl-item { text-align: center; padding: 12px 8px; background: rgba(0,31,51,0.02); border: 1px solid #e8ecf0; }
-    .ttl-value { font-size: 1.3rem; font-weight: 800; color: #001f33; line-height: 1.2; }
-    .ttl-label { font-size: 0.72rem; color: #8a9bb0; margin-top: 4px; }
+    .tech-details-toggle {
+      background: none; border: 1.5px solid #e8ecf0; color: #8a9bb0;
+      font-size: 0.78rem; font-weight: 600; padding: 8px 16px; cursor: pointer;
+      width: 100%; text-align: left; font-family: inherit; transition: all 0.15s;
+    }
+    .tech-details-toggle:hover { border-color: #001f33; color: #001f33; }
+    .tech-details-toggle::after { content: ' ▼'; font-size: 0.65rem; }
+    .tech-details-toggle.open::after { content: ' ▲'; }
+    .tech-details-body {
+      display: none; border: 1.5px solid #e8ecf0; border-top: none;
+      background: #fff; padding: 20px;
+    }
+    .tech-details-body.open { display: block; }
+
+    .tech-section-title {
+      font-size: 0.82rem; font-weight: 700; color: #001f33;
+      margin: 16px 0 8px; padding-bottom: 4px; border-bottom: 1px solid #e8ecf0;
+    }
+    .tech-section-title:first-child { margin-top: 0; }
 
     /* ── ヘッダー比較 ── */
-    .header-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .header-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
     .header-table th {
-      text-align: left; padding: 6px 10px; background: rgba(0,31,51,0.04);
-      color: #636e72; font-weight: 600; white-space: nowrap; width: 160px;
-      cursor: help; position: relative;
+      text-align: left; padding: 5px 8px; background: rgba(0,31,51,0.04);
+      color: #636e72; font-weight: 600; white-space: nowrap; width: 140px;
     }
-    .header-table th .header-hint {
-      display: none; position: absolute; left: 0; top: 100%;
-      background: #001f33; color: #fff; padding: 6px 10px;
-      font-size: 0.72rem; font-weight: 400; white-space: normal;
-      width: 240px; z-index: 10; line-height: 1.4;
-    }
-    .header-table th:hover .header-hint { display: block; }
-    .header-table td { padding: 6px 10px; color: #2d3436; word-break: break-all; }
+    .header-table td { padding: 5px 8px; color: #2d3436; word-break: break-all; }
     .header-table tr + tr th, .header-table tr + tr td { border-top: 1px solid #e8ecf0; }
     .header-table tr.header-diff th { color: #e17055; }
     .header-table tr.header-diff td { color: #e17055; font-weight: 600; }
     .header-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     @media (max-width: 768px) { .header-compare { grid-template-columns: 1fr; } }
     .header-compare-label {
-      font-size: 0.75rem; font-weight: 700; color: #8a9bb0;
-      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
+      font-size: 0.72rem; font-weight: 700; color: #8a9bb0;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;
     }
 
     /* ── diff表示 ── */
     .diff-container {
       background: #fff; border: 1px solid #e8ecf0;
       font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
-      font-size: 0.78rem; line-height: 1.6; overflow-x: auto; max-height: 500px; overflow-y: auto;
+      font-size: 0.75rem; line-height: 1.5; overflow-x: auto; max-height: 400px; overflow-y: auto;
     }
-    .diff-line { padding: 1px 12px; white-space: pre-wrap; word-break: break-all; }
+    .diff-line { padding: 1px 10px; white-space: pre-wrap; word-break: break-all; }
     .diff-added { background: rgba(0,184,148,0.12); color: #00b894; }
     .diff-removed { background: rgba(225,112,85,0.12); color: #e17055; }
-    .diff-info { font-size: 0.82rem; color: #8a9bb0; margin-bottom: 8px; }
+    .diff-info { font-size: 0.78rem; color: #8a9bb0; margin-bottom: 6px; }
 
     /* ── 結果アクション ── */
-    .result-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .result-actions { display: flex; gap: 10px; flex-wrap: wrap; }
     .result-action-btn {
       background: #fff; border: 1.5px solid #e8ecf0; color: #636e72;
       font-size: 0.82rem; font-weight: 600; padding: 9px 18px;
@@ -343,75 +346,61 @@
 
     <div id="result" class="result-section" style="display:none;">
 
-      <!-- ステータスカード -->
-      <div class="status-card" id="status-card">
-        <div class="status-icon" id="status-icon"></div>
-        <div class="status-content">
-          <div class="status-header">
-            <span class="status-label" id="status-label"></span>
-            <span class="status-badge" id="status-badge"></span>
-          </div>
-          <p class="status-text" id="status-text"></p>
-          <div class="status-meta">
-            <span id="meta-time"></span>
-            <span id="meta-url"></span>
-          </div>
-          <div class="action-guide" id="action-guide" style="display:none;">
-            <div class="action-guide-title">対応方法</div>
-            <ol>
-              <li>しばらく待って再チェックする（キャッシュは一定時間で自動更新されます）</li>
-              <li>急ぎの場合はIT部門にキャッシュクリア（パージ）を依頼する</li>
-              <li>CMS側でページが正しく公開されているか確認する</li>
-            </ol>
-          </div>
-        </div>
+      <!-- メイン結果：大きく分かりやすく -->
+      <div class="result-hero" id="result-hero">
+        <div class="result-hero-icon" id="result-icon"></div>
+        <div class="result-hero-title" id="result-title"></div>
+        <div class="result-hero-desc" id="result-desc"></div>
+        <div class="result-hero-meta" id="result-meta"></div>
       </div>
 
-      <!-- キャッシュTTLカード -->
-      <div class="ttl-card" id="ttl-card">
-        <div class="result-card-title">自動更新の目安</div>
-        <div class="ttl-grid">
-          <div class="ttl-item">
-            <div class="ttl-value" id="ttl-max-age">—</div>
-            <div class="ttl-label">キャッシュ有効期間</div>
-          </div>
-          <div class="ttl-item">
-            <div class="ttl-value" id="ttl-age">—</div>
-            <div class="ttl-label">最後の更新からの経過</div>
-          </div>
-          <div class="ttl-item">
-            <div class="ttl-value" id="ttl-remaining">—</div>
-            <div class="ttl-label">あと何分で反映されるか</div>
-          </div>
-        </div>
-      </div>
+      <!-- 待ち時間メッセージ（TTLがある場合のみ） -->
+      <div class="ttl-message" id="ttl-message"></div>
 
-      <!-- ヘッダー比較 -->
-      <div class="result-card" id="header-card">
-        <div class="result-card-title">サーバー情報（詳細）</div>
-        <div class="header-compare">
-          <div>
-            <div class="header-compare-label">現在の表示版</div>
-            <table class="header-table" id="headers-normal"></table>
-          </div>
-          <div>
-            <div class="header-compare-label">最新版</div>
-            <table class="header-table" id="headers-bypass"></table>
-          </div>
+      <!-- 次にやること（未反映の場合のみ） -->
+      <div class="next-steps" id="next-steps">
+        <div class="next-steps-title">次にやること</div>
+        <div class="next-step-item">
+          <span class="next-step-num">1</span>
+          <span>しばらく待ってから「もう一度チェック」を押す<br>（サイトは一定時間ごとに自動で最新化されます）</span>
         </div>
-      </div>
-
-      <!-- ボディ差分 -->
-      <div class="result-card" id="diff-card" style="display:none;">
-        <div class="result-card-title">変更箇所の詳細</div>
-        <p class="diff-info" id="diff-info"></p>
-        <div class="diff-container" id="diff-view"></div>
+        <div class="next-step-item">
+          <span class="next-step-num">2</span>
+          <span>急ぎの場合は、IT部門に「キャッシュクリア」を依頼する</span>
+        </div>
+        <div class="next-step-item">
+          <span class="next-step-num">3</span>
+          <span>CMSの管理画面で、ページが正しく「公開」になっているか確認する</span>
+        </div>
       </div>
 
       <!-- 結果アクション -->
       <div class="result-actions">
         <button class="result-action-btn primary" onclick="runCheck()">もう一度チェック</button>
         <button class="result-action-btn" onclick="copyReport()">結果をコピー</button>
+      </div>
+
+      <!-- 技術者向け詳細（折りたたみ） -->
+      <div class="tech-details" style="margin-top: 16px;">
+        <button class="tech-details-toggle" onclick="toggleTechDetails(this)">技術者向け詳細を表示</button>
+        <div class="tech-details-body" id="tech-details-body">
+          <div class="tech-section-title">レスポンスヘッダー比較</div>
+          <div class="header-compare">
+            <div>
+              <div class="header-compare-label">現在の表示版</div>
+              <table class="header-table" id="headers-normal"></table>
+            </div>
+            <div>
+              <div class="header-compare-label">最新版</div>
+              <table class="header-table" id="headers-bypass"></table>
+            </div>
+          </div>
+          <div id="diff-section" style="display:none;">
+            <div class="tech-section-title">ボディ差分</div>
+            <p class="diff-info" id="diff-info"></p>
+            <div class="diff-container" id="diff-view"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -489,7 +478,7 @@
     }
 
     function renderTTL(headers) {
-      const ttlCard = document.getElementById('ttl-card');
+      const ttlMsg = document.getElementById('ttl-message');
       const cc = headers['cache-control'] || '';
       const ageStr = headers['age'];
 
@@ -497,21 +486,23 @@
       const maxAge = maxAgeMatch ? parseInt(maxAgeMatch[1], 10) : null;
       const age = ageStr ? parseInt(ageStr, 10) : null;
 
-      if (maxAge === null && age === null) {
-        ttlCard.style.display = 'none';
-        return;
-      }
-
-      ttlCard.style.display = '';
-      document.getElementById('ttl-max-age').textContent = maxAge !== null ? formatDuration(maxAge) : '—';
-      document.getElementById('ttl-age').textContent = age !== null ? formatDuration(age) : '—';
-
       if (maxAge !== null && age !== null) {
         const remaining = Math.max(0, maxAge - age);
-        document.getElementById('ttl-remaining').textContent = remaining > 0 ? formatDuration(remaining) : '期限切れ';
+        if (remaining > 0) {
+          ttlMsg.innerHTML = `⏱ このページは<strong>あと${formatDuration(remaining)}</strong>で自動的に最新化される見込みです。`;
+        } else {
+          ttlMsg.innerHTML = `⏱ キャッシュの有効期限は切れています。すでに最新版が配信されている可能性があります。`;
+        }
+        ttlMsg.style.display = '';
       } else {
-        document.getElementById('ttl-remaining').textContent = '—';
+        ttlMsg.style.display = 'none';
       }
+    }
+
+    function toggleTechDetails(btn) {
+      btn.classList.toggle('open');
+      document.getElementById('tech-details-body').classList.toggle('open');
+      btn.textContent = btn.classList.contains('open') ? '技術者向け詳細を閉じる' : '技術者向け詳細を表示';
     }
 
     function formatDuration(seconds) {
@@ -523,16 +514,16 @@
     }
 
     function renderDiff(normalBody, bypassBody) {
-      const diffCard = document.getElementById('diff-card');
+      const diffSection = document.getElementById('diff-section');
       const diffView = document.getElementById('diff-view');
       const diffInfo = document.getElementById('diff-info');
 
       if (normalBody === bypassBody) {
-        diffCard.style.display = 'none';
+        diffSection.style.display = 'none';
         return 0;
       }
 
-      diffCard.style.display = '';
+      diffSection.style.display = '';
       const changes = Diff.diffLines(normalBody, bypassBody);
       let added = 0, removed = 0;
       let html = '';
@@ -623,33 +614,24 @@
 
         const diffCount = renderDiff(normalRes.body, bypassRes.body);
 
-        const statusCard = document.getElementById('status-card');
-        const statusIcon = document.getElementById('status-icon');
-        const statusLabel = document.getElementById('status-label');
-        const badge = document.getElementById('status-badge');
-        const statusText = document.getElementById('status-text');
-        const actionGuide = document.getElementById('action-guide');
+        const hero = document.getElementById('result-hero');
+        const nextSteps = document.getElementById('next-steps');
 
         if (diffCount === 0) {
-          statusCard.className = 'status-card synced';
-          statusIcon.textContent = '✅';
-          statusLabel.textContent = '最新の内容が反映されています';
-          badge.textContent = '反映済み';
-          badge.className = 'status-badge synced';
-          statusText.textContent = 'CMSで公開した内容がWebサイトに正しく反映されています。更新作業は完了です。';
-          actionGuide.style.display = 'none';
+          hero.className = 'result-hero synced';
+          document.getElementById('result-icon').textContent = '✅';
+          document.getElementById('result-title').textContent = '更新が反映されています！';
+          document.getElementById('result-desc').textContent = 'CMSで公開した内容がWebサイトに正しく表示されています。追加の対応は不要です。';
+          nextSteps.style.display = 'none';
         } else {
-          statusCard.className = 'status-card diff';
-          statusIcon.textContent = '⚠️';
-          statusLabel.textContent = 'まだ反映されていません';
-          badge.textContent = diffCount + '箇所の差分';
-          badge.className = 'status-badge diff';
-          statusText.textContent = 'CMSで更新した内容がまだWebサイトに反映されていません。キャッシュ（一時保存）が原因の可能性があります。';
-          actionGuide.style.display = '';
+          hero.className = 'result-hero diff';
+          document.getElementById('result-icon').textContent = '⚠️';
+          document.getElementById('result-title').textContent = 'まだ更新が反映されていません';
+          document.getElementById('result-desc').textContent = 'CMSで更新した内容が、まだWebサイトには表示されていません。\nサイトの一時保存データ（キャッシュ）が古いままの可能性があります。';
+          nextSteps.style.display = '';
         }
 
-        document.getElementById('meta-time').textContent = 'チェック時間: ' + elapsed + '秒';
-        document.getElementById('meta-url').textContent = parsed.hostname;
+        document.getElementById('result-meta').textContent = parsed.hostname + ' ・ チェック時間 ' + elapsed + '秒';
 
         resultSection.style.display = '';
 
