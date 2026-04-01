@@ -1,3 +1,161 @@
+// Combined Slide Maker operations: generate, factcheck, image
+// Routed by ?action= query parameter
+
+export default async function handler(req, res) {
+  const action = req.query.action;
+
+  switch (action) {
+    case 'factcheck': return handleFactcheck(req, res);
+    case 'generate': return handleGenerate(req, res);
+    case 'image': return handleImage(req, res);
+    default: return res.status(400).json({ error: `Unknown action: ${action}` });
+  }
+}
+
+// ============================================================
+// Factcheck
+// ============================================================
+
+const FACTCHECK_SYSTEM_PROMPT = `あなたはファクトチェッカーです。
+プレゼンスライドの内容を検証し、事実関係を確認してください。
+
+## 検証の方針
+
+1. スライドに含まれる主張・数値・統計を抽出する
+2. Web検索で裏取りする
+3. 各主張について検証結果を報告する
+
+## 出力形式（必ずこのJSON形式のみを返す）
+
+\`\`\`json
+{
+  "claims": [
+    {
+      "text": "検証対象の主張",
+      "verified": true|false|null,
+      "source_url": "裏付けとなるURL（見つかった場合）",
+      "source_name": "出典名",
+      "note": "補足説明（正確な数値との差異、注意点など）"
+    }
+  ],
+  "summary": "全体の検証サマリー（1〜2文）"
+}
+\`\`\`
+
+- verified: true=裏付けあり、false=事実と異なる、null=検証不能
+- 数値の主張は特に厳密に検証する
+- 主張が見つからない（意見・提案のみの）スライドは claims を空配列にする
+- 必ずJSON形式のみを返してください`;
+
+async function handleFactcheck(req, res) {
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'APIキーが設定されていません' });
+  }
+
+  const { slide, _user } = req.body;
+
+  if (!slide) {
+    return res.status(400).json({ error: 'slide is required' });
+  }
+
+  const logEndpoint = process.env.LOG_ENDPOINT;
+  if (logEndpoint && _user) {
+    fetch(logEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user: _user,
+        action: 'slide-factcheck',
+        app: 'slide-maker',
+        timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
+      }),
+    }).catch(() => {});
+  }
+
+  const parts = [];
+  if (slide.title) parts.push(`タイトル: ${slide.title}`);
+  if (slide.body) parts.push(`本文: ${slide.body}`);
+  if (slide.leftBody) parts.push(`左列: ${slide.leftBody}`);
+  if (slide.rightBody) parts.push(`右列: ${slide.rightBody}`);
+  if (slide.chart) {
+    parts.push(`チャート: ${slide.chart.title || ''} (${(slide.chart.labels || []).join(', ')} / ${(slide.chart.data || []).join(', ')} ${slide.chart.unit || ''})`);
+  }
+  if (slide.table) {
+    parts.push(`テーブル: ${(slide.table.headers || []).join(' | ')}`);
+    (slide.table.rows || []).forEach(r => parts.push(`  ${r.join(' | ')}`));
+  }
+  if (slide.boxes) {
+    slide.boxes.forEach(b => parts.push(`ボックス: ${b.heading || ''} - ${b.body || ''}`));
+  }
+  if (slide.notes) parts.push(`ノート: ${slide.notes}`);
+
+  const slideText = parts.join('\n');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2048,
+        temperature: 0.1,
+        system: FACTCHECK_SYSTEM_PROMPT,
+        messages: [{
+          role: 'user',
+          content: `以下のプレゼンスライドの内容をファクトチェックしてください。\n\nレイアウト: ${slide.layout}\n${slideText}`,
+        }],
+        tools: [{
+          type: 'web_search_20250305',
+          name: 'web_search',
+          max_uses: 3,
+          user_location: { type: 'approximate', country: 'JP', timezone: 'Asia/Tokyo' },
+        }],
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        return res.status(429).json({ error: 'しばらく時間をおいて再試行してください。' });
+      }
+      return res.status(response.status).json({ error: `APIエラー (${response.status})` });
+    }
+
+    const data = await response.json();
+    const textBlocks = (data.content || []).filter(b => b.type === 'text');
+    const rawText = textBlocks.map(b => b.text).join('');
+
+    const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/) || rawText.match(/(\{[\s\S]*\})/);
+    if (!jsonMatch) {
+      return res.status(500).json({ error: 'ファクトチェック結果のパースに失敗しました。' });
+    }
+
+    const result = JSON.parse(jsonMatch[1].trim());
+    return res.status(200).json(result);
+  } catch (err) {
+    return res.status(500).json({ error: err.message || 'サーバーエラーが発生しました。' });
+  }
+}
+
+// ============================================================
+// Generate (includes chat, refine, free, url modes)
+// ============================================================
+
 function buildSystemPrompt(imageEnabled) {
   const imageSection = imageEnabled ? `
 ### 画像系レイアウト（全体の25%以上を目標）
@@ -270,7 +428,7 @@ const CHAT_SYSTEM_PROMPT = `あなたはAKKODiSコンサルティング株式会
 - ##SUGGESTIONS## と ##CONTEXT_READY## の両方を含めてよい
 - マーカーはユーザーには見えない（システムが処理する）`;
 
-export default async function handler(req, res) {
+async function handleGenerate(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -284,7 +442,6 @@ export default async function handler(req, res) {
 
   const imageEnabled = !!process.env.UNSPLASH_ACCESS_KEY;
 
-  // ログ送信
   const logEndpoint = process.env.LOG_ENDPOINT;
   if (logEndpoint && _user) {
     fetch(logEndpoint, {
@@ -305,12 +462,10 @@ export default async function handler(req, res) {
     let systemPrompt;
 
     if (mode === 'chat') {
-      // チャットモード: 対話式でプレゼン情報を収集（高品質モデル使用）
       model = 'claude-sonnet-4-6';
       systemPrompt = CHAT_SYSTEM_PROMPT;
 
       let msgs = chatMessages || [];
-      // インポートテキストがあればコンテキストとして先頭に挿入
       if (importedContent) {
         msgs = [
           { role: 'user', content: `[読み込んだファイルの内容]\n${importedContent.slice(0, 10000)}` },
@@ -320,7 +475,6 @@ export default async function handler(req, res) {
       }
       messages = msgs;
 
-      // Claude API 呼び出し（Web検索ツール付き）
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -349,7 +503,6 @@ export default async function handler(req, res) {
       }
 
       const data = await response.json();
-      // Web検索結果を含む場合、複数のtextブロックを連結 + 引用情報を収集
       const textBlocks = (data.content || []).filter(b => b.type === 'text');
       const rawText = textBlocks.map(b => b.text).join('');
       const citations = textBlocks
@@ -359,13 +512,11 @@ export default async function handler(req, res) {
         .filter((c, i, arr) => arr.findIndex(x => x.url === c.url) === i)
         .slice(0, 5);
 
-      // ##SUGGESTIONS## と ##CONTEXT_READY## マーカーを解析
       let reply = rawText;
       let readyForOutline = false;
       let context = null;
       let suggestions = [];
 
-      // ##SUGGESTIONS## を先に抽出
       const sugIdx = reply.indexOf('##SUGGESTIONS##');
       if (sugIdx !== -1) {
         const afterSug = reply.slice(sugIdx + 15);
@@ -374,7 +525,6 @@ export default async function handler(req, res) {
           const arrMatch = afterSug.match(/\[[\s\S]*?\]/);
           if (arrMatch) suggestions = JSON.parse(arrMatch[0]);
         } catch {}
-        // ##CONTEXT_READY## が ##SUGGESTIONS## の後にある場合
         const ctxInAfter = afterSug.indexOf('##CONTEXT_READY##');
         if (ctxInAfter !== -1) {
           readyForOutline = true;
@@ -386,7 +536,6 @@ export default async function handler(req, res) {
         }
       }
 
-      // ##CONTEXT_READY## が ##SUGGESTIONS## より前にある場合
       if (!readyForOutline) {
         const markerIdx = reply.indexOf('##CONTEXT_READY##');
         if (markerIdx !== -1) {
@@ -404,7 +553,6 @@ export default async function handler(req, res) {
     }
 
     if (mode === 'url') {
-      // URL読み込みモード: WebページのテキストからスライドJSON生成
       if (!url || !/^https?:\/\/.+/.test(url)) {
         return res.status(400).json({ error: '有効なURLを指定してください。' });
       }
@@ -433,7 +581,6 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: `URLの読み込みに失敗しました: ${err.message}` });
       }
     } else if (mode === 'free') {
-      // フリー入力モード: 自由記述テキストからスライド構成を生成
       model = 'claude-sonnet-4-6';
       systemPrompt = buildSystemPrompt(imageEnabled);
       messages = [{
@@ -441,7 +588,6 @@ export default async function handler(req, res) {
         content: `以下のメモ・文章をもとに、スライド構成を作成してください。\n文章は自由形式で書かれています。目的・対象者・メッセージ・数値・トーン・枚数などを読み取り、最適な構成を判断してください。\n\n---\n${freeText}\n---`,
       }];
     } else if (mode === 'refine') {
-      // リファインモード: 既存JSONに修正指示を適用
       model = 'claude-haiku-4-5-20251001';
       systemPrompt = REFINE_SYSTEM_PROMPT;
       messages = [
@@ -451,7 +597,6 @@ export default async function handler(req, res) {
         },
       ];
     } else {
-      // 生成モード: ウィザード入力からスライド構成を生成
       model = 'claude-sonnet-4-6';
       systemPrompt = buildSystemPrompt(imageEnabled);
 
@@ -508,7 +653,6 @@ ${supplement ? `- 補足データ・根拠（グラフに使える場合は cont
     const data = await response.json();
     const rawText = data.content?.[0]?.text || '';
 
-    // JSONを抽出（コードブロックがある場合も対応）
     const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/) || rawText.match(/(\{[\s\S]*\})/);
     if (!jsonMatch) {
       return res.status(500).json({ error: 'スライド構成の生成に失敗しました。再試行してください。' });
@@ -521,7 +665,6 @@ ${supplement ? `- 補足データ・根拠（グラフに使える場合は cont
       return res.status(500).json({ error: 'スライド構成のパースに失敗しました。再試行してください。' });
     }
 
-    // slides配列の検証
     if (!Array.isArray(parsed.slides)) {
       return res.status(500).json({ error: 'スライド構成の形式が不正です。再試行してください。' });
     }
@@ -536,4 +679,74 @@ ${supplement ? `- 補足データ・根拠（グラフに使える場合は cont
   } catch (err) {
     return res.status(500).json({ error: err.message || 'サーバーエラーが発生しました。再試行してください。' });
   }
+}
+
+// ============================================================
+// Image (Unsplash search)
+// ============================================================
+
+async function handleImage(req, res) {
+  const key = process.env.UNSPLASH_ACCESS_KEY;
+  if (!key) {
+    return res.status(200).json({ error: 'UNSPLASH_ACCESS_KEY not configured', fallback: true });
+  }
+
+  try {
+    if (req.method === 'GET') {
+      const q = req.query.q;
+      if (!q) return res.status(400).json({ error: 'q parameter required' });
+      const result = await searchUnsplash(key, q);
+      return res.status(200).json(result);
+    }
+
+    if (req.method === 'POST') {
+      const { queries } = req.body || {};
+      if (!Array.isArray(queries) || queries.length === 0) {
+        return res.status(400).json({ error: 'queries array required' });
+      }
+      const limited = queries.slice(0, 20);
+      const results = await Promise.all(limited.map(q => searchUnsplash(key, q)));
+      return res.status(200).json({ images: results });
+    }
+
+    return res.status(405).json({ error: 'Method not allowed' });
+  } catch (err) {
+    console.error('slide-image error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+async function searchUnsplash(key, query) {
+  const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=3&orientation=landscape`;
+  const resp = await fetch(url, {
+    headers: { Authorization: `Client-ID ${key}` },
+  });
+
+  if (!resp.ok) {
+    return { query, url: null, thumb: null, credit: null, error: `Unsplash API ${resp.status}` };
+  }
+
+  const data = await resp.json();
+  const photos = (data.results || []).slice(0, 3);
+
+  if (photos.length === 0) {
+    return { query, url: null, thumb: null, credit: null, error: 'No results' };
+  }
+
+  const primary = photos[0];
+  return {
+    query,
+    url: primary.urls.regular,
+    thumb: primary.urls.thumb,
+    credit: {
+      name: primary.user.name,
+      link: primary.user.links.html,
+      unsplash: primary.links.html,
+    },
+    alternatives: photos.slice(1).map(p => ({
+      url: p.urls.regular,
+      thumb: p.urls.thumb,
+      credit: { name: p.user.name, link: p.user.links.html },
+    })),
+  };
 }

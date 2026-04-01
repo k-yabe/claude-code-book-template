@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-04-01（Prompt Maker v10 総合UI見直し・機能強化・Wireframe Maker V10）
+最終更新: 2026-04-01（Cache Checker 追加）
 
 ---
 
@@ -58,6 +58,7 @@
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
 | Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040, S041, S042, S043, S044, S045 |
 | Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043 |
+| Cache Checker | `apps/cache-checker/index.html`, `api/proxy.js` | ✅ 完成 | S037 |
 
 ---
 
@@ -290,3 +291,4 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-31 | Wireframe Maker V9 URLインポート・画像差し込み | URLからサイト構造をコピーしてワイヤーフレーム自動生成（fetch-article.js+AI分析）、セクションへの画像差し込み（SVG image要素・5MB上限・PNG/JPG/GIF/WebP対応） |
 | 2026-04-01 | Wireframe Maker V10 Figma到達 | SVGテキスト直接編集（全セクション対応）、プロジェクト保存/読込（localStorage+JSON）、自動保存（3秒デバウンス）+起動時復元、セクション個別スタイル（背景色・テキスト色・アクセント色）、PDFエクスポート（JPEG埋込PDF生成） |
 | 2026-04-01 | Banner Resizer ガイド準拠の容量制限追加 | MV: 1MB以内、OGP: 100KB以下。WebP/JPGは品質0.70下限で自動圧縮（画質維持優先）。PNGは圧縮不可のため超過時警告表示。プレビューにファイルサイズ・上限・超過状態を常時表示 |
+| 2026-04-01 | Cache Checker 新規追加 | CMSキャッシュ反映状況チェックツール。通常版とキャッシュバイパス版（ランダムパラメータ付与）を比較し差分を可視化。Vercel Serverless Function（api/fetch-article.js mode=proxy）でCORS回避。jsdiffによる行単位diff表示 |

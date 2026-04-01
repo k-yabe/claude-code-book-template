@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Cache Checker — AKKODiS Marketing Apps</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+  <link rel="stylesheet" href="../../assets/app-styles.css">
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; }
+
+    /* ── ナビバー ── */
+    .navbar {
+      background: #001f33; height: 58px; display: flex; align-items: center;
+      padding: 0 40px; gap: 14px; position: sticky; top: 0; z-index: 10;
+    }
+    .navbar-brand { display: flex; align-items: center; gap: 14px; }
+    .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+    .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+    .back-btn {
+      background: none; border: 1px solid rgba(255,255,255,0.2); font-size: 0.78rem;
+      color: rgba(255,255,255,0.65); cursor: pointer; padding: 6px 14px;
+      text-decoration: none; transition: all 0.15s;
+    }
+    .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 36px 24px 80px; }
+
+    /* ── ページヘッダー ── */
+    .page-header { margin-bottom: 20px; }
+    .page-header h1 { font-size: 1.4rem; font-weight: 700; color: #001f33; letter-spacing: -0.01em; margin-bottom: 4px; }
+    .page-header p { font-size: 0.82rem; color: #8a9bb0; }
+
+    /* ── ガイドカード ── */
+    .guide-card {
+      background: #fff;
+      border: 1.5px solid #e8ecf0;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+    .guide-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #001f33;
+      margin-bottom: 10px;
+    }
+    .guide-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .guide-steps { grid-template-columns: 1fr; }
+    }
+    .guide-step {
+      text-align: center;
+      padding: 14px 10px;
+      background: rgba(0,31,51,0.02);
+    }
+    .guide-step-icon { font-size: 1.5rem; margin-bottom: 6px; }
+    .guide-step-text { font-size: 0.75rem; color: #636e72; line-height: 1.5; }
+
+    /* ── ステップ ── */
+    .step {
+      background: #fff; border: 1.5px solid #e8ecf0;
+      margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .step-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px; border-bottom: 1px solid #f0f2f5; background: #fafbfc;
+    }
+    .step-num {
+      width: 24px; height: 24px; background: #001f33; color: #fff;
+      font-size: 0.72rem; font-weight: 800; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .step-title { font-size: 0.85rem; font-weight: 700; color: #001f33; }
+    .step-body { padding: 16px 18px; }
+
+    /* ── 入力フィールド ── */
+    .input-field {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #e8ecf0;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: #2d3436;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .input-field::placeholder { color: #b2bec3; }
+    .input-field:focus {
+      border-color: #ffb81c;
+      box-shadow: 0 0 0 3px rgba(255,184,28,0.12);
+    }
+    .url-note {
+      font-size: 0.75rem;
+      color: #8a9bb0;
+      margin-top: 6px;
+    }
+
+    /* ── サンプルボタン ── */
+    .sample-row {
+      display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap;
+    }
+    .sample-label { font-size: 0.72rem; color: #b2bec3; }
+    .sample-btn {
+      background: none; border: 1px solid #e8ecf0; color: #636e72;
+      font-size: 0.72rem; padding: 3px 10px; cursor: pointer; transition: all 0.15s;
+      font-family: inherit;
+    }
+    .sample-btn:hover { border-color: #ffb81c; color: #001f33; }
+
+    /* ── CTAボタン ── */
+    .cta-btn {
+      width: 100%;
+      padding: 14px;
+      background: #ffb81c;
+      border: none;
+      color: #001f33;
+      font-size: 0.95rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 6px;
+    }
+    .cta-btn:hover { opacity: 0.92; box-shadow: 0 4px 16px rgba(255,184,28,0.3); }
+    .cta-btn:active { transform: scale(0.99); }
+
+    /* ── ローディング ── */
+    .loading-area { text-align: center; padding: 40px 0; display: none; }
+    .loading-area.show { display: block; }
+    .loading-text { font-size: 0.9rem; color: #636e72; margin-bottom: 12px; }
+    .loading-dots { display: inline-flex; gap: 6px; }
+    .loading-dots span {
+      width: 8px; height: 8px; background: #ffb81c;
+      display: inline-block; animation: bounce 1.2s ease-in-out infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    /* ── エラー ── */
+    .error-msg {
+      background: #fff5f4; border: 1.5px solid #fab1a0; color: #c0392b;
+      padding: 10px 14px; font-size: 0.85rem; display: none; margin-top: 10px;
+    }
+    .error-msg.show { display: block; }
+
+    /* ── 結果セクション ── */
+    .result-section { margin-top: 24px; }
+
+    /* ── ステータスカード ── */
+    .status-card {
+      background: #fff; border: 1.5px solid #e8ecf0; border-left: 4px solid #e8ecf0;
+      padding: 20px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 16px;
+    }
+    .status-card.synced { border-left-color: #00b894; }
+    .status-card.diff { border-left-color: #e17055; }
+    .status-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; }
+    .status-content { flex: 1; }
+    .status-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .status-label { font-size: 1rem; font-weight: 700; color: #001f33; }
+    .status-badge {
+      display: inline-block; padding: 2px 8px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; color: #fff;
+    }
+    .status-badge.synced { background: #00b894; }
+    .status-badge.diff { background: #e17055; }
+    .status-text { font-size: 0.85rem; color: #636e72; margin: 0; line-height: 1.6; }
+    .status-meta { display: flex; gap: 16px; margin-top: 10px; font-size: 0.75rem; color: #8a9bb0; }
+
+    /* ── アクションガイド ── */
+    .action-guide {
+      background: rgba(0,31,51,0.03); border: 1px solid #e8ecf0;
+      padding: 14px 16px; margin-top: 12px; font-size: 0.82rem; color: #636e72;
+    }
+    .action-guide-title {
+      font-weight: 700; color: #001f33; margin-bottom: 6px;
+      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .action-guide ol { margin: 0; padding-left: 18px; }
+    .action-guide li { margin-bottom: 3px; }
+
+    /* ── 結果カード ── */
+    .result-card {
+      background: #fff; border: 1.5px solid #e8ecf0; padding: 20px; margin-bottom: 16px;
+    }
+    .result-card-title {
+      font-size: 0.9rem; font-weight: 700; color: #001f33;
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+
+    /* ── キャッシュTTL ── */
+    .ttl-card {
+      background: #fff; border: 1.5px solid #e8ecf0; padding: 20px; margin-bottom: 16px;
+      display: none;
+    }
+    .ttl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 600px) { .ttl-grid { grid-template-columns: 1fr; } }
+    .ttl-item { text-align: center; padding: 12px 8px; background: rgba(0,31,51,0.02); border: 1px solid #e8ecf0; }
+    .ttl-value { font-size: 1.3rem; font-weight: 800; color: #001f33; line-height: 1.2; }
+    .ttl-label { font-size: 0.72rem; color: #8a9bb0; margin-top: 4px; }
+
+    /* ── ヘッダー比較 ── */
+    .header-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .header-table th {
+      text-align: left; padding: 6px 10px; background: rgba(0,31,51,0.04);
+      color: #636e72; font-weight: 600; white-space: nowrap; width: 160px;
+      cursor: help; position: relative;
+    }
+    .header-table th .header-hint {
+      display: none; position: absolute; left: 0; top: 100%;
+      background: #001f33; color: #fff; padding: 6px 10px;
+      font-size: 0.72rem; font-weight: 400; white-space: normal;
+      width: 240px; z-index: 10; line-height: 1.4;
+    }
+    .header-table th:hover .header-hint { display: block; }
+    .header-table td { padding: 6px 10px; color: #2d3436; word-break: break-all; }
+    .header-table tr + tr th, .header-table tr + tr td { border-top: 1px solid #e8ecf0; }
+    .header-table tr.header-diff th { color: #e17055; }
+    .header-table tr.header-diff td { color: #e17055; font-weight: 600; }
+    .header-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 768px) { .header-compare { grid-template-columns: 1fr; } }
+    .header-compare-label {
+      font-size: 0.75rem; font-weight: 700; color: #8a9bb0;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
+    }
+
+    /* ── diff表示 ── */
+    .diff-container {
+      background: #fff; border: 1px solid #e8ecf0;
+      font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+      font-size: 0.78rem; line-height: 1.6; overflow-x: auto; max-height: 500px; overflow-y: auto;
+    }
+    .diff-line { padding: 1px 12px; white-space: pre-wrap; word-break: break-all; }
+    .diff-added { background: rgba(0,184,148,0.12); color: #00b894; }
+    .diff-removed { background: rgba(225,112,85,0.12); color: #e17055; }
+    .diff-info { font-size: 0.82rem; color: #8a9bb0; margin-bottom: 8px; }
+
+    /* ── 結果アクション ── */
+    .result-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .result-action-btn {
+      background: #fff; border: 1.5px solid #e8ecf0; color: #636e72;
+      font-size: 0.82rem; font-weight: 600; padding: 9px 18px;
+      cursor: pointer; transition: all 0.15s; flex: 1; min-width: 140px;
+      text-align: center; font-family: inherit;
+    }
+    .result-action-btn:hover { border-color: #001f33; color: #001f33; }
+    .result-action-btn.primary {
+      background: #ffb81c; border-color: #ffb81c; color: #001f33; font-weight: 800;
+    }
+    .result-action-btn.primary:hover { opacity: 0.92; }
+
+    /* ── フッター ── */
+    .app-footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(0,31,51,0.03); border-top: 1px solid #e8ecf0;
+      padding: 10px 0; text-align: center; z-index: 5;
+    }
+    .app-footer-text { font-size: 0.72rem; color: #b2bec3; }
+
+    /* ── タブレット ── */
+    @media (max-width: 768px) {
+      .navbar { padding: 0 20px; }
+      .container { padding: 24px 20px 60px; }
+    }
+    @media (max-width: 480px) {
+      .navbar { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+  <script>if(localStorage.getItem('auth')!=='1')location.href='/';</script>
+
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="back-btn" href="../../">← アプリ一覧へ</a>
+      <div class="navbar-divider"></div>
+      <span class="navbar-title">Cache Checker</span>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>ページ更新チェッカー</h1>
+      <p>CMSで更新した内容がWebサイトに反映されているか確認できます</p>
+    </div>
+
+    <!-- 使い方ガイド -->
+    <div class="guide-card">
+      <div class="guide-title">こんなときに使えます</div>
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="guide-step-icon">📝</div>
+          <div class="guide-step-text">CMSでページを<br>更新・公開した</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-icon">🤔</div>
+          <div class="guide-step-text">サイトを見たけど<br>まだ古い内容のまま</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-icon">🔍</div>
+          <div class="guide-step-text">このツールで<br>反映状況を確認</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div class="step-title">確認したいページのURLを入力</div>
+      </div>
+      <div class="step-body">
+        <input type="url" id="url-input" class="input-field" placeholder="https://www.akkodis.co.jp/..." autocomplete="url">
+        <p class="url-note">URLを入力すると、現在表示されている内容と最新の内容を自動で比較します</p>
+        <div class="sample-row">
+          <span class="sample-label">テスト用:</span>
+          <button class="sample-btn" onclick="fillSample('https://www.google.com')">google.com</button>
+          <button class="sample-btn" onclick="fillSample('https://example.com')">example.com</button>
+          <button class="sample-btn" onclick="fillSample('https://httpbin.org/cache/60')">httpbin (60秒キャッシュ)</button>
+        </div>
+      </div>
+    </div>
+
+    <button id="check-btn" class="cta-btn" onclick="runCheck()">更新状況をチェック</button>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <div class="loading-area" id="loading">
+      <div class="loading-text">ページの状態を確認しています...</div>
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
+
+    <div id="result" class="result-section" style="display:none;">
+
+      <!-- ステータスカード -->
+      <div class="status-card" id="status-card">
+        <div class="status-icon" id="status-icon"></div>
+        <div class="status-content">
+          <div class="status-header">
+            <span class="status-label" id="status-label"></span>
+            <span class="status-badge" id="status-badge"></span>
+          </div>
+          <p class="status-text" id="status-text"></p>
+          <div class="status-meta">
+            <span id="meta-time"></span>
+            <span id="meta-url"></span>
+          </div>
+          <div class="action-guide" id="action-guide" style="display:none;">
+            <div class="action-guide-title">対応方法</div>
+            <ol>
+              <li>しばらく待って再チェックする（キャッシュは一定時間で自動更新されます）</li>
+              <li>急ぎの場合はIT部門にキャッシュクリア（パージ）を依頼する</li>
+              <li>CMS側でページが正しく公開されているか確認する</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- キャッシュTTLカード -->
+      <div class="ttl-card" id="ttl-card">
+        <div class="result-card-title">自動更新の目安</div>
+        <div class="ttl-grid">
+          <div class="ttl-item">
+            <div class="ttl-value" id="ttl-max-age">—</div>
+            <div class="ttl-label">キャッシュ有効期間</div>
+          </div>
+          <div class="ttl-item">
+            <div class="ttl-value" id="ttl-age">—</div>
+            <div class="ttl-label">最後の更新からの経過</div>
+          </div>
+          <div class="ttl-item">
+            <div class="ttl-value" id="ttl-remaining">—</div>
+            <div class="ttl-label">あと何分で反映されるか</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ヘッダー比較 -->
+      <div class="result-card" id="header-card">
+        <div class="result-card-title">サーバー情報（詳細）</div>
+        <div class="header-compare">
+          <div>
+            <div class="header-compare-label">現在の表示版</div>
+            <table class="header-table" id="headers-normal"></table>
+          </div>
+          <div>
+            <div class="header-compare-label">最新版</div>
+            <table class="header-table" id="headers-bypass"></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ボディ差分 -->
+      <div class="result-card" id="diff-card" style="display:none;">
+        <div class="result-card-title">変更箇所の詳細</div>
+        <p class="diff-info" id="diff-info"></p>
+        <div class="diff-container" id="diff-view"></div>
+      </div>
+
+      <!-- 結果アクション -->
+      <div class="result-actions">
+        <button class="result-action-btn primary" onclick="runCheck()">もう一度チェック</button>
+        <button class="result-action-btn" onclick="copyReport()">結果をコピー</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/diff@5/dist/diff.min.js"></script>
+  <script src="../../assets/copy-utils.js"></script>
+  <script src="../../assets/history.js"></script>
+  <script>
+    const urlInput = document.getElementById('url-input');
+    const checkBtn = document.getElementById('check-btn');
+    const errorMsg = document.getElementById('error-msg');
+    const loading = document.getElementById('loading');
+    const resultSection = document.getElementById('result');
+
+    const PROXY_URL = '/api/proxy';
+    const DISPLAY_HEADERS = ['cache-control', 'age', 'last-modified', 'etag', 'x-cache', 'x-cache-hits', 'cf-cache-status', 'expires', 'date', 'content-type'];
+
+    const HEADER_HINTS = {
+      'cache-control': 'キャッシュの方針を指定（max-age=秒数 で有効期間を設定）',
+      'age': 'キャッシュに保存されてからの経過秒数',
+      'last-modified': 'ページが最後に更新された日時',
+      'etag': 'ページのバージョン識別子（変更があると値が変わる）',
+      'x-cache': 'キャッシュのヒット状況（HIT=キャッシュから配信, MISS=元サーバーから取得）',
+      'x-cache-hits': 'キャッシュがヒットした回数',
+      'cf-cache-status': 'Cloudflareのキャッシュ状態',
+      'expires': 'キャッシュの有効期限（日時）',
+      'date': 'レスポンスが生成された日時',
+      'content-type': 'コンテンツの種類（text/html 等）',
+    };
+
+    let lastResult = null;
+
+    function escHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.add('show');
+    }
+
+    function clearError() {
+      errorMsg.textContent = '';
+      errorMsg.classList.remove('show');
+    }
+
+    function setLoading(on) {
+      loading.classList.toggle('show', on);
+      checkBtn.disabled = on;
+      checkBtn.textContent = on ? 'チェック中...' : '更新状況をチェック';
+    }
+
+    function fillSample(url) {
+      urlInput.value = url;
+      urlInput.focus();
+    }
+
+    function renderHeaders(tableEl, headers, otherHeaders) {
+      const rows = DISPLAY_HEADERS
+        .filter(k => headers[k] || (otherHeaders && otherHeaders[k]))
+        .map(k => {
+          const val = headers[k] || '—';
+          const otherVal = otherHeaders ? (otherHeaders[k] || '—') : null;
+          const isDiff = otherVal !== null && val !== otherVal;
+          const hint = HEADER_HINTS[k] || '';
+          const hintHtml = hint ? `<span class="header-hint">${escHtml(hint)}</span>` : '';
+          return `<tr${isDiff ? ' class="header-diff"' : ''}><th>${escHtml(k)}${hintHtml}</th><td>${escHtml(val)}</td></tr>`;
+        })
+        .join('');
+      tableEl.innerHTML = rows || '<tr><td colspan="2" style="color:#b2bec3;padding:8px 10px;">ヘッダー情報なし</td></tr>';
+    }
+
+    function renderTTL(headers) {
+      const ttlCard = document.getElementById('ttl-card');
+      const cc = headers['cache-control'] || '';
+      const ageStr = headers['age'];
+
+      const maxAgeMatch = cc.match(/max-age=(\d+)/);
+      const maxAge = maxAgeMatch ? parseInt(maxAgeMatch[1], 10) : null;
+      const age = ageStr ? parseInt(ageStr, 10) : null;
+
+      if (maxAge === null && age === null) {
+        ttlCard.style.display = 'none';
+        return;
+      }
+
+      ttlCard.style.display = '';
+      document.getElementById('ttl-max-age').textContent = maxAge !== null ? formatDuration(maxAge) : '—';
+      document.getElementById('ttl-age').textContent = age !== null ? formatDuration(age) : '—';
+
+      if (maxAge !== null && age !== null) {
+        const remaining = Math.max(0, maxAge - age);
+        document.getElementById('ttl-remaining').textContent = remaining > 0 ? formatDuration(remaining) : '期限切れ';
+      } else {
+        document.getElementById('ttl-remaining').textContent = '—';
+      }
+    }
+
+    function formatDuration(seconds) {
+      if (seconds < 60) return seconds + '秒';
+      if (seconds < 3600) return Math.floor(seconds / 60) + '分' + (seconds % 60 > 0 ? seconds % 60 + '秒' : '');
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      return h + '時間' + (m > 0 ? m + '分' : '');
+    }
+
+    function renderDiff(normalBody, bypassBody) {
+      const diffCard = document.getElementById('diff-card');
+      const diffView = document.getElementById('diff-view');
+      const diffInfo = document.getElementById('diff-info');
+
+      if (normalBody === bypassBody) {
+        diffCard.style.display = 'none';
+        return 0;
+      }
+
+      diffCard.style.display = '';
+      const changes = Diff.diffLines(normalBody, bypassBody);
+      let added = 0, removed = 0;
+      let html = '';
+
+      for (const part of changes) {
+        const lines = part.value.split('\n');
+        if (lines[lines.length - 1] === '') lines.pop();
+
+        for (const line of lines) {
+          if (part.added) {
+            added++;
+            html += `<div class="diff-line diff-added">+ ${escHtml(line)}</div>`;
+          } else if (part.removed) {
+            removed++;
+            html += `<div class="diff-line diff-removed">- ${escHtml(line)}</div>`;
+          }
+        }
+      }
+
+      diffInfo.textContent = `追加: ${added}行 / 削除: ${removed}行（合計 ${added + removed}行の差分）`;
+      diffView.innerHTML = html;
+      return added + removed;
+    }
+
+    async function fetchViaProxy(url) {
+      const res = await fetch(PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || `Proxy error (${res.status})`);
+      }
+      return data;
+    }
+
+    function generateCacheBuster() {
+      return Date.now() + '-' + Math.random().toString(36).slice(2);
+    }
+
+    function addParam(url, key, value) {
+      const u = new URL(url);
+      u.searchParams.set(key, value);
+      return u.toString();
+    }
+
+    async function runCheck() {
+      clearError();
+      resultSection.style.display = 'none';
+
+      const rawUrl = urlInput.value.trim();
+      if (!rawUrl) {
+        showError('URLを入力してください');
+        urlInput.focus();
+        return;
+      }
+
+      let parsed;
+      try {
+        parsed = new URL(rawUrl);
+      } catch {
+        showError('有効なURLを入力してください（例: https://www.akkodis.co.jp/）');
+        urlInput.focus();
+        return;
+      }
+
+      if (!['http:', 'https:'].includes(parsed.protocol)) {
+        showError('HTTP/HTTPS のURLを入力してください');
+        return;
+      }
+
+      setLoading(true);
+      const startTime = performance.now();
+
+      try {
+        const bypassUrl = addParam(rawUrl, '_', generateCacheBuster());
+        const [normalRes, bypassRes] = await Promise.all([
+          fetchViaProxy(rawUrl),
+          fetchViaProxy(bypassUrl),
+        ]);
+
+        const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
+
+        renderHeaders(document.getElementById('headers-normal'), normalRes.headers, bypassRes.headers);
+        renderHeaders(document.getElementById('headers-bypass'), bypassRes.headers, normalRes.headers);
+        renderTTL(normalRes.headers);
+
+        const diffCount = renderDiff(normalRes.body, bypassRes.body);
+
+        const statusCard = document.getElementById('status-card');
+        const statusIcon = document.getElementById('status-icon');
+        const statusLabel = document.getElementById('status-label');
+        const badge = document.getElementById('status-badge');
+        const statusText = document.getElementById('status-text');
+        const actionGuide = document.getElementById('action-guide');
+
+        if (diffCount === 0) {
+          statusCard.className = 'status-card synced';
+          statusIcon.textContent = '✅';
+          statusLabel.textContent = '最新の内容が反映されています';
+          badge.textContent = '反映済み';
+          badge.className = 'status-badge synced';
+          statusText.textContent = 'CMSで公開した内容がWebサイトに正しく反映されています。更新作業は完了です。';
+          actionGuide.style.display = 'none';
+        } else {
+          statusCard.className = 'status-card diff';
+          statusIcon.textContent = '⚠️';
+          statusLabel.textContent = 'まだ反映されていません';
+          badge.textContent = diffCount + '箇所の差分';
+          badge.className = 'status-badge diff';
+          statusText.textContent = 'CMSで更新した内容がまだWebサイトに反映されていません。キャッシュ（一時保存）が原因の可能性があります。';
+          actionGuide.style.display = '';
+        }
+
+        document.getElementById('meta-time').textContent = 'チェック時間: ' + elapsed + '秒';
+        document.getElementById('meta-url').textContent = parsed.hostname;
+
+        resultSection.style.display = '';
+
+        lastResult = { url: rawUrl, diffCount, elapsed, normalHeaders: normalRes.headers, bypassHeaders: bypassRes.headers };
+
+        if (typeof HistoryManager !== 'undefined' && HistoryManager.save) {
+          HistoryManager.save(`${rawUrl} → ${diffCount === 0 ? '反映済み' : diffCount + '箇所の差分'}`, rawUrl);
+        }
+      } catch (err) {
+        showError(err.message || 'チェック中にエラーが発生しました');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function copyReport() {
+      if (!lastResult) return;
+      const r = lastResult;
+      const lines = [
+        `## ページ更新チェック結果`,
+        `- **URL**: ${r.url}`,
+        `- **結果**: ${r.diffCount === 0 ? '✅ 反映済み' : '⚠️ 未反映（' + r.diffCount + '箇所の差分）'}`,
+        `- **チェック時間**: ${r.elapsed}秒`,
+        `- **日時**: ${new Date().toLocaleString('ja-JP')}`,
+        ``,
+        `### 現在の表示版ヘッダー`,
+      ];
+      for (const k of DISPLAY_HEADERS) {
+        if (r.normalHeaders[k]) lines.push(`- ${k}: ${r.normalHeaders[k]}`);
+      }
+      lines.push('', '### 最新版ヘッダー');
+      for (const k of DISPLAY_HEADERS) {
+        if (r.bypassHeaders[k]) lines.push(`- ${k}: ${r.bypassHeaders[k]}`);
+      }
+
+      const text = lines.join('\n');
+      const btn = document.querySelector('.result-action-btn:not(.primary)');
+      if (typeof copyToClipboard === 'function') {
+        copyToClipboard(text, btn);
+      } else {
+        navigator.clipboard.writeText(text).then(() => {
+          btn.textContent = '✅ コピーしました';
+          setTimeout(() => { btn.textContent = '結果をコピー'; }, 2000);
+        });
+      }
+    }
+
+    urlInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') runCheck();
+    });
+
+    HistoryManager.init('Cache Checker');
+  </script>
+</body>
+</html>
