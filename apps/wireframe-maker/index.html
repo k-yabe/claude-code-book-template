@@ -1284,10 +1284,14 @@ async function handleUrlImport() {
   addLoadingBubble();
   document.getElementById('chat-send').disabled = true;
   try {
-    // OGPモードでHTMLを丸ごと取得
-    const fetchRes = await fetch(API_BASE + '/api/fetch-article?mode=ogp&url=' + encodeURIComponent(url));
-    if (!fetchRes.ok) throw new Error('サイトの取得に失敗しました');
-    const rawHtml = await fetchRes.text();
+    // HTMLとサイト構造を並列取得
+    const [ogpRes, structRes] = await Promise.all([
+      fetch(API_BASE + '/api/fetch-article?mode=ogp&url=' + encodeURIComponent(url)),
+      fetch(API_BASE + '/api/fetch-article?mode=structure', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) })
+    ]);
+    if (!ogpRes.ok) throw new Error('サイトの取得に失敗しました');
+    const rawHtml = await ogpRes.text();
+    const structure = structRes.ok ? await structRes.json() : null;
 
     // URLからベースURLを生成
     const parsed = new URL(url);
@@ -1449,12 +1453,29 @@ async function handleUrlImport() {
 
     removeLoadingBubble();
 
-    // タイトルを抽出
-    const titleMatch = rawHtml.match(/<title[^>]*>([^<]+)<\/title>/i);
-    const title = titleMatch ? titleMatch[1].trim() : url;
-    importedContent = `[クローンしたサイト: ${url}]\nタイトル: ${title}`;
+    // タイトルとコンテンツを抽出
+    const title = structure?.title || rawHtml.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]?.trim() || url;
 
-    addChatMessage('ai', `✅ 「${title}」をそのまま読み込みました。画像・CSS含め完全再現しています。\n\n編集モードがONです:\n・テキストをクリックして直接編集\n・画像をクリックして差替\n・AIリライトで文章を改善\n・セクション非表示でLPO検証`);
+    // サイトのテキスト内容をrawHtmlから抽出（AIチャット用）
+    let pageText = '';
+    try {
+      const tempDiv = document.createElement('div');
+      const cleaned = rawHtml.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<nav[\s\S]*?<\/nav>/gi, '').replace(/<footer[\s\S]*?<\/footer>/gi, '');
+      tempDiv.innerHTML = cleaned;
+      pageText = tempDiv.textContent.replace(/\s+/g, ' ').trim().slice(0, 5000);
+    } catch(ex) { pageText = ''; }
+
+    // 構造情報 + テキスト内容をAIに渡す
+    let contentForAI = `[インポートしたサイト: ${url}]\nタイトル: ${title}\n`;
+    if (structure) {
+      contentForAI += formatStructureForAI(structure);
+    }
+    if (pageText) {
+      contentForAI += `\n\n## ページテキスト（上から順）\n${pageText}`;
+    }
+    importedContent = contentForAI;
+
+    addChatMessage('ai', `✅ 「${title}」をそのまま読み込みました。画像・CSS含め完全再現しています。\n\n編集モードがONです:\n・テキストをクリックして直接編集\n・画像をクリックして差替\n・AIリライトで文章を改善\n・セクション非表示でLPO検証\n\nチャットでLPO改善を相談することもできます。`);
     showToast('サイト再現完了 — 編集モードON');
   } catch (e) { removeLoadingBubble(); showError(e.message); }
   finally { document.getElementById('chat-send').disabled = false; }
