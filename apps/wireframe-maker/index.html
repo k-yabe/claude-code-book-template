@@ -1248,32 +1248,26 @@ async function handleUrlImport() {
   addLoadingBubble();
   document.getElementById('chat-send').disabled = true;
   try {
-    // Step 1: サイトのHTMLコンテンツを取得
-    const fetchRes = await fetch(API_BASE + '/api/fetch-article', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
-    const fetchData = await fetchRes.json();
-    if (!fetchRes.ok) throw new Error(fetchData.error || 'サイトの取得に失敗しました');
-    const siteContent = `[インポートしたサイト: ${url}]\nタイトル: ${fetchData.title}\n\n${fetchData.text}`;
-    importedContent = siteContent;
-    removeLoadingBubble();
-    addChatMessage('ai', `「${fetchData.title}」の内容を読み込みました。このサイトの構成をコピーしてワイヤーフレームを生成します...`);
+    // Step 1: サイトのHTML構造を抽出（structure mode）
+    const fetchRes = await fetch(API_BASE + '/api/fetch-article?mode=structure', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url })
+    });
+    const structure = await fetchRes.json();
+    if (!fetchRes.ok) throw new Error(structure.error || 'サイトの取得に失敗しました');
 
-    // Step 2: AI で構造を自動生成
+    // 構造情報をテキストに整形
+    const structureText = formatStructureForAI(structure);
+    importedContent = `[インポートしたサイト: ${url}]\nタイトル: ${structure.title}\n\n${structureText}`;
+    removeLoadingBubble();
+    addChatMessage('ai', `「${structure.title}」のページ構造を解析しました（見出し${structure.headings.length}個、セクション${structure.sections.length}個検出）。忠実に再現します...`);
+
+    // Step 2: AI で構造を忠実に再現（url-import mode）
     addLoadingBubble();
     const genRes = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        mode: 'free',
-        freeText: `【重要】これは「URLインポート」です。以下は既存サイトから抽出したコンテンツです。
-このサイトの実際のページ構成を忠実にワイヤーフレームとして再現してください。
-
-ルール:
-1. サイトに実際に存在するセクションだけを使う（勝手に追加しない）
-2. セクションの順序はサイトの上から下の順序をそのまま維持する
-3. 各セクションのlabelとdescriptionにサイトの実際のテキスト・見出しを反映する
-4. 「キャッチコピーが入ります」等のプレースホルダーは使わない — 実際のテキストを入れる
-5. navigationとfooterはサイトにあれば含める
-
-${siteContent.slice(0, 10000)}`,
+        mode: 'url-import',
+        freeText: structureText,
         _user: USER
       })
     });
@@ -1282,10 +1276,68 @@ ${siteContent.slice(0, 10000)}`,
     removeLoadingBubble();
     currentSections = genData.sections;
     onSectionsChanged();
-    addChatMessage('ai', `✅ 「${fetchData.title}」をもとに ${genData.sections.length} セクションのワイヤーフレームを生成しました。左パネルの構成タブで自由に編集できます。`);
+    addChatMessage('ai', `✅ 「${structure.title}」の構成を ${genData.sections.length} セクションで再現しました。左パネルの構成タブで確認・編集できます。`);
     showToast('URLインポート完了');
   } catch (e) { removeLoadingBubble(); showError(e.message); }
   finally { document.getElementById('chat-send').disabled = false; }
+}
+
+function formatStructureForAI(s) {
+  let out = `# サイト構造解析結果\n\n`;
+  out += `サイトタイトル: ${s.title}\n`;
+  if (s.ogDesc) out += `説明: ${s.ogDesc}\n`;
+  out += `URL: ${s.url}\n\n`;
+
+  if (s.navItems.length > 0) {
+    out += `## ナビゲーション\nメニュー項目: ${s.navItems.join(' | ')}\n\n`;
+  }
+
+  if (s.headings.length > 0) {
+    out += `## 見出し構造（上から順）\n`;
+    for (const h of s.headings) {
+      out += `${'  '.repeat(h.level - 1)}H${h.level}: ${h.text}\n`;
+    }
+    out += '\n';
+  }
+
+  if (s.sections.length > 0) {
+    out += `## セクション構造（上から順）\n`;
+    for (let i = 0; i < s.sections.length; i++) {
+      const sec = s.sections[i];
+      out += `\n### セクション${i + 1}`;
+      if (sec.tag === 'header') {
+        out += `（ヘッダー）\n内容: ${sec.text}\n`;
+      } else {
+        if (sec.idOrClass) out += ` [${sec.idOrClass}]`;
+        out += '\n';
+        if (sec.headings.length > 0) out += `見出し: ${sec.headings.join(' / ')}\n`;
+        if (sec.text) out += `内容: ${sec.text.slice(0, 200)}\n`;
+        if (sec.imgCount > 0) out += `画像: ${sec.imgCount}枚\n`;
+        if (sec.hasForm) out += `フォーム: あり\n`;
+        if (sec.ctaTexts.length > 0) out += `CTAボタン: ${sec.ctaTexts.join(', ')}\n`;
+      }
+    }
+    out += '\n';
+  }
+
+  if (s.forms.length > 0) {
+    out += `## フォーム\n`;
+    for (let i = 0; i < s.forms.length; i++) {
+      out += `フォーム${i + 1}: 入力項目${s.forms[i].inputCount}個`;
+      if (s.forms[i].submitText) out += `, ボタン「${s.forms[i].submitText}」`;
+      out += '\n';
+    }
+    out += '\n';
+  }
+
+  if (s.hasVideo) out += `## 動画: あり\n\n`;
+  out += `## 画像: 合計${s.totalImages}枚\n\n`;
+
+  if (s.footerLinks.length > 0) {
+    out += `## フッター\nリンク: ${s.footerLinks.join(' | ')}\n`;
+  }
+
+  return out;
 }
 
 async function generateFromImport() {
