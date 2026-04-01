@@ -20,7 +20,7 @@
     .hidden { display: none !important; }
 
     /* ===== ナビバー ===== */
-    .navbar { background: #001f33; height: 48px; display: flex; align-items: center; padding: 0 16px; gap: 12px; z-index: 100; flex-shrink: 0; }
+    .navbar { background: #001f33; height: 58px; display: flex; align-items: center; padding: 0 16px; gap: 12px; z-index: 100; flex-shrink: 0; }
     .navbar-back { color: #fff; text-decoration: none; font-size: 0.75rem; opacity: 0.7; padding: 4px 8px; transition: opacity 0.2s; }
     .navbar-back:hover { opacity: 1; }
     .navbar-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.15); }
@@ -35,7 +35,7 @@
     .navbar-score .score-fill { height: 100%; transition: width 0.5s, background 0.3s; }
 
     /* ===== スプリットペインレイアウト ===== */
-    .editor-layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 78px); min-height: 0; max-height: calc(100vh - 78px); }
+    .editor-layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 88px); min-height: 0; max-height: calc(100vh - 88px); }
 
     /* 左パネル */
     .left-panel { width: 380px; min-width: 320px; max-width: 500px; background: #fff; border-right: 1px solid #e8ecf0; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
@@ -117,7 +117,7 @@
     .import-url-input { flex: 1; border: 1.5px solid #d0d5dc; padding: 6px 8px; font-size: 0.7rem; font-family: inherit; color: #2d3436; outline: none; }
     .import-url-input:focus { border-color: #ffb81c; }
     .import-url-input::placeholder { color: #c0cdd9; }
-    .btn-url-go { background: #001f33; color: #fff; border: none; padding: 6px 10px; font-size: 0.68rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-url-go { background: #001f33; color: #fff; border: none; padding: 6px 12px; font-size: 0.68rem; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
 
     .tpl-bar { padding: 8px 12px; background: #fff; border-bottom: 1px solid #e8ecf0; display: flex; gap: 4px; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
     .tpl-label { font-size: 0.65rem; color: #8a9bb0; font-weight: 600; white-space: nowrap; }
@@ -263,6 +263,43 @@
     .shortcuts-card td:first-child { font-weight: 600; color: #001f33; white-space: nowrap; }
     .shortcuts-card td:last-child { color: #8a9bb0; }
     .shortcuts-card .sc-close { background: #001f33; color: #fff; border: none; padding: 8px 20px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 12px; }
+
+    /* ===== A1: ウェルカムカード ===== */
+    .welcome-cards { display: flex; flex-direction: column; gap: 8px; padding: 16px 12px; }
+    .welcome-title { font-size: 0.88rem; font-weight: 700; color: #001f33; margin-bottom: 4px; text-align: center; }
+    .welcome-sub { font-size: 0.7rem; color: #8a9bb0; text-align: center; margin-bottom: 8px; }
+    .welcome-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #f7f8fa; border: 1.5px solid #e8ecf0; cursor: pointer; transition: all 0.15s; }
+    .welcome-card:hover { border-color: #ffb81c; background: #fffbf0; }
+    .welcome-card .wc-icon { font-size: 1.4rem; flex-shrink: 0; width: 36px; text-align: center; }
+    .welcome-card .wc-body { flex: 1; }
+    .welcome-card .wc-label { font-size: 0.78rem; font-weight: 700; color: #001f33; }
+    .welcome-card .wc-desc { font-size: 0.65rem; color: #8a9bb0; margin-top: 2px; }
+
+    /* ===== C1: ツールチップ ===== */
+    .toolbar-btn { position: relative; }
+    .toolbar-btn[data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%); background: #001f33; color: #fff; font-size: 0.6rem; padding: 3px 8px; white-space: nowrap; z-index: 50; pointer-events: none; opacity: 0; animation: tipFade 0.15s 0.3s forwards; }
+    @keyframes tipFade { to { opacity: 1; } }
+
+    /* ===== B2: セクション追加ピッカー ===== */
+    .section-picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 200; display: flex; align-items: center; justify-content: center; }
+    .section-picker { background: #fff; padding: 20px; max-width: 480px; width: 90%; max-height: 70vh; overflow-y: auto; }
+    .section-picker h3 { font-size: 0.88rem; color: #001f33; margin-bottom: 12px; font-weight: 700; }
+    .section-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .section-picker-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 8px; background: #f7f8fa; border: 1.5px solid #e8ecf0; cursor: pointer; transition: all 0.12s; text-align: center; }
+    .section-picker-item:hover { border-color: #ffb81c; background: #fffbf0; }
+    .section-picker-item .spi-icon { font-size: 1.2rem; }
+    .section-picker-item .spi-name { font-size: 0.68rem; font-weight: 600; color: #2d3436; }
+    .section-picker-close { margin-top: 12px; width: 100%; background: #f0f2f5; border: none; padding: 8px; font-size: 0.75rem; color: #4a5568; cursor: pointer; font-family: inherit; }
+    .section-picker-close:hover { background: #e8ecf0; }
+
+    /* ===== D1: エクスポート刷新 ===== */
+    .export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .export-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 12px; background: #f7f8fa; border: 1.5px solid #e8ecf0; cursor: pointer; transition: all 0.15s; text-align: center; }
+    .export-item:hover { border-color: #ffb81c; background: #fffbf0; }
+    .export-item .ei-icon { font-size: 1.4rem; }
+    .export-item .ei-label { font-size: 0.78rem; font-weight: 700; color: #001f33; }
+    .export-item .ei-desc { font-size: 0.6rem; color: #8a9bb0; }
+    .export-section-title { font-size: 0.72rem; font-weight: 700; color: #8a9bb0; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 16px; margin-bottom: 8px; }
 
     /* モバイル対応 */
     @media (max-width: 768px) {
@@ -709,14 +746,14 @@
       <div class="panel-content active" id="tab-chat">
         <div class="chat-panel">
           <div class="import-zone">
-            <div class="import-drop" id="import-drop" onclick="document.getElementById('file-input').click()">
-              📎 PDF/Word/PPTX
+            <div class="import-drop" id="import-drop" onclick="document.getElementById('file-input').click()" title="PDF/Word/PPTXファイルをドロップまたはクリック">
+              📎 ファイル
               <input type="file" id="file-input" accept=".pdf,.docx,.pptx" onchange="handleFileImport(this.files[0])">
             </div>
-            <div class="import-url-row">
+            <div class="import-url-row" style="flex:2">
               <label for="url-input" class="hidden">URL</label>
-              <input type="url" class="import-url-input" id="url-input" placeholder="URLからコピー（例: https://example.com）" onkeydown="if(event.key==='Enter')handleUrlImport()">
-              <button class="btn-url-go" onclick="handleUrlImport()">コピー生成</button>
+              <input type="url" class="import-url-input" id="url-input" placeholder="URLを入力してサイト構成をコピー" onkeydown="if(event.key==='Enter')handleUrlImport()">
+              <button class="btn-url-go" onclick="handleUrlImport()" title="URLからワイヤーフレームを自動生成">🌐 コピー生成</button>
             </div>
           </div>
           <div class="tpl-bar">
@@ -732,7 +769,33 @@
             <button class="tpl-chip" data-tpl="recruitment">採用</button>
             <button class="tpl-chip" data-tpl="event-seminar">イベント</button>
           </div>
-          <div id="chat-messages" class="chat-messages"></div>
+          <div id="chat-messages" class="chat-messages">
+            <div id="welcome-cards" class="welcome-cards">
+              <div class="welcome-title">Wireframe Maker</div>
+              <div class="welcome-sub">AIがワイヤーフレームの構成を提案します</div>
+              <div class="welcome-card" onclick="document.getElementById('url-input').focus()">
+                <div class="wc-icon">🌐</div>
+                <div class="wc-body">
+                  <div class="wc-label">URLからコピー</div>
+                  <div class="wc-desc">既存サイトのURLを入力して構成を自動生成</div>
+                </div>
+              </div>
+              <div class="welcome-card" onclick="document.querySelector('.tpl-chip').click()">
+                <div class="wc-icon">📋</div>
+                <div class="wc-body">
+                  <div class="wc-label">テンプレートから選ぶ</div>
+                  <div class="wc-desc">BtoB LP・SaaS・EC商品など10種類のテンプレート</div>
+                </div>
+              </div>
+              <div class="welcome-card" onclick="document.getElementById('chat-input').focus()">
+                <div class="wc-icon">💬</div>
+                <div class="wc-body">
+                  <div class="wc-label">自由に要件を伝える</div>
+                  <div class="wc-desc">チャットで要件を伝えるとAIが最適な構成を提案</div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div id="suggestions-area" class="suggestions"></div>
           <div id="ready-banner" class="ready-banner hidden">
             <span>要件整理完了</span>
@@ -760,27 +823,7 @@
           <div id="section-list" class="section-list"></div>
           <div id="ghost-sections" style="flex-shrink:0"></div>
           <div class="add-section-bar">
-            <label for="add-type" class="hidden">タイプ</label>
-            <select id="add-type">
-              <option value="hero">ヒーロー</option>
-              <option value="features">特徴・メリット</option>
-              <option value="content-text">テキスト</option>
-              <option value="two-column">2カラム</option>
-              <option value="testimonials">お客様の声</option>
-              <option value="pricing">料金プラン</option>
-              <option value="cta-banner">CTAバナー</option>
-              <option value="form">フォーム</option>
-              <option value="faq">FAQ</option>
-              <option value="gallery">ギャラリー</option>
-              <option value="stats">数値・実績</option>
-              <option value="timeline">導入ステップ</option>
-              <option value="cards">カードグリッド</option>
-              <option value="video">動画</option>
-              <option value="logo-bar">ロゴバー</option>
-              <option value="comparison">比較表</option>
-              <option value="sticky-cta">固定CTA</option>
-            </select>
-            <button class="btn-add" onclick="addSection()">+ 追加</button>
+            <button class="btn-add" onclick="showSectionPicker()" style="flex:1">+ セクションを追加</button>
           </div>
           <div class="refine-bar">
             <label for="refine-input" class="hidden">AI修正</label>
@@ -793,17 +836,65 @@
       <!-- エクスポートタブ -->
       <div class="panel-content" id="tab-export">
         <div class="export-panel">
-          <div class="export-card">
-            <h3>ワイヤーフレーム完成</h3>
-            <p id="export-summary">セクション構成のワイヤーフレームです</p>
-            <div class="export-btns">
-              <button class="btn-svg" onclick="exportSVG()">SVG ダウンロード</button>
-              <button class="btn-png" onclick="exportPNG()">PNG ダウンロード</button>
-              <button class="btn-png" onclick="exportPDF()">PDF ダウンロード</button>
-              <button class="btn-copy" id="btn-copy-svg" onclick="copySVG()">SVG コピー</button>
+          <h3 style="font-size:0.88rem;color:#001f33;margin-bottom:4px">エクスポート</h3>
+          <p id="export-summary" style="font-size:0.72rem;color:#8a9bb0;margin-bottom:12px">セクション構成のワイヤーフレームです</p>
+          <div class="export-grid">
+            <div class="export-item" onclick="exportSVG()">
+              <div class="ei-icon">📐</div>
+              <div class="ei-label">SVG</div>
+              <div class="ei-desc">ベクター形式・拡大しても劣化なし</div>
+            </div>
+            <div class="export-item" onclick="exportPNG()">
+              <div class="ei-icon">🖼</div>
+              <div class="ei-label">PNG</div>
+              <div class="ei-desc">画像形式・共有やプレゼンに</div>
+            </div>
+            <div class="export-item" onclick="exportPDF()">
+              <div class="ei-icon">📄</div>
+              <div class="ei-label">PDF</div>
+              <div class="ei-desc">印刷用・クライアント提出に</div>
+            </div>
+            <div class="export-item" onclick="exportHTMLCSS()">
+              <div class="ei-icon">&lt;/&gt;</div>
+              <div class="ei-label">HTML</div>
+              <div class="ei-desc">コード出力・実装引き渡しに</div>
             </div>
           </div>
-          <button class="btn-new" onclick="startNew()">新規作成</button>
+          <div class="export-grid" style="margin-top:8px">
+            <div class="export-item" onclick="copySVG()" id="btn-copy-svg">
+              <div class="ei-icon">📋</div>
+              <div class="ei-label">SVGコピー</div>
+              <div class="ei-desc">クリップボードにコピー</div>
+            </div>
+            <div class="export-item" onclick="startNew()">
+              <div class="ei-icon">✨</div>
+              <div class="ei-label">新規作成</div>
+              <div class="ei-desc">現在の構成をリセット</div>
+            </div>
+          </div>
+          <div class="export-section-title">プロジェクト管理</div>
+          <div class="export-grid">
+            <div class="export-item" onclick="saveProject()">
+              <div class="ei-icon">💾</div>
+              <div class="ei-label">保存</div>
+              <div class="ei-desc">ブラウザに保存</div>
+            </div>
+            <div class="export-item" onclick="showProjectList()">
+              <div class="ei-icon">📂</div>
+              <div class="ei-label">開く</div>
+              <div class="ei-desc">保存済みプロジェクト</div>
+            </div>
+            <div class="export-item" onclick="exportProjectJSON()">
+              <div class="ei-icon">📤</div>
+              <div class="ei-label">JSON書出し</div>
+              <div class="ei-desc">ファイルとして保存</div>
+            </div>
+            <div class="export-item" onclick="importProjectJSON()">
+              <div class="ei-icon">📥</div>
+              <div class="ei-label">JSON読込み</div>
+              <div class="ei-desc">ファイルから復元</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -816,44 +907,44 @@
   <div class="right-panel">
     <div class="right-panel-toolbar">
       <div class="toolbar-group">
-        <button class="toolbar-btn" onclick="zoom(-0.1)">−</button>
+        <button class="toolbar-btn" onclick="zoom(-0.1)" data-tip="縮小">−</button>
         <span class="zoom-display" id="zoom-level">100%</span>
-        <button class="toolbar-btn" onclick="zoom(0.1)">＋</button>
+        <button class="toolbar-btn" onclick="zoom(0.1)" data-tip="拡大">＋</button>
       </div>
       <div class="toolbar-sep"></div>
       <div class="toolbar-group">
-        <button class="toolbar-btn active" onclick="setDevicePreview('desktop')">PC</button>
-        <button class="toolbar-btn" onclick="setDevicePreview('tablet')">Tab</button>
-        <button class="toolbar-btn" onclick="setDevicePreview('mobile')">SP</button>
+        <button class="toolbar-btn active" onclick="setDevicePreview('desktop')" data-tip="デスクトップ 1440px">PC</button>
+        <button class="toolbar-btn" onclick="setDevicePreview('tablet')" data-tip="タブレット 768px">Tab</button>
+        <button class="toolbar-btn" onclick="setDevicePreview('mobile')" data-tip="スマホ 375px">SP</button>
       </div>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" id="grid-toggle" onclick="toggleGrid()">Grid</button>
-      <button class="toolbar-btn" id="scheme-toggle" onclick="cycleColorScheme()">🎨</button>
+      <button class="toolbar-btn" id="grid-toggle" onclick="toggleGrid()" data-tip="グリッド表示">Grid</button>
+      <button class="toolbar-btn" id="scheme-toggle" onclick="cycleColorScheme()" data-tip="配色切替">🎨</button>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" id="variant-btn" onclick="generateVariant()" title="A/Bバリアント生成">A/B</button>
-      <button class="toolbar-btn" id="link-btn" onclick="addPageLink()" title="ページ間リンク追加">🔗</button>
+      <button class="toolbar-btn" id="variant-btn" onclick="generateVariant()" data-tip="A/Bバリアント生成">A/B</button>
+      <button class="toolbar-btn" id="link-btn" onclick="addPageLink()" data-tip="ページ間リンク">🔗</button>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" id="heatmap-btn" onclick="toggleHeatmap()" title="ヒートマップ予測">🔥</button>
-      <button class="toolbar-btn" onclick="showResponsivePreview()" title="レスポンシブ3画面">📱</button>
-      <button class="toolbar-btn" onclick="startPrototypeMode()" title="プロトタイプ再生">▶</button>
-      <button class="toolbar-btn" id="copy-gen-btn" onclick="generateAICopy()" title="AIコピー生成">✍</button>
+      <button class="toolbar-btn" id="heatmap-btn" onclick="toggleHeatmap()" data-tip="ヒートマップ予測">🔥</button>
+      <button class="toolbar-btn" onclick="showResponsivePreview()" data-tip="レスポンシブ3画面">📱</button>
+      <button class="toolbar-btn" onclick="startPrototypeMode()" data-tip="プロトタイプ再生">▶</button>
+      <button class="toolbar-btn" id="copy-gen-btn" onclick="generateAICopy()" data-tip="AIコピー生成">✍</button>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" onclick="runA11yCheck()" title="アクセシビリティチェック">♿</button>
-      <button class="toolbar-btn" onclick="showCompetitorAnalysis()" title="競合分析">🔍</button>
-      <button class="toolbar-btn" onclick="exportHTMLCSS()" title="HTML/CSSエクスポート">&lt;/&gt;</button>
-      <button class="toolbar-btn" onclick="showDesignTokens()" title="デザイントークン">🎯</button>
+      <button class="toolbar-btn" onclick="runA11yCheck()" data-tip="アクセシビリティチェック">♿</button>
+      <button class="toolbar-btn" onclick="showCompetitorAnalysis()" data-tip="競合分析">🔍</button>
+      <button class="toolbar-btn" onclick="exportHTMLCSS()" data-tip="HTML/CSSエクスポート">&lt;/&gt;</button>
+      <button class="toolbar-btn" onclick="showDesignTokens()" data-tip="デザイントークン">🎯</button>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" id="collab-btn" onclick="showCollabModal()" title="リアルタイム共同編集">👥</button>
-      <button class="toolbar-btn" onclick="showComponentLibrary()" title="コンポーネントライブラリ">📦</button>
+      <button class="toolbar-btn" id="collab-btn" onclick="showCollabModal()" data-tip="共同編集">👥</button>
+      <button class="toolbar-btn" onclick="showComponentLibrary()" data-tip="コンポーネント">📦</button>
       <button class="toolbar-btn" onclick="showFigmaImport()" title="Figmaインポート"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 38 57'%3E%3Cpath fill='%23F24E1E' d='M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z'/%3E%3Cpath fill='%23FF7262' d='M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z'/%3E%3Cpath fill='%23A259FF' d='M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z'/%3E%3Cpath fill='%230ACF83' d='M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z'/%3E%3Cpath fill='%231ABCFE' d='M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z'/%3E%3C/svg%3E" alt="F" style="width:14px;height:14px"></button>
-      <button class="toolbar-btn" onclick="showABTestExport()" title="ABテスト連携">🧪</button>
-      <button class="toolbar-btn" onclick="showPublishLP()" title="LP公開">🚀</button>
+      <button class="toolbar-btn" onclick="showABTestExport()" data-tip="ABテスト連携">🧪</button>
+      <button class="toolbar-btn" onclick="showPublishLP()" data-tip="LP公開">🚀</button>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" onclick="showAIReview()" title="AIデザインレビュー">🤖</button>
-      <button class="toolbar-btn" onclick="showUserFlow()" title="ユーザーフロー">🔀</button>
-      <button class="toolbar-btn" id="handoff-btn" onclick="toggleHandoff()" title="デザインハンドオフ">📏</button>
-      <button class="toolbar-btn" onclick="showTemplateMarket()" title="テンプレートマーケット">🏪</button>
-      <button class="toolbar-btn" onclick="showPerfPrediction()" title="パフォーマンス予測">⚡</button>
+      <button class="toolbar-btn" onclick="showAIReview()" data-tip="AIレビュー">🤖</button>
+      <button class="toolbar-btn" onclick="showUserFlow()" data-tip="ユーザーフロー">🔀</button>
+      <button class="toolbar-btn" id="handoff-btn" onclick="toggleHandoff()" data-tip="ハンドオフ">📏</button>
+      <button class="toolbar-btn" onclick="showTemplateMarket()" data-tip="テンプレート">🏪</button>
+      <button class="toolbar-btn" onclick="showPerfPrediction()" data-tip="パフォーマンス予測">⚡</button>
       <div style="flex:1"></div>
       <div class="collab-bar" id="collab-bar" style="display:none">
         <div class="collab-avatars" id="collab-avatars"></div>
@@ -1205,6 +1296,9 @@ async function generateFromImport() {
 /* ===== チャット ===== */
 function addChatMessage(role, text, action) {
   const area = document.getElementById('chat-messages');
+  // ウェルカムカードを非表示
+  const wc = document.getElementById('welcome-cards');
+  if (wc) wc.remove();
   const row = document.createElement('div');
   row.className = 'chat-row ' + role;
   const avatar = document.createElement('div');
@@ -1348,8 +1442,10 @@ function renderSectionList() {
     card.dataset.index = i;
     card.dataset.id = sec.id;
     const impact = getSectionCVRImpact(sec.type);
-    const impactBadge = `<span class="sec-cvr-badge ${impact}">${impact === 'high' ? 'HIGH' : impact === 'mid' ? 'MID' : 'LOW'}</span>`;
+    const impactLabel = impact === 'high' ? 'CVR高' : impact === 'mid' ? 'CVR中' : 'CVR低';
+    const impactBadge = `<span class="sec-cvr-badge ${impact}">${impactLabel}</span>`;
     card.innerHTML = `
+      <span style="font-size:0.65rem;color:#b0bec5;font-weight:700;min-width:18px;text-align:center;flex-shrink:0">${i + 1}</span>
       <div class="drag-handle">⠿</div>
       <div class="sec-info">
         <div><span class="sec-type-badge">${escHtml(sec.type)}</span>${impactBadge}</div>
@@ -1393,9 +1489,48 @@ function duplicateSection(index) {
   showToast('セクションを複製');
 }
 
-function addSection() {
-  const type = document.getElementById('add-type').value;
-  const defaults = {
+const SECTION_TYPES = [
+  { type: 'hero', icon: '🏠', name: 'ヒーロー' },
+  { type: 'features', icon: '✨', name: '特徴・メリット' },
+  { type: 'content-text', icon: '📝', name: 'テキスト' },
+  { type: 'two-column', icon: '◧', name: '2カラム' },
+  { type: 'testimonials', icon: '💬', name: 'お客様の声' },
+  { type: 'pricing', icon: '💰', name: '料金プラン' },
+  { type: 'cta-banner', icon: '🎯', name: 'CTAバナー' },
+  { type: 'form', icon: '📋', name: 'フォーム' },
+  { type: 'faq', icon: '❓', name: 'FAQ' },
+  { type: 'gallery', icon: '🖼', name: 'ギャラリー' },
+  { type: 'stats', icon: '📊', name: '数値・実績' },
+  { type: 'timeline', icon: '📅', name: '導入ステップ' },
+  { type: 'cards', icon: '🃏', name: 'カードグリッド' },
+  { type: 'video', icon: '🎬', name: '動画' },
+  { type: 'logo-bar', icon: '🏢', name: 'ロゴバー' },
+  { type: 'comparison', icon: '⚖', name: '比較表' },
+  { type: 'sticky-cta', icon: '📌', name: '固定CTA' },
+];
+
+function showSectionPicker() {
+  const overlay = document.createElement('div');
+  overlay.className = 'section-picker-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  const picker = document.createElement('div');
+  picker.className = 'section-picker';
+  picker.innerHTML = '<h3>セクションを追加</h3><div class="section-picker-grid"></div><button class="section-picker-close" onclick="this.closest(\'.section-picker-overlay\').remove()">閉じる</button>';
+  const grid = picker.querySelector('.section-picker-grid');
+  SECTION_TYPES.forEach(st => {
+    const item = document.createElement('div');
+    item.className = 'section-picker-item';
+    item.innerHTML = `<div class="spi-icon">${st.icon}</div><div class="spi-name">${st.name}</div>`;
+    item.onclick = () => { addSection(st.type); overlay.remove(); };
+    grid.appendChild(item);
+  });
+  overlay.appendChild(picker);
+  document.body.appendChild(overlay);
+}
+
+function addSection(type) {
+  if (!type) type = 'content-text';
+  const SECTION_DEFAULTS = {
     hero: { label: 'ヒーロー', description: 'キャッチコピー+CTA', components: ['heading', 'subtext', 'cta-with-note', 'hero-image', 'logo-bar'] },
     features: { label: '特徴・メリット', description: 'アイコンカード3列', components: ['icon-card', 'icon-card', 'icon-card'] },
     'content-text': { label: 'テキスト', description: '見出し+本文+画像', components: ['heading', 'subtext', 'placeholder-image'] },
@@ -1414,7 +1549,7 @@ function addSection() {
     comparison: { label: '比較表', description: 'チェックマーク形式', components: ['comparison-row', 'comparison-row'] },
     'sticky-cta': { label: '固定CTA', description: '画面下部固定', components: ['cta-button', 'sticky-bar'] },
   };
-  const d = defaults[type] || defaults['content-text'];
+  const d = SECTION_DEFAULTS[type] || SECTION_DEFAULTS['content-text'];
   saveUndoState();
   currentSections.push({ id: 'sec-' + Date.now(), type, ...d });
   onSectionsChanged();
@@ -2017,15 +2152,16 @@ function showShortcuts() {
   overlay.innerHTML = `<div class="shortcuts-card">
     <h3>キーボードショートカット</h3>
     <table>
-      <tr><td>Ctrl + Z</td><td>元に戻す</td></tr>
-      <tr><td>Ctrl + Y</td><td>やり直し</td></tr>
-      <tr><td>Ctrl + S</td><td>SVG ダウンロード</td></tr>
-      <tr><td>Ctrl + G</td><td>グリッド表示</td></tr>
-      <tr><td>Ctrl + P</td><td>プレビュー再生成</td></tr>
+      <tr><td>Ctrl + Z</td><td>元に戻す (Undo)</td></tr>
+      <tr><td>Ctrl + Shift + Z / Y</td><td>やり直し (Redo)</td></tr>
+      <tr><td>Ctrl + S</td><td>プロジェクト保存</td></tr>
+      <tr><td>Ctrl + G</td><td>グリッド表示切替</td></tr>
+      <tr><td>Ctrl + P</td><td>プレビュー再描画</td></tr>
       <tr><td>Ctrl + E</td><td>エクスポートタブ</td></tr>
-      <tr><td>1 / 2 / 3</td><td>タブ切替</td></tr>
+      <tr><td>Ctrl + N</td><td>セクション追加ピッカー</td></tr>
+      <tr><td>1 / 2 / 3</td><td>チャット / 構成 / 出力</td></tr>
       <tr><td>Delete</td><td>選択セクション削除</td></tr>
-      <tr><td>?</td><td>この画面</td></tr>
+      <tr><td>?</td><td>このヘルプ</td></tr>
     </table>
     <button class="sc-close" onclick="this.closest('.shortcuts-overlay').remove()">閉じる</button>
   </div>`;
@@ -2043,6 +2179,7 @@ document.addEventListener('keydown', e => {
   if (ctrl && e.key === 'g') { e.preventDefault(); toggleGrid(); }
   if (ctrl && e.key === 'p') { e.preventDefault(); renderPreview(); }
   if (ctrl && e.key === 'e') { e.preventDefault(); switchTab('export'); }
+  if (ctrl && e.key === 'n') { e.preventDefault(); switchTab('structure'); showSectionPicker(); }
   if (e.key === 'Delete' && selectedSectionId) {
     e.preventDefault();
     const idx = currentSections.findIndex(s => s.id === selectedSectionId);
