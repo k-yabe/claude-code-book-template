@@ -164,9 +164,29 @@
       max-height: 200px; overflow-y: auto; white-space: pre-wrap;
     }
 
-    /* ── 差分ハイライト ── */
-    .diff-highlight { background: rgba(225,112,85,0.15); padding: 0 2px; }
-    .match-highlight { background: rgba(0,184,148,0.15); padding: 0 2px; }
+    /* ── ページ差分セクション ── */
+    .page-diff {
+      background: #fff; border: 1.5px solid #e8ecf0;
+      margin-bottom: 16px; display: none;
+    }
+    .page-diff.show { display: block; }
+    .page-diff-header {
+      padding: 12px 16px; background: #fafbfc; border-bottom: 1px solid #e8ecf0;
+      font-size: 0.85rem; font-weight: 700; color: #001f33;
+    }
+    .page-diff-summary {
+      padding: 12px 16px; font-size: 0.82rem; color: #636e72;
+      border-bottom: 1px solid #e8ecf0;
+    }
+    .page-diff-body {
+      padding: 0; max-height: 500px; overflow-y: auto;
+      font-size: 0.78rem; line-height: 1.7;
+    }
+    .diff-line { padding: 2px 16px; white-space: pre-wrap; word-break: break-word; }
+    .diff-added { background: rgba(0,184,148,0.1); color: #00856a; }
+    .diff-removed { background: rgba(225,112,85,0.1); color: #c0392b; }
+    .diff-context { color: #b2bec3; }
+    .diff-separator { padding: 4px 16px; color: #b2bec3; font-size: 0.72rem; border-top: 1px solid #e8ecf0; }
 
     /* ── 画像モーダル ── */
     .img-modal {
@@ -247,7 +267,7 @@
         </div>
         <div class="guide-step">
           <div class="guide-step-icon">🔄</div>
-          <div class="guide-step-text">最新版（パラメータ付与）と<br>並べて比較</div>
+          <div class="guide-step-text">更新後の状態と<br>並べて比較</div>
         </div>
         <div class="guide-step">
           <div class="guide-step-icon">🖼️</div>
@@ -285,24 +305,31 @@
 
     <!-- 2カラム比較 -->
     <div class="compare-grid" id="compare-grid">
-      <!-- 現在の表示版 -->
+      <!-- いま見えている状態 -->
       <div class="compare-col" id="col-current">
         <div class="col-header">
-          <span class="col-label">現在の表示</span>
-          <span class="col-sublabel">（ユーザーに見えている状態）</span>
+          <span class="col-label">いま見えている状態</span>
+          <span class="col-sublabel">（キャッシュが効いている可能性あり）</span>
         </div>
         <div class="col-url" id="url-current"></div>
         <div class="col-body" id="body-current"></div>
       </div>
-      <!-- 最新版 -->
+      <!-- 更新後の状態 -->
       <div class="compare-col" id="col-latest">
         <div class="col-header">
-          <span class="col-label">最新版</span>
-          <span class="col-sublabel">（パラメータ付与でキャッシュ回避）</span>
+          <span class="col-label">更新後の状態</span>
+          <span class="col-sublabel">（キャッシュを回避して取得）</span>
         </div>
         <div class="col-url" id="url-latest"></div>
         <div class="col-body" id="body-latest"></div>
       </div>
+    </div>
+
+    <!-- ページ全体の差分 -->
+    <div class="page-diff" id="page-diff">
+      <div class="page-diff-header">ページ全体の差分</div>
+      <div class="page-diff-summary" id="diff-summary"></div>
+      <div class="page-diff-body" id="diff-body"></div>
     </div>
 
     <!-- 次にやること -->
@@ -338,6 +365,7 @@
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/diff@5/dist/diff.min.js"></script>
   <script src="../../assets/copy-utils.js"></script>
   <script src="../../assets/history.js"></script>
   <script>
@@ -489,6 +517,47 @@
       return diffs;
     }
 
+    // ── ページ全体のテキスト差分を描画 ──
+    function renderPageDiff(currentText, latestText) {
+      const diffEl = document.getElementById('page-diff');
+      const summaryEl = document.getElementById('diff-summary');
+      const bodyEl = document.getElementById('diff-body');
+
+      if (currentText === latestText) {
+        diffEl.classList.remove('show');
+        return;
+      }
+
+      const changes = Diff.diffLines(currentText, latestText);
+      let added = 0, removed = 0;
+      let html = '';
+
+      for (const part of changes) {
+        const lines = part.value.split('\n');
+        if (lines[lines.length - 1] === '') lines.pop();
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          if (part.added) {
+            added++;
+            html += `<div class="diff-line diff-added">＋ ${escHtml(line)}</div>`;
+          } else if (part.removed) {
+            removed++;
+            html += `<div class="diff-line diff-removed">－ ${escHtml(line)}</div>`;
+          }
+        }
+      }
+
+      if (added === 0 && removed === 0) {
+        diffEl.classList.remove('show');
+        return;
+      }
+
+      summaryEl.textContent = `追加: ${added}行 ／ 削除: ${removed}行（テキスト内容の差分）`;
+      bodyEl.innerHTML = html;
+      diffEl.classList.add('show');
+    }
+
     // ── プロキシ経由で取得 ──
     async function fetchViaProxy(url) {
       const res = await fetch(PROXY_URL, {
@@ -506,6 +575,7 @@
       clearError();
       document.getElementById('verdict').style.display = 'none';
       document.getElementById('compare-grid').classList.remove('show');
+      document.getElementById('page-diff').classList.remove('show');
       document.getElementById('next-steps').style.display = 'none';
       document.getElementById('result-actions').classList.remove('show');
 
@@ -547,6 +617,9 @@
         renderColumn('body-current', currentData);
         renderColumn('body-latest', latestData);
 
+        // ページ全体の差分
+        renderPageDiff(currentData.textContent, latestData.textContent);
+
         // 差分判定
         const diffs = compareResults(currentData, latestData);
         const verdict = document.getElementById('verdict');
@@ -556,14 +629,14 @@
         if (diffs.length === 0) {
           verdict.className = 'verdict synced';
           verdictTitle.textContent = '✅ 更新が正しく反映されています';
-          verdictDesc.textContent = '現在の表示と最新版に違いはありません。CMSの更新が正しく反映されています。';
+          verdictDesc.textContent = 'いま見えている状態と更新後の状態に違いはありません。CMSの更新内容がサイトに正しく反映されています。';
           document.getElementById('next-steps').style.display = 'none';
           document.getElementById('col-current').classList.remove('has-diff');
           document.getElementById('col-latest').classList.remove('has-diff');
         } else {
           verdict.className = 'verdict diff';
-          verdictTitle.textContent = '⚠️ 現在の表示と最新版に違いがあります';
-          verdictDesc.textContent = '変更箇所: ' + diffs.join('、') + '\n左が今ユーザーに見えている状態、右が最新版です。下の2つを見比べて確認してください。';
+          verdictTitle.textContent = '⚠️ いま見えている状態と更新後の状態に違いがあります';
+          verdictDesc.textContent = '変更箇所: ' + diffs.join('、') + '\n左が今ユーザーに見えている状態、右が更新後の状態です。下の2つを見比べて確認してください。';
           document.getElementById('next-steps').style.display = '';
           document.getElementById('col-current').classList.add('has-diff');
           document.getElementById('col-latest').classList.remove('has-diff');
@@ -591,16 +664,16 @@
       const lines = [
         `## ページ更新チェック結果`,
         `- **URL**: ${r.url}`,
-        `- **最新版URL**: ${r.bypassUrl}`,
+        `- **更新後URL**: ${r.bypassUrl}`,
         `- **結果**: ${r.diffs.length === 0 ? '✅ 反映済み' : '⚠️ 差分あり（' + r.diffs.join('、') + '）'}`,
         `- **日時**: ${new Date().toLocaleString('ja-JP')}`,
         ``,
-        `### 現在の表示`,
+        `### いま見えている状態`,
         `- タイトル: ${r.currentData.ogp.title || r.currentData.title}`,
         `- 説明文: ${r.currentData.ogp.description}`,
         `- 画像数: ${r.currentData.images.length}枚`,
         ``,
-        `### 最新版`,
+        `### 更新後の状態`,
         `- タイトル: ${r.latestData.ogp.title || r.latestData.title}`,
         `- 説明文: ${r.latestData.ogp.description}`,
         `- 画像数: ${r.latestData.images.length}枚`,
