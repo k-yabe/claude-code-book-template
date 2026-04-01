@@ -291,4 +291,5 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-03-31 | Wireframe Maker V9 URLインポート・画像差し込み | URLからサイト構造をコピーしてワイヤーフレーム自動生成（fetch-article.js+AI分析）、セクションへの画像差し込み（SVG image要素・5MB上限・PNG/JPG/GIF/WebP対応） |
 | 2026-04-01 | Wireframe Maker V10 Figma到達 | SVGテキスト直接編集（全セクション対応）、プロジェクト保存/読込（localStorage+JSON）、自動保存（3秒デバウンス）+起動時復元、セクション個別スタイル（背景色・テキスト色・アクセント色）、PDFエクスポート（JPEG埋込PDF生成） |
 | 2026-04-01 | Banner Resizer ガイド準拠の容量制限追加 | MV: 1MB以内、OGP: 100KB以下。WebP/JPGは品質0.70下限で自動圧縮（画質維持優先）。PNGは圧縮不可のため超過時警告表示。プレビューにファイルサイズ・上限・超過状態を常時表示 |
+| 2026-04-01 | Wireframe Maker V11 総合UI見直し | ウェルカムカード導線、URLインポートUI改善（横一列化+プロンプト強化で忠実再現）、セクション番号+CVR日本語ラベル、ビジュアルピッカー（アイコングリッド）、全ツールバーにツールチップ、デバイス幅明示、エクスポート画面4フォーマットカード化+プロジェクト管理統合、ショートカット拡充（Ctrl+N）、ナビバー58px統一 |
 | 2026-04-01 | Cache Checker 新規追加 | CMSキャッシュ反映状況チェックツール。通常版とキャッシュバイパス版（ランダムパラメータ付与）を比較し差分を可視化。Vercel Serverless Function（api/fetch-article.js mode=proxy）でCORS回避。jsdiffによる行単位diff表示 |
