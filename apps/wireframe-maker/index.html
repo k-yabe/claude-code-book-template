@@ -978,6 +978,10 @@
       <div class="clone-toolbar" id="clone-toolbar">
         <span class="ct-label">サイト再現</span>
         <div class="ct-sep"></div>
+        <button class="ct-btn" id="ct-undo-btn" onclick="cloneUndo()" disabled title="Ctrl+Z">↩️ 戻す</button>
+        <button class="ct-btn" id="ct-redo-btn" onclick="cloneRedo()" disabled title="Ctrl+Y">↪️ やり直し</button>
+        <button class="ct-btn" onclick="cloneReset()" title="元サイトの状態に戻す">🔄 リセット</button>
+        <div class="ct-sep"></div>
         <button class="ct-btn active" id="ct-edit-btn" onclick="toggleCloneEdit()">✏️ 編集モード</button>
         <button class="ct-btn" onclick="cloneAIRewrite()">🤖 AIリライト</button>
         <button class="ct-btn" onclick="cloneReplaceImage()">🖼️ 画像差替</button>
@@ -1274,6 +1278,10 @@ let cloneMode = false;
 let cloneSourceUrl = '';
 let cloneEditMode = true;
 let cloneSelectedElement = null;
+let cloneOriginalHtml = '';
+let cloneUndoStack = [];
+let cloneRedoStack = [];
+const CLONE_MAX_UNDO = 30;
 
 async function handleUrlImport() {
   const url = document.getElementById('url-input').value.trim();
@@ -1383,27 +1391,52 @@ async function handleUrlImport() {
 
   window.__cloneEditMode = true;
 
+  // リンククリック防止（編集モード中にページ遷移させない）
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('a');
+    if (link && link.href) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+
+  // スナップショット取得（Undo用）
+  function getBodySnapshot() { return document.body.innerHTML; }
+  function restoreBodySnapshot(html) { document.body.innerHTML = html; }
+
+  // テキスト編集完了時にスナップショット通知
+  document.addEventListener('focusout', function(e) {
+    if (e.target.getAttribute('data-clone-selected') !== null) {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+    }
+  }, true);
+
   // 親からのメッセージ受信
   window.addEventListener('message', function(e) {
     if (e.data.type === 'set-edit-mode') window.__cloneEditMode = e.data.value;
     if (e.data.type === 'replace-text') {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
       const selected = document.querySelector('[data-clone-selected]');
       if (selected) selected.textContent = e.data.text;
+      window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
     }
     if (e.data.type === 'replace-image') {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
       const imgs = document.querySelectorAll('img');
       imgs.forEach(img => {
         if (img.src === e.data.oldSrc) img.src = e.data.newSrc;
       });
+      window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
     }
     if (e.data.type === 'hide-section') {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
       const sections = document.querySelectorAll('section, header, footer, nav, [class*="section"], [class*="block"], [class*="area"]');
       sections.forEach((sec, i) => {
         if (i === e.data.index) sec.classList.toggle('clone-section-hidden');
       });
+      window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
+    }
+    if (e.data.type === 'restore-snapshot') {
+      restoreBodySnapshot(e.data.html);
     }
     if (e.data.type === 'get-html') {
-      // 編集用属性を除去してHTMLを返す
       const clone = document.documentElement.cloneNode(true);
       clone.querySelectorAll('[data-clone-hover],[data-clone-selected]').forEach(el => {
         el.removeAttribute('data-clone-hover');
@@ -1411,7 +1444,6 @@ async function handleUrlImport() {
         el.removeAttribute('contenteditable');
       });
       clone.querySelectorAll('.clone-img-hover').forEach(el => el.classList.remove('clone-img-hover'));
-      // 注入したscript/styleを除去
       const scripts = clone.querySelectorAll('script');
       scripts.forEach(s => { if (s.textContent.includes('__cloneEditMode')) s.remove(); });
       const styles = clone.querySelectorAll('style');
@@ -1427,7 +1459,16 @@ async function handleUrlImport() {
       });
       window.parent.postMessage({ type: 'clone-sections', sections: list }, '*');
     }
+    if (e.data.type === 'get-snapshot') {
+      window.parent.postMessage({ type: 'clone-snapshot-response', html: getBodySnapshot() }, '*');
+    }
   });
+
+  // Ctrl+Z / Ctrl+Y をキャプチャして親に委譲
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); window.parent.postMessage({ type: 'clone-undo' }, '*'); }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); window.parent.postMessage({ type: 'clone-redo' }, '*'); }
+  }, true);
 <\/script>`;
 
     // </body>の前にスクリプトを注入
@@ -1446,6 +1487,12 @@ async function handleUrlImport() {
     cc.classList.remove('hidden');
     cc.style.display = 'flex';
     document.getElementById('clone-url-label').textContent = url;
+
+    // 元のHTMLを保存（リセット用）
+    cloneOriginalHtml = processedHtml;
+    cloneUndoStack = [];
+    cloneRedoStack = [];
+    updateCloneUndoButtons();
 
     // iframeにHTMLをロード
     const frame = document.getElementById('clone-frame');
@@ -1546,7 +1593,6 @@ function cloneReplaceImage() {
 // 親ウィンドウのメッセージ受信
 window.addEventListener('message', function(e) {
   if (e.data.type === 'clone-img-click') {
-    // 画像差替ダイアログ
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -1558,17 +1604,12 @@ window.addEventListener('message', function(e) {
         const frame = document.getElementById('clone-frame');
         frame.contentWindow.postMessage({ type: 'replace-image', oldSrc: e.data.src, newSrc: reader.result }, '*');
         showToast('画像を差替えました');
-        addChatMessage('ai', '画像を差替えました。');
       };
       reader.readAsDataURL(file);
     };
     input.click();
   }
-  if (e.data.type === 'clone-text-select') {
-    // 選択テキストの表示（将来用）
-  }
   if (e.data.type === 'clone-html') {
-    // HTML保存処理
     const blob = new Blob([e.data.html], { type: 'text/html' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -1578,9 +1619,43 @@ window.addEventListener('message', function(e) {
     showToast('HTMLを保存しました');
   }
   if (e.data.type === 'clone-sections') {
-    // セクション一覧をオーバーレイ表示
     showCloneSectionPicker(e.data.sections);
   }
+  // Undo用: 操作前のスナップショットをスタックに積む
+  if (e.data.type === 'clone-snapshot') {
+    pushCloneUndo(e.data.html);
+  }
+  // 操作後: ボタン状態更新
+  if (e.data.type === 'clone-changed') {
+    updateCloneUndoButtons();
+  }
+  // Undo/Redo/Reset のスナップショット応答
+  if (e.data.type === 'clone-snapshot-response') {
+    const frame = document.getElementById('clone-frame');
+    if (window.__cloneUndoPending) {
+      window.__cloneUndoPending = false;
+      cloneRedoStack.push(e.data.html);
+      const prev = cloneUndoStack.pop();
+      frame.contentWindow.postMessage({ type: 'restore-snapshot', html: prev }, '*');
+      updateCloneUndoButtons();
+      showToast('元に戻しました');
+    } else if (window.__cloneRedoPending) {
+      window.__cloneRedoPending = false;
+      cloneUndoStack.push(e.data.html);
+      const next = cloneRedoStack.pop();
+      frame.contentWindow.postMessage({ type: 'restore-snapshot', html: next }, '*');
+      updateCloneUndoButtons();
+      showToast('やり直しました');
+    } else if (window.__cloneResetPending) {
+      window.__cloneResetPending = false;
+      pushCloneUndo(e.data.html);
+      frame.srcdoc = cloneOriginalHtml;
+      showToast('元サイトの状態にリセットしました');
+    }
+  }
+  // iframe内からのCtrl+Z/Y
+  if (e.data.type === 'clone-undo') cloneUndo();
+  if (e.data.type === 'clone-redo') cloneRedo();
 });
 
 // クローンモード: セクション非表示
@@ -1618,6 +1693,47 @@ function showCloneSectionPicker(sections) {
 function cloneExportHTML() {
   const frame = document.getElementById('clone-frame');
   frame.contentWindow.postMessage({ type: 'get-html' }, '*');
+}
+
+// クローンモード: Undo
+function cloneUndo() {
+  if (cloneUndoStack.length === 0) return;
+  // 現在の状態をredoに保存してからundoを適用
+  const frame = document.getElementById('clone-frame');
+  frame.contentWindow.postMessage({ type: 'get-snapshot' }, '*');
+  window.__cloneUndoPending = true;
+}
+
+// クローンモード: Redo
+function cloneRedo() {
+  if (cloneRedoStack.length === 0) return;
+  const frame = document.getElementById('clone-frame');
+  // 現在をundoに保存
+  frame.contentWindow.postMessage({ type: 'get-snapshot' }, '*');
+  window.__cloneRedoPending = true;
+}
+
+// クローンモード: リセット（元サイトに戻す）
+function cloneReset() {
+  if (!cloneOriginalHtml) return;
+  const frame = document.getElementById('clone-frame');
+  // 現在の状態をundoに保存
+  frame.contentWindow.postMessage({ type: 'get-snapshot' }, '*');
+  window.__cloneResetPending = true;
+}
+
+function updateCloneUndoButtons() {
+  const undoBtn = document.getElementById('ct-undo-btn');
+  const redoBtn = document.getElementById('ct-redo-btn');
+  if (undoBtn) undoBtn.disabled = cloneUndoStack.length === 0;
+  if (redoBtn) redoBtn.disabled = cloneRedoStack.length === 0;
+}
+
+function pushCloneUndo(snapshot) {
+  cloneUndoStack.push(snapshot);
+  if (cloneUndoStack.length > CLONE_MAX_UNDO) cloneUndoStack.shift();
+  cloneRedoStack = [];
+  updateCloneUndoButtons();
 }
 
 // ワイヤーフレームモードに切替
