@@ -643,6 +643,17 @@
       }
 
 
+      // Twitter Card（CMSがタグを出力しない場合があるため目視確認を促す）
+      const twWarnSuffix = '（CMSによってはタグを出力しない仕様の場合があります。目視でもご確認ください）';
+      if (!ogp.twitterCard)  addItem('warn', `twitter:card が未検出です${twWarnSuffix}`);
+      else                   addItem('ok',   `twitter:card OK（${ogp.twitterCard}）`);
+
+      if (!ogp.twitterTitle) addItem('warn', `twitter:title が未検出です${twWarnSuffix}`);
+      else                   addItem('ok',   `twitter:title OK（${ogp.twitterTitle.length} 文字）`);
+
+      if (!ogp.twitterImage) addItem('warn', `twitter:image が未検出です${twWarnSuffix}`);
+      else                   addItem('ok',   'twitter:image が設定されています');
+
       // SEO（og:titleと別の値の場合のみチェック）
       if (seo.title && seo.title !== ogp.title) {
         if (seo.title.length > 70) addItem('warn', `<title> が ${seo.title.length} 文字です（Google検索は約70文字で切れます）`);
@@ -655,6 +666,9 @@
 
       if (!seo.canonical) addItem('warn', 'canonical URL が未設定です');
       else                addItem('ok',   'canonical が設定されています');
+
+      if (!seo.h1) addItem('warn', 'h1 が未検出です（CMSによってはタグを出力しない仕様の場合があります。目視でもご確認ください）');
+      else         addItem('ok',   `h1 OK（「${seo.h1.slice(0, 30)}${seo.h1.length > 30 ? '…' : ''}」）`);
 
       // カウント
       const ok    = items.filter(i => i.type === 'ok').length;
