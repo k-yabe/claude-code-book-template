@@ -35,17 +35,37 @@
     .page-header h1 { font-size: 1.4rem; font-weight: 700; color: #001f33; margin-bottom: 4px; }
     .page-header p { font-size: 0.82rem; color: #8a9bb0; line-height: 1.6; }
 
-    /* ── ガイドカード ── */
-    .guide-card {
+    /* ── 仕組みの説明 ── */
+    .how-it-works {
       background: #fff; border: 1.5px solid #e8ecf0;
       padding: 18px 20px; margin-bottom: 16px;
     }
-    .guide-title { font-size: 0.82rem; font-weight: 700; color: #001f33; margin-bottom: 10px; }
-    .guide-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    @media (max-width: 600px) { .guide-steps { grid-template-columns: 1fr; } }
-    .guide-step { text-align: center; padding: 14px 10px; background: rgba(0,31,51,0.02); }
-    .guide-step-icon { font-size: 1.5rem; margin-bottom: 6px; }
-    .guide-step-text { font-size: 0.75rem; color: #636e72; line-height: 1.5; }
+    .how-title { font-size: 0.82rem; font-weight: 700; color: #001f33; margin-bottom: 12px; }
+    .how-flow { display: flex; align-items: stretch; gap: 0; }
+    @media (max-width: 600px) { .how-flow { flex-direction: column; } }
+    .how-step {
+      flex: 1; text-align: center; padding: 14px 12px;
+      background: rgba(0,31,51,0.02); position: relative;
+    }
+    .how-step-num {
+      width: 24px; height: 24px; background: #001f33; color: #fff;
+      font-size: 0.7rem; font-weight: 800; display: inline-flex; align-items: center;
+      justify-content: center; margin-bottom: 6px;
+    }
+    .how-step-text { font-size: 0.75rem; color: #636e72; line-height: 1.5; }
+    .how-step-text strong { color: #001f33; }
+    .how-arrow {
+      display: flex; align-items: center; font-size: 1.2rem; color: #b2bec3;
+      padding: 0 4px; flex-shrink: 0;
+    }
+    @media (max-width: 600px) {
+      .how-arrow { justify-content: center; padding: 4px 0; transform: rotate(90deg); }
+    }
+    .how-note {
+      margin-top: 12px; padding: 10px 14px;
+      background: rgba(255,184,28,0.08); font-size: 0.75rem; color: #636e72; line-height: 1.6;
+    }
+    .how-note strong { color: #001f33; }
 
     /* ── 入力エリア ── */
     .input-area {
@@ -93,14 +113,19 @@
     .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
     @keyframes bounce { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
 
-    /* ── 判定バナー ── */
+    /* ── 診断結果バナー ── */
     .verdict {
       padding: 20px 24px; margin-bottom: 20px; display: none;
     }
     .verdict.synced { background: #eafaf1; border: 1.5px solid #00b894; }
-    .verdict.diff { background: #fff5f4; border: 1.5px solid #e17055; }
-    .verdict-title { font-size: 1.1rem; font-weight: 800; color: #001f33; margin-bottom: 4px; }
+    .verdict.cache-wait { background: #fef9e7; border: 1.5px solid #f39c12; }
+    .verdict-title { font-size: 1.1rem; font-weight: 800; color: #001f33; margin-bottom: 6px; }
     .verdict-desc { font-size: 0.85rem; color: #636e72; line-height: 1.6; }
+    .verdict-warn {
+      margin-top: 10px; padding: 10px 14px; font-size: 0.82rem; line-height: 1.6;
+      background: rgba(0,31,51,0.04); color: #636e72;
+    }
+    .verdict-warn strong { color: #001f33; }
 
     /* ── 比較グリッド ── */
     .compare-grid {
@@ -113,11 +138,13 @@
     .compare-col {
       background: #fff; border: 1.5px solid #e8ecf0; overflow: hidden;
     }
-    .compare-col.has-diff { border-color: #e17055; }
+    .compare-col.has-diff { border-color: #f39c12; }
     .col-header {
-      padding: 10px 16px; background: #fafbfc; border-bottom: 1px solid #e8ecf0;
+      padding: 10px 16px; border-bottom: 1px solid #e8ecf0;
       display: flex; align-items: center; gap: 8px;
     }
+    .col-header-current { background: #fafbfc; }
+    .col-header-latest { background: #fef9e7; }
     .col-label { font-size: 0.82rem; font-weight: 700; color: #001f33; }
     .col-sublabel { font-size: 0.7rem; color: #8a9bb0; }
     .col-url {
@@ -164,6 +191,12 @@
       max-height: 200px; overflow-y: auto; white-space: pre-wrap;
     }
 
+    /* ── 変更箇所ハイライト ── */
+    .diff-badge {
+      display: inline-block; font-size: 0.68rem; font-weight: 700;
+      padding: 1px 6px; margin-left: 6px; color: #fff; background: #e17055;
+    }
+
     /* ── ページ差分セクション ── */
     .page-diff {
       background: #fff; border: 1.5px solid #e8ecf0;
@@ -185,8 +218,6 @@
     .diff-line { padding: 2px 16px; white-space: pre-wrap; word-break: break-word; }
     .diff-added { background: rgba(0,184,148,0.1); color: #00856a; }
     .diff-removed { background: rgba(225,112,85,0.1); color: #c0392b; }
-    .diff-context { color: #b2bec3; }
-    .diff-separator { padding: 4px 16px; color: #b2bec3; font-size: 0.72rem; border-top: 1px solid #e8ecf0; }
 
     /* ── 画像モーダル ── */
     .img-modal {
@@ -254,25 +285,30 @@
 
   <div class="container">
     <div class="page-header">
-      <h1>ページ更新チェッカー</h1>
-      <p>CMSで更新した内容が、Webサイトに正しく反映されているか目で確認できます。<br>画像の差し替え・テキスト変更・OGP情報をビジュアルで比較します。</p>
+      <h1>CMS更新の反映チェッカー</h1>
+      <p>CMSでページを更新したのに、サイトを見ても変わっていない？<br>それは「キャッシュ」が原因かもしれません。このツールで確認できます。</p>
     </div>
 
-    <div class="guide-card">
-      <div class="guide-title">このツールでできること</div>
-      <div class="guide-steps">
-        <div class="guide-step">
-          <div class="guide-step-icon">👀</div>
-          <div class="guide-step-text">今サイトに表示されている<br>内容をそのまま確認</div>
+    <div class="how-it-works">
+      <div class="how-title">仕組み</div>
+      <div class="how-flow">
+        <div class="how-step">
+          <div class="how-step-num">1</div>
+          <div class="how-step-text">普通にURLを開いた時の<br><strong>サイト訪問者が見る状態</strong><br>を取得します</div>
         </div>
-        <div class="guide-step">
-          <div class="guide-step-icon">🔄</div>
-          <div class="guide-step-text">更新後の状態と<br>並べて比較</div>
+        <div class="how-arrow">→</div>
+        <div class="how-step">
+          <div class="how-step-num">2</div>
+          <div class="how-step-text">URLにパラメータを付けて<br><strong>キャッシュを無視した最新状態</strong><br>を取得します</div>
         </div>
-        <div class="guide-step">
-          <div class="guide-step-icon">🖼️</div>
-          <div class="guide-step-text">画像・テキスト・OGPの<br>変更を目視で確認</div>
+        <div class="how-arrow">→</div>
+        <div class="how-step">
+          <div class="how-step-num">3</div>
+          <div class="how-step-text">2つを比較して<br><strong>更新が反映されたか</strong><br>を診断します</div>
         </div>
+      </div>
+      <div class="how-note">
+        <strong>💡 パラメータ付きURLとは？</strong>　URLの末尾に <code>?_cb=...</code> を付けることで、サーバーのキャッシュ（一時保存データ）を無視して、CMSから直接最新の内容を取得します。パラメータ付きで変わっていなければ、CMS側の公開設定を確認してください。
       </div>
     </div>
 
@@ -297,28 +333,28 @@
       <div class="loading-dots"><span></span><span></span><span></span></div>
     </div>
 
-    <!-- 判定バナー -->
+    <!-- 診断結果 -->
     <div class="verdict" id="verdict">
       <div class="verdict-title" id="verdict-title"></div>
       <div class="verdict-desc" id="verdict-desc"></div>
+      <div class="verdict-warn" id="verdict-warn" style="display:none;"></div>
     </div>
 
     <!-- 2カラム比較 -->
     <div class="compare-grid" id="compare-grid">
-      <!-- いま見えている状態 -->
+      <!-- 訪問者が見ている状態 -->
       <div class="compare-col" id="col-current">
-        <div class="col-header">
-          <span class="col-label">いま見えている状態</span>
-          <span class="col-sublabel">（キャッシュが効いている可能性あり）</span>
+        <div class="col-header col-header-current">
+          <span class="col-label">🌐 サイト訪問者が見ている状態</span>
         </div>
         <div class="col-url" id="url-current"></div>
         <div class="col-body" id="body-current"></div>
       </div>
-      <!-- 更新後の状態 -->
+      <!-- CMSの最新状態 -->
       <div class="compare-col" id="col-latest">
-        <div class="col-header">
-          <span class="col-label">更新後の状態</span>
-          <span class="col-sublabel">（キャッシュを回避して取得）</span>
+        <div class="col-header col-header-latest">
+          <span class="col-label">📝 CMSの最新状態</span>
+          <span class="col-sublabel">（パラメータ付きで取得）</span>
         </div>
         <div class="col-url" id="url-latest"></div>
         <div class="col-body" id="body-latest"></div>
@@ -327,26 +363,15 @@
 
     <!-- ページ全体の差分 -->
     <div class="page-diff" id="page-diff">
-      <div class="page-diff-header">ページ全体の差分</div>
+      <div class="page-diff-header">テキストの変更箇所</div>
       <div class="page-diff-summary" id="diff-summary"></div>
       <div class="page-diff-body" id="diff-body"></div>
     </div>
 
     <!-- 次にやること -->
     <div class="next-steps" id="next-steps">
-      <div class="next-steps-title">次にやること</div>
-      <div class="next-step-item">
-        <span class="next-step-num">1</span>
-        <span>しばらく待ってから「もう一度チェック」を押す<br>（サイトは一定時間ごとに自動で最新化されます）</span>
-      </div>
-      <div class="next-step-item">
-        <span class="next-step-num">2</span>
-        <span>急ぎの場合は、IT部門に「キャッシュクリア」を依頼する</span>
-      </div>
-      <div class="next-step-item">
-        <span class="next-step-num">3</span>
-        <span>CMSの管理画面で、ページが正しく「公開」になっているか確認する</span>
-      </div>
+      <div class="next-steps-title" id="next-steps-title">次にやること</div>
+      <div id="next-steps-body"></div>
     </div>
 
     <!-- アクション -->
@@ -412,7 +437,6 @@
         return el ? el.getAttribute('content') : '';
       }
 
-      // OGP
       const ogp = {
         title: getMeta('og:title') || doc.title || '',
         description: getMeta('og:description') || getMeta('description') || '',
@@ -420,7 +444,6 @@
         siteName: getMeta('og:site_name') || '',
       };
 
-      // 画像一覧（重複排除、data:除外、小さいアイコン系除外）
       const imgEls = doc.querySelectorAll('img[src]');
       const seen = new Set();
       const images = [];
@@ -432,7 +455,6 @@
         images.push({ src, alt });
       });
 
-      // テキスト内容（見出し・段落を優先）
       const textEls = doc.querySelectorAll('h1, h2, h3, h4, p, li, td, th, figcaption');
       const textParts = [];
       const seenText = new Set();
@@ -449,7 +471,7 @@
     }
 
     // ── カラムにコンテンツを描画 ──
-    function renderColumn(containerId, data) {
+    function renderColumn(containerId, data, diffItems) {
       const el = document.getElementById(containerId);
       let html = '';
 
@@ -460,15 +482,18 @@
       } else {
         html += '<div class="ogp-image-placeholder">OGP画像なし</div>';
       }
+      const titleLabel = 'タイトル' + (diffItems && diffItems.includes('タイトル') ? '<span class="diff-badge">変更あり</span>' : '');
       html += `<div class="ogp-title">${escHtml(data.ogp.title || data.title || '(タイトルなし)')}</div>`;
+      const descLabel = diffItems && diffItems.includes('説明文') ? '<span class="diff-badge">変更あり</span>' : '';
       if (data.ogp.description) {
-        html += `<div class="ogp-desc">${escHtml(data.ogp.description)}</div>`;
+        html += `<div class="ogp-desc">${escHtml(data.ogp.description)} ${descLabel}</div>`;
       }
       html += '</div>';
 
       // 画像一覧
       html += '<div class="images-section">';
-      html += `<div class="section-label">ページ内の画像（${data.images.length}枚）</div>`;
+      const imgDiffBadge = diffItems && diffItems.some(d => d.startsWith('画像')) ? '<span class="diff-badge">変更あり</span>' : '';
+      html += `<div class="section-label">ページ内の画像（${data.images.length}枚）${imgDiffBadge}</div>`;
       if (data.images.length > 0) {
         const showImages = data.images.slice(0, 9);
         html += '<div class="image-grid">';
@@ -486,7 +511,8 @@
 
       // テキスト内容
       html += '<div class="text-section">';
-      html += '<div class="section-label">ページのテキスト内容</div>';
+      const textDiffBadge = diffItems && diffItems.includes('テキスト内容') ? '<span class="diff-badge">変更あり</span>' : '';
+      html += `<div class="section-label">ページのテキスト内容 ${textDiffBadge}</div>`;
       const displayText = data.textContent.slice(0, 1000) + (data.textContent.length > 1000 ? '\n...' : '');
       html += `<div class="text-content">${escHtml(displayText) || '(テキストを抽出できませんでした)'}</div>`;
       html += '</div>';
@@ -497,13 +523,10 @@
     // ── 差分判定 ──
     function compareResults(current, latest) {
       const diffs = [];
-
-      // OGP比較
       if (current.ogp.title !== latest.ogp.title) diffs.push('タイトル');
       if (current.ogp.description !== latest.ogp.description) diffs.push('説明文');
       if (current.ogp.image !== latest.ogp.image) diffs.push('OGP画像');
 
-      // 画像URL比較
       const currentImgSet = new Set(current.images.map(i => i.src));
       const latestImgSet = new Set(latest.images.map(i => i.src));
       let imgDiff = 0;
@@ -511,7 +534,6 @@
       currentImgSet.forEach(src => { if (!latestImgSet.has(src)) imgDiff++; });
       if (imgDiff > 0) diffs.push(`画像${imgDiff}枚`);
 
-      // テキスト比較
       if (current.textContent !== latest.textContent) diffs.push('テキスト内容');
 
       return diffs;
@@ -553,7 +575,7 @@
         return;
       }
 
-      summaryEl.textContent = `追加: ${added}行 ／ 削除: ${removed}行（テキスト内容の差分）`;
+      summaryEl.textContent = `追加: ${added}行 ／ 削除: ${removed}行`;
       bodyEl.innerHTML = html;
       diffEl.classList.add('show');
     }
@@ -574,6 +596,7 @@
     async function runCheck() {
       clearError();
       document.getElementById('verdict').style.display = 'none';
+      document.getElementById('verdict-warn').style.display = 'none';
       document.getElementById('compare-grid').classList.remove('show');
       document.getElementById('page-diff').classList.remove('show');
       document.getElementById('next-steps').style.display = 'none';
@@ -594,52 +617,70 @@
       setLoading(true);
 
       try {
-        // キャッシュバイパス用URL
         const bypassUrl = new URL(rawUrl);
         bypassUrl.searchParams.set('_cb', Date.now() + '-' + Math.random().toString(36).slice(2));
         const bypassUrlStr = bypassUrl.toString();
 
-        // 並列取得
         const [currentRes, latestRes] = await Promise.all([
           fetchViaProxy(rawUrl),
           fetchViaProxy(bypassUrlStr),
         ]);
 
-        // HTML解析
         const currentData = parsePageContent(currentRes.body, rawUrl);
         const latestData = parsePageContent(latestRes.body, rawUrl);
 
-        // URL表示
         document.getElementById('url-current').textContent = rawUrl;
         document.getElementById('url-latest').textContent = bypassUrlStr;
 
-        // カラム描画
-        renderColumn('body-current', currentData);
-        renderColumn('body-latest', latestData);
+        // 差分判定
+        const diffs = compareResults(currentData, latestData);
+
+        // カラム描画（差分バッジ付き）
+        renderColumn('body-current', currentData, null);
+        renderColumn('body-latest', latestData, diffs);
 
         // ページ全体の差分
         renderPageDiff(currentData.textContent, latestData.textContent);
 
-        // 差分判定
-        const diffs = compareResults(currentData, latestData);
+        // 診断結果
         const verdict = document.getElementById('verdict');
         const verdictTitle = document.getElementById('verdict-title');
         const verdictDesc = document.getElementById('verdict-desc');
+        const verdictWarn = document.getElementById('verdict-warn');
+        const nextSteps = document.getElementById('next-steps');
+        const nextStepsBody = document.getElementById('next-steps-body');
 
         if (diffs.length === 0) {
+          // 左右同じ＝反映済み
           verdict.className = 'verdict synced';
-          verdictTitle.textContent = '✅ 更新が正しく反映されています';
-          verdictDesc.textContent = 'いま見えている状態と更新後の状態に違いはありません。CMSの更新内容がサイトに正しく反映されています。';
-          document.getElementById('next-steps').style.display = 'none';
+          verdictTitle.textContent = '✅ サイトに最新の内容が表示されています';
+          verdictDesc.textContent = 'サイト訪問者が見ている状態と、CMSの最新状態に違いはありません。更新は正しく反映されています。';
+          verdictWarn.style.display = '';
+          verdictWarn.innerHTML = '<strong>もし期待した変更が反映されていない場合：</strong><br>右側（CMSの最新状態）にも変更が反映されていなければ、CMS側で正しく公開（パブリッシュ）できていない可能性があります。CMSの管理画面を確認してください。';
+          nextSteps.style.display = 'none';
           document.getElementById('col-current').classList.remove('has-diff');
           document.getElementById('col-latest').classList.remove('has-diff');
         } else {
-          verdict.className = 'verdict diff';
-          verdictTitle.textContent = '⚠️ いま見えている状態と更新後の状態に違いがあります';
-          verdictDesc.textContent = '変更箇所: ' + diffs.join('、') + '\n左が今ユーザーに見えている状態、右が更新後の状態です。下の2つを見比べて確認してください。';
-          document.getElementById('next-steps').style.display = '';
+          // 左右違う＝キャッシュ待ち
+          verdict.className = 'verdict cache-wait';
+          verdictTitle.textContent = '⏳ CMSの更新はまだサイトに反映されていません';
+          verdictDesc.textContent = '変更箇所: ' + diffs.join('、') + '\nCMSには最新の内容が入っていますが、サイトにはまだ古いキャッシュが表示されています。';
+          verdictWarn.style.display = '';
+          verdictWarn.innerHTML = '<strong>📝 右側が期待した内容と違う場合：</strong><br>パラメータ付きで取得した右側（CMSの最新状態）が、自分が更新した内容と違っている場合は、CMSで正しく公開（パブリッシュ）できていない可能性があります。CMSの管理画面を確認してください。';
           document.getElementById('col-current').classList.add('has-diff');
           document.getElementById('col-latest').classList.remove('has-diff');
+
+          nextSteps.style.display = '';
+          nextStepsBody.innerHTML = `
+            <div class="next-step-item">
+              <span class="next-step-num">1</span>
+              <span>しばらく待ってから「もう一度チェック」を押してください<br>（多くのサイトでは数分〜数十分で自動的にキャッシュが更新されます）</span>
+            </div>
+            <div class="next-step-item">
+              <span class="next-step-num">2</span>
+              <span>急ぎの場合は、IT部門に「キャッシュクリア（パージ）」を依頼してください</span>
+            </div>
+          `;
         }
 
         verdict.style.display = '';
@@ -662,18 +703,18 @@
       if (!lastResult) return;
       const r = lastResult;
       const lines = [
-        `## ページ更新チェック結果`,
+        `## CMS更新 反映チェック結果`,
         `- **URL**: ${r.url}`,
-        `- **更新後URL**: ${r.bypassUrl}`,
-        `- **結果**: ${r.diffs.length === 0 ? '✅ 反映済み' : '⚠️ 差分あり（' + r.diffs.join('、') + '）'}`,
+        `- **パラメータ付きURL**: ${r.bypassUrl}`,
+        `- **結果**: ${r.diffs.length === 0 ? '✅ 反映済み' : '⏳ キャッシュ待ち（' + r.diffs.join('、') + ' に差分）'}`,
         `- **日時**: ${new Date().toLocaleString('ja-JP')}`,
         ``,
-        `### いま見えている状態`,
+        `### サイト訪問者が見ている状態`,
         `- タイトル: ${r.currentData.ogp.title || r.currentData.title}`,
         `- 説明文: ${r.currentData.ogp.description}`,
         `- 画像数: ${r.currentData.images.length}枚`,
         ``,
-        `### 更新後の状態`,
+        `### CMSの最新状態（パラメータ付き）`,
         `- タイトル: ${r.latestData.ogp.title || r.latestData.title}`,
         `- 説明文: ${r.latestData.ogp.description}`,
         `- 画像数: ${r.latestData.images.length}枚`,
