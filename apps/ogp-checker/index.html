@@ -667,7 +667,7 @@
       if (!seo.canonical) addItem('warn', 'canonical URL が未設定です');
       else                addItem('ok',   'canonical が設定されています');
 
-      if (!seo.h1) addItem('warn', 'h1 が未検出です（Sitecore等のCMSでは仕様上タグを出力しない場合があります。目視でもご確認ください）');
+      if (!seo.h1) addItem('warn', 'h1 が未検出です（時間経過後に表示される場合があります。しばらく経ってから再チェックするか、目視でご確認ください）');
       else         addItem('ok',   `h1 OK（「${seo.h1.slice(0, 30)}${seo.h1.length > 30 ? '…' : ''}」）`);
 
       // カウント
