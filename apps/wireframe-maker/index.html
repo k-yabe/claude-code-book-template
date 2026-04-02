@@ -1630,9 +1630,11 @@ window.addEventListener('message', function(e) {
       const reader = new FileReader();
       reader.onload = function() {
         const frame = document.getElementById('clone-frame');
+        if (!frame || !frame.contentWindow) { showToast('クローンフレームが利用できません'); return; }
         frame.contentWindow.postMessage({ type: 'replace-image', oldSrc: e.data.src, newSrc: reader.result }, '*');
         showToast('画像を差替えました');
       };
+      reader.onerror = function() { showToast('画像の読み込みに失敗しました'); };
       reader.readAsDataURL(file);
     };
     input.click();
@@ -1662,15 +1664,19 @@ window.addEventListener('message', function(e) {
     const frame = document.getElementById('clone-frame');
     if (window.__cloneUndoPending) {
       window.__cloneUndoPending = false;
-      cloneRedoStack.push(e.data.html);
       const prev = cloneUndoStack.pop();
+      if (prev === undefined) { updateCloneUndoButtons(); return; }
+      cloneRedoStack.push(e.data.html);
+      if (!frame || !frame.contentWindow) return;
       frame.contentWindow.postMessage({ type: 'restore-snapshot', html: prev }, '*');
       updateCloneUndoButtons();
       showToast('元に戻しました');
     } else if (window.__cloneRedoPending) {
       window.__cloneRedoPending = false;
-      cloneUndoStack.push(e.data.html);
       const next = cloneRedoStack.pop();
+      if (next === undefined) { updateCloneUndoButtons(); return; }
+      cloneUndoStack.push(e.data.html);
+      if (!frame || !frame.contentWindow) return;
       frame.contentWindow.postMessage({ type: 'restore-snapshot', html: next }, '*');
       updateCloneUndoButtons();
       showToast('やり直しました');
@@ -1689,6 +1695,7 @@ window.addEventListener('message', function(e) {
 // クローンモード: セクション非表示
 function cloneHideSection() {
   const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) { showToast('クローンフレームが利用できません'); return; }
   frame.contentWindow.postMessage({ type: 'get-sections' }, '*');
 }
 
@@ -1720,14 +1727,16 @@ function showCloneSectionPicker(sections) {
 // クローンモード: HTML保存
 function cloneExportHTML() {
   const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) { showToast('クローンフレームが利用できません'); return; }
   frame.contentWindow.postMessage({ type: 'get-html' }, '*');
 }
 
 // クローンモード: Undo
 function cloneUndo() {
   if (cloneUndoStack.length === 0) return;
-  // 現在の状態をredoに保存してからundoを適用
+  if (window.__cloneUndoPending || window.__cloneRedoPending || window.__cloneResetPending) return;
   const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) return;
   frame.contentWindow.postMessage({ type: 'get-snapshot' }, '*');
   window.__cloneUndoPending = true;
 }
@@ -1735,8 +1744,9 @@ function cloneUndo() {
 // クローンモード: Redo
 function cloneRedo() {
   if (cloneRedoStack.length === 0) return;
+  if (window.__cloneUndoPending || window.__cloneRedoPending || window.__cloneResetPending) return;
   const frame = document.getElementById('clone-frame');
-  // 現在をundoに保存
+  if (!frame || !frame.contentWindow) return;
   frame.contentWindow.postMessage({ type: 'get-snapshot' }, '*');
   window.__cloneRedoPending = true;
 }
@@ -1744,8 +1754,9 @@ function cloneRedo() {
 // クローンモード: リセット（元サイトに戻す）
 function cloneReset() {
   if (!cloneOriginalHtml) return;
+  if (window.__cloneUndoPending || window.__cloneRedoPending || window.__cloneResetPending) return;
   const frame = document.getElementById('clone-frame');
-  // 現在の状態をundoに保存
+  if (!frame || !frame.contentWindow) return;
   frame.contentWindow.postMessage({ type: 'get-snapshot' }, '*');
   window.__cloneResetPending = true;
 }
@@ -2048,7 +2059,7 @@ function renderSectionList() {
   });
 }
 
-function deleteSection(index) { saveUndoState(); currentSections.splice(index, 1); onSectionsChanged(); }
+function deleteSection(index) { if (!confirm('このセクションを削除しますか？')) return; saveUndoState(); currentSections.splice(index, 1); onSectionsChanged(); }
 
 function duplicateSection(index) {
   saveUndoState();
@@ -2687,6 +2698,7 @@ function saveHistory() {
 }
 
 function startNew() {
+  if (currentSections.length > 0 && !confirm('現在の編集内容はすべて失われます。新規作成しますか？')) return;
   chatHistory = []; currentContext = null; currentSections = []; selectedSectionId = null; zoomLevel = 1; importedContent = '';
   pages = [{ id: 'page-1', name: 'トップ', sections: [], links: {} }]; currentPageIndex = 0; variantSections = null;
   document.getElementById('chat-messages').innerHTML = '';
