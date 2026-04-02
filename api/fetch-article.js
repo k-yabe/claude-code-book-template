@@ -146,10 +146,14 @@ async function handleOgp(req, res) {
       signal: AbortSignal.timeout(10000),
     });
 
-    const html = await response.text();
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    if (!response.ok) return res.status(502).json({ error: `HTTP ${response.status}` });
+    const buf = await response.arrayBuffer();
+    if (buf.byteLength > MAX_BODY_SIZE) return res.status(413).json({ error: 'Response too large' });
+    const html = new TextDecoder('utf-8').decode(buf);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.status(200).send(html);
   } catch (err) {
+    if (err.name === 'AbortError' || err.name === 'TimeoutError') return res.status(504).json({ error: 'Timeout (10s)' });
     res.status(502).json({ error: err.message });
   }
 }
