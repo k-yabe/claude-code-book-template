@@ -964,6 +964,7 @@
         <div class="collab-avatars" id="collab-avatars"></div>
         <span class="collab-room-badge" id="collab-room-badge"></span>
       </div>
+      <button class="toolbar-btn hidden" id="back-to-clone-btn" onclick="switchToClone()" data-tip="サイト再現モードに戻る">🌐 サイト再現</button>
       <span id="selected-label" style="font-size:0.68rem;color:#8a9bb0"></span>
     </div>
     <div id="preview-canvas" class="right-panel-canvas">
@@ -1411,6 +1412,10 @@ async function handleUrlImport() {
   // 親からのメッセージ受信
   window.addEventListener('message', function(e) {
     if (e.data.type === 'set-edit-mode') window.__cloneEditMode = e.data.value;
+    if (e.data.type === 'get-selected-text') {
+      const sel = document.querySelector('[data-clone-selected]');
+      window.parent.postMessage({ type: 'clone-selected-text', text: sel ? sel.textContent.trim() : '' }, '*');
+    }
     if (e.data.type === 'replace-text') {
       window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
       const selected = document.querySelector('[data-clone-selected]');
@@ -1494,9 +1499,12 @@ async function handleUrlImport() {
     cloneRedoStack = [];
     updateCloneUndoButtons();
 
-    // iframeにHTMLをロード
+    // iframeにHTMLをロード（load完了を待つ）
     const frame = document.getElementById('clone-frame');
-    frame.srcdoc = processedHtml;
+    await new Promise(resolve => {
+      frame.onload = resolve;
+      frame.srcdoc = processedHtml;
+    });
 
     removeLoadingBubble();
 
@@ -1539,12 +1547,20 @@ function toggleCloneEdit() {
 
 // クローンモード: AIリライト
 async function cloneAIRewrite() {
-  const frame = document.getElementById('clone-frame');
-  const selected = frame.contentDocument?.querySelector('[data-clone-selected]');
-  if (!selected) { showToast('リライトするテキストをクリックして選択してください'); return; }
-
-  const originalText = selected.textContent.trim();
-  if (!originalText) return;
+  // postMessage経由で選択テキストを取得（contentDocument直アクセスを避ける）
+  const originalText = await new Promise(resolve => {
+    const handler = (e) => {
+      if (e.data.type === 'clone-selected-text') {
+        window.removeEventListener('message', handler);
+        resolve(e.data.text || '');
+      }
+    };
+    window.addEventListener('message', handler);
+    const frame = document.getElementById('clone-frame');
+    frame.contentWindow.postMessage({ type: 'get-selected-text' }, '*');
+    setTimeout(() => { window.removeEventListener('message', handler); resolve(''); }, 1000);
+  });
+  if (!originalText) { showToast('リライトするテキストをクリックして選択してください'); return; }
 
   addChatMessage('user', `AIリライト: 「${originalText.slice(0, 50)}...」`);
   addLoadingBubble();
@@ -1743,12 +1759,24 @@ function switchToWireframe() {
   document.getElementById('clone-container').classList.add('hidden');
   document.getElementById('clone-container').style.display = '';
   document.getElementById('preview-canvas').classList.remove('hidden');
+  document.getElementById('back-to-clone-btn').classList.remove('hidden');
   showToast('ワイヤーフレームモードに切替');
-  // 構造抽出してワイヤーフレーム生成
   if (cloneSourceUrl) {
     addChatMessage('ai', 'サイト構造からワイヤーフレームを生成しています...');
     generateWireframeFromClone();
   }
+}
+
+// クローンモードに戻る
+function switchToClone() {
+  if (cloneMode || !cloneOriginalHtml) return;
+  cloneMode = true;
+  document.getElementById('preview-canvas').classList.add('hidden');
+  document.getElementById('back-to-clone-btn').classList.add('hidden');
+  const cc = document.getElementById('clone-container');
+  cc.classList.remove('hidden');
+  cc.style.display = 'flex';
+  showToast('サイト再現モードに戻しました');
 }
 
 async function generateWireframeFromClone() {
