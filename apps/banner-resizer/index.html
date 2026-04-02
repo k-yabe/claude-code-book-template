@@ -493,7 +493,7 @@
       <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
         <div class="dropzone-icon">🖼️</div>
         <div class="dropzone-text">画像をドロップ、またはクリックして選択</div>
-        <div class="dropzone-sub">PNG / JPG / WebP 対応</div>
+        <div class="dropzone-sub">PNG / JPG / WebP 対応（入力用）</div>
         <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp">
       </div>
       <p style="font-size:0.75rem;color:#e17055;margin-top:8px;">⚠️ 機密情報・個人情報を含む画像はアップロードしないでください</p>
@@ -512,7 +512,6 @@
         <span class="format-label">出力形式：</span>
         <button class="format-btn active" id="btn-webp" onclick="setFormat('webp')">WebP</button>
         <button class="format-btn" id="btn-png" onclick="setFormat('png')">PNG</button>
-        <button class="format-btn" id="btn-jpg" onclick="setFormat('jpg')">JPG</button>
       </div>
     </div>
   </div>
@@ -548,8 +547,8 @@
 <script>
   if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
   const SIZES = [
-    { id: 'ogp',    label: 'OGP',          w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 100 * 1024 },
-    { id: 'banner', label: 'バナー（MV）',   w: 1920, h: 1080, dlName: 'img-mv', safeZone: { top: 24, bottom: 24, left: 100, right: 100 }, maxBytes: 1 * 1024 * 1024 },
+    { id: 'ogp',    label: 'OGP',          w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 100 * 1024, crop: true },
+    { id: 'banner', label: 'バナー（MV）',   w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024 },
   ];
 
   let format = 'webp';
@@ -593,10 +592,10 @@
     });
   }
 
-  async function createOgpWithAI(img, w, h) {
+  async function createOgpWithAI(img, w, h, crop) {
     // No upscaling needed if source is already large enough
     if (img.width >= w && img.height >= h) {
-      return createResized(img, w, h);
+      return createResized(img, w, h, crop);
     }
     try {
       await loadAILibs();
@@ -606,10 +605,10 @@
       }
       const upscaledSrc = await _upscaler.upscale(img);
       const upscaledImg = await loadImageFromSrc(upscaledSrc);
-      return createResized(upscaledImg, w, h);
+      return createResized(upscaledImg, w, h, crop);
     } catch (e) {
       console.warn('AI upscale failed, using standard resize:', e);
-      return createResized(img, w, h);
+      return createResized(img, w, h, crop);
     }
   }
 
@@ -617,7 +616,6 @@
   function setFormat(f) {
     format = f;
     document.getElementById('btn-png').classList.toggle('active', f === 'png');
-    document.getElementById('btn-jpg').classList.toggle('active', f === 'jpg');
     document.getElementById('btn-webp').classList.toggle('active', f === 'webp');
     if (sourceImage) renderAll();
   }
@@ -894,7 +892,7 @@
 
       // Render non-AI items immediately
       if (!needsAI) {
-        const canvas = createResized(sourceImage, size.w, size.h);
+        const canvas = createResized(sourceImage, size.w, size.h, size.crop);
         canvas.id = 'canvas-' + size.id;
         // Draw safe zone overlay on preview canvas (mark for clean re-render on download)
         if (size.safeZone) {
@@ -912,7 +910,7 @@
     for (const size of allSizes) {
       const aiEnabled = !!aiUpscaleFlags[size.id];
       if (!aiEnabled || (sourceImage.width >= size.w && sourceImage.height >= size.h)) continue;
-      const canvas = await createOgpWithAI(sourceImage, size.w, size.h);
+      const canvas = await createOgpWithAI(sourceImage, size.w, size.h, size.crop);
       canvas.id = 'canvas-' + size.id;
       const wrap = document.getElementById('wrap-' + size.id);
       if (wrap) {
@@ -936,11 +934,10 @@
     const label = blob.size >= 1024 * 1024 ? (blob.size / 1024 / 1024).toFixed(1) + 'MB' : kb + 'KB';
     const maxLabel = size.maxBytes ? (size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024) + 'MB' : (size.maxBytes/1024) + 'KB') : '';
     const over = size.maxBytes && blob.size > size.maxBytes;
-    const formatNote = blob._formatNote === 'jpeg' ? ' <span style="color:#1565c0;font-weight:600;">→ JPEG自動変換済</span>' : '';
     const overMsg = over
       ? ' <span style="color:#e53935;font-weight:600;">⚠ 超過</span>'
       : ' <span style="color:#43a047;">✓</span>';
-    el.innerHTML = `📦 ${label}` + (maxLabel ? ` / 上限 ${maxLabel}` : '') + overMsg + formatNote;
+    el.innerHTML = `📦 ${label}` + (maxLabel ? ` / 上限 ${maxLabel}` : '') + overMsg;
   }
 
   function drawSafeZoneOverlay(canvas, sz) {
@@ -972,22 +969,20 @@
     ctx.fillText(label, w / 2, ly + 12);
   }
 
-  function createResized(img, targetW, targetH) {
-    // Center-crop to target aspect ratio
-    const srcRatio = img.width / img.height;
-    const dstRatio = targetW / targetH;
+  function createResized(img, targetW, targetH, crop) {
+    let sx = 0, sy = 0, sw = img.width, sh = img.height;
 
-    let sx, sy, sw, sh;
-    if (srcRatio > dstRatio) {
-      sh = img.height;
-      sw = img.height * dstRatio;
-      sx = (img.width - sw) / 2;
-      sy = 0;
-    } else {
-      sw = img.width;
-      sh = img.width / dstRatio;
-      sx = 0;
-      sy = (img.height - sh) / 2;
+    if (crop) {
+      // Center-crop to target aspect ratio
+      const srcRatio = img.width / img.height;
+      const dstRatio = targetW / targetH;
+      if (srcRatio > dstRatio) {
+        sw = img.height * dstRatio;
+        sx = (img.width - sw) / 2;
+      } else {
+        sh = img.width / dstRatio;
+        sy = (img.height - sh) / 2;
+      }
     }
 
     // Multi-step downscale for quality (halve until within 2x of target)
@@ -999,7 +994,7 @@
     srcCtx.imageSmoothingQuality = 'high';
     srcCtx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
 
-    let curW = sw, curH = sh;
+    let curW = img.width, curH = img.height;
     while (curW / targetW > 2 || curH / targetH > 2) {
       const nextW = Math.max(Math.floor(curW / 2), targetW);
       const nextH = Math.max(Math.floor(curH / 2), targetH);
@@ -1058,12 +1053,11 @@
   }
 
   function getRequestedMimeType(forcePng) {
-    return forcePng ? 'image/png' : format === 'webp' ? 'image/webp' : format === 'jpg' ? 'image/jpeg' : 'image/png';
+    return forcePng ? 'image/png' : format === 'webp' ? 'image/webp' : 'image/png';
   }
 
   function getExtFromMime(mime) {
     if (mime === 'image/webp') return 'webp';
-    if (mime === 'image/jpeg') return 'jpg';
     return 'png';
   }
 
@@ -1073,7 +1067,7 @@
       let canvas;
       // Re-render without overlay only when the canvas actually has it burned in
       if (domCanvas && domCanvas.dataset.safeZoneOverlay && sourceImage) {
-        canvas = createResized(sourceImage, size.w, size.h);
+        canvas = createResized(sourceImage, size.w, size.h, size.crop);
       } else {
         canvas = domCanvas;
       }
@@ -1085,25 +1079,13 @@
       const toBlob = (q) => new Promise(r => canvas.toBlob(b => r(b), mimeType, q));
 
       let blob = await toBlob(0.92);
-      // Auto-compress: reduce quality stepwise (min 0.70 to preserve visual quality)
-      if (maxBytes && blob && blob.size > maxBytes) {
-        if (mimeType !== 'image/png') {
-          // Lossy format — reduce quality
-          const steps = [0.85, 0.78, 0.70];
-          for (const q of steps) {
-            blob = await toBlob(q);
-            if (blob.size <= maxBytes) break;
-          }
-        } else {
-          // PNG exceeds limit — auto-fallback to JPEG with quality steps
-          const toBlobJpeg = (q) => new Promise(r => canvas.toBlob(b => r(b), 'image/jpeg', q));
-          const jpegSteps = [0.92, 0.85, 0.78, 0.70];
-          for (const q of jpegSteps) {
-            blob = await toBlobJpeg(q);
-            if (blob.size <= maxBytes) break;
-          }
-          blob._actualExt = 'jpg';
-          blob._formatNote = 'jpeg';
+      // Auto-compress lossy formats (min quality 0.70 to preserve visual quality)
+      // PNG is lossless — cannot be compressed, so skip
+      if (maxBytes && blob && blob.size > maxBytes && mimeType !== 'image/png') {
+        const steps = [0.85, 0.78, 0.70];
+        for (const q of steps) {
+          blob = await toBlob(q);
+          if (blob.size <= maxBytes) break;
         }
       }
       if (blob && blob.type !== mimeType && !blob._actualExt) {
