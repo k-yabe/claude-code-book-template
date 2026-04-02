@@ -493,7 +493,7 @@
       <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
         <div class="dropzone-icon">🖼️</div>
         <div class="dropzone-text">画像をドロップ、またはクリックして選択</div>
-        <div class="dropzone-sub">PNG / JPG / WebP 対応</div>
+        <div class="dropzone-sub">PNG / JPG / WebP 対応（入力用）</div>
         <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp">
       </div>
       <p style="font-size:0.75rem;color:#e17055;margin-top:8px;">⚠️ 機密情報・個人情報を含む画像はアップロードしないでください</p>
@@ -512,7 +512,6 @@
         <span class="format-label">出力形式：</span>
         <button class="format-btn active" id="btn-webp" onclick="setFormat('webp')">WebP</button>
         <button class="format-btn" id="btn-png" onclick="setFormat('png')">PNG</button>
-        <button class="format-btn" id="btn-jpg" onclick="setFormat('jpg')">JPG</button>
       </div>
     </div>
   </div>
@@ -617,7 +616,6 @@
   function setFormat(f) {
     format = f;
     document.getElementById('btn-png').classList.toggle('active', f === 'png');
-    document.getElementById('btn-jpg').classList.toggle('active', f === 'jpg');
     document.getElementById('btn-webp').classList.toggle('active', f === 'webp');
     if (sourceImage) renderAll();
   }
@@ -1057,12 +1055,11 @@
   }
 
   function getRequestedMimeType(forcePng) {
-    return forcePng ? 'image/png' : format === 'webp' ? 'image/webp' : format === 'jpg' ? 'image/jpeg' : 'image/png';
+    return forcePng ? 'image/png' : format === 'webp' ? 'image/webp' : 'image/png';
   }
 
   function getExtFromMime(mime) {
     if (mime === 'image/webp') return 'webp';
-    if (mime === 'image/jpeg') return 'jpg';
     return 'png';
   }
 
