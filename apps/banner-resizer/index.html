@@ -936,7 +936,6 @@
     const label = blob.size >= 1024 * 1024 ? (blob.size / 1024 / 1024).toFixed(1) + 'MB' : kb + 'KB';
     const maxLabel = size.maxBytes ? (size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024) + 'MB' : (size.maxBytes/1024) + 'KB') : '';
     const over = size.maxBytes && blob.size > size.maxBytes;
-    const formatNote = blob._formatNote === 'jpeg' ? ' <span style="color:#1565c0;font-weight:600;">→ JPEG自動変換済</span>' : '';
     const overMsg = over
       ? ' <span style="color:#e53935;font-weight:600;">⚠ 超過</span>'
       : ' <span style="color:#43a047;">✓</span>';
@@ -1085,25 +1084,13 @@
       const toBlob = (q) => new Promise(r => canvas.toBlob(b => r(b), mimeType, q));
 
       let blob = await toBlob(0.92);
-      // Auto-compress: reduce quality stepwise (min 0.70 to preserve visual quality)
-      if (maxBytes && blob && blob.size > maxBytes) {
-        if (mimeType !== 'image/png') {
-          // Lossy format — reduce quality
-          const steps = [0.85, 0.78, 0.70];
-          for (const q of steps) {
-            blob = await toBlob(q);
-            if (blob.size <= maxBytes) break;
-          }
-        } else {
-          // PNG exceeds limit — auto-fallback to JPEG with quality steps
-          const toBlobJpeg = (q) => new Promise(r => canvas.toBlob(b => r(b), 'image/jpeg', q));
-          const jpegSteps = [0.92, 0.85, 0.78, 0.70];
-          for (const q of jpegSteps) {
-            blob = await toBlobJpeg(q);
-            if (blob.size <= maxBytes) break;
-          }
-          blob._actualExt = 'jpg';
-          blob._formatNote = 'jpeg';
+      // Auto-compress lossy formats (min quality 0.70 to preserve visual quality)
+      // PNG is lossless — cannot be compressed, so skip
+      if (maxBytes && blob && blob.size > maxBytes && mimeType !== 'image/png') {
+        const steps = [0.85, 0.78, 0.70];
+        for (const q of steps) {
+          blob = await toBlob(q);
+          if (blob.size <= maxBytes) break;
         }
       }
       if (blob && blob.type !== mimeType && !blob._actualExt) {
