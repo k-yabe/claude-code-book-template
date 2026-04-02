@@ -548,7 +548,7 @@
   if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
   const SIZES = [
     { id: 'ogp',    label: 'OGP',          w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 100 * 1024, crop: true },
-    { id: 'banner', label: 'バナー（MV）',   w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024 },
+    { id: 'banner', label: 'バナー（MV）',   w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024, thumbTrim: { top: 24, bottom: 24, left: 100, right: 100 } },
   ];
 
   let format = 'webp';
@@ -885,6 +885,10 @@
         <div class="preview-canvas-wrap" id="wrap-${size.id}">
           ${needsAI ? '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AIアップスケール中...</div>' : ''}
         </div>
+        ${size.thumbTrim ? `<label style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:#667;margin:4px 0;cursor:pointer;user-select:none;">
+          <input type="checkbox" id="trim-check-${size.id}" onchange="toggleThumbTrim('${size.id}', this.checked)">
+          サムネイル時のカット領域を表示
+        </label>` : ''}
         <div class="file-size-info" id="filesize-${size.id}" style="font-size:0.8rem;color:#667;margin:4px 0 8px;min-height:1.2em;">${size.maxBytes ? '<span style="opacity:0.6">上限: ' + (size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024) + 'MB' : (size.maxBytes/1024) + 'KB') + '</span>' : ''}</div>
         <button class="dl-btn" onclick="downloadSingle('${size.id}')">ダウンロード</button>
       `;
@@ -894,11 +898,6 @@
       if (!needsAI) {
         const canvas = createResized(sourceImage, size.w, size.h, size.crop);
         canvas.id = 'canvas-' + size.id;
-        // Draw safe zone overlay on preview canvas (mark for clean re-render on download)
-        if (size.safeZone) {
-          drawSafeZoneOverlay(canvas, size.safeZone);
-          canvas.dataset.safeZoneOverlay = '1';
-        }
         document.getElementById('wrap-' + size.id).appendChild(canvas);
         updateFileSizeDisplay(size.id);
       }
@@ -940,7 +939,7 @@
     el.innerHTML = `📦 ${label}` + (maxLabel ? ` / 上限 ${maxLabel}` : '') + overMsg;
   }
 
-  function drawSafeZoneOverlay(canvas, sz) {
+  function drawThumbTrimOverlay(canvas, sz) {
     const ctx = canvas.getContext('2d');
     const w = canvas.width, h = canvas.height;
     // Semi-transparent red on trim zones
@@ -949,7 +948,7 @@
     ctx.fillRect(0, h - sz.bottom, w, sz.bottom);                     // bottom
     ctx.fillRect(0, sz.top, sz.left, h - sz.top - sz.bottom);         // left
     ctx.fillRect(w - sz.right, sz.top, sz.right, h - sz.top - sz.bottom); // right
-    // Dashed green safe zone border
+    // Dashed border for safe area
     ctx.setLineDash([8, 5]);
     ctx.strokeStyle = '#00e676';
     ctx.lineWidth = 2;
@@ -959,7 +958,8 @@
     ctx.font = 'bold 14px system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    const label = `安全ゾーン ${w - sz.left - sz.right}×${h - sz.top - sz.bottom}px`;
+    const safeW = w - sz.left - sz.right, safeH = h - sz.top - sz.bottom;
+    const label = `サムネイル安全エリア ${safeW}×${safeH}px`;
     const lw = ctx.measureText(label).width + 16;
     const lx = w / 2 - lw / 2, ly = h - sz.bottom - 30;
     ctx.fillStyle = 'rgba(0, 230, 118, 0.85)';
@@ -967,6 +967,28 @@
     ctx.fill();
     ctx.fillStyle = '#fff';
     ctx.fillText(label, w / 2, ly + 12);
+    // Top/bottom trim label
+    ctx.font = '11px system-ui, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.fillText('サムネイル時にカットされる領域', w / 2, sz.top / 2 || 12);
+  }
+
+  function toggleThumbTrim(sizeId, show) {
+    if (!sourceImage) return;
+    const allSizes = [...SIZES, ...customSizes];
+    const size = allSizes.find(s => s.id === sizeId);
+    if (!size || !size.thumbTrim) return;
+    const wrap = document.getElementById('wrap-' + sizeId);
+    if (!wrap) return;
+    // Re-render clean canvas
+    const canvas = createResized(sourceImage, size.w, size.h, size.crop);
+    canvas.id = 'canvas-' + sizeId;
+    if (show) {
+      drawThumbTrimOverlay(canvas, size.thumbTrim);
+      canvas.dataset.thumbTrimOverlay = '1';
+    }
+    wrap.innerHTML = '';
+    wrap.appendChild(canvas);
   }
 
   function createResized(img, targetW, targetH, crop) {
@@ -1066,7 +1088,7 @@
       const domCanvas = document.getElementById(canvasId);
       let canvas;
       // Re-render without overlay only when the canvas actually has it burned in
-      if (domCanvas && domCanvas.dataset.safeZoneOverlay && sourceImage) {
+      if (domCanvas && domCanvas.dataset.thumbTrimOverlay && sourceImage) {
         canvas = createResized(sourceImage, size.w, size.h, size.crop);
       } else {
         canvas = domCanvas;
