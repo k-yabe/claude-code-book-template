@@ -939,7 +939,7 @@
     const overMsg = over
       ? ' <span style="color:#e53935;font-weight:600;">⚠ 超過</span>'
       : ' <span style="color:#43a047;">✓</span>';
-    el.innerHTML = `📦 ${label}` + (maxLabel ? ` / 上限 ${maxLabel}` : '') + overMsg;
+    el.innerHTML = `📦 ${label}` + (maxLabel ? ` / 上限 ${maxLabel}` : '') + overMsg + formatNote;
   }
 
   function drawSafeZoneOverlay(canvas, sz) {
@@ -1093,7 +1093,7 @@
           if (blob.size <= maxBytes) break;
         }
       }
-      if (blob && blob.type !== mimeType) {
+      if (blob && blob.type !== mimeType && !blob._actualExt) {
         blob._actualExt = getExtFromMime(blob.type);
       }
       resolve(blob);

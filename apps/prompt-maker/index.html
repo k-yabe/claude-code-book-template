@@ -603,6 +603,100 @@
       font-size: 0.72rem; margin-left: auto; padding: 0 4px;
     }
     .source-hint-close:hover { color: #001f33; }
+
+    /* ── v10 総合見直し ── */
+
+    /* ブランド準拠修正 */
+    .flashcard-back { border-color: #001f33; }
+    .source-item.expanded { border-left-color: #001f33; }
+
+    /* チャットツールバー */
+    .chat-toolbar {
+      padding: 6px 16px; background: #fff; border-bottom: 1px solid #e8ecf0;
+      display: flex; gap: 6px; align-items: center;
+    }
+    .chat-tool-btn {
+      background: none; border: 1px solid #e8ecf0; color: #4a5568;
+      font-size: 0.68rem; font-weight: 700; padding: 4px 10px; cursor: pointer;
+      font-family: inherit; transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+    }
+    .chat-tool-btn:hover { border-color: #ffb81c; background: #fffbf0; color: #001f33; transform: translateY(-1px); }
+
+    /* 履歴ドロワー */
+    .history-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,31,51,0.85);
+      z-index: 1000; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+    }
+    .history-overlay.show { display: flex; opacity: 1; pointer-events: auto; }
+    .history-modal {
+      background: #fff; width: 640px; max-width: 92vw; max-height: 80vh;
+      display: flex; flex-direction: column;
+      transform: scale(0.95) translateY(12px); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+    .history-overlay.show .history-modal { transform: scale(1) translateY(0); }
+    .history-header {
+      background: #001f33; padding: 12px 20px; display: flex; align-items: center;
+      justify-content: space-between; flex-shrink: 0;
+    }
+    .history-header-title { font-size: 0.88rem; font-weight: 700; color: #fff; }
+    .history-body { flex: 1; overflow-y: auto; padding: 0; }
+    .history-empty { padding: 40px 20px; text-align: center; color: #8a9bb0; font-size: 0.82rem; }
+    .history-item {
+      padding: 14px 20px; border-bottom: 1px solid #e8ecf0; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .history-item:hover { background: #fafbfc; }
+    .history-item-title { font-size: 0.82rem; font-weight: 700; color: #001f33; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-item-preview { font-size: 0.72rem; color: #8a9bb0; line-height: 1.5; max-height: 36px; overflow: hidden; }
+    .history-item-date { font-size: 0.62rem; color: #b2bec3; margin-top: 4px; }
+    .history-item-actions { display: flex; gap: 6px; margin-top: 6px; }
+    .history-item-btn {
+      background: none; border: 1px solid #e8ecf0; font-size: 0.65rem; color: #4a5568;
+      padding: 2px 8px; cursor: pointer; font-family: inherit; transition: all 0.15s;
+    }
+    .history-item-btn:hover { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
+
+    /* テンプレートモーダル */
+    .template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; }
+    @media (max-width: 600px) { .template-grid { grid-template-columns: 1fr; } }
+    .template-card {
+      border: 1.5px solid #e8ecf0; padding: 16px; cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+    }
+    .template-card:hover { border-color: #ffb81c; background: #fffbf0; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .template-card-icon { font-size: 1.5rem; margin-bottom: 8px; }
+    .template-card-title { font-size: 0.82rem; font-weight: 700; color: #001f33; margin-bottom: 4px; }
+    .template-card-desc { font-size: 0.68rem; color: #8a9bb0; line-height: 1.5; }
+
+    /* 入力欄 強化 */
+    .chat-input-meta {
+      display: flex; justify-content: space-between; padding: 0 16px 4px;
+      font-size: 0.62rem; color: #b2bec3;
+    }
+    .char-count { font-variant-numeric: tabular-nums; }
+
+    /* ショートカットモーダル */
+    .shortcut-list { padding: 20px; }
+    .shortcut-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid #f0f2f5;
+    }
+    .shortcut-desc { font-size: 0.82rem; color: #2d3436; }
+    .shortcut-key {
+      font-size: 0.72rem; font-weight: 700; color: #001f33;
+      background: #f0f2f5; padding: 3px 8px; font-family: 'Consolas', monospace;
+    }
+
+    /* ウェルカムメッセージ改善 */
+    .welcome-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .welcome-card {
+      display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px;
+      background: #fafbfc; border-left: 3px solid #001f33;
+    }
+    .welcome-card-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+    .welcome-card-text { font-size: 0.78rem; color: #4a5568; line-height: 1.6; }
+    .welcome-card-text strong { color: #001f33; }
   </style>
   <link rel="stylesheet" href="../../assets/app-styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
@@ -740,6 +834,12 @@
 
   <!-- 右ペイン -->
   <div class="chat-panel" id="chat-panel">
+    <div class="chat-toolbar">
+      <button class="chat-tool-btn" id="history-btn">📜 履歴</button>
+      <button class="chat-tool-btn" id="template-btn">📑 テンプレート</button>
+      <button class="chat-tool-btn" id="export-btn">📥 エクスポート</button>
+      <button class="chat-tool-btn" id="shortcut-btn">⌨️ ショートカット</button>
+    </div>
     <div class="source-indicator" id="source-indicator">
       <span class="source-indicator-dot"></span>
       <span id="source-indicator-text">ソース 0件を参照中</span>
@@ -761,19 +861,20 @@
       <div class="chat-row ai">
         <div class="chat-avatar ai">🪄</div>
         <div class="chat-bubble ai">AIの力を最大限引き出すプロンプトを一緒に作りましょう！
-
 何をしたいか、ざっくりで構いません。
-
-📚 左の「ソース」に参考資料を追加すると:
-  - AIが自動要約を生成
-  - ソースに基づくサジェスチョンを提案
-  - 全ソースの横断分析が可能
-  - 回答に引用マーカー [ソース1] を自動付与
-
-📎 対応形式: テキスト / URL / PDF / YouTube</div>
+<div class="welcome-cards">
+  <div class="welcome-card"><span class="welcome-card-icon">📚</span><span class="welcome-card-text"><strong>ソース追加</strong> — テキスト・URL・PDF・YouTubeを追加すると、AIが自動要約＆サジェスチョンを提案</span></div>
+  <div class="welcome-card"><span class="welcome-card-icon">🔍</span><span class="welcome-card-text"><strong>横断分析</strong> — 複数ソースの共通点・矛盾・キーポイントを分析し、マインドマップで可視化</span></div>
+  <div class="welcome-card"><span class="welcome-card-icon">✨</span><span class="welcome-card-text"><strong>プロンプト生成</strong> — ヒアリング→最適化→品質スコア付きのプロンプトをワンクリックでコピー</span></div>
+  <div class="welcome-card"><span class="welcome-card-icon">🃏</span><span class="welcome-card-text"><strong>出力ツール</strong> — フラッシュカード・FAQ・インフォグラフィックを自動生成</span></div>
+</div></div>
       </div>
     </div>
 
+    <div class="chat-input-meta">
+      <span id="input-hint">Shift+Enter で改行 / Enter で送信</span>
+      <span class="char-count" id="char-count">0文字</span>
+    </div>
     <div class="chat-input-bar">
       <button class="new-chat-btn" id="new-chat-btn" title="新しいチャット">🔄</button>
       <textarea id="user-input" placeholder="やりたいことを入力してください" rows="1"></textarea>
@@ -877,6 +978,52 @@
   </div>
 </div>
 
+<!-- 履歴モーダル -->
+<div class="history-overlay" id="history-overlay">
+  <div class="history-modal">
+    <div class="history-header">
+      <span class="history-header-title">📜 プロンプト履歴</span>
+      <button class="mindmap-header-btn close" id="history-close">✕</button>
+    </div>
+    <div class="history-body" id="history-body">
+      <div class="history-empty">履歴はまだありません</div>
+    </div>
+  </div>
+</div>
+
+<!-- テンプレートモーダル -->
+<div class="mindmap-overlay" id="template-overlay">
+  <div class="mindmap-modal" style="max-width:640px;">
+    <div class="mindmap-header">
+      <span class="mindmap-header-title">📑 プロンプトテンプレート</span>
+      <button class="mindmap-header-btn close" id="template-close">✕</button>
+    </div>
+    <div class="mindmap-body" style="align-items:flex-start;overflow-y:auto;">
+      <div class="template-grid" id="template-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ショートカットモーダル -->
+<div class="mindmap-overlay" id="shortcut-overlay">
+  <div class="mindmap-modal" style="max-width:480px;">
+    <div class="mindmap-header">
+      <span class="mindmap-header-title">⌨️ キーボードショートカット</span>
+      <button class="mindmap-header-btn close" id="shortcut-close">✕</button>
+    </div>
+    <div class="mindmap-body" style="align-items:flex-start;">
+      <div class="shortcut-list">
+        <div class="shortcut-item"><span class="shortcut-desc">メッセージ送信</span><span class="shortcut-key">Enter</span></div>
+        <div class="shortcut-item"><span class="shortcut-desc">改行</span><span class="shortcut-key">Shift + Enter</span></div>
+        <div class="shortcut-item"><span class="shortcut-desc">新しいチャット</span><span class="shortcut-key">Ctrl + Shift + N</span></div>
+        <div class="shortcut-item"><span class="shortcut-desc">ソース検索にフォーカス</span><span class="shortcut-key">Ctrl + K</span></div>
+        <div class="shortcut-item"><span class="shortcut-desc">モーダルを閉じる</span><span class="shortcut-key">Esc</span></div>
+        <div class="shortcut-item"><span class="shortcut-desc">ショートカット一覧</span><span class="shortcut-key">?</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast-container" id="toast-container"></div>
 
 <script src="../../assets/copy-utils.js"></script>
@@ -896,7 +1043,142 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       document.querySelectorAll('.mindmap-overlay.show').forEach(o => o.classList.remove('show'));
+      document.getElementById('history-overlay').classList.remove('show');
     }
+  });
+
+  // ── キーボードショートカット ──────────────────────────
+  document.addEventListener('keydown', (e) => {
+    // ? でショートカット一覧（入力欄にフォーカスしていない時）
+    if (e.key === '?' && document.activeElement.tagName !== 'TEXTAREA' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      document.getElementById('shortcut-overlay').classList.add('show');
+    }
+    // Ctrl+K でソース検索にフォーカス
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('source-search').focus();
+    }
+    // Ctrl+Shift+N で新しいチャット
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'N') {
+      e.preventDefault();
+      resetChat();
+    }
+  });
+
+  // ── 履歴モーダル ──────────────────────────
+  function openHistory() {
+    const overlay = document.getElementById('history-overlay');
+    const body = document.getElementById('history-body');
+    const items = HistoryManager.list();
+    if (items.length === 0) {
+      body.innerHTML = '<div class="history-empty">📜 まだ生成したプロンプトがありません<br><span style="font-size:0.72rem;color:#b2bec3;">チャットでプロンプトを生成すると、ここに自動保存されます</span></div>';
+    } else {
+      body.innerHTML = '';
+      items.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        const date = item.date ? new Date(item.date) : null;
+        const dateStr = date ? `${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}` : '';
+        div.innerHTML = `
+          <div class="history-item-title">${escHtml(item.query || 'プロンプト')}</div>
+          <div class="history-item-preview">${escHtml((item.prompt || '').slice(0, 120))}${(item.prompt||'').length > 120 ? '…' : ''}</div>
+          <div class="history-item-date">${dateStr}</div>
+          <div class="history-item-actions">
+            <button class="history-item-btn" data-action="copy" data-idx="${i}">📋 コピー</button>
+            <button class="history-item-btn" data-action="use" data-idx="${i}">💬 チャットに挿入</button>
+          </div>`;
+        div.querySelector('[data-action="copy"]').addEventListener('click', (e) => {
+          e.stopPropagation();
+          copyToClipboard(item.prompt || '', e.target);
+          showToast('プロンプトをコピーしました', 'success');
+        });
+        div.querySelector('[data-action="use"]').addEventListener('click', (e) => {
+          e.stopPropagation();
+          overlay.classList.remove('show');
+          inputEl.value = item.prompt || '';
+          inputEl.focus();
+          inputEl.style.height = '44px';
+          inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+          document.getElementById('char-count').textContent = inputEl.value.length + '文字';
+          switchMobileTab('chat');
+        });
+        body.appendChild(div);
+      });
+    }
+    overlay.classList.add('show');
+  }
+  document.getElementById('history-btn').addEventListener('click', openHistory);
+  document.getElementById('history-close').addEventListener('click', () => document.getElementById('history-overlay').classList.remove('show'));
+  document.getElementById('history-overlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+
+  // ── テンプレートモーダル ──────────────────────────
+  const TEMPLATES = [
+    { icon: '📱', title: 'SNS投稿', desc: 'LinkedIn・X・Instagram用の投稿文を作成', prompt: 'LinkedIn投稿で製品の魅力を伝えたい。ターゲットは30代のビジネスパーソン。' },
+    { icon: '📧', title: 'メール文面', desc: 'ビジネスメール・フォローアップ・お礼メール', prompt: '取引先へのフォローアップメールを書きたい。先週の会議のお礼と次のアクションを含めて。' },
+    { icon: '📝', title: '企画書・提案書', desc: '新規事業・プロジェクト企画のアウトライン', prompt: '新規事業の企画書を作りたい。AIを活用した業務改善サービスの提案。' },
+    { icon: '📊', title: '分析レポート', desc: 'データ分析・市場調査・競合分析', prompt: '四半期の売上データを分析して改善提案をまとめたい。前年同期比も含めて。' },
+    { icon: '🌐', title: '翻訳・ローカライズ', desc: '自然な翻訳・文化的配慮を含む', prompt: '製品紹介ページを自然な英語に翻訳したい。技術用語は正確に。' },
+    { icon: '📋', title: '議事録・要約', desc: '会議メモの整理・要約・アクションアイテム', prompt: '会議の議事録を整理して、決定事項とアクションアイテムをまとめたい。' },
+    { icon: '🎓', title: '教育・研修', desc: '研修資料・クイズ・学習ガイド', prompt: '新入社員向けの研修資料を作りたい。社内ツールの使い方を分かりやすく。' },
+    { icon: '🎯', title: 'マーケティング', desc: 'キャンペーン文・LP・広告コピー', prompt: '新製品のランディングページのコピーを考えたい。CTAを明確に。' },
+  ];
+
+  function openTemplates() {
+    const grid = document.getElementById('template-grid');
+    grid.innerHTML = '';
+    TEMPLATES.forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'template-card';
+      card.innerHTML = `<div class="template-card-icon">${t.icon}</div><div class="template-card-title">${t.title}</div><div class="template-card-desc">${t.desc}</div>`;
+      card.addEventListener('click', () => {
+        document.getElementById('template-overlay').classList.remove('show');
+        inputEl.value = t.prompt;
+        inputEl.focus();
+        inputEl.style.height = '44px';
+        inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+        document.getElementById('char-count').textContent = inputEl.value.length + '文字';
+        switchMobileTab('chat');
+        showToast(`テンプレート「${t.title}」を挿入しました`, 'info');
+      });
+      grid.appendChild(card);
+    });
+    document.getElementById('template-overlay').classList.add('show');
+  }
+  document.getElementById('template-btn').addEventListener('click', openTemplates);
+  document.getElementById('template-close').addEventListener('click', () => document.getElementById('template-overlay').classList.remove('show'));
+  document.getElementById('template-overlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+
+  // ── チャットエクスポート ──────────────────────────
+  function exportChat() {
+    if (messages.length === 0) { showToast('エクスポートするチャットがありません', 'info'); return; }
+    let md = `# Prompt Maker チャットログ\n\n**日時**: ${new Date().toLocaleString('ja-JP')}\n**ソース数**: ${SourceStore._cache.length}件\n\n---\n\n`;
+    messages.forEach(m => {
+      if (m.role === 'user') md += `## 👤 ユーザー\n\n${m.content}\n\n`;
+      else {
+        const content = m.content.replace('---PROMPT_START---', '\n```\n').replace('---PROMPT_END---', '\n```\n');
+        md += `## 🪄 AI\n\n${content}\n\n`;
+      }
+    });
+    md += `---\n\n*Exported from Prompt Maker*\n`;
+    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `prompt-maker-${new Date().toISOString().slice(0,10)}.md`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('チャットをMarkdownでエクスポートしました', 'success');
+  }
+  document.getElementById('export-btn').addEventListener('click', exportChat);
+
+  // ── ショートカットモーダル ──────────────────────────
+  document.getElementById('shortcut-btn').addEventListener('click', () => document.getElementById('shortcut-overlay').classList.add('show'));
+  document.getElementById('shortcut-close').addEventListener('click', () => document.getElementById('shortcut-overlay').classList.remove('show'));
+  document.getElementById('shortcut-overlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+
+  // ── 入力欄 文字数カウント ──────────────────────────
+  document.getElementById('user-input').addEventListener('input', () => {
+    document.getElementById('char-count').textContent = document.getElementById('user-input').value.length + '文字';
   });
 
   // ── ステップガイド（初回訪問） ──────────────────────────
@@ -2163,7 +2445,17 @@
     messages.length = 0; chatEl.innerHTML = ''; sugEl.style.display = 'block';
     if (SourceStore._cache.length > 0) generateDynamicSuggestions();
     else showStaticSuggestions();
-    addBubble('ai', 'AIの力を最大限引き出すプロンプトを一緒に作りましょう！\n\n何をしたいか、ざっくりで構いません。\n\n📚 左の「ソース」に参考資料を追加すると:\n  - AIが自動要約を生成\n  - ソースに基づくサジェスチョンを提案\n  - 全ソースの横断分析が可能\n  - 回答に引用マーカー [ソース1] を自動付与\n\n📎 対応形式: テキスト / URL / PDF / YouTube');
+    // ウェルカムメッセージ（カード形式）
+    const row = document.createElement('div'); row.className = 'chat-row ai';
+    row.innerHTML = `<div class="chat-avatar ai">🪄</div><div class="chat-bubble ai">AIの力を最大限引き出すプロンプトを一緒に作りましょう！
+何をしたいか、ざっくりで構いません。
+<div class="welcome-cards">
+  <div class="welcome-card"><span class="welcome-card-icon">📚</span><span class="welcome-card-text"><strong>ソース追加</strong> — テキスト・URL・PDF・YouTubeを追加すると、AIが自動要約＆サジェスチョンを提案</span></div>
+  <div class="welcome-card"><span class="welcome-card-icon">🔍</span><span class="welcome-card-text"><strong>横断分析</strong> — 複数ソースの共通点・矛盾・キーポイントを分析し、マインドマップで可視化</span></div>
+  <div class="welcome-card"><span class="welcome-card-icon">✨</span><span class="welcome-card-text"><strong>プロンプト生成</strong> — ヒアリング→最適化→品質スコア付きのプロンプトをワンクリックでコピー</span></div>
+  <div class="welcome-card"><span class="welcome-card-icon">🃏</span><span class="welcome-card-text"><strong>出力ツール</strong> — フラッシュカード・FAQ・インフォグラフィックを自動生成</span></div>
+</div></div>`;
+    chatEl.appendChild(row);
   }
 
   // ── イベント ──────────────────────────

@@ -1,6 +1,15 @@
 {
-  "last_scraped": "2026-03-30T23:33:49Z",
+  "last_scraped": "2026-04-01T23:28:56Z",
   "articles": [
+    {
+      "id": "ai-career-growth-curiosity",
+      "title": "Stay Ahead in the Age of Intelligence: 3 Career Tips from Joshua Morley",
+      "url": "https://www.akkodis.com/blog/articles/ai-career-growth-curiosity",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-03-29T23:24:03Z",
+      "published_date": null
+    },
     {
       "id": "federated-learning-critical-industries",
       "title": "Federated Learning in Action Across Critical Industries",
@@ -131,15 +140,6 @@
       "summary_ja": "NVIDIA GTC 2026ではAIインフラの大規模な構築が加速することが明らかになり、同社のBlackwellとVera Rubin プラットフォームで1兆ドル規模の受注が見込まれています。Vera Rubin は複数のチップを統合した新型スーパーコンピュータで、自律的に動作し続けるAIエージェント向けに設計されており、2027年から本格稼働する予定です。同時に発表されたOpenClawはエンタープライズ向けのAIエージェント運用プラットフォームとなり、自動車の自動運転やロボット技術などの産業応用が急速に進展することで、ソフトウェア検証やシステム統合といった複雑な技術課題への対応が企業に求められるようになります。"
     },
     {
-      "id": "ai-career-growth-curiosity",
-      "title": "Stay Ahead in the Age of Intelligence: 3 Career Tips from Joshua Morley",
-      "url": "https://www.akkodis.com/blog/articles/ai-career-growth-curiosity",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-29T23:24:03Z",
-      "published_date": null
-    },
-    {
       "id": "why-most-ai-pilots-fail",
       "title": "Why Most AI Pilots Fail: Real Constraints To AI Scale",
       "url": "https://www.akkodis.com/blog/articles/why-most-ai-pilots-fail",
@@ -198,16 +198,6 @@
       "first_seen": "2026-03-14T12:15:36Z",
       "published_date": "2026-03-04T00:00:00Z",
       "summary_ja": "デジタル変革だけでは足りなくなった現在、多くの企業がAIを軸に考えない形で現代化を進めると、後々になってAIの導入時に基盤の脆弱性が露呈し、二度の近代化が必要になるという課題に直面しています。AIが従来のシステムの問題を素早く見つけ出すため、データプラットフォームをAIの基盤として設計し、明確なデータ管理体制とガバナンスを整備することが重要です。企業がコパイロットなどのAIツール導入時に期待通りの成果が得られない場合、実際の原因はシステム間の連携不足や分散したデータにあることが多く、AIを視野に入れた段階的な近代化によってこうした問題を事前に解決できます。"
-    },
-    {
-      "id": "space-ait-satellite-engineering",
-      "title": "Space AIT Engineering: Ensuring Satellite Mission Readiness",
-      "url": "https://www.akkodis.com/blog/articles/space-ait-satellite-engineering",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:38Z",
-      "published_date": "2026-03-03T00:00:00Z",
-      "summary_ja": "衛星の打ち上げ前には、振動試験や熱真空試験など複数の環境テストを実施して、打ち上げ時の負荷や宇宙空間での条件に耐えられるか厳密に確認する必要があります。AIT（組立・統合・試験）マネージャーのルカ氏は、機械部品から電気系統、ソフトウェアまで異なる分野の専門家チームと連携しながら、個別の部品を一つの完成した衛星へと統合し、信頼性を保証しています。商業衛星コンステレーションの急速な成長に伴い、衛星の統合・検証プロセスをより効率的で標準化されたものにすることが、業界全体の課題となっています。"
     },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",

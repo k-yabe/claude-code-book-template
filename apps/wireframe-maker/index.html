@@ -20,7 +20,7 @@
     .hidden { display: none !important; }
 
     /* ===== ナビバー ===== */
-    .navbar { background: #001f33; height: 48px; display: flex; align-items: center; padding: 0 16px; gap: 12px; z-index: 100; flex-shrink: 0; }
+    .navbar { background: #001f33; height: 58px; display: flex; align-items: center; padding: 0 16px; gap: 12px; z-index: 100; flex-shrink: 0; }
     .navbar-back { color: #fff; text-decoration: none; font-size: 0.75rem; opacity: 0.7; padding: 4px 8px; transition: opacity 0.2s; }
     .navbar-back:hover { opacity: 1; }
     .navbar-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.15); }
@@ -35,7 +35,7 @@
     .navbar-score .score-fill { height: 100%; transition: width 0.5s, background 0.3s; }
 
     /* ===== スプリットペインレイアウト ===== */
-    .editor-layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 78px); min-height: 0; max-height: calc(100vh - 78px); }
+    .editor-layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 88px); min-height: 0; max-height: calc(100vh - 88px); }
 
     /* 左パネル */
     .left-panel { width: 380px; min-width: 320px; max-width: 500px; background: #fff; border-right: 1px solid #e8ecf0; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
@@ -78,6 +78,20 @@
     .section-overlay button { background: none; border: none; color: rgba(255,255,255,0.8); font-size: 0.75rem; cursor: pointer; padding: 3px 6px; transition: color 0.12s; }
     .section-overlay button:hover { color: #ffb81c; }
 
+    /* ===== クローンモード（サイト再現） ===== */
+    #clone-frame { width: 100%; height: 100%; border: none; background: #fff; display: block; }
+    .clone-toolbar { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: #0a2940; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+    .clone-toolbar .ct-label { font-size: 0.68rem; color: rgba(255,255,255,0.5); }
+    .clone-toolbar .ct-btn { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); padding: 3px 10px; font-size: 0.65rem; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .clone-toolbar .ct-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+    .clone-toolbar .ct-btn.active { background: rgba(255,184,28,0.15); border-color: #ffb81c; color: #ffb81c; }
+    .clone-toolbar .ct-sep { width: 1px; height: 16px; background: rgba(255,255,255,0.1); }
+    .clone-toolbar .ct-url { flex: 1; font-size: 0.62rem; color: rgba(255,255,255,0.35); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .clone-edit-hint { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #001f33; color: #fff; padding: 8px 20px; font-size: 0.75rem; z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease; pointer-events: none; }
+    .mode-toggle { display: flex; background: #f0f2f5; padding: 2px; gap: 1px; }
+    .mode-toggle .mt-btn { padding: 4px 12px; font-size: 0.65rem; font-weight: 600; background: none; border: none; color: #8a9bb0; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .mode-toggle .mt-btn.active { background: #fff; color: #001f33; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
     /* ミニマップ */
     .minimap { position: absolute; bottom: 12px; right: 12px; width: 120px; background: #fff; border: 1px solid #d0d5dc; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 15; overflow: hidden; cursor: pointer; }
     .minimap svg { width: 100%; height: auto; display: block; }
@@ -117,7 +131,7 @@
     .import-url-input { flex: 1; border: 1.5px solid #d0d5dc; padding: 6px 8px; font-size: 0.7rem; font-family: inherit; color: #2d3436; outline: none; }
     .import-url-input:focus { border-color: #ffb81c; }
     .import-url-input::placeholder { color: #c0cdd9; }
-    .btn-url-go { background: #001f33; color: #fff; border: none; padding: 6px 10px; font-size: 0.68rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-url-go { background: #001f33; color: #fff; border: none; padding: 6px 12px; font-size: 0.68rem; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
 
     .tpl-bar { padding: 8px 12px; background: #fff; border-bottom: 1px solid #e8ecf0; display: flex; gap: 4px; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
     .tpl-label { font-size: 0.65rem; color: #8a9bb0; font-weight: 600; white-space: nowrap; }
@@ -264,6 +278,43 @@
     .shortcuts-card td:last-child { color: #8a9bb0; }
     .shortcuts-card .sc-close { background: #001f33; color: #fff; border: none; padding: 8px 20px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 12px; }
 
+    /* ===== A1: ウェルカムカード ===== */
+    .welcome-cards { display: flex; flex-direction: column; gap: 8px; padding: 16px 12px; }
+    .welcome-title { font-size: 0.88rem; font-weight: 700; color: #001f33; margin-bottom: 4px; text-align: center; }
+    .welcome-sub { font-size: 0.7rem; color: #8a9bb0; text-align: center; margin-bottom: 8px; }
+    .welcome-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #f7f8fa; border: 1.5px solid #e8ecf0; cursor: pointer; transition: all 0.15s; }
+    .welcome-card:hover { border-color: #ffb81c; background: #fffbf0; }
+    .welcome-card .wc-icon { font-size: 1.4rem; flex-shrink: 0; width: 36px; text-align: center; }
+    .welcome-card .wc-body { flex: 1; }
+    .welcome-card .wc-label { font-size: 0.78rem; font-weight: 700; color: #001f33; }
+    .welcome-card .wc-desc { font-size: 0.65rem; color: #8a9bb0; margin-top: 2px; }
+
+    /* ===== C1: ツールチップ ===== */
+    .toolbar-btn { position: relative; }
+    .toolbar-btn[data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%); background: #001f33; color: #fff; font-size: 0.6rem; padding: 3px 8px; white-space: nowrap; z-index: 50; pointer-events: none; opacity: 0; animation: tipFade 0.15s 0.3s forwards; }
+    @keyframes tipFade { to { opacity: 1; } }
+
+    /* ===== B2: セクション追加ピッカー ===== */
+    .section-picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 200; display: flex; align-items: center; justify-content: center; }
+    .section-picker { background: #fff; padding: 20px; max-width: 480px; width: 90%; max-height: 70vh; overflow-y: auto; }
+    .section-picker h3 { font-size: 0.88rem; color: #001f33; margin-bottom: 12px; font-weight: 700; }
+    .section-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .section-picker-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 8px; background: #f7f8fa; border: 1.5px solid #e8ecf0; cursor: pointer; transition: all 0.12s; text-align: center; }
+    .section-picker-item:hover { border-color: #ffb81c; background: #fffbf0; }
+    .section-picker-item .spi-icon { font-size: 1.2rem; }
+    .section-picker-item .spi-name { font-size: 0.68rem; font-weight: 600; color: #2d3436; }
+    .section-picker-close { margin-top: 12px; width: 100%; background: #f0f2f5; border: none; padding: 8px; font-size: 0.75rem; color: #4a5568; cursor: pointer; font-family: inherit; }
+    .section-picker-close:hover { background: #e8ecf0; }
+
+    /* ===== D1: エクスポート刷新 ===== */
+    .export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .export-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 12px; background: #f7f8fa; border: 1.5px solid #e8ecf0; cursor: pointer; transition: all 0.15s; text-align: center; }
+    .export-item:hover { border-color: #ffb81c; background: #fffbf0; }
+    .export-item .ei-icon { font-size: 1.4rem; }
+    .export-item .ei-label { font-size: 0.78rem; font-weight: 700; color: #001f33; }
+    .export-item .ei-desc { font-size: 0.6rem; color: #8a9bb0; }
+    .export-section-title { font-size: 0.72rem; font-weight: 700; color: #8a9bb0; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 16px; margin-bottom: 8px; }
+
     /* モバイル対応 */
     @media (max-width: 768px) {
       .editor-layout { flex-direction: column; }
@@ -271,6 +322,10 @@
       .resize-handle { display: none; }
       .right-panel { height: 50vh; }
       .minimap { display: none; }
+      .clone-toolbar { flex-wrap: wrap; gap: 3px; padding: 4px 6px; }
+      .clone-toolbar .ct-btn { padding: 6px 8px; font-size: 0.72rem; min-height: 32px; }
+      .clone-toolbar .ct-sep { display: none; }
+      .clone-toolbar .ct-url { display: none; }
     }
 
     /* ===== ページバー ===== */
@@ -659,6 +714,8 @@
     <div class="score-bar"><div class="score-fill" id="cvr-score-fill" style="width:0%;background:#8a9bb0"></div></div>
   </div>
   <div class="toolbar-sep"></div>
+  <button class="navbar-btn" onclick="saveProject()" title="プロジェクト保存 (Ctrl+S)" id="save-btn">💾 保存</button>
+  <button class="navbar-btn" onclick="showProjectList()" title="プロジェクト一覧">📂 開く</button>
   <button class="navbar-btn" onclick="showShortcuts()" title="ショートカット一覧">⌨ ?</button>
   <button class="navbar-btn" onclick="HistoryManager.togglePanel()">履歴</button>
 </nav>
@@ -707,14 +764,14 @@
       <div class="panel-content active" id="tab-chat">
         <div class="chat-panel">
           <div class="import-zone">
-            <div class="import-drop" id="import-drop" onclick="document.getElementById('file-input').click()">
-              📎 PDF/Word/PPTX
+            <div class="import-drop" id="import-drop" onclick="document.getElementById('file-input').click()" title="PDF/Word/PPTXファイルをドロップまたはクリック">
+              📎 ファイル
               <input type="file" id="file-input" accept=".pdf,.docx,.pptx" onchange="handleFileImport(this.files[0])">
             </div>
-            <div class="import-url-row">
+            <div class="import-url-row" style="flex:2">
               <label for="url-input" class="hidden">URL</label>
-              <input type="url" class="import-url-input" id="url-input" placeholder="URLからコピー（例: https://example.com）" onkeydown="if(event.key==='Enter')handleUrlImport()">
-              <button class="btn-url-go" onclick="handleUrlImport()">コピー生成</button>
+              <input type="url" class="import-url-input" id="url-input" placeholder="URLを入力してサイトをそのまま再現" onkeydown="if(event.key==='Enter')handleUrlImport()">
+              <button class="btn-url-go" onclick="handleUrlImport()" title="URLのサイトをそのまま表示して編集可能に">🌐 サイト再現</button>
             </div>
           </div>
           <div class="tpl-bar">
@@ -730,7 +787,33 @@
             <button class="tpl-chip" data-tpl="recruitment">採用</button>
             <button class="tpl-chip" data-tpl="event-seminar">イベント</button>
           </div>
-          <div id="chat-messages" class="chat-messages"></div>
+          <div id="chat-messages" class="chat-messages">
+            <div id="welcome-cards" class="welcome-cards">
+              <div class="welcome-title">Wireframe Maker</div>
+              <div class="welcome-sub">AIがワイヤーフレームの構成を提案します</div>
+              <div class="welcome-card" onclick="document.getElementById('url-input').focus()">
+                <div class="wc-icon">🌐</div>
+                <div class="wc-body">
+                  <div class="wc-label">URLからコピー</div>
+                  <div class="wc-desc">既存サイトのURLを入力して構成を自動生成</div>
+                </div>
+              </div>
+              <div class="welcome-card" onclick="document.querySelector('.tpl-chip').click()">
+                <div class="wc-icon">📋</div>
+                <div class="wc-body">
+                  <div class="wc-label">テンプレートから選ぶ</div>
+                  <div class="wc-desc">BtoB LP・SaaS・EC商品など10種類のテンプレート</div>
+                </div>
+              </div>
+              <div class="welcome-card" onclick="document.getElementById('chat-input').focus()">
+                <div class="wc-icon">💬</div>
+                <div class="wc-body">
+                  <div class="wc-label">自由に要件を伝える</div>
+                  <div class="wc-desc">チャットで要件を伝えるとAIが最適な構成を提案</div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div id="suggestions-area" class="suggestions"></div>
           <div id="ready-banner" class="ready-banner hidden">
             <span>要件整理完了</span>
@@ -758,27 +841,7 @@
           <div id="section-list" class="section-list"></div>
           <div id="ghost-sections" style="flex-shrink:0"></div>
           <div class="add-section-bar">
-            <label for="add-type" class="hidden">タイプ</label>
-            <select id="add-type">
-              <option value="hero">ヒーロー</option>
-              <option value="features">特徴・メリット</option>
-              <option value="content-text">テキスト</option>
-              <option value="two-column">2カラム</option>
-              <option value="testimonials">お客様の声</option>
-              <option value="pricing">料金プラン</option>
-              <option value="cta-banner">CTAバナー</option>
-              <option value="form">フォーム</option>
-              <option value="faq">FAQ</option>
-              <option value="gallery">ギャラリー</option>
-              <option value="stats">数値・実績</option>
-              <option value="timeline">導入ステップ</option>
-              <option value="cards">カードグリッド</option>
-              <option value="video">動画</option>
-              <option value="logo-bar">ロゴバー</option>
-              <option value="comparison">比較表</option>
-              <option value="sticky-cta">固定CTA</option>
-            </select>
-            <button class="btn-add" onclick="addSection()">+ 追加</button>
+            <button class="btn-add" onclick="showSectionPicker()" style="flex:1">+ セクションを追加</button>
           </div>
           <div class="refine-bar">
             <label for="refine-input" class="hidden">AI修正</label>
@@ -791,16 +854,65 @@
       <!-- エクスポートタブ -->
       <div class="panel-content" id="tab-export">
         <div class="export-panel">
-          <div class="export-card">
-            <h3>ワイヤーフレーム完成</h3>
-            <p id="export-summary">セクション構成のワイヤーフレームです</p>
-            <div class="export-btns">
-              <button class="btn-svg" onclick="exportSVG()">SVG ダウンロード</button>
-              <button class="btn-png" onclick="exportPNG()">PNG ダウンロード</button>
-              <button class="btn-copy" id="btn-copy-svg" onclick="copySVG()">SVG コピー</button>
+          <h3 style="font-size:0.88rem;color:#001f33;margin-bottom:4px">エクスポート</h3>
+          <p id="export-summary" style="font-size:0.72rem;color:#8a9bb0;margin-bottom:12px">セクション構成のワイヤーフレームです</p>
+          <div class="export-grid">
+            <div class="export-item" onclick="exportSVG()">
+              <div class="ei-icon">📐</div>
+              <div class="ei-label">SVG</div>
+              <div class="ei-desc">ベクター形式・拡大しても劣化なし</div>
+            </div>
+            <div class="export-item" onclick="exportPNG()">
+              <div class="ei-icon">🖼</div>
+              <div class="ei-label">PNG</div>
+              <div class="ei-desc">画像形式・共有やプレゼンに</div>
+            </div>
+            <div class="export-item" onclick="exportPDF()">
+              <div class="ei-icon">📄</div>
+              <div class="ei-label">PDF</div>
+              <div class="ei-desc">印刷用・クライアント提出に</div>
+            </div>
+            <div class="export-item" onclick="exportHTMLCSS()">
+              <div class="ei-icon">&lt;/&gt;</div>
+              <div class="ei-label">HTML</div>
+              <div class="ei-desc">コード出力・実装引き渡しに</div>
             </div>
           </div>
-          <button class="btn-new" onclick="startNew()">新規作成</button>
+          <div class="export-grid" style="margin-top:8px">
+            <div class="export-item" onclick="copySVG()" id="btn-copy-svg">
+              <div class="ei-icon">📋</div>
+              <div class="ei-label">SVGコピー</div>
+              <div class="ei-desc">クリップボードにコピー</div>
+            </div>
+            <div class="export-item" onclick="startNew()">
+              <div class="ei-icon">✨</div>
+              <div class="ei-label">新規作成</div>
+              <div class="ei-desc">現在の構成をリセット</div>
+            </div>
+          </div>
+          <div class="export-section-title">プロジェクト管理</div>
+          <div class="export-grid">
+            <div class="export-item" onclick="saveProject()">
+              <div class="ei-icon">💾</div>
+              <div class="ei-label">保存</div>
+              <div class="ei-desc">ブラウザに保存</div>
+            </div>
+            <div class="export-item" onclick="showProjectList()">
+              <div class="ei-icon">📂</div>
+              <div class="ei-label">開く</div>
+              <div class="ei-desc">保存済みプロジェクト</div>
+            </div>
+            <div class="export-item" onclick="exportProjectJSON()">
+              <div class="ei-icon">📤</div>
+              <div class="ei-label">JSON書出し</div>
+              <div class="ei-desc">ファイルとして保存</div>
+            </div>
+            <div class="export-item" onclick="importProjectJSON()">
+              <div class="ei-icon">📥</div>
+              <div class="ei-label">JSON読込み</div>
+              <div class="ei-desc">ファイルから復元</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -813,49 +925,50 @@
   <div class="right-panel">
     <div class="right-panel-toolbar">
       <div class="toolbar-group">
-        <button class="toolbar-btn" onclick="zoom(-0.1)">−</button>
+        <button class="toolbar-btn" onclick="zoom(-0.1)" data-tip="縮小">−</button>
         <span class="zoom-display" id="zoom-level">100%</span>
-        <button class="toolbar-btn" onclick="zoom(0.1)">＋</button>
+        <button class="toolbar-btn" onclick="zoom(0.1)" data-tip="拡大">＋</button>
       </div>
       <div class="toolbar-sep"></div>
       <div class="toolbar-group">
-        <button class="toolbar-btn active" onclick="setDevicePreview('desktop')">PC</button>
-        <button class="toolbar-btn" onclick="setDevicePreview('tablet')">Tab</button>
-        <button class="toolbar-btn" onclick="setDevicePreview('mobile')">SP</button>
+        <button class="toolbar-btn active" onclick="setDevicePreview('desktop')" data-tip="デスクトップ 1440px">PC</button>
+        <button class="toolbar-btn" onclick="setDevicePreview('tablet')" data-tip="タブレット 768px">Tab</button>
+        <button class="toolbar-btn" onclick="setDevicePreview('mobile')" data-tip="スマホ 375px">SP</button>
       </div>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" id="grid-toggle" onclick="toggleGrid()">Grid</button>
-      <button class="toolbar-btn" id="scheme-toggle" onclick="cycleColorScheme()">🎨</button>
+      <button class="toolbar-btn" id="grid-toggle" onclick="toggleGrid()" data-tip="グリッド表示">Grid</button>
+      <button class="toolbar-btn" id="scheme-toggle" onclick="cycleColorScheme()" data-tip="配色切替">🎨</button>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" id="variant-btn" onclick="generateVariant()" title="A/Bバリアント生成">A/B</button>
-      <button class="toolbar-btn" id="link-btn" onclick="addPageLink()" title="ページ間リンク追加">🔗</button>
+      <button class="toolbar-btn" id="variant-btn" onclick="generateVariant()" data-tip="A/Bバリアント生成">A/B</button>
+      <button class="toolbar-btn" id="link-btn" onclick="addPageLink()" data-tip="ページ間リンク">🔗</button>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" id="heatmap-btn" onclick="toggleHeatmap()" title="ヒートマップ予測">🔥</button>
-      <button class="toolbar-btn" onclick="showResponsivePreview()" title="レスポンシブ3画面">📱</button>
-      <button class="toolbar-btn" onclick="startPrototypeMode()" title="プロトタイプ再生">▶</button>
-      <button class="toolbar-btn" id="copy-gen-btn" onclick="generateAICopy()" title="AIコピー生成">✍</button>
+      <button class="toolbar-btn" id="heatmap-btn" onclick="toggleHeatmap()" data-tip="ヒートマップ予測">🔥</button>
+      <button class="toolbar-btn" onclick="showResponsivePreview()" data-tip="レスポンシブ3画面">📱</button>
+      <button class="toolbar-btn" onclick="startPrototypeMode()" data-tip="プロトタイプ再生">▶</button>
+      <button class="toolbar-btn" id="copy-gen-btn" onclick="generateAICopy()" data-tip="AIコピー生成">✍</button>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" onclick="runA11yCheck()" title="アクセシビリティチェック">♿</button>
-      <button class="toolbar-btn" onclick="showCompetitorAnalysis()" title="競合分析">🔍</button>
-      <button class="toolbar-btn" onclick="exportHTMLCSS()" title="HTML/CSSエクスポート">&lt;/&gt;</button>
-      <button class="toolbar-btn" onclick="showDesignTokens()" title="デザイントークン">🎯</button>
+      <button class="toolbar-btn" onclick="runA11yCheck()" data-tip="アクセシビリティチェック">♿</button>
+      <button class="toolbar-btn" onclick="showCompetitorAnalysis()" data-tip="競合分析">🔍</button>
+      <button class="toolbar-btn" onclick="exportHTMLCSS()" data-tip="HTML/CSSエクスポート">&lt;/&gt;</button>
+      <button class="toolbar-btn" onclick="showDesignTokens()" data-tip="デザイントークン">🎯</button>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" id="collab-btn" onclick="showCollabModal()" title="リアルタイム共同編集">👥</button>
-      <button class="toolbar-btn" onclick="showComponentLibrary()" title="コンポーネントライブラリ">📦</button>
+      <button class="toolbar-btn" id="collab-btn" onclick="showCollabModal()" data-tip="共同編集">👥</button>
+      <button class="toolbar-btn" onclick="showComponentLibrary()" data-tip="コンポーネント">📦</button>
       <button class="toolbar-btn" onclick="showFigmaImport()" title="Figmaインポート"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 38 57'%3E%3Cpath fill='%23F24E1E' d='M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z'/%3E%3Cpath fill='%23FF7262' d='M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z'/%3E%3Cpath fill='%23A259FF' d='M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z'/%3E%3Cpath fill='%230ACF83' d='M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z'/%3E%3Cpath fill='%231ABCFE' d='M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z'/%3E%3C/svg%3E" alt="F" style="width:14px;height:14px"></button>
-      <button class="toolbar-btn" onclick="showABTestExport()" title="ABテスト連携">🧪</button>
-      <button class="toolbar-btn" onclick="showPublishLP()" title="LP公開">🚀</button>
+      <button class="toolbar-btn" onclick="showABTestExport()" data-tip="ABテスト連携">🧪</button>
+      <button class="toolbar-btn" onclick="showPublishLP()" data-tip="LP公開">🚀</button>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" onclick="showAIReview()" title="AIデザインレビュー">🤖</button>
-      <button class="toolbar-btn" onclick="showUserFlow()" title="ユーザーフロー">🔀</button>
-      <button class="toolbar-btn" id="handoff-btn" onclick="toggleHandoff()" title="デザインハンドオフ">📏</button>
-      <button class="toolbar-btn" onclick="showTemplateMarket()" title="テンプレートマーケット">🏪</button>
-      <button class="toolbar-btn" onclick="showPerfPrediction()" title="パフォーマンス予測">⚡</button>
+      <button class="toolbar-btn" onclick="showAIReview()" data-tip="AIレビュー">🤖</button>
+      <button class="toolbar-btn" onclick="showUserFlow()" data-tip="ユーザーフロー">🔀</button>
+      <button class="toolbar-btn" id="handoff-btn" onclick="toggleHandoff()" data-tip="ハンドオフ">📏</button>
+      <button class="toolbar-btn" onclick="showTemplateMarket()" data-tip="テンプレート">🏪</button>
+      <button class="toolbar-btn" onclick="showPerfPrediction()" data-tip="パフォーマンス予測">⚡</button>
       <div style="flex:1"></div>
       <div class="collab-bar" id="collab-bar" style="display:none">
         <div class="collab-avatars" id="collab-avatars"></div>
         <span class="collab-room-badge" id="collab-room-badge"></span>
       </div>
+      <button class="toolbar-btn hidden" id="back-to-clone-btn" onclick="switchToClone()" data-tip="サイト再現モードに戻る">🌐 サイト再現</button>
       <span id="selected-label" style="font-size:0.68rem;color:#8a9bb0"></span>
     </div>
     <div id="preview-canvas" class="right-panel-canvas">
@@ -864,6 +977,27 @@
         <p>左パネルからテンプレートを選択するか、<br>チャットで要件を伝えてください</p>
         <div class="empty-hint">構成が生成されると、ここにリアルタイムプレビューが表示されます</div>
       </div>
+    </div>
+    <!-- クローンモード（サイト再現） -->
+    <div id="clone-container" class="hidden" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+      <div class="clone-toolbar" id="clone-toolbar">
+        <span class="ct-label">サイト再現</span>
+        <div class="ct-sep"></div>
+        <button class="ct-btn" id="ct-undo-btn" onclick="cloneUndo()" disabled title="Ctrl+Z">↩️ 戻す</button>
+        <button class="ct-btn" id="ct-redo-btn" onclick="cloneRedo()" disabled title="Ctrl+Y">↪️ やり直し</button>
+        <button class="ct-btn" onclick="cloneReset()" title="元サイトの状態に戻す">🔄 リセット</button>
+        <div class="ct-sep"></div>
+        <button class="ct-btn active" id="ct-edit-btn" onclick="toggleCloneEdit()">✏️ 編集モード</button>
+        <button class="ct-btn" onclick="cloneAIRewrite()">🤖 AIリライト</button>
+        <button class="ct-btn" onclick="cloneReplaceImage()">🖼️ 画像差替</button>
+        <button class="ct-btn" onclick="cloneHideSection()">👁️ セクション非表示</button>
+        <button class="ct-btn" onclick="cloneExportHTML()">💾 HTML保存</button>
+        <div class="ct-sep"></div>
+        <button class="ct-btn" onclick="switchToWireframe()">📐 ワイヤーフレームに変換</button>
+        <div style="flex:1"></div>
+        <span class="ct-url" id="clone-url-label"></span>
+      </div>
+      <iframe id="clone-frame" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
     </div>
     <div class="rationale-bar" id="rationale-bar">
       <span class="rb-badge" id="rb-badge"></span>
@@ -884,6 +1018,9 @@
 <script src="/assets/history.js"></script>
 <script>
 /* ===== グローバル状態 ===== */
+// ローカル開発時は Vercel 本番 API にフォールバック
+const API_BASE = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+  ? 'https://kunito-yabe.vercel.app' : '';
 const USER = localStorage.getItem('user') || '';
 let currentTab = 'chat';
 let chatHistory = [];
@@ -1142,50 +1279,580 @@ async function extractPptxText(file) {
   return text.trim().slice(0, 15000);
 }
 
+let cloneMode = false;
+let cloneSourceUrl = '';
+let cloneEditMode = true;
+let cloneSelectedElement = null;
+let cloneOriginalHtml = '';
+let cloneUndoStack = [];
+let cloneRedoStack = [];
+const CLONE_MAX_UNDO = 30;
+
 async function handleUrlImport() {
   const url = document.getElementById('url-input').value.trim();
   if (!url || !/^https?:\/\/.+/.test(url)) return;
+  if (cloneMode && cloneUndoStack.length > 0) {
+    if (!confirm('現在の編集内容は失われます。新しいサイトを読み込みますか？')) return;
+  }
   clearError();
   document.getElementById('url-input').value = '';
   addChatMessage('user', `🌐 サイトをインポート: ${url}`);
   addLoadingBubble();
   document.getElementById('chat-send').disabled = true;
   try {
-    // Step 1: サイトのHTMLコンテンツを取得
-    const fetchRes = await fetch('/api/fetch-article', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
-    const fetchData = await fetchRes.json();
-    if (!fetchRes.ok) throw new Error(fetchData.error || 'サイトの取得に失敗しました');
-    const siteContent = `[インポートしたサイト: ${url}]\nタイトル: ${fetchData.title}\n\n${fetchData.text}`;
-    importedContent = siteContent;
-    removeLoadingBubble();
-    addChatMessage('ai', `「${fetchData.title}」の内容を読み込みました。このサイトの構成をコピーしてワイヤーフレームを生成します...`);
+    // HTMLとサイト構造を並列取得
+    const [ogpRes, structRes] = await Promise.all([
+      fetch(API_BASE + '/api/fetch-article?mode=ogp&url=' + encodeURIComponent(url)),
+      fetch(API_BASE + '/api/fetch-article?mode=structure', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) })
+    ]);
+    if (!ogpRes.ok) throw new Error('サイトの取得に失敗しました');
+    const rawHtml = await ogpRes.text();
+    if (!rawHtml.trim().startsWith('<!') && !rawHtml.trim().startsWith('<html') && !/<html/i.test(rawHtml.slice(0, 1000))) {
+      throw new Error('HTMLページではないようです');
+    }
+    const structure = structRes.ok ? await structRes.json() : null;
 
-    // Step 2: AI で構造を自動生成
-    addLoadingBubble();
-    const genRes = await fetch('/api/wireframe-generate', {
+    // URLからベースURLを生成
+    const parsed = new URL(url);
+    const baseUrl = parsed.origin;
+
+    // HTMLに<base>タグを注入して相対URLを解決
+    let processedHtml = rawHtml;
+
+    // 既存の<base>タグがあれば除去
+    processedHtml = processedHtml.replace(/<base[^>]*>/gi, '');
+
+    // <head>直後に<base>を注入（<head>がなければ先頭に追加）
+    const headIdx = processedHtml.search(/<head[^>]*>/i);
+    if (headIdx !== -1) {
+      const headEnd = processedHtml.indexOf('>', headIdx) + 1;
+      processedHtml = processedHtml.slice(0, headEnd) +
+        `\n<base href="${baseUrl}/">\n` +
+        processedHtml.slice(headEnd);
+    } else {
+      processedHtml = `<base href="${baseUrl}/">\n` + processedHtml;
+    }
+
+    // 編集用のスタイルとスクリプトを注入
+    const editScript = `
+<style>
+  [data-clone-hover] { outline: 2px solid rgba(255,184,28,0.7) !important; outline-offset: 2px; cursor: text !important; }
+  [data-clone-selected] { outline: 3px solid #001f33 !important; outline-offset: 2px; }
+  .clone-img-hover { outline: 2px dashed #00ffff !important; outline-offset: 2px; cursor: pointer !important; }
+  .clone-section-hidden { opacity: 0.15 !important; pointer-events: none; position: relative; }
+  .clone-section-hidden::after { content: '非表示'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #001f33; color: #fff; padding: 4px 12px; font-size: 14px; z-index: 9999; }
+</style>
+<script>
+  // 編集モードの制御
+  document.addEventListener('click', function(e) {
+    if (!window.__cloneEditMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    // 画像クリック → 親ウィンドウに通知
+    if (e.target.tagName === 'IMG') {
+      window.parent.postMessage({ type: 'clone-img-click', src: e.target.src, tagPath: getTagPath(e.target) }, '*');
+      return;
+    }
+
+    // テキスト要素をcontentEditable化
+    const el = findEditableParent(e.target);
+    if (el) {
+      // 以前の選択を解除
+      document.querySelectorAll('[data-clone-selected]').forEach(s => { s.removeAttribute('data-clone-selected'); s.contentEditable = 'false'; });
+      el.setAttribute('data-clone-selected', '');
+      el.contentEditable = 'true';
+      el.focus();
+      window.parent.postMessage({ type: 'clone-text-select', text: el.textContent, tagPath: getTagPath(el) }, '*');
+    }
+  }, true);
+
+  document.addEventListener('mouseover', function(e) {
+    if (!window.__cloneEditMode) return;
+    document.querySelectorAll('[data-clone-hover]').forEach(h => h.removeAttribute('data-clone-hover'));
+    document.querySelectorAll('.clone-img-hover').forEach(h => h.classList.remove('clone-img-hover'));
+    if (e.target.tagName === 'IMG') {
+      e.target.classList.add('clone-img-hover');
+    } else {
+      const el = findEditableParent(e.target);
+      if (el) el.setAttribute('data-clone-hover', '');
+    }
+  }, true);
+
+  function findEditableParent(el) {
+    const editTags = ['H1','H2','H3','H4','H5','H6','P','SPAN','A','LI','TD','TH','LABEL','BUTTON','FIGCAPTION','BLOCKQUOTE','DT','DD'];
+    let cur = el;
+    while (cur && cur !== document.body) {
+      if (editTags.includes(cur.tagName)) return cur;
+      cur = cur.parentElement;
+    }
+    return null;
+  }
+
+  function getTagPath(el) {
+    const parts = [];
+    let cur = el;
+    while (cur && cur !== document.body) {
+      let idx = 0;
+      let sib = cur;
+      while (sib.previousElementSibling) { sib = sib.previousElementSibling; idx++; }
+      parts.unshift(cur.tagName.toLowerCase() + '[' + idx + ']');
+      cur = cur.parentElement;
+    }
+    return parts.join(' > ');
+  }
+
+  window.__cloneEditMode = true;
+
+  // リンククリック防止（編集モード中にページ遷移させない）
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('a');
+    if (link && link.href) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+
+  // スナップショット取得（Undo用）
+  function getBodySnapshot() { return document.body.innerHTML; }
+  function restoreBodySnapshot(html) { document.body.innerHTML = html; }
+
+  // テキスト編集完了時にスナップショット通知
+  document.addEventListener('focusout', function(e) {
+    if (e.target.getAttribute('data-clone-selected') !== null) {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+    }
+  }, true);
+
+  // 親からのメッセージ受信
+  window.addEventListener('message', function(e) {
+    if (e.data.type === 'set-edit-mode') window.__cloneEditMode = e.data.value;
+    if (e.data.type === 'get-selected-text') {
+      const sel = document.querySelector('[data-clone-selected]');
+      window.parent.postMessage({ type: 'clone-selected-text', text: sel ? sel.textContent.trim() : '' }, '*');
+    }
+    if (e.data.type === 'replace-text') {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+      const selected = document.querySelector('[data-clone-selected]');
+      if (selected) selected.textContent = e.data.text;
+      window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
+    }
+    if (e.data.type === 'replace-image') {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+      const imgs = document.querySelectorAll('img');
+      imgs.forEach(img => {
+        if (img.src === e.data.oldSrc) img.src = e.data.newSrc;
+      });
+      window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
+    }
+    if (e.data.type === 'hide-section') {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+      const sections = document.querySelectorAll('section, header, footer, nav, [class*="section"], [class*="block"], [class*="area"]');
+      sections.forEach((sec, i) => {
+        if (i === e.data.index) sec.classList.toggle('clone-section-hidden');
+      });
+      window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
+    }
+    if (e.data.type === 'restore-snapshot') {
+      restoreBodySnapshot(e.data.html);
+    }
+    if (e.data.type === 'get-html') {
+      const clone = document.documentElement.cloneNode(true);
+      clone.querySelectorAll('[data-clone-hover],[data-clone-selected]').forEach(el => {
+        el.removeAttribute('data-clone-hover');
+        el.removeAttribute('data-clone-selected');
+        el.removeAttribute('contenteditable');
+      });
+      clone.querySelectorAll('.clone-img-hover').forEach(el => el.classList.remove('clone-img-hover'));
+      const scripts = clone.querySelectorAll('script');
+      scripts.forEach(s => { if (s.textContent.includes('__cloneEditMode')) s.remove(); });
+      const styles = clone.querySelectorAll('style');
+      styles.forEach(s => { if (s.textContent.includes('clone-hover')) s.remove(); });
+      window.parent.postMessage({ type: 'clone-html', html: clone.outerHTML }, '*');
+    }
+    if (e.data.type === 'get-sections') {
+      const sections = document.querySelectorAll('section, header, footer, nav, [class*="section"], [class*="block"], [class*="area"]');
+      const list = [];
+      sections.forEach((sec, i) => {
+        const h = sec.querySelector('h1,h2,h3,h4,h5,h6');
+        list.push({ index: i, tag: sec.tagName.toLowerCase(), heading: h ? h.textContent.trim().slice(0, 40) : '', hidden: sec.classList.contains('clone-section-hidden') });
+      });
+      window.parent.postMessage({ type: 'clone-sections', sections: list }, '*');
+    }
+    if (e.data.type === 'get-snapshot') {
+      window.parent.postMessage({ type: 'clone-snapshot-response', html: getBodySnapshot() }, '*');
+    }
+  });
+
+  // Ctrl+Z / Ctrl+Y をキャプチャして親に委譲
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); window.parent.postMessage({ type: 'clone-undo' }, '*'); }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); window.parent.postMessage({ type: 'clone-redo' }, '*'); }
+  }, true);
+<\/script>`;
+
+    // </body>の前にスクリプトを注入
+    const bodyCloseIdx = processedHtml.lastIndexOf('</body>');
+    if (bodyCloseIdx !== -1) {
+      processedHtml = processedHtml.slice(0, bodyCloseIdx) + editScript + processedHtml.slice(bodyCloseIdx);
+    } else {
+      processedHtml += editScript;
+    }
+
+    // クローンモードに切替
+    cloneSourceUrl = url;
+    cloneMode = true;
+    document.getElementById('preview-canvas').classList.add('hidden');
+    const cc = document.getElementById('clone-container');
+    cc.classList.remove('hidden');
+    cc.style.display = 'flex';
+    document.getElementById('clone-url-label').textContent = url;
+
+    // 元のHTMLを保存（リセット用）
+    cloneOriginalHtml = processedHtml;
+    cloneUndoStack = [];
+    cloneRedoStack = [];
+    updateCloneUndoButtons();
+
+    // iframeにHTMLをロード（load完了を待つ）
+    const frame = document.getElementById('clone-frame');
+    await new Promise(resolve => {
+      frame.onload = resolve;
+      frame.srcdoc = processedHtml;
+    });
+
+    removeLoadingBubble();
+
+    // タイトルとコンテンツを抽出
+    const title = structure?.title || rawHtml.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]?.trim() || url;
+
+    // サイトのテキスト内容をrawHtmlから抽出（AIチャット用）
+    let pageText = '';
+    try {
+      const tempDiv = document.createElement('div');
+      const cleaned = rawHtml.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<nav[\s\S]*?<\/nav>/gi, '').replace(/<footer[\s\S]*?<\/footer>/gi, '');
+      tempDiv.innerHTML = cleaned;
+      pageText = tempDiv.textContent.replace(/\s+/g, ' ').trim().slice(0, 5000);
+    } catch(ex) { pageText = ''; }
+
+    // 構造情報 + テキスト内容をAIに渡す
+    let contentForAI = `[インポートしたサイト: ${url}]\nタイトル: ${title}\n`;
+    if (structure) {
+      contentForAI += formatStructureForAI(structure);
+    }
+    if (pageText) {
+      contentForAI += `\n\n## ページテキスト（上から順）\n${pageText}`;
+    }
+    importedContent = contentForAI;
+
+    addChatMessage('ai', `✅ 「${title}」をそのまま読み込みました。画像・CSS含め完全再現しています。\n\n編集モードがONです:\n・テキストをクリックして直接編集\n・画像をクリックして差替\n・AIリライトで文章を改善\n・セクション非表示でLPO検証\n\nチャットでLPO改善を相談することもできます。`);
+    showToast('サイト再現完了 — 編集モードON');
+  } catch (e) { removeLoadingBubble(); showError(e.message); }
+  finally { document.getElementById('chat-send').disabled = false; }
+}
+
+// クローンモード: 編集切替
+function toggleCloneEdit() {
+  cloneEditMode = !cloneEditMode;
+  document.getElementById('ct-edit-btn').classList.toggle('active', cloneEditMode);
+  const frame = document.getElementById('clone-frame');
+  frame.contentWindow.postMessage({ type: 'set-edit-mode', value: cloneEditMode }, '*');
+  showToast(cloneEditMode ? '編集モード ON' : '編集モード OFF');
+}
+
+// クローンモード: AIリライト
+async function cloneAIRewrite() {
+  // postMessage経由で選択テキストを取得（contentDocument直アクセスを避ける）
+  const originalText = await new Promise(resolve => {
+    const handler = (e) => {
+      if (e.data.type === 'clone-selected-text') {
+        window.removeEventListener('message', handler);
+        resolve(e.data.text || '');
+      }
+    };
+    window.addEventListener('message', handler);
+    const frame = document.getElementById('clone-frame');
+    frame.contentWindow.postMessage({ type: 'get-selected-text' }, '*');
+    setTimeout(() => { window.removeEventListener('message', handler); resolve(''); }, 1000);
+  });
+  if (!originalText) { showToast('リライトするテキストをクリックして選択してください'); return; }
+
+  addChatMessage('user', `AIリライト: 「${originalText.slice(0, 50)}...」`);
+  addLoadingBubble();
+
+  try {
+    const res = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        mode: 'free',
-        freeText: `以下の既存サイトの構成をそのまま再現するワイヤーフレームを生成してください。セクションの順序・種類・内容をできるだけ忠実にコピーしてください。\n\n${siteContent.slice(0, 10000)}`,
+        mode: 'chat',
+        chatMessages: [{
+          role: 'user',
+          content: `以下のWebサイトのテキストをLPO（ランディングページ最適化）の観点でリライトしてください。
+元サイト: ${cloneSourceUrl}
+
+リライト対象テキスト:
+「${originalText}」
+
+ルール:
+- CVR向上を意識したコピーライティング
+- 元のトーン・文体は維持
+- 長さは元テキストと同程度
+- リライト結果のテキストのみを返す（説明不要）`
+        }],
         _user: USER
       })
+    });
+    const data = await res.json();
+    removeLoadingBubble();
+
+    if (data.reply) {
+      // ##SUGGESTIONS## を除去
+      let rewritten = data.reply.replace(/##SUGGESTIONS##[\s\S]*$/m, '').trim();
+      frame.contentWindow.postMessage({ type: 'replace-text', text: rewritten }, '*');
+      addChatMessage('ai', `リライト完了:\n元: 「${originalText.slice(0, 40)}...」\n→ 「${rewritten.slice(0, 40)}...」`);
+      showToast('リライト適用');
+    }
+  } catch (e) { removeLoadingBubble(); showError(e.message); }
+}
+
+// クローンモード: 画像差替
+function cloneReplaceImage() {
+  showToast('画像をクリックしてください。ファイル選択ダイアログが開きます');
+  // イベントはiframe側のpostMessageで処理
+}
+
+// 親ウィンドウのメッセージ受信
+window.addEventListener('message', function(e) {
+  if (e.data.type === 'clone-img-click') {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = function() {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function() {
+        const frame = document.getElementById('clone-frame');
+        frame.contentWindow.postMessage({ type: 'replace-image', oldSrc: e.data.src, newSrc: reader.result }, '*');
+        showToast('画像を差替えました');
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  }
+  if (e.data.type === 'clone-html') {
+    const blob = new Blob([e.data.html], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'edited-page.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('HTMLを保存しました');
+  }
+  if (e.data.type === 'clone-sections') {
+    showCloneSectionPicker(e.data.sections);
+  }
+  // Undo用: 操作前のスナップショットをスタックに積む
+  if (e.data.type === 'clone-snapshot') {
+    pushCloneUndo(e.data.html);
+  }
+  // 操作後: ボタン状態更新
+  if (e.data.type === 'clone-changed') {
+    updateCloneUndoButtons();
+  }
+  // Undo/Redo/Reset のスナップショット応答
+  if (e.data.type === 'clone-snapshot-response') {
+    const frame = document.getElementById('clone-frame');
+    if (window.__cloneUndoPending) {
+      window.__cloneUndoPending = false;
+      cloneRedoStack.push(e.data.html);
+      const prev = cloneUndoStack.pop();
+      frame.contentWindow.postMessage({ type: 'restore-snapshot', html: prev }, '*');
+      updateCloneUndoButtons();
+      showToast('元に戻しました');
+    } else if (window.__cloneRedoPending) {
+      window.__cloneRedoPending = false;
+      cloneUndoStack.push(e.data.html);
+      const next = cloneRedoStack.pop();
+      frame.contentWindow.postMessage({ type: 'restore-snapshot', html: next }, '*');
+      updateCloneUndoButtons();
+      showToast('やり直しました');
+    } else if (window.__cloneResetPending) {
+      window.__cloneResetPending = false;
+      pushCloneUndo(e.data.html);
+      frame.srcdoc = cloneOriginalHtml;
+      showToast('元サイトの状態にリセットしました');
+    }
+  }
+  // iframe内からのCtrl+Z/Y
+  if (e.data.type === 'clone-undo') cloneUndo();
+  if (e.data.type === 'clone-redo') cloneRedo();
+});
+
+// クローンモード: セクション非表示
+function cloneHideSection() {
+  const frame = document.getElementById('clone-frame');
+  frame.contentWindow.postMessage({ type: 'get-sections' }, '*');
+}
+
+function showCloneSectionPicker(sections) {
+  const ov = document.createElement('div');
+  ov.className = 'section-picker-overlay';
+  ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
+  const panel = document.createElement('div');
+  panel.className = 'section-picker-panel';
+  panel.innerHTML = '<div class="sp-title">セクションの表示/非表示</div>';
+  sections.forEach(sec => {
+    const card = document.createElement('div');
+    card.className = 'sp-card';
+    card.style.opacity = sec.hidden ? '0.4' : '1';
+    card.innerHTML = `<span class="sp-icon">${sec.hidden ? '👁️‍🗨️' : '👁️'}</span><span class="sp-name">${sec.tag.toUpperCase()}: ${sec.heading || '(見出しなし)'}</span>`;
+    card.onclick = () => {
+      const frame = document.getElementById('clone-frame');
+      frame.contentWindow.postMessage({ type: 'hide-section', index: sec.index }, '*');
+      sec.hidden = !sec.hidden;
+      card.style.opacity = sec.hidden ? '0.4' : '1';
+      card.querySelector('.sp-icon').textContent = sec.hidden ? '👁️‍🗨️' : '👁️';
+    };
+    panel.appendChild(card);
+  });
+  ov.appendChild(panel);
+  document.body.appendChild(ov);
+}
+
+// クローンモード: HTML保存
+function cloneExportHTML() {
+  const frame = document.getElementById('clone-frame');
+  frame.contentWindow.postMessage({ type: 'get-html' }, '*');
+}
+
+// クローンモード: Undo
+function cloneUndo() {
+  if (cloneUndoStack.length === 0) return;
+  // 現在の状態をredoに保存してからundoを適用
+  const frame = document.getElementById('clone-frame');
+  frame.contentWindow.postMessage({ type: 'get-snapshot' }, '*');
+  window.__cloneUndoPending = true;
+}
+
+// クローンモード: Redo
+function cloneRedo() {
+  if (cloneRedoStack.length === 0) return;
+  const frame = document.getElementById('clone-frame');
+  // 現在をundoに保存
+  frame.contentWindow.postMessage({ type: 'get-snapshot' }, '*');
+  window.__cloneRedoPending = true;
+}
+
+// クローンモード: リセット（元サイトに戻す）
+function cloneReset() {
+  if (!cloneOriginalHtml) return;
+  const frame = document.getElementById('clone-frame');
+  // 現在の状態をundoに保存
+  frame.contentWindow.postMessage({ type: 'get-snapshot' }, '*');
+  window.__cloneResetPending = true;
+}
+
+function updateCloneUndoButtons() {
+  const undoBtn = document.getElementById('ct-undo-btn');
+  const redoBtn = document.getElementById('ct-redo-btn');
+  if (undoBtn) undoBtn.disabled = cloneUndoStack.length === 0;
+  if (redoBtn) redoBtn.disabled = cloneRedoStack.length === 0;
+}
+
+function pushCloneUndo(snapshot) {
+  cloneUndoStack.push(snapshot);
+  if (cloneUndoStack.length > CLONE_MAX_UNDO) cloneUndoStack.shift();
+  cloneRedoStack = [];
+  updateCloneUndoButtons();
+}
+
+// ワイヤーフレームモードに切替
+function switchToWireframe() {
+  if (!cloneMode) return;
+  cloneMode = false;
+  document.getElementById('clone-container').classList.add('hidden');
+  document.getElementById('clone-container').style.display = '';
+  document.getElementById('preview-canvas').classList.remove('hidden');
+  document.getElementById('back-to-clone-btn').classList.remove('hidden');
+  showToast('ワイヤーフレームモードに切替');
+  if (cloneSourceUrl) {
+    addChatMessage('ai', 'サイト構造からワイヤーフレームを生成しています...');
+    generateWireframeFromClone();
+  }
+}
+
+// クローンモードに戻る
+function switchToClone() {
+  if (cloneMode || !cloneOriginalHtml) return;
+  cloneMode = true;
+  document.getElementById('preview-canvas').classList.add('hidden');
+  document.getElementById('back-to-clone-btn').classList.add('hidden');
+  const cc = document.getElementById('clone-container');
+  cc.classList.remove('hidden');
+  cc.style.display = 'flex';
+  showToast('サイト再現モードに戻しました');
+}
+
+async function generateWireframeFromClone() {
+  addLoadingBubble();
+  try {
+    const fetchRes = await fetch(API_BASE + '/api/fetch-article?mode=structure', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: cloneSourceUrl })
+    });
+    const structure = await fetchRes.json();
+    if (!fetchRes.ok) throw new Error(structure.error || '構造取得失敗');
+    const structureText = formatStructureForAI(structure);
+    const genRes = await fetch(API_BASE + '/api/wireframe-generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'url-import', freeText: structureText, _user: USER })
     });
     const genData = await genRes.json();
     if (!genRes.ok) throw new Error(genData.error?.message || genData.error || '生成失敗');
     removeLoadingBubble();
     currentSections = genData.sections;
     onSectionsChanged();
-    addChatMessage('ai', `✅ 「${fetchData.title}」をもとに ${genData.sections.length} セクションのワイヤーフレームを生成しました。左パネルの構成タブで自由に編集できます。`);
-    showToast('URLインポート完了');
+    addChatMessage('ai', `ワイヤーフレームに変換しました（${genData.sections.length}セクション）。`);
   } catch (e) { removeLoadingBubble(); showError(e.message); }
-  finally { document.getElementById('chat-send').disabled = false; }
+}
+
+function formatStructureForAI(s) {
+  let out = `# サイト構造解析結果\n\nサイトタイトル: ${s.title}\n`;
+  if (s.ogDesc) out += `説明: ${s.ogDesc}\n`;
+  out += `URL: ${s.url}\n\n`;
+  if (s.navItems.length > 0) out += `## ナビゲーション\nメニュー項目: ${s.navItems.join(' | ')}\n\n`;
+  if (s.headings.length > 0) {
+    out += `## 見出し構造（上から順）\n`;
+    for (const h of s.headings) out += `${'  '.repeat(h.level - 1)}H${h.level}: ${h.text}\n`;
+    out += '\n';
+  }
+  if (s.sections.length > 0) {
+    out += `## セクション構造（上から順）\n`;
+    for (let i = 0; i < s.sections.length; i++) {
+      const sec = s.sections[i];
+      out += `\n### セクション${i + 1}`;
+      if (sec.tag === 'header') { out += `（ヘッダー）\n内容: ${sec.text}\n`; }
+      else {
+        if (sec.idOrClass) out += ` [${sec.idOrClass}]`;
+        out += '\n';
+        if (sec.headings?.length > 0) out += `見出し: ${sec.headings.join(' / ')}\n`;
+        if (sec.text) out += `内容: ${sec.text.slice(0, 200)}\n`;
+        if (sec.imgCount > 0) out += `画像: ${sec.imgCount}枚\n`;
+        if (sec.hasForm) out += `フォーム: あり\n`;
+        if (sec.ctaTexts?.length > 0) out += `CTAボタン: ${sec.ctaTexts.join(', ')}\n`;
+      }
+    }
+    out += '\n';
+  }
+  if (s.forms?.length > 0) { out += `## フォーム\n`; s.forms.forEach((f, i) => { out += `フォーム${i + 1}: 入力項目${f.inputCount}個${f.submitText ? `, ボタン「${f.submitText}」` : ''}\n`; }); out += '\n'; }
+  if (s.hasVideo) out += `## 動画: あり\n\n`;
+  out += `## 画像: 合計${s.totalImages}枚\n\n`;
+  if (s.footerLinks?.length > 0) out += `## フッター\nリンク: ${s.footerLinks.join(' | ')}\n`;
+  return out;
 }
 
 async function generateFromImport() {
   clearError(); addLoadingBubble();
   document.getElementById('chat-send').disabled = true;
   try {
-    const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'free', freeText: importedContent.slice(0, 10000), _user: USER }) });
+    const r = await fetch(API_BASE + '/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'free', freeText: importedContent.slice(0, 10000), _user: USER }) });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error?.message || data.error || '生成失敗');
     removeLoadingBubble();
@@ -1199,6 +1866,9 @@ async function generateFromImport() {
 /* ===== チャット ===== */
 function addChatMessage(role, text, action) {
   const area = document.getElementById('chat-messages');
+  // ウェルカムカードを非表示
+  const wc = document.getElementById('welcome-cards');
+  if (wc) wc.remove();
   const row = document.createElement('div');
   row.className = 'chat-row ' + role;
   const avatar = document.createElement('div');
@@ -1261,7 +1931,7 @@ async function sendChat() {
   document.getElementById('suggestions-area').innerHTML = '';
   addLoadingBubble();
   try {
-    const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'chat', chatMessages: chatHistory, importedContent: importedContent || undefined, _user: USER }) });
+    const r = await fetch(API_BASE + '/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'chat', chatMessages: chatHistory, importedContent: importedContent || undefined, _user: USER }) });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error?.message || data.error || '生成失敗');
     removeLoadingBubble();
@@ -1288,7 +1958,7 @@ document.querySelectorAll('.tpl-chip').forEach(chip => {
     addLoadingBubble();
     document.getElementById('chat-send').disabled = true;
     try {
-      const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'template', templateId: tplId, _user: USER }) });
+      const r = await fetch(API_BASE + '/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'template', templateId: tplId, _user: USER }) });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error?.message || data.error || '生成失敗');
       removeLoadingBubble();
@@ -1306,7 +1976,7 @@ async function generateFromContext() {
   addLoadingBubble();
   document.getElementById('chat-send').disabled = true;
   try {
-    const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'generate', context: currentContext, _user: USER }) });
+    const r = await fetch(API_BASE + '/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'generate', context: currentContext, _user: USER }) });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error?.message || data.error || '生成失敗');
     removeLoadingBubble();
@@ -1342,8 +2012,10 @@ function renderSectionList() {
     card.dataset.index = i;
     card.dataset.id = sec.id;
     const impact = getSectionCVRImpact(sec.type);
-    const impactBadge = `<span class="sec-cvr-badge ${impact}">${impact === 'high' ? 'HIGH' : impact === 'mid' ? 'MID' : 'LOW'}</span>`;
+    const impactLabel = impact === 'high' ? 'CVR高' : impact === 'mid' ? 'CVR中' : 'CVR低';
+    const impactBadge = `<span class="sec-cvr-badge ${impact}">${impactLabel}</span>`;
     card.innerHTML = `
+      <span style="font-size:0.65rem;color:#b0bec5;font-weight:700;min-width:18px;text-align:center;flex-shrink:0">${i + 1}</span>
       <div class="drag-handle">⠿</div>
       <div class="sec-info">
         <div><span class="sec-type-badge">${escHtml(sec.type)}</span>${impactBadge}</div>
@@ -1387,9 +2059,48 @@ function duplicateSection(index) {
   showToast('セクションを複製');
 }
 
-function addSection() {
-  const type = document.getElementById('add-type').value;
-  const defaults = {
+const SECTION_TYPES = [
+  { type: 'hero', icon: '🏠', name: 'ヒーロー' },
+  { type: 'features', icon: '✨', name: '特徴・メリット' },
+  { type: 'content-text', icon: '📝', name: 'テキスト' },
+  { type: 'two-column', icon: '◧', name: '2カラム' },
+  { type: 'testimonials', icon: '💬', name: 'お客様の声' },
+  { type: 'pricing', icon: '💰', name: '料金プラン' },
+  { type: 'cta-banner', icon: '🎯', name: 'CTAバナー' },
+  { type: 'form', icon: '📋', name: 'フォーム' },
+  { type: 'faq', icon: '❓', name: 'FAQ' },
+  { type: 'gallery', icon: '🖼', name: 'ギャラリー' },
+  { type: 'stats', icon: '📊', name: '数値・実績' },
+  { type: 'timeline', icon: '📅', name: '導入ステップ' },
+  { type: 'cards', icon: '🃏', name: 'カードグリッド' },
+  { type: 'video', icon: '🎬', name: '動画' },
+  { type: 'logo-bar', icon: '🏢', name: 'ロゴバー' },
+  { type: 'comparison', icon: '⚖', name: '比較表' },
+  { type: 'sticky-cta', icon: '📌', name: '固定CTA' },
+];
+
+function showSectionPicker() {
+  const overlay = document.createElement('div');
+  overlay.className = 'section-picker-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  const picker = document.createElement('div');
+  picker.className = 'section-picker';
+  picker.innerHTML = '<h3>セクションを追加</h3><div class="section-picker-grid"></div><button class="section-picker-close" onclick="this.closest(\'.section-picker-overlay\').remove()">閉じる</button>';
+  const grid = picker.querySelector('.section-picker-grid');
+  SECTION_TYPES.forEach(st => {
+    const item = document.createElement('div');
+    item.className = 'section-picker-item';
+    item.innerHTML = `<div class="spi-icon">${st.icon}</div><div class="spi-name">${st.name}</div>`;
+    item.onclick = () => { addSection(st.type); overlay.remove(); };
+    grid.appendChild(item);
+  });
+  overlay.appendChild(picker);
+  document.body.appendChild(overlay);
+}
+
+function addSection(type) {
+  if (!type) type = 'content-text';
+  const SECTION_DEFAULTS = {
     hero: { label: 'ヒーロー', description: 'キャッチコピー+CTA', components: ['heading', 'subtext', 'cta-with-note', 'hero-image', 'logo-bar'] },
     features: { label: '特徴・メリット', description: 'アイコンカード3列', components: ['icon-card', 'icon-card', 'icon-card'] },
     'content-text': { label: 'テキスト', description: '見出し+本文+画像', components: ['heading', 'subtext', 'placeholder-image'] },
@@ -1408,7 +2119,7 @@ function addSection() {
     comparison: { label: '比較表', description: 'チェックマーク形式', components: ['comparison-row', 'comparison-row'] },
     'sticky-cta': { label: '固定CTA', description: '画面下部固定', components: ['cta-button', 'sticky-bar'] },
   };
-  const d = defaults[type] || defaults['content-text'];
+  const d = SECTION_DEFAULTS[type] || SECTION_DEFAULTS['content-text'];
   saveUndoState();
   currentSections.push({ id: 'sec-' + Date.now(), type, ...d });
   onSectionsChanged();
@@ -1421,7 +2132,7 @@ async function refineStructure() {
   if (!text) return;
   clearError(); btn.disabled = true; btn.textContent = '修正中...';
   try {
-    const r = await fetch('/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'refine', currentSections, instruction: text, _user: USER }) });
+    const r = await fetch(API_BASE + '/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'refine', currentSections, instruction: text, _user: USER }) });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error?.message || data.error || '修正失敗');
     currentSections = data.sections; input.value = '';
@@ -1473,14 +2184,16 @@ function drawImg(g, x, y, w, h, sectionImage) {
     icon.textContent = '🖼'; g.appendChild(icon);
   }
 }
-function drawBtn(g, x, y, w, h, label, primary) {
+function drawBtn(g, x, y, w, h, label, primary, editKey) {
   g.appendChild(svgEl('rect', { x, y, width: w, height: h, fill: primary ? cs('accent') : cs('dark'), filter: 'url(#card-shadow)' }));
   const txt = svgEl('text', { x: x+w/2, y: y+h/2+5, fill: primary ? cs('accentText') : '#fff', 'font-size': '13', 'text-anchor': 'middle', 'font-family': 'sans-serif', 'font-weight': '600' });
+  if (editKey) { txt.setAttribute('data-edit-key', editKey); txt.style.cursor = 'text'; }
   txt.textContent = label || 'CTA'; g.appendChild(txt);
 }
 function drawCircle(g, cx, cy, r) { g.appendChild(svgEl('circle', { cx, cy, r, fill: cs('img') })); }
-function drawText(g, x, y, text, size, color, weight, anchor) {
+function drawText(g, x, y, text, size, color, weight, anchor, editKey) {
   const t = svgEl('text', { x, y, fill: color || cs('heading'), 'font-size': size || '14', 'font-family': "'Segoe UI', sans-serif", 'font-weight': weight || '400', 'text-anchor': anchor || 'start' });
+  if (editKey) { t.setAttribute('data-edit-key', editKey); t.style.cursor = 'text'; }
   t.textContent = text; g.appendChild(t);
 }
 function drawCard(g, x, y, w, h) {
@@ -1504,7 +2217,16 @@ function renderSection(sec, yOff) {
   render(group, h, sec);
 
   group.addEventListener('click', () => selectSection(sec.id));
-  group.addEventListener('dblclick', e => { e.stopPropagation(); showInlineEdit(sec.id); });
+  group.addEventListener('dblclick', e => {
+    e.stopPropagation();
+    // テキスト要素をクリックした場合はその場でテキスト編集
+    const textEl = e.target.closest('text[data-edit-key]');
+    if (textEl) {
+      editSVGText(sec.id, textEl);
+    } else {
+      showInlineEdit(sec.id);
+    }
+  });
   return { group, height: h };
 }
 
@@ -1520,46 +2242,47 @@ const RENDERERS = {
     drawBtn(g, WF_WIDTH - 220, 14, 150, 32, '無料で資料請求', true);
   },
   hero(g, h, sec) {
+    const t = (sec && sec.texts) || {};
     g.appendChild(svgEl('rect', { x: 0, y: SEC_PAD, width: WF_WIDTH, height: h - SEC_PAD, fill: cs('card') }));
-    // 見出し
-    drawText(g, 80, 120, 'キャッチコピーが入ります', '28', cs('heading'), '700');
-    drawText(g, 80, 152, 'サブコピー — サービスの価値を一言で伝えるメッセージ', '14', cs('body'));
+    drawText(g, 80, 120, t.heading || 'キャッチコピーが入ります', '28', cs('heading'), '700', null, 'heading');
+    drawText(g, 80, 152, t.subheading || 'サブコピー — サービスの価値を一言で伝えるメッセージ', '14', cs('body'), null, null, 'subheading');
     drawLines(g, 80, 170, 380, 2, 6, cs('line'));
-    // CTA + 補完文言
-    drawBtn(g, 80, 220, 220, 52, '無料で資料ダウンロード', true);
-    drawText(g, 86, 290, '3分で完了 / 営業電話なし', '10', cs('body'));
-    // ロゴバー
+    drawBtn(g, 80, 220, 220, 52, t.cta || '無料で資料ダウンロード', true, 'cta');
+    drawText(g, 86, 290, t.ctaSub || '3分で完了 / 営業電話なし', '10', cs('body'), null, null, 'ctaSub');
     for (let i = 0; i < 5; i++) g.appendChild(svgEl('rect', { x: 80 + i * 90, y: 320, width: 70, height: 24, fill: cs('img') }));
-    drawText(g, 80, 364, '導入企業 12,847社', '10', cs('body'));
-    // 右: 画像
+    drawText(g, 80, 364, t.social || '導入企業 12,847社', '10', cs('body'), null, null, 'social');
     drawImg(g, 640, 70, 480, 360, sec && sec.image);
   },
-  features(g, h) {
-    drawText(g, WF_WIDTH / 2, 40, '選ばれる3つの理由', '20', cs('heading'), '700', 'middle');
+  features(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 40, t.heading || '選ばれる3つの理由', '20', cs('heading'), '700', 'middle', 'heading');
     const cols = 3, cw = 300, gap = (WF_WIDTH - cols * cw) / (cols + 1);
     for (let i = 0; i < cols; i++) {
       const x = gap + i * (cw + gap), y = 70;
       drawCard(g, x, y, cw, h - 100);
       drawCircle(g, x + cw / 2, y + 50, 28);
-      drawText(g, x + cw / 2, y + 105, `特徴 ${i + 1} のタイトル`, '14', cs('heading'), '600', 'middle');
+      drawText(g, x + cw / 2, y + 105, t['feat' + i] || `特徴 ${i + 1} のタイトル`, '14', cs('heading'), '600', 'middle', 'feat' + i);
       drawLines(g, x + 30, y + 125, cw - 60, 3, 5, cs('line'));
     }
   },
   'content-text'(g, h, sec) {
-    drawText(g, 80, 60, 'こんなお悩みはありませんか？', '20', cs('heading'), '700');
-    drawText(g, 80, 88, '多くの企業が直面する課題とその解決策をご紹介します', '12', cs('body'));
+    const t = (sec && sec.texts) || {};
+    drawText(g, 80, 60, t.heading || 'こんなお悩みはありませんか？', '20', cs('heading'), '700', null, 'heading');
+    drawText(g, 80, 88, t.subheading || '多くの企業が直面する課題とその解決策をご紹介します', '12', cs('body'), null, null, 'subheading');
     drawLines(g, 80, 110, 600, 4, 6, cs('line'));
     drawImg(g, 80, 190, WF_WIDTH - 160, 100, sec && sec.image);
   },
   'two-column'(g, h, sec) {
+    const t = (sec && sec.texts) || {};
     const half = (WF_WIDTH - 120) / 2;
-    drawText(g, 60, 70, '解決策のタイトル', '18', cs('heading'), '700');
+    drawText(g, 60, 70, t.heading || '解決策のタイトル', '18', cs('heading'), '700', null, 'heading');
     drawLines(g, 60, 90, half - 20, 5, 6, cs('line'));
-    drawBtn(g, 60, 240, 180, 40, '詳しく見る', false);
+    drawBtn(g, 60, 240, 180, 40, t.cta || '詳しく見る', false, 'cta');
     drawImg(g, 60 + half + 20, 50, half, h - 80, sec && sec.image);
   },
-  testimonials(g, h) {
-    drawText(g, WF_WIDTH / 2, 38, 'お客様の声', '18', cs('heading'), '700', 'middle');
+  testimonials(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || 'お客様の声', '18', cs('heading'), '700', 'middle', 'heading');
     for (let i = 0; i < 6; i++) g.appendChild(svgEl('rect', { x: 80 + i * 170, y: 55, width: 120, height: 28, fill: cs('img') }));
     const cols = 2, cw = 480, gap = (WF_WIDTH - cols * cw) / (cols + 1);
     for (let i = 0; i < cols; i++) {
@@ -1567,16 +2290,18 @@ const RENDERERS = {
       drawCard(g, x, 110, cw, h - 140);
       g.appendChild(svgEl('rect', { x, y: 110, width: 4, height: h - 140, fill: cs('accent') }));
       drawCircle(g, x + 40, 150, 18);
-      drawText(g, x + 70, 148, '山田 太郎', '12', cs('heading'), '600');
-      drawText(g, x + 70, 164, '株式会社サンプル / マーケティング部長', '9', cs('body'));
-      // 星評価
+      drawText(g, x + 70, 148, t['name' + i] || '山田 太郎', '12', cs('heading'), '600', null, 'name' + i);
+      drawText(g, x + 70, 164, t['title' + i] || '株式会社サンプル / マーケティング部長', '9', cs('body'), null, null, 'title' + i);
       for (let s = 0; s < 5; s++) { const star = svgEl('text', { x: x + 30 + s * 16, y: 196, fill: '#ffb81c', 'font-size': '12', 'font-family': 'sans-serif' }); star.textContent = '★'; g.appendChild(star); }
       drawLines(g, x + 30, 210, cw - 60, 3, 5, cs('line'));
     }
   },
-  pricing(g, h) {
-    drawText(g, WF_WIDTH / 2, 38, '料金プラン', '20', cs('heading'), '700', 'middle');
+  pricing(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || '料金プラン', '20', cs('heading'), '700', 'middle', 'heading');
     const cols = 3, cw = 320, gap = (WF_WIDTH - cols * cw) / (cols + 1);
+    const defNames = ['ライト', 'スタンダード', 'エンタープライズ'];
+    const defPrices = ['¥9,800/月', '¥29,800/月', '要問合せ'];
     for (let i = 0; i < cols; i++) {
       const x = gap + i * (cw + gap), isRec = i === 1;
       drawCard(g, x, 60, cw, h - 90);
@@ -1584,9 +2309,8 @@ const RENDERERS = {
         g.appendChild(svgEl('rect', { x: x, y: 60, width: cw, height: 24, fill: cs('accent') }));
         drawText(g, x + cw / 2, 77, 'RECOMMENDED', '10', cs('accentText'), '700', 'middle');
       }
-      drawText(g, x + cw / 2, isRec ? 108 : 92, ['ライト', 'スタンダード', 'エンタープライズ'][i], '14', cs('heading'), '600', 'middle');
-      drawText(g, x + cw / 2, isRec ? 140 : 124, ['¥9,800/月', '¥29,800/月', '要問合せ'][i], '22', cs('heading'), '700', 'middle');
-      // 機能リスト
+      drawText(g, x + cw / 2, isRec ? 108 : 92, t['plan' + i] || defNames[i], '14', cs('heading'), '600', 'middle', 'plan' + i);
+      drawText(g, x + cw / 2, isRec ? 140 : 124, t['price' + i] || defPrices[i], '22', cs('heading'), '700', 'middle', 'price' + i);
       const features = ['基本機能', 'メールサポート', 'API連携', 'カスタマイズ'];
       features.forEach((f, fi) => {
         const fy = (isRec ? 165 : 150) + fi * 28;
@@ -1594,20 +2318,22 @@ const RENDERERS = {
         drawText(g, x + 30, fy, check ? '✓' : '—', '12', check ? '#22c55e' : cs('line'), '600');
         drawText(g, x + 50, fy, f, '11', cs('body'));
       });
-      drawBtn(g, x + 40, h - 90, cw - 80, 36, isRec ? '今すぐ始める' : 'お問い合わせ', isRec);
+      drawBtn(g, x + 40, h - 90, cw - 80, 36, isRec ? (t.ctaRec || '今すぐ始める') : (t.cta || 'お問い合わせ'), isRec, isRec ? 'ctaRec' : 'cta');
     }
   },
-  'cta-banner'(g, h) {
+  'cta-banner'(g, h, sec) {
+    const t = (sec && sec.texts) || {};
     g.appendChild(svgEl('rect', { x: 0, y: 0, width: WF_WIDTH, height: h, fill: cs('card') }));
-    drawText(g, WF_WIDTH / 2, 50, 'まずは無料で試してみませんか？', '20', cs('heading'), '700', 'middle');
-    drawText(g, WF_WIDTH / 2, 76, 'お気軽にご相談ください。専門スタッフが対応します。', '12', cs('body'), '400', 'middle');
-    drawBtn(g, WF_WIDTH / 2 - 110, 100, 220, 50, '無料で相談する', true);
-    drawText(g, WF_WIDTH / 2, 168, '3分で完了 / 営業電話なし', '10', cs('body'), '400', 'middle');
+    drawText(g, WF_WIDTH / 2, 50, t.heading || 'まずは無料で試してみませんか？', '20', cs('heading'), '700', 'middle', 'heading');
+    drawText(g, WF_WIDTH / 2, 76, t.subheading || 'お気軽にご相談ください。専門スタッフが対応します。', '12', cs('body'), '400', 'middle', 'subheading');
+    drawBtn(g, WF_WIDTH / 2 - 110, 100, 220, 50, t.cta || '無料で相談する', true, 'cta');
+    drawText(g, WF_WIDTH / 2, 168, t.ctaSub || '3分で完了 / 営業電話なし', '10', cs('body'), '400', 'middle', 'ctaSub');
   },
-  form(g, h) {
+  form(g, h, sec) {
+    const t = (sec && sec.texts) || {};
     const fw = 500, fx = (WF_WIDTH - fw) / 2;
     drawCard(g, fx - 20, 30, fw + 40, h - 60);
-    drawText(g, WF_WIDTH / 2, 60, '資料請求フォーム', '16', cs('heading'), '700', 'middle');
+    drawText(g, WF_WIDTH / 2, 60, t.heading || '資料請求フォーム', '16', cs('heading'), '700', 'middle', 'heading');
     const fields = ['会社名', 'お名前', 'メールアドレス', '電話番号'];
     fields.forEach((f, i) => {
       const y = 85 + i * 70;
@@ -1615,57 +2341,62 @@ const RENDERERS = {
       g.appendChild(svgEl('rect', { x: fx, y: y + 16, width: fw, height: 36, fill: '#fff', stroke: cs('border'), 'stroke-width': 1 }));
       drawText(g, fx + 10, y + 38, f + 'を入力', '10', cs('line'));
     });
-    drawBtn(g, fx, h - 75, fw, 44, '無料で資料をダウンロード', true);
+    drawBtn(g, fx, h - 75, fw, 44, t.cta || '無料で資料をダウンロード', true, 'cta');
   },
-  faq(g, h) {
-    drawText(g, WF_WIDTH / 2, 38, 'よくある質問', '18', cs('heading'), '700', 'middle');
-    const questions = ['導入までどのくらいかかりますか？', 'セキュリティ対策はどうなっていますか？', '他社からの乗り換えは可能ですか？', 'サポート体制について教えてください', '解約はいつでもできますか？'];
-    questions.forEach((q, i) => {
+  faq(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || 'よくある質問', '18', cs('heading'), '700', 'middle', 'heading');
+    const defQ = ['導入までどのくらいかかりますか？', 'セキュリティ対策はどうなっていますか？', '他社からの乗り換えは可能ですか？', 'サポート体制について教えてください', '解約はいつでもできますか？'];
+    defQ.forEach((q, i) => {
       const y = 55 + i * 56;
       drawCard(g, 80, y, WF_WIDTH - 160, 48);
-      drawText(g, 110, y + 30, 'Q. ' + q, '12', cs('heading'), '500');
+      drawText(g, 110, y + 30, 'Q. ' + (t['q' + i] || q), '12', cs('heading'), '500', null, 'q' + i);
       const arr = svgEl('text', { x: WF_WIDTH - 120, y: y + 30, fill: cs('line'), 'font-size': '14', 'text-anchor': 'middle', 'font-family': 'sans-serif' });
       arr.textContent = '▾'; g.appendChild(arr);
     });
   },
   gallery(g, h, sec) {
-    drawText(g, WF_WIDTH / 2, 38, '導入イメージ', '18', cs('heading'), '700', 'middle');
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || '導入イメージ', '18', cs('heading'), '700', 'middle', 'heading');
     const cols = 4, iw = 240, ih = 180, gap = (WF_WIDTH - cols * iw) / (cols + 1);
     for (let i = 0; i < cols; i++) drawImg(g, gap + i * (iw + gap), 55, iw, ih, sec && sec.image);
   },
-  stats(g, h) {
-    drawText(g, WF_WIDTH / 2, 38, '実績', '16', cs('heading'), '700', 'middle');
+  stats(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || '実績', '16', cs('heading'), '700', 'middle', 'heading');
     const cols = 4, cw = 220, gap = (WF_WIDTH - cols * cw) / (cols + 1);
-    const numbers = ['12,847', '99.7%', '4.8', '150+'];
-    const labels = ['導入企業', '継続率', '満足度', '連携サービス'];
+    const defNums = ['12,847', '99.7%', '4.8', '150+'];
+    const defLabels = ['導入企業', '継続率', '満足度', '連携サービス'];
     for (let i = 0; i < cols; i++) {
       const x = gap + i * (cw + gap);
-      drawText(g, x + cw / 2, 100, numbers[i], '32', cs('heading'), '700', 'middle');
-      drawText(g, x + cw / 2, 124, labels[i], '11', cs('body'), '500', 'middle');
+      drawText(g, x + cw / 2, 100, t['num' + i] || defNums[i], '32', cs('heading'), '700', 'middle', 'num' + i);
+      drawText(g, x + cw / 2, 124, t['stat' + i] || defLabels[i], '11', cs('body'), '500', 'middle', 'stat' + i);
     }
   },
-  timeline(g, h) {
-    drawText(g, WF_WIDTH / 2, 38, '導入の流れ', '18', cs('heading'), '700', 'middle');
-    const steps = ['お問い合わせ', 'ヒアリング', 'ご提案', '導入開始'];
-    g.appendChild(svgEl('rect', { x: 140, y: 60, width: 2, height: steps.length * 66, fill: cs('border') }));
-    steps.forEach((s, i) => {
+  timeline(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || '導入の流れ', '18', cs('heading'), '700', 'middle', 'heading');
+    const defSteps = ['お問い合わせ', 'ヒアリング', 'ご提案', '導入開始'];
+    g.appendChild(svgEl('rect', { x: 140, y: 60, width: 2, height: defSteps.length * 66, fill: cs('border') }));
+    defSteps.forEach((s, i) => {
       const y = 60 + i * 66;
       drawCircle(g, 141, y + 12, 12);
       drawText(g, 141, y + 16, `${i + 1}`, '10', cs('heading'), '700', 'middle');
-      drawText(g, 180, y + 12, s, '14', cs('heading'), '600');
-      drawText(g, 180, y + 32, 'ステップの説明テキストが入ります', '10', cs('body'));
+      drawText(g, 180, y + 12, t['step' + i] || s, '14', cs('heading'), '600', null, 'step' + i);
+      drawText(g, 180, y + 32, t['stepDesc' + i] || 'ステップの説明テキストが入ります', '10', cs('body'), null, null, 'stepDesc' + i);
     });
   },
   cards(g, h, sec) {
-    drawText(g, WF_WIDTH / 2, 38, '導入事例', '18', cs('heading'), '700', 'middle');
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || '導入事例', '18', cs('heading'), '700', 'middle', 'heading');
     const cols = 3, cw = 320, gap = (WF_WIDTH - cols * cw) / (cols + 1);
     for (let i = 0; i < cols; i++) {
       const x = gap + i * (cw + gap);
       drawCard(g, x, 55, cw, h - 85);
       drawImg(g, x, 55, cw, 130, sec && sec.image);
-      drawText(g, x + 16, 210, '事例タイトル', '13', cs('heading'), '600');
+      drawText(g, x + 16, 210, t['card' + i] || '事例タイトル', '13', cs('heading'), '600', null, 'card' + i);
       drawLines(g, x + 16, 225, cw - 32, 2, 5, cs('line'));
-      drawBtn(g, x + 16, h - 70, cw - 32, 30, '詳しく見る', false);
+      drawBtn(g, x + 16, h - 70, cw - 32, 30, t.cta || '詳しく見る', false, 'cta');
     }
   },
   footer(g, h) {
@@ -1991,15 +2722,16 @@ function showShortcuts() {
   overlay.innerHTML = `<div class="shortcuts-card">
     <h3>キーボードショートカット</h3>
     <table>
-      <tr><td>Ctrl + Z</td><td>元に戻す</td></tr>
-      <tr><td>Ctrl + Y</td><td>やり直し</td></tr>
-      <tr><td>Ctrl + S</td><td>SVG ダウンロード</td></tr>
-      <tr><td>Ctrl + G</td><td>グリッド表示</td></tr>
-      <tr><td>Ctrl + P</td><td>プレビュー再生成</td></tr>
+      <tr><td>Ctrl + Z</td><td>元に戻す (Undo)</td></tr>
+      <tr><td>Ctrl + Shift + Z / Y</td><td>やり直し (Redo)</td></tr>
+      <tr><td>Ctrl + S</td><td>プロジェクト保存</td></tr>
+      <tr><td>Ctrl + G</td><td>グリッド表示切替</td></tr>
+      <tr><td>Ctrl + P</td><td>プレビュー再描画</td></tr>
       <tr><td>Ctrl + E</td><td>エクスポートタブ</td></tr>
-      <tr><td>1 / 2 / 3</td><td>タブ切替</td></tr>
+      <tr><td>Ctrl + N</td><td>セクション追加ピッカー</td></tr>
+      <tr><td>1 / 2 / 3</td><td>チャット / 構成 / 出力</td></tr>
       <tr><td>Delete</td><td>選択セクション削除</td></tr>
-      <tr><td>?</td><td>この画面</td></tr>
+      <tr><td>?</td><td>このヘルプ</td></tr>
     </table>
     <button class="sc-close" onclick="this.closest('.shortcuts-overlay').remove()">閉じる</button>
   </div>`;
@@ -2011,12 +2743,13 @@ document.addEventListener('keydown', e => {
   const tag = e.target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.contentEditable === 'true') return;
   const ctrl = e.ctrlKey || e.metaKey;
-  if (ctrl && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
-  if (ctrl && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); redo(); }
-  if (ctrl && e.key === 's') { e.preventDefault(); exportSVG(); }
+  if (ctrl && e.key === 'z' && !e.shiftKey) { e.preventDefault(); cloneMode ? cloneUndo() : undo(); }
+  if (ctrl && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); cloneMode ? cloneRedo() : redo(); }
+  if (ctrl && e.key === 's') { e.preventDefault(); saveProject(); }
   if (ctrl && e.key === 'g') { e.preventDefault(); toggleGrid(); }
   if (ctrl && e.key === 'p') { e.preventDefault(); renderPreview(); }
   if (ctrl && e.key === 'e') { e.preventDefault(); switchTab('export'); }
+  if (ctrl && e.key === 'n') { e.preventDefault(); switchTab('structure'); showSectionPicker(); }
   if (e.key === 'Delete' && selectedSectionId) {
     e.preventDefault();
     const idx = currentSections.findIndex(s => s.id === selectedSectionId);
@@ -2058,6 +2791,7 @@ function showSectionOverlay(sectionId) {
     { label: '⧉ 複製', action: () => { duplicateSection(idx); showSectionOverlay(sectionId); } },
     { label: '✎ 編集', action: () => { switchTab('structure'); setTimeout(() => { const card = document.querySelector(`.section-card[data-id="${sectionId}"]`); if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); const lbl = card.querySelector('.sec-label'); if (lbl) { lbl.contentEditable = 'true'; lbl.focus(); } } }, 100); } },
     { label: '🖼 画像', action: () => uploadSectionImage(sectionId) },
+    { label: '🎨 色', action: () => showSectionStyleEditor(sectionId) },
     { label: '🔗 リンク', action: () => showLinkPicker(sectionId) },
     { label: '✕', action: () => { deleteSection(idx); }, cls: 'danger' },
   ];
@@ -2126,6 +2860,70 @@ function applyInlineEdit(sectionId) {
     showToast('セクション更新');
   }
   panel.remove();
+}
+
+// SVGテキスト要素のその場編集
+function editSVGText(sectionId, textEl) {
+  document.querySelectorAll('.svg-text-input').forEach(e => e.remove());
+  const key = textEl.getAttribute('data-edit-key');
+  const sec = currentSections.find(s => s.id === sectionId);
+  if (!sec || !key) return;
+
+  const canvas = document.getElementById('preview-canvas');
+  const rect = textEl.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+  const fontSize = parseFloat(textEl.getAttribute('font-size') || '14');
+  const anchor = textEl.getAttribute('text-anchor') || 'start';
+  const zf = zoomLevel || 1;
+
+  const input = document.createElement('input');
+  input.className = 'svg-text-input';
+  input.value = textEl.textContent;
+  input.style.position = 'absolute';
+  input.style.top = (rect.top - canvasRect.top + canvas.scrollTop - 4) + 'px';
+  input.style.fontSize = (fontSize * zf) + 'px';
+  input.style.fontWeight = textEl.getAttribute('font-weight') || '400';
+  input.style.color = textEl.getAttribute('fill') || '#000';
+  input.style.background = 'rgba(255,251,240,0.95)';
+  input.style.border = '2px solid #ffb81c';
+  input.style.outline = 'none';
+  input.style.padding = '2px 6px';
+  input.style.fontFamily = "'Segoe UI', sans-serif";
+  input.style.zIndex = '40';
+  input.style.minWidth = '120px';
+
+  if (anchor === 'middle') {
+    input.style.left = (rect.left - canvasRect.left + canvas.scrollLeft - 60) + 'px';
+    input.style.textAlign = 'center';
+    input.style.width = Math.max(rect.width + 120, 200) + 'px';
+  } else {
+    input.style.left = (rect.left - canvasRect.left + canvas.scrollLeft - 4) + 'px';
+    input.style.width = Math.max(rect.width + 80, 200) + 'px';
+  }
+
+  input.onclick = e => e.stopPropagation();
+
+  const commit = () => {
+    const val = input.value.trim();
+    if (val && val !== textEl.textContent) {
+      saveUndoState();
+      if (!sec.texts) sec.texts = {};
+      sec.texts[key] = val;
+      onSectionsChanged();
+      showToast('テキスト更新');
+    }
+    input.remove();
+  };
+
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { input.value = textEl.textContent; input.blur(); }
+  });
+
+  canvas.appendChild(input);
+  input.focus();
+  input.select();
 }
 
 // 画像アップロード
@@ -2306,7 +3104,7 @@ async function generateVariant() {
 
   // API呼び出し
   try {
-    const r = await fetch('/api/wireframe-generate', {
+    const r = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode: 'variant', currentSections, context: currentContext, _user: USER })
@@ -2623,7 +3421,7 @@ async function generateAICopy() {
 
   try {
     const sectionSummary = currentSections.map(s => `${s.type}: ${s.label}`).join('\n');
-    const r = await fetch('/api/wireframe-generate', {
+    const r = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -3152,7 +3950,7 @@ async function analyzeCompetitor() {
   body.innerHTML = '<div class="variant-loading"><div class="loading-dots"><span></span><span></span><span></span></div>AIが競合サイトを分析中...</div>';
 
   try {
-    const r = await fetch('/api/wireframe-generate', {
+    const r = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -3164,7 +3962,7 @@ async function analyzeCompetitor() {
     const data = await r.json();
 
     // AIの応答からセクション構成を推定（freeモードで再生成）
-    const r2 = await fetch('/api/wireframe-generate', {
+    const r2 = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode: 'free', freeText: `競合サイト ${url} のページ構成を分析し、一般的な${url.includes('saas') || url.includes('app') ? 'SaaS' : 'BtoB'} Webサイトのパターンに基づいて推定されるセクション構成を生成してください。`, _user: USER })
@@ -3905,7 +4703,7 @@ async function executeFigmaImport() {
   if (progress) progress.style.display = 'block';
 
   try {
-    const res = await fetch('/api/figma-import', {
+    const res = await fetch(API_BASE + '/api/figma-import', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fileKey, token })
@@ -3962,7 +4760,7 @@ function convertFigmaToSections(frames) {
 
 async function figmaAIFallback(fileKey) {
   try {
-    const res = await fetch('/api/wireframe-generate', {
+    const res = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode: 'free', userMessage: `Figmaファイル(key:${fileKey})のLP構成を推定し、一般的なLPセクション構成として出力してください。JSON配列で返してください。` })
@@ -4171,7 +4969,7 @@ async function executePublishLP() {
   // Step 3: Deploy
   updatePublishStep(3, 'active');
   try {
-    const res = await fetch('/api/deploy-lp', {
+    const res = await fetch(API_BASE + '/api/deploy-lp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ html: optimizedHtml, name: page.name || 'lp-wireframe' })
@@ -4887,6 +5685,356 @@ function predictPerformance(sections) {
     warnings
   };
 }
+
+/* ================================================================
+   V10b: セクション個別スタイル + PDFエクスポート
+   ================================================================ */
+
+function showSectionStyleEditor(sectionId) {
+  document.querySelectorAll('.svg-inline-edit').forEach(e => e.remove());
+  const sec = currentSections.find(s => s.id === sectionId);
+  if (!sec) return;
+  const canvas = document.getElementById('preview-canvas');
+  const svgRoot = canvas.querySelector('svg');
+  const group = svgRoot?.querySelector(`.section-group[data-id="${sectionId}"]`);
+  if (!group) return;
+
+  const groupRect = group.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+  const style = sec.style || {};
+
+  const panel = document.createElement('div');
+  panel.className = 'svg-inline-edit';
+  panel.style.left = (groupRect.left - canvasRect.left + canvas.scrollLeft + 20) + 'px';
+  panel.style.top = (groupRect.top - canvasRect.top + canvas.scrollTop + 30) + 'px';
+  panel.onclick = e => e.stopPropagation();
+
+  panel.innerHTML = `
+    <label>背景色</label>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <input type="color" class="style-bg" value="${style.bg || '#ffffff'}" style="width:36px;height:28px;border:1px solid #e8ecf0;cursor:pointer;">
+      <button onclick="this.previousElementSibling.value='#ffffff'" style="font-size:0.65rem;padding:2px 6px;border:1px solid #e8ecf0;background:#f7f8fa;cursor:pointer;">リセット</button>
+    </div>
+    <label>テキスト色</label>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <input type="color" class="style-text" value="${style.textColor || '#2d3436'}" style="width:36px;height:28px;border:1px solid #e8ecf0;cursor:pointer;">
+      <button onclick="this.previousElementSibling.value='#2d3436'" style="font-size:0.65rem;padding:2px 6px;border:1px solid #e8ecf0;background:#f7f8fa;cursor:pointer;">リセット</button>
+    </div>
+    <label>アクセント色</label>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <input type="color" class="style-accent" value="${style.accent || '#ffb81c'}" style="width:36px;height:28px;border:1px solid #e8ecf0;cursor:pointer;">
+      <button onclick="this.previousElementSibling.value='#ffb81c'" style="font-size:0.65rem;padding:2px 6px;border:1px solid #e8ecf0;background:#f7f8fa;cursor:pointer;">リセット</button>
+    </div>
+    <div class="edit-actions">
+      <button onclick="this.closest('.svg-inline-edit').remove()">キャンセル</button>
+      <button class="primary" onclick="applySectionStyle('${sectionId}')">適用</button>
+    </div>`;
+  canvas.appendChild(panel);
+}
+
+function applySectionStyle(sectionId) {
+  const panel = document.querySelector('.svg-inline-edit');
+  if (!panel) return;
+  const sec = currentSections.find(s => s.id === sectionId);
+  if (!sec) return;
+  saveUndoState();
+  sec.style = {
+    bg: panel.querySelector('.style-bg').value,
+    textColor: panel.querySelector('.style-text').value,
+    accent: panel.querySelector('.style-accent').value,
+  };
+  onSectionsChanged();
+  panel.remove();
+  showToast('スタイル適用');
+}
+
+// renderSection で個別スタイルを適用するため、cs() をセクション別に上書き
+const _origCs = cs;
+let _currentSecStyle = null;
+cs = function(key) {
+  if (_currentSecStyle) {
+    if (key === 'bg' || key === 'card') return _currentSecStyle.bg || _origCs(key);
+    if (key === 'heading' || key === 'body' || key === 'label') return _currentSecStyle.textColor || _origCs(key);
+    if (key === 'accent' || key === 'accentText') return _currentSecStyle.accent || _origCs(key);
+  }
+  return _origCs(key);
+};
+
+// renderSection をラップしてセクション個別スタイルを注入
+const _origRenderSec = renderSection;
+renderSection = function(sec, yOff) {
+  _currentSecStyle = sec.style || null;
+  const result = _origRenderSec(sec, yOff);
+  _currentSecStyle = null;
+  return result;
+};
+
+// PDFエクスポート
+function exportPDF() {
+  const svgRoot = document.querySelector('#preview-canvas svg');
+  if (!svgRoot) { showToast('プレビューがありません'); return; }
+
+  showToast('PDF生成中...');
+  const svgData = new XMLSerializer().serializeToString(svgRoot);
+  const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(svgBlob);
+
+  const img = new Image();
+  img.onload = () => {
+    const w = img.naturalWidth;
+    const h = img.naturalHeight;
+    // A4横: 297x210mm → ピクセル比に合わせてスケール
+    const pageW = 842; // A4横 72dpi
+    const pageH = Math.ceil(pageW * (h / w));
+
+    const c = document.createElement('canvas');
+    c.width = pageW; c.height = pageH;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, pageW, pageH);
+    ctx.drawImage(img, 0, 0, pageW, pageH);
+
+    c.toBlob(blob => {
+      // 簡易PDF生成（単一画像埋め込み）
+      const reader = new FileReader();
+      reader.onload = () => {
+        const imgBytes = new Uint8Array(reader.result);
+        const pdf = buildSimplePDF(pageW, pageH, imgBytes);
+        const pdfBlob = new Blob([pdf], { type: 'application/pdf' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(pdfBlob);
+        a.download = (currentContext?.purpose || 'wireframe') + '.pdf';
+        a.click();
+        showToast('PDFダウンロード完了');
+      };
+      reader.readAsArrayBuffer(blob);
+    }, 'image/jpeg', 0.92);
+    URL.revokeObjectURL(url);
+  };
+  img.src = url;
+}
+
+function buildSimplePDF(w, h, jpegBytes) {
+  const enc = new TextEncoder();
+  const parts = [];
+  let offset = 0;
+  const offsets = [];
+  function add(str) { const b = enc.encode(str); parts.push(b); offset += b.length; }
+  function addObj(n, content) { offsets[n] = offset; add(`${n} 0 obj\n${content}\nendobj\n`); }
+
+  add('%PDF-1.4\n');
+  addObj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+  addObj(2, `<< /Type /Pages /Kids [3 0 R] /Count 1 >>`);
+  addObj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] /Contents 5 0 R /Resources << /XObject << /Img 4 0 R >> >> >>`);
+
+  const imgStream = `<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`;
+  offsets[4] = offset;
+  add(`4 0 obj\n${imgStream}`);
+  parts.push(jpegBytes); offset += jpegBytes.length;
+  add('\nendstream\nendobj\n');
+
+  const contentStr = `q ${w} 0 0 ${h} 0 0 cm /Img Do Q`;
+  addObj(5, `<< /Length ${contentStr.length} >>\nstream\n${contentStr}\nendstream`);
+
+  const xrefOffset = offset;
+  add('xref\n');
+  add(`0 6\n`);
+  add('0000000000 65535 f \n');
+  for (let i = 1; i <= 5; i++) add(String(offsets[i]).padStart(10, '0') + ' 00000 n \n');
+  add(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
+
+  let totalLen = 0;
+  parts.forEach(p => totalLen += p.length);
+  const result = new Uint8Array(totalLen);
+  let pos = 0;
+  parts.forEach(p => { result.set(p, pos); pos += p.length; });
+  return result;
+}
+
+/* ================================================================
+   V10: プロジェクト保存/読込/自動保存
+   ================================================================ */
+
+const PROJECTS_KEY = 'wf-projects';
+let currentProjectId = null;
+let autoSaveTimer = null;
+
+function getProjects() {
+  try { return JSON.parse(localStorage.getItem(PROJECTS_KEY) || '[]'); } catch { return []; }
+}
+function setProjects(list) { localStorage.setItem(PROJECTS_KEY, JSON.stringify(list)); }
+
+function getProjectData() {
+  return {
+    sections: currentSections,
+    pages: typeof pages !== 'undefined' ? pages : [],
+    currentPageIndex: typeof currentPageIndex !== 'undefined' ? currentPageIndex : 0,
+    context: currentContext,
+    chatHistory: typeof chatHistory !== 'undefined' ? chatHistory : [],
+  };
+}
+
+function saveProject() {
+  const projects = getProjects();
+  const data = getProjectData();
+  const name = currentContext?.purpose || currentSections[0]?.label || 'ワイヤーフレーム';
+  if (currentProjectId) {
+    const idx = projects.findIndex(p => p.id === currentProjectId);
+    if (idx >= 0) {
+      projects[idx].data = data;
+      projects[idx].name = name;
+      projects[idx].updatedAt = new Date().toISOString();
+      projects[idx].sectionCount = currentSections.length;
+    }
+  } else {
+    currentProjectId = 'proj-' + Date.now();
+    projects.unshift({ id: currentProjectId, name, data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), sectionCount: currentSections.length });
+  }
+  setProjects(projects);
+  document.getElementById('save-btn').textContent = '✅ 保存済';
+  setTimeout(() => { document.getElementById('save-btn').textContent = '💾 保存'; }, 1500);
+  showToast('プロジェクトを保存しました');
+}
+
+function loadProject(projId) {
+  const projects = getProjects();
+  const proj = projects.find(p => p.id === projId);
+  if (!proj) return;
+  currentProjectId = proj.id;
+  currentSections = proj.data.sections || [];
+  if (proj.data.pages) { pages = proj.data.pages; currentPageIndex = proj.data.currentPageIndex || 0; }
+  if (proj.data.context) currentContext = proj.data.context;
+  if (proj.data.chatHistory) chatHistory = proj.data.chatHistory;
+  onSectionsChanged();
+  showToast(`「${proj.name}」を読み込みました`);
+}
+
+function deleteProject(projId) {
+  let projects = getProjects();
+  projects = projects.filter(p => p.id !== projId);
+  setProjects(projects);
+  if (currentProjectId === projId) currentProjectId = null;
+  showProjectList();
+}
+
+function showProjectList() {
+  document.querySelectorAll('.project-list-overlay').forEach(e => e.remove());
+  const projects = getProjects();
+  const overlay = document.createElement('div');
+  overlay.className = 'project-list-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:center;justify-content:center;';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  const panel = document.createElement('div');
+  panel.style.cssText = 'background:#fff;width:520px;max-height:70vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,0.2);';
+  panel.innerHTML = `<div style="padding:16px 20px;background:#001f33;color:#fff;display:flex;align-items:center;justify-content:space-between;">
+    <h3 style="font-size:0.9rem;margin:0;">📂 プロジェクト一覧</h3>
+    <div style="display:flex;gap:8px;">
+      <button onclick="exportProjectJSON()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:#fff;padding:4px 10px;font-size:0.7rem;cursor:pointer;">JSON出力</button>
+      <button onclick="document.getElementById('proj-import-file').click()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:#fff;padding:4px 10px;font-size:0.7rem;cursor:pointer;">JSON読込</button>
+      <input type="file" id="proj-import-file" accept=".json" style="display:none" onchange="importProjectJSON(this.files[0])">
+      <button onclick="this.closest('.project-list-overlay').remove()" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:1.1rem;cursor:pointer;">✕</button>
+    </div>
+  </div>`;
+
+  const list = document.createElement('div');
+  list.style.cssText = 'flex:1;overflow-y:auto;padding:8px;';
+  if (projects.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:#8a9bb0;font-size:0.82rem;">保存済みプロジェクトはありません</div>';
+  } else {
+    projects.forEach(p => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:12px 16px;border-bottom:1px solid #f0f2f5;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background 0.1s;';
+      item.onmouseenter = () => item.style.background = '#f7f8fa';
+      item.onmouseleave = () => item.style.background = '';
+      const isCurrent = p.id === currentProjectId;
+      item.innerHTML = `<div style="flex:1;min-width:0;">
+        <div style="font-size:0.82rem;font-weight:600;color:#2d3436;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${isCurrent ? '● ' : ''}${escHtml(p.name)}</div>
+        <div style="font-size:0.68rem;color:#8a9bb0;margin-top:2px;">${p.sectionCount || 0}セクション · ${new Date(p.updatedAt).toLocaleString('ja-JP')}</div>
+      </div>
+      <button onclick="event.stopPropagation();loadProject('${p.id}');this.closest('.project-list-overlay').remove()" style="background:#001f33;color:#fff;border:none;padding:4px 12px;font-size:0.7rem;cursor:pointer;">開く</button>
+      <button onclick="event.stopPropagation();if(confirm('削除しますか？'))deleteProject('${p.id}')" style="background:none;border:1px solid #e8ecf0;color:#c0392b;padding:4px 8px;font-size:0.7rem;cursor:pointer;">削除</button>`;
+      list.appendChild(item);
+    });
+  }
+  panel.appendChild(list);
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+}
+
+function exportProjectJSON() {
+  const data = getProjectData();
+  const name = currentContext?.purpose || 'wireframe';
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name.slice(0, 30) + '.json'; a.click();
+  showToast('JSONエクスポート完了');
+}
+
+function importProjectJSON(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.sections) throw new Error('invalid');
+      currentSections = data.sections;
+      if (data.pages) { pages = data.pages; currentPageIndex = data.currentPageIndex || 0; }
+      if (data.context) currentContext = data.context;
+      if (data.chatHistory) chatHistory = data.chatHistory;
+      currentProjectId = null;
+      onSectionsChanged();
+      showToast('JSONインポート完了');
+      document.querySelectorAll('.project-list-overlay').forEach(o => o.remove());
+    } catch { showToast('JSONの読み込みに失敗しました'); }
+  };
+  reader.readAsText(file);
+}
+
+// 自動保存（編集のたびにデバウンス3秒で保存）
+function scheduleAutoSave() {
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+  if (currentSections.length === 0) return;
+  autoSaveTimer = setTimeout(() => {
+    if (currentSections.length > 0) {
+      const projects = getProjects();
+      const data = getProjectData();
+      const name = currentContext?.purpose || currentSections[0]?.label || 'ワイヤーフレーム';
+      if (currentProjectId) {
+        const idx = projects.findIndex(p => p.id === currentProjectId);
+        if (idx >= 0) { projects[idx].data = data; projects[idx].updatedAt = new Date().toISOString(); projects[idx].sectionCount = currentSections.length; }
+      } else {
+        currentProjectId = 'proj-' + Date.now();
+        projects.unshift({ id: currentProjectId, name, data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), sectionCount: currentSections.length });
+      }
+      setProjects(projects);
+    }
+  }, 3000);
+}
+
+// onSectionsChanged にフックして自動保存
+const _origOnSectionsChanged = typeof onSectionsChanged === 'function' ? onSectionsChanged : null;
+if (_origOnSectionsChanged) {
+  const _origFn = onSectionsChanged;
+  onSectionsChanged = function() { _origFn(); scheduleAutoSave(); };
+}
+
+// 起動時に最後のプロジェクトを自動復元
+(function autoRestore() {
+  const projects = getProjects();
+  if (projects.length > 0) {
+    const latest = projects[0];
+    if (latest.data && latest.data.sections && latest.data.sections.length > 0 && currentSections.length === 0) {
+      currentProjectId = latest.id;
+      currentSections = latest.data.sections;
+      if (latest.data.pages) { pages = latest.data.pages; currentPageIndex = latest.data.currentPageIndex || 0; }
+      if (latest.data.context) currentContext = latest.data.context;
+      renderPreview();
+      renderSectionList();
+      if (typeof renderPageTabs === 'function') renderPageTabs();
+    }
+  }
+})();
+
 </script>
 </body>
 </html>
