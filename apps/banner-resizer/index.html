@@ -937,7 +937,7 @@
     const overMsg = over
       ? ' <span style="color:#e53935;font-weight:600;">⚠ 超過</span>'
       : ' <span style="color:#43a047;">✓</span>';
-    el.innerHTML = `📦 ${label}` + (maxLabel ? ` / 上限 ${maxLabel}` : '') + overMsg + formatNote;
+    el.innerHTML = `📦 ${label}` + (maxLabel ? ` / 上限 ${maxLabel}` : '') + overMsg;
   }
 
   function drawSafeZoneOverlay(canvas, sz) {
