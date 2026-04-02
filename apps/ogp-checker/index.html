@@ -644,7 +644,7 @@
 
 
       // Twitter Card（CMSがタグを出力しない場合があるため目視確認を促す）
-      const twWarnSuffix = '（CMSによってはタグを出力しない仕様の場合があります。目視でもご確認ください）';
+      const twWarnSuffix = '（Sitecore等のCMSでは仕様上タグを出力しない場合があります。目視でもご確認ください）';
       if (!ogp.twitterCard)  addItem('warn', `twitter:card が未検出です${twWarnSuffix}`);
       else                   addItem('ok',   `twitter:card OK（${ogp.twitterCard}）`);
 
@@ -667,7 +667,7 @@
       if (!seo.canonical) addItem('warn', 'canonical URL が未設定です');
       else                addItem('ok',   'canonical が設定されています');
 
-      if (!seo.h1) addItem('warn', 'h1 が未検出です（CMSによってはタグを出力しない仕様の場合があります。目視でもご確認ください）');
+      if (!seo.h1) addItem('warn', 'h1 が未検出です（Sitecore等のCMSでは仕様上タグを出力しない場合があります。目視でもご確認ください）');
       else         addItem('ok',   `h1 OK（「${seo.h1.slice(0, 30)}${seo.h1.length > 30 ? '…' : ''}」）`);
 
       // カウント
