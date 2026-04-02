@@ -322,6 +322,10 @@
       .resize-handle { display: none; }
       .right-panel { height: 50vh; }
       .minimap { display: none; }
+      .clone-toolbar { flex-wrap: wrap; gap: 3px; padding: 4px 6px; }
+      .clone-toolbar .ct-btn { padding: 6px 8px; font-size: 0.72rem; min-height: 32px; }
+      .clone-toolbar .ct-sep { display: none; }
+      .clone-toolbar .ct-url { display: none; }
     }
 
     /* ===== ページバー ===== */
@@ -993,7 +997,7 @@
         <div style="flex:1"></div>
         <span class="ct-url" id="clone-url-label"></span>
       </div>
-      <iframe id="clone-frame" sandbox="allow-same-origin allow-scripts"></iframe>
+      <iframe id="clone-frame" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
     </div>
     <div class="rationale-bar" id="rationale-bar">
       <span class="rb-badge" id="rb-badge"></span>
@@ -1287,6 +1291,9 @@ const CLONE_MAX_UNDO = 30;
 async function handleUrlImport() {
   const url = document.getElementById('url-input').value.trim();
   if (!url || !/^https?:\/\/.+/.test(url)) return;
+  if (cloneMode && cloneUndoStack.length > 0) {
+    if (!confirm('現在の編集内容は失われます。新しいサイトを読み込みますか？')) return;
+  }
   clearError();
   document.getElementById('url-input').value = '';
   addChatMessage('user', `🌐 サイトをインポート: ${url}`);
@@ -1300,6 +1307,9 @@ async function handleUrlImport() {
     ]);
     if (!ogpRes.ok) throw new Error('サイトの取得に失敗しました');
     const rawHtml = await ogpRes.text();
+    if (!rawHtml.trim().startsWith('<!') && !rawHtml.trim().startsWith('<html') && !/<html/i.test(rawHtml.slice(0, 1000))) {
+      throw new Error('HTMLページではないようです');
+    }
     const structure = structRes.ok ? await structRes.json() : null;
 
     // URLからベースURLを生成
@@ -1312,13 +1322,15 @@ async function handleUrlImport() {
     // 既存の<base>タグがあれば除去
     processedHtml = processedHtml.replace(/<base[^>]*>/gi, '');
 
-    // <head>直後に<base>を注入
+    // <head>直後に<base>を注入（<head>がなければ先頭に追加）
     const headIdx = processedHtml.search(/<head[^>]*>/i);
     if (headIdx !== -1) {
       const headEnd = processedHtml.indexOf('>', headIdx) + 1;
       processedHtml = processedHtml.slice(0, headEnd) +
         `\n<base href="${baseUrl}/">\n` +
         processedHtml.slice(headEnd);
+    } else {
+      processedHtml = `<base href="${baseUrl}/">\n` + processedHtml;
     }
 
     // 編集用のスタイルとスクリプトを注入
@@ -2731,8 +2743,8 @@ document.addEventListener('keydown', e => {
   const tag = e.target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.contentEditable === 'true') return;
   const ctrl = e.ctrlKey || e.metaKey;
-  if (ctrl && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
-  if (ctrl && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); redo(); }
+  if (ctrl && e.key === 'z' && !e.shiftKey) { e.preventDefault(); cloneMode ? cloneUndo() : undo(); }
+  if (ctrl && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); cloneMode ? cloneRedo() : redo(); }
   if (ctrl && e.key === 's') { e.preventDefault(); saveProject(); }
   if (ctrl && e.key === 'g') { e.preventDefault(); toggleGrid(); }
   if (ctrl && e.key === 'p') { e.preventDefault(); renderPreview(); }
