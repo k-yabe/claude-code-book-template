@@ -970,33 +970,17 @@
   }
 
   function createResized(img, targetW, targetH) {
-    // Center-crop to target aspect ratio
-    const srcRatio = img.width / img.height;
-    const dstRatio = targetW / targetH;
-
-    let sx, sy, sw, sh;
-    if (srcRatio > dstRatio) {
-      sh = img.height;
-      sw = img.height * dstRatio;
-      sx = (img.width - sw) / 2;
-      sy = 0;
-    } else {
-      sw = img.width;
-      sh = img.width / dstRatio;
-      sx = 0;
-      sy = (img.height - sh) / 2;
-    }
-
+    // Simple stretch resize (no cropping)
     // Multi-step downscale for quality (halve until within 2x of target)
     let srcCanvas = document.createElement('canvas');
-    srcCanvas.width = sw;
-    srcCanvas.height = sh;
+    srcCanvas.width = img.width;
+    srcCanvas.height = img.height;
     const srcCtx = srcCanvas.getContext('2d');
     srcCtx.imageSmoothingEnabled = true;
     srcCtx.imageSmoothingQuality = 'high';
-    srcCtx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+    srcCtx.drawImage(img, 0, 0);
 
-    let curW = sw, curH = sh;
+    let curW = img.width, curH = img.height;
     while (curW / targetW > 2 || curH / targetH > 2) {
       const nextW = Math.max(Math.floor(curW / 2), targetW);
       const nextH = Math.max(Math.floor(curH / 2), targetH);
