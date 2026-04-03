@@ -625,5 +625,16 @@
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
+  <script src="../../assets/onboarding.js"></script>
+  <script>initOnboarding({
+    appName: 'akkodis-watcher',
+    title: 'Global Antenna',
+    description: 'AKKODiSグローバルサイトの新着記事を自動チェック・AI要約します',
+    steps: [
+      { icon: '📡', text: 'ページを開くと新着記事を自動取得' },
+      { icon: '🤖', text: 'AIが日本語で要約' },
+      { icon: '🔔', text: '新着にはNEWバッジを表示' }
+    ]
+  });</script>
 </body>
 </html>

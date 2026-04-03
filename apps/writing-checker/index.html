@@ -628,5 +628,16 @@
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
+  <script src="../../assets/onboarding.js"></script>
+  <script>initOnboarding({
+    appName: 'writing-checker',
+    title: 'Writing Checker',
+    description: '記者ハンドブック準拠の表記ルールを自動チェックします',
+    steps: [
+      { icon: '📝', text: 'チェックしたいテキストを入力' },
+      { icon: '✍️', text: '表記ルール違反を自動検出' },
+      { icon: '✅', text: '修正済みテキストをコピー' }
+    ]
+  });</script>
 </body>
 </html>

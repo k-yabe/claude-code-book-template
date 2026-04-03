@@ -763,5 +763,16 @@
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
+  <script src="../../assets/onboarding.js"></script>
+  <script>initOnboarding({
+    appName: 'url-slug-generator',
+    title: 'URL Slug Generator',
+    description: '日本語のページタイトルからSEOに最適なURLスラッグをAIが生成します',
+    steps: [
+      { icon: '📝', text: 'ページタイトルを入力' },
+      { icon: '🤖', text: 'AIが最適なスラッグ候補を生成' },
+      { icon: '📋', text: 'スコアを確認してコピー' }
+    ]
+  });</script>
 </body>
 </html>

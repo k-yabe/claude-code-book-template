@@ -672,5 +672,16 @@
   <script src="../../assets/copy-utils.js"></script>
   <script src="../../assets/history.js"></script>
   <script>HistoryManager.init('Banner Resizer');</script>
+  <script src="../../assets/onboarding.js"></script>
+  <script>initOnboarding({
+    appName: 'banner-resizer',
+    title: 'Banner Resizer',
+    description: 'バナー画像をMV・OGPの2サイズに一括リサイズ・書き出しできます',
+    steps: [
+      { icon: '🖼️', text: '画像をアップロード' },
+      { icon: '✂️', text: 'カット領域を調整' },
+      { icon: '💾', text: '2サイズを一括ダウンロード' }
+    ]
+  });</script>
 </body>
 </html>
