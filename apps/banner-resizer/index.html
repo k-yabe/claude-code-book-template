@@ -59,21 +59,15 @@
       transition: all 0.15s; font-family: inherit;
     }
     .format-btn.active { background: #001f33; color: #fff; border-color: #001f33; }
-    .format-note { font-size: 0.72rem; color: #a0aab4; }
-
-    /* Upload groups side by side */
-    .upload-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
     /* Drop zone */
     .dropzone {
-      border: 2px dashed #c8d6e5; padding: 28px 16px; text-align: center;
+      border: 2px dashed #c8d6e5; padding: 20px 16px; text-align: center;
       cursor: pointer; transition: all 0.2s; background: #f8f9fa;
+      margin-bottom: 16px;
     }
     .dropzone:hover, .dropzone.over { border-color: #001f33; background: #f0f4f8; }
-    .dropzone-label {
-      font-size: 0.78rem; font-weight: 700; color: #001f33; margin-bottom: 10px;
-    }
-    .dropzone-icon { font-size: 1.5rem; margin-bottom: 4px; color: #b2bec3; }
+    .dropzone-icon { font-size: 1.3rem; margin-bottom: 2px; color: #b2bec3; }
     .dropzone-text { font-size: 0.78rem; font-weight: 600; color: #636e72; margin-bottom: 2px; }
     .dropzone-sub { font-size: 0.7rem; color: #a0aab4; }
     .dropzone input { display: none; }
@@ -84,11 +78,10 @@
     .dropzone.has-image .dropzone-icon { display: none; }
     .dropzone.has-image .dropzone-text { font-size: 0.75rem; color: #001f33; }
     .dropzone.has-image .dropzone-sub { color: #636e72; }
-    .dropzone.has-image .dropzone-label { color: #001f33; margin-bottom: 4px; }
 
-    /* Output section */
-    .output-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
-    .output-card { background: #fafbfc; border: 1.5px solid #e8ecf0; padding: 14px; }
+    /* Output cards */
+    .output-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+    .output-card { background: #fafbfc; border: 1.5px solid #e8ecf0; padding: 16px; }
     .output-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
     .output-card-dot { width: 8px; height: 8px; flex-shrink: 0; }
     .output-card-title { font-size: 0.82rem; font-weight: 700; color: #2d3436; }
@@ -96,10 +89,10 @@
       display: inline-block; font-size: 0.6rem; font-weight: 700;
       padding: 1px 5px; margin-left: 2px;
     }
-    .output-card-meta { font-size: 0.72rem; color: #a0aab4; margin-bottom: 8px; }
+    .output-card-meta { font-size: 0.72rem; color: #a0aab4; margin-bottom: 10px; }
 
     .preview-canvas-wrap {
-      width: 100%; background: #e8ecf0; overflow: hidden; margin-bottom: 8px;
+      width: 100%; background: #e8ecf0; overflow: hidden; margin-bottom: 10px;
       display: flex; align-items: center; justify-content: center; min-height: 40px;
     }
     .preview-canvas-wrap canvas { width: 100%; height: auto; display: block; }
@@ -109,12 +102,12 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .option-check {
-      display: flex; align-items: center; gap: 5px; margin-bottom: 4px;
+      display: flex; align-items: center; gap: 5px; margin-bottom: 5px;
       font-size: 0.72rem; color: #636e72; cursor: pointer; user-select: none;
     }
     .option-check input[type="checkbox"] { accent-color: #001f33; width: 12px; height: 12px; cursor: pointer; }
 
-    .file-size-info { font-size: 0.75rem; color: #667; margin: 4px 0 8px; min-height: 1.2em; }
+    .file-size-info { font-size: 0.75rem; color: #667; margin: 6px 0 10px; min-height: 1.2em; }
 
     .dl-btn {
       width: 100%; padding: 8px; background: #f0f2f5; color: #001f33; border: none;
@@ -124,6 +117,9 @@
     .dl-btn:hover { background: #001f33; color: #fff; }
     .dl-btn:disabled { opacity: 0.4; cursor: default; }
     .dl-btn:disabled:hover { background: #f0f2f5; color: #001f33; }
+
+    /* Group separator */
+    .group-outputs { margin-top: 4px; }
 
     /* ZIP download */
     .dl-all-step .step-body { padding: 12px 18px; }
@@ -184,43 +180,39 @@
     </div>
   </div>
 
-  <!-- Step 2: Upload -->
+  <!-- Step 2: MV / OGP -->
   <div class="step">
     <div class="step-header">
       <span class="step-num">2</span>
-      <span class="step-title">画像をアップロード</span>
-      <span class="step-desc">それぞれ別の画像を指定可能</span>
+      <span class="step-title">MV / OGP</span>
+      <span class="step-desc">1枚の画像からMVとOGPを生成</span>
     </div>
     <div class="step-body">
-      <div class="upload-groups">
-        <div class="dropzone" id="dz-mv" onclick="document.getElementById('file-mv').click()">
-          <div class="dropzone-label">MV / OGP 用</div>
-          <div class="dropzone-icon">📤</div>
-          <div class="dropzone-text">画像をドロップ or クリック</div>
-          <div class="dropzone-sub">推奨: 1920×1080px</div>
-          <input type="file" id="file-mv" accept="image/png,image/jpeg,image/webp">
-        </div>
-        <div class="dropzone" id="dz-thumb" onclick="document.getElementById('file-thumb').click()">
-          <div class="dropzone-label">一覧サムネイル用</div>
-          <div class="dropzone-icon">📤</div>
-          <div class="dropzone-text">画像をドロップ or クリック</div>
-          <div class="dropzone-sub">推奨: 1920×1080px</div>
-          <input type="file" id="file-thumb" accept="image/png,image/jpeg,image/webp">
-        </div>
+      <div class="dropzone" id="dz-mv" onclick="document.getElementById('file-mv').click()">
+        <div class="dropzone-icon">📤</div>
+        <div class="dropzone-text">画像をドロップ or クリック</div>
+        <div class="dropzone-sub">推奨: 1920×1080px</div>
+        <input type="file" id="file-mv" accept="image/png,image/jpeg,image/webp">
       </div>
+      <div class="group-outputs output-cards" id="outputs-mv"></div>
     </div>
   </div>
 
-  <!-- Step 3: Output -->
+  <!-- Step 3: Thumbnail -->
   <div class="step">
     <div class="step-header">
       <span class="step-num">3</span>
-      <span class="step-title">プレビュー & ダウンロード</span>
-      <span class="step-desc">上限超過時は自動圧縮</span>
+      <span class="step-title">一覧サムネイル</span>
+      <span class="step-desc">CMS上で上下24px・左右100pxが自動カット</span>
     </div>
     <div class="step-body">
-      <div class="output-cards" id="outputs-mv"></div>
-      <div id="outputs-thumb"></div>
+      <div class="dropzone" id="dz-thumb" onclick="document.getElementById('file-thumb').click()">
+        <div class="dropzone-icon">📤</div>
+        <div class="dropzone-text">画像をドロップ or クリック</div>
+        <div class="dropzone-sub">推奨: 1920×1080px</div>
+        <input type="file" id="file-thumb" accept="image/png,image/jpeg,image/webp">
+      </div>
+      <div class="group-outputs" id="outputs-thumb"></div>
     </div>
   </div>
 
