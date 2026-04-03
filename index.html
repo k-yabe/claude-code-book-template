@@ -565,10 +565,16 @@
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/cache-checker/">
-          <div class="card-new-badge">NEW</div>
           <div class="card-icon-wrap">🔍</div>
           <div class="card-name">Cache Checker</div>
           <div class="card-desc">CMSキャッシュ反映状況の確認</div>
+          <div class="card-tag card-tag-web">Web App</div>
+        </a>
+        <a class="card" href="apps/image-converter/">
+          <div class="card-new-badge">NEW</div>
+          <div class="card-icon-wrap">🖼</div>
+          <div class="card-name">Image Converter</div>
+          <div class="card-desc">画像フォーマット変換・軽量化</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card card-external" href="https://m365.cloud.microsoft/chat/?titleId=T_8aa0cc54-ad42-710e-b66b-a63fa397a14a&source=embedded-builder" target="_blank" rel="noopener">
@@ -600,6 +606,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '🖼', app: 'Image Converter',        date: '2026-04-03(金)', desc: '画像フォーマット変換・軽量化ツール新規追加。WebP/JPEG/PNGへの変換、品質スライダー（デフォルト80%で軽量化）、リサイズオプション、変換前後のサイズ比較・削減率表示、複数ファイル一括変換・ZIPダウンロード対応。ブラウザ内完結でサーバー送信なし' },
       { icon: '🔍', app: 'Cache Checker',         date: '2026-04-01(水)', desc: 'UI大幅改善：キャッシュTTL自動計算（max-age/Age残り時間）・ヘッダー差分ハイライト・ヘッダーツールチップ解説・DIFF時アクションガイド・レスポンス時間表示・Markdownレポートコピー・再チェックボタン・サンプルURL' },
       { icon: '🔍', app: 'Cache Checker',         date: '2026-04-01(水)', desc: 'CMSキャッシュ反映状況チェックツール新規追加・通常版とキャッシュバイパス版の差分比較・レスポンスヘッダー可視化・行単位diff表示' },
       { icon: '🎨', app: 'Wireframe Maker',        date: '2026-04-01(水)', desc: 'V10 Figma到達: (1)SVGテキスト直接編集（全セクション対応・ダブルクリックでその場編集） (2)プロジェクト保存/読込（💾/📂・localStorage・JSONエクスポート/インポート） (3)自動保存（3秒デバウンス）+起動時復元 (4)セクション個別スタイル（背景色・テキスト色・アクセント色を🎨ボタンで変更） (5)PDFエクスポート（出力タブからワンクリック）' },
