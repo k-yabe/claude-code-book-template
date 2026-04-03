@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Converter — AKKODiS Marketing Apps</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23ffb81c'>🖼</text></svg>">
+  <link rel="stylesheet" href="../../assets/app-styles.css">
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #001f33; }
+
+    /* ── ナビバー ── */
+    .navbar { background: #001f33; height: 58px; display: flex; align-items: center; padding: 0 40px; position: sticky; top: 0; z-index: 10; }
+    .navbar-brand { display: flex; align-items: center; gap: 12px; }
+    .back-btn { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.78rem; border: 1px solid rgba(255,255,255,0.2); padding: 5px 14px; transition: all 0.2s; }
+    .back-btn:hover { border-color: #ffb81c; color: #ffb81c; }
+    .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+    .navbar-title { font-size: 0.95rem; color: rgba(255,255,255,0.9); font-weight: 600; }
+
+    /* ── コンテナ ── */
+    .container { max-width: 800px; margin: 0 auto; padding: 32px 40px 80px; }
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #001f33; margin-bottom: 6px; }
+    .page-desc { font-size: 0.88rem; color: #636e72; line-height: 1.5; }
+
+    /* ── ステップ ── */
+    .step { background: #fff; border: 1.5px solid #e8ecf0; margin-bottom: 20px; }
+    .step-header { padding: 16px 22px; border-bottom: 1.5px solid #f0f2f5; display: flex; align-items: center; gap: 12px; }
+    .step-num { width: 28px; height: 28px; background: #1C304B; color: #fff; font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .step-title { font-weight: 700; font-size: 0.92rem; color: #1C304B; }
+    .step-body { padding: 20px 22px; }
+
+    /* ── ドロップゾーン ── */
+    .dropzone {
+      border: 2px dashed #b2bec3;
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f8f9fa;
+    }
+    .dropzone.over { border-color: #001f33; background: #f0f4f8; }
+    .dropzone-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .dropzone-text { font-size: 0.9rem; color: #636e72; margin-bottom: 8px; }
+    .dropzone-hint { font-size: 0.78rem; color: #b2bec3; }
+    .dropzone-btn { display: inline-block; margin-top: 12px; padding: 8px 20px; background: #001f33; color: #fff; font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none; }
+
+    /* ── ファイルリスト ── */
+    .file-list { margin-top: 16px; }
+    .file-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; background: #f8f9fa; border: 1px solid #e8ecf0; margin-bottom: 8px;
+    }
+    .file-thumb { width: 40px; height: 40px; object-fit: cover; flex-shrink: 0; }
+    .file-info { flex: 1; min-width: 0; }
+    .file-name { font-size: 0.84rem; font-weight: 600; color: #001f33; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-meta { font-size: 0.75rem; color: #636e72; }
+    .file-remove { background: none; border: none; color: #b2bec3; cursor: pointer; font-size: 1.1rem; padding: 4px 8px; }
+    .file-remove:hover { color: #c0392b; }
+
+    /* ── 設定フォーム ── */
+    .form-group { margin-bottom: 18px; }
+    .form-label { font-size: 0.84rem; font-weight: 600; color: #1C304B; margin-bottom: 6px; display: block; }
+    .form-hint { font-size: 0.75rem; color: #636e72; margin-top: 4px; }
+    .format-options { display: flex; gap: 10px; flex-wrap: wrap; }
+    .format-option {
+      padding: 10px 20px; border: 1.5px solid #e8ecf0; background: #fff;
+      cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #1C304B; transition: all 0.15s;
+      position: relative;
+    }
+    .format-option.selected { border-color: #001f33; background: #001f33; color: #fff; }
+    .format-option .badge-rec {
+      position: absolute; top: -8px; right: -6px;
+      background: #ffb81c; color: #001f33; font-size: 0.62rem; font-weight: 700;
+      padding: 1px 6px; line-height: 1.4;
+    }
+
+    .slider-row { display: flex; align-items: center; gap: 14px; }
+    .slider-row input[type="range"] { flex: 1; accent-color: #ffb81c; }
+    .slider-val { font-size: 0.88rem; font-weight: 700; color: #001f33; min-width: 40px; text-align: right; }
+
+    .resize-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .resize-row input[type="number"] { width: 100px; padding: 8px 10px; border: 1.5px solid #e8ecf0; font-size: 0.88rem; }
+    .resize-row span { font-size: 0.84rem; color: #636e72; }
+    .resize-row label { font-size: 0.84rem; color: #636e72; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
+    /* ── CTAボタン ── */
+    .cta-btn {
+      width: 100%; padding: 16px; background: #ffb81c; color: #001f33;
+      font-size: 1rem; font-weight: 700; border: none; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(255,184,28,0.25); transition: all 0.2s; margin-bottom: 20px;
+    }
+    .cta-btn:hover { opacity: 0.92; box-shadow: 0 6px 28px rgba(255,184,28,0.4); }
+
+    /* ── ローディング ── */
+    .loading-area { display: none; text-align: center; padding: 32px 0; }
+    .loading-area.show { display: block; }
+    .loading-text { font-size: 0.9rem; color: #636e72; margin-bottom: 12px; }
+    .loading-dots { display: flex; justify-content: center; gap: 6px; }
+    .loading-dots span { width: 8px; height: 8px; background: #001f33; display: inline-block; animation: bounce 1.4s infinite ease-in-out both; }
+    .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce { 0%,80%,100%{ transform: scale(0); } 40%{ transform: scale(1); } }
+
+    /* ── 進捗バー ── */
+    .progress-bar { width: 100%; height: 6px; background: #e8ecf0; margin-top: 8px; }
+    .progress-fill { height: 100%; background: #ffb81c; width: 0; transition: width 0.3s; }
+
+    /* ── 結果セクション ── */
+    .result-section { margin-top: 24px; }
+    .result-summary {
+      background: #fff; border: 1.5px solid #e8ecf0; padding: 16px 22px; margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    .summary-text { font-size: 0.9rem; font-weight: 600; color: #001f33; }
+    .summary-saved { font-size: 0.84rem; color: #00b894; font-weight: 600; }
+
+    .result-item {
+      background: #fff; border: 1.5px solid #e8ecf0; padding: 16px; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .result-thumb { width: 60px; height: 60px; object-fit: contain; flex-shrink: 0; background: #f8f9fa; }
+    .result-info { flex: 1; min-width: 0; }
+    .result-name { font-size: 0.84rem; font-weight: 600; color: #001f33; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-sizes { font-size: 0.78rem; color: #636e72; margin-top: 4px; }
+    .result-saved { font-size: 0.78rem; font-weight: 700; margin-top: 2px; }
+    .result-saved.positive { color: #00b894; }
+    .result-saved.negative { color: #c0392b; }
+    .result-dl-btn {
+      padding: 8px 16px; background: #001f33; color: #fff; font-size: 0.78rem; font-weight: 600;
+      border: none; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    }
+    .result-dl-btn:hover { background: #0a3a5c; }
+
+    .bulk-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .bulk-btn {
+      padding: 12px 24px; font-size: 0.88rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s;
+    }
+    .bulk-btn.primary { background: #ffb81c; color: #001f33; box-shadow: 0 4px 20px rgba(255,184,28,0.25); }
+    .bulk-btn.secondary { background: none; border: 1.5px solid #e8ecf0; color: #001f33; }
+    .bulk-btn.primary:hover { opacity: 0.92; }
+
+    /* ── フッター ── */
+    .app-footer { background: #001f33; border-top: 1px solid rgba(255,255,255,0.08); padding: 16px 40px; text-align: center; }
+    .app-footer-text { font-size: 0.72rem; color: rgba(255,255,255,0.8); }
+
+    /* ── レスポンシブ ── */
+    @media (max-width: 768px) {
+      .navbar { padding: 0 20px; }
+      .container { padding: 24px 20px 60px; }
+    }
+    @media (max-width: 600px) {
+      .container { padding: 20px 16px 60px; }
+      .navbar { padding: 0 16px; }
+      .format-options { flex-direction: column; }
+      .result-item { flex-direction: column; align-items: stretch; text-align: center; }
+      .result-thumb { width: 100%; height: 120px; }
+      .resize-row { flex-direction: column; align-items: stretch; }
+      .resize-row input[type="number"] { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <script>if(localStorage.getItem('auth')!=='1')location.href='/';</script>
+
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="back-btn" href="../../">← アプリ一覧へ</a>
+      <div class="navbar-divider"></div>
+      <span class="navbar-title">Image Converter</span>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>Image Converter</h1>
+      <p class="page-desc">画像をWebP・JPEG・PNGに変換して軽量化。ブラウザ内で完結、サーバーにファイルは送信されません。</p>
+    </div>
+
+    <!-- Step 1: アップロード -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div class="step-title">画像をアップロード</div>
+      </div>
+      <div class="step-body">
+        <div class="dropzone" id="dropzone" role="button" aria-label="画像をドラッグ＆ドロップまたはクリックして選択">
+          <div class="dropzone-icon">📁</div>
+          <div class="dropzone-text" id="dropzone-text">ここに画像をドラッグ＆ドロップ</div>
+          <div class="dropzone-hint">PNG, JPEG, GIF, WebP, BMP, SVG に対応（最大50MB/枚、20枚まで）</div>
+          <button class="dropzone-btn" type="button">ファイルを選択</button>
+        </div>
+        <input type="file" id="file-input" multiple accept="image/*" style="display:none;">
+        <div class="file-list" id="file-list"></div>
+      </div>
+    </div>
+
+    <!-- Step 2: 設定 -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div class="step-title">変換設定</div>
+      </div>
+      <div class="step-body">
+        <div class="form-group">
+          <label class="form-label">出力フォーマット</label>
+          <div class="format-options" id="format-options">
+            <button class="format-option selected" data-format="image/webp" data-ext="webp" type="button">
+              WebP
+              <span class="badge-rec">おすすめ</span>
+            </button>
+            <button class="format-option" data-format="image/jpeg" data-ext="jpg" type="button">JPEG</button>
+            <button class="format-option" data-format="image/png" data-ext="png" type="button">PNG</button>
+          </div>
+        </div>
+
+        <div class="form-group" id="quality-group">
+          <label class="form-label">品質 <span id="quality-val-label" style="font-weight:400; color:#636e72;">（軽量化 ← → 高品質）</span></label>
+          <div class="slider-row">
+            <span style="font-size:0.75rem; color:#636e72;">1%</span>
+            <input type="range" id="quality-slider" min="1" max="100" value="80">
+            <span style="font-size:0.75rem; color:#636e72;">100%</span>
+            <span class="slider-val" id="quality-val">80%</span>
+          </div>
+          <div class="form-hint">WebP 80%で多くの場合50〜70%の軽量化が可能です</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">リサイズ（任意）</label>
+          <div class="resize-row">
+            <span>最大幅</span>
+            <input type="number" id="max-width" placeholder="例: 1920" min="1">
+            <span>px</span>
+            <span style="margin: 0 4px;">×</span>
+            <span>最大高さ</span>
+            <input type="number" id="max-height" placeholder="例: 1080" min="1">
+            <span>px</span>
+          </div>
+          <div class="form-hint">空欄の場合は元のサイズを維持します。アスペクト比は自動で維持されます。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 変換ボタン -->
+    <button class="cta-btn" id="convert-btn" disabled>変換して軽量化</button>
+
+    <div class="error-msg" id="error-msg" role="alert"></div>
+
+    <div class="loading-area" id="loading">
+      <div class="loading-text" id="loading-text">変換中...</div>
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+
+    <!-- Step 3: 結果 -->
+    <div id="result" class="result-section" style="display:none;">
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">3</div>
+          <div class="step-title">変換結果</div>
+        </div>
+        <div class="step-body">
+          <div class="result-summary" id="result-summary"></div>
+          <div id="result-list"></div>
+          <div class="bulk-actions" id="bulk-actions" style="margin-top:16px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3/dist/jszip.min.js"></script>
+  <script src="../../assets/copy-utils.js"></script>
+  <script src="../../assets/history.js"></script>
+  <script>
+    // ── State ──
+    let files = [];
+    let results = [];
+    let selectedFormat = 'image/webp';
+    let selectedExt = 'webp';
+
+    // ── DOM ──
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+    const fileList = document.getElementById('file-list');
+    const convertBtn = document.getElementById('convert-btn');
+    const errorMsg = document.getElementById('error-msg');
+    const loadingArea = document.getElementById('loading');
+    const loadingText = document.getElementById('loading-text');
+    const progressFill = document.getElementById('progress-fill');
+    const resultSection = document.getElementById('result');
+    const resultList = document.getElementById('result-list');
+    const resultSummary = document.getElementById('result-summary');
+    const bulkActions = document.getElementById('bulk-actions');
+    const qualitySlider = document.getElementById('quality-slider');
+    const qualityVal = document.getElementById('quality-val');
+    const qualityGroup = document.getElementById('quality-group');
+    const formatOptions = document.querySelectorAll('.format-option');
+    const maxWidthInput = document.getElementById('max-width');
+    const maxHeightInput = document.getElementById('max-height');
+    const dropzoneText = document.getElementById('dropzone-text');
+
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+    const MAX_FILES = 20;
+
+    // ── モバイル検出 ──
+    if ('ontouchstart' in window) {
+      dropzoneText.textContent = 'タップして画像を選択';
+    }
+
+    // ── ユーティリティ ──
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.add('show');
+    }
+
+    function clearError() {
+      errorMsg.textContent = '';
+      errorMsg.classList.remove('show');
+    }
+
+    function getBaseName(filename) {
+      return filename.replace(/\.[^.]+$/, '');
+    }
+
+    // ── WebP対応チェック ──
+    function checkWebPSupport() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1;
+      canvas.height = 1;
+      return canvas.toDataURL('image/webp').startsWith('data:image/webp');
+    }
+
+    const supportsWebP = checkWebPSupport();
+    if (!supportsWebP) {
+      const webpBtn = document.querySelector('[data-format="image/webp"]');
+      webpBtn.style.opacity = '0.4';
+      webpBtn.style.cursor = 'not-allowed';
+      webpBtn.title = 'このブラウザはWebP出力に対応していません';
+      // デフォルトをJPEGに変更
+      webpBtn.classList.remove('selected');
+      const jpegBtn = document.querySelector('[data-format="image/jpeg"]');
+      jpegBtn.classList.add('selected');
+      selectedFormat = 'image/jpeg';
+      selectedExt = 'jpg';
+    }
+
+    // ── フォーマット選択 ──
+    formatOptions.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!supportsWebP && btn.dataset.format === 'image/webp') return;
+        formatOptions.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedFormat = btn.dataset.format;
+        selectedExt = btn.dataset.ext;
+        qualityGroup.style.display = selectedFormat === 'image/png' ? 'none' : '';
+      });
+    });
+
+    // ── 品質スライダー ──
+    qualitySlider.addEventListener('input', () => {
+      qualityVal.textContent = qualitySlider.value + '%';
+    });
+
+    // ── ドラッグ＆ドロップ ──
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('over'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('over'));
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropzone.classList.remove('over');
+      handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', () => {
+      handleFiles(fileInput.files);
+      fileInput.value = '';
+    });
+
+    function handleFiles(fileListInput) {
+      clearError();
+      const newFiles = Array.from(fileListInput);
+      let skipped = [];
+
+      for (const f of newFiles) {
+        if (!f.type.startsWith('image/')) {
+          skipped.push(f.name + '（画像ファイルではありません）');
+          continue;
+        }
+        if (f.size > MAX_FILE_SIZE) {
+          skipped.push(f.name + '（50MBを超えています）');
+          continue;
+        }
+        if (files.length >= MAX_FILES) {
+          skipped.push(f.name + '（最大20枚を超えています）');
+          continue;
+        }
+        files.push(f);
+      }
+
+      if (skipped.length > 0) {
+        showError('スキップ: ' + skipped.join(', '));
+      }
+
+      renderFileList();
+      convertBtn.disabled = files.length === 0;
+    }
+
+    function renderFileList() {
+      fileList.innerHTML = files.map((f, i) => {
+        const url = URL.createObjectURL(f);
+        return `<div class="file-item">
+          <img class="file-thumb" src="${url}" alt="">
+          <div class="file-info">
+            <div class="file-name">${escHtml(f.name)}</div>
+            <div class="file-meta">${formatSize(f.size)} · ${f.type.split('/')[1].toUpperCase()}</div>
+          </div>
+          <button class="file-remove" onclick="removeFile(${i})" title="削除">✕</button>
+        </div>`;
+      }).join('');
+    }
+
+    function removeFile(index) {
+      files.splice(index, 1);
+      renderFileList();
+      convertBtn.disabled = files.length === 0;
+      if (files.length === 0) resultSection.style.display = 'none';
+    }
+
+    function escHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ── 変換 ──
+    convertBtn.addEventListener('click', startConversion);
+
+    async function startConversion() {
+      clearError();
+      if (files.length === 0) return;
+
+      const quality = parseInt(qualitySlider.value) / 100;
+      const maxW = parseInt(maxWidthInput.value) || 0;
+      const maxH = parseInt(maxHeightInput.value) || 0;
+
+      convertBtn.disabled = true;
+      loadingArea.classList.add('show');
+      resultSection.style.display = 'none';
+      results = [];
+
+      let totalOriginal = 0;
+      let totalConverted = 0;
+
+      for (let i = 0; i < files.length; i++) {
+        loadingText.textContent = `変換中... (${i + 1}/${files.length})`;
+        progressFill.style.width = ((i / files.length) * 100) + '%';
+
+        try {
+          const result = await convertImage(files[i], selectedFormat, quality, maxW, maxH);
+          results.push(result);
+          totalOriginal += result.originalSize;
+          totalConverted += result.convertedSize;
+        } catch (err) {
+          results.push({
+            name: files[i].name,
+            error: err.message || '変換に失敗しました',
+            originalSize: files[i].size,
+            convertedSize: 0,
+          });
+        }
+
+        // UIスレッドに制御を戻す
+        await new Promise(r => setTimeout(r, 0));
+      }
+
+      progressFill.style.width = '100%';
+      loadingArea.classList.remove('show');
+      progressFill.style.width = '0';
+      convertBtn.disabled = false;
+
+      renderResults(totalOriginal, totalConverted);
+
+      // 履歴に保存
+      if (typeof HistoryManager !== 'undefined' && HistoryManager.save) {
+        const savedPct = totalOriginal > 0 ? Math.round((1 - totalConverted / totalOriginal) * 100) : 0;
+        HistoryManager.save(
+          `${files.length}枚を${selectedExt.toUpperCase()}に変換 → ${savedPct}%削減`,
+          `${formatSize(totalOriginal)} → ${formatSize(totalConverted)}`
+        );
+      }
+    }
+
+    function convertImage(file, format, quality, maxW, maxH) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.naturalWidth;
+          let h = img.naturalHeight;
+
+          // リサイズ計算
+          if (maxW > 0 && w > maxW) { h = Math.round(h * (maxW / w)); w = maxW; }
+          if (maxH > 0 && h > maxH) { w = Math.round(w * (maxH / h)); h = maxH; }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+
+          // JPEG変換時は白背景を描画（透過対策）
+          if (format === 'image/jpeg') {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, w, h);
+          }
+
+          ctx.drawImage(img, 0, 0, w, h);
+
+          const qualityParam = format === 'image/png' ? undefined : quality;
+          canvas.toBlob(blob => {
+            if (!blob) {
+              reject(new Error('変換に失敗しました（フォーマット非対応の可能性）'));
+              return;
+            }
+            const newName = getBaseName(file.name) + '.' + selectedExt;
+            resolve({
+              name: file.name,
+              newName: newName,
+              originalSize: file.size,
+              convertedSize: blob.size,
+              blob: blob,
+              url: URL.createObjectURL(blob),
+              width: w,
+              height: h,
+            });
+          }, format, qualityParam);
+        };
+        img.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    // ── 結果表示 ──
+    function renderResults(totalOriginal, totalConverted) {
+      resultSection.style.display = '';
+
+      const successResults = results.filter(r => !r.error);
+      const savedPct = totalOriginal > 0 ? Math.round((1 - totalConverted / totalOriginal) * 100) : 0;
+
+      resultSummary.innerHTML = `
+        <span class="summary-text">${successResults.length}枚を${selectedExt.toUpperCase()}に変換完了</span>
+        <span class="summary-saved" style="color: ${savedPct >= 0 ? '#00b894' : '#c0392b'}">
+          ${formatSize(totalOriginal)} → ${formatSize(totalConverted)}（${savedPct >= 0 ? savedPct + '%削減' : Math.abs(savedPct) + '%増加'}）
+        </span>
+      `;
+
+      resultList.innerHTML = results.map((r, i) => {
+        if (r.error) {
+          return `<div class="result-item" style="border-left: 3px solid #c0392b;">
+            <div class="result-info">
+              <div class="result-name">${escHtml(r.name)}</div>
+              <div class="result-sizes" style="color:#c0392b;">エラー: ${escHtml(r.error)}</div>
+            </div>
+          </div>`;
+        }
+
+        const pct = r.originalSize > 0 ? Math.round((1 - r.convertedSize / r.originalSize) * 100) : 0;
+        const isSmaller = pct >= 0;
+
+        return `<div class="result-item">
+          <img class="result-thumb" src="${r.url}" alt="">
+          <div class="result-info">
+            <div class="result-name">${escHtml(r.newName)}</div>
+            <div class="result-sizes">${formatSize(r.originalSize)} → ${formatSize(r.convertedSize)} (${r.width}×${r.height})</div>
+            <div class="result-saved ${isSmaller ? 'positive' : 'negative'}">${isSmaller ? pct + '%削減' : Math.abs(pct) + '%増加'}</div>
+          </div>
+          <button class="result-dl-btn" onclick="downloadOne(${i})">ダウンロード</button>
+        </div>`;
+      }).join('');
+
+      // 一括アクション
+      if (successResults.length > 0) {
+        const dlLabel = successResults.length > 1 ? `${successResults.length}枚をZIPでダウンロード` : 'ダウンロード';
+        bulkActions.innerHTML = `
+          <button class="bulk-btn primary" onclick="downloadAll()">${dlLabel}</button>
+          <button class="bulk-btn secondary" onclick="resetAll()">新しい画像を変換</button>
+        `;
+      } else {
+        bulkActions.innerHTML = `<button class="bulk-btn secondary" onclick="resetAll()">やり直す</button>`;
+      }
+    }
+
+    // ── ダウンロード ──
+    function downloadOne(index) {
+      const r = results[index];
+      if (!r || r.error) return;
+      const a = document.createElement('a');
+      a.href = r.url;
+      a.download = r.newName;
+      a.click();
+    }
+
+    async function downloadAll() {
+      const successResults = results.filter(r => !r.error);
+      if (successResults.length === 0) return;
+
+      if (successResults.length === 1) {
+        downloadOne(results.indexOf(successResults[0]));
+        return;
+      }
+
+      // ZIP生成
+      const zip = new JSZip();
+      for (const r of successResults) {
+        zip.file(r.newName, r.blob);
+      }
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(content);
+      a.download = 'converted-images.zip';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function resetAll() {
+      files = [];
+      results = [];
+      fileList.innerHTML = '';
+      resultSection.style.display = 'none';
+      convertBtn.disabled = true;
+      clearError();
+    }
+
+    HistoryManager.init('Image Converter');
+  </script>
+</body>
+</html>
