@@ -8,243 +8,145 @@
   <title>Banner Resizer</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; }
 
-    body {
-      background: #f0f2f5;
-      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-      color: #2d3436;
-      min-height: 100vh;
-      padding: 0 16px 64px;
-    }
-
+    /* ナビ */
     .navbar {
-      background: #001f33;
-      height: 58px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 40px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      margin: 0 -16px;
+      background: #001f33; height: 58px; display: flex; align-items: center;
+      padding: 0 40px; gap: 14px; position: sticky; top: 0; z-index: 10;
     }
     .navbar-brand { display: flex; align-items: center; gap: 14px; }
     .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
     .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
     .back-btn {
-      background: none;
-      border: 1px solid rgba(255,255,255,0.2);
-      font-size: 0.78rem;
-      color: rgba(255,255,255,0.65);
-      cursor: pointer;
-      padding: 6px 14px;
-      text-decoration: none;
-      transition: all 0.15s;
+      background: none; border: 1px solid rgba(255,255,255,0.2); font-size: 0.78rem;
+      color: rgba(255,255,255,0.65); cursor: pointer; padding: 6px 14px;
+      text-decoration: none; transition: all 0.15s;
     }
     .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 
-    .wrap { max-width: 800px; margin: 0 auto; padding-top: 40px; }
+    .container { max-width: 800px; margin: 0 auto; padding: 36px 24px 80px; }
 
-    h1 { font-size: 1.4rem; font-weight: 700; color: #001f33; letter-spacing: -0.01em; margin-bottom: 4px; }
+    /* ページヘッダー */
+    .page-header { margin-bottom: 20px; }
+    .page-header h1 { font-size: 1.4rem; font-weight: 700; color: #001f33; letter-spacing: -0.01em; margin-bottom: 4px; }
+    .page-header p { font-size: 0.82rem; color: #8a9bb0; }
 
-    .sub {
-      font-size: 0.88rem;
-      color: #636e72;
-      margin-bottom: 20px;
-      line-height: 1.7;
+    /* ステップ */
+    .step {
+      background: #fff; border: 1.5px solid #e8ecf0;
+      margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
+    .step-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px; border-bottom: 1px solid #f0f2f5; background: #fafbfc;
+    }
+    .step-num {
+      width: 24px; height: 24px; background: #001f33; color: #fff;
+      font-size: 0.72rem; font-weight: 800; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .step-title { font-size: 0.85rem; font-weight: 700; color: #001f33; }
+    .step-desc { font-size: 0.75rem; color: #a0aab4; margin-left: auto; }
+    .step-body { padding: 16px 18px; }
 
     /* Format selector */
-    .format-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .format-label { font-size: 0.88rem; font-weight: 700; color: #2d3436; }
+    .format-row { display: flex; align-items: center; gap: 10px; }
+    .format-label { font-size: 0.82rem; font-weight: 700; color: #4a5568; }
     .format-btn {
-      padding: 6px 18px;
-      border: none;
-      border-radius: 0;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      background: #f0f2f5;
-      color: #636e72;
-      transition: all 0.15s;
+      padding: 6px 18px; border: 1.5px solid #e2e8f0; font-size: 0.82rem;
+      font-weight: 700; cursor: pointer; background: #fff; color: #636e72;
+      transition: all 0.15s; font-family: inherit;
     }
-    .format-btn.active { background: #001f33; color: #fff; }
+    .format-btn.active { background: #001f33; color: #fff; border-color: #001f33; }
+    .format-note { font-size: 0.72rem; color: #a0aab4; }
 
-    /* Upload group */
-    .upload-group {
-      background: #fff;
-      border: 2px solid #dfe6e9;
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-    .upload-group-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #001f33;
-      margin-bottom: 4px;
-    }
-    .upload-group-desc {
-      font-size: 0.8rem;
-      color: #636e72;
-      margin-bottom: 16px;
-      line-height: 1.6;
-    }
+    /* Upload groups side by side */
+    .upload-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
     /* Drop zone */
     .dropzone {
-      border: 2px dashed #b2bec3;
-      padding: 32px 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: #f8f9fa;
-      margin-bottom: 16px;
+      border: 2px dashed #c8d6e5; padding: 28px 16px; text-align: center;
+      cursor: pointer; transition: all 0.2s; background: #f8f9fa;
     }
     .dropzone:hover, .dropzone.over { border-color: #001f33; background: #f0f4f8; }
-    .dropzone-icon { font-size: 1.8rem; margin-bottom: 6px; }
-    .dropzone-text { font-size: 0.85rem; font-weight: 600; color: #2d3436; margin-bottom: 2px; }
-    .dropzone-sub { font-size: 0.75rem; color: #636e72; }
+    .dropzone-label {
+      font-size: 0.78rem; font-weight: 700; color: #001f33; margin-bottom: 10px;
+    }
+    .dropzone-icon { font-size: 1.5rem; margin-bottom: 4px; color: #b2bec3; }
+    .dropzone-text { font-size: 0.78rem; font-weight: 600; color: #636e72; margin-bottom: 2px; }
+    .dropzone-sub { font-size: 0.7rem; color: #a0aab4; }
     .dropzone input { display: none; }
-    .dropzone.has-image { padding: 12px 16px; border-style: solid; border-color: #dfe6e9; background: #fff; }
-    .dropzone.has-image .dropzone-icon { font-size: 1rem; margin-bottom: 0; }
-    .dropzone.has-image .dropzone-text { font-size: 0.78rem; }
+    .dropzone.has-image {
+      padding: 10px 14px; border-style: solid; border-color: #001f33;
+      background: rgba(0,31,51,0.03);
+    }
+    .dropzone.has-image .dropzone-icon { display: none; }
+    .dropzone.has-image .dropzone-text { font-size: 0.75rem; color: #001f33; }
+    .dropzone.has-image .dropzone-sub { color: #636e72; }
+    .dropzone.has-image .dropzone-label { color: #001f33; margin-bottom: 4px; }
 
-    /* Output cards */
-    .output-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 12px;
-    }
-    .output-card {
-      background: #f8f9fa;
-      border: 1px solid #e8ecf0;
-      padding: 16px;
-    }
-    .output-card-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
+    /* Output section */
+    .output-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+    .output-card { background: #fafbfc; border: 1.5px solid #e8ecf0; padding: 14px; }
+    .output-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
     .output-card-dot { width: 8px; height: 8px; flex-shrink: 0; }
-    .output-card-title { font-size: 0.85rem; font-weight: 700; color: #2d3436; }
+    .output-card-title { font-size: 0.82rem; font-weight: 700; color: #2d3436; }
     .output-card-badge {
-      display: inline-block;
-      font-size: 0.6rem;
-      font-weight: 700;
-      padding: 1px 5px;
-      margin-left: 2px;
+      display: inline-block; font-size: 0.6rem; font-weight: 700;
+      padding: 1px 5px; margin-left: 2px;
     }
-    .output-card-meta { font-size: 0.75rem; color: #636e72; margin-bottom: 8px; }
+    .output-card-meta { font-size: 0.72rem; color: #a0aab4; margin-bottom: 8px; }
 
     .preview-canvas-wrap {
-      width: 100%;
-      background: #e8ecf0;
-      overflow: hidden;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 40px;
+      width: 100%; background: #e8ecf0; overflow: hidden; margin-bottom: 8px;
+      display: flex; align-items: center; justify-content: center; min-height: 40px;
     }
-    .preview-canvas-wrap canvas {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
+    .preview-canvas-wrap canvas { width: 100%; height: auto; display: block; }
 
-    .ai-loading {
-      padding: 16px 8px;
-      font-size: 0.75rem;
-      color: #636e72;
-      text-align: center;
-      line-height: 1.6;
-    }
-    .ai-loading-spinner {
-      display: inline-block;
-      animation: spin 1.2s linear infinite;
-    }
+    .ai-loading { padding: 16px 8px; font-size: 0.75rem; color: #636e72; text-align: center; line-height: 1.6; }
+    .ai-loading-spinner { display: inline-block; animation: spin 1.2s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .ai-upscale-check {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin-bottom: 6px;
-      font-size: 0.72rem;
-      color: #636e72;
-      cursor: pointer;
-      user-select: none;
+    .option-check {
+      display: flex; align-items: center; gap: 5px; margin-bottom: 4px;
+      font-size: 0.72rem; color: #636e72; cursor: pointer; user-select: none;
     }
-    .ai-upscale-check input[type="checkbox"] {
-      accent-color: #001f33;
-      width: 12px;
-      height: 12px;
-      cursor: pointer;
-    }
+    .option-check input[type="checkbox"] { accent-color: #001f33; width: 12px; height: 12px; cursor: pointer; }
+
+    .file-size-info { font-size: 0.75rem; color: #667; margin: 4px 0 8px; min-height: 1.2em; }
 
     .dl-btn {
-      width: 100%;
-      padding: 7px;
-      background: #f0f2f5;
-      color: #001f33;
-      border: none;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s;
+      width: 100%; padding: 8px; background: #f0f2f5; color: #001f33; border: none;
+      font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.15s;
+      font-family: inherit;
     }
     .dl-btn:hover { background: #001f33; color: #fff; }
     .dl-btn:disabled { opacity: 0.4; cursor: default; }
     .dl-btn:disabled:hover { background: #f0f2f5; color: #001f33; }
 
+    /* ZIP download */
+    .dl-all-step .step-body { padding: 12px 18px; }
     .dl-all-btn {
-      width: 100%;
-      padding: 14px;
-      background: #001f33;
-      color: #fff;
-      border: none;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.15s;
-      letter-spacing: 0.04em;
+      width: 100%; padding: 14px; background: #001f33; color: #fff; border: none;
+      font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.15s;
+      letter-spacing: 0.04em; font-family: inherit;
     }
     .dl-all-btn:hover { opacity: 0.85; }
 
-    .card {
-      background: #fff;
-      border: 2px solid #dfe6e9;
-      padding: 28px;
-      margin-bottom: 16px;
-    }
-
     .app-footer {
-      background: #001f33;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      padding: 16px 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 40px;
+      background: #001f33; padding: 16px 40px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .app-footer-text {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.8);
-    }
+    .app-footer-text { font-size: 0.72rem; color: rgba(255,255,255,0.8); }
 
     @media (max-width: 768px) {
       .navbar { padding: 0 20px; }
+      .upload-groups { grid-template-columns: 1fr; }
     }
     @media (max-width: 600px) {
-      .navbar { padding: 0 16px; margin: 0 -16px; }
-      .wrap { padding-top: 20px; }
+      .navbar { padding: 0 16px; }
+      .container { padding: 20px 16px 60px; }
       .output-cards { grid-template-columns: 1fr; }
     }
   </style>
@@ -260,47 +162,75 @@
     <span class="navbar-title">Banner Resizer</span>
   </div>
 </nav>
-<div class="wrap">
-  <h1>Banner Resizer</h1>
-  <p class="sub">MV用とサムネイル用の画像をそれぞれアップロードして、規定サイズに変換します</p>
-  <p style="font-size:0.75rem;color:#e17055;margin-bottom:20px;">⚠️ 機密情報・個人情報を含む画像はアップロードしないでください</p>
-
-  <div class="format-row">
-    <span class="format-label">出力形式：</span>
-    <button class="format-btn active" id="btn-webp" onclick="setFormat('webp')">WebP</button>
-    <button class="format-btn" id="btn-png" onclick="setFormat('png')">PNG</button>
-    <span style="font-size:0.75rem;color:#636e72;">※ OGPはPNG固定</span>
+<div class="container">
+  <div class="page-header">
+    <h1>Banner Resizer</h1>
+    <p>画像をアップロードして、MV・OGP・サムネイルを規定サイズに変換します</p>
   </div>
 
-  <!-- Group 1: MV + OGP -->
-  <div class="upload-group">
-    <div class="upload-group-title">MV / OGP 用画像</div>
-    <div class="upload-group-desc">1枚の画像からMV（1920×1080）とOGP（1200×630）を生成します</div>
-    <div class="dropzone" id="dz-mv" onclick="document.getElementById('file-mv').click()">
-      <div class="dropzone-icon">🖼️</div>
-      <div class="dropzone-text">画像をドロップ、またはクリックして選択</div>
-      <div class="dropzone-sub">PNG / JPG / WebP　推奨: 1920×1080px</div>
-      <input type="file" id="file-mv" accept="image/png,image/jpeg,image/webp">
+  <!-- Step 1: Format -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">1</span>
+      <span class="step-title">出力形式</span>
+      <span class="step-desc">OGPはPNG固定</span>
     </div>
-    <div class="output-cards" id="outputs-mv"></div>
-  </div>
-
-  <!-- Group 2: Thumbnail -->
-  <div class="upload-group">
-    <div class="upload-group-title">一覧サムネイル用画像</div>
-    <div class="upload-group-desc">CMS上でサムネイル表示時に上下24px・左右100pxが自動カットされます。安全エリア内にテキスト・ロゴを配置してください</div>
-    <div class="dropzone" id="dz-thumb" onclick="document.getElementById('file-thumb').click()">
-      <div class="dropzone-icon">🖼️</div>
-      <div class="dropzone-text">画像をドロップ、またはクリックして選択</div>
-      <div class="dropzone-sub">PNG / JPG / WebP　推奨: 1920×1080px</div>
-      <input type="file" id="file-thumb" accept="image/png,image/jpeg,image/webp">
+    <div class="step-body">
+      <div class="format-row">
+        <span class="format-label">形式：</span>
+        <button class="format-btn active" id="btn-webp" onclick="setFormat('webp')">WebP</button>
+        <button class="format-btn" id="btn-png" onclick="setFormat('png')">PNG</button>
+      </div>
     </div>
-    <div id="outputs-thumb"></div>
   </div>
 
-  <div class="card">
-    <button class="dl-all-btn" id="dl-all-btn" onclick="downloadAll()">📦 まとめてダウンロード（ZIP）</button>
+  <!-- Step 2: Upload -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">2</span>
+      <span class="step-title">画像をアップロード</span>
+      <span class="step-desc">それぞれ別の画像を指定可能</span>
+    </div>
+    <div class="step-body">
+      <div class="upload-groups">
+        <div class="dropzone" id="dz-mv" onclick="document.getElementById('file-mv').click()">
+          <div class="dropzone-label">MV / OGP 用</div>
+          <div class="dropzone-icon">📤</div>
+          <div class="dropzone-text">画像をドロップ or クリック</div>
+          <div class="dropzone-sub">推奨: 1920×1080px</div>
+          <input type="file" id="file-mv" accept="image/png,image/jpeg,image/webp">
+        </div>
+        <div class="dropzone" id="dz-thumb" onclick="document.getElementById('file-thumb').click()">
+          <div class="dropzone-label">一覧サムネイル用</div>
+          <div class="dropzone-icon">📤</div>
+          <div class="dropzone-text">画像をドロップ or クリック</div>
+          <div class="dropzone-sub">推奨: 1920×1080px</div>
+          <input type="file" id="file-thumb" accept="image/png,image/jpeg,image/webp">
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Step 3: Output -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">3</span>
+      <span class="step-title">プレビュー & ダウンロード</span>
+      <span class="step-desc">上限超過時は自動圧縮</span>
+    </div>
+    <div class="step-body">
+      <div class="output-cards" id="outputs-mv"></div>
+      <div id="outputs-thumb"></div>
+    </div>
+  </div>
+
+  <!-- Download all -->
+  <div class="step dl-all-step">
+    <div class="step-body">
+      <button class="dl-all-btn" id="dl-all-btn" onclick="downloadAll()">📦 まとめてダウンロード（ZIP）</button>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -403,23 +333,25 @@
         }
         const card = document.createElement('div');
         card.className = 'output-card';
+        const maxLabel = size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024)+'MB' : (size.maxBytes/1024)+'KB';
         card.innerHTML = `
           <div class="output-card-header">
             <span class="output-card-dot" style="background:${size.color}"></span>
             <span class="output-card-title">${size.label}${size.forcePng ? '<span class="output-card-badge" style="color:#001f33;background:#ffb81c;">PNG固定</span>' : ''}</span>
           </div>
-          <div class="output-card-meta">${size.w}×${size.h}px　/　上限 ${size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024)+'MB' : (size.maxBytes/1024)+'KB'}${size.crop ? '　/　センタークロップ' : ''}</div>
-          <label class="ai-upscale-check">
+          <div class="output-card-meta">${size.w}×${size.h}px　/　上限 ${maxLabel}${size.crop ? '　/　センタークロップ' : ''}</div>
+          <label class="option-check">
             <input type="checkbox" id="ai-check-${size.id}" ${aiUpscaleFlags[size.id] ? 'checked' : ''}
               onchange="toggleAiUpscale('${group.id}', '${size.id}', this.checked)">
             AIアップスケール（小さい画像を高品質拡大）
           </label>
           <div class="preview-canvas-wrap" id="wrap-${size.id}" style="display:none;"></div>
-          ${size.thumbTrim ? `<label style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:#667;margin:4px 0;cursor:pointer;user-select:none;">
-            <input type="checkbox" id="trim-check-${size.id}" onchange="toggleThumbTrim('${group.id}', '${size.id}', this.checked)">
+          ${size.thumbTrim ? `<label class="option-check">
+            <input type="checkbox" id="trim-check-${size.id}" checked
+              onchange="toggleThumbTrim('${group.id}', '${size.id}', this.checked)">
             サムネイル時のカット領域を表示
           </label>` : ''}
-          <div class="file-size-info" id="filesize-${size.id}" style="font-size:0.78rem;color:#667;margin:4px 0 6px;min-height:1.2em;"></div>
+          <div class="file-size-info" id="filesize-${size.id}"></div>
           <button class="dl-btn" id="dl-btn-${size.id}" onclick="downloadSingle('${group.id}', '${size.id}')" disabled>ダウンロード</button>
         `;
         wrapper.appendChild(card);
@@ -456,8 +388,7 @@
         renderGroup(group);
         const dz = document.getElementById('dz-' + group.id);
         dz.classList.add('has-image');
-        dz.querySelector('.dropzone-icon').textContent = '✅';
-        dz.querySelector('.dropzone-text').textContent = file.name + '（クリックで変更）';
+        dz.querySelector('.dropzone-text').textContent = `✅ ${file.name}（クリックで変更）`;
         dz.querySelector('.dropzone-sub').textContent = `${img.width}×${img.height}px`;
       };
       img.src = e.target.result;
@@ -490,11 +421,14 @@
         wrap.appendChild(canvas);
       }
 
-      const trimCheck = document.getElementById('trim-check-' + size.id);
-      if (trimCheck && trimCheck.checked && size.thumbTrim) {
-        const canvas = document.getElementById('canvas-' + size.id);
-        drawThumbTrimOverlay(canvas, size.thumbTrim);
-        canvas.dataset.thumbTrimOverlay = '1';
+      if (size.thumbTrim) {
+        const trimCheck = document.getElementById('trim-check-' + size.id);
+        const show = trimCheck ? trimCheck.checked : true;
+        if (show) {
+          const canvas = document.getElementById('canvas-' + size.id);
+          drawThumbTrimOverlay(canvas, size.thumbTrim);
+          canvas.dataset.thumbTrimOverlay = '1';
+        }
       }
 
       document.getElementById('dl-btn-' + size.id).disabled = false;
@@ -629,10 +563,15 @@
     const label = blob.size >= 1024 * 1024 ? (blob.size / 1024 / 1024).toFixed(1) + 'MB' : (blob.size / 1024).toFixed(0) + 'KB';
     const maxLabel = size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024) + 'MB' : (size.maxBytes/1024) + 'KB';
     const over = size.maxBytes && blob.size > size.maxBytes;
-    const overMsg = over
-      ? ' <span style="color:#e53935;font-weight:600;">⚠ 超過</span>'
-      : ' <span style="color:#43a047;">✓</span>';
-    el.innerHTML = `📦 ${label} / 上限 ${maxLabel}` + overMsg;
+    let status;
+    if (over) {
+      status = '<span style="color:#e53935;font-weight:600;">⚠ 超過（これ以上の圧縮不可）</span>';
+    } else if (blob._compressed) {
+      status = `<span style="color:#2196f3;">自動圧縮済み（Q:${Math.round(blob._appliedQuality * 100)}%）✓</span>`;
+    } else {
+      status = '<span style="color:#43a047;">✓</span>';
+    }
+    el.innerHTML = `📦 ${label} / 上限 ${maxLabel}　${status}`;
   }
 
   // ── Blob generation ───────────────────────────────────
@@ -660,15 +599,19 @@
       const maxBytes = size.maxBytes;
       const toBlob = (q) => new Promise(r => canvas.toBlob(b => r(b), mimeType, q));
       let blob = await toBlob(0.92);
+      let appliedQuality = 0.92;
       if (maxBytes && blob && blob.size > maxBytes && mimeType !== 'image/png') {
-        for (const q of [0.85, 0.78, 0.70]) {
+        for (const q of [0.85, 0.78, 0.70, 0.60, 0.50]) {
           blob = await toBlob(q);
+          appliedQuality = q;
           if (blob.size <= maxBytes) break;
         }
       }
       if (blob && blob.type !== mimeType && !blob._actualExt) {
         blob._actualExt = getExtFromMime(blob.type);
       }
+      blob._appliedQuality = appliedQuality;
+      blob._compressed = appliedQuality < 0.92;
       resolve(blob);
     });
   }
