@@ -13,7 +13,6 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; }
 
-    /* ── ナビバー ── */
     .navbar {
       background: #001f33; height: 58px; display: flex; align-items: center;
       padding: 0 40px; gap: 14px; position: sticky; top: 0; z-index: 10;
@@ -27,58 +26,38 @@
       text-decoration: none; transition: all 0.15s;
     }
     .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
-
     .container { max-width: 960px; margin: 0 auto; padding: 36px 24px 80px; }
-
-    /* ── ページヘッダー ── */
     .page-header { margin-bottom: 20px; }
     .page-header h1 { font-size: 1.4rem; font-weight: 700; color: #001f33; margin-bottom: 4px; }
-    .page-header p { font-size: 0.82rem; color: #8a9bb0; line-height: 1.6; }
+    .page-header p { font-size: 0.82rem; color: rgba(0,31,51,0.5); line-height: 1.6; }
 
-    /* ── 仕組みの説明 ── */
-    .how-it-works {
-      background: #fff; border: 1.5px solid #e8ecf0;
-      padding: 18px 20px; margin-bottom: 16px;
-    }
+    /* ── 仕組み ── */
+    .how-it-works { background: #fff; border: 1.5px solid #e8ecf0; padding: 18px 20px; margin-bottom: 16px; }
     .how-title { font-size: 0.82rem; font-weight: 700; color: #001f33; margin-bottom: 12px; }
     .how-flow { display: flex; align-items: stretch; gap: 0; }
     @media (max-width: 600px) { .how-flow { flex-direction: column; } }
-    .how-step {
-      flex: 1; text-align: center; padding: 14px 12px;
-      background: rgba(0,31,51,0.02); position: relative;
-    }
+    .how-step { flex: 1; text-align: center; padding: 14px 12px; background: rgba(0,31,51,0.02); }
     .how-step-num {
       width: 24px; height: 24px; background: #001f33; color: #fff;
       font-size: 0.7rem; font-weight: 800; display: inline-flex; align-items: center;
       justify-content: center; margin-bottom: 6px;
     }
-    .how-step-text { font-size: 0.75rem; color: #636e72; line-height: 1.5; }
+    .how-step-text { font-size: 0.75rem; color: rgba(0,31,51,0.5); line-height: 1.5; }
     .how-step-text strong { color: #001f33; }
-    .how-arrow {
-      display: flex; align-items: center; font-size: 1.2rem; color: #b2bec3;
-      padding: 0 4px; flex-shrink: 0;
-    }
-    @media (max-width: 600px) {
-      .how-arrow { justify-content: center; padding: 4px 0; transform: rotate(90deg); }
-    }
-    .how-note {
-      margin-top: 12px; padding: 10px 14px;
-      background: rgba(255,184,28,0.08); font-size: 0.75rem; color: #636e72; line-height: 1.6;
-    }
+    .how-arrow { display: flex; align-items: center; font-size: 1.2rem; color: rgba(0,31,51,0.2); padding: 0 4px; flex-shrink: 0; }
+    @media (max-width: 600px) { .how-arrow { justify-content: center; padding: 4px 0; transform: rotate(90deg); } }
+    .how-note { margin-top: 12px; padding: 10px 14px; background: rgba(255,184,28,0.08); font-size: 0.75rem; color: rgba(0,31,51,0.5); line-height: 1.6; }
     .how-note strong { color: #001f33; }
 
-    /* ── 入力エリア ── */
-    .input-area {
-      background: #fff; border: 1.5px solid #e8ecf0;
-      padding: 20px; margin-bottom: 16px;
-    }
+    /* ── 入力 ── */
+    .input-area { background: #fff; border: 1.5px solid #e8ecf0; padding: 20px; margin-bottom: 16px; }
     .input-label { font-size: 0.85rem; font-weight: 700; color: #001f33; margin-bottom: 8px; }
     .input-row { display: flex; gap: 8px; }
     .input-field {
       flex: 1; padding: 12px 14px; border: 1.5px solid #e8ecf0;
       font-size: 0.9rem; font-family: inherit; color: #2d3436; background: #fff; outline: none;
     }
-    .input-field::placeholder { color: #b2bec3; }
+    .input-field::placeholder { color: rgba(0,31,51,0.25); }
     .input-field:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); }
     .check-btn {
       padding: 12px 24px; background: #ffb81c; border: none; color: #001f33;
@@ -88,22 +67,22 @@
     .check-btn:hover { opacity: 0.92; }
     .check-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .sample-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-    .sample-label { font-size: 0.72rem; color: #b2bec3; }
+    .sample-label { font-size: 0.72rem; color: rgba(0,31,51,0.25); }
     .sample-btn {
-      background: none; border: 1px solid #e8ecf0; color: #636e72;
+      background: none; border: 1px solid #e8ecf0; color: rgba(0,31,51,0.5);
       font-size: 0.72rem; padding: 3px 10px; cursor: pointer; font-family: inherit;
     }
     .sample-btn:hover { border-color: #ffb81c; color: #001f33; }
 
     /* ── エラー・ローディング ── */
     .error-msg {
-      background: #fff5f4; border: 1.5px solid #fab1a0; color: #c0392b;
+      background: rgba(225,112,85,0.05); border: 1.5px solid #e8ecf0; color: #c0392b;
       padding: 10px 14px; font-size: 0.85rem; display: none; margin-bottom: 16px;
     }
     .error-msg.show { display: block; }
     .loading { text-align: center; padding: 60px 0; display: none; }
     .loading.show { display: block; }
-    .loading-text { font-size: 0.9rem; color: #636e72; margin-bottom: 12px; }
+    .loading-text { font-size: 0.9rem; color: rgba(0,31,51,0.5); margin-bottom: 12px; }
     .loading-dots { display: inline-flex; gap: 6px; }
     .loading-dots span {
       width: 8px; height: 8px; background: #ffb81c;
@@ -113,162 +92,108 @@
     .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
     @keyframes bounce { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
 
-    /* ── 診断結果バナー ── */
-    .verdict {
-      padding: 20px 24px; margin-bottom: 20px; display: none;
-    }
-    .verdict.synced { background: #eafaf1; border: 1.5px solid #00b894; }
-    .verdict.cache-wait { background: #fef9e7; border: 1.5px solid #f39c12; }
+    /* ── 診断結果 ── */
+    .verdict { padding: 20px 24px; margin-bottom: 20px; display: none; }
+    .verdict.synced { background: rgba(0,184,148,0.06); border: 1.5px solid #e8ecf0; }
+    .verdict.cache-wait { background: rgba(255,184,28,0.06); border: 1.5px solid #e8ecf0; }
     .verdict-title { font-size: 1.1rem; font-weight: 800; color: #001f33; margin-bottom: 6px; }
-    .verdict-desc { font-size: 0.85rem; color: #636e72; line-height: 1.6; }
+    .verdict-desc { font-size: 0.85rem; color: rgba(0,31,51,0.5); line-height: 1.6; white-space: pre-line; }
     .verdict-warn {
       margin-top: 10px; padding: 10px 14px; font-size: 0.82rem; line-height: 1.6;
-      background: rgba(0,31,51,0.04); color: #636e72;
+      background: rgba(0,31,51,0.03); color: rgba(0,31,51,0.5);
     }
     .verdict-warn strong { color: #001f33; }
 
-    /* ── 比較グリッド ── */
-    .compare-grid {
-      display: none; grid-template-columns: 1fr 1fr; gap: 16px;
-      margin-bottom: 20px;
+    /* ── 変更サマリー ── */
+    .change-summary { background: #fff; border: 1.5px solid #e8ecf0; margin-bottom: 20px; display: none; }
+    .change-summary.show { display: block; }
+    .change-summary-header {
+      padding: 12px 16px; background: rgba(0,31,51,0.03); border-bottom: 1px solid #e8ecf0;
+      font-size: 0.88rem; font-weight: 700; color: #001f33;
     }
+    .change-item { padding: 14px 16px; border-bottom: 1px solid #f0f2f5; }
+    .change-item:last-child { border-bottom: none; }
+    .change-item-label {
+      font-size: 0.72rem; font-weight: 700; color: #ffb81c;
+      text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px;
+    }
+    .change-item-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: start; }
+    .change-item-arrow { color: rgba(0,31,51,0.2); font-size: 1rem; padding-top: 2px; }
+    .change-val { font-size: 0.82rem; line-height: 1.5; padding: 8px 10px; min-height: 36px; }
+    .change-val-old { background: rgba(225,112,85,0.06); color: #c0392b; }
+    .change-val-new { background: rgba(0,184,148,0.06); color: #00856a; }
+    .change-val-label { font-size: 0.65rem; color: rgba(0,31,51,0.4); margin-bottom: 2px; font-weight: 600; }
+    .change-img-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: start; }
+    .change-img-wrap { text-align: center; }
+    .change-img { max-width: 100%; max-height: 120px; object-fit: contain; border: 1px solid #e8ecf0; cursor: pointer; }
+    .change-img-placeholder { padding: 20px; background: #f0f2f5; color: rgba(0,31,51,0.25); font-size: 0.78rem; text-align: center; }
+    .change-text-diff { max-height: 300px; overflow-y: auto; font-size: 0.78rem; line-height: 1.7; }
+    .diff-line { padding: 2px 10px; white-space: pre-wrap; word-break: break-word; }
+    .diff-added { background: rgba(0,184,148,0.08); color: #00856a; }
+    .diff-removed { background: rgba(225,112,85,0.08); color: #c0392b; }
+
+    /* ── 比較グリッド ── */
+    .compare-grid { display: none; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
     .compare-grid.show { display: grid; }
     @media (max-width: 768px) { .compare-grid { grid-template-columns: 1fr; } }
-
-    .compare-col {
-      background: #fff; border: 1.5px solid #e8ecf0; overflow: hidden;
-    }
-    .compare-col.has-diff { border-color: #f39c12; }
-    .col-header {
-      padding: 10px 16px; border-bottom: 1px solid #e8ecf0;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .col-header-current { background: #fafbfc; }
-    .col-header-latest { background: #fef9e7; }
+    .compare-col { background: #fff; border: 1.5px solid #e8ecf0; overflow: hidden; }
+    .col-header { padding: 10px 16px; border-bottom: 1px solid #e8ecf0; display: flex; align-items: center; gap: 8px; }
+    .col-header-current { background: rgba(0,31,51,0.02); }
+    .col-header-latest { background: rgba(255,184,28,0.06); }
     .col-label { font-size: 0.82rem; font-weight: 700; color: #001f33; }
-    .col-sublabel { font-size: 0.7rem; color: #8a9bb0; }
+    .col-sublabel { font-size: 0.7rem; color: rgba(0,31,51,0.4); }
     .col-url {
-      font-size: 0.68rem; color: #8a9bb0; padding: 6px 16px;
+      font-size: 0.68rem; color: rgba(0,31,51,0.35); padding: 6px 16px;
       background: rgba(0,31,51,0.02); border-bottom: 1px solid #e8ecf0;
       word-break: break-all; font-family: 'SFMono-Regular', monospace;
     }
     .col-body { padding: 16px; }
 
-    /* ── OGP セクション ── */
     .ogp-section { margin-bottom: 16px; }
-    .ogp-image {
-      width: 100%; aspect-ratio: 1.91/1; object-fit: cover;
-      background: #f0f2f5; border: 1px solid #e8ecf0; display: block;
-    }
-    .ogp-image-placeholder {
-      width: 100%; aspect-ratio: 1.91/1; background: #f0f2f5;
-      border: 1px solid #e8ecf0; display: flex; align-items: center;
-      justify-content: center; color: #b2bec3; font-size: 0.82rem;
-    }
-    .ogp-title { font-size: 0.95rem; font-weight: 700; color: #001f33; margin-top: 8px; }
-    .ogp-desc { font-size: 0.78rem; color: #636e72; margin-top: 4px; line-height: 1.5; }
-
-    /* ── 画像一覧 ── */
+    .ogp-image { width: 100%; aspect-ratio: 1.91/1; object-fit: cover; background: #f0f2f5; border: 1px solid #e8ecf0; display: block; }
+    .ogp-image-placeholder { width: 100%; aspect-ratio: 1.91/1; background: #f0f2f5; border: 1px solid #e8ecf0; display: flex; align-items: center; justify-content: center; color: rgba(0,31,51,0.25); font-size: 0.82rem; }
+    .ogp-title { font-size: 0.95rem; font-weight: 700; color: #001f33; margin-top: 8px; padding: 2px 4px; }
+    .ogp-desc { font-size: 0.78rem; color: rgba(0,31,51,0.5); margin-top: 4px; line-height: 1.5; padding: 2px 4px; }
     .images-section { margin-bottom: 16px; }
-    .section-label {
-      font-size: 0.75rem; font-weight: 700; color: #8a9bb0;
-      text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px;
-      padding-bottom: 4px; border-bottom: 1px solid #e8ecf0;
-    }
+    .section-label { font-size: 0.75rem; font-weight: 700; color: rgba(0,31,51,0.4); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e8ecf0; }
     .image-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-    .image-thumb {
-      aspect-ratio: 1; object-fit: cover; width: 100%;
-      background: #f0f2f5; border: 1px solid #e8ecf0; cursor: pointer;
-    }
+    .image-thumb { aspect-ratio: 1; object-fit: cover; width: 100%; background: #f0f2f5; border: 1px solid #e8ecf0; cursor: pointer; }
     .image-thumb:hover { border-color: #ffb81c; }
-    .image-count { font-size: 0.72rem; color: #8a9bb0; margin-top: 4px; }
-    .no-images { font-size: 0.78rem; color: #b2bec3; padding: 12px 0; }
-
-    /* ── テキスト内容 ── */
+    .image-count { font-size: 0.72rem; color: rgba(0,31,51,0.4); margin-top: 4px; }
+    .no-images { font-size: 0.78rem; color: rgba(0,31,51,0.25); padding: 12px 0; }
     .text-section { margin-bottom: 8px; }
-    .text-content {
-      font-size: 0.78rem; color: #636e72; line-height: 1.7;
-      max-height: 200px; overflow-y: auto; white-space: pre-wrap;
-    }
+    .text-content { font-size: 0.78rem; color: rgba(0,31,51,0.5); line-height: 1.7; max-height: 200px; overflow-y: auto; white-space: pre-wrap; }
 
-    /* ── 変更箇所ハイライト ── */
-    .diff-badge {
-      display: inline-block; font-size: 0.68rem; font-weight: 700;
-      padding: 1px 6px; margin-left: 6px; color: #fff; background: #e17055;
-    }
+    /* ハイライト */
+    .hl-changed { background: rgba(255,184,28,0.15); }
 
-    /* ── ページ差分セクション ── */
-    .page-diff {
-      background: #fff; border: 1.5px solid #e8ecf0;
-      margin-bottom: 16px; display: none;
-    }
-    .page-diff.show { display: block; }
-    .page-diff-header {
-      padding: 12px 16px; background: #fafbfc; border-bottom: 1px solid #e8ecf0;
-      font-size: 0.85rem; font-weight: 700; color: #001f33;
-    }
-    .page-diff-summary {
-      padding: 12px 16px; font-size: 0.82rem; color: #636e72;
-      border-bottom: 1px solid #e8ecf0;
-    }
-    .page-diff-body {
-      padding: 0; max-height: 500px; overflow-y: auto;
-      font-size: 0.78rem; line-height: 1.7;
-    }
-    .diff-line { padding: 2px 16px; white-space: pre-wrap; word-break: break-word; }
-    .diff-added { background: rgba(0,184,148,0.1); color: #00856a; }
-    .diff-removed { background: rgba(225,112,85,0.1); color: #c0392b; }
-
-    /* ── 画像モーダル ── */
-    .img-modal {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-      z-index: 100; align-items: center; justify-content: center; cursor: pointer;
-    }
+    .img-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; cursor: pointer; }
     .img-modal.show { display: flex; }
     .img-modal img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
 
-    /* ── 次にやること ── */
-    .next-steps {
-      background: #fff; border: 1.5px solid #e8ecf0;
-      padding: 20px; margin-bottom: 16px; display: none;
-    }
+    .next-steps { background: #fff; border: 1.5px solid #e8ecf0; padding: 20px; margin-bottom: 16px; display: none; }
     .next-steps-title { font-size: 0.85rem; font-weight: 700; color: #001f33; margin-bottom: 10px; }
-    .next-step-item {
-      display: flex; align-items: flex-start; gap: 10px;
-      padding: 8px 0; font-size: 0.82rem; color: #636e72; line-height: 1.5;
-    }
+    .next-step-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; font-size: 0.82rem; color: rgba(0,31,51,0.5); line-height: 1.5; }
     .next-step-item + .next-step-item { border-top: 1px solid #f0f2f5; }
-    .next-step-num {
-      width: 22px; height: 22px; background: #001f33; color: #fff;
-      font-size: 0.68rem; font-weight: 800; display: flex; align-items: center;
-      justify-content: center; flex-shrink: 0;
-    }
+    .next-step-num { width: 22px; height: 22px; background: #001f33; color: #fff; font-size: 0.68rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
-    /* ── 結果アクション ── */
     .result-actions { display: none; gap: 10px; flex-wrap: wrap; }
     .result-actions.show { display: flex; }
-    .result-action-btn {
-      background: #fff; border: 1.5px solid #e8ecf0; color: #636e72;
-      font-size: 0.82rem; font-weight: 600; padding: 9px 18px;
-      cursor: pointer; flex: 1; min-width: 140px; text-align: center; font-family: inherit;
-    }
+    .result-action-btn { background: #fff; border: 1.5px solid #e8ecf0; color: rgba(0,31,51,0.5); font-size: 0.82rem; font-weight: 600; padding: 9px 18px; cursor: pointer; flex: 1; min-width: 140px; text-align: center; font-family: inherit; }
     .result-action-btn:hover { border-color: #001f33; color: #001f33; }
     .result-action-btn.primary { background: #ffb81c; border-color: #ffb81c; color: #001f33; font-weight: 800; }
     .result-action-btn.primary:hover { opacity: 0.92; }
 
-    /* ── フッター ── */
-    .app-footer {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: rgba(0,31,51,0.03); border-top: 1px solid #e8ecf0;
-      padding: 10px 0; text-align: center; z-index: 5;
-    }
-    .app-footer-text { font-size: 0.72rem; color: #b2bec3; }
+    .app-footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,31,51,0.03); border-top: 1px solid #e8ecf0; padding: 10px 0; text-align: center; z-index: 5; }
+    .app-footer-text { font-size: 0.72rem; color: rgba(0,31,51,0.25); }
 
     @media (max-width: 768px) {
       .navbar { padding: 0 20px; }
       .container { padding: 24px 16px 60px; }
       .input-row { flex-direction: column; }
       .image-grid { grid-template-columns: repeat(2, 1fr); }
+      .change-item-row, .change-img-row { grid-template-columns: 1fr; }
+      .change-item-arrow { display: none; }
     }
   </style>
 </head>
@@ -327,7 +252,6 @@
     </div>
 
     <div class="error-msg" id="error-msg"></div>
-
     <div class="loading" id="loading">
       <div class="loading-text">ページの内容を取得しています...</div>
       <div class="loading-dots"><span></span><span></span><span></span></div>
@@ -340,9 +264,14 @@
       <div class="verdict-warn" id="verdict-warn" style="display:none;"></div>
     </div>
 
+    <!-- 変更サマリー -->
+    <div class="change-summary" id="change-summary">
+      <div class="change-summary-header" id="change-summary-header"></div>
+      <div id="change-summary-body"></div>
+    </div>
+
     <!-- 2カラム比較 -->
     <div class="compare-grid" id="compare-grid">
-      <!-- 訪問者が見ている状態 -->
       <div class="compare-col" id="col-current">
         <div class="col-header col-header-current">
           <span class="col-label">🌐 サイト訪問者が見ている状態</span>
@@ -350,7 +279,6 @@
         <div class="col-url" id="url-current"></div>
         <div class="col-body" id="body-current"></div>
       </div>
-      <!-- CMSの最新状態 -->
       <div class="compare-col" id="col-latest">
         <div class="col-header col-header-latest">
           <span class="col-label">📝 CMSの最新状態</span>
@@ -361,27 +289,17 @@
       </div>
     </div>
 
-    <!-- ページ全体の差分 -->
-    <div class="page-diff" id="page-diff">
-      <div class="page-diff-header">テキストの変更箇所</div>
-      <div class="page-diff-summary" id="diff-summary"></div>
-      <div class="page-diff-body" id="diff-body"></div>
-    </div>
-
-    <!-- 次にやること -->
     <div class="next-steps" id="next-steps">
-      <div class="next-steps-title" id="next-steps-title">次にやること</div>
+      <div class="next-steps-title">次にやること</div>
       <div id="next-steps-body"></div>
     </div>
 
-    <!-- アクション -->
     <div class="result-actions" id="result-actions">
       <button class="result-action-btn primary" onclick="runCheck()">もう一度チェック</button>
       <button class="result-action-btn" onclick="copyReport()">結果をコピー</button>
     </div>
   </div>
 
-  <!-- 画像モーダル -->
   <div class="img-modal" id="img-modal" onclick="this.classList.remove('show')">
     <img id="modal-img" src="" alt="">
   </div>
@@ -398,44 +316,22 @@
     const checkBtn = document.getElementById('check-btn');
     const errorEl = document.getElementById('error-msg');
     const loadingEl = document.getElementById('loading');
-
     const PROXY_URL = '/api/proxy';
     let lastResult = null;
 
-    function escHtml(s) {
-      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
+    function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function showError(msg) { errorEl.textContent = msg; errorEl.classList.add('show'); }
     function clearError() { errorEl.textContent = ''; errorEl.classList.remove('show'); }
-
-    function setLoading(on) {
-      loadingEl.classList.toggle('show', on);
-      checkBtn.disabled = on;
-      checkBtn.textContent = on ? 'チェック中...' : 'チェック';
-    }
-
+    function setLoading(on) { loadingEl.classList.toggle('show', on); checkBtn.disabled = on; checkBtn.textContent = on ? 'チェック中...' : 'チェック'; }
     function fillSample(url) { urlInput.value = url; urlInput.focus(); }
+    function showModal(src) { document.getElementById('modal-img').src = src; document.getElementById('img-modal').classList.add('show'); }
 
-    function showModal(src) {
-      document.getElementById('modal-img').src = src;
-      document.getElementById('img-modal').classList.add('show');
-    }
-
-    // ── HTML解析：OGP・画像・テキストを抽出 ──
+    // ── HTML解析 ──
     function parsePageContent(html, baseUrl) {
       const doc = new DOMParser().parseFromString(html, 'text/html');
       const base = new URL(baseUrl);
-
-      function resolveUrl(src) {
-        if (!src) return '';
-        try { return new URL(src, base).href; } catch { return src; }
-      }
-
-      function getMeta(name) {
-        const el = doc.querySelector(`meta[property="${name}"], meta[name="${name}"]`);
-        return el ? el.getAttribute('content') : '';
-      }
+      function resolveUrl(src) { if (!src) return ''; try { return new URL(src, base).href; } catch { return src; } }
+      function getMeta(name) { const el = doc.querySelector(`meta[property="${name}"], meta[name="${name}"]`); return el ? el.getAttribute('content') : ''; }
 
       const ogp = {
         title: getMeta('og:title') || doc.title || '',
@@ -443,57 +339,36 @@
         image: resolveUrl(getMeta('og:image')),
         siteName: getMeta('og:site_name') || '',
       };
-
       const imgEls = doc.querySelectorAll('img[src]');
-      const seen = new Set();
-      const images = [];
-      imgEls.forEach(img => {
-        const src = resolveUrl(img.getAttribute('src'));
-        if (!src || src.startsWith('data:') || seen.has(src)) return;
-        seen.add(src);
-        const alt = img.getAttribute('alt') || '';
-        images.push({ src, alt });
-      });
+      const seen = new Set(); const images = [];
+      imgEls.forEach(img => { const src = resolveUrl(img.getAttribute('src')); if (!src || src.startsWith('data:') || seen.has(src)) return; seen.add(src); images.push({ src, alt: img.getAttribute('alt') || '' }); });
 
       const textEls = doc.querySelectorAll('h1, h2, h3, h4, p, li, td, th, figcaption');
-      const textParts = [];
-      const seenText = new Set();
-      textEls.forEach(el => {
-        const t = el.textContent.trim();
-        if (t && t.length > 2 && !seenText.has(t)) {
-          seenText.add(t);
-          textParts.push(t);
-        }
-      });
-      const textContent = textParts.join('\n');
-
-      return { ogp, images, textContent, title: doc.title || '' };
+      const textParts = []; const seenText = new Set();
+      textEls.forEach(el => { const t = el.textContent.trim(); if (t && t.length > 2 && !seenText.has(t)) { seenText.add(t); textParts.push(t); } });
+      return { ogp, images, textContent: textParts.join('\n'), title: doc.title || '' };
     }
 
-    // ── カラムにコンテンツを描画 ──
-    function renderColumn(containerId, data, diffItems) {
+    // ── カラム描画（変更箇所ハイライト付き） ──
+    function renderColumn(containerId, data, highlights) {
       const el = document.getElementById(containerId);
+      const hl = highlights || {};
       let html = '';
 
-      // OGPセクション
       html += '<div class="ogp-section">';
       if (data.ogp.image) {
         html += `<img class="ogp-image" src="${escHtml(data.ogp.image)}" alt="OGP画像" onerror="this.outerHTML='<div class=ogp-image-placeholder>画像を読み込めません</div>'" onclick="showModal('${escHtml(data.ogp.image)}')">`;
       } else {
         html += '<div class="ogp-image-placeholder">OGP画像なし</div>';
       }
-      const titleLabel = 'タイトル' + (diffItems && diffItems.includes('タイトル') ? '<span class="diff-badge">変更あり</span>' : '');
-      html += `<div class="ogp-title">${escHtml(data.ogp.title || data.title || '(タイトルなし)')}</div>`;
-      const descLabel = diffItems && diffItems.includes('説明文') ? '<span class="diff-badge">変更あり</span>' : '';
+      html += `<div class="ogp-title${hl.title ? ' hl-changed' : ''}">${escHtml(data.ogp.title || data.title || '(タイトルなし)')}</div>`;
       if (data.ogp.description) {
-        html += `<div class="ogp-desc">${escHtml(data.ogp.description)} ${descLabel}</div>`;
+        html += `<div class="ogp-desc${hl.description ? ' hl-changed' : ''}">${escHtml(data.ogp.description)}</div>`;
       }
       html += '</div>';
 
-      // 画像一覧
       html += '<div class="images-section">';
-      const imgDiffBadge = diffItems && diffItems.some(d => d.startsWith('画像')) ? '<span class="diff-badge">変更あり</span>' : '';
-      html += `<div class="section-label">ページ内の画像（${data.images.length}枚）${imgDiffBadge}</div>`;
+      html += `<div class="section-label">ページ内の画像（${data.images.length}枚）</div>`;
       if (data.images.length > 0) {
         const showImages = data.images.slice(0, 9);
         html += '<div class="image-grid">';
@@ -501,185 +376,172 @@
           html += `<img class="image-thumb" src="${escHtml(img.src)}" alt="${escHtml(img.alt)}" title="${escHtml(img.alt || img.src)}" onclick="showModal('${escHtml(img.src)}')" onerror="this.style.display='none'">`;
         });
         html += '</div>';
-        if (data.images.length > 9) {
-          html += `<div class="image-count">他 ${data.images.length - 9} 枚</div>`;
-        }
+        if (data.images.length > 9) html += `<div class="image-count">他 ${data.images.length - 9} 枚</div>`;
       } else {
         html += '<div class="no-images">画像が見つかりませんでした</div>';
       }
       html += '</div>';
 
-      // テキスト内容
-      html += '<div class="text-section">';
-      const textDiffBadge = diffItems && diffItems.includes('テキスト内容') ? '<span class="diff-badge">変更あり</span>' : '';
-      html += `<div class="section-label">ページのテキスト内容 ${textDiffBadge}</div>`;
+      html += '<div class="text-section"><div class="section-label">ページのテキスト内容</div>';
       const displayText = data.textContent.slice(0, 1000) + (data.textContent.length > 1000 ? '\n...' : '');
-      html += `<div class="text-content">${escHtml(displayText) || '(テキストを抽出できませんでした)'}</div>`;
-      html += '</div>';
+      html += `<div class="text-content">${escHtml(displayText) || '(テキストを抽出できませんでした)'}</div></div>`;
 
       el.innerHTML = html;
     }
 
-    // ── 差分判定 ──
-    function compareResults(current, latest) {
-      const diffs = [];
-      if (current.ogp.title !== latest.ogp.title) diffs.push('タイトル');
-      if (current.ogp.description !== latest.ogp.description) diffs.push('説明文');
-      if (current.ogp.image !== latest.ogp.image) diffs.push('OGP画像');
+    // ── 詳細差分分析 ──
+    function compareDetailed(current, latest) {
+      const items = [];
+      if (current.ogp.title !== latest.ogp.title) items.push({ type: 'title', label: 'タイトル', old: current.ogp.title || current.title, new: latest.ogp.title || latest.title });
+      if (current.ogp.description !== latest.ogp.description) items.push({ type: 'description', label: '説明文', old: current.ogp.description, new: latest.ogp.description });
+      if (current.ogp.image !== latest.ogp.image) items.push({ type: 'ogp-image', label: 'OGP画像', oldImg: current.ogp.image, newImg: latest.ogp.image });
 
-      const currentImgSet = new Set(current.images.map(i => i.src));
-      const latestImgSet = new Set(latest.images.map(i => i.src));
-      let imgDiff = 0;
-      latestImgSet.forEach(src => { if (!currentImgSet.has(src)) imgDiff++; });
-      currentImgSet.forEach(src => { if (!latestImgSet.has(src)) imgDiff++; });
-      if (imgDiff > 0) diffs.push(`画像${imgDiff}枚`);
+      const curSet = new Set(current.images.map(i => i.src));
+      const latSet = new Set(latest.images.map(i => i.src));
+      const addedImgs = latest.images.filter(i => !curSet.has(i.src));
+      const removedImgs = current.images.filter(i => !latSet.has(i.src));
+      if (addedImgs.length > 0 || removedImgs.length > 0) items.push({ type: 'images', label: 'ページ内の画像', added: addedImgs, removed: removedImgs });
 
-      if (current.textContent !== latest.textContent) diffs.push('テキスト内容');
-
-      return diffs;
+      if (current.textContent !== latest.textContent) items.push({ type: 'text', label: 'テキスト内容', oldText: current.textContent, newText: latest.textContent });
+      return items;
     }
 
-    // ── ページ全体のテキスト差分を描画 ──
-    function renderPageDiff(currentText, latestText) {
-      const diffEl = document.getElementById('page-diff');
-      const summaryEl = document.getElementById('diff-summary');
-      const bodyEl = document.getElementById('diff-body');
+    // ── 変更サマリー描画 ──
+    function renderChangeSummary(changes) {
+      const el = document.getElementById('change-summary');
+      const header = document.getElementById('change-summary-header');
+      const body = document.getElementById('change-summary-body');
+      if (changes.length === 0) { el.classList.remove('show'); return; }
 
-      if (currentText === latestText) {
-        diffEl.classList.remove('show');
-        return;
-      }
-
-      const changes = Diff.diffLines(currentText, latestText);
-      let added = 0, removed = 0;
+      header.textContent = `📋 ${changes.length}件の変更が見つかりました（サイト表示 → CMS最新）`;
       let html = '';
 
-      for (const part of changes) {
-        const lines = part.value.split('\n');
-        if (lines[lines.length - 1] === '') lines.pop();
+      for (const c of changes) {
+        html += '<div class="change-item">';
+        html += `<div class="change-item-label">${escHtml(c.label)}</div>`;
 
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          if (part.added) {
-            added++;
-            html += `<div class="diff-line diff-added">＋ ${escHtml(line)}</div>`;
-          } else if (part.removed) {
-            removed++;
-            html += `<div class="diff-line diff-removed">－ ${escHtml(line)}</div>`;
+        if (c.type === 'title' || c.type === 'description') {
+          html += '<div class="change-item-row">';
+          html += `<div><div class="change-val-label">サイト表示</div><div class="change-val change-val-old">${escHtml(c.old || '(なし)')}</div></div>`;
+          html += '<div class="change-item-arrow">→</div>';
+          html += `<div><div class="change-val-label">CMS最新</div><div class="change-val change-val-new">${escHtml(c.new || '(なし)')}</div></div>`;
+          html += '</div>';
+        } else if (c.type === 'ogp-image') {
+          html += '<div class="change-img-row">';
+          html += '<div class="change-img-wrap"><div class="change-val-label">サイト表示</div>';
+          html += c.oldImg ? `<img class="change-img" src="${escHtml(c.oldImg)}" onclick="showModal('${escHtml(c.oldImg)}')" onerror="this.outerHTML='<div class=change-img-placeholder>読み込めません</div>'">` : '<div class="change-img-placeholder">なし</div>';
+          html += '</div><div class="change-item-arrow">→</div>';
+          html += '<div class="change-img-wrap"><div class="change-val-label">CMS最新</div>';
+          html += c.newImg ? `<img class="change-img" src="${escHtml(c.newImg)}" onclick="showModal('${escHtml(c.newImg)}')" onerror="this.outerHTML='<div class=change-img-placeholder>読み込めません</div>'">` : '<div class="change-img-placeholder">なし</div>';
+          html += '</div></div>';
+        } else if (c.type === 'images') {
+          if (c.added.length > 0) {
+            html += `<div class="change-val-label" style="margin-top:4px">追加された画像（${c.added.length}枚）</div>`;
+            html += '<div class="image-grid" style="max-width:300px">';
+            c.added.slice(0, 6).forEach(img => { html += `<img class="image-thumb" src="${escHtml(img.src)}" onclick="showModal('${escHtml(img.src)}')" onerror="this.style.display='none'" style="border-color:#00b894">`; });
+            html += '</div>';
+          }
+          if (c.removed.length > 0) {
+            html += `<div class="change-val-label" style="margin-top:8px">削除された画像（${c.removed.length}枚）</div>`;
+            html += '<div class="image-grid" style="max-width:300px">';
+            c.removed.slice(0, 6).forEach(img => { html += `<img class="image-thumb" src="${escHtml(img.src)}" onclick="showModal('${escHtml(img.src)}')" onerror="this.style.display='none'" style="opacity:0.5">`; });
+            html += '</div>';
+          }
+        } else if (c.type === 'text') {
+          const diffs = Diff.diffLines(c.oldText, c.newText);
+          let diffHtml = ''; let added = 0, removed = 0;
+          for (const part of diffs) {
+            const lines = part.value.split('\n'); if (lines[lines.length - 1] === '') lines.pop();
+            for (const line of lines) {
+              if (!line.trim()) continue;
+              if (part.added) { added++; diffHtml += `<div class="diff-line diff-added">＋ ${escHtml(line)}</div>`; }
+              else if (part.removed) { removed++; diffHtml += `<div class="diff-line diff-removed">－ ${escHtml(line)}</div>`; }
+            }
+          }
+          if (added > 0 || removed > 0) {
+            html += `<div style="font-size:0.78rem;color:rgba(0,31,51,0.5);margin-bottom:6px">追加 ${added}行 ／ 削除 ${removed}行</div>`;
+            html += `<div class="change-text-diff">${diffHtml}</div>`;
           }
         }
+        html += '</div>';
       }
-
-      if (added === 0 && removed === 0) {
-        diffEl.classList.remove('show');
-        return;
-      }
-
-      summaryEl.textContent = `追加: ${added}行 ／ 削除: ${removed}行`;
-      bodyEl.innerHTML = html;
-      diffEl.classList.add('show');
+      body.innerHTML = html;
+      el.classList.add('show');
     }
 
-    // ── プロキシ経由で取得 ──
+    // ── プロキシ取得 ──
     async function fetchViaProxy(url) {
-      const res = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      });
+      const res = await fetch(PROXY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Proxy error (${res.status})`);
       return data;
     }
 
-    // ── メイン処理 ──
+    // ── メイン ──
     async function runCheck() {
       clearError();
       document.getElementById('verdict').style.display = 'none';
       document.getElementById('verdict-warn').style.display = 'none';
+      document.getElementById('change-summary').classList.remove('show');
       document.getElementById('compare-grid').classList.remove('show');
-      document.getElementById('page-diff').classList.remove('show');
       document.getElementById('next-steps').style.display = 'none';
       document.getElementById('result-actions').classList.remove('show');
 
       const rawUrl = urlInput.value.trim();
       if (!rawUrl) { showError('URLを入力してください'); urlInput.focus(); return; }
-
       let parsed;
-      try { parsed = new URL(rawUrl); } catch {
-        showError('有効なURLを入力してください（例: https://www.akkodis.co.jp/）');
-        urlInput.focus(); return;
-      }
-      if (!['http:', 'https:'].includes(parsed.protocol)) {
-        showError('HTTP/HTTPS のURLを入力してください'); return;
-      }
+      try { parsed = new URL(rawUrl); } catch { showError('有効なURLを入力してください（例: https://www.akkodis.co.jp/）'); urlInput.focus(); return; }
+      if (!['http:', 'https:'].includes(parsed.protocol)) { showError('HTTP/HTTPS のURLを入力してください'); return; }
 
       setLoading(true);
-
       try {
         const bypassUrl = new URL(rawUrl);
         bypassUrl.searchParams.set('_cb', Date.now() + '-' + Math.random().toString(36).slice(2));
         const bypassUrlStr = bypassUrl.toString();
 
-        const [currentRes, latestRes] = await Promise.all([
-          fetchViaProxy(rawUrl),
-          fetchViaProxy(bypassUrlStr),
-        ]);
-
+        const [currentRes, latestRes] = await Promise.all([fetchViaProxy(rawUrl), fetchViaProxy(bypassUrlStr)]);
         const currentData = parsePageContent(currentRes.body, rawUrl);
         const latestData = parsePageContent(latestRes.body, rawUrl);
 
         document.getElementById('url-current').textContent = rawUrl;
         document.getElementById('url-latest').textContent = bypassUrlStr;
 
-        // 差分判定
-        const diffs = compareResults(currentData, latestData);
+        // 詳細差分
+        const changes = compareDetailed(currentData, latestData);
+        const hl = {
+          title: changes.some(c => c.type === 'title'),
+          description: changes.some(c => c.type === 'description'),
+        };
 
-        // カラム描画（差分バッジ付き）
-        renderColumn('body-current', currentData, null);
-        renderColumn('body-latest', latestData, diffs);
+        // 描画
+        renderColumn('body-current', currentData, hl);
+        renderColumn('body-latest', latestData, hl);
+        renderChangeSummary(changes);
 
-        // ページ全体の差分
-        renderPageDiff(currentData.textContent, latestData.textContent);
-
-        // 診断結果
+        // 診断
         const verdict = document.getElementById('verdict');
         const verdictTitle = document.getElementById('verdict-title');
         const verdictDesc = document.getElementById('verdict-desc');
         const verdictWarn = document.getElementById('verdict-warn');
-        const nextSteps = document.getElementById('next-steps');
-        const nextStepsBody = document.getElementById('next-steps-body');
 
-        if (diffs.length === 0) {
-          // 左右同じ＝反映済み
+        if (changes.length === 0) {
           verdict.className = 'verdict synced';
           verdictTitle.textContent = '✅ サイトに最新の内容が表示されています';
-          verdictDesc.textContent = 'サイト訪問者が見ている状態と、CMSの最新状態に違いはありません。更新は正しく反映されています。';
+          verdictDesc.textContent = 'サイト訪問者が見ている状態と、CMSの最新状態に違いはありません。\n更新は正しく反映されています。';
           verdictWarn.style.display = '';
           verdictWarn.innerHTML = '<strong>もし期待した変更が反映されていない場合：</strong><br>右側（CMSの最新状態）にも変更が反映されていなければ、CMS側で正しく公開（パブリッシュ）できていない可能性があります。CMSの管理画面を確認してください。';
-          nextSteps.style.display = 'none';
-          document.getElementById('col-current').classList.remove('has-diff');
-          document.getElementById('col-latest').classList.remove('has-diff');
+          document.getElementById('next-steps').style.display = 'none';
         } else {
-          // 左右違う＝キャッシュ待ち
           verdict.className = 'verdict cache-wait';
           verdictTitle.textContent = '⏳ CMSの更新はまだサイトに反映されていません';
-          verdictDesc.textContent = '変更箇所: ' + diffs.join('、') + '\nCMSには最新の内容が入っていますが、サイトにはまだ古いキャッシュが表示されています。';
+          verdictDesc.textContent = '変更箇所: ' + changes.map(c => c.label).join('、') + '\nCMSには最新の内容が入っていますが、サイトにはまだ古いキャッシュが表示されています。';
           verdictWarn.style.display = '';
-          verdictWarn.innerHTML = '<strong>📝 右側が期待した内容と違う場合：</strong><br>パラメータ付きで取得した右側（CMSの最新状態）が、自分が更新した内容と違っている場合は、CMSで正しく公開（パブリッシュ）できていない可能性があります。CMSの管理画面を確認してください。';
-          document.getElementById('col-current').classList.add('has-diff');
-          document.getElementById('col-latest').classList.remove('has-diff');
+          verdictWarn.innerHTML = '<strong>📝 右側が期待した内容と違う場合：</strong><br>CMSの最新状態が、自分が更新した内容と違っている場合は、CMSで正しく公開（パブリッシュ）できていない可能性があります。';
 
-          nextSteps.style.display = '';
-          nextStepsBody.innerHTML = `
-            <div class="next-step-item">
-              <span class="next-step-num">1</span>
-              <span>しばらく待ってから「もう一度チェック」を押してください<br>（多くのサイトでは数分〜数十分で自動的にキャッシュが更新されます）</span>
-            </div>
-            <div class="next-step-item">
-              <span class="next-step-num">2</span>
-              <span>急ぎの場合は、IT部門に「キャッシュクリア（パージ）」を依頼してください</span>
-            </div>
+          document.getElementById('next-steps').style.display = '';
+          document.getElementById('next-steps-body').innerHTML = `
+            <div class="next-step-item"><span class="next-step-num">1</span><span>しばらく待ってから「もう一度チェック」を押してください<br>（多くのサイトでは数分〜数十分で自動的にキャッシュが更新されます）</span></div>
+            <div class="next-step-item"><span class="next-step-num">2</span><span>急ぎの場合は、IT部門に「キャッシュクリア（パージ）」を依頼してください</span></div>
           `;
         }
 
@@ -687,10 +549,9 @@
         document.getElementById('compare-grid').classList.add('show');
         document.getElementById('result-actions').classList.add('show');
 
-        lastResult = { url: rawUrl, bypassUrl: bypassUrlStr, diffs, currentData, latestData };
-
+        lastResult = { url: rawUrl, bypassUrl: bypassUrlStr, changes, currentData, latestData };
         if (typeof HistoryManager !== 'undefined' && HistoryManager.save) {
-          HistoryManager.save(`${rawUrl} → ${diffs.length === 0 ? '反映済み' : diffs.join('・') + 'に差分'}`, rawUrl);
+          HistoryManager.save(`${rawUrl} → ${changes.length === 0 ? '反映済み' : changes.map(c=>c.label).join('・') + 'に差分'}`, rawUrl);
         }
       } catch (err) {
         showError(err.message || 'チェック中にエラーが発生しました');
@@ -706,29 +567,22 @@
         `## CMS更新 反映チェック結果`,
         `- **URL**: ${r.url}`,
         `- **パラメータ付きURL**: ${r.bypassUrl}`,
-        `- **結果**: ${r.diffs.length === 0 ? '✅ 反映済み' : '⏳ キャッシュ待ち（' + r.diffs.join('、') + ' に差分）'}`,
+        `- **結果**: ${r.changes.length === 0 ? '✅ 反映済み' : '⏳ キャッシュ待ち（' + r.changes.map(c=>c.label).join('、') + ' に差分）'}`,
         `- **日時**: ${new Date().toLocaleString('ja-JP')}`,
-        ``,
-        `### サイト訪問者が見ている状態`,
-        `- タイトル: ${r.currentData.ogp.title || r.currentData.title}`,
-        `- 説明文: ${r.currentData.ogp.description}`,
-        `- 画像数: ${r.currentData.images.length}枚`,
-        ``,
-        `### CMSの最新状態（パラメータ付き）`,
-        `- タイトル: ${r.latestData.ogp.title || r.latestData.title}`,
-        `- 説明文: ${r.latestData.ogp.description}`,
-        `- 画像数: ${r.latestData.images.length}枚`,
       ];
+      if (r.changes.length > 0) {
+        lines.push('', '### 変更箇所');
+        for (const c of r.changes) {
+          if (c.type === 'title' || c.type === 'description') lines.push(`- **${c.label}**: 「${c.old || '(なし)'}」→「${c.new || '(なし)'}」`);
+          else if (c.type === 'ogp-image') lines.push(`- **OGP画像**: 変更あり`);
+          else if (c.type === 'images') { if (c.added.length) lines.push(`- **画像追加**: ${c.added.length}枚`); if (c.removed.length) lines.push(`- **画像削除**: ${c.removed.length}枚`); }
+          else if (c.type === 'text') lines.push(`- **テキスト内容**: 変更あり`);
+        }
+      }
       const text = lines.join('\n');
       const btn = document.querySelector('.result-action-btn:not(.primary)');
-      if (typeof copyToClipboard === 'function') {
-        copyToClipboard(text, btn);
-      } else {
-        navigator.clipboard.writeText(text).then(() => {
-          btn.textContent = '✅ コピーしました';
-          setTimeout(() => { btn.textContent = '結果をコピー'; }, 2000);
-        });
-      }
+      if (typeof copyToClipboard === 'function') { copyToClipboard(text, btn); }
+      else { navigator.clipboard.writeText(text).then(() => { btn.textContent = '✅ コピーしました'; setTimeout(() => { btn.textContent = '結果をコピー'; }, 2000); }); }
     }
 
     urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') runCheck(); });
