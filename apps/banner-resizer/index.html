@@ -30,7 +30,6 @@
       margin: 0 -16px;
     }
     .navbar-brand { display: flex; align-items: center; gap: 14px; }
-    .navbar-logo { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.2em; color: #ffb81c; }
     .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
     .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
     .back-btn {
@@ -56,20 +55,12 @@
       line-height: 1.7;
     }
 
-    .card {
-      background: #fff;
-      border: 2px solid #dfe6e9;
-      border-radius: 0;
-      padding: 28px;
-      margin-bottom: 16px;
-    }
-
     /* Format selector */
     .format-row {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
     .format-label { font-size: 0.88rem; font-weight: 700; color: #2d3436; }
     .format-btn {
@@ -83,62 +74,37 @@
       color: #636e72;
       transition: all 0.15s;
     }
-    .format-btn.active { background: #001f33; color: #fff; border-color: #001f33; }
+    .format-btn.active { background: #001f33; color: #fff; }
 
-    /* Size card */
-    .size-card {
+    /* Upload group */
+    .upload-group {
       background: #fff;
       border: 2px solid #dfe6e9;
       padding: 24px;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
-    .size-card-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .size-card-dot {
-      width: 10px;
-      height: 10px;
-      flex-shrink: 0;
-    }
-    .size-card-title {
+    .upload-group-title {
       font-size: 1rem;
       font-weight: 700;
       color: #001f33;
+      margin-bottom: 4px;
     }
-    .size-card-badge {
-      display: inline-block;
-      font-size: 0.65rem;
-      font-weight: 600;
-      padding: 1px 6px;
-      margin-left: 4px;
-    }
-    .size-card-meta {
+    .upload-group-desc {
       font-size: 0.8rem;
       color: #636e72;
-      margin-bottom: 12px;
-    }
-    .size-card-note {
-      font-size: 0.75rem;
-      color: #636e72;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       line-height: 1.6;
-      padding: 8px 10px;
-      background: #f8f9fa;
     }
 
-    /* Drop zone (per card) */
+    /* Drop zone */
     .dropzone {
       border: 2px dashed #b2bec3;
-      border-radius: 0;
-      padding: 28px 16px;
+      padding: 32px 16px;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
       background: #f8f9fa;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
     .dropzone:hover, .dropzone.over { border-color: #001f33; background: #f0f4f8; }
     .dropzone-icon { font-size: 1.8rem; margin-bottom: 6px; }
@@ -149,17 +115,43 @@
     .dropzone.has-image .dropzone-icon { font-size: 1rem; margin-bottom: 0; }
     .dropzone.has-image .dropzone-text { font-size: 0.78rem; }
 
-    /* Preview area */
+    /* Output cards */
+    .output-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 12px;
+    }
+    .output-card {
+      background: #f8f9fa;
+      border: 1px solid #e8ecf0;
+      padding: 16px;
+    }
+    .output-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .output-card-dot { width: 8px; height: 8px; flex-shrink: 0; }
+    .output-card-title { font-size: 0.85rem; font-weight: 700; color: #2d3436; }
+    .output-card-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      margin-left: 2px;
+    }
+    .output-card-meta { font-size: 0.75rem; color: #636e72; margin-bottom: 8px; }
+
     .preview-canvas-wrap {
       width: 100%;
-      background: #f0f0f0;
-      border-radius: 0;
+      background: #e8ecf0;
       overflow: hidden;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 60px;
+      min-height: 40px;
     }
     .preview-canvas-wrap canvas {
       width: 100%;
@@ -167,34 +159,48 @@
       display: block;
     }
 
-    /* AI loading indicator */
     .ai-loading {
-      padding: 20px 12px;
-      font-size: 0.78rem;
+      padding: 16px 8px;
+      font-size: 0.75rem;
       color: #636e72;
       text-align: center;
       line-height: 1.6;
     }
     .ai-loading-spinner {
       display: inline-block;
-      margin-bottom: 4px;
       animation: spin 1.2s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    .ai-upscale-check {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 6px;
+      font-size: 0.72rem;
+      color: #636e72;
+      cursor: pointer;
+      user-select: none;
+    }
+    .ai-upscale-check input[type="checkbox"] {
+      accent-color: #001f33;
+      width: 12px;
+      height: 12px;
+      cursor: pointer;
+    }
+
     .dl-btn {
       width: 100%;
-      padding: 8px;
+      padding: 7px;
       background: #f0f2f5;
       color: #001f33;
       border: none;
-      border-radius: 0;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.15s;
     }
-    .dl-btn:hover { background: #001f33; color: #fff; border-color: #001f33; }
+    .dl-btn:hover { background: #001f33; color: #fff; }
     .dl-btn:disabled { opacity: 0.4; cursor: default; }
     .dl-btn:disabled:hover { background: #f0f2f5; color: #001f33; }
 
@@ -204,7 +210,6 @@
       background: #001f33;
       color: #fff;
       border: none;
-      border-radius: 0;
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
@@ -213,24 +218,12 @@
     }
     .dl-all-btn:hover { opacity: 0.85; }
 
-    /* AIアップスケール チェックボックス */
-    .ai-upscale-check {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin-bottom: 8px;
-      font-size: 0.75rem;
-      color: #636e72;
-      cursor: pointer;
-      user-select: none;
+    .card {
+      background: #fff;
+      border: 2px solid #dfe6e9;
+      padding: 28px;
+      margin-bottom: 16px;
     }
-    .ai-upscale-check input[type="checkbox"] {
-      accent-color: #001f33;
-      width: 13px;
-      height: 13px;
-      cursor: pointer;
-    }
-    .ai-upscale-check:hover { color: #2d3436; }
 
     .app-footer {
       background: #001f33;
@@ -249,10 +242,10 @@
     @media (max-width: 768px) {
       .navbar { padding: 0 20px; }
     }
-
     @media (max-width: 600px) {
       .navbar { padding: 0 16px; margin: 0 -16px; }
       .wrap { padding-top: 20px; }
+      .output-cards { grid-template-columns: 1fr; }
     }
   </style>
   <link rel="stylesheet" href="../../assets/app-styles.css">
@@ -269,7 +262,7 @@
 </nav>
 <div class="wrap">
   <h1>Banner Resizer</h1>
-  <p class="sub">用途ごとに画像をアップロードして、規定サイズに変換します</p>
+  <p class="sub">MV用とサムネイル用の画像をそれぞれアップロードして、規定サイズに変換します</p>
   <p style="font-size:0.75rem;color:#e17055;margin-bottom:20px;">⚠️ 機密情報・個人情報を含む画像はアップロードしないでください</p>
 
   <div class="format-row">
@@ -279,7 +272,31 @@
     <span style="font-size:0.75rem;color:#636e72;">※ OGPはPNG固定</span>
   </div>
 
-  <div id="size-cards"></div>
+  <!-- Group 1: MV + OGP -->
+  <div class="upload-group">
+    <div class="upload-group-title">MV / OGP 用画像</div>
+    <div class="upload-group-desc">1枚の画像からMV（1920×1080）とOGP（1200×630）を生成します</div>
+    <div class="dropzone" id="dz-mv" onclick="document.getElementById('file-mv').click()">
+      <div class="dropzone-icon">🖼️</div>
+      <div class="dropzone-text">画像をドロップ、またはクリックして選択</div>
+      <div class="dropzone-sub">PNG / JPG / WebP　推奨: 1920×1080px</div>
+      <input type="file" id="file-mv" accept="image/png,image/jpeg,image/webp">
+    </div>
+    <div class="output-cards" id="outputs-mv"></div>
+  </div>
+
+  <!-- Group 2: Thumbnail -->
+  <div class="upload-group">
+    <div class="upload-group-title">一覧サムネイル用画像</div>
+    <div class="upload-group-desc">CMS上でサムネイル表示時に上下24px・左右100pxが自動カットされます。安全エリア内にテキスト・ロゴを配置してください</div>
+    <div class="dropzone" id="dz-thumb" onclick="document.getElementById('file-thumb').click()">
+      <div class="dropzone-icon">🖼️</div>
+      <div class="dropzone-text">画像をドロップ、またはクリックして選択</div>
+      <div class="dropzone-sub">PNG / JPG / WebP　推奨: 1920×1080px</div>
+      <input type="file" id="file-thumb" accept="image/png,image/jpeg,image/webp">
+    </div>
+    <div id="outputs-thumb"></div>
+  </div>
 
   <div class="card">
     <button class="dl-all-btn" id="dl-all-btn" onclick="downloadAll()">📦 まとめてダウンロード（ZIP）</button>
@@ -290,14 +307,26 @@
 <script>
   if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
 
-  const SIZES = [
-    { id: 'banner', label: 'バナー（MV）',   w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024, color: '#ffb81c', note: '1920×1080px にリサイズ（トリミングなし）' },
-    { id: 'index',  label: '一覧サムネイル', w: 1920, h: 1080, dlName: 'img-index', maxBytes: 1 * 1024 * 1024, color: '#636e72', note: '1920×1080px にリサイズ。CMS上でサムネイル表示時に上下24px・左右100pxが自動カットされます', thumbTrim: { top: 24, bottom: 24, left: 100, right: 100 } },
-    { id: 'ogp',    label: 'OGP',          w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 100 * 1024, crop: true, color: '#1C304B', note: '1200×630px にセンタークロップ＋リサイズ。PNG固定・100KB以下' },
+  // Group definitions: which sizes belong to which upload
+  const GROUPS = [
+    {
+      id: 'mv',
+      sizes: [
+        { id: 'banner', label: 'バナー（MV）', w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024, color: '#ffb81c' },
+        { id: 'ogp',    label: 'OGP',         w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 100 * 1024, crop: true, color: '#1C304B' },
+      ],
+    },
+    {
+      id: 'thumb',
+      sizes: [
+        { id: 'index', label: '一覧サムネイル', w: 1920, h: 1080, dlName: 'img-index', maxBytes: 1 * 1024 * 1024, color: '#636e72', thumbTrim: { top: 24, bottom: 24, left: 100, right: 100 } },
+      ],
+    },
   ];
 
+  const ALL_SIZES = GROUPS.flatMap(g => g.sizes);
   let format = 'webp';
-  const sourceImages = {};  // sizeId → Image
+  const sourceImages = {};  // groupId → Image
   const aiUpscaleFlags = {};
 
   // ── AI Upscale ────────────────────────────────────────
@@ -356,77 +385,76 @@
     format = f;
     document.getElementById('btn-png').classList.toggle('active', f === 'png');
     document.getElementById('btn-webp').classList.toggle('active', f === 'webp');
-    // Re-render all cards that have images
-    for (const size of SIZES) {
-      if (sourceImages[size.id]) renderCard(size);
+    for (const g of GROUPS) {
+      if (sourceImages[g.id]) renderGroup(g);
     }
   }
 
-  // ── Build cards ───────────────────────────────────────
-  function buildCards() {
-    const container = document.getElementById('size-cards');
-    for (const size of SIZES) {
-      if (aiUpscaleFlags[size.id] === undefined) {
-        aiUpscaleFlags[size.id] = size.aiUpscale === true;
+  // ── Build output cards ────────────────────────────────
+  function buildOutputCards() {
+    for (const group of GROUPS) {
+      const container = document.getElementById('outputs-' + group.id);
+      const wrapper = document.createElement('div');
+      wrapper.className = group.sizes.length > 1 ? 'output-cards' : '';
+
+      for (const size of group.sizes) {
+        if (aiUpscaleFlags[size.id] === undefined) {
+          aiUpscaleFlags[size.id] = size.aiUpscale === true;
+        }
+        const card = document.createElement('div');
+        card.className = 'output-card';
+        card.innerHTML = `
+          <div class="output-card-header">
+            <span class="output-card-dot" style="background:${size.color}"></span>
+            <span class="output-card-title">${size.label}${size.forcePng ? '<span class="output-card-badge" style="color:#001f33;background:#ffb81c;">PNG固定</span>' : ''}</span>
+          </div>
+          <div class="output-card-meta">${size.w}×${size.h}px　/　上限 ${size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024)+'MB' : (size.maxBytes/1024)+'KB'}${size.crop ? '　/　センタークロップ' : ''}</div>
+          <label class="ai-upscale-check">
+            <input type="checkbox" id="ai-check-${size.id}" ${aiUpscaleFlags[size.id] ? 'checked' : ''}
+              onchange="toggleAiUpscale('${group.id}', '${size.id}', this.checked)">
+            AIアップスケール（小さい画像を高品質拡大）
+          </label>
+          <div class="preview-canvas-wrap" id="wrap-${size.id}" style="display:none;"></div>
+          ${size.thumbTrim ? `<label style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:#667;margin:4px 0;cursor:pointer;user-select:none;">
+            <input type="checkbox" id="trim-check-${size.id}" onchange="toggleThumbTrim('${group.id}', '${size.id}', this.checked)">
+            サムネイル時のカット領域を表示
+          </label>` : ''}
+          <div class="file-size-info" id="filesize-${size.id}" style="font-size:0.78rem;color:#667;margin:4px 0 6px;min-height:1.2em;"></div>
+          <button class="dl-btn" id="dl-btn-${size.id}" onclick="downloadSingle('${group.id}', '${size.id}')" disabled>ダウンロード</button>
+        `;
+        wrapper.appendChild(card);
       }
+      container.appendChild(wrapper);
+    }
+  }
 
-      const card = document.createElement('div');
-      card.className = 'size-card';
-      card.id = 'card-' + size.id;
-      card.innerHTML = `
-        <div class="size-card-header">
-          <span class="size-card-dot" style="background:${size.color || '#636e72'}"></span>
-          <span class="size-card-title">${size.label}${size.forcePng ? '<span class="size-card-badge" style="color:#001f33;background:#ffb81c;">PNG固定</span>' : ''}</span>
-        </div>
-        <div class="size-card-meta">${size.w} × ${size.h}px　/　上限 ${size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024) + 'MB' : (size.maxBytes/1024) + 'KB'}</div>
-        ${size.note ? `<div class="size-card-note">${size.note}</div>` : ''}
-        <div class="dropzone" id="dz-${size.id}" onclick="document.getElementById('file-${size.id}').click()">
-          <div class="dropzone-icon">🖼️</div>
-          <div class="dropzone-text">画像をドロップ、またはクリックして選択</div>
-          <div class="dropzone-sub">PNG / JPG / WebP</div>
-          <input type="file" id="file-${size.id}" accept="image/png,image/jpeg,image/webp">
-        </div>
-        <label class="ai-upscale-check">
-          <input type="checkbox" id="ai-check-${size.id}" ${aiUpscaleFlags[size.id] ? 'checked' : ''}
-            onchange="toggleAiUpscale('${size.id}', this.checked)">
-          AIアップスケール適用（小さい画像を高品質拡大）
-        </label>
-        <div class="preview-canvas-wrap" id="wrap-${size.id}" style="display:none;"></div>
-        ${size.thumbTrim ? `<label style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:#667;margin:4px 0;cursor:pointer;user-select:none;">
-          <input type="checkbox" id="trim-check-${size.id}" onchange="toggleThumbTrim('${size.id}', this.checked)">
-          サムネイル時のカット領域を表示
-        </label>` : ''}
-        <div class="file-size-info" id="filesize-${size.id}" style="font-size:0.8rem;color:#667;margin:4px 0 8px;min-height:1.2em;"></div>
-        <button class="dl-btn" id="dl-btn-${size.id}" onclick="downloadSingle('${size.id}')" disabled>ダウンロード</button>
-      `;
-      container.appendChild(card);
+  // ── Drag & Drop ───────────────────────────────────────
+  function setupDropZones() {
+    for (const group of GROUPS) {
+      const dz = document.getElementById('dz-' + group.id);
+      const fileInput = document.getElementById('file-' + group.id);
 
-      // Per-card drag & drop
-      const dz = document.getElementById('dz-' + size.id);
       dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
       dz.addEventListener('dragleave', () => dz.classList.remove('over'));
       dz.addEventListener('drop', e => {
         e.preventDefault();
         dz.classList.remove('over');
-        const file = e.dataTransfer.files[0];
-        if (file) loadFileForSize(file, size.id);
+        if (e.dataTransfer.files[0]) loadFileForGroup(e.dataTransfer.files[0], group);
       });
-      document.getElementById('file-' + size.id).addEventListener('change', e => {
-        if (e.target.files[0]) loadFileForSize(e.target.files[0], size.id);
+      fileInput.addEventListener('change', e => {
+        if (e.target.files[0]) loadFileForGroup(e.target.files[0], group);
       });
     }
   }
 
-  function loadFileForSize(file, sizeId) {
+  function loadFileForGroup(file, group) {
     const reader = new FileReader();
     reader.onload = e => {
       const img = new Image();
       img.onload = () => {
-        sourceImages[sizeId] = img;
-        const size = SIZES.find(s => s.id === sizeId);
-        renderCard(size);
-        // Update dropzone to show filename
-        const dz = document.getElementById('dz-' + sizeId);
+        sourceImages[group.id] = img;
+        renderGroup(group);
+        const dz = document.getElementById('dz-' + group.id);
         dz.classList.add('has-image');
         dz.querySelector('.dropzone-icon').textContent = '✅';
         dz.querySelector('.dropzone-text').textContent = file.name + '（クリックで変更）';
@@ -437,46 +465,46 @@
     reader.readAsDataURL(file);
   }
 
-  // ── Render single card ────────────────────────────────
-  async function renderCard(size) {
-    const img = sourceImages[size.id];
+  // ── Render group ──────────────────────────────────────
+  async function renderGroup(group) {
+    const img = sourceImages[group.id];
     if (!img) return;
 
-    const wrap = document.getElementById('wrap-' + size.id);
-    wrap.style.display = 'flex';
-    wrap.innerHTML = '';
-
-    const aiEnabled = !!aiUpscaleFlags[size.id];
-    const needsAI = aiEnabled && (img.width < size.w || img.height < size.h);
-
-    if (needsAI) {
-      wrap.innerHTML = '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AIアップスケール中...</div>';
-      const canvas = await createWithAI(img, size.w, size.h, size.crop);
-      canvas.id = 'canvas-' + size.id;
+    for (const size of group.sizes) {
+      const wrap = document.getElementById('wrap-' + size.id);
+      wrap.style.display = 'flex';
       wrap.innerHTML = '';
-      wrap.appendChild(canvas);
-    } else {
-      const canvas = createResized(img, size.w, size.h, size.crop);
-      canvas.id = 'canvas-' + size.id;
-      wrap.appendChild(canvas);
-    }
 
-    // Re-apply thumb trim overlay if checkbox is checked
-    const trimCheck = document.getElementById('trim-check-' + size.id);
-    if (trimCheck && trimCheck.checked && size.thumbTrim) {
-      const canvas = document.getElementById('canvas-' + size.id);
-      drawThumbTrimOverlay(canvas, size.thumbTrim);
-      canvas.dataset.thumbTrimOverlay = '1';
-    }
+      const aiEnabled = !!aiUpscaleFlags[size.id];
+      const needsAI = aiEnabled && (img.width < size.w || img.height < size.h);
 
-    document.getElementById('dl-btn-' + size.id).disabled = false;
-    updateFileSizeDisplay(size.id);
+      if (needsAI) {
+        wrap.innerHTML = '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AI処理中...</div>';
+        const canvas = await createWithAI(img, size.w, size.h, size.crop);
+        canvas.id = 'canvas-' + size.id;
+        wrap.innerHTML = '';
+        wrap.appendChild(canvas);
+      } else {
+        const canvas = createResized(img, size.w, size.h, size.crop);
+        canvas.id = 'canvas-' + size.id;
+        wrap.appendChild(canvas);
+      }
+
+      const trimCheck = document.getElementById('trim-check-' + size.id);
+      if (trimCheck && trimCheck.checked && size.thumbTrim) {
+        const canvas = document.getElementById('canvas-' + size.id);
+        drawThumbTrimOverlay(canvas, size.thumbTrim);
+        canvas.dataset.thumbTrimOverlay = '1';
+      }
+
+      document.getElementById('dl-btn-' + size.id).disabled = false;
+      updateFileSizeDisplay(size.id, group.id);
+    }
   }
 
   // ── Resize ────────────────────────────────────────────
   function createResized(img, targetW, targetH, crop) {
     let sx = 0, sy = 0, sw = img.width, sh = img.height;
-
     if (crop) {
       const srcRatio = img.width / img.height;
       const dstRatio = targetW / targetH;
@@ -488,7 +516,6 @@
         sy = (img.height - sh) / 2;
       }
     }
-
     let srcCanvas = document.createElement('canvas');
     srcCanvas.width = sw;
     srcCanvas.height = sh;
@@ -568,10 +595,10 @@
     ctx.fillText('サムネイル時にカットされる領域', w / 2, sz.top / 2 || 12);
   }
 
-  function toggleThumbTrim(sizeId, show) {
-    const img = sourceImages[sizeId];
+  function toggleThumbTrim(groupId, sizeId, show) {
+    const img = sourceImages[groupId];
     if (!img) return;
-    const size = SIZES.find(s => s.id === sizeId);
+    const size = ALL_SIZES.find(s => s.id === sizeId);
     if (!size || !size.thumbTrim) return;
     const wrap = document.getElementById('wrap-' + sizeId);
     if (!wrap) return;
@@ -585,19 +612,19 @@
     wrap.appendChild(canvas);
   }
 
-  function toggleAiUpscale(sizeId, enabled) {
+  function toggleAiUpscale(groupId, sizeId, enabled) {
     aiUpscaleFlags[sizeId] = enabled;
-    const size = SIZES.find(s => s.id === sizeId);
-    if (sourceImages[sizeId] && size) renderCard(size);
+    const group = GROUPS.find(g => g.id === groupId);
+    if (sourceImages[groupId] && group) renderGroup(group);
   }
 
   // ── File size display ─────────────────────────────────
-  async function updateFileSizeDisplay(sizeId) {
-    const size = SIZES.find(s => s.id === sizeId);
+  async function updateFileSizeDisplay(sizeId, groupId) {
+    const size = ALL_SIZES.find(s => s.id === sizeId);
     if (!size) return;
     const el = document.getElementById('filesize-' + sizeId);
     if (!el) return;
-    const blob = await getBlob(sizeId);
+    const blob = await getBlob(sizeId, groupId);
     if (!blob) return;
     const label = blob.size >= 1024 * 1024 ? (blob.size / 1024 / 1024).toFixed(1) + 'MB' : (blob.size / 1024).toFixed(0) + 'KB';
     const maxLabel = size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024) + 'MB' : (size.maxBytes/1024) + 'KB';
@@ -612,20 +639,19 @@
   function getRequestedMimeType(forcePng) {
     return forcePng ? 'image/png' : format === 'webp' ? 'image/webp' : 'image/png';
   }
-
   function getExtFromMime(mime) {
     if (mime === 'image/webp') return 'webp';
     return 'png';
   }
 
-  function getBlob(sizeId) {
+  function getBlob(sizeId, groupId) {
     return new Promise(async resolve => {
-      const size = SIZES.find(s => s.id === sizeId);
+      const size = ALL_SIZES.find(s => s.id === sizeId);
       if (!size) { resolve(null); return; }
       const domCanvas = document.getElementById('canvas-' + sizeId);
       let canvas;
-      if (domCanvas && domCanvas.dataset.thumbTrimOverlay && sourceImages[sizeId]) {
-        canvas = createResized(sourceImages[sizeId], size.w, size.h, size.crop);
+      if (domCanvas && domCanvas.dataset.thumbTrimOverlay && sourceImages[groupId]) {
+        canvas = createResized(sourceImages[groupId], size.w, size.h, size.crop);
       } else {
         canvas = domCanvas;
       }
@@ -648,10 +674,14 @@
   }
 
   // ── Download ──────────────────────────────────────────
-  function downloadSingle(sizeId) {
-    const size = SIZES.find(s => s.id === sizeId);
+  function findGroupForSize(sizeId) {
+    return GROUPS.find(g => g.sizes.some(s => s.id === sizeId));
+  }
+
+  function downloadSingle(groupId, sizeId) {
+    const size = ALL_SIZES.find(s => s.id === sizeId);
     if (!size || !document.getElementById('canvas-' + sizeId)) return;
-    getBlob(sizeId).then(blob => {
+    getBlob(sizeId, groupId).then(blob => {
       if (!blob) return;
       const ext = blob._actualExt || (size.forcePng ? 'png' : format);
       const url = URL.createObjectURL(blob);
@@ -665,21 +695,23 @@
 
   async function downloadAll() {
     const btn = document.getElementById('dl-all-btn');
-    const uploaded = SIZES.filter(s => sourceImages[s.id]);
-    if (uploaded.length === 0) {
+    const hasAny = GROUPS.some(g => sourceImages[g.id]);
+    if (!hasAny) {
       alert('画像がアップロードされていません。');
       return;
     }
-
     btn.textContent = '⏳ 生成中...';
     btn.disabled = true;
 
     const zip = new JSZip();
-    for (const size of uploaded) {
-      const blob = await getBlob(size.id);
-      if (!blob) continue;
-      const ext = blob._actualExt || (size.forcePng ? 'png' : format);
-      zip.file(`${size.dlName}.${ext}`, blob);
+    for (const group of GROUPS) {
+      if (!sourceImages[group.id]) continue;
+      for (const size of group.sizes) {
+        const blob = await getBlob(size.id, group.id);
+        if (!blob) continue;
+        const ext = blob._actualExt || (size.forcePng ? 'png' : format);
+        zip.file(`${size.dlName}.${ext}`, blob);
+      }
     }
 
     const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -689,13 +721,13 @@
     a.download = 'images_resized.zip';
     a.click();
     URL.revokeObjectURL(url);
-
     btn.textContent = '📦 まとめてダウンロード（ZIP）';
     btn.disabled = false;
   }
 
   // ── Init ──────────────────────────────────────────────
-  buildCards();
+  buildOutputCards();
+  setupDropZones();
 </script>
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
