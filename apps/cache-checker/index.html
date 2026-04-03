@@ -596,5 +596,16 @@
     urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') runCheck(); });
     HistoryManager.init('Cache Checker');
   </script>
+  <script src="../../assets/onboarding.js"></script>
+  <script>initOnboarding({
+    appName: 'cache-checker',
+    title: 'Cache Checker',
+    description: 'CMS更新がサイトに反映されたかキャッシュ状況を確認できます',
+    steps: [
+      { icon: '🔗', text: 'チェックしたいURLを入力' },
+      { icon: '🔍', text: '通常版とキャッシュバイパス版を比較' },
+      { icon: '📊', text: 'ヘッダー差分・TTLを確認' }
+    ]
+  });</script>
 </body>
 </html>

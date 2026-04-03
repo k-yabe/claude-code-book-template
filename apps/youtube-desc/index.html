@@ -709,5 +709,16 @@ X→ https://x.com/AkkodisJapan
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
+  <script src="../../assets/onboarding.js"></script>
+  <script>initOnboarding({
+    appName: 'youtube-desc',
+    title: 'YouTube Generator',
+    description: 'YouTube動画の説明文・タグ・ハッシュタグをAIが自動生成します',
+    steps: [
+      { icon: '🎬', text: '動画のタイトルと概要を入力' },
+      { icon: '🤖', text: 'AIが説明文・タグを生成' },
+      { icon: '📋', text: '内容を確認してコピー' }
+    ]
+  });</script>
 </body>
 </html>

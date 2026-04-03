@@ -1135,5 +1135,16 @@
   <script src="../../assets/copy-utils.js"></script>
   <script src="../../assets/history.js"></script>
   <script>HistoryManager.init('OGP Checker');</script>
+  <script src="../../assets/onboarding.js"></script>
+  <script>initOnboarding({
+    appName: 'ogp-checker',
+    title: 'OGP Checker',
+    description: 'URLを入力するだけでOGPタグを自動取得・プレビューできます',
+    steps: [
+      { icon: '🔗', text: 'チェックしたいページのURLを入力' },
+      { icon: '🔍', text: 'OGPタグ・Twitter Cardを自動取得' },
+      { icon: '📋', text: 'プレビューを確認してコピー' }
+    ]
+  });</script>
 </body>
 </html>
