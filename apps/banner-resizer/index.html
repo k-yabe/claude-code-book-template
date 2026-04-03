@@ -52,100 +52,9 @@
     .sub {
       font-size: 0.88rem;
       color: #636e72;
-      margin-bottom: 8px;
+      margin-bottom: 20px;
       line-height: 1.7;
     }
-
-    .size-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-    .size-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: #fff;
-      border: none;
-      border-radius: 0;
-      padding: 3px 10px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #2d3436;
-    }
-    .size-chip-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 0;
-    }
-    .size-chip small {
-      font-weight: 400;
-      color: #b2bec3;
-      font-size: 0.72rem;
-    }
-
-    .recommend-note {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #fff8e6;
-      border: none;
-      border-radius: 0;
-      padding: 6px 12px;
-      font-size: 0.82rem;
-      color: #7a5800;
-      margin-bottom: 28px;
-    }
-    .recommend-note strong { color: #5a4000; }
-    .recommend-badge {
-      display: inline-block;
-      background: #ffb81c;
-      color: #001f33;
-      font-size: 0.7rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      padding: 2px 7px;
-    }
-
-    .step {
-      background: #fff;
-      border: 1.5px solid #e8ecf0;
-      margin-bottom: 12px;
-    }
-    .step-header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 16px 22px;
-      border-bottom: 1.5px solid #f0f2f5;
-    }
-    .step-num {
-      width: 28px;
-      height: 28px;
-      background: #1C304B;
-      color: #fff;
-      font-size: 0.78rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .step-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #1C304B;
-      flex: 1;
-    }
-    .step-badge {
-      font-size: 0.68rem;
-      font-weight: 700;
-      padding: 2px 8px;
-    }
-    .badge-required { background: #ffeaea; color: #c0392b; }
-    .badge-optional { background: #f0f0f0; color: #636e72; }
-    .step-body { padding: 20px 22px; }
 
     .card {
       background: #fff;
@@ -155,28 +64,12 @@
       margin-bottom: 16px;
     }
 
-    /* Drop zone */
-    .dropzone {
-      border: 2px dashed #b2bec3;
-      border-radius: 0;
-      padding: 48px 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: #f8f9fa;
-    }
-    .dropzone:hover, .dropzone.over { border-color: #001f33; background: #f0f4f8; }
-    .dropzone-icon { font-size: 2.5rem; margin-bottom: 12px; }
-    .dropzone-text { font-size: 0.95rem; font-weight: 600; color: #2d3436; margin-bottom: 4px; }
-    .dropzone-sub { font-size: 0.8rem; color: #636e72; }
-    .dropzone input { display: none; }
-
     /* Format selector */
     .format-row {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-top: 20px;
+      margin-bottom: 20px;
     }
     .format-label { font-size: 0.88rem; font-weight: 700; color: #2d3436; }
     .format-btn {
@@ -192,35 +85,71 @@
     }
     .format-btn.active { background: #001f33; color: #fff; border-color: #001f33; }
 
-    /* Previews */
-    .previews { display: none; }
-    .previews.on { display: block; }
-
-    .preview-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-      gap: 16px;
-    }
-
-    .preview-item {
+    /* Size card */
+    .size-card {
       background: #fff;
       border: 2px solid #dfe6e9;
-      border-radius: 0;
-      padding: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
     }
-    .preview-name {
-      font-size: 0.82rem;
+    .size-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .size-card-dot {
+      width: 10px;
+      height: 10px;
+      flex-shrink: 0;
+    }
+    .size-card-title {
+      font-size: 1rem;
       font-weight: 700;
+      color: #001f33;
+    }
+    .size-card-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 1px 6px;
+      margin-left: 4px;
+    }
+    .size-card-meta {
+      font-size: 0.8rem;
       color: #636e72;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 4px;
+      margin-bottom: 12px;
     }
-    .preview-size {
-      font-size: 0.78rem;
-      color: #b2bec3;
-      margin-bottom: 10px;
+    .size-card-note {
+      font-size: 0.75rem;
+      color: #636e72;
+      margin-bottom: 12px;
+      line-height: 1.6;
+      padding: 8px 10px;
+      background: #f8f9fa;
     }
+
+    /* Drop zone (per card) */
+    .dropzone {
+      border: 2px dashed #b2bec3;
+      border-radius: 0;
+      padding: 28px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f8f9fa;
+      margin-bottom: 12px;
+    }
+    .dropzone:hover, .dropzone.over { border-color: #001f33; background: #f0f4f8; }
+    .dropzone-icon { font-size: 1.8rem; margin-bottom: 6px; }
+    .dropzone-text { font-size: 0.85rem; font-weight: 600; color: #2d3436; margin-bottom: 2px; }
+    .dropzone-sub { font-size: 0.75rem; color: #636e72; }
+    .dropzone input { display: none; }
+    .dropzone.has-image { padding: 12px 16px; border-style: solid; border-color: #dfe6e9; background: #fff; }
+    .dropzone.has-image .dropzone-icon { font-size: 1rem; margin-bottom: 0; }
+    .dropzone.has-image .dropzone-text { font-size: 0.78rem; }
+
+    /* Preview area */
     .preview-canvas-wrap {
       width: 100%;
       background: #f0f0f0;
@@ -266,6 +195,8 @@
       transition: all 0.15s;
     }
     .dl-btn:hover { background: #001f33; color: #fff; border-color: #001f33; }
+    .dl-btn:disabled { opacity: 0.4; cursor: default; }
+    .dl-btn:disabled:hover { background: #f0f2f5; color: #001f33; }
 
     .dl-all-btn {
       width: 100%;
@@ -281,142 +212,6 @@
       letter-spacing: 0.04em;
     }
     .dl-all-btn:hover { opacity: 0.85; }
-
-    .section-title {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 16px;
-      color: #2d3436;
-    }
-
-    /* カスタムサイズ */
-    .custom-section-label {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: #2d3436;
-      margin-top: 20px;
-      margin-bottom: 4px;
-      padding-top: 16px;
-      border-top: 2px solid #f0f0f0;
-    }
-    .custom-section-desc {
-      font-size: 0.78rem;
-      color: #636e72;
-      margin-bottom: 10px;
-      line-height: 1.6;
-    }
-    .custom-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .custom-row input[type="text"],
-    .custom-row input[type="number"] {
-      padding: 7px 10px;
-      border: none;
-      border-radius: 0;
-      font-size: 0.85rem;
-      color: #2d3436;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    .custom-row input[type="number"] { width: 80px; }
-    .custom-row input[type="text"]   { width: 110px; }
-    .custom-row input:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); outline: none; }
-    .custom-row .add-btn {
-      padding: 7px 16px;
-      background: #001f33;
-      color: #fff;
-      border: none;
-      border-radius: 0;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.15s;
-      white-space: nowrap;
-    }
-    .custom-row .add-btn:hover { opacity: 0.8; }
-    .custom-row .sep { color: #b2bec3; font-size: 0.9rem; }
-
-    /* Crop preview */
-    .crop-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .crop-item {
-      display: flex;
-      align-items: stretch;
-      border-radius: 0;
-      overflow: hidden;
-      border: 2px solid #dfe6e9;
-    }
-    .crop-item canvas {
-      flex: 1;
-      min-width: 0;
-      display: block;
-      height: auto;
-    }
-    .crop-info-panel {
-      width: 180px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 8px;
-      padding: 20px 20px;
-      background: #f8f9fa;
-      border-left: 1px solid #eee;
-    }
-    .crop-panel-header {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-    .crop-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 0;
-      flex-shrink: 0;
-    }
-    .crop-name {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #2d3436;
-    }
-    .crop-size-label {
-      font-size: 0.75rem;
-      color: #aaa;
-    }
-    .crop-info {
-      font-size: 0.82rem;
-      font-weight: 700;
-      line-height: 1.5;
-    }
-    .crop-info.has-cut  { color: #c0392b; }
-    .crop-info.no-cut   { color: #27ae60; }
-
-    /* カスタムサイズ削除ボタン */
-    .preview-item-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 6px;
-    }
-    .preview-item-header-left { flex: 1; min-width: 0; }
-    .delete-size-btn {
-      background: none;
-      border: none;
-      font-size: 0.78rem;
-      color: #8a9bb0;
-      cursor: pointer;
-      padding: 2px 4px;
-      line-height: 1;
-      flex-shrink: 0;
-      transition: color 0.15s;
-    }
-    .delete-size-btn:hover { color: #ff7675; }
 
     /* AIアップスケール チェックボックス */
     .ai-upscale-check {
@@ -436,6 +231,7 @@
       cursor: pointer;
     }
     .ai-upscale-check:hover { color: #2d3436; }
+
     .app-footer {
       background: #001f33;
       border-top: 1px solid rgba(255,255,255,0.08);
@@ -451,14 +247,12 @@
     }
 
     @media (max-width: 768px) {
-      .container { padding: 24px 20px 60px; }
       .navbar { padding: 0 20px; }
     }
 
     @media (max-width: 600px) {
       .navbar { padding: 0 16px; margin: 0 -16px; }
       .wrap { padding-top: 20px; }
-      .preview-grid { grid-template-columns: 1fr; }
     }
   </style>
   <link rel="stylesheet" href="../../assets/app-styles.css">
@@ -475,91 +269,35 @@
 </nav>
 <div class="wrap">
   <h1>Banner Resizer</h1>
-  <p class="sub">1枚の画像をアップロードするだけで、用途別の3サイズを一括生成します</p>
-  <div class="size-chips">
-    <span class="size-chip"><span class="size-chip-dot" style="background:#1C304B"></span>OGP <small>1200×630 / PNG固定</small></span>
-    <span class="size-chip"><span class="size-chip-dot" style="background:#ffb81c"></span>バナー（MV） <small>1920×1080</small></span>
-    <span class="size-chip"><span class="size-chip-dot" style="background:#636e72"></span>一覧サムネイル <small>1920×1080</small></span>
-  </div>
-  <div class="recommend-note"><span class="recommend-badge">TIP</span> <strong>推奨アップロードサイズ：1920×1080px</strong>　MV画像と同じサイズでトリミングなし</div>
+  <p class="sub">用途ごとに画像をアップロードして、規定サイズに変換します</p>
+  <p style="font-size:0.75rem;color:#e17055;margin-bottom:20px;">⚠️ 機密情報・個人情報を含む画像はアップロードしないでください</p>
 
-  <!-- Step 1 -->
-  <div class="step">
-    <div class="step-header">
-      <div class="step-num">1</div>
-      <div class="step-title">画像をアップロード</div>
-      <span class="step-badge badge-required">必須</span>
-    </div>
-    <div class="step-body">
-      <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
-        <div class="dropzone-icon">🖼️</div>
-        <div class="dropzone-text">画像をドロップ、またはクリックして選択</div>
-        <div class="dropzone-sub">PNG / JPG / WebP 対応（入力用）</div>
-        <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp">
-      </div>
-      <p style="font-size:0.75rem;color:#e17055;margin-top:8px;">⚠️ 機密情報・個人情報を含む画像はアップロードしないでください</p>
-    </div>
+  <div class="format-row">
+    <span class="format-label">出力形式：</span>
+    <button class="format-btn active" id="btn-webp" onclick="setFormat('webp')">WebP</button>
+    <button class="format-btn" id="btn-png" onclick="setFormat('png')">PNG</button>
+    <span style="font-size:0.75rem;color:#636e72;">※ OGPはPNG固定</span>
   </div>
 
-  <!-- Step 2 -->
-  <div class="step">
-    <div class="step-header">
-      <div class="step-num">2</div>
-      <div class="step-title">出力形式を選択</div>
-      <span class="step-badge badge-optional">任意</span>
-    </div>
-    <div class="step-body">
-      <div class="format-row">
-        <span class="format-label">出力形式：</span>
-        <button class="format-btn active" id="btn-webp" onclick="setFormat('webp')">WebP</button>
-        <button class="format-btn" id="btn-png" onclick="setFormat('png')">PNG</button>
-      </div>
-    </div>
-  </div>
+  <div id="size-cards"></div>
 
-  <div class="card" id="crop-preview" style="display:none;">
-    <p class="section-title">セーフエリア確認</p>
-    <p style="font-size:0.8rem;color:#636e72;margin-bottom:14px;">暗い部分は切り捨てられます。色枠が実際の出力範囲です。</p>
-    <div class="crop-grid" id="crop-grid"></div>
-  </div>
-
-  <div class="previews" id="previews">
-    <div class="card">
-      <p class="section-title">プレビュー</p>
-      <div class="preview-grid" id="preview-grid"></div>
-
-      <p class="custom-section-label">カスタムサイズを追加</p>
-      <p class="custom-section-desc">上記以外のサイズが必要な場合は、幅・高さ（px）を入力して「＋ 追加」を押してください。名前は省略可能です。追加したサイズはZIPにも含まれます。</p>
-      <div class="custom-row">
-        <input type="text"   id="custom-name" placeholder="名前（任意）" />
-        <input type="number" id="custom-w" placeholder="幅" min="1" />
-        <span class="sep">×</span>
-        <input type="number" id="custom-h" placeholder="高さ" min="1" />
-        <button class="add-btn" onclick="addCustomSize()">＋ 追加</button>
-      </div>
-    </div>
-    <div class="card">
-      <button class="dl-all-btn" id="dl-all-btn" onclick="downloadAll()">📦 まとめてダウンロード（ZIP）</button>
-    </div>
+  <div class="card">
+    <button class="dl-all-btn" id="dl-all-btn" onclick="downloadAll()">📦 まとめてダウンロード（ZIP）</button>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
   if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
+
   const SIZES = [
-    { id: 'ogp',    label: 'OGP',          w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 100 * 1024, crop: true },
-    { id: 'banner', label: 'バナー（MV）',   w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024 },
-    { id: 'index',  label: '一覧サムネイル', w: 1920, h: 1080, dlName: 'img-index', maxBytes: 1 * 1024 * 1024, thumbTrim: { top: 24, bottom: 24, left: 100, right: 100 } },
+    { id: 'banner', label: 'バナー（MV）',   w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024, color: '#ffb81c', note: '1920×1080px にリサイズ（トリミングなし）' },
+    { id: 'index',  label: '一覧サムネイル', w: 1920, h: 1080, dlName: 'img-index', maxBytes: 1 * 1024 * 1024, color: '#636e72', note: '1920×1080px にリサイズ。CMS上でサムネイル表示時に上下24px・左右100pxが自動カットされます', thumbTrim: { top: 24, bottom: 24, left: 100, right: 100 } },
+    { id: 'ogp',    label: 'OGP',          w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 100 * 1024, crop: true, color: '#1C304B', note: '1200×630px にセンタークロップ＋リサイズ。PNG固定・100KB以下' },
   ];
 
   let format = 'webp';
-  let sourceImage = null;
-  let filename = 'banner';
-  let customSizes = [];
-
-  // AIアップスケール適用フラグ（sizeId → boolean）
-  // デフォルトはSIZES配列のaiUpscale値、カスタムはfalse
+  const sourceImages = {};  // sizeId → Image
   const aiUpscaleFlags = {};
 
   // ── AI Upscale ────────────────────────────────────────
@@ -594,8 +332,7 @@
     });
   }
 
-  async function createOgpWithAI(img, w, h, crop) {
-    // No upscaling needed if source is already large enough
+  async function createWithAI(img, w, h, crop) {
     if (img.width >= w && img.height >= h) {
       return createResized(img, w, h, crop);
     }
@@ -619,385 +356,128 @@
     format = f;
     document.getElementById('btn-png').classList.toggle('active', f === 'png');
     document.getElementById('btn-webp').classList.toggle('active', f === 'webp');
-    if (sourceImage) renderAll();
+    // Re-render all cards that have images
+    for (const size of SIZES) {
+      if (sourceImages[size.id]) renderCard(size);
+    }
   }
 
-  // ── Drag & Drop ───────────────────────────────────────
-  const dz = document.getElementById('dropzone');
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
-  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
-  dz.addEventListener('drop', e => {
-    e.preventDefault();
-    dz.classList.remove('over');
-    const file = e.dataTransfer.files[0];
-    if (file) loadFile(file);
-  });
-  document.getElementById('file-input').addEventListener('change', e => {
-    if (e.target.files[0]) loadFile(e.target.files[0]);
-  });
+  // ── Build cards ───────────────────────────────────────
+  function buildCards() {
+    const container = document.getElementById('size-cards');
+    for (const size of SIZES) {
+      if (aiUpscaleFlags[size.id] === undefined) {
+        aiUpscaleFlags[size.id] = size.aiUpscale === true;
+      }
 
-  function loadFile(file) {
-    filename = file.name.replace(/\.[^.]+$/, '');
+      const card = document.createElement('div');
+      card.className = 'size-card';
+      card.id = 'card-' + size.id;
+      card.innerHTML = `
+        <div class="size-card-header">
+          <span class="size-card-dot" style="background:${size.color || '#636e72'}"></span>
+          <span class="size-card-title">${size.label}${size.forcePng ? '<span class="size-card-badge" style="color:#001f33;background:#ffb81c;">PNG固定</span>' : ''}</span>
+        </div>
+        <div class="size-card-meta">${size.w} × ${size.h}px　/　上限 ${size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024) + 'MB' : (size.maxBytes/1024) + 'KB'}</div>
+        ${size.note ? `<div class="size-card-note">${size.note}</div>` : ''}
+        <div class="dropzone" id="dz-${size.id}" onclick="document.getElementById('file-${size.id}').click()">
+          <div class="dropzone-icon">🖼️</div>
+          <div class="dropzone-text">画像をドロップ、またはクリックして選択</div>
+          <div class="dropzone-sub">PNG / JPG / WebP</div>
+          <input type="file" id="file-${size.id}" accept="image/png,image/jpeg,image/webp">
+        </div>
+        <label class="ai-upscale-check">
+          <input type="checkbox" id="ai-check-${size.id}" ${aiUpscaleFlags[size.id] ? 'checked' : ''}
+            onchange="toggleAiUpscale('${size.id}', this.checked)">
+          AIアップスケール適用（小さい画像を高品質拡大）
+        </label>
+        <div class="preview-canvas-wrap" id="wrap-${size.id}" style="display:none;"></div>
+        ${size.thumbTrim ? `<label style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:#667;margin:4px 0;cursor:pointer;user-select:none;">
+          <input type="checkbox" id="trim-check-${size.id}" onchange="toggleThumbTrim('${size.id}', this.checked)">
+          サムネイル時のカット領域を表示
+        </label>` : ''}
+        <div class="file-size-info" id="filesize-${size.id}" style="font-size:0.8rem;color:#667;margin:4px 0 8px;min-height:1.2em;"></div>
+        <button class="dl-btn" id="dl-btn-${size.id}" onclick="downloadSingle('${size.id}')" disabled>ダウンロード</button>
+      `;
+      container.appendChild(card);
+
+      // Per-card drag & drop
+      const dz = document.getElementById('dz-' + size.id);
+      dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+      dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+      dz.addEventListener('drop', e => {
+        e.preventDefault();
+        dz.classList.remove('over');
+        const file = e.dataTransfer.files[0];
+        if (file) loadFileForSize(file, size.id);
+      });
+      document.getElementById('file-' + size.id).addEventListener('change', e => {
+        if (e.target.files[0]) loadFileForSize(e.target.files[0], size.id);
+      });
+    }
+  }
+
+  function loadFileForSize(file, sizeId) {
     const reader = new FileReader();
     reader.onload = e => {
       const img = new Image();
       img.onload = () => {
-        sourceImage = img;
-        renderCropPreview(img);
-        renderAll();
-        const allSizes = [...SIZES, ...customSizes];
-        const sizeList = allSizes.map(s => `${s.label || `${s.w}x${s.h}`}`).join(', ');
-        HistoryManager.save(file.name, `${file.name} → ${sizeList}`);
+        sourceImages[sizeId] = img;
+        const size = SIZES.find(s => s.id === sizeId);
+        renderCard(size);
+        // Update dropzone to show filename
+        const dz = document.getElementById('dz-' + sizeId);
+        dz.classList.add('has-image');
+        dz.querySelector('.dropzone-icon').textContent = '✅';
+        dz.querySelector('.dropzone-text').textContent = file.name + '（クリックで変更）';
+        dz.querySelector('.dropzone-sub').textContent = `${img.width}×${img.height}px`;
       };
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
   }
 
-  // ── Crop Preview ──────────────────────────────────────
-  const CROP_COLORS = { ogp: '#1C304B', banner: '#ffb81c' };
+  // ── Render single card ────────────────────────────────
+  async function renderCard(size) {
+    const img = sourceImages[size.id];
+    if (!img) return;
 
-  function getCropRect(imgW, imgH, targetW, targetH) {
-    const srcRatio = imgW / imgH;
-    const dstRatio = targetW / targetH;
-    let sx, sy, sw, sh;
-    if (srcRatio > dstRatio) {
-      sh = imgH; sw = imgH * dstRatio;
-      sx = (imgW - sw) / 2; sy = 0;
-    } else {
-      sw = imgW; sh = imgW / dstRatio;
-      sx = 0; sy = (imgH - sh) / 2;
-    }
-    return { sx, sy, sw, sh };
-  }
+    const wrap = document.getElementById('wrap-' + size.id);
+    wrap.style.display = 'flex';
+    wrap.innerHTML = '';
 
-  function drawRoundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-  }
+    const aiEnabled = !!aiUpscaleFlags[size.id];
+    const needsAI = aiEnabled && (img.width < size.w || img.height < size.h);
 
-  function renderCropPreview(img) {
-    const grid = document.getElementById('crop-grid');
-    grid.innerHTML = '';
-    const CW = 900, CH = 400;
-
-    const fitScale = Math.min(CW / img.width, CH / img.height);
-    const fitW = img.width * fitScale;
-    const fitH = img.height * fitScale;
-    const fitX = (CW - fitW) / 2;
-    const fitY = (CH - fitH) / 2;
-
-    // Diagonal stripe pattern for cut areas
-    const stripeCanvas = document.createElement('canvas');
-    stripeCanvas.width = 10; stripeCanvas.height = 10;
-    const sc = stripeCanvas.getContext('2d');
-    sc.strokeStyle = 'rgba(255,255,255,0.12)';
-    sc.lineWidth = 2;
-    [[-2,2,8,-2],[0,10,10,0],[8,12,12,8]].forEach(([x1,y1,x2,y2]) => {
-      sc.beginPath(); sc.moveTo(x1,y1); sc.lineTo(x2,y2); sc.stroke();
-    });
-
-    for (const size of SIZES) {
-      const color = CROP_COLORS[size.id] || '#636e72';
-      const badgeTextColor = color === '#ffb81c' ? '#1C304B' : '#fff';
-      const { sx, sy, sw, sh } = getCropRect(img.width, img.height, size.w, size.h);
-      const cutX = Math.round((img.width - sw) / 2);
-      const cutY = Math.round((img.height - sh) / 2);
-      const hasCut = cutX > 0 || cutY > 0;
-      const cropInfo = cutX > 0 ? `左右各 ${cutX}px カット`
-                     : cutY > 0 ? `上下各 ${cutY}px カット`
-                     : 'トリミングなし';
-
-      const canvas = document.createElement('canvas');
-      canvas.width = CW; canvas.height = CH;
-      const ctx = canvas.getContext('2d');
-
-      // Background + image
-      ctx.fillStyle = '#c8cdd4';
-      ctx.fillRect(0, 0, CW, CH);
-      ctx.drawImage(img, fitX, fitY, fitW, fitH);
-
-      const cx = fitX + sx * fitScale;
-      const cy = fitY + sy * fitScale;
-      const cw = sw * fitScale;
-      const ch = sh * fitScale;
-
-      // Cut areas: dark overlay + stripe
-      const cuts = [
-        cx > fitX             ? [fitX, fitY, cx - fitX, fitH] : null,
-        cx + cw < fitX + fitW ? [cx + cw, fitY, (fitX + fitW) - (cx + cw), fitH] : null,
-        cy > fitY             ? [cx, fitY, cw, cy - fitY] : null,
-        cy + ch < fitY + fitH ? [cx, cy + ch, cw, (fitY + fitH) - (cy + ch)] : null,
-      ].filter(Boolean);
-
-      ctx.fillStyle = 'rgba(0,0,0,0.58)';
-      cuts.forEach(r => ctx.fillRect(...r));
-      ctx.fillStyle = ctx.createPattern(stripeCanvas, 'repeat');
-      cuts.forEach(r => ctx.fillRect(...r));
-
-      // Cut amount labels on the image
-      if (hasCut) {
-        ctx.font = 'bold 13px system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const positions = cutX > 0
-          ? [[(fitX + cx) / 2, CH / 2], [cx + cw + ((fitX + fitW) - (cx + cw)) / 2, CH / 2]]
-          : [[(CW) / 2, (fitY + cy) / 2], [(CW) / 2, cy + ch + ((fitY + fitH) - (cy + ch)) / 2]];
-        const labelText = `${cutX > 0 ? cutX : cutY}px`;
-        positions.forEach(([lx, ly]) => {
-          const tw = ctx.measureText(labelText).width;
-          ctx.fillStyle = 'rgba(0,0,0,0.65)';
-          drawRoundRect(ctx, lx - tw/2 - 8, ly - 11, tw + 16, 22, 5);
-          ctx.fill();
-          ctx.fillStyle = '#fff';
-          ctx.fillText(labelText, lx, ly);
-        });
-      }
-
-      // Crop border (white outline + color on top)
-      ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-      ctx.lineWidth = 5;
-      ctx.strokeRect(cx + 1.5, cy + 1.5, cw - 3, ch - 3);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 3;
-      ctx.strokeRect(cx + 1.5, cy + 1.5, cw - 3, ch - 3);
-
-      // Safe zone overlay (thumbnail trim guide)
-      if (size.safeZone) {
-        const sz = size.safeZone;
-        const szScale = cw / size.w; // scale from target px to canvas px
-        const szTop = sz.top * szScale;
-        const szBottom = sz.bottom * szScale;
-        const szLeft = sz.left * szScale;
-        const szRight = sz.right * szScale;
-
-        // Draw trim zone strips with semi-transparent red
-        ctx.fillStyle = 'rgba(255, 100, 100, 0.35)';
-        ctx.fillRect(cx, cy, cw, szTop);                           // top
-        ctx.fillRect(cx, cy + ch - szBottom, cw, szBottom);        // bottom
-        ctx.fillRect(cx, cy + szTop, szLeft, ch - szTop - szBottom); // left
-        ctx.fillRect(cx + cw - szRight, cy + szTop, szRight, ch - szTop - szBottom); // right
-
-        // Dashed safe zone border
-        ctx.setLineDash([6, 4]);
-        ctx.strokeStyle = '#00e676';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(cx + szLeft, cy + szTop, cw - szLeft - szRight, ch - szTop - szBottom);
-        ctx.setLineDash([]);
-
-        // Safe zone label
-        ctx.font = 'bold 11px system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const safeLabel = '安全ゾーン（1720×1032px）';
-        const slw = ctx.measureText(safeLabel).width + 14;
-        const slx = cx + cw / 2 - slw / 2;
-        const sly = cy + ch - szBottom - 24;
-        ctx.fillStyle = 'rgba(0, 230, 118, 0.85)';
-        drawRoundRect(ctx, slx, sly, slw, 20, 4);
-        ctx.fill();
-        ctx.fillStyle = '#fff';
-        ctx.fillText(safeLabel, cx + cw / 2, sly + 10);
-      }
-
-      // Size badge inside crop area (top-left)
-      const badgeText = `${size.w}×${size.h}`;
-      ctx.font = 'bold 12px system-ui, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      const bw = ctx.measureText(badgeText).width + 14;
-      const bh = 20, bx = cx + 7, by = cy + 7;
-      ctx.fillStyle = color;
-      drawRoundRect(ctx, bx, by, bw, bh, 4);
-      ctx.fill();
-      ctx.fillStyle = badgeTextColor;
-      ctx.fillText(badgeText, bx + 7, by + bh / 2);
-
-      const item = document.createElement('div');
-      item.className = 'crop-item';
-      item.style.borderColor = color;
-      item.appendChild(canvas);
-      const panel = document.createElement('div');
-      panel.className = 'crop-info-panel';
-      panel.innerHTML = `
-        <div class="crop-panel-header">
-          <span class="crop-dot" style="background:${color}"></span>
-          <span class="crop-name">${size.label}</span>
-        </div>
-        <div class="crop-size-label">${size.w} × ${size.h}px</div>
-        <div class="crop-info ${hasCut ? 'has-cut' : 'no-cut'}">${hasCut ? `⚠ ${cropInfo}` : `✓ ${cropInfo}`}</div>
-      `;
-      item.appendChild(panel);
-      grid.appendChild(item);
-    }
-
-    document.getElementById('crop-preview').style.display = 'block';
-  }
-
-  // ── Render ────────────────────────────────────────────
-  async function renderAll() {
-    const grid = document.getElementById('preview-grid');
-    grid.innerHTML = '';
-
-    const allSizes = [...SIZES, ...customSizes];
-
-    // aiUpscaleFlags の初期値を設定（未設定の場合のみ）
-    for (const size of allSizes) {
-      if (aiUpscaleFlags[size.id] === undefined) {
-        aiUpscaleFlags[size.id] = size.aiUpscale === true;
-      }
-    }
-
-    // Build all cards first (with loading placeholder for AI items)
-    for (const size of allSizes) {
-      const isCustom = customSizes.some(s => s.id === size.id);
-      const aiEnabled = !!aiUpscaleFlags[size.id];
-      const needsAI = aiEnabled && (sourceImage.width < size.w || sourceImage.height < size.h);
-
-      const item = document.createElement('div');
-      item.className = 'preview-item';
-
-      // ヘッダー部分（カスタムは削除ボタンあり）
-      const deleteBtn = isCustom
-        ? `<button class="delete-size-btn" title="このサイズを削除" onclick="deleteCustomSize('${size.id}')">✕</button>`
-        : '';
-
-      item.innerHTML = `
-        <div class="preview-item-header">
-          <div class="preview-item-header-left">
-            <div class="preview-name">${size.label}${size.forcePng ? ' <span style="display:inline-block;font-size:0.65rem;color:#001f33;background:#ffb81c;padding:1px 6px;font-weight:600;text-transform:none;">PNG固定</span>' : ''}</div>
-            <div class="preview-size">${size.w} × ${size.h}px</div>
-          </div>
-          ${deleteBtn}
-        </div>
-        <label class="ai-upscale-check">
-          <input type="checkbox" id="ai-check-${size.id}" ${aiEnabled ? 'checked' : ''}
-            onchange="toggleAiUpscale('${size.id}', this.checked)">
-          AIアップスケール適用（小さい画像を高品質拡大）
-        </label>
-        <div class="preview-canvas-wrap" id="wrap-${size.id}">
-          ${needsAI ? '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AIアップスケール中...</div>' : ''}
-        </div>
-        ${size.thumbTrim ? `<label style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:#667;margin:4px 0;cursor:pointer;user-select:none;">
-          <input type="checkbox" id="trim-check-${size.id}" onchange="toggleThumbTrim('${size.id}', this.checked)">
-          サムネイル時のカット領域を表示
-        </label>` : ''}
-        <div class="file-size-info" id="filesize-${size.id}" style="font-size:0.8rem;color:#667;margin:4px 0 8px;min-height:1.2em;">${size.maxBytes ? '<span style="opacity:0.6">上限: ' + (size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024) + 'MB' : (size.maxBytes/1024) + 'KB') + '</span>' : ''}</div>
-        <button class="dl-btn" onclick="downloadSingle('${size.id}')">ダウンロード</button>
-      `;
-      grid.appendChild(item);
-
-      // Render non-AI items immediately
-      if (!needsAI) {
-        const canvas = createResized(sourceImage, size.w, size.h, size.crop);
-        canvas.id = 'canvas-' + size.id;
-        document.getElementById('wrap-' + size.id).appendChild(canvas);
-        updateFileSizeDisplay(size.id);
-      }
-    }
-
-    document.getElementById('previews').classList.add('on');
-
-    // Process AI items asynchronously
-    for (const size of allSizes) {
-      const aiEnabled = !!aiUpscaleFlags[size.id];
-      if (!aiEnabled || (sourceImage.width >= size.w && sourceImage.height >= size.h)) continue;
-      const canvas = await createOgpWithAI(sourceImage, size.w, size.h, size.crop);
+    if (needsAI) {
+      wrap.innerHTML = '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AIアップスケール中...</div>';
+      const canvas = await createWithAI(img, size.w, size.h, size.crop);
       canvas.id = 'canvas-' + size.id;
-      const wrap = document.getElementById('wrap-' + size.id);
-      if (wrap) {
-        wrap.innerHTML = '';
-        wrap.appendChild(canvas);
-      }
-      updateFileSizeDisplay(size.id);
+      wrap.innerHTML = '';
+      wrap.appendChild(canvas);
+    } else {
+      const canvas = createResized(img, size.w, size.h, size.crop);
+      canvas.id = 'canvas-' + size.id;
+      wrap.appendChild(canvas);
     }
-  }
 
-  // Show estimated file size on preview card
-  async function updateFileSizeDisplay(sizeId) {
-    const allSizes = [...SIZES, ...customSizes];
-    const size = allSizes.find(s => s.id === sizeId);
-    if (!size) return;
-    const el = document.getElementById('filesize-' + sizeId);
-    if (!el) return;
-    const blob = await getBlob('canvas-' + sizeId, size.forcePng, size);
-    if (!blob) return;
-    const kb = (blob.size / 1024).toFixed(0);
-    const label = blob.size >= 1024 * 1024 ? (blob.size / 1024 / 1024).toFixed(1) + 'MB' : kb + 'KB';
-    const maxLabel = size.maxBytes ? (size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024) + 'MB' : (size.maxBytes/1024) + 'KB') : '';
-    const over = size.maxBytes && blob.size > size.maxBytes;
-    const overMsg = over
-      ? ' <span style="color:#e53935;font-weight:600;">⚠ 超過</span>'
-      : ' <span style="color:#43a047;">✓</span>';
-    el.innerHTML = `📦 ${label}` + (maxLabel ? ` / 上限 ${maxLabel}` : '') + overMsg;
-  }
-
-  function drawThumbTrimOverlay(canvas, sz) {
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width, h = canvas.height;
-    // Semi-transparent red on trim zones
-    ctx.fillStyle = 'rgba(255, 100, 100, 0.3)';
-    ctx.fillRect(0, 0, w, sz.top);                                    // top
-    ctx.fillRect(0, h - sz.bottom, w, sz.bottom);                     // bottom
-    ctx.fillRect(0, sz.top, sz.left, h - sz.top - sz.bottom);         // left
-    ctx.fillRect(w - sz.right, sz.top, sz.right, h - sz.top - sz.bottom); // right
-    // Dashed border for safe area
-    ctx.setLineDash([8, 5]);
-    ctx.strokeStyle = '#00e676';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(sz.left, sz.top, w - sz.left - sz.right, h - sz.top - sz.bottom);
-    ctx.setLineDash([]);
-    // Label
-    ctx.font = 'bold 14px system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const safeW = w - sz.left - sz.right, safeH = h - sz.top - sz.bottom;
-    const label = `サムネイル安全エリア ${safeW}×${safeH}px`;
-    const lw = ctx.measureText(label).width + 16;
-    const lx = w / 2 - lw / 2, ly = h - sz.bottom - 30;
-    ctx.fillStyle = 'rgba(0, 230, 118, 0.85)';
-    drawRoundRect(ctx, lx, ly, lw, 24, 5);
-    ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.fillText(label, w / 2, ly + 12);
-    // Top/bottom trim label
-    ctx.font = '11px system-ui, sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.fillText('サムネイル時にカットされる領域', w / 2, sz.top / 2 || 12);
-  }
-
-  function toggleThumbTrim(sizeId, show) {
-    if (!sourceImage) return;
-    const allSizes = [...SIZES, ...customSizes];
-    const size = allSizes.find(s => s.id === sizeId);
-    if (!size || !size.thumbTrim) return;
-    const wrap = document.getElementById('wrap-' + sizeId);
-    if (!wrap) return;
-    // Re-render clean canvas
-    const canvas = createResized(sourceImage, size.w, size.h, size.crop);
-    canvas.id = 'canvas-' + sizeId;
-    if (show) {
+    // Re-apply thumb trim overlay if checkbox is checked
+    const trimCheck = document.getElementById('trim-check-' + size.id);
+    if (trimCheck && trimCheck.checked && size.thumbTrim) {
+      const canvas = document.getElementById('canvas-' + size.id);
       drawThumbTrimOverlay(canvas, size.thumbTrim);
       canvas.dataset.thumbTrimOverlay = '1';
     }
-    wrap.innerHTML = '';
-    wrap.appendChild(canvas);
+
+    document.getElementById('dl-btn-' + size.id).disabled = false;
+    updateFileSizeDisplay(size.id);
   }
 
+  // ── Resize ────────────────────────────────────────────
   function createResized(img, targetW, targetH, crop) {
     let sx = 0, sy = 0, sw = img.width, sh = img.height;
 
     if (crop) {
-      // Center-crop to target aspect ratio
       const srcRatio = img.width / img.height;
       const dstRatio = targetW / targetH;
       if (srcRatio > dstRatio) {
@@ -1009,7 +489,6 @@
       }
     }
 
-    // Multi-step downscale for quality (halve until within 2x of target)
     let srcCanvas = document.createElement('canvas');
     srcCanvas.width = sw;
     srcCanvas.height = sh;
@@ -1018,7 +497,7 @@
     srcCtx.imageSmoothingQuality = 'high';
     srcCtx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
 
-    let curW = img.width, curH = img.height;
+    let curW = sw, curH = sh;
     while (curW / targetW > 2 || curH / targetH > 2) {
       const nextW = Math.max(Math.floor(curW / 2), targetW);
       const nextH = Math.max(Math.floor(curH / 2), targetH);
@@ -1044,38 +523,92 @@
     return canvas;
   }
 
-  function addCustomSize() {
-    const nameEl = document.getElementById('custom-name');
-    const wEl = document.getElementById('custom-w');
-    const hEl = document.getElementById('custom-h');
-    const w = parseInt(wEl.value);
-    const h = parseInt(hEl.value);
-    if (!w || !h || w < 1 || h < 1) return;
-
-    const id = `custom-${Date.now()}`;
-    const label = nameEl.value.trim() || `${w}×${h}`;
-    // カスタムサイズはデフォルトでAIアップスケールoff
-    aiUpscaleFlags[id] = false;
-    customSizes.push({ id, label, w, h });
-
-    nameEl.value = '';
-    wEl.value = '';
-    hEl.value = '';
-
-    if (sourceImage) renderAll();
+  // ── Thumb trim overlay ────────────────────────────────
+  function drawRoundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
   }
 
-  function deleteCustomSize(id) {
-    customSizes = customSizes.filter(s => s.id !== id);
-    delete aiUpscaleFlags[id];
-    if (sourceImage) renderAll();
+  function drawThumbTrimOverlay(canvas, sz) {
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    ctx.fillStyle = 'rgba(255, 100, 100, 0.3)';
+    ctx.fillRect(0, 0, w, sz.top);
+    ctx.fillRect(0, h - sz.bottom, w, sz.bottom);
+    ctx.fillRect(0, sz.top, sz.left, h - sz.top - sz.bottom);
+    ctx.fillRect(w - sz.right, sz.top, sz.right, h - sz.top - sz.bottom);
+    ctx.setLineDash([8, 5]);
+    ctx.strokeStyle = '#00e676';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(sz.left, sz.top, w - sz.left - sz.right, h - sz.top - sz.bottom);
+    ctx.setLineDash([]);
+    ctx.font = 'bold 14px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const safeW = w - sz.left - sz.right, safeH = h - sz.top - sz.bottom;
+    const label = `サムネイル安全エリア ${safeW}×${safeH}px`;
+    const lw = ctx.measureText(label).width + 16;
+    const lx = w / 2 - lw / 2, ly = h - sz.bottom - 30;
+    ctx.fillStyle = 'rgba(0, 230, 118, 0.85)';
+    drawRoundRect(ctx, lx, ly, lw, 24, 5);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.fillText(label, w / 2, ly + 12);
+    ctx.font = '11px system-ui, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.fillText('サムネイル時にカットされる領域', w / 2, sz.top / 2 || 12);
+  }
+
+  function toggleThumbTrim(sizeId, show) {
+    const img = sourceImages[sizeId];
+    if (!img) return;
+    const size = SIZES.find(s => s.id === sizeId);
+    if (!size || !size.thumbTrim) return;
+    const wrap = document.getElementById('wrap-' + sizeId);
+    if (!wrap) return;
+    const canvas = createResized(img, size.w, size.h, size.crop);
+    canvas.id = 'canvas-' + sizeId;
+    if (show) {
+      drawThumbTrimOverlay(canvas, size.thumbTrim);
+      canvas.dataset.thumbTrimOverlay = '1';
+    }
+    wrap.innerHTML = '';
+    wrap.appendChild(canvas);
   }
 
   function toggleAiUpscale(sizeId, enabled) {
     aiUpscaleFlags[sizeId] = enabled;
-    if (sourceImage) renderAll();
+    const size = SIZES.find(s => s.id === sizeId);
+    if (sourceImages[sizeId] && size) renderCard(size);
   }
 
+  // ── File size display ─────────────────────────────────
+  async function updateFileSizeDisplay(sizeId) {
+    const size = SIZES.find(s => s.id === sizeId);
+    if (!size) return;
+    const el = document.getElementById('filesize-' + sizeId);
+    if (!el) return;
+    const blob = await getBlob(sizeId);
+    if (!blob) return;
+    const label = blob.size >= 1024 * 1024 ? (blob.size / 1024 / 1024).toFixed(1) + 'MB' : (blob.size / 1024).toFixed(0) + 'KB';
+    const maxLabel = size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024) + 'MB' : (size.maxBytes/1024) + 'KB';
+    const over = size.maxBytes && blob.size > size.maxBytes;
+    const overMsg = over
+      ? ' <span style="color:#e53935;font-weight:600;">⚠ 超過</span>'
+      : ' <span style="color:#43a047;">✓</span>';
+    el.innerHTML = `📦 ${label} / 上限 ${maxLabel}` + overMsg;
+  }
+
+  // ── Blob generation ───────────────────────────────────
   function getRequestedMimeType(forcePng) {
     return forcePng ? 'image/png' : format === 'webp' ? 'image/webp' : 'image/png';
   }
@@ -1085,29 +618,24 @@
     return 'png';
   }
 
-  function getBlob(canvasId, forcePng, size) {
+  function getBlob(sizeId) {
     return new Promise(async resolve => {
-      const domCanvas = document.getElementById(canvasId);
+      const size = SIZES.find(s => s.id === sizeId);
+      if (!size) { resolve(null); return; }
+      const domCanvas = document.getElementById('canvas-' + sizeId);
       let canvas;
-      // Re-render without overlay only when the canvas actually has it burned in
-      if (domCanvas && domCanvas.dataset.thumbTrimOverlay && sourceImage) {
-        canvas = createResized(sourceImage, size.w, size.h, size.crop);
+      if (domCanvas && domCanvas.dataset.thumbTrimOverlay && sourceImages[sizeId]) {
+        canvas = createResized(sourceImages[sizeId], size.w, size.h, size.crop);
       } else {
         canvas = domCanvas;
       }
       if (!canvas) { resolve(null); return; }
-      const mimeType = getRequestedMimeType(forcePng);
-      const maxBytes = size && size.maxBytes;
-
-      // Helper: convert canvas to blob at given quality
+      const mimeType = getRequestedMimeType(size.forcePng);
+      const maxBytes = size.maxBytes;
       const toBlob = (q) => new Promise(r => canvas.toBlob(b => r(b), mimeType, q));
-
       let blob = await toBlob(0.92);
-      // Auto-compress lossy formats (min quality 0.70 to preserve visual quality)
-      // PNG is lossless — cannot be compressed, so skip
       if (maxBytes && blob && blob.size > maxBytes && mimeType !== 'image/png') {
-        const steps = [0.85, 0.78, 0.70];
-        for (const q of steps) {
+        for (const q of [0.85, 0.78, 0.70]) {
           blob = await toBlob(q);
           if (blob.size <= maxBytes) break;
         }
@@ -1119,22 +647,17 @@
     });
   }
 
+  // ── Download ──────────────────────────────────────────
   function downloadSingle(sizeId) {
-    const canvas = document.getElementById('canvas-' + sizeId);
-    if (!canvas) {
-      alert('処理中です。しばらくお待ちください。');
-      return;
-    }
-    const allSizes = [...SIZES, ...customSizes];
-    const size = allSizes.find(s => s.id === sizeId);
-    if (!size) return;
-    getBlob('canvas-' + sizeId, size.forcePng, size).then(blob => {
+    const size = SIZES.find(s => s.id === sizeId);
+    if (!size || !document.getElementById('canvas-' + sizeId)) return;
+    getBlob(sizeId).then(blob => {
       if (!blob) return;
       const ext = blob._actualExt || (size.forcePng ? 'png' : format);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${size.dlName || `${filename}_${size.w}x${size.h}`}.${ext}`;
+      a.download = `${size.dlName}.${ext}`;
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -1142,12 +665,9 @@
 
   async function downloadAll() {
     const btn = document.getElementById('dl-all-btn');
-
-    // Check if any AI item is still processing
-    const allSizes = [...SIZES, ...customSizes];
-    const stillProcessing = allSizes.some(s => !document.getElementById('canvas-' + s.id));
-    if (stillProcessing) {
-      alert('AIアップスケール処理中です。完了後に再度お試しください。');
+    const uploaded = SIZES.filter(s => sourceImages[s.id]);
+    if (uploaded.length === 0) {
+      alert('画像がアップロードされていません。');
       return;
     }
 
@@ -1155,24 +675,27 @@
     btn.disabled = true;
 
     const zip = new JSZip();
-    for (const size of allSizes) {
-      const blob = await getBlob('canvas-' + size.id, size.forcePng, size);
+    for (const size of uploaded) {
+      const blob = await getBlob(size.id);
       if (!blob) continue;
       const ext = blob._actualExt || (size.forcePng ? 'png' : format);
-      zip.file(`${size.dlName || `${filename}_${size.w}x${size.h}`}.${ext}`, blob);
+      zip.file(`${size.dlName}.${ext}`, blob);
     }
 
     const zipBlob = await zip.generateAsync({ type: 'blob' });
     const url = URL.createObjectURL(zipBlob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${filename}_resized.zip`;
+    a.download = 'images_resized.zip';
     a.click();
     URL.revokeObjectURL(url);
 
     btn.textContent = '📦 まとめてダウンロード（ZIP）';
     btn.disabled = false;
   }
+
+  // ── Init ──────────────────────────────────────────────
+  buildCards();
 </script>
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
