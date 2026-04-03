@@ -207,7 +207,7 @@
       color: #b2bec3;
       background: #e8ecf0;
       padding: 1px 7px;
-      border-radius: 99px;
+      border-radius: 0;
     }
 
     .section-bar-line {
@@ -235,7 +235,7 @@
       color: #ffb81c;
       background: rgba(255,184,28,0.1);
       border: 1px solid rgba(255,184,28,0.3);
-      border-radius: 2px;
+      border-radius: 0;
       padding: 5px 12px;
       cursor: pointer;
       font-family: inherit;
@@ -261,11 +261,11 @@
       right: 0;
       background: #fff;
       border: 1.5px solid #e8ecf0;
-      border-top: 3px solid #ffb81c;
+      border-top: 3px solid #001f33;
       width: 400px;
       z-index: 200;
       box-shadow: 0 12px 32px rgba(0,31,51,0.15);
-      border-radius: 0 0 4px 4px;
+      border-radius: 0;
     }
     .changelog-dropdown.open { display: block; }
 
@@ -303,7 +303,7 @@
     .cl-content { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
     .cl-top { display: flex; align-items: center; gap: 8px; }
     .cl-app { font-weight: 700; font-size: 0.75rem; color: #2d3436; }
-    .cl-date { font-size: 0.68rem; color: #5a6a7a; background: #e8ecf0; padding: 2px 7px; border-radius: 3px; font-weight: 600; }
+    .cl-date { font-size: 0.68rem; color: #5a6a7a; background: #e8ecf0; padding: 2px 7px; border-radius: 0; font-weight: 600; }
     .cl-desc { color: #636e72; font-size: 0.72rem; line-height: 1.4; }
 
     .grid {
@@ -372,8 +372,8 @@
       color: #ffb81c;
     }
     .card-update-badge {
-      background: #e67e22;
-      color: #fff;
+      background: #ffb81c;
+      color: #001f33;
     }
     a.card::before {
       content: '';
@@ -487,7 +487,7 @@
     <div class="portal-body">
       <div class="section-bar">
         <span class="section-bar-title">All Apps</span>
-        <span class="section-bar-count">9</span>
+        <span class="section-bar-count">13</span>
         <span class="section-bar-line"></span>
         <span class="section-bar-drag">⠿ ドラッグで並び替え</span>
       </div>
@@ -497,6 +497,7 @@
           <div class="card-name">OGP Checker</div>
           <div class="card-desc">OGPタグの確認・プレビュー</div>
           <div class="card-tag card-tag-web">Web App</div>
+          <div class="card-update-badge">UPDATE</div>
         </a>
         <a class="card" href="apps/url-slug-generator/">
           <div class="card-icon-wrap">🔗</div>
@@ -512,10 +513,10 @@
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/wireframe-maker/">
-          <div class="card-new-badge">UPDATE</div>
+          <div class="card-update-badge">UPDATE</div>
           <div class="card-icon-wrap">🎨</div>
           <div class="card-name">Wireframe Maker</div>
-          <div class="card-desc">スプリットペインUI+CVRスコア+10テンプレートでLP構成を自動生成</div>
+          <div class="card-desc">LP構成のAI自動生成・プレビュー</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/slide-maker/">
@@ -565,9 +566,10 @@
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/cache-checker/">
+          <div class="card-new-badge">UPDATE</div>
           <div class="card-icon-wrap">🔍</div>
           <div class="card-name">Cache Checker</div>
-          <div class="card-desc">CMSキャッシュ反映状況の確認</div>
+          <div class="card-desc">CMS更新がサイトに反映されたか確認</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/image-converter/">
@@ -607,11 +609,19 @@
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
       { icon: '🖼', app: 'Image Converter',        date: '2026-04-03(金)', desc: '画像フォーマット変換・軽量化ツール新規追加。WebP/JPEG/PNGへの変換、品質スライダー（デフォルト80%で軽量化）、リサイズオプション、変換前後のサイズ比較・削減率表示、複数ファイル一括変換・ZIPダウンロード対応。ブラウザ内完結でサーバー送信なし' },
+      { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-03(金)', desc: 'UI刷新（ステップ型レイアウト・アップロード横並び）、上限超過時の自動圧縮＆状態表示、サムネイルカット領域をデフォルト表示に変更' },
+      { icon: '🔍', app: 'OGP Checker',            date: '2026-04-03(金)', desc: 'Twitter Card（twitter:card/title/image）・h1の検出チェック追加。Sitecoreのデフォルト仕様では未検出でも問題ない旨を案内' },
+      { icon: '🔍', app: 'Cache Checker',         date: '2026-04-03(金)', desc: '変更サマリー追加：タイトル・説明・画像・テキストの変更箇所をビフォー→アフターで明示表示。2カラム比較で変更要素をハイライト。変更点の視認性を大幅改善' },
+      { icon: '🎨', app: 'Wireframe Maker',        date: '2026-04-02(木)', desc: '安全性強化: 新規作成/セクション削除の確認ダイアログ追加・クローンモードUndo連打防止・iframe null安全チェック・画像読込エラー通知・SSRF防御' },
+      { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-02(木)', desc: 'JPG出力オプションを廃止（出力はPNG/WebPのみに統一）' },
+      { icon: '🔍', app: 'Cache Checker',         date: '2026-04-02(木)', desc: 'UX全面刷新：仕組み説明フロー追加・診断メッセージ改善（キャッシュ待ち/CMS設定ミスの切り分け）・ラベルを運用に即した表現に統一' },
+      { icon: '🎨', app: 'Wireframe Maker',        date: '2026-04-01(水)', desc: 'V12 サイト完全再現+LPO編集モード: URLインポートで元サイトのHTML/CSS/画像をそのまま再現表示。テキスト直接編集・画像差替・AIリライト（LPOコピー改善）・セクション非表示/表示・編集後HTML保存。ワイヤーフレームモードへの切替も可能' },
+      { icon: '🔍', app: 'Cache Checker',         date: '2026-04-01(水)', desc: 'ビジュアル比較に全面刷新：OGP画像・ページ内画像サムネイル・テキスト内容を2カラム並列比較。画像差し替え・テキスト変更を目視確認可能に' },
       { icon: '🔍', app: 'Cache Checker',         date: '2026-04-01(水)', desc: 'UI大幅改善：キャッシュTTL自動計算（max-age/Age残り時間）・ヘッダー差分ハイライト・ヘッダーツールチップ解説・DIFF時アクションガイド・レスポンス時間表示・Markdownレポートコピー・再チェックボタン・サンプルURL' },
       { icon: '🔍', app: 'Cache Checker',         date: '2026-04-01(水)', desc: 'CMSキャッシュ反映状況チェックツール新規追加・通常版とキャッシュバイパス版の差分比較・レスポンスヘッダー可視化・行単位diff表示' },
       { icon: '🎨', app: 'Wireframe Maker',        date: '2026-04-01(水)', desc: 'V10 Figma到達: (1)SVGテキスト直接編集（全セクション対応・ダブルクリックでその場編集） (2)プロジェクト保存/読込（💾/📂・localStorage・JSONエクスポート/インポート） (3)自動保存（3秒デバウンス）+起動時復元 (4)セクション個別スタイル（背景色・テキスト色・アクセント色を🎨ボタンで変更） (5)PDFエクスポート（出力タブからワンクリック）' },
       { icon: '🪄', app: 'Prompt Maker',           date: '2026-04-01(水)', desc: 'v10 総合UI見直し＋機能強化：プロンプト履歴ドロワー（過去プロンプト閲覧・コピー・チャット挿入）・テンプレートギャラリー8種（SNS/メール/企画書/分析/翻訳/議事録/教育/マーケティング）・チャットMarkdownエクスポート・キーボードショートカット（Ctrl+K検索・?一覧・Ctrl+Shift+N新規チャット）・ウェルカムメッセージのカード形式化・入力欄の文字数カウント＋改行ヒント・ブランドカラー準拠修正' },
-      { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-01(水)', desc: 'ガイド準拠の容量制限追加（MV: 1MB以内 / OGP: 100KB以下）。ファイルサイズ表示・超過警告・WebP/JPG自動圧縮（品質0.70下限で画質維持）' },
+      { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-01(水)', desc: 'ガイド準拠の容量制限・ファイルサイズ表示を追加（MV: WebP 1MB以内で自動圧縮 / OGP: PNG固定 100KB以下で超過警告）' },
       { icon: '🎨', app: 'Wireframe Maker',        date: '2026-03-31(火)', desc: 'V9 2機能追加: (1)URLインポート — サイトURLを入力するとHTMLを取得・AI分析で構成を自動コピー生成（既存サイトの再現ワイヤーフレーム） (2)画像差し込み — セクションオーバーレイの🖼ボタンから画像をアップロード、SVGプレビューに実画像表示（PNG/JPG/GIF/WebP対応、5MB上限）' },
       { icon: '📊', app: 'Slide Maker',            date: '2026-03-31(火)', desc: 'プレビュー品質大幅改善: Container Queriesでフォント自動スケール（サムネ〜キャンバス〜プレゼンで統一）・カバー/クロージングのタイポグラフィ刷新・three-boxesレイアウト修正・アジェンダ番号ゼロ埋め統一' },
       { icon: '🎨', app: 'Wireframe Maker',        date: '2026-03-31(火)', desc: 'バグ修正: (1)構成パネルのスクロール不具合修正（flexboxのmin-height問題） (2)SVGプレビュー上でダブルクリックによるテキスト直接編集機能追加 (3)左パネルのテキスト編集をシングルクリックに変更（操作性向上）' },
@@ -635,7 +645,6 @@
       { icon: '🪄', app: 'Prompt Maker',           date: '2026-03-30(月)', desc: 'v3大型アップデート：Vercel KVによるソース永続保存（キャッシュクリア後も復元）・ソース追加者のユーザー名記録・チーム共有・URL実コンテンツ自動取得（fetch-article連携）・ソース検索・全文展開/折りたたみ・クラウド/ローカル自動切替・ストレージ状態バッジ表示' },
       { icon: '🎨', app: 'Wireframe Maker',        date: '2026-03-30(月)', desc: '大型アップデート: 学習データ7ソースに拡充（才流/WACUL/NNg/Baymard/HubSpot/Unbounce/コピーライティング）・テンプレート10種に倍増（SaaS LP/EC商品/採用LP/イベント追加）・セクション19種に拡張（動画/ロゴバー/比較表/スティッキーCTA追加）・レスポンシブプレビュー（PC/Tab/SP切替）・履歴復元・セクションのインライン編集・セクション複製・SVGクリップボードコピー' },
       { icon: '🪄', app: 'Prompt Maker',           date: '2026-03-30(月)', desc: 'NotebookLM風リニューアル：2ペインレイアウト（左ソース管理・右チャット）・テキスト/URL参照ソース追加・ソースを踏まえたプロンプト生成・新規チャットボタン・モバイルタブ切替対応' },
->>>>>>> origin/main
       { icon: '🖼️', app: 'Banner Resizer',      date: '2026-03-30(月)', desc: 'WebP出力のCMSアップロードエラーを修正（ブラウザのフォールバック時に正しい拡張子で出力）' },
       { icon: '📊', app: 'Slide Maker',            date: '2026-03-30(月)', desc: 'ファクトチェック機能追加：各スライドの主張をWeb検索で検証し出典付きで結果表示・検証済/要確認のステータス表示' },
       { icon: '📊', app: 'Slide Maker',            date: '2026-03-30(月)', desc: 'UX改善：初見ユーザー向けウェルカムガイド（3ステップ説明）・インポートゾーン折りたたみ化・リサーチボタンにラベル追加・チャット初期メッセージ改善・サジェスチョン4種に拡充・入力プレースホルダーに具体例表示' },
