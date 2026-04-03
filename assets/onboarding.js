@@ -7,11 +7,11 @@
  *     initOnboarding({
  *       appName: 'ogp-checker',
  *       title: 'OGP Checker',
- *       description: 'OGPタグの確認・プレビューツールです',
- *       steps: [
- *         { icon: '🔗', text: 'URLを入力' },
- *         { icon: '🔍', text: 'OGPタグを自動取得' },
- *         { icon: '📋', text: '結果を確認・コピー' }
+ *       description: 'SNSでシェアされたときの見え方を事前に確認できます',
+ *       features: [
+ *         { icon: '🔍', text: 'URLを貼るだけでOGP・Twitter Cardを自動取得' },
+ *         { icon: '📱', text: 'SNSでの表示をその場でプレビュー' },
+ *         { icon: '⚠️', text: '設定ミスがあればすぐわかる' }
  *       ]
  *     });
  *   </script>
@@ -53,21 +53,15 @@ function initOnboarding(config) {
       line-height: 1.5;
       font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
     }
-    .ob-steps {
+    .ob-features {
       padding: 18px 24px 8px; display: flex; flex-direction: column; gap: 10px;
     }
-    .ob-step {
+    .ob-feature {
       display: flex; align-items: center; gap: 12px;
       padding: 10px 14px; background: #f7f8fa; border: 1.5px solid #e8ecf0;
     }
-    .ob-step-num {
-      font-size: 0.6rem; font-weight: 800; color: #ffb81c;
-      background: #001f33; width: 22px; height: 22px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .ob-step-icon { font-size: 1.1rem; flex-shrink: 0; }
-    .ob-step-text {
+    .ob-feature-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .ob-feature-text {
       font-size: 0.8rem; color: #2d3436; line-height: 1.4;
       font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
     }
@@ -85,18 +79,18 @@ function initOnboarding(config) {
     @media (max-width: 600px) {
       .ob-modal { max-width: 95vw; }
       .ob-header { padding: 18px 16px 14px; }
-      .ob-steps { padding: 14px 16px 6px; }
+      .ob-features { padding: 14px 16px 6px; }
       .ob-footer { padding: 12px 16px 16px; }
     }
   `;
   document.head.appendChild(style);
 
   // --- HTML 構築 ---
-  const stepsHtml = config.steps.map((s, i) => `
-    <div class="ob-step">
-      <div class="ob-step-num">${i + 1}</div>
-      <div class="ob-step-icon">${s.icon}</div>
-      <div class="ob-step-text">${s.text}</div>
+  const items = config.features || config.steps || [];
+  const featuresHtml = items.map(s => `
+    <div class="ob-feature">
+      <div class="ob-feature-icon">${s.icon}</div>
+      <div class="ob-feature-text">${s.text}</div>
     </div>
   `).join('');
 
@@ -107,10 +101,10 @@ function initOnboarding(config) {
   overlay.innerHTML = `
     <div class="ob-modal">
       <div class="ob-header">
-        <h2><span>${config.title}</span> の使い方</h2>
+        <h2><span>${config.title}</span> でできること</h2>
         <p>${config.description}</p>
       </div>
-      <div class="ob-steps">${stepsHtml}</div>
+      <div class="ob-features">${featuresHtml}</div>
       <div class="ob-footer">
         <button class="ob-btn" autofocus>はじめる</button>
       </div>
