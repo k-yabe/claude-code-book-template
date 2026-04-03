@@ -2488,5 +2488,20 @@
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
+  <script src="../../assets/onboarding.js"></script>
+  <script>initOnboarding({
+    appName: 'prompt-maker',
+    title: 'Prompt Maker',
+    description: 'ソースを追加してAIと対話しながら最適なプロンプトを生成します',
+    steps: [
+      { icon: '📚', text: 'テキスト・URL・PDFをソースに追加' },
+      { icon: '💬', text: 'AIと対話してプロンプトを生成' },
+      { icon: '📋', text: '品質スコア付きでコピー' }
+    ]
+  });
+  // 共通ポップアップ表示時は既存のステップガイドを抑制
+  if (!localStorage.getItem('pm_guide_seen')) {
+    localStorage.setItem('pm_guide_seen', '1');
+  }</script>
 </body>
 </html>
