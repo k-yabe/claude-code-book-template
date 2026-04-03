@@ -26,7 +26,7 @@
       text-decoration: none; transition: all 0.15s;
     }
     .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
-    .container { max-width: 960px; margin: 0 auto; padding: 36px 24px 80px; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 36px 24px 80px; }
     .page-header { margin-bottom: 20px; }
     .page-header h1 { font-size: 1.4rem; font-weight: 700; color: #001f33; margin-bottom: 4px; }
     .page-header p { font-size: 0.82rem; color: rgba(0,31,51,0.5); line-height: 1.6; }
@@ -139,10 +139,10 @@
     }
     .browser-label-current { background: rgba(0,31,51,0.03); color: rgba(0,31,51,0.5); }
     .browser-label-latest { background: rgba(255,184,28,0.08); color: #001f33; }
-    .browser-content { position: relative; }
+    .browser-content { position: relative; overflow: hidden; }
     .browser-iframe {
-      width: 100%; height: 500px; border: none; display: block;
-      background: #fff; pointer-events: none;
+      width: 100%; height: 600px; border: none; display: block;
+      background: #fff;
     }
 
     .next-steps { background: #fff; border: 1.5px solid #e8ecf0; padding: 20px; margin-bottom: 16px; display: none; }
@@ -219,8 +219,8 @@
       <div class="sample-row">
         <span class="sample-label">サンプル:</span>
         <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja')">akkodis.com/ja</button>
-        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/services')">akkodis サービス</button>
-        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/insights')">akkodis インサイト</button>
+        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/services')">akkodis.com/ja/services</button>
+        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/insights')">akkodis.com/ja/insights</button>
       </div>
     </div>
 
