@@ -1,6 +1,9 @@
 /**
  * 共通オンボーディングポップアップ
  *
+ * - 初回〜毎回表示（閉じても次回また出る）
+ * - 「今後表示しない」チェックで非表示にできる
+ *
  * 使い方:
  *   <script src="../../assets/onboarding.js"></script>
  *   <script>
@@ -23,67 +26,82 @@ function initOnboarding(config) {
   if (localStorage.getItem(key) === '1') return;
 
   // --- CSS 注入 ---
-  const style = document.createElement('style');
-  style.textContent = `
-    .ob-overlay {
-      position: fixed; inset: 0; z-index: 9999;
-      background: rgba(0,31,51,0.55);
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
-      opacity: 0; transition: opacity 0.25s ease;
-    }
-    .ob-overlay.show { opacity: 1; }
-    .ob-modal {
-      background: #fff; width: 90vw; max-width: 420px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-      transform: translateY(12px); transition: transform 0.25s ease;
-      overflow: hidden;
-    }
-    .ob-overlay.show .ob-modal { transform: translateY(0); }
-    .ob-header {
-      background: #001f33; padding: 22px 24px 18px; color: #fff;
-    }
-    .ob-header h2 {
-      font-size: 1.05rem; font-weight: 700; margin: 0 0 4px;
-      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-    }
-    .ob-header h2 span { color: #ffb81c; }
-    .ob-header p {
-      font-size: 0.78rem; color: rgba(255,255,255,0.65); margin: 0;
-      line-height: 1.5;
-      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-    }
-    .ob-features {
-      padding: 18px 24px 8px; display: flex; flex-direction: column; gap: 10px;
-    }
-    .ob-feature {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 14px; background: #f7f8fa; border: 1.5px solid #e8ecf0;
-    }
-    .ob-feature-icon { font-size: 1.1rem; flex-shrink: 0; }
-    .ob-feature-text {
-      font-size: 0.8rem; color: #2d3436; line-height: 1.4;
-      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-    }
-    .ob-footer {
-      padding: 14px 24px 20px; display: flex; justify-content: flex-end;
-    }
-    .ob-btn {
-      background: #001f33; color: #fff; border: none;
-      padding: 10px 28px; font-size: 0.82rem; font-weight: 700;
-      cursor: pointer; letter-spacing: 0.04em;
-      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-      transition: opacity 0.15s;
-    }
-    .ob-btn:hover { opacity: 0.85; }
-    @media (max-width: 600px) {
-      .ob-modal { max-width: 95vw; }
-      .ob-header { padding: 18px 16px 14px; }
-      .ob-features { padding: 14px 16px 6px; }
-      .ob-footer { padding: 12px 16px 16px; }
-    }
-  `;
-  document.head.appendChild(style);
+  if (!document.getElementById('ob-styles')) {
+    const style = document.createElement('style');
+    style.id = 'ob-styles';
+    style.textContent = `
+      .ob-overlay {
+        position: fixed; inset: 0; z-index: 9999;
+        background: rgba(0,31,51,0.55);
+        display: flex; align-items: center; justify-content: center;
+        padding: 20px;
+        opacity: 0; transition: opacity 0.25s ease;
+      }
+      .ob-overlay.show { opacity: 1; }
+      .ob-modal {
+        background: #fff; width: 90vw; max-width: 420px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        transform: translateY(12px); transition: transform 0.25s ease;
+        overflow: hidden;
+      }
+      .ob-overlay.show .ob-modal { transform: translateY(0); }
+      .ob-header {
+        background: #001f33; padding: 22px 24px 18px; color: #fff;
+      }
+      .ob-header h2 {
+        font-size: 1.05rem; font-weight: 700; margin: 0 0 4px;
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      }
+      .ob-header h2 span { color: #ffb81c; }
+      .ob-header p {
+        font-size: 0.78rem; color: rgba(255,255,255,0.65); margin: 0;
+        line-height: 1.5;
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      }
+      .ob-features {
+        padding: 18px 24px 8px; display: flex; flex-direction: column; gap: 10px;
+      }
+      .ob-feature {
+        display: flex; align-items: center; gap: 12px;
+        padding: 10px 14px; background: #f7f8fa; border: 1.5px solid #e8ecf0;
+      }
+      .ob-feature-icon { font-size: 1.1rem; flex-shrink: 0; }
+      .ob-feature-text {
+        font-size: 0.8rem; color: #2d3436; line-height: 1.4;
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      }
+      .ob-footer {
+        padding: 14px 24px 20px;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .ob-dismiss {
+        display: flex; align-items: center; gap: 5px;
+        font-size: 0.72rem; color: #8a9bb0; cursor: pointer;
+        user-select: none;
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      }
+      .ob-dismiss input {
+        accent-color: #001f33; width: 13px; height: 13px; cursor: pointer;
+      }
+      .ob-btn {
+        background: #001f33; color: #fff; border: none;
+        padding: 10px 28px; font-size: 0.82rem; font-weight: 700;
+        cursor: pointer; letter-spacing: 0.04em;
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        transition: opacity 0.15s;
+      }
+      .ob-btn:hover { opacity: 0.85; }
+      @media (max-width: 600px) {
+        .ob-modal { max-width: 95vw; }
+        .ob-header { padding: 18px 16px 14px; }
+        .ob-features { padding: 14px 16px 6px; }
+        .ob-footer { padding: 12px 16px 16px; flex-direction: column-reverse; gap: 10px; align-items: stretch; }
+        .ob-btn { text-align: center; }
+        .ob-dismiss { justify-content: center; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
 
   // --- HTML 構築 ---
   const items = config.features || config.steps || [];
@@ -106,7 +124,10 @@ function initOnboarding(config) {
       </div>
       <div class="ob-features">${featuresHtml}</div>
       <div class="ob-footer">
-        <button class="ob-btn" autofocus>はじめる</button>
+        <label class="ob-dismiss">
+          <input type="checkbox" id="ob-no-more">今後表示しない
+        </label>
+        <button class="ob-btn">OK</button>
       </div>
     </div>
   `;
@@ -119,8 +140,11 @@ function initOnboarding(config) {
 
   // --- 閉じる ---
   function close() {
+    const noMore = overlay.querySelector('#ob-no-more').checked;
+    if (noMore) {
+      localStorage.setItem(key, '1');
+    }
     overlay.classList.remove('show');
-    localStorage.setItem(key, '1');
     setTimeout(() => overlay.remove(), 300);
   }
 
