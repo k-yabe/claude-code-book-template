@@ -139,34 +139,11 @@
     }
     .browser-label-current { background: rgba(0,31,51,0.03); color: rgba(0,31,51,0.5); }
     .browser-label-latest { background: rgba(255,184,28,0.08); color: #001f33; }
-    .browser-content { padding: 16px; }
-
-    .ogp-section { margin-bottom: 16px; }
-    .ogp-image { width: 100%; aspect-ratio: 1.91/1; object-fit: cover; background: #f0f2f5; border: 1px solid #e8ecf0; display: block; cursor: pointer; }
-    .ogp-image-placeholder { width: 100%; aspect-ratio: 1.91/1; background: #f0f2f5; border: 1px solid #e8ecf0; display: flex; align-items: center; justify-content: center; color: rgba(0,31,51,0.25); font-size: 0.82rem; }
-    .ogp-title { font-size: 0.95rem; font-weight: 700; color: #001f33; margin-top: 8px; padding: 2px 4px; }
-    .ogp-desc { font-size: 0.78rem; color: rgba(0,31,51,0.5); margin-top: 4px; line-height: 1.5; padding: 2px 4px; }
-    .images-section { margin-bottom: 16px; }
-    .section-label { font-size: 0.75rem; font-weight: 700; color: rgba(0,31,51,0.4); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e8ecf0; }
-    .image-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-    .image-thumb { aspect-ratio: 1; object-fit: cover; width: 100%; background: #f0f2f5; border: 1px solid #e8ecf0; cursor: pointer; }
-    .image-thumb:hover { border-color: #ffb81c; }
-    .image-count { font-size: 0.72rem; color: rgba(0,31,51,0.4); margin-top: 4px; }
-    .no-images { font-size: 0.78rem; color: rgba(0,31,51,0.25); padding: 12px 0; }
-    .text-section { margin-bottom: 8px; }
-    .text-line { font-size: 0.78rem; color: rgba(0,31,51,0.5); line-height: 1.7; padding: 1px 4px; }
-
-    /* マーカーハイライト */
-    .hl-marker { background: linear-gradient(180deg, transparent 55%, rgba(255,184,28,0.35) 55%); }
-    .hl-marker-img { outline: 3px solid rgba(255,184,28,0.6); outline-offset: -1px; }
-    .hl-marker-badge {
-      display: inline-block; font-size: 0.6rem; font-weight: 800; color: #001f33;
-      background: #ffb81c; padding: 1px 6px; margin-left: 6px; vertical-align: middle;
+    .browser-content { position: relative; }
+    .browser-iframe {
+      width: 100%; height: 500px; border: none; display: block;
+      background: #fff; pointer-events: none;
     }
-
-    .img-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; cursor: pointer; }
-    .img-modal.show { display: flex; }
-    .img-modal img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
 
     .next-steps { background: #fff; border: 1.5px solid #e8ecf0; padding: 20px; margin-bottom: 16px; display: none; }
     .next-steps-title { font-size: 0.85rem; font-weight: 700; color: #001f33; margin-bottom: 10px; }
@@ -236,14 +213,14 @@
     <div class="input-area">
       <div class="input-label">確認したいページのURL</div>
       <div class="input-row">
-        <input type="url" id="url-input" class="input-field" placeholder="https://www.akkodis.co.jp/..." autocomplete="url">
+        <input type="url" id="url-input" class="input-field" placeholder="https://www.akkodis.com/ja/..." autocomplete="url">
         <button id="check-btn" class="check-btn" onclick="runCheck()">チェック</button>
       </div>
       <div class="sample-row">
-        <span class="sample-label">テスト用:</span>
-        <button class="sample-btn" onclick="fillSample('https://www.google.com')">google.com</button>
-        <button class="sample-btn" onclick="fillSample('https://example.com')">example.com</button>
-        <button class="sample-btn" onclick="fillSample('https://httpbin.org/cache/60')">httpbin (60秒キャッシュ)</button>
+        <span class="sample-label">サンプル:</span>
+        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja')">akkodis.com/ja</button>
+        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/services')">akkodis サービス</button>
+        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/insights')">akkodis インサイト</button>
       </div>
     </div>
 
@@ -275,7 +252,7 @@
         </div>
         <div class="browser-addressbar"><span class="browser-addressbar-icon">🔒</span><span id="url-current"></span></div>
         <div class="browser-label browser-label-current">🌐 サイト訪問者が見ている状態</div>
-        <div class="browser-content" id="body-current"></div>
+        <div class="browser-content"><iframe class="browser-iframe" id="iframe-current" sandbox="allow-same-origin"></iframe></div>
       </div>
       <div class="browser-frame" id="col-latest">
         <div class="browser-titlebar">
@@ -284,7 +261,7 @@
         </div>
         <div class="browser-addressbar"><span class="browser-addressbar-icon">🔒</span><span id="url-latest"></span></div>
         <div class="browser-label browser-label-latest">📝 CMSの最新状態（パラメータ付き）</div>
-        <div class="browser-content" id="body-latest"></div>
+        <div class="browser-content"><iframe class="browser-iframe" id="iframe-latest" sandbox="allow-same-origin"></iframe></div>
       </div>
     </div>
 
@@ -299,15 +276,10 @@
     </div>
   </div>
 
-  <div class="img-modal" id="img-modal" onclick="this.classList.remove('show')">
-    <img id="modal-img" src="" alt="">
-  </div>
-
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/diff@5/dist/diff.min.js"></script>
   <script src="../../assets/copy-utils.js"></script>
   <script src="../../assets/history.js"></script>
   <script>
@@ -323,83 +295,42 @@
     function clearError() { errorEl.textContent = ''; errorEl.classList.remove('show'); }
     function setLoading(on) { loadingEl.classList.toggle('show', on); checkBtn.disabled = on; checkBtn.textContent = on ? 'チェック中...' : 'チェック'; }
     function fillSample(url) { urlInput.value = url; urlInput.focus(); }
-    function showModal(src) { document.getElementById('modal-img').src = src; document.getElementById('img-modal').classList.add('show'); }
 
-    // ── HTML解析 ──
+    // ── HTML解析（差分検出用） ──
     function parsePageContent(html, baseUrl) {
       const doc = new DOMParser().parseFromString(html, 'text/html');
       const base = new URL(baseUrl);
       function resolveUrl(src) { if (!src) return ''; try { return new URL(src, base).href; } catch { return src; } }
       function getMeta(name) { const el = doc.querySelector(`meta[property="${name}"], meta[name="${name}"]`); return el ? el.getAttribute('content') : ''; }
-
       const ogp = {
         title: getMeta('og:title') || doc.title || '',
         description: getMeta('og:description') || getMeta('description') || '',
         image: resolveUrl(getMeta('og:image')),
-        siteName: getMeta('og:site_name') || '',
       };
       const imgEls = doc.querySelectorAll('img[src]');
       const seen = new Set(); const images = [];
-      imgEls.forEach(img => { const src = resolveUrl(img.getAttribute('src')); if (!src || src.startsWith('data:') || seen.has(src)) return; seen.add(src); images.push({ src, alt: img.getAttribute('alt') || '' }); });
-
-      const textEls = doc.querySelectorAll('h1, h2, h3, h4, p, li, td, th, figcaption');
+      imgEls.forEach(img => { const src = resolveUrl(img.getAttribute('src')); if (!src || src.startsWith('data:') || seen.has(src)) return; seen.add(src); images.push({ src }); });
+      const textEls = doc.querySelectorAll('h1, h2, h3, h4, p, li, td, th, figcaption, span, a, label, dt, dd');
       const textParts = []; const seenText = new Set();
       textEls.forEach(el => { const t = el.textContent.trim(); if (t && t.length > 2 && !seenText.has(t)) { seenText.add(t); textParts.push(t); } });
       return { ogp, images, textContent: textParts.join('\n'), title: doc.title || '' };
     }
 
-    // ── カラム描画（マーカーハイライト付き） ──
-    function renderColumn(containerId, data, highlights) {
-      const el = document.getElementById(containerId);
-      const hl = highlights || {};
-      let html = '';
-
-      html += '<div class="ogp-section">';
-      if (data.ogp.image) {
-        const imgClass = hl.ogpImage ? 'ogp-image hl-marker-img' : 'ogp-image';
-        html += `<img class="${imgClass}" src="${escHtml(data.ogp.image)}" alt="OGP画像" onerror="this.outerHTML='<div class=ogp-image-placeholder>画像を読み込めません</div>'" onclick="showModal('${escHtml(data.ogp.image)}')">`;
+    // ── iframe にHTMLを表示（実際のWebページプレビュー） ──
+    function renderIframe(iframeId, html, baseUrl) {
+      const iframe = document.getElementById(iframeId);
+      // <base>タグを挿入して画像・CSS等を元サイトから読み込む
+      const baseTag = `<base href="${escHtml(baseUrl)}">`;
+      // <head>の先頭にbaseタグを挿入、なければ<html>直後に挿入
+      let modifiedHtml = html;
+      if (modifiedHtml.includes('<head>')) {
+        modifiedHtml = modifiedHtml.replace('<head>', '<head>' + baseTag);
+      } else if (modifiedHtml.includes('<html>')) {
+        modifiedHtml = modifiedHtml.replace('<html>', '<html><head>' + baseTag + '</head>');
       } else {
-        html += '<div class="ogp-image-placeholder">OGP画像なし</div>';
+        modifiedHtml = baseTag + modifiedHtml;
       }
-      const titleText = escHtml(data.ogp.title || data.title || '(タイトルなし)');
-      html += `<div class="ogp-title">${hl.title ? '<span class="hl-marker">' + titleText + '</span><span class="hl-marker-badge">変更</span>' : titleText}</div>`;
-      if (data.ogp.description) {
-        const descText = escHtml(data.ogp.description);
-        html += `<div class="ogp-desc">${hl.description ? '<span class="hl-marker">' + descText + '</span><span class="hl-marker-badge">変更</span>' : descText}</div>`;
-      }
-      html += '</div>';
-
-      html += '<div class="images-section">';
-      html += `<div class="section-label">ページ内の画像（${data.images.length}枚）</div>`;
-      if (data.images.length > 0) {
-        const showImages = data.images.slice(0, 9);
-        html += '<div class="image-grid">';
-        showImages.forEach(img => {
-          const isChanged = hl.changedImgSrcs && hl.changedImgSrcs.has(img.src);
-          html += `<img class="image-thumb${isChanged ? ' hl-marker-img' : ''}" src="${escHtml(img.src)}" alt="${escHtml(img.alt)}" title="${escHtml(img.alt || img.src)}" onclick="showModal('${escHtml(img.src)}')" onerror="this.style.display='none'">`;
-        });
-        html += '</div>';
-        if (data.images.length > 9) html += `<div class="image-count">他 ${data.images.length - 9} 枚</div>`;
-      } else {
-        html += '<div class="no-images">画像が見つかりませんでした</div>';
-      }
-      html += '</div>';
-
-      html += '<div class="text-section"><div class="section-label">ページのテキスト内容</div>';
-      const lines = data.textContent.split('\n').slice(0, 80);
-      if (lines.length > 0 && lines.some(l => l.trim())) {
-        const changedLines = hl.changedTextLines || new Set();
-        lines.forEach((line, i) => {
-          if (!line.trim()) return;
-          const isChanged = changedLines.has(i);
-          html += `<div class="text-line${isChanged ? ' hl-marker' : ''}">${escHtml(line)}${isChanged ? '<span class="hl-marker-badge">変更</span>' : ''}</div>`;
-        });
-      } else {
-        html += '<div class="text-line">(テキストを抽出できませんでした)</div>';
-      }
-      html += '</div>';
-
-      el.innerHTML = html;
+      iframe.srcdoc = modifiedHtml;
     }
 
     // ── 詳細差分分析 ──
@@ -407,15 +338,13 @@
       const items = [];
       if (current.ogp.title !== latest.ogp.title) items.push({ type: 'title', label: 'タイトル', old: current.ogp.title || current.title, new: latest.ogp.title || latest.title });
       if (current.ogp.description !== latest.ogp.description) items.push({ type: 'description', label: '説明文', old: current.ogp.description, new: latest.ogp.description });
-      if (current.ogp.image !== latest.ogp.image) items.push({ type: 'ogp-image', label: 'OGP画像', oldImg: current.ogp.image, newImg: latest.ogp.image });
-
+      if (current.ogp.image !== latest.ogp.image) items.push({ type: 'ogp-image', label: 'OGP画像' });
       const curSet = new Set(current.images.map(i => i.src));
       const latSet = new Set(latest.images.map(i => i.src));
       const addedImgs = latest.images.filter(i => !curSet.has(i.src));
       const removedImgs = current.images.filter(i => !latSet.has(i.src));
       if (addedImgs.length > 0 || removedImgs.length > 0) items.push({ type: 'images', label: 'ページ内の画像', added: addedImgs, removed: removedImgs });
-
-      if (current.textContent !== latest.textContent) items.push({ type: 'text', label: 'テキスト内容', oldText: current.textContent, newText: latest.textContent });
+      if (current.textContent !== latest.textContent) items.push({ type: 'text', label: 'テキスト内容' });
       return items;
     }
 
@@ -425,32 +354,18 @@
       const header = document.getElementById('change-summary-header');
       const body = document.getElementById('change-summary-body');
       if (changes.length === 0) { el.classList.remove('show'); return; }
-
-      header.textContent = `📋 ${changes.length}件の変更を検出 — 下のプレビューでマーカー箇所を確認してください`;
+      header.textContent = `📋 ${changes.length}件の変更を検出 — 左右のプレビューを見比べてください`;
       const icons = { title: '📝', description: '📝', 'ogp-image': '🖼️', images: '🖼️', text: '📄' };
       body.innerHTML = changes.map(c => {
         let detail = '';
         if (c.type === 'title') detail = `「${c.old || ''}」→「${c.new || ''}」`;
         else if (c.type === 'description') detail = '説明文が変更';
         else if (c.type === 'ogp-image') detail = 'OGP画像が変更';
-        else if (c.type === 'images') { const parts = []; if (c.added.length) parts.push(`${c.added.length}枚追加`); if (c.removed.length) parts.push(`${c.removed.length}枚削除`); detail = parts.join('・'); }
+        else if (c.type === 'images') { const parts = []; if (c.added && c.added.length) parts.push(`${c.added.length}枚追加`); if (c.removed && c.removed.length) parts.push(`${c.removed.length}枚削除`); detail = parts.join('・'); }
         else if (c.type === 'text') detail = 'テキスト内容が変更';
         return `<span class="change-badge"><span class="change-badge-icon">${icons[c.type] || '📋'}</span>${escHtml(c.label)}${detail ? '：' + escHtml(detail) : ''}</span>`;
       }).join('');
       el.classList.add('show');
-    }
-
-    // ── テキスト行レベルの差分インデックス計算 ──
-    function computeChangedTextLines(currentLines, latestLines) {
-      const currentSet = new Set();
-      const latestSet = new Set();
-      currentLines.forEach(l => { if (l.trim()) currentSet.add(l.trim()); });
-      latestLines.forEach(l => { if (l.trim()) latestSet.add(l.trim()); });
-      const changedCurrent = new Set();
-      const changedLatest = new Set();
-      currentLines.forEach((l, i) => { if (l.trim() && !latestSet.has(l.trim())) changedCurrent.add(i); });
-      latestLines.forEach((l, i) => { if (l.trim() && !currentSet.has(l.trim())) changedLatest.add(i); });
-      return { changedCurrent, changedLatest };
     }
 
     // ── プロキシ取得 ──
@@ -474,7 +389,7 @@
       const rawUrl = urlInput.value.trim();
       if (!rawUrl) { showError('URLを入力してください'); urlInput.focus(); return; }
       let parsed;
-      try { parsed = new URL(rawUrl); } catch { showError('有効なURLを入力してください（例: https://www.akkodis.co.jp/）'); urlInput.focus(); return; }
+      try { parsed = new URL(rawUrl); } catch { showError('有効なURLを入力してください（例: https://www.akkodis.com/ja/）'); urlInput.focus(); return; }
       if (!['http:', 'https:'].includes(parsed.protocol)) { showError('HTTP/HTTPS のURLを入力してください'); return; }
 
       setLoading(true);
@@ -484,6 +399,8 @@
         const bypassUrlStr = bypassUrl.toString();
 
         const [currentRes, latestRes] = await Promise.all([fetchViaProxy(rawUrl), fetchViaProxy(bypassUrlStr)]);
+
+        // 差分検出用にパース
         const currentData = parsePageContent(currentRes.body, rawUrl);
         const latestData = parsePageContent(latestRes.body, rawUrl);
 
@@ -492,38 +409,12 @@
         document.getElementById('tab-current').textContent = currentData.ogp.title || currentData.title || rawUrl;
         document.getElementById('tab-latest').textContent = latestData.ogp.title || latestData.title || rawUrl;
 
+        // iframe に実際のHTML表示
+        renderIframe('iframe-current', currentRes.body, rawUrl);
+        renderIframe('iframe-latest', latestRes.body, rawUrl);
+
         // 詳細差分
         const changes = compareDetailed(currentData, latestData);
-
-        // テキスト行レベルの差分
-        const currentLines = currentData.textContent.split('\n').slice(0, 80);
-        const latestLines = latestData.textContent.split('\n').slice(0, 80);
-        const textDiff = computeChangedTextLines(currentLines, latestLines);
-
-        // 画像差分のSrcセット
-        const curImgSet = new Set(currentData.images.map(i => i.src));
-        const latImgSet = new Set(latestData.images.map(i => i.src));
-        const addedImgSrcs = new Set(latestData.images.filter(i => !curImgSet.has(i.src)).map(i => i.src));
-        const removedImgSrcs = new Set(currentData.images.filter(i => !latImgSet.has(i.src)).map(i => i.src));
-
-        const hlCurrent = {
-          title: changes.some(c => c.type === 'title'),
-          description: changes.some(c => c.type === 'description'),
-          ogpImage: changes.some(c => c.type === 'ogp-image'),
-          changedImgSrcs: removedImgSrcs,
-          changedTextLines: textDiff.changedCurrent,
-        };
-        const hlLatest = {
-          title: changes.some(c => c.type === 'title'),
-          description: changes.some(c => c.type === 'description'),
-          ogpImage: changes.some(c => c.type === 'ogp-image'),
-          changedImgSrcs: addedImgSrcs,
-          changedTextLines: textDiff.changedLatest,
-        };
-
-        // 描画
-        renderColumn('body-current', currentData, hlCurrent);
-        renderColumn('body-latest', latestData, hlLatest);
         renderChangeSummary(changes);
 
         // 診断
@@ -583,7 +474,7 @@
         for (const c of r.changes) {
           if (c.type === 'title' || c.type === 'description') lines.push(`- **${c.label}**: 「${c.old || '(なし)'}」→「${c.new || '(なし)'}」`);
           else if (c.type === 'ogp-image') lines.push(`- **OGP画像**: 変更あり`);
-          else if (c.type === 'images') { if (c.added.length) lines.push(`- **画像追加**: ${c.added.length}枚`); if (c.removed.length) lines.push(`- **画像削除**: ${c.removed.length}枚`); }
+          else if (c.type === 'images') { if (c.added && c.added.length) lines.push(`- **画像追加**: ${c.added.length}枚`); if (c.removed && c.removed.length) lines.push(`- **画像削除**: ${c.removed.length}枚`); }
           else if (c.type === 'text') lines.push(`- **テキスト内容**: 変更あり`);
         }
       }
