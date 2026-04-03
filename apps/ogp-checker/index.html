@@ -644,7 +644,7 @@
 
 
       // Twitter Card（CMSがタグを出力しない場合があるため目視確認を促す）
-      const twWarnSuffix = '（Sitecoreではデフォルトで twitter タグを出力しない仕様です。ソースコードを目視でご確認ください）';
+      const twWarnSuffix = '（Sitecoreのデフォルト仕様では出力されないため、未検出でも問題ありません）';
       if (!ogp.twitterCard)  addItem('warn', `twitter:card が未検出です${twWarnSuffix}`);
       else                   addItem('ok',   `twitter:card OK（${ogp.twitterCard}）`);
 
