@@ -141,8 +141,8 @@
     .browser-label-latest { background: rgba(255,184,28,0.08); color: #001f33; }
     .browser-content { position: relative; overflow: hidden; }
     .browser-iframe {
-      width: 100%; height: 600px; border: none; display: block;
-      background: #fff;
+      width: 1280px; height: 960px; border: none; display: block;
+      background: #fff; transform-origin: top left;
     }
 
     .next-steps { background: #fff; border: 1.5px solid #e8ecf0; padding: 20px; margin-bottom: 16px; display: none; }
@@ -319,9 +319,14 @@
     // ── iframe にHTMLを表示（実際のWebページプレビュー） ──
     function renderIframe(iframeId, html, baseUrl) {
       const iframe = document.getElementById(iframeId);
+      const container = iframe.parentElement;
+      const containerWidth = container.clientWidth;
+      const iframeWidth = 1280;
+      const scale = containerWidth / iframeWidth;
+      iframe.style.transform = `scale(${scale})`;
+      container.style.height = (960 * scale) + 'px';
       // <base>タグを挿入して画像・CSS等を元サイトから読み込む
       const baseTag = `<base href="${escHtml(baseUrl)}">`;
-      // <head>の先頭にbaseタグを挿入、なければ<html>直後に挿入
       let modifiedHtml = html;
       if (modifiedHtml.includes('<head>')) {
         modifiedHtml = modifiedHtml.replace('<head>', '<head>' + baseTag);
