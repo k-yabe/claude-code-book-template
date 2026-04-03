@@ -121,10 +121,15 @@ async function handleOgp(req, res) {
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: 'url パラメーターが必要です' });
 
+  let parsed;
   try {
-    new URL(url);
+    parsed = new URL(url);
   } catch {
     return res.status(400).json({ error: '不正なURLです' });
+  }
+
+  if (isPrivateHost(parsed.hostname)) {
+    return res.status(403).json({ error: 'プライベートネットワークへのアクセスは許可されていません' });
   }
 
   try {

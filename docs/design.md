@@ -52,7 +52,7 @@
 | Banner Resizer | `apps/banner-resizer/index.html` | ✅ 完成 | S013 |
 | Marketo Mail Generator | `apps/marketo-mail-generator/index.html` | ✅ 完成 | S015 |
 | URL Slug Generator | `apps/url-slug-generator/index.html` | ✅ 完成 | S016 |
-| OGPチェッカー | `apps/ogp-checker/index.html` | ✅ 完成 | S017 |
+| OGPチェッカー | `apps/ogp-checker/index.html` | ✅ 完成 | S017, S047 |
 | SNS Post Generator | `apps/sns-post-generator/index.html` | ✅ 完成 | S024, S028 |
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
