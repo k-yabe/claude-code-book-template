@@ -136,9 +136,6 @@
     .result-action-btn.primary { background: var(--gold); border-color: var(--gold); color: var(--navy); font-weight: 800; }
     .result-action-btn.primary:hover { opacity: 0.92; }
 
-    /* ── Footer override: fixed position ── */
-    .app-footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,31,51,0.03); border-top: 1px solid var(--border); z-index: 5; }
-
     /* ── Responsive ── */
     @media (max-width: 768px) {
       .input-row { flex-direction: column; }
@@ -467,9 +464,9 @@
     title: 'Cache Checker',
     description: '「CMS更新したのに反映されない」をすぐ調査できます',
     features: [
-      { icon: '🔄', text: 'キャッシュ版と最新版を並べて比較' },
-      { icon: '⏱️', text: 'キャッシュの残り時間（TTL）を自動計算' },
-      { icon: '🔎', text: '変更箇所をハイライトで可視化' }
+      { icon: '🔄', text: 'キャッシュ版と最新版をページプレビューで並べて比較' },
+      { icon: '📋', text: 'タイトル・画像・テキストの変更箇所を自動検出' },
+      { icon: '📝', text: '結果をMarkdownでコピーして共有' }
     ]
   });</script>
 </body>
