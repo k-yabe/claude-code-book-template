@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-04-02T23:24:35Z",
+  "last_scraped": "2026-04-03T23:26:20Z",
   "articles": [
+    {
+      "id": "improving-the-acoustic-footprint-of-submarines",
+      "title": "Absolute Stealth: Mastering the Acoustic Signature of Submarines",
+      "url": "https://www.akkodis.com/blog/articles/improving-the-acoustic-footprint-of-submarines",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-04-03T23:24:42Z",
+      "published_date": "2026-04-03T00:00:00Z",
+      "summary_ja": "潜水艦の静寂性を確保することは現代の海軍防衛において戦略的に極めて重要であり、音は海水中で秒速1,500メートル以上で伝わるため、潜水艦の検出を防ぐには艦内の回転機械やプロペラなどから発生する音源を正確に特定し管理する必要があります。AkkodisはAIを活用した監視プラットフォーム「Datakkod」を開発し、潜水艦から発生する音をリアルタイムで分析することで、ステルス性能の向上と同時に機器の予防保全を可能にしています。このシステムは複数の防衛施設に展開でき拡張性に優れており、将来的には世界で最も静粛な潜水艦の開発を支援することを目指しています。"
+    },
     {
       "id": "ai-career-growth-curiosity",
       "title": "Stay Ahead in the Age of Intelligence: 3 Career Tips from Joshua Morley",
@@ -118,66 +128,6 @@
       "first_seen": "2026-03-23T23:22:20Z",
       "published_date": "2026-03-20T00:00:00Z",
       "summary_ja": "Edge AIのパフォーマンスは単純な計算処理能力の大きさではなく、消費電力や応答速度、信頼性といった複数の要素をバランスよく設計することが本当の価値だと述べられています。通信が不安定な環境や予測不可能な条件下でも確実に動作し、地元でデータを処理して即座に判断することで、システムの堅牢性と応答性を高める必要があります。Edge AIは人間の判断を置き換えるのではなく、膨大なデータから本当に重要な情報を抽出して人間の意思決定を助け、防衛やセキュリティが重要な現場で予測可能で制御された信頼性の高い判断をもたらします。"
-    },
-    {
-      "id": "ask-the-expert-edge-ai-myths",
-      "title": "Debunking Edge AI Myths: What Edge Intelligence Really Means",
-      "url": "https://www.akkodis.com/blog/articles/ask-the-expert-edge-ai-myths",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-23T23:22:30Z",
-      "published_date": "2026-03-20T00:00:00Z",
-      "summary_ja": "Edge AIは自動で判断する独立した知能ではなく、データ発生源に計算処理を近づけることで、人間の監視のもとで迅速で安全な判断を可能にする技術です。Edge AIシステムは物体検出や予測保全といった限定された特定のタスクを実行するように設計されており、機械が独立して思考することはなく、エンジニアと専門家が定めたルールの中で動作します。高い計算性能だけでなく、ユーザーのニーズ、運用上の制約、プライバシー、倫理的要素を含めた総合的な視点で評価することが、実際に価値をもたらすEdge AI導入の鍵となります。"
-    },
-    {
-      "id": "nvidia-gtc-2026-digital-engineering",
-      "title": "From Tokens to Transformation: What NVIDIA GTC 2026 Means for Digital Engineering",
-      "url": "https://www.akkodis.com/blog/articles/nvidia-gtc-2026-digital-engineering",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-21T23:14:58Z",
-      "published_date": "2026-03-19T00:00:00Z",
-      "summary_ja": "NVIDIA GTC 2026ではAIインフラの大規模な構築が加速することが明らかになり、同社のBlackwellとVera Rubin プラットフォームで1兆ドル規模の受注が見込まれています。Vera Rubin は複数のチップを統合した新型スーパーコンピュータで、自律的に動作し続けるAIエージェント向けに設計されており、2027年から本格稼働する予定です。同時に発表されたOpenClawはエンタープライズ向けのAIエージェント運用プラットフォームとなり、自動車の自動運転やロボット技術などの産業応用が急速に進展することで、ソフトウェア検証やシステム統合といった複雑な技術課題への対応が企業に求められるようになります。"
-    },
-    {
-      "id": "why-most-ai-pilots-fail",
-      "title": "Why Most AI Pilots Fail: Real Constraints To AI Scale",
-      "url": "https://www.akkodis.com/blog/articles/why-most-ai-pilots-fail",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-29T23:25:15Z",
-      "published_date": null,
-      "summary_ja": "# 要約\n\nAI導入が失敗する理由は技術の性能ではなく、組織の運営体制にあります。パイロット段階では小さなチームが限定的な条件下で成功を収めますが、スケーリング時には企業全体に存在する古いシステム、散らばったデータ、不明確な承認フローといった構造的な問題が浮き彫りになり、展開が停滞してしまいます。多くの企業はより優れたモデルを導入することが解決策だと考えていますが、実は根本的な問題はデータの統一性、意思決定権の明確化、部門を超えた調整の仕組みにあります。成功している企業は、AI導入を急ぐのではなく、まずデータと業務プロセスの基盤を整備した上でAIを組み込む方針を取っており、その結果として段階的な導入でも着実に本番運用まで進められています。"
-    },
-    {
-      "id": "ai-sports-performance-rugby",
-      "title": "Stade Toulousain x Akkodis: Where AI Powers Performance",
-      "url": "https://www.akkodis.com/blog/articles/ai-sports-performance-rugby",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-29T23:25:50Z",
-      "published_date": null,
-      "summary_ja": "Akkodis IntelligenceはラグビーのStade Toulousainと協力し、AIとデータ分析を活用してトレーニング中の選手の動きや力の入り方を細かく測定し、目に見えない改善点を発見しています。スクラムマシンに搭載したセンサーでは力の分散や衝撃を正確に捉え、怪我リスクの低減と技術向上に役立てています。試合中は低遅延のデータ処理により、選手のワークロード管理や動きの効率性をリアルタイムで分析し、人間の判断と経験をサポートする形で高いパフォーマンスを実現しています。"
-    },
-    {
-      "id": "digital-learning-and-immersive-solutions",
-      "title": "Akkodis Digital Learning & Immersive Solutions",
-      "url": "https://www.akkodis.com/blog/articles/digital-learning-and-immersive-solutions",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-18T01:49:10Z",
-      "published_date": null,
-      "summary_ja": "Akkodis Digital Learning & Immersive Solutionsは、70名以上のドメイン専門家と2800件以上のプロジェクト実績を背景に、産業分野の研修向けにマルチメディアとイマーシブソリューションを提供しています。e-ラーニングやゲーム、シミュレーターを通じて、実際の環境に近い安全な空間で従業員の学習や手順の習熟を支援し、業務効率化と作業事故のリスク低減を実現します。さらに同社が開発した3DJuumpというツールにより、製造業企業は3Dを共通言語として採用でき、ユーザーの技術的な制約を取り除くことができます。"
-    },
-    {
-      "id": "electric-mobility-energy-careers",
-      "title": "Driving the Future of Electric Mobility Careers in Energy",
-      "url": "https://www.akkodis.com/blog/articles/electric-mobility-energy-careers",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-03-14T12:15:29Z",
-      "published_date": "2026-03-06T00:00:00Z",
-      "summary_ja": "Akkodis Energyのコンサルタント、Edis Myftariは、データ分析やAIを活用して電動モビリティプロジェクトを実現させ、都市の脱炭素化に貢献しています。彼の仕事は構想段階から実装まで幅広く、国際企業との協業を通じて持続可能なエネルギーシステムの構築を推進しています。Akkodisの協働文化の中で、多様なチームメンバーとの関わりを通じて最新技術を習得しながら、プロジェクトの成功を通じて環境への実際の影響を実感できるキャリアパスを提供しています。"
     },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
@@ -404,6 +354,16 @@
       "summary_ja": "アッコディスは、文書処理の自動化を手がけるフランス企業向けにセールスフォースの脱炭素クラウドソリューションを導入し、企業全体の9つの事業部門から排出量データを一元管理できるようにしました。廃棄物管理の専用モジュールを開発して正確な炭素排出量の指標を数値化し、リアルタイムで監視できるダッシュボードを構築することで、サステナビリティ報告書の信頼性を高めました。多言語・多通貨対応による複雑な制約を排除しながら、カーボンフットプリントを削減し財務報告をより効率的に行える仕組みを整備しました。"
     },
     {
+      "id": "zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
+      "title": "View\nkeyboard_arrow_right",
+      "url": "https://www.akkodis.com/en/blog/client-success/zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-04-03T23:25:14Z",
+      "published_date": null,
+      "summary_ja": "Akkodisは4万人以上のエンジニアとデジタル専門家を擁し、コンサルティングやソリューション提供、人材派遣、技能育成の4つのサービスを通じて、企業のデジタル化と変革を支援している企業です。自動車やaerospace、エネルギー、金融など多様な業界で40年の経験を持ち、最新技術と人的資源を組み合わせた課題解決を行っています。医療診断からAI導入まで、様々な分野で実際のビジネス課題に取り組み、クライアント企業の成長を加速させることを目指しています。"
+    },
+    {
       "id": "automotive-company-speeds-up-education-programs-adoption",
       "title": "Automotive Company’s Speeds Up Education Programs Adoption",
       "url": "https://www.akkodis.com/en/blog/client-success/automotive-company-speeds-up-education-programs-adoption",
@@ -514,6 +474,16 @@
       "summary_ja": "BMWグループは経験豊富な退職者の知識が失われるのを防ぐため、シニア・エキスパート・プログラムを立ち上げ、元従業員が短期プロジェクトで若い世代に知識を伝承する仕組みを構築しました。アコディスは従業員管理プラットフォーム「BEEPLE」をBMWグループの要件に合わせてカスタマイズし、プールの設計から契約管理、面接調整まで一貫してサポートしました。プログラム開始以来50以上のプロジェクトが実施され、アコディスの人材採用経験とプラットフォームの柔軟性により、BMWグループは100年間培った従業員の経験と専門知識を次世代に確実に引き継ぐことができるようになりました。"
     },
     {
+      "id": "personal-rekrutierung-fur-value-added-reseller",
+      "title": "View\nkeyboard_arrow_right",
+      "url": "https://www.akkodis.com/en/blog/client-success/personal-rekrutierung-fur-value-added-reseller",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-04-03T23:25:43Z",
+      "published_date": null,
+      "summary_ja": "Akkodisは40年以上の業界経験と40,000名以上のエンジニア・デジタル専門家を擁し、30カ国以上でコンサルティングやソリューション提供、人材派遣、スキル育成といった4つのサービスラインを通じて企業の技術課題と人材ニーズに対応しています。テクノロジーと人間の可能性を組み合わせた「Akkodis Intelligence」という独自のアプローチで、クライアント企業のイノベーション加速と事業変革を支援しており、Zinnov社のER&D・デジタルエンジニアリングサービスで業界リーダーとして認識されています。AI技術を活用したMedTech診断システムの開発など、自動車・航空防衛・エネルギー・金融・ヘルスケアなど多岐にわたる業界で、顧客企業とともにスマートな未来の構築に取り組んでいます。"
+    },
+    {
       "id": "akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
       "title": "Akkodis Delivers Cost Efficiencies in EE’s SD Management",
       "url": "https://www.akkodis.com/en/blog/client-success/akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
@@ -572,26 +542,6 @@
       "first_seen": "2026-03-14T12:21:49Z",
       "published_date": null,
       "summary_ja": "Adeccoが新規開発したモバイルアプリプロジェクトで、社内人員不足を補うため、Akkodisに20名以上のエンジニアチームの派遣を依頼されました。Akkodisは採用段階で実践的なタスクを導入し、プロジェクト内容の価値を候補者に丁寧に説明することで、必要な技術スキルと適性を持つ人材の確保に成功しました。チームは限られた納期の中で高い技術力とプロジェクト管理の専門知識を提供し、クライアント満足度を実現したことで、Akkodisの組織全体での認知度向上と従業員のキャリア発展につながりました。"
-    },
-    {
-      "id": "british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
-      "title": "British Airways Transforms Its IT Function",
-      "url": "https://www.akkodis.com/en/blog/client-success/british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-29T23:28:45Z",
-      "published_date": null,
-      "summary_ja": "ブリティッシュ・エアウェイズは世界140以上の空港をサポートするIT部門が抱えていた通話量の増加と人材流出の課題を解決するために、アッコディスと契約して50人以上のIT専門家から成るサービスチームを設置しました。アッコディスは採用から人材育成、日々の運用管理まで一貫して引き受けることで、航空業界の業務プロセスに精通した安定したサービスを提供できるようにしました。この取り組みによってブリティッシュ・エアウェイズは管理業務の負担を大幅に削減しながら、固定価格で信頼性の高いIT支援体制を整備することができました。"
-    },
-    {
-      "id": "rbc-railway",
-      "title": "Ensuring Rail Software Safety: Akkodis Validation Services",
-      "url": "https://www.akkodis.com/en/blog/client-success/rbc-railway",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-29T23:28:56Z",
-      "published_date": null,
-      "summary_ja": "フランスの鉄道インフラメーカーが開発した列車制御システムETCS Level 2の安全性を確保するため、アッコディスはテスト環境で各種シナリオを実行して、ソフトウェアの性能と要件への適合性を徹底的に検証しました。検証プロセス全体を記録・追跡することで、改善点の把握と問題解決の追跡を実現し、クライアントに有用なフィードバックを提供しています。複数市場向けの異なるバージョンを同時に検証できる体制を整えることで、世界中の多様な鉄道網における制御システムの安全性と信頼性を確保し、2019年以来クライアントの満足度を維持しています。"
     }
   ]
 }
