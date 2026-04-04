@@ -197,7 +197,7 @@
         <span class="sample-label">サンプル:</span>
         <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja')">akkodis.com/ja</button>
         <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/services')">akkodis.com/ja/services</button>
-        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/insights')">akkodis.com/ja/insights</button>
+        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/about')">akkodis.com/ja/about</button>
       </div>
     </div>
 
@@ -293,8 +293,9 @@
       return { ogp, images, textContent: textParts.join('\n'), title: doc.title || '' };
     }
 
-    // ── iframe にHTMLを表示（実際のWebページプレビュー） ──
-    function renderIframe(iframeId, html, baseUrl) {
+    // ── iframe にHTMLを表示（プロキシ経由で直接読み込み） ──
+    const PREVIEW_URL = '/api/preview';
+    function renderIframe(iframeId, url) {
       const iframe = document.getElementById(iframeId);
       const container = iframe.parentElement;
       const containerWidth = container.clientWidth;
@@ -302,17 +303,7 @@
       const scale = containerWidth / iframeWidth;
       iframe.style.transform = `scale(${scale})`;
       container.style.height = (960 * scale) + 'px';
-      // <base>タグを挿入して画像・CSS等を元サイトから読み込む
-      const baseTag = `<base href="${escHtml(baseUrl)}">`;
-      let modifiedHtml = html;
-      if (modifiedHtml.includes('<head>')) {
-        modifiedHtml = modifiedHtml.replace('<head>', '<head>' + baseTag);
-      } else if (modifiedHtml.includes('<html>')) {
-        modifiedHtml = modifiedHtml.replace('<html>', '<html><head>' + baseTag + '</head>');
-      } else {
-        modifiedHtml = baseTag + modifiedHtml;
-      }
-      iframe.srcdoc = modifiedHtml;
+      iframe.src = PREVIEW_URL + '?url=' + encodeURIComponent(url);
     }
 
     // ── 詳細差分分析 ──
@@ -336,7 +327,7 @@
       const header = document.getElementById('change-summary-header');
       const body = document.getElementById('change-summary-body');
       if (changes.length === 0) { el.classList.remove('show'); return; }
-      header.textContent = `📋 ${changes.length}件の変更を検出 — 右側プレビューの黄色マーカー箇所が変更点です`;
+      header.textContent = `📋 ${changes.length}件の変更を検出`;
       const icons = { title: '📝', description: '📝', 'ogp-image': '🖼️', images: '🖼️', text: '📄' };
       body.innerHTML = changes.map(c => {
         let detail = '';
@@ -348,61 +339,6 @@
         return `<span class="change-badge"><span class="change-badge-icon">${icons[c.type] || '📋'}</span>${escHtml(c.label)}${detail ? '：' + escHtml(detail) : ''}</span>`;
       }).join('');
       el.classList.add('show');
-    }
-
-    // ── iframe内の差分ハイライト ──
-    function highlightDiffs(currentHtml, latestHtml, latestIframeId) {
-      const iframe = document.getElementById(latestIframeId);
-      iframe.addEventListener('load', function onLoad() {
-        iframe.removeEventListener('load', onLoad);
-        try {
-          const latestDoc = iframe.contentDocument;
-          if (!latestDoc) return;
-
-          // ハイライト用CSSを注入
-          const style = latestDoc.createElement('style');
-          style.textContent = `
-            .cache-diff-highlight { background: rgba(255,184,28,0.35) !important; outline: 2px solid #ffb81c !important; }
-            .cache-diff-img-highlight { outline: 3px solid #ffb81c !important; box-shadow: 0 0 8px rgba(255,184,28,0.5) !important; }
-          `;
-          (latestDoc.head || latestDoc.documentElement).appendChild(style);
-
-          // 現在版のDOMをパース
-          const curDoc = new DOMParser().parseFromString(currentHtml, 'text/html');
-
-          // テキスト要素を比較してハイライト
-          const selectors = 'h1,h2,h3,h4,h5,h6,p,li,td,th,figcaption,dt,dd,blockquote,a,span,label,div';
-          const curEls = curDoc.querySelectorAll(selectors);
-          const latEls = latestDoc.querySelectorAll(selectors);
-
-          // 現在版のテキスト→要素マップ
-          const curTexts = new Map();
-          curEls.forEach(el => {
-            const t = el.textContent.trim();
-            if (t.length > 2) curTexts.set(el.tagName + ':' + t, true);
-          });
-
-          // 最新版で現在版にないテキストをハイライト
-          latEls.forEach(el => {
-            const t = el.textContent.trim();
-            if (t.length > 2 && !curTexts.has(el.tagName + ':' + t)) {
-              // 子要素がハイライト済みでなければハイライト
-              if (!el.querySelector('.cache-diff-highlight')) {
-                el.classList.add('cache-diff-highlight');
-              }
-            }
-          });
-
-          // 画像の差分をハイライト
-          const curImgs = new Set();
-          curDoc.querySelectorAll('img[src]').forEach(img => curImgs.add(img.getAttribute('src')));
-          latestDoc.querySelectorAll('img[src]').forEach(img => {
-            if (!curImgs.has(img.getAttribute('src'))) {
-              img.classList.add('cache-diff-img-highlight');
-            }
-          });
-        } catch (e) { /* cross-origin等でアクセスできない場合は無視 */ }
-      });
     }
 
     // ── プロキシ取得 ──
@@ -481,12 +417,9 @@
         document.getElementById('compare-grid').classList.add('show');
 
         // グリッド表示後にiframe描画（display:none中はclientWidthが0のため）
-        // 差分がある場合、最新版iframeに変更箇所をハイライト表示
-        if (changes.length > 0) {
-          highlightDiffs(currentRes.body, latestRes.body, 'iframe-latest');
-        }
-        renderIframe('iframe-current', currentRes.body, rawUrl);
-        renderIframe('iframe-latest', latestRes.body, rawUrl);
+        renderIframe('iframe-current', rawUrl);
+        renderIframe('iframe-latest', bypassUrlStr);
+
 
         document.getElementById('result-actions').classList.add('show');
 
