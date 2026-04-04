@@ -6,24 +6,14 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prompt Maker</title>
+  <link rel="stylesheet" href="../../assets/app-styles.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; display: flex; flex-direction: column; }
+    /* ── App-specific: body flex layout ── */
+    body { min-height: 100vh; display: flex; flex-direction: column; }
 
-    /* ナビバー */
-    .navbar {
-      background: #001f33; height: 58px; display: flex; align-items: center;
-      padding: 0 40px; gap: 14px; position: sticky; top: 0; z-index: 100;
-    }
-    .navbar-brand { display: flex; align-items: center; gap: 14px; }
-    .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
-    .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
-    .back-btn {
-      background: none; border: 1px solid rgba(255,255,255,0.2); font-size: 0.78rem;
-      color: rgba(255,255,255,0.65); cursor: pointer; padding: 6px 14px;
-      text-decoration: none; transition: all 0.15s;
-    }
-    .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+    /* ── App-specific: navbar z-index override ── */
+    .navbar { z-index: 100; }
+
     .storage-badge {
       margin-left: auto; font-size: 0.68rem; padding: 3px 10px;
       font-weight: 700; display: flex; align-items: center; gap: 5px;
@@ -271,8 +261,7 @@
     .new-chat-btn:hover { border-color: #001f33; color: #001f33; }
 
     /* フッター */
-    .app-footer { background: #001f33; border-top: 1px solid rgba(255,255,255,0.08); padding: 16px 40px; display: flex; align-items: center; justify-content: space-between; }
-    .app-footer-text { font-size: 0.72rem; color: rgba(255,255,255,0.8); }
+    .app-footer { display: flex; align-items: center; justify-content: space-between; }
 
     /* レスポンシブ */
     @media (max-width: 900px) {
@@ -1181,22 +1170,9 @@
     document.getElementById('char-count').textContent = document.getElementById('user-input').value.length + '文字';
   });
 
-  // ── ステップガイド（初回訪問） ──────────────────────────
-  (function initStepGuide() {
-    if (localStorage.getItem('pm_guide_seen')) return;
-    const overlay = document.getElementById('step-guide-overlay');
-    overlay.classList.add('show');
-    document.getElementById('step-guide-start').addEventListener('click', () => {
-      overlay.classList.remove('show');
-      localStorage.setItem('pm_guide_seen', '1');
-      // ソースヒントも表示
-      document.getElementById('source-hint').style.display = 'flex';
-    });
-    document.getElementById('step-guide-skip').addEventListener('click', () => {
-      overlay.classList.remove('show');
-      localStorage.setItem('pm_guide_seen', '1');
-    });
-  })();
+  // ── ステップガイド（共通オンボーディングに統合済み・無効化） ──
+  // initOnboarding() で代替。ステップガイドは表示しない。
+  localStorage.setItem('pm_guide_seen', '1');
 
   // ── ソースヒント ──────────────────────────
   document.getElementById('source-hint-close').addEventListener('click', () => {
@@ -2488,5 +2464,20 @@
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
+  <script src="../../assets/onboarding.js"></script>
+  <script>initOnboarding({
+    appName: 'prompt-maker',
+    title: 'Prompt Maker',
+    description: 'AI活用の質を上げるプロンプトを誰でも作れます',
+    features: [
+      { icon: '📚', text: 'テキスト・URL・PDF・YouTubeをソースとして参照' },
+      { icon: '🧠', text: 'ソースを踏まえた高品質なプロンプトをAIが構造化' },
+      { icon: '💯', text: '品質スコアで改善ポイントが一目でわかる' }
+    ]
+  });
+  // 共通ポップアップ表示時は既存のステップガイドを抑制
+  if (!localStorage.getItem('pm_guide_seen')) {
+    localStorage.setItem('pm_guide_seen', '1');
+  }</script>
 </body>
 </html>
