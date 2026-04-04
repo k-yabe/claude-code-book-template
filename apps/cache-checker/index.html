@@ -391,10 +391,6 @@
         document.getElementById('tab-current').textContent = currentData.ogp.title || currentData.title || rawUrl;
         document.getElementById('tab-latest').textContent = latestData.ogp.title || latestData.title || rawUrl;
 
-        // iframe に実際のHTML表示
-        renderIframe('iframe-current', currentRes.body, rawUrl);
-        renderIframe('iframe-latest', latestRes.body, rawUrl);
-
         // 詳細差分
         const changes = compareDetailed(currentData, latestData);
         renderChangeSummary(changes);
@@ -428,6 +424,11 @@
 
         verdict.style.display = '';
         document.getElementById('compare-grid').classList.add('show');
+
+        // グリッド表示後にiframe描画（display:none中はclientWidthが0のため）
+        renderIframe('iframe-current', currentRes.body, rawUrl);
+        renderIframe('iframe-latest', latestRes.body, rawUrl);
+
         document.getElementById('result-actions').classList.add('show');
 
         lastResult = { url: rawUrl, bypassUrl: bypassUrlStr, changes, currentData, latestData };
