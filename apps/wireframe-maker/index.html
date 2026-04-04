@@ -926,11 +926,12 @@
               <div class="ei-label">JSON書出し</div>
               <div class="ei-desc">ファイルとして保存</div>
             </div>
-            <div class="export-item" onclick="document.getElementById('proj-import-file').click()">
+            <div class="export-item" onclick="document.getElementById('export-proj-import-file').click()">
               <div class="ei-icon">📥</div>
               <div class="ei-label">JSON読込み</div>
               <div class="ei-desc">ファイルから復元</div>
             </div>
+            <input type="file" id="export-proj-import-file" accept=".json" style="display:none" onchange="importProjectJSON(this.files[0]); this.value=''">
           </div>
         </div>
       </div>
@@ -1723,7 +1724,8 @@ async function cloneAIRewrite() {
     if (data.reply) {
       // ##SUGGESTIONS## を除去
       let rewritten = data.reply.replace(/##SUGGESTIONS##[\s\S]*$/m, '').trim();
-      frame.contentWindow.postMessage({ type: 'replace-text', text: rewritten }, '*');
+      const rewriteFrame = document.getElementById('clone-frame');
+      if (rewriteFrame && rewriteFrame.contentWindow) rewriteFrame.contentWindow.postMessage({ type: 'replace-text', text: rewritten }, '*');
       addChatMessage('ai', `リライト完了:\n元: 「${originalText.slice(0, 40)}...」\n→ 「${rewritten.slice(0, 40)}...」`);
       showToast('リライト適用');
     }
@@ -3067,7 +3069,8 @@ function copySVG() {
   const str = new XMLSerializer().serializeToString(clone);
   navigator.clipboard.writeText(str).then(() => {
     const btn = document.getElementById('btn-copy-svg');
-    btn.textContent = 'コピー済み'; setTimeout(() => { btn.textContent = 'SVG コピー'; }, 2000);
+    const label = btn.querySelector('.ei-label');
+    if (label) { label.textContent = 'コピー済み ✓'; setTimeout(() => { label.textContent = 'SVG コピー'; }, 2000); }
     showToast('SVG コピー完了');
   });
 }
@@ -5113,8 +5116,8 @@ function handleCollabMessage(e) {
         const page = pages[currentPageIndex];
         page.sections = msg.sections;
         currentSections = page.sections;
-        renderSections();
-        requestPreviewRender();
+        renderSectionList();
+        renderPreview();
       }
       break;
     case 'cursor':
@@ -5295,8 +5298,8 @@ function insertComponent(compId) {
   const page = pages[currentPageIndex];
   page.sections.push(newSection);
   currentSections = page.sections;
-  renderSections();
-  requestPreviewRender();
+  renderSectionList();
+  renderPreview();
   broadcastCollabState();
   showToast(`「${comp.name}」を挿入しました`);
 }
@@ -5379,8 +5382,8 @@ async function executeFigmaImport() {
     const page = pages[currentPageIndex];
     page.sections = sections;
     currentSections = page.sections;
-    renderSections();
-    requestPreviewRender();
+    renderSectionList();
+    renderPreview();
     broadcastCollabState();
 
     document.getElementById('figma-overlay')?.remove();
@@ -5431,8 +5434,8 @@ async function figmaAIFallback(fileKey) {
       const page = pages[currentPageIndex];
       page.sections = data.sections;
       currentSections = page.sections;
-      renderSections();
-      requestPreviewRender();
+      renderSectionList();
+      renderPreview();
       broadcastCollabState();
       document.getElementById('figma-overlay')?.remove();
       showToast('AI推定でセクション構成を生成しました');
