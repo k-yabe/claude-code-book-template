@@ -323,6 +323,10 @@
     .section-picker-item .spi-name { font-size: 0.68rem; font-weight: 600; color: #2d3436; }
     .section-picker-close { margin-top: 12px; width: 100%; background: #f0f2f5; border: none; padding: 8px; font-size: 0.75rem; color: #4a5568; cursor: pointer; font-family: inherit; }
     .section-picker-close:hover { background: #e8ecf0; }
+    .section-picker-panel { background: #fff; padding: 20px; max-width: 360px; width: 90%; max-height: 70vh; overflow-y: auto; }
+    .section-picker-panel .sp-title { font-size: 0.88rem; color: #001f33; margin-bottom: 12px; font-weight: 700; }
+    .section-picker-panel .sp-card { padding: 10px 12px; background: #f7f8fa; border: 1.5px solid #e8ecf0; cursor: pointer; transition: all 0.12s; margin-bottom: 6px; }
+    .section-picker-panel .sp-card:hover { border-color: #ffb81c; background: #fffbf0; }
 
     /* ===== D1: エクスポート刷新 ===== */
     .export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -1775,6 +1779,9 @@ window.addEventListener('message', function(e) {
     } else if (window.__cloneReorderPending) {
       window.__cloneReorderPending = false;
       showCloneReorderPicker(e.data.sections);
+    } else if (window.__cloneSectionListPending) {
+      window.__cloneSectionListPending = false;
+      renderCloneSectionList(e.data.sections);
     } else {
       showCloneSectionPicker(e.data.sections);
     }
@@ -1789,6 +1796,8 @@ window.addEventListener('message', function(e) {
   }
   if (e.data.type === 'clone-changed') {
     updateCloneUndoButtons();
+    // クローンモード中は構成パネルも更新
+    if (cloneMode) renderSectionList();
   }
   // Undo/Redo/Reset のスナップショット応答
   if (e.data.type === 'clone-snapshot-response') {
@@ -1922,18 +1931,26 @@ function cloneInsertElement() {
   panel.style.maxWidth = '320px';
   panel.innerHTML = `
     <div class="sp-title">要素を追加</div>
-    <p style="font-size:12px;color:#8a9bb0;margin:0 0 8px">挿入位置:</p>
-    <div style="display:flex;gap:6px;margin:0 0 12px;">
-      <label style="font-size:12px;color:#cfd8e3;cursor:pointer;"><input type="radio" name="clone-insert-pos" value="after" checked style="margin-right:4px;">選択要素の後</label>
-      <label style="font-size:12px;color:#cfd8e3;cursor:pointer;"><input type="radio" name="clone-insert-pos" value="before" style="margin-right:4px;">選択要素の前</label>
+    <p style="font-size:0.7rem;color:#8a9bb0;margin:0 0 8px">挿入位置:</p>
+    <div style="display:flex;gap:12px;margin:0 0 16px;">
+      <label style="font-size:0.7rem;color:#001f33;cursor:pointer;display:flex;align-items:center;gap:4px;"><input type="radio" name="clone-insert-pos" value="after" checked>選択要素の後</label>
+      <label style="font-size:0.7rem;color:#001f33;cursor:pointer;display:flex;align-items:center;gap:4px;"><input type="radio" name="clone-insert-pos" value="before">選択要素の前</label>
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <button class="ct-btn" onclick="doCloneInsert('h2','見出しテキスト',{fontSize:'24px',fontWeight:'bold',margin:'16px 0'})" style="width:100%;text-align:left;">📝 見出し (H2)</button>
-      <button class="ct-btn" onclick="doCloneInsert('p','テキストを入力してください',{fontSize:'16px',margin:'8px 0',lineHeight:'1.6'})" style="width:100%;text-align:left;">📄 テキスト段落</button>
-      <button class="ct-btn" onclick="doCloneInsert('a','ボタンテキスト',{display:'inline-block',padding:'12px 32px',backgroundColor:'#001f33',color:'#fff',textDecoration:'none',fontSize:'16px',fontWeight:'bold',textAlign:'center'})" style="width:100%;text-align:left;">🔘 CTAボタン</button>
-      <button class="ct-btn" onclick="doCloneInsert('div','区切り線',{borderTop:'2px solid #ccc',margin:'24px 0',height:'0'})" style="width:100%;text-align:left;">➖ 区切り線</button>
+    <div class="section-picker-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="section-picker-item" onclick="doCloneInsert('h2','見出しテキスト',{fontSize:'24px',fontWeight:'bold',margin:'16px 0'})">
+        <span class="spi-icon">📝</span><span class="spi-name">見出し (H2)</span>
+      </div>
+      <div class="section-picker-item" onclick="doCloneInsert('p','テキストを入力してください',{fontSize:'16px',margin:'8px 0',lineHeight:'1.6'})">
+        <span class="spi-icon">📄</span><span class="spi-name">テキスト段落</span>
+      </div>
+      <div class="section-picker-item" onclick="doCloneInsert('a','ボタンテキスト',{display:'inline-block',padding:'12px 32px',backgroundColor:'#001f33',color:'#fff',textDecoration:'none',fontSize:'16px',fontWeight:'bold',textAlign:'center'})">
+        <span class="spi-icon">🔘</span><span class="spi-name">CTAボタン</span>
+      </div>
+      <div class="section-picker-item" onclick="doCloneInsert('div','区切り線',{borderTop:'2px solid #ccc',margin:'24px 0',height:'0'})">
+        <span class="spi-icon">➖</span><span class="spi-name">区切り線</span>
+      </div>
     </div>
-    <p style="font-size:11px;color:#6b7a8d;margin:8px 0 0;">💡 追加後 ⬆⬇ ボタンで位置を調整できます</p>
+    <p style="font-size:0.65rem;color:#8a9bb0;margin:10px 0 0;">💡 追加後 ⬆⬇ ボタンで位置を調整できます</p>
   `;
   ov.appendChild(panel);
   document.body.appendChild(ov);
@@ -2120,12 +2137,45 @@ function switchToClone() {
 async function generateWireframeFromClone() {
   addLoadingBubble();
   try {
-    const fetchRes = await fetch(API_BASE + '/api/fetch-article?mode=structure', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: cloneSourceUrl })
+    // 編集済みiframe HTMLからセクション構造を直接解析する
+    const iframeStructure = await new Promise((resolve) => {
+      const handler = (e) => {
+        if (e.data.type === 'clone-sections') {
+          window.removeEventListener('message', handler);
+          resolve(e.data.sections);
+        }
+      };
+      window.addEventListener('message', handler);
+      const frame = document.getElementById('clone-frame');
+      if (frame && frame.contentWindow) {
+        frame.contentWindow.postMessage({ type: 'get-sections' }, '*');
+      } else {
+        resolve([]);
+      }
+      setTimeout(() => { window.removeEventListener('message', handler); resolve([]); }, 3000);
     });
-    const structure = await fetchRes.json();
-    if (!fetchRes.ok) throw new Error(structure.error || '構造取得失敗');
-    const structureText = formatStructureForAI(structure);
+
+    // iframe HTMLの実際のテキストも取得
+    const iframeHtmlText = await new Promise((resolve) => {
+      const handler = (e) => {
+        if (e.data.type === 'clone-html') {
+          window.removeEventListener('message', handler);
+          resolve(e.data.html);
+        }
+      };
+      window.addEventListener('message', handler);
+      const frame = document.getElementById('clone-frame');
+      if (frame && frame.contentWindow) {
+        frame.contentWindow.postMessage({ type: 'get-html' }, '*');
+      } else {
+        resolve('');
+      }
+      setTimeout(() => { window.removeEventListener('message', handler); resolve(''); }, 3000);
+    });
+
+    // iframe構造からAI用テキストを生成
+    const structureText = formatCloneStructureForAI(iframeStructure, iframeHtmlText);
+
     const genRes = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode: 'url-import', freeText: structureText, _user: USER })
@@ -2143,8 +2193,8 @@ async function generateWireframeFromClone() {
       }
       onSectionsChanged();
       const modeLabel = mode === 'append' ? '追加' : '置換';
-      addChatMessage('ai', `✅ 「${fetchData.title}」をもとに ${newSections.length} セクションを${modeLabel}しました。左パネルの構成タブで自由に編集できます。`);
-      showToast('URLインポート完了');
+      addChatMessage('ai', `✅ サイト構造から ${newSections.length} セクションを${modeLabel}しました。左パネルの構成タブで自由に編集できます。`);
+      showToast('WF変換完了');
     };
     if (currentSections.length > 0) {
       showImportModeModal(newSections.length, applyImport);
@@ -2152,6 +2202,42 @@ async function generateWireframeFromClone() {
       applyImport('replace');
     }
   } catch (e) { removeLoadingBubble(); showError(e.message); }
+}
+
+// 編集済みiframe構造からAI用テキストを生成
+function formatCloneStructureForAI(sections, htmlText) {
+  let out = `# サイト構造解析結果（編集済みクローンから取得）\n\nURL: ${cloneSourceUrl || '不明'}\n\n`;
+  // HTMLからタイトルを抽出
+  const titleMatch = htmlText.match(/<title[^>]*>([^<]*)<\/title>/i);
+  if (titleMatch) out += `サイトタイトル: ${titleMatch[1].trim()}\n\n`;
+
+  if (sections.length > 0) {
+    out += `## セクション構造（上から順、${sections.length}セクション）\n`;
+    for (let i = 0; i < sections.length; i++) {
+      const sec = sections[i];
+      if (sec.hidden) continue; // 非表示セクションはスキップ
+      out += `\n### セクション${i + 1} [${sec.tag.toUpperCase()}]\n`;
+      if (sec.heading) out += `見出し: ${sec.heading}\n`;
+      out += `背景色: ${sec.bgColor || '不明'}\n`;
+    }
+    out += '\n';
+  }
+
+  // HTMLから追加情報を抽出（ナビ・フォーム・CTA）
+  const navMatch = htmlText.match(/<nav[\s\S]*?<\/nav>/i);
+  if (navMatch) {
+    const links = navMatch[0].match(/>([^<]{1,50})</g);
+    if (links) out += `## ナビゲーション\n${links.map(l => l.slice(1).trim()).filter(t => t).join(' | ')}\n\n`;
+  }
+  if (/<form/i.test(htmlText)) out += `※ フォーム要素あり\n`;
+  const ctaMatches = htmlText.match(/<a[^>]*class="[^"]*(?:btn|button|cta)[^"]*"[^>]*>([^<]*)</gi);
+  if (ctaMatches && ctaMatches.length > 0) {
+    const ctaTexts = ctaMatches.map(m => { const t = m.match(/>([^<]*)$/); return t ? t[1].trim() : ''; }).filter(t => t);
+    if (ctaTexts.length > 0) out += `CTAボタン: ${ctaTexts.join(', ')}\n`;
+  }
+
+  out += `\n---\n上記の構造を忠実に再現するワイヤーフレームセクションを生成してください。セクションの順番・内容・見出しテキストをそのまま反映すること。\n`;
+  return out;
 }
 
 function formatStructureForAI(s) {
@@ -2359,14 +2445,7 @@ function onSectionsChanged() {
   // マルチページと同期
   pages[currentPageIndex].sections = currentSections;
   pages[currentPageIndex].freeTexts = freeTexts;
-  // クローンモード中にセクション操作した場合、WFプレビューを表示
-  if (cloneMode && currentSections.length > 0) {
-    cloneMode = false;
-    document.getElementById('clone-container').classList.add('hidden');
-    document.getElementById('clone-container').style.display = '';
-    document.getElementById('preview-canvas').classList.remove('hidden');
-    document.getElementById('back-to-clone-btn').classList.remove('hidden');
-  }
+  // クローンモード中はWF側も裏で更新するが、モード切替はしない
   renderPreview();
   renderSectionList();
   updateCVRDisplay();
@@ -2380,6 +2459,16 @@ function renderSectionList() {
   const list = document.getElementById('section-list');
   list.innerHTML = '';
   const counter = document.getElementById('section-count');
+  // クローンモード時はiframeのセクション構造を表示
+  if (cloneMode) {
+    if (counter) counter.textContent = 'クローンモード';
+    const frame = document.getElementById('clone-frame');
+    if (frame && frame.contentWindow) {
+      window.__cloneSectionListPending = true;
+      frame.contentWindow.postMessage({ type: 'get-sections' }, '*');
+    }
+    return;
+  }
   if (counter) counter.textContent = `${currentSections.length} セクション`;
   currentSections.forEach((sec, i) => {
     const card = document.createElement('div');
@@ -2422,6 +2511,38 @@ function renderSectionList() {
     });
     list.appendChild(card);
   });
+}
+
+// クローンモード: iframeセクション構造を構成パネルに表示
+function renderCloneSectionList(sections) {
+  const list = document.getElementById('section-list');
+  list.innerHTML = '';
+  const counter = document.getElementById('section-count');
+  if (counter) counter.textContent = `${sections.length} セクション（クローン）`;
+  sections.forEach((sec, i) => {
+    const card = document.createElement('div');
+    card.className = 'section-card';
+    card.style.opacity = sec.hidden ? '0.4' : '1';
+    card.innerHTML = `
+      <span style="font-size:0.65rem;color:#b0bec5;font-weight:700;min-width:18px;text-align:center;flex-shrink:0">${i + 1}</span>
+      <div class="sec-info" style="flex:1">
+        <div><span class="sec-type-badge">${escHtml(sec.tag)}</span></div>
+        <div class="sec-label">${escHtml(sec.heading || '(見出しなし)')}</div>
+      </div>
+      <div class="sec-actions">
+        <button class="sec-action-btn" onclick="event.stopPropagation();moveCloneSection(${i},-1)" title="上へ">↑</button>
+        <button class="sec-action-btn" onclick="event.stopPropagation();moveCloneSection(${i},1)" title="下へ">↓</button>
+        <button class="sec-action-btn" onclick="event.stopPropagation();toggleCloneSectionHide(${i})" title="${sec.hidden ? '表示' : '非表示'}">${sec.hidden ? '👁️' : '🙈'}</button>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function toggleCloneSectionHide(index) {
+  const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) return;
+  frame.contentWindow.postMessage({ type: 'hide-section', index }, '*');
+  setTimeout(() => renderSectionList(), 300);
 }
 
 function deleteSection(index) { if (!confirm('このセクションを削除しますか？')) return; saveUndoState(); currentSections.splice(index, 1); onSectionsChanged(); }
