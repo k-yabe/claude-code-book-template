@@ -902,7 +902,7 @@
               <div class="ei-label">JSON書出し</div>
               <div class="ei-desc">ファイルとして保存</div>
             </div>
-            <div class="export-item" onclick="importProjectJSON()">
+            <div class="export-item" onclick="document.getElementById('proj-import-file').click()">
               <div class="ei-icon">📥</div>
               <div class="ei-label">JSON読込み</div>
               <div class="ei-desc">ファイルから復元</div>
@@ -2895,7 +2895,7 @@ function exportSVG() {
 
 function exportPNG() {
   const s = document.querySelector('#preview-canvas svg');
-  if (!s) return;
+  if (!s) { showToast('プレビューがありません'); return; }
   const clone = s.cloneNode(true); clone.style.transform = ''; clone.style.width = '';
   const gridG = clone.querySelector('.grid-group');
   if (gridG) gridG.remove();
@@ -2904,14 +2904,17 @@ function exportPNG() {
   const url = URL.createObjectURL(blob);
   const img = new Image();
   img.onload = () => {
+    const w = parseInt(clone.getAttribute('width')) || img.naturalWidth || 800;
+    const h = parseInt(clone.getAttribute('height')) || img.naturalHeight || 600;
     const c = document.createElement('canvas');
-    c.width = parseInt(clone.getAttribute('width')) * 2;
-    c.height = parseInt(clone.getAttribute('height')) * 2;
+    c.width = w * 2;
+    c.height = h * 2;
     const ctx = c.getContext('2d');
     ctx.scale(2, 2); ctx.drawImage(img, 0, 0);
     URL.revokeObjectURL(url);
     c.toBlob(b => { download(b, 'wireframe.png'); saveHistory(); showToast('PNG ダウンロード'); }, 'image/png');
   };
+  img.onerror = () => { URL.revokeObjectURL(url); showToast('PNG生成に失敗しました'); };
   img.src = url;
 }
 
@@ -6048,8 +6051,9 @@ function exportPDF() {
 
   const img = new Image();
   img.onload = () => {
-    const w = img.naturalWidth;
-    const h = img.naturalHeight;
+    const w = img.naturalWidth || 800;
+    const h = img.naturalHeight || 600;
+    if (w === 0 || h === 0) { showToast('SVGのサイズが取得できませんでした'); return; }
     // A4横: 297x210mm → ピクセル比に合わせてスケール
     const pageW = 842; // A4横 72dpi
     const pageH = Math.ceil(pageW * (h / w));
@@ -6074,10 +6078,12 @@ function exportPDF() {
         a.click();
         showToast('PDFダウンロード完了');
       };
+      reader.onerror = () => { showToast('PDF生成に失敗しました'); };
       reader.readAsArrayBuffer(blob);
     }, 'image/jpeg', 0.92);
     URL.revokeObjectURL(url);
   };
+  img.onerror = () => { URL.revokeObjectURL(url); showToast('PDF画像生成に失敗しました'); };
   img.src = url;
 }
 
