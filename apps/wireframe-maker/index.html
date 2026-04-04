@@ -101,6 +101,29 @@
     .svg-inline-edit .edit-actions button { padding: 4px 12px; font-size: 0.72rem; font-family: inherit; cursor: pointer; border: 1px solid #e8ecf0; background: #f7f8fa; color: #4a5568; }
     .svg-inline-edit .edit-actions button.primary { background: #001f33; color: #fff; border-color: #001f33; }
 
+    /* 自由配置テキスト */
+    .free-text-group { cursor: move; }
+    .free-text-group:hover text { opacity: 0.8; }
+    .free-text-group.selected rect.free-text-handle { stroke: #ffb81c; stroke-width: 1.5; stroke-dasharray: 4 2; }
+    .text-placement-mode { cursor: crosshair !important; }
+    .text-placement-mode svg { cursor: crosshair !important; }
+    .toolbar-btn.text-mode-active { background: #ffb81c; color: #001f33; border-color: #ffb81c; animation: pulse-text 1.5s infinite; }
+    @keyframes pulse-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .free-text-toolbar { position: absolute; z-index: 35; background: #001f33; padding: 4px 6px; display: flex; gap: 4px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .free-text-toolbar button, .free-text-toolbar select, .free-text-toolbar input { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.68rem; cursor: pointer; padding: 2px 6px; font-family: inherit; }
+    .free-text-toolbar button:hover { color: #ffb81c; border-color: #ffb81c; }
+    .free-text-toolbar select { appearance: none; padding-right: 4px; }
+    .free-text-toolbar input[type="color"] { width: 22px; height: 22px; padding: 0; border: none; cursor: pointer; }
+    /* インポートモーダル */
+    .import-mode-modal { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; }
+    .import-mode-box { background: #fff; padding: 24px; max-width: 400px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .import-mode-box h3 { font-size: 0.92rem; color: #001f33; margin-bottom: 8px; }
+    .import-mode-box p { font-size: 0.78rem; color: #4a5568; margin-bottom: 16px; line-height: 1.5; }
+    .import-mode-box .import-mode-btns { display: flex; gap: 8px; }
+    .import-mode-box .import-mode-btns button { flex: 1; padding: 10px 12px; font-size: 0.78rem; font-family: inherit; cursor: pointer; border: 1px solid #e8ecf0; background: #f7f8fa; color: #4a5568; transition: all 0.12s; }
+    .import-mode-box .import-mode-btns button:hover { border-color: #001f33; }
+    .import-mode-box .import-mode-btns button.primary { background: #001f33; color: #fff; border-color: #001f33; }
+
     /* 空状態 */
     .empty-preview { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #b0bec5; text-align: center; padding: 40px; }
     .empty-preview .empty-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.5; }
@@ -217,6 +240,7 @@
     .export-btns button { padding: 10px 20px; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s; width: 100%; }
     .export-btns .btn-svg { background: #001f33; color: #fff; border: none; }
     .export-btns .btn-png { background: #ffb81c; color: #001f33; border: none; }
+    .export-btns .btn-pdf { background: #001f33; color: #fff; border: none; opacity: 0.85; }
     .export-btns .btn-copy { background: #fff; color: #001f33; border: 2px solid #001f33; }
     .export-btns button:hover { opacity: 0.85; }
     .btn-new { background: #fff; border: 1px solid #e8ecf0; color: #4a5568; padding: 10px 16px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit; width: 100%; }
@@ -799,7 +823,7 @@
             <div class="export-btns">
               <button class="btn-svg" onclick="exportSVG()">SVG ダウンロード</button>
               <button class="btn-png" onclick="exportPNG()">PNG ダウンロード</button>
-              <button class="btn-png" onclick="exportPDF()">PDF ダウンロード</button>
+              <button class="btn-pdf" onclick="exportPDF()">PDF ダウンロード</button>
               <button class="btn-copy" id="btn-copy-svg" onclick="copySVG()">SVG コピー</button>
             </div>
           </div>
@@ -829,6 +853,7 @@
       <div class="toolbar-sep"></div>
       <button class="toolbar-btn" id="grid-toggle" onclick="toggleGrid()">Grid</button>
       <button class="toolbar-btn" id="scheme-toggle" onclick="cycleColorScheme()">🎨</button>
+      <button class="toolbar-btn" id="add-text-btn" onclick="toggleTextPlacementMode()" title="テキストを自由配置（キャンバスクリックで追加）">Aa+</button>
       <div class="toolbar-sep"></div>
       <button class="toolbar-btn" id="variant-btn" onclick="generateVariant()" title="A/Bバリアント生成">A/B</button>
       <button class="toolbar-btn" id="link-btn" onclick="addPageLink()" title="ページ間リンク追加">🔗</button>
@@ -898,9 +923,11 @@ let importedContent = '';
 let colorScheme = 'grayscale'; // grayscale | brand | blueprint
 
 /* ===== マルチページ状態 ===== */
-let pages = [{ id: 'page-1', name: 'トップ', sections: [], links: {} }];
+let pages = [{ id: 'page-1', name: 'トップ', sections: [], links: {}, freeTexts: [] }];
 let currentPageIndex = 0;
 let variantSections = null; // A/B比較用
+let freeTexts = []; // 自由配置テキスト注釈
+let textPlacementMode = false; // テキスト追加モード
 
 /* ===== メソドロジーマッピング ===== */
 const SECTION_RATIONALE = {
@@ -1176,12 +1203,45 @@ async function handleUrlImport() {
     const genData = await genRes.json();
     if (!genRes.ok) throw new Error(genData.error?.message || genData.error || '生成失敗');
     removeLoadingBubble();
-    currentSections = genData.sections;
-    onSectionsChanged();
-    addChatMessage('ai', `✅ 「${fetchData.title}」をもとに ${genData.sections.length} セクションのワイヤーフレームを生成しました。左パネルの構成タブで自由に編集できます。`);
-    showToast('URLインポート完了');
+    const newSections = genData.sections;
+    const applyImport = (mode) => {
+      saveUndoState();
+      if (mode === 'append') {
+        currentSections.push(...newSections);
+      } else {
+        currentSections = newSections;
+      }
+      onSectionsChanged();
+      const modeLabel = mode === 'append' ? '追加' : '置換';
+      addChatMessage('ai', `✅ 「${fetchData.title}」をもとに ${newSections.length} セクションを${modeLabel}しました。左パネルの構成タブで自由に編集できます。`);
+      showToast('URLインポート完了');
+    };
+    if (currentSections.length > 0) {
+      showImportModeModal(newSections.length, applyImport);
+    } else {
+      applyImport('replace');
+    }
   } catch (e) { removeLoadingBubble(); showError(e.message); }
   finally { document.getElementById('chat-send').disabled = false; }
+}
+
+function showImportModeModal(newCount, callback) {
+  const modal = document.createElement('div');
+  modal.className = 'import-mode-modal';
+  modal.innerHTML = `<div class="import-mode-box">
+    <h3>インポート方法を選択</h3>
+    <p>現在 ${currentSections.length} セクションがあります。新しく ${newCount} セクションをインポートします。</p>
+    <div class="import-mode-btns">
+      <button data-mode="replace">全て置換</button>
+      <button data-mode="append" class="primary">既存に追加</button>
+      <button onclick="this.closest('.import-mode-modal').remove()">キャンセル</button>
+    </div>
+  </div>`;
+  modal.querySelectorAll('[data-mode]').forEach(btn => {
+    btn.onclick = () => { modal.remove(); callback(btn.dataset.mode); };
+  });
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
 }
 
 async function generateFromImport() {
@@ -1192,9 +1252,16 @@ async function generateFromImport() {
     const data = await r.json();
     if (!r.ok) throw new Error(data.error?.message || data.error || '生成失敗');
     removeLoadingBubble();
-    currentSections = data.sections;
-    addChatMessage('ai', `構成を生成しました（${data.sections.length}セクション）。`);
-    onSectionsChanged();
+    const newSections = data.sections;
+    const applyImport = (mode) => {
+      saveUndoState();
+      if (mode === 'append') { currentSections.push(...newSections); }
+      else { currentSections = newSections; }
+      addChatMessage('ai', `構成を${mode === 'append' ? '追加' : '生成'}しました（${newSections.length}セクション）。`);
+      onSectionsChanged();
+    };
+    if (currentSections.length > 0) { showImportModeModal(newSections.length, applyImport); }
+    else { applyImport('replace'); }
   } catch (e) { removeLoadingBubble(); showError(e.message); }
   finally { document.getElementById('chat-send').disabled = false; }
 }
@@ -1324,6 +1391,7 @@ async function generateFromContext() {
 function onSectionsChanged() {
   // マルチページと同期
   pages[currentPageIndex].sections = currentSections;
+  pages[currentPageIndex].freeTexts = freeTexts;
   renderPreview();
   renderSectionList();
   updateCVRDisplay();
@@ -1766,6 +1834,18 @@ function _doRenderPreview() {
     s.appendChild(group);
     y += height;
   }
+  // 自由配置テキストを描画
+  const freeLayer = svgEl('g', { class: 'free-text-layer' });
+  (freeTexts || []).forEach(ft => {
+    const fg = svgEl('g', { class: 'free-text-group', 'data-ft-id': ft.id, transform: `translate(${ft.x},${ft.y})` });
+    const t = svgEl('text', { x: 0, y: 0, fill: ft.color || '#001f33', 'font-size': ft.size || '16', 'font-family': "'Segoe UI', sans-serif", 'font-weight': ft.weight || '400', 'dominant-baseline': 'hanging' });
+    t.textContent = ft.text || 'テキスト';
+    fg.appendChild(t);
+    // ドラッグ・ダブルクリック・クリックイベントは後で設定
+    freeLayer.appendChild(fg);
+  });
+  s.appendChild(freeLayer);
+
   s.setAttribute('height', y);
   s.setAttribute('viewBox', `0 0 ${WF_WIDTH} ${y}`);
 
@@ -1773,6 +1853,10 @@ function _doRenderPreview() {
   const existing = canvas.querySelector('svg');
   if (existing) existing.remove();
   canvas.appendChild(s);
+
+  // 自由配置テキストのイベントを設定
+  setupFreeTextEvents(s);
+
   applyZoom();
   updateMinimap();
 
@@ -1814,7 +1898,7 @@ const redoStack = [];
 const MAX_UNDO = 30;
 
 function saveUndoState() {
-  undoStack.push(JSON.stringify(currentSections));
+  undoStack.push(JSON.stringify({ sections: currentSections, freeTexts: freeTexts }));
   if (undoStack.length > MAX_UNDO) undoStack.shift();
   redoStack.length = 0;
   updateUndoRedoButtons();
@@ -1822,8 +1906,10 @@ function saveUndoState() {
 
 function undo() {
   if (undoStack.length === 0) return;
-  redoStack.push(JSON.stringify(currentSections));
-  currentSections = JSON.parse(undoStack.pop());
+  redoStack.push(JSON.stringify({ sections: currentSections, freeTexts: freeTexts }));
+  const state = JSON.parse(undoStack.pop());
+  if (Array.isArray(state)) { currentSections = state; freeTexts = []; } // 旧形式互換
+  else { currentSections = state.sections; freeTexts = state.freeTexts || []; }
   onSectionsChanged();
   updateUndoRedoButtons();
   showToast('元に戻しました');
@@ -1831,8 +1917,10 @@ function undo() {
 
 function redo() {
   if (redoStack.length === 0) return;
-  undoStack.push(JSON.stringify(currentSections));
-  currentSections = JSON.parse(redoStack.pop());
+  undoStack.push(JSON.stringify({ sections: currentSections, freeTexts: freeTexts }));
+  const state = JSON.parse(redoStack.pop());
+  if (Array.isArray(state)) { currentSections = state; freeTexts = []; }
+  else { currentSections = state.sections; freeTexts = state.freeTexts || []; }
   onSectionsChanged();
   updateUndoRedoButtons();
   showToast('やり直しました');
@@ -1980,7 +2068,8 @@ function saveHistory() {
 
 function startNew() {
   chatHistory = []; currentContext = null; currentSections = []; selectedSectionId = null; zoomLevel = 1; importedContent = '';
-  pages = [{ id: 'page-1', name: 'トップ', sections: [], links: {} }]; currentPageIndex = 0; variantSections = null;
+  freeTexts = []; textPlacementMode = false;
+  pages = [{ id: 'page-1', name: 'トップ', sections: [], links: {}, freeTexts: [] }]; currentPageIndex = 0; variantSections = null;
   document.getElementById('chat-messages').innerHTML = '';
   document.getElementById('suggestions-area').innerHTML = '';
   document.getElementById('ready-banner').classList.add('hidden');
@@ -2045,6 +2134,7 @@ document.addEventListener('keydown', e => {
     const idx = currentSections.findIndex(s => s.id === selectedSectionId);
     if (idx >= 0) { saveUndoState(); currentSections.splice(idx, 1); selectedSectionId = null; onSectionsChanged(); showToast('セクション削除'); }
   }
+  if (e.key === 'Escape' && textPlacementMode) { e.preventDefault(); toggleTextPlacementMode(); }
   if (!ctrl && e.key === '?') { e.preventDefault(); showShortcuts(); }
   if (!ctrl && e.key === '1') { e.preventDefault(); switchTab('chat'); }
   if (!ctrl && e.key === '2' && currentSections.length > 0) { e.preventDefault(); switchTab('structure'); }
@@ -2214,6 +2304,248 @@ function editSVGText(sectionId, textEl) {
   canvas.appendChild(input);
   input.focus();
   input.select();
+}
+
+/* ================================================================
+   自由配置テキスト機能
+   ================================================================ */
+
+function toggleTextPlacementMode() {
+  textPlacementMode = !textPlacementMode;
+  const btn = document.getElementById('add-text-btn');
+  const canvas = document.getElementById('preview-canvas');
+  if (textPlacementMode) {
+    btn.classList.add('text-mode-active');
+    canvas.classList.add('text-placement-mode');
+    showToast('キャンバスをクリックしてテキストを配置');
+  } else {
+    btn.classList.remove('text-mode-active');
+    canvas.classList.remove('text-placement-mode');
+  }
+}
+
+function addFreeTextAt(svgX, svgY) {
+  saveUndoState();
+  const ft = {
+    id: 'ft-' + Date.now(),
+    text: 'テキスト',
+    x: Math.round(svgX),
+    y: Math.round(svgY),
+    size: '18',
+    color: '#001f33',
+    weight: '400'
+  };
+  freeTexts.push(ft);
+  pages[currentPageIndex].freeTexts = freeTexts;
+  renderPreview();
+  // 即座に編集モードに入る
+  setTimeout(() => editFreeText(ft.id), 50);
+}
+
+function setupFreeTextEvents(svgRoot) {
+  const canvas = document.getElementById('preview-canvas');
+
+  // キャンバスクリックでテキスト配置
+  svgRoot.addEventListener('click', e => {
+    if (!textPlacementMode) return;
+    e.stopPropagation();
+    const pt = svgRoot.createSVGPoint();
+    const ctm = svgRoot.getScreenCTM().inverse();
+    pt.x = e.clientX; pt.y = e.clientY;
+    const svgPt = pt.matrixTransform(ctm);
+    addFreeTextAt(svgPt.x, svgPt.y);
+    toggleTextPlacementMode(); // 1つ配置したらモード解除
+  });
+
+  // 各テキストグループにイベント設定
+  svgRoot.querySelectorAll('.free-text-group').forEach(fg => {
+    const ftId = fg.getAttribute('data-ft-id');
+
+    // ダブルクリックで編集
+    fg.addEventListener('dblclick', e => {
+      e.stopPropagation();
+      editFreeText(ftId);
+    });
+
+    // クリックで選択＋ツールバー表示
+    fg.addEventListener('click', e => {
+      if (textPlacementMode) return; // 配置モード中は無視
+      e.stopPropagation();
+      showFreeTextToolbar(ftId);
+    });
+
+    // ドラッグで移動
+    let dragging = false, startX, startY, origX, origY;
+    fg.addEventListener('mousedown', e => {
+      if (textPlacementMode) return;
+      e.stopPropagation();
+      dragging = true;
+      const pt = svgRoot.createSVGPoint();
+      const ctm = svgRoot.getScreenCTM().inverse();
+      pt.x = e.clientX; pt.y = e.clientY;
+      const svgPt = pt.matrixTransform(ctm);
+      startX = svgPt.x; startY = svgPt.y;
+      const ft = freeTexts.find(f => f.id === ftId);
+      if (ft) { origX = ft.x; origY = ft.y; }
+      fg.style.opacity = '0.7';
+    });
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const pt = svgRoot.createSVGPoint();
+      const ctm = svgRoot.getScreenCTM().inverse();
+      pt.x = e.clientX; pt.y = e.clientY;
+      const svgPt = pt.matrixTransform(ctm);
+      const dx = svgPt.x - startX, dy = svgPt.y - startY;
+      fg.setAttribute('transform', `translate(${origX + dx},${origY + dy})`);
+    });
+    document.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      fg.style.opacity = '1';
+      const transform = fg.getAttribute('transform');
+      const match = transform.match(/translate\(([^,]+),([^)]+)\)/);
+      if (match) {
+        const ft = freeTexts.find(f => f.id === ftId);
+        if (ft) {
+          const newX = parseFloat(match[1]), newY = parseFloat(match[2]);
+          if (Math.abs(newX - ft.x) > 1 || Math.abs(newY - ft.y) > 1) {
+            saveUndoState();
+            ft.x = Math.round(newX);
+            ft.y = Math.round(newY);
+            pages[currentPageIndex].freeTexts = freeTexts;
+          }
+        }
+      }
+    });
+  });
+}
+
+function editFreeText(ftId) {
+  document.querySelectorAll('.svg-text-input').forEach(e => e.remove());
+  const ft = freeTexts.find(f => f.id === ftId);
+  if (!ft) return;
+  const canvas = document.getElementById('preview-canvas');
+  const svgRoot = canvas.querySelector('svg');
+  if (!svgRoot) return;
+  const fg = svgRoot.querySelector(`.free-text-group[data-ft-id="${ftId}"]`);
+  if (!fg) return;
+  const textEl = fg.querySelector('text');
+  if (!textEl) return;
+
+  const rect = textEl.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+  const zf = zoomLevel || 1;
+
+  const input = document.createElement('input');
+  input.className = 'svg-text-input';
+  input.value = ft.text;
+  input.style.position = 'absolute';
+  input.style.top = (rect.top - canvasRect.top + canvas.scrollTop - 4) + 'px';
+  input.style.left = (rect.left - canvasRect.left + canvas.scrollLeft - 4) + 'px';
+  input.style.fontSize = (parseFloat(ft.size) * zf) + 'px';
+  input.style.fontWeight = ft.weight || '400';
+  input.style.color = ft.color || '#001f33';
+  input.style.background = 'rgba(255,251,240,0.95)';
+  input.style.border = '2px solid #ffb81c';
+  input.style.outline = 'none';
+  input.style.padding = '2px 6px';
+  input.style.fontFamily = "'Segoe UI', sans-serif";
+  input.style.zIndex = '40';
+  input.style.minWidth = '150px';
+  input.style.width = Math.max(rect.width + 80, 200) + 'px';
+
+  input.onclick = e => e.stopPropagation();
+
+  const commit = () => {
+    const val = input.value.trim();
+    if (val && val !== ft.text) {
+      saveUndoState();
+      ft.text = val;
+      pages[currentPageIndex].freeTexts = freeTexts;
+      renderPreview();
+      showToast('テキスト更新');
+    } else if (!val) {
+      // 空なら削除
+      saveUndoState();
+      freeTexts = freeTexts.filter(f => f.id !== ftId);
+      pages[currentPageIndex].freeTexts = freeTexts;
+      renderPreview();
+      showToast('テキスト削除');
+    }
+    input.remove();
+  };
+
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { input.value = ft.text; input.blur(); }
+  });
+
+  canvas.appendChild(input);
+  input.focus();
+  input.select();
+}
+
+function showFreeTextToolbar(ftId) {
+  document.querySelectorAll('.free-text-toolbar').forEach(e => e.remove());
+  const ft = freeTexts.find(f => f.id === ftId);
+  if (!ft) return;
+  const canvas = document.getElementById('preview-canvas');
+  const svgRoot = canvas.querySelector('svg');
+  if (!svgRoot) return;
+  const fg = svgRoot.querySelector(`.free-text-group[data-ft-id="${ftId}"]`);
+  if (!fg) return;
+  const textEl = fg.querySelector('text');
+  if (!textEl) return;
+
+  const rect = textEl.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+
+  const bar = document.createElement('div');
+  bar.className = 'free-text-toolbar';
+  bar.style.left = (rect.left - canvasRect.left + canvas.scrollLeft) + 'px';
+  bar.style.top = (rect.top - canvasRect.top + canvas.scrollTop - 32) + 'px';
+  bar.onclick = e => e.stopPropagation();
+
+  // フォントサイズ
+  const sizeSelect = document.createElement('select');
+  [12, 14, 16, 18, 20, 24, 28, 32, 40, 48].forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s + 'px';
+    if (String(s) === String(ft.size)) opt.selected = true;
+    sizeSelect.appendChild(opt);
+  });
+  sizeSelect.onchange = () => { saveUndoState(); ft.size = sizeSelect.value; pages[currentPageIndex].freeTexts = freeTexts; renderPreview(); };
+  bar.appendChild(sizeSelect);
+
+  // 太字トグル
+  const boldBtn = document.createElement('button');
+  boldBtn.textContent = 'B';
+  boldBtn.style.fontWeight = '700';
+  if (ft.weight === '700') boldBtn.style.color = '#ffb81c';
+  boldBtn.onclick = () => { saveUndoState(); ft.weight = ft.weight === '700' ? '400' : '700'; pages[currentPageIndex].freeTexts = freeTexts; renderPreview(); };
+  bar.appendChild(boldBtn);
+
+  // 色
+  const colorInput = document.createElement('input');
+  colorInput.type = 'color';
+  colorInput.value = ft.color || '#001f33';
+  colorInput.onchange = () => { saveUndoState(); ft.color = colorInput.value; pages[currentPageIndex].freeTexts = freeTexts; renderPreview(); };
+  bar.appendChild(colorInput);
+
+  // 削除
+  const delBtn = document.createElement('button');
+  delBtn.textContent = '✕';
+  delBtn.onclick = () => { saveUndoState(); freeTexts = freeTexts.filter(f => f.id !== ftId); pages[currentPageIndex].freeTexts = freeTexts; renderPreview(); showToast('テキスト削除'); bar.remove(); };
+  bar.appendChild(delBtn);
+
+  canvas.appendChild(bar);
+
+  // キャンバスクリックでツールバー閉じる
+  const closeHandler = e => {
+    if (!bar.contains(e.target)) { bar.remove(); document.removeEventListener('click', closeHandler); }
+  };
+  setTimeout(() => document.addEventListener('click', closeHandler), 10);
 }
 
 // 画像アップロード
@@ -2535,8 +2867,10 @@ function switchPage(index) {
   if (index < 0 || index >= pages.length || index === currentPageIndex) return;
   // 現在のページのセクションを保存
   pages[currentPageIndex].sections = currentSections;
+  pages[currentPageIndex].freeTexts = freeTexts;
   currentPageIndex = index;
   currentSections = pages[index].sections;
+  freeTexts = pages[index].freeTexts || [];
   selectedSectionId = null;
   renderPageTabs();
   if (currentSections.length > 0) {
@@ -2562,7 +2896,8 @@ function addPage() {
     id: 'page-' + Date.now(),
     name: `ページ${pages.length + 1}`,
     sections: [],
-    links: {}
+    links: {},
+    freeTexts: []
   };
   pages.push(newPage);
   switchPage(pages.length - 1);
@@ -2582,6 +2917,7 @@ function deletePage(index) {
   pages.splice(index, 1);
   if (currentPageIndex >= pages.length) currentPageIndex = pages.length - 1;
   currentSections = pages[currentPageIndex].sections;
+  freeTexts = pages[currentPageIndex].freeTexts || [];
   selectedSectionId = null;
   renderPageTabs();
   if (currentSections.length > 0) {
@@ -2918,6 +3254,7 @@ function startPrototypeMode() {
 
   // 現在のページを保存
   pages[currentPageIndex].sections = currentSections;
+  pages[currentPageIndex].freeTexts = freeTexts;
 
   const overlay = document.createElement('div');
   overlay.className = 'proto-overlay';
@@ -5155,6 +5492,11 @@ function getProjects() {
 function setProjects(list) { localStorage.setItem(PROJECTS_KEY, JSON.stringify(list)); }
 
 function getProjectData() {
+  // 保存前にfreeTextsをpagesに同期
+  if (typeof pages !== 'undefined' && pages[currentPageIndex]) {
+    pages[currentPageIndex].sections = currentSections;
+    pages[currentPageIndex].freeTexts = freeTexts;
+  }
   return {
     sections: currentSections,
     pages: typeof pages !== 'undefined' ? pages : [],
@@ -5193,6 +5535,7 @@ function loadProject(projId) {
   currentProjectId = proj.id;
   currentSections = proj.data.sections || [];
   if (proj.data.pages) { pages = proj.data.pages; currentPageIndex = proj.data.currentPageIndex || 0; }
+  freeTexts = (pages[currentPageIndex] && pages[currentPageIndex].freeTexts) || [];
   if (proj.data.context) currentContext = proj.data.context;
   if (proj.data.chatHistory) chatHistory = proj.data.chatHistory;
   onSectionsChanged();
@@ -5269,6 +5612,7 @@ function importProjectJSON(file) {
       if (!data.sections) throw new Error('invalid');
       currentSections = data.sections;
       if (data.pages) { pages = data.pages; currentPageIndex = data.currentPageIndex || 0; }
+      freeTexts = (pages[currentPageIndex] && pages[currentPageIndex].freeTexts) || [];
       if (data.context) currentContext = data.context;
       if (data.chatHistory) chatHistory = data.chatHistory;
       currentProjectId = null;
