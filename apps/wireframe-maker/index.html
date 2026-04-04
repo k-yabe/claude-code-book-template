@@ -1764,6 +1764,8 @@ window.addEventListener('message', function(e) {
     input.click();
   }
   if (e.data.type === 'clone-html') {
+    // WF変換中は別のハンドラが処理するのでスキップ
+    if (window.__cloneHtmlForWF) return;
     const blob = new Blob([e.data.html], { type: 'text/html' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -1773,6 +1775,8 @@ window.addEventListener('message', function(e) {
     showToast('HTMLを保存しました');
   }
   if (e.data.type === 'clone-sections') {
+    // WF変換中は別のハンドラが処理するのでスキップ
+    if (window.__cloneSectionsForWF) return;
     if (window.__cloneBgPending) {
       window.__cloneBgPending = false;
       showCloneBgPicker(e.data.sections);
@@ -2136,12 +2140,16 @@ function switchToClone() {
 
 async function generateWireframeFromClone() {
   addLoadingBubble();
+  // グローバルハンドラがWF変換中のメッセージを横取りしないようフラグを立てる
+  window.__cloneSectionsForWF = true;
+  window.__cloneHtmlForWF = true;
   try {
     // 編集済みiframe HTMLからセクション構造を直接解析する
     const iframeStructure = await new Promise((resolve) => {
       const handler = (e) => {
         if (e.data.type === 'clone-sections') {
           window.removeEventListener('message', handler);
+          window.__cloneSectionsForWF = false;
           resolve(e.data.sections);
         }
       };
@@ -2160,6 +2168,7 @@ async function generateWireframeFromClone() {
       const handler = (e) => {
         if (e.data.type === 'clone-html') {
           window.removeEventListener('message', handler);
+          window.__cloneHtmlForWF = false;
           resolve(e.data.html);
         }
       };
@@ -2632,6 +2641,7 @@ async function refineStructure() {
     const r = await fetch(API_BASE + '/api/wireframe-generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'refine', currentSections, instruction: text, _user: USER }) });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error?.message || data.error || '修正失敗');
+    saveUndoState();
     currentSections = data.sections; input.value = '';
     onSectionsChanged();
     showToast('構成を修正しました');
@@ -5548,7 +5558,7 @@ async function figmaAIFallback(fileKey) {
     const res = await fetch(API_BASE + '/api/wireframe-generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode: 'free', userMessage: `Figmaファイル(key:${fileKey})のLP構成を推定し、一般的なLPセクション構成として出力してください。JSON配列で返してください。` })
+      body: JSON.stringify({ mode: 'free', freeText: `Figmaファイル(key:${fileKey})のLP構成を推定し、一般的なLPセクション構成として出力してください。JSON配列で返してください。`, _user: USER })
     });
     const data = await res.json();
     if (data.sections) {
