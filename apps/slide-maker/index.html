@@ -29,8 +29,6 @@
 
     /* ナビバー overrides */
     .navbar { z-index: 100; }
-    .navbar-back { color: #fff; text-decoration: none; font-size: var(--text-sm); opacity: 0.8; border: 1px solid transparent; padding: var(--sp-1) var(--sp-3); transition: all var(--duration) var(--ease); }
-    .navbar-back:hover { border-color: rgba(255,255,255,0.5); opacity: 1; }
 
     /* コンテナ — プレビュー時はワイド化 */
     .container { max-width: 860px; margin: 0 auto; padding: var(--sp-6) var(--sp-5) 60px; flex: 1; width: 100%; transition: max-width var(--duration) var(--ease); }
@@ -357,9 +355,7 @@
     #chart-canvas { display: none; position: absolute; top: -9999px; }
 
     /* フッター */
-    footer { background: #001f33; border-top: 1px solid rgba(255,255,255,0.08); padding: 16px 40px; margin-top: auto; }
-    footer p { font-size: 0.72rem; color: rgba(255,255,255,0.6); }
-    footer strong { color: #ffb81c; }
+    .app-footer { margin-top: auto; }
 
     @media (max-width: 900px) {
       .editor-pane { flex-direction: column; height: auto; max-height: none; }
@@ -386,9 +382,11 @@
 </head>
 <body>
   <nav class="navbar">
-    <a href="/" class="navbar-back">← アプリ一覧へ</a>
-    <div class="navbar-divider"></div>
-    <span class="navbar-title">Slide Maker</span>
+    <div class="navbar-brand">
+      <a href="../../" class="back-btn">← アプリ一覧へ</a>
+      <div class="navbar-divider"></div>
+      <span class="navbar-title">Slide Maker</span>
+    </div>
   </nav>
 
   <div class="container">
@@ -591,8 +589,8 @@
 
   <div class="toast" id="toast"></div>
 
-  <footer>
-    <p>⚠️ <strong>機密情報・個人情報の入力は禁止</strong>です。社外秘情報はVercel環境変数で管理してください。</p>
+  <footer class="app-footer">
+    <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
 
   <canvas id="chart-canvas" width="800" height="450"></canvas>
