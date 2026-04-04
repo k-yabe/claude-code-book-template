@@ -136,9 +136,6 @@
     .result-action-btn.primary { background: var(--gold); border-color: var(--gold); color: var(--navy); font-weight: 800; }
     .result-action-btn.primary:hover { opacity: 0.92; }
 
-    /* ── Footer override: fixed position ── */
-    .app-footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,31,51,0.03); border-top: 1px solid var(--border); z-index: 5; }
-
     /* ── Responsive ── */
     @media (max-width: 768px) {
       .input-row { flex-direction: column; }
@@ -196,8 +193,8 @@
       <div class="sample-row">
         <span class="sample-label">サンプル:</span>
         <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja')">akkodis.com/ja</button>
-        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/services')">akkodis.com/ja/services</button>
-        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/insights')">akkodis.com/ja/insights</button>
+        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/careers/graduate')">akkodis.com/ja/careers/graduate</button>
+        <button class="sample-btn" onclick="fillSample('https://www.akkodis.com/ja/company/about')">akkodis.com/ja/company/about</button>
       </div>
     </div>
 
@@ -229,7 +226,7 @@
         </div>
         <div class="browser-addressbar"><span class="browser-addressbar-icon">🔒</span><span id="url-current"></span></div>
         <div class="browser-label browser-label-current">🌐 サイト訪問者が見ている状態</div>
-        <div class="browser-content"><iframe class="browser-iframe" id="iframe-current" sandbox="allow-same-origin"></iframe></div>
+        <div class="browser-content"><iframe class="browser-iframe" id="iframe-current" sandbox="allow-same-origin allow-scripts"></iframe></div>
       </div>
       <div class="browser-frame" id="col-latest">
         <div class="browser-titlebar">
@@ -238,7 +235,7 @@
         </div>
         <div class="browser-addressbar"><span class="browser-addressbar-icon">🔒</span><span id="url-latest"></span></div>
         <div class="browser-label browser-label-latest">📝 CMSの最新状態（パラメータ付き）</div>
-        <div class="browser-content"><iframe class="browser-iframe" id="iframe-latest" sandbox="allow-same-origin"></iframe></div>
+        <div class="browser-content"><iframe class="browser-iframe" id="iframe-latest" sandbox="allow-same-origin allow-scripts"></iframe></div>
       </div>
     </div>
 
@@ -293,8 +290,8 @@
       return { ogp, images, textContent: textParts.join('\n'), title: doc.title || '' };
     }
 
-    // ── iframe にHTMLを表示（実際のWebページプレビュー） ──
-    function renderIframe(iframeId, html, baseUrl) {
+    // ── iframe にHTMLを表示（プロキシ経由で直接読み込み） ──
+    function renderIframe(iframeId, url) {
       const iframe = document.getElementById(iframeId);
       const container = iframe.parentElement;
       const containerWidth = container.clientWidth;
@@ -302,17 +299,7 @@
       const scale = containerWidth / iframeWidth;
       iframe.style.transform = `scale(${scale})`;
       container.style.height = (960 * scale) + 'px';
-      // <base>タグを挿入して画像・CSS等を元サイトから読み込む
-      const baseTag = `<base href="${escHtml(baseUrl)}">`;
-      let modifiedHtml = html;
-      if (modifiedHtml.includes('<head>')) {
-        modifiedHtml = modifiedHtml.replace('<head>', '<head>' + baseTag);
-      } else if (modifiedHtml.includes('<html>')) {
-        modifiedHtml = modifiedHtml.replace('<html>', '<html><head>' + baseTag + '</head>');
-      } else {
-        modifiedHtml = baseTag + modifiedHtml;
-      }
-      iframe.srcdoc = modifiedHtml;
+      iframe.src = PROXY_URL + '?url=' + encodeURIComponent(url);
     }
 
     // ── 詳細差分分析 ──
@@ -336,7 +323,7 @@
       const header = document.getElementById('change-summary-header');
       const body = document.getElementById('change-summary-body');
       if (changes.length === 0) { el.classList.remove('show'); return; }
-      header.textContent = `📋 ${changes.length}件の変更を検出 — 左右のプレビューを見比べてください`;
+      header.textContent = `📋 ${changes.length}件の変更を検出`;
       const icons = { title: '📝', description: '📝', 'ogp-image': '🖼️', images: '🖼️', text: '📄' };
       body.innerHTML = changes.map(c => {
         let detail = '';
@@ -391,10 +378,6 @@
         document.getElementById('tab-current').textContent = currentData.ogp.title || currentData.title || rawUrl;
         document.getElementById('tab-latest').textContent = latestData.ogp.title || latestData.title || rawUrl;
 
-        // iframe に実際のHTML表示
-        renderIframe('iframe-current', currentRes.body, rawUrl);
-        renderIframe('iframe-latest', latestRes.body, rawUrl);
-
         // 詳細差分
         const changes = compareDetailed(currentData, latestData);
         renderChangeSummary(changes);
@@ -428,6 +411,12 @@
 
         verdict.style.display = '';
         document.getElementById('compare-grid').classList.add('show');
+
+        // グリッド表示後にiframe描画（display:none中はclientWidthが0のため）
+        renderIframe('iframe-current', rawUrl);
+        renderIframe('iframe-latest', bypassUrlStr);
+
+
         document.getElementById('result-actions').classList.add('show');
 
         lastResult = { url: rawUrl, bypassUrl: bypassUrlStr, changes, currentData, latestData };
@@ -475,9 +464,9 @@
     title: 'Cache Checker',
     description: '「CMS更新したのに反映されない」をすぐ調査できます',
     features: [
-      { icon: '🔄', text: 'キャッシュ版と最新版を並べて比較' },
-      { icon: '⏱️', text: 'キャッシュの残り時間（TTL）を自動計算' },
-      { icon: '🔎', text: '変更箇所をハイライトで可視化' }
+      { icon: '🔄', text: 'キャッシュ版と最新版をページプレビューで並べて比較' },
+      { icon: '📋', text: 'タイトル・画像・テキストの変更箇所を自動検出' },
+      { icon: '📝', text: '結果をMarkdownでコピーして共有' }
     ]
   });</script>
 </body>
