@@ -57,7 +57,7 @@
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
 | Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040, S041, S042, S043, S044, S045 |
-| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043 |
+| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043, S048 |
 | Cache Checker | `apps/cache-checker/index.html`, `api/fetch-article.js(mode=proxy)` | ✅ 完成 | S037 |
 | Image Converter | `apps/image-converter/index.html` | ✅ 完成 | S047 |
 
@@ -301,3 +301,4 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-04-03 | Cache Checker iframe プレビュー刷新 | 実際のWebページをiframe（srcdoc＋baseタグ）で表示する方式に変更。OGP/テキスト抽出表示を廃止。変更検出はバッジサマリーで表示。サンプルURLをakkodis.com/jaに変更。diff.js依存を削除 |
 | 2026-04-03 | Image Converter 新規追加 | 画像フォーマット変換・軽量化ツール。WebP/JPEG/PNGへの変換、品質スライダー（デフォルト80%）、リサイズオプション、変換前後のサイズ比較・削減率表示、複数ファイル一括変換・ZIPダウンロード。Canvas API使用、クライアントサイド完結 |
 | 2026-04-04 | Wireframe Maker テキスト自由配置＆インポート改善 | Aa+ボタンでキャンバス任意位置にテキスト追加（ドラッグ移動・ダブルクリック編集・サイズ/色/太さ変更）、URLインポート時に「既存に追加」「全て置換」選択モーダル追加、Undo/RedoのfreeTexts対応、マルチページfreeTexts同期修正 |
+| 2026-04-04 | Wireframe Maker UX致命的バグ4件修正 | クローンモード→WFプレビュー自動切替、「構成をWFに変換」ラベル+tooltip改善、要素移動ボタン(⬆⬇)+挿入位置選択(前/後)+未選択トースト、デバイス切替時iframe幅レスポンシブ+WFモード期待値トースト |
