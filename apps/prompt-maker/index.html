@@ -1171,22 +1171,9 @@
     document.getElementById('char-count').textContent = document.getElementById('user-input').value.length + '文字';
   });
 
-  // ── ステップガイド（初回訪問） ──────────────────────────
-  (function initStepGuide() {
-    if (localStorage.getItem('pm_guide_seen')) return;
-    const overlay = document.getElementById('step-guide-overlay');
-    overlay.classList.add('show');
-    document.getElementById('step-guide-start').addEventListener('click', () => {
-      overlay.classList.remove('show');
-      localStorage.setItem('pm_guide_seen', '1');
-      // ソースヒントも表示
-      document.getElementById('source-hint').style.display = 'flex';
-    });
-    document.getElementById('step-guide-skip').addEventListener('click', () => {
-      overlay.classList.remove('show');
-      localStorage.setItem('pm_guide_seen', '1');
-    });
-  })();
+  // ── ステップガイド（共通オンボーディングに統合済み・無効化） ──
+  // initOnboarding() で代替。ステップガイドは表示しない。
+  localStorage.setItem('pm_guide_seen', '1');
 
   // ── ソースヒント ──────────────────────────
   document.getElementById('source-hint-close').addEventListener('click', () => {
