@@ -20,8 +20,6 @@
 
     /* ===== ナビバー overrides ===== */
     .navbar { padding: 0 16px; gap: 12px; z-index: 100; flex-shrink: 0; }
-    .navbar-back { color: #fff; text-decoration: none; font-size: 0.75rem; opacity: 0.7; padding: 4px 8px; transition: opacity 0.2s; }
-    .navbar-back:hover { opacity: 1; }
     .navbar-btn { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); padding: 4px 10px; font-size: 0.7rem; cursor: pointer; font-family: inherit; transition: all var(--ease); }
     .navbar-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
     .navbar-btn.active { background: rgba(255,184,28,0.15); border-color: var(--gold); color: var(--gold); }
@@ -511,8 +509,7 @@
     .token-export-btns .btn-css { background: #001f33; color: #fff; border: none; }
     .token-export-btns .btn-json { background: #fff; color: #001f33; border: 2px solid #001f33; }
 
-    footer { background: #001f33; color: rgba(255,255,255,0.8); text-align: center; padding: 8px 16px; font-size: 0.65rem; flex-shrink: 0; }
-    footer strong { color: #ffb81c; }
+    .app-footer { flex-shrink: 0; }
 
     /* ===== V7: リアルタイム共同編集 ===== */
     .collab-bar { display: flex; align-items: center; gap: 6px; margin-left: 8px; }
@@ -700,9 +697,11 @@
 
 <!-- ナビバー -->
 <nav class="navbar">
-  <a href="/" class="navbar-back">← 一覧</a>
-  <div class="navbar-divider"></div>
-  <span class="navbar-title">Wireframe Maker</span>
+  <div class="navbar-brand">
+    <a href="../../" class="back-btn">← アプリ一覧へ</a>
+    <div class="navbar-divider"></div>
+    <span class="navbar-title">Wireframe Maker</span>
+  </div>
   <div class="navbar-spacer"></div>
   <div class="navbar-score" id="cvr-score-display" style="display:none">
     <span>CVR</span>
@@ -1006,8 +1005,8 @@
 
 <div id="toast" class="toast"></div>
 
-<footer>
-  <p>⚠️ <strong>機密情報・個人情報の入力は禁止</strong>です。</p>
+<footer class="app-footer">
+  <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
 </footer>
 
 <script src="/assets/copy-utils.js"></script>
