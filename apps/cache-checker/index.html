@@ -294,7 +294,6 @@
     }
 
     // ── iframe にHTMLを表示（プロキシ経由で直接読み込み） ──
-    const PREVIEW_URL = '/api/preview';
     function renderIframe(iframeId, url) {
       const iframe = document.getElementById(iframeId);
       const container = iframe.parentElement;
@@ -303,7 +302,7 @@
       const scale = containerWidth / iframeWidth;
       iframe.style.transform = `scale(${scale})`;
       container.style.height = (960 * scale) + 'px';
-      iframe.src = PREVIEW_URL + '?url=' + encodeURIComponent(url);
+      iframe.src = PROXY_URL + '?url=' + encodeURIComponent(url);
     }
 
     // ── 詳細差分分析 ──
