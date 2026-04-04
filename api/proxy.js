@@ -92,6 +92,8 @@ module.exports = async function handler(req, res) {
       }
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'no-store');
+      res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+      res.setHeader('Content-Security-Policy', 'frame-ancestors \'self\'');
       return res.status(200).send(html);
     }
 
