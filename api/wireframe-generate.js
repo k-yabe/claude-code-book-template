@@ -557,7 +557,24 @@ export default async function handler(req, res) {
       systemPrompt = SYSTEM_PROMPT;
       messages = [{
         role: 'user',
-        content: `以下の要件をもとに、Webページのワイヤーフレームのセクション構成を作成してください。\nページの目的・ターゲット・必要なコンテンツを読み取り、最適な構成を判断してください。\n\n---\n${freeText}\n---\n\nnavigation と footer を必ず含めてください。`,
+        content: `以下はユーザーがインポートした資料（PDF/Word/PPTX）のテキスト内容です。
+この資料の内容を最大限に活用してWebページのワイヤーフレーム構成を作成してください。
+
+## 重要：資料の内容を必ず反映すること
+- 資料に含まれるキャッチコピー・見出し・説明文は、そのままlabelやdescriptionに使ってください
+- 資料に数値（実績・統計・価格）があれば、stats/pricingセクションに反映してください
+- 資料に顧客の声・事例があれば、testimonialsセクションに反映してください
+- 資料にサービス特長・メリットがあれば、featuresセクションに反映してください
+- 資料に画像の説明（製品写真・スクリーンショット等）があれば、hero-image/placeholder-imageを配置してください
+- 「テキストを入力」「ここに説明」のような汎用プレースホルダーは禁止。必ず資料の実テキストを使うこと
+
+## 資料のテキスト内容
+---
+${freeText}
+---
+
+資料の内容を読み取り、ページの目的・ターゲット・トーンを判断した上で、最適なセクション構成を作成してください。
+navigation と footer を必ず含めてください。`,
       }];
     } else if (mode === 'generate') {
       model = 'claude-sonnet-4-6';

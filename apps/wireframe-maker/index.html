@@ -986,6 +986,10 @@
         <button class="ct-btn" onclick="cloneAIRewrite()">🤖 AIリライト</button>
         <button class="ct-btn" onclick="cloneReplaceImage()">🖼️ 画像差替</button>
         <button class="ct-btn" onclick="cloneHideSection()">👁️ セクション非表示</button>
+        <button class="ct-btn" onclick="cloneEditStyle()">🎨 スタイル</button>
+        <button class="ct-btn" onclick="cloneInsertElement()">➕ 要素追加</button>
+        <button class="ct-btn" onclick="cloneEditBgSection()">🖌️ 背景色</button>
+        <button class="ct-btn" onclick="cloneReorderSection()">↕️ 並替</button>
         <button class="ct-btn" onclick="cloneExportHTML()">💾 HTML保存</button>
         <div class="ct-sep"></div>
         <button class="ct-btn" onclick="switchToWireframe()">📐 ワイヤーフレームに変換</button>
@@ -1234,7 +1238,7 @@ async function handleFileImport(file) {
     else { removeLoadingBubble(); showError('対応形式: PDF, Word, PPTX'); return; }
     importedContent = text;
     removeLoadingBubble();
-    addChatMessage('ai', `「${file.name}」を読み込みました（${text.length.toLocaleString()}文字）。`, { label: 'この内容で構成を作成', action: () => generateFromImport() });
+    addChatMessage('ai', `「${file.name}」を読み込みました（${text.length.toLocaleString()}文字）。\n資料のテキスト・見出し・数値をそのまま使ってワイヤーフレーム構成を生成します。`, { label: '資料の内容でワイヤーフレームを作成', action: () => generateFromImport() });
   } catch (err) {
     removeLoadingBubble(); showError('読み込み失敗: ' + err.message);
   } finally {
@@ -1322,7 +1326,7 @@ async function handleUrlImport() {
     if (headIdx !== -1) {
       const headEnd = processedHtml.indexOf('>', headIdx) + 1;
       processedHtml = processedHtml.slice(0, headEnd) +
-        `\n<base href="${baseUrl}/">\n` +
+        `\n<base href="${baseUrl}/" data-clone-injected>\n` +
         processedHtml.slice(headEnd);
     } else {
       processedHtml = `<base href="${baseUrl}/">\n` + processedHtml;
@@ -1336,6 +1340,7 @@ async function handleUrlImport() {
   .clone-img-hover { outline: 2px dashed #00ffff !important; outline-offset: 2px; cursor: pointer !important; }
   .clone-section-hidden { opacity: 0.15 !important; pointer-events: none; position: relative; }
   .clone-section-hidden::after { content: '非表示'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #001f33; color: #fff; padding: 4px 12px; font-size: 14px; z-index: 9999; }
+  .clone-bg-hover { outline: 2px dashed rgba(255,184,28,0.5) !important; outline-offset: -2px; }
 </style>
 <script>
   // 編集モードの制御
@@ -1358,7 +1363,11 @@ async function handleUrlImport() {
       el.setAttribute('data-clone-selected', '');
       el.contentEditable = 'true';
       el.focus();
-      window.parent.postMessage({ type: 'clone-text-select', text: el.textContent, tagPath: getTagPath(el) }, '*');
+      // 選択要素のスタイル情報も送信
+      const cs = window.getComputedStyle(el);
+      window.parent.postMessage({ type: 'clone-text-select', text: el.textContent, tagPath: getTagPath(el),
+        styles: { color: cs.color, backgroundColor: cs.backgroundColor, fontSize: cs.fontSize, fontWeight: cs.fontWeight }
+      }, '*');
     }
   }, true);
 
@@ -1366,6 +1375,7 @@ async function handleUrlImport() {
     if (!window.__cloneEditMode) return;
     document.querySelectorAll('[data-clone-hover]').forEach(h => h.removeAttribute('data-clone-hover'));
     document.querySelectorAll('.clone-img-hover').forEach(h => h.classList.remove('clone-img-hover'));
+    document.querySelectorAll('.clone-bg-hover').forEach(h => h.classList.remove('clone-bg-hover'));
     if (e.target.tagName === 'IMG') {
       e.target.classList.add('clone-img-hover');
     } else {
@@ -1374,11 +1384,21 @@ async function handleUrlImport() {
     }
   }, true);
 
+  function hasDirectText(el) {
+    for (let n of el.childNodes) {
+      if (n.nodeType === 3 && n.textContent.trim().length > 0) return true;
+    }
+    return false;
+  }
+
   function findEditableParent(el) {
     const editTags = ['H1','H2','H3','H4','H5','H6','P','SPAN','A','LI','TD','TH','LABEL','BUTTON','FIGCAPTION','BLOCKQUOTE','DT','DD'];
+    const containerTags = ['DIV','ARTICLE','MAIN','SECTION','ASIDE','FIGURE','DETAILS','SUMMARY'];
     let cur = el;
     while (cur && cur !== document.body) {
       if (editTags.includes(cur.tagName)) return cur;
+      // DIV等のコンテナはテキストを直接含む場合のみ編集可能
+      if (containerTags.includes(cur.tagName) && hasDirectText(cur)) return cur;
       cur = cur.parentElement;
     }
     return null;
@@ -1437,12 +1457,60 @@ async function handleUrlImport() {
       });
       window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
     }
+    if (e.data.type === 'apply-style') {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+      const sel = document.querySelector('[data-clone-selected]');
+      if (sel) {
+        Object.keys(e.data.styles).forEach(k => { sel.style[k] = e.data.styles[k]; });
+      }
+      window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
+    }
+    if (e.data.type === 'apply-bg-style') {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+      const sections = document.querySelectorAll('section, header, footer, nav, [class*="section"], [class*="block"], [class*="area"]');
+      sections.forEach((sec, i) => {
+        if (i === e.data.index) {
+          Object.keys(e.data.styles).forEach(k => { sec.style[k] = e.data.styles[k]; });
+        }
+      });
+      window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
+    }
+    if (e.data.type === 'insert-element') {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+      const sel = document.querySelector('[data-clone-selected]');
+      const target = sel || document.body;
+      const newEl = document.createElement(e.data.tag || 'div');
+      newEl.textContent = e.data.text || '';
+      if (e.data.style) Object.keys(e.data.style).forEach(k => { newEl.style[k] = e.data.style[k]; });
+      if (e.data.position === 'before' && sel) { sel.parentElement.insertBefore(newEl, sel); }
+      else { target.parentElement ? target.parentElement.insertBefore(newEl, target.nextSibling) : document.body.appendChild(newEl); }
+      window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
+    }
+    if (e.data.type === 'delete-element') {
+      const sel = document.querySelector('[data-clone-selected]');
+      if (sel) {
+        window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+        sel.remove();
+        window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
+      }
+    }
     if (e.data.type === 'hide-section') {
       window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
       const sections = document.querySelectorAll('section, header, footer, nav, [class*="section"], [class*="block"], [class*="area"]');
       sections.forEach((sec, i) => {
         if (i === e.data.index) sec.classList.toggle('clone-section-hidden');
       });
+      window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
+    }
+    if (e.data.type === 'reorder-section') {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+      const sections = Array.from(document.querySelectorAll('section, header, footer, nav, [class*="section"], [class*="block"], [class*="area"]'));
+      const from = e.data.from, to = e.data.to;
+      if (sections[from] && sections[to]) {
+        const el = sections[from];
+        const ref = to > from ? sections[to].nextSibling : sections[to];
+        el.parentElement.insertBefore(el, ref);
+      }
       window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
     }
     if (e.data.type === 'restore-snapshot') {
@@ -1455,7 +1523,10 @@ async function handleUrlImport() {
         el.removeAttribute('data-clone-selected');
         el.removeAttribute('contenteditable');
       });
-      clone.querySelectorAll('.clone-img-hover').forEach(el => el.classList.remove('clone-img-hover'));
+      clone.querySelectorAll('.clone-img-hover,.clone-bg-hover').forEach(el => { el.classList.remove('clone-img-hover'); el.classList.remove('clone-bg-hover'); });
+      // base タグを除去（エクスポート時にURLが壊れる原因）
+      const bases = clone.querySelectorAll('base[data-clone-injected]');
+      bases.forEach(b => b.remove());
       const scripts = clone.querySelectorAll('script');
       scripts.forEach(s => { if (s.textContent.includes('__cloneEditMode')) s.remove(); });
       const styles = clone.querySelectorAll('style');
@@ -1467,7 +1538,8 @@ async function handleUrlImport() {
       const list = [];
       sections.forEach((sec, i) => {
         const h = sec.querySelector('h1,h2,h3,h4,h5,h6');
-        list.push({ index: i, tag: sec.tagName.toLowerCase(), heading: h ? h.textContent.trim().slice(0, 40) : '', hidden: sec.classList.contains('clone-section-hidden') });
+        const cs = window.getComputedStyle(sec);
+        list.push({ index: i, tag: sec.tagName.toLowerCase(), heading: h ? h.textContent.trim().slice(0, 40) : '', hidden: sec.classList.contains('clone-section-hidden'), bgColor: cs.backgroundColor });
       });
       window.parent.postMessage({ type: 'clone-sections', sections: list }, '*');
     }
@@ -1480,6 +1552,16 @@ async function handleUrlImport() {
   document.addEventListener('keydown', function(e) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); window.parent.postMessage({ type: 'clone-undo' }, '*'); }
     if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); window.parent.postMessage({ type: 'clone-redo' }, '*'); }
+    // Delete キーで選択要素を削除
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      const sel = document.querySelector('[data-clone-selected]');
+      if (sel && sel.contentEditable !== 'true') {
+        e.preventDefault();
+        window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+        sel.remove();
+        window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
+      }
+    }
   }, true);
 <\/script>`;
 
@@ -1644,7 +1726,15 @@ window.addEventListener('message', function(e) {
     showToast('HTMLを保存しました');
   }
   if (e.data.type === 'clone-sections') {
-    showCloneSectionPicker(e.data.sections);
+    if (window.__cloneBgPending) {
+      window.__cloneBgPending = false;
+      showCloneBgPicker(e.data.sections);
+    } else if (window.__cloneReorderPending) {
+      window.__cloneReorderPending = false;
+      showCloneReorderPicker(e.data.sections);
+    } else {
+      showCloneSectionPicker(e.data.sections);
+    }
   }
   // Undo用: 操作前のスナップショットをスタックに積む
   if (e.data.type === 'clone-snapshot') {
@@ -1717,6 +1807,176 @@ function showCloneSectionPicker(sections) {
   });
   ov.appendChild(panel);
   document.body.appendChild(ov);
+}
+
+// クローンモード: スタイル編集（選択中の要素の色・サイズ変更）
+function cloneEditStyle() {
+  const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) { showToast('クローンフレームが利用できません'); return; }
+  const ov = document.createElement('div');
+  ov.className = 'section-picker-overlay';
+  ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
+  const panel = document.createElement('div');
+  panel.className = 'section-picker-panel';
+  panel.style.maxWidth = '320px';
+  panel.innerHTML = `
+    <div class="sp-title">選択要素のスタイル編集</div>
+    <p style="font-size:12px;color:#8a9bb0;margin:0 0 12px">テキスト要素をクリックして選択後に使用</p>
+    <label style="display:block;margin:8px 0 4px;font-size:13px;">文字色</label>
+    <input type="color" id="cs-text-color" value="#000000" style="width:100%;height:32px;border:none;cursor:pointer;">
+    <label style="display:block;margin:8px 0 4px;font-size:13px;">背景色</label>
+    <input type="color" id="cs-bg-color" value="#ffffff" style="width:100%;height:32px;border:none;cursor:pointer;">
+    <label style="display:block;margin:8px 0 4px;font-size:13px;">フォントサイズ</label>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="range" id="cs-font-size" min="10" max="72" value="16" style="flex:1;">
+      <span id="cs-font-size-val" style="font-size:13px;min-width:40px;">16px</span>
+    </div>
+    <label style="display:block;margin:8px 0 4px;font-size:13px;">太さ</label>
+    <select id="cs-font-weight" style="width:100%;padding:6px;font-size:13px;">
+      <option value="normal">通常</option>
+      <option value="bold">太字</option>
+      <option value="100">100 (極細)</option>
+      <option value="300">300 (細)</option>
+      <option value="500">500 (中)</option>
+      <option value="700">700 (太)</option>
+      <option value="900">900 (極太)</option>
+    </select>
+    <button onclick="applyCloneStyle()" style="margin-top:16px;width:100%;padding:10px;background:#001f33;color:#fff;border:none;cursor:pointer;font-size:14px;">適用</button>
+  `;
+  const sizeSlider = panel.querySelector('#cs-font-size');
+  const sizeVal = panel.querySelector('#cs-font-size-val');
+  sizeSlider.oninput = () => { sizeVal.textContent = sizeSlider.value + 'px'; };
+  ov.appendChild(panel);
+  document.body.appendChild(ov);
+}
+
+function applyCloneStyle() {
+  const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) return;
+  const styles = {
+    color: document.getElementById('cs-text-color').value,
+    backgroundColor: document.getElementById('cs-bg-color').value,
+    fontSize: document.getElementById('cs-font-size').value + 'px',
+    fontWeight: document.getElementById('cs-font-weight').value,
+  };
+  frame.contentWindow.postMessage({ type: 'apply-style', styles }, '*');
+  document.querySelector('.section-picker-overlay')?.remove();
+  showToast('スタイルを適用しました');
+}
+
+// クローンモード: 要素追加
+function cloneInsertElement() {
+  const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) { showToast('クローンフレームが利用できません'); return; }
+  const ov = document.createElement('div');
+  ov.className = 'section-picker-overlay';
+  ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
+  const panel = document.createElement('div');
+  panel.className = 'section-picker-panel';
+  panel.style.maxWidth = '320px';
+  panel.innerHTML = `
+    <div class="sp-title">要素を追加</div>
+    <p style="font-size:12px;color:#8a9bb0;margin:0 0 12px">選択要素の後ろに追加されます</p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="ct-btn" onclick="doCloneInsert('h2','見出しテキスト',{fontSize:'24px',fontWeight:'bold',margin:'16px 0'})" style="width:100%;text-align:left;">📝 見出し (H2)</button>
+      <button class="ct-btn" onclick="doCloneInsert('p','テキストを入力してください',{fontSize:'16px',margin:'8px 0',lineHeight:'1.6'})" style="width:100%;text-align:left;">📄 テキスト段落</button>
+      <button class="ct-btn" onclick="doCloneInsert('a','ボタンテキスト',{display:'inline-block',padding:'12px 32px',backgroundColor:'#001f33',color:'#fff',textDecoration:'none',fontSize:'16px',fontWeight:'bold',textAlign:'center'})" style="width:100%;text-align:left;">🔘 CTAボタン</button>
+      <button class="ct-btn" onclick="doCloneInsert('div','区切り線',{borderTop:'2px solid #ccc',margin:'24px 0',height:'0'})" style="width:100%;text-align:left;">➖ 区切り線</button>
+    </div>
+  `;
+  ov.appendChild(panel);
+  document.body.appendChild(ov);
+}
+
+function doCloneInsert(tag, text, style) {
+  const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) return;
+  frame.contentWindow.postMessage({ type: 'insert-element', tag, text, style, position: 'after' }, '*');
+  document.querySelector('.section-picker-overlay')?.remove();
+  showToast('要素を追加しました');
+}
+
+// クローンモード: セクション背景色変更
+function cloneEditBgSection() {
+  const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) { showToast('クローンフレームが利用できません'); return; }
+  frame.contentWindow.postMessage({ type: 'get-sections' }, '*');
+  window.__cloneBgPending = true;
+}
+
+function showCloneBgPicker(sections) {
+  const ov = document.createElement('div');
+  ov.className = 'section-picker-overlay';
+  ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
+  const panel = document.createElement('div');
+  panel.className = 'section-picker-panel';
+  panel.innerHTML = '<div class="sp-title">セクション背景色を変更</div>';
+  sections.forEach(sec => {
+    const row = document.createElement('div');
+    row.className = 'sp-card';
+    row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '8px';
+    row.innerHTML = `<span style="font-size:12px;flex:1;">${sec.tag.toUpperCase()}: ${sec.heading || '(見出しなし)'}</span>
+      <input type="color" value="${rgbToHex(sec.bgColor)}" style="width:40px;height:28px;border:none;cursor:pointer;" data-sec-idx="${sec.index}">
+      <button class="ct-btn" style="padding:4px 8px;font-size:11px;" onclick="applyCloneBg(${sec.index}, this.previousElementSibling.value)">適用</button>`;
+    panel.appendChild(row);
+  });
+  ov.appendChild(panel);
+  document.body.appendChild(ov);
+}
+
+function rgbToHex(rgb) {
+  if (!rgb || rgb === 'transparent' || rgb === 'rgba(0, 0, 0, 0)') return '#ffffff';
+  const m = rgb.match(/\d+/g);
+  if (!m || m.length < 3) return '#ffffff';
+  return '#' + m.slice(0, 3).map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
+}
+
+function applyCloneBg(index, color) {
+  const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) return;
+  frame.contentWindow.postMessage({ type: 'apply-bg-style', index, styles: { backgroundColor: color } }, '*');
+  showToast('背景色を変更しました');
+}
+
+// クローンモード: セクション並び替え
+function cloneReorderSection() {
+  const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) { showToast('クローンフレームが利用できません'); return; }
+  frame.contentWindow.postMessage({ type: 'get-sections' }, '*');
+  window.__cloneReorderPending = true;
+}
+
+function showCloneReorderPicker(sections) {
+  const ov = document.createElement('div');
+  ov.className = 'section-picker-overlay';
+  ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
+  const panel = document.createElement('div');
+  panel.className = 'section-picker-panel';
+  panel.innerHTML = '<div class="sp-title">セクション並び替え</div><p style="font-size:12px;color:#8a9bb0;margin:0 0 8px;">↑↓ボタンで移動</p>';
+  const list = document.createElement('div');
+  list.id = 'clone-reorder-list';
+  sections.forEach(sec => {
+    const row = document.createElement('div');
+    row.className = 'sp-card';
+    row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '8px';
+    row.setAttribute('data-reorder-idx', sec.index);
+    row.innerHTML = `<button class="ct-btn" style="padding:2px 6px;" onclick="moveCloneSection(${sec.index}, -1)">↑</button>
+      <button class="ct-btn" style="padding:2px 6px;" onclick="moveCloneSection(${sec.index}, 1)">↓</button>
+      <span style="font-size:12px;flex:1;">${sec.tag.toUpperCase()}: ${sec.heading || '(見出しなし)'}</span>`;
+    list.appendChild(row);
+  });
+  panel.appendChild(list);
+  ov.appendChild(panel);
+  document.body.appendChild(ov);
+}
+
+function moveCloneSection(fromIndex, direction) {
+  const toIndex = fromIndex + direction;
+  const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) return;
+  frame.contentWindow.postMessage({ type: 'reorder-section', from: fromIndex, to: toIndex }, '*');
+  document.querySelector('.section-picker-overlay')?.remove();
+  showToast('セクションを移動しました');
 }
 
 // クローンモード: HTML保存
