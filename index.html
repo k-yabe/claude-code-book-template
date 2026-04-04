@@ -487,12 +487,13 @@
     <div class="portal-body">
       <div class="section-bar">
         <span class="section-bar-title">All Apps</span>
-        <span class="section-bar-count">13</span>
+        <span class="section-bar-count">14</span>
         <span class="section-bar-line"></span>
         <span class="section-bar-drag">⠿ ドラッグで並び替え</span>
       </div>
       <div class="grid">
         <a class="card" href="apps/ogp-checker/">
+          <div class="card-update-badge">UPDATE</div>
           <div class="card-icon-wrap">🔍</div>
           <div class="card-name">OGP Checker</div>
           <div class="card-desc">OGPタグの確認・プレビュー</div>
@@ -522,14 +523,14 @@
           <div class="card-update-badge">UPDATE</div>
           <div class="card-icon-wrap">📊</div>
           <div class="card-name">Slide Maker</div>
-          <div class="card-desc">AI対話+ディープリサーチでPPTX自動生成</div>
+          <div class="card-desc">プレゼン資料のAI自動生成</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/prompt-maker/">
           <div class="card-update-badge">UPDATE</div>
           <div class="card-icon-wrap">🪄</div>
           <div class="card-name">Prompt Maker</div>
-          <div class="card-desc">ソース参照×AI対話でプロンプト生成</div>
+          <div class="card-desc">AIプロンプトの構造化生成</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/youtube-desc/">
@@ -565,10 +566,17 @@
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/cache-checker/">
-          <div class="card-new-badge">UPDATE</div>
-          <div class="card-icon-wrap">🔍</div>
+          <div class="card-update-badge">UPDATE</div>
+          <div class="card-icon-wrap">🔄</div>
           <div class="card-name">Cache Checker</div>
           <div class="card-desc">CMS更新がサイトに反映されたか確認</div>
+          <div class="card-tag card-tag-web">Web App</div>
+        </a>
+        <a class="card" href="apps/image-converter/">
+          <div class="card-new-badge">NEW</div>
+          <div class="card-icon-wrap">🔀</div>
+          <div class="card-name">Image Converter</div>
+          <div class="card-desc">画像フォーマット変換・軽量化</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card card-external" href="https://m365.cloud.microsoft/chat/?titleId=T_8aa0cc54-ad42-710e-b66b-a63fa397a14a&source=embedded-builder" target="_blank" rel="noopener">
@@ -601,13 +609,22 @@
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
       { icon: '🎨', app: 'Wireframe Maker',        date: '2026-04-04(土)', desc: 'クローンモード大幅強化: DIV内テキスト編集対応・スタイル編集（文字色/背景色/サイズ/太さ）・要素追加（見出し/テキスト/CTAボタン）・セクション背景色変更・セクション並び替え・エクスポートbase タグ除去修正。資料インポート時に実テキスト・数値・見出しを活用した構成生成に改善' },
+      { icon: '🔄', app: 'Cache Checker',         date: '2026-04-04(土)', desc: 'iframeプレビュー表示修正（X-Frame-Options対応）・フッターを共通スタイルに統一・オンボーディング説明文を実装に合わせて修正・サンプルURLを実在ページに変更' },
+      { icon: '🎨', app: '全アプリ共通',          date: '2026-04-04(土)', desc: 'デザイン品質向上：コンテンツ領域を白カードパネル化・カードに影と奥行き追加・ステップヘッダーにネイビーアクセント・ボタンにグラデーション＆ホバーリフト・背景グラデーション・スクロールバー/テキスト選択色の統一' },
+      { icon: '🎨', app: '全アプリ共通',          date: '2026-04-04(土)', desc: 'UI/デザイン統一：CSS変数ベースの共通デザインシステム導入。全14アプリのnavbar・ボタン・フォーム・カード・フッターのスタイルを統一。ハードコード色をブランドカラー変数に置換' },
+      { icon: '🔀', app: 'Image Converter',     date: '2026-04-03(金)', desc: '画像フォーマット変換・軽量化ツール新規追加（WebP/PNG/JPEG変換・品質調整・リサイズ・複数一括変換・ZIP一括ダウンロード・ファイルサイズ削減率表示）' },
+      { icon: '🏠', app: 'ポータル全体',          date: '2026-04-03(金)', desc: '全アプリに初回オンボーディングポップアップを追加（使い方3ステップ表示・初回のみ・ESCキー対応）' },
+      { icon: '🏠', app: 'ポータル全体',          date: '2026-04-03(金)', desc: 'アプリ一覧の統一感修正：バッジクラス・位置の不整合修正（OGP Checker/Cache Checker/Wireframe Maker）・リード文の簡潔化（Slide Maker/Prompt Maker/Wireframe Maker）・アプリ数カウント修正・border-radius/ブランドカラー違反修正・コンフリクトマーカー削除' },
+      { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-03(金)', desc: 'UI刷新（ステップ型レイアウト・アップロード横並び）、上限超過時の自動圧縮＆状態表示、サムネイルカット領域をデフォルト表示に変更' },
+      { icon: '🔍', app: 'OGP Checker',            date: '2026-04-03(金)', desc: 'Twitter Card（twitter:card/title/image）・h1の検出チェック追加。Sitecoreのデフォルト仕様では未検出でも問題ない旨を案内' },
+      { icon: '🔄', app: 'Cache Checker',         date: '2026-04-03(金)', desc: 'PC幅（1280px）でのプレビュー表示に対応（CSS scale縮小方式）。実際のWebページプレビュー表示に刷新（iframe方式）。サンプルURLをakkodis.com/jaに変更' },
       { icon: '🎨', app: 'Wireframe Maker',        date: '2026-04-02(木)', desc: '安全性強化: 新規作成/セクション削除の確認ダイアログ追加・クローンモードUndo連打防止・iframe null安全チェック・画像読込エラー通知・SSRF防御' },
       { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-02(木)', desc: 'JPG出力オプションを廃止（出力はPNG/WebPのみに統一）' },
-      { icon: '🔍', app: 'Cache Checker',         date: '2026-04-02(木)', desc: 'UX全面刷新：仕組み説明フロー追加・診断メッセージ改善（キャッシュ待ち/CMS設定ミスの切り分け）・ラベルを運用に即した表現に統一' },
+      { icon: '🔄', app: 'Cache Checker',         date: '2026-04-02(木)', desc: 'UX全面刷新：仕組み説明フロー追加・診断メッセージ改善（キャッシュ待ち/CMS設定ミスの切り分け）・ラベルを運用に即した表現に統一' },
       { icon: '🎨', app: 'Wireframe Maker',        date: '2026-04-01(水)', desc: 'V12 サイト完全再現+LPO編集モード: URLインポートで元サイトのHTML/CSS/画像をそのまま再現表示。テキスト直接編集・画像差替・AIリライト（LPOコピー改善）・セクション非表示/表示・編集後HTML保存。ワイヤーフレームモードへの切替も可能' },
-      { icon: '🔍', app: 'Cache Checker',         date: '2026-04-01(水)', desc: 'ビジュアル比較に全面刷新：OGP画像・ページ内画像サムネイル・テキスト内容を2カラム並列比較。画像差し替え・テキスト変更を目視確認可能に' },
-      { icon: '🔍', app: 'Cache Checker',         date: '2026-04-01(水)', desc: 'UI大幅改善：キャッシュTTL自動計算（max-age/Age残り時間）・ヘッダー差分ハイライト・ヘッダーツールチップ解説・DIFF時アクションガイド・レスポンス時間表示・Markdownレポートコピー・再チェックボタン・サンプルURL' },
-      { icon: '🔍', app: 'Cache Checker',         date: '2026-04-01(水)', desc: 'CMSキャッシュ反映状況チェックツール新規追加・通常版とキャッシュバイパス版の差分比較・レスポンスヘッダー可視化・行単位diff表示' },
+      { icon: '🔄', app: 'Cache Checker',         date: '2026-04-01(水)', desc: 'ビジュアル比較に全面刷新：OGP画像・ページ内画像サムネイル・テキスト内容を2カラム並列比較。画像差し替え・テキスト変更を目視確認可能に' },
+      { icon: '🔄', app: 'Cache Checker',         date: '2026-04-01(水)', desc: 'UI大幅改善：キャッシュTTL自動計算（max-age/Age残り時間）・ヘッダー差分ハイライト・ヘッダーツールチップ解説・DIFF時アクションガイド・レスポンス時間表示・Markdownレポートコピー・再チェックボタン・サンプルURL' },
+      { icon: '🔄', app: 'Cache Checker',         date: '2026-04-01(水)', desc: 'CMSキャッシュ反映状況チェックツール新規追加・通常版とキャッシュバイパス版の差分比較・レスポンスヘッダー可視化・行単位diff表示' },
       { icon: '🎨', app: 'Wireframe Maker',        date: '2026-04-01(水)', desc: 'V10 Figma到達: (1)SVGテキスト直接編集（全セクション対応・ダブルクリックでその場編集） (2)プロジェクト保存/読込（💾/📂・localStorage・JSONエクスポート/インポート） (3)自動保存（3秒デバウンス）+起動時復元 (4)セクション個別スタイル（背景色・テキスト色・アクセント色を🎨ボタンで変更） (5)PDFエクスポート（出力タブからワンクリック）' },
       { icon: '🪄', app: 'Prompt Maker',           date: '2026-04-01(水)', desc: 'v10 総合UI見直し＋機能強化：プロンプト履歴ドロワー（過去プロンプト閲覧・コピー・チャット挿入）・テンプレートギャラリー8種（SNS/メール/企画書/分析/翻訳/議事録/教育/マーケティング）・チャットMarkdownエクスポート・キーボードショートカット（Ctrl+K検索・?一覧・Ctrl+Shift+N新規チャット）・ウェルカムメッセージのカード形式化・入力欄の文字数カウント＋改行ヒント・ブランドカラー準拠修正' },
       { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-01(水)', desc: 'ガイド準拠の容量制限・ファイルサイズ表示を追加（MV: WebP 1MB以内で自動圧縮 / OGP: PNG固定 100KB以下で超過警告）' },

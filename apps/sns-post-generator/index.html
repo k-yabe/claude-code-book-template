@@ -6,352 +6,281 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Post Generator</title>
+  <link rel="stylesheet" href="../../assets/app-styles.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #2d3436; min-height: 100vh; }
+    /* === App-specific styles for Post Generator === */
 
-    /* ナビ */
-    .navbar {
-      background: #001f33; height: 58px; display: flex; align-items: center;
-      padding: 0 40px; gap: 14px; position: sticky; top: 0; z-index: 10;
-    }
-    .navbar-brand { display: flex; align-items: center; gap: 14px; }
-    .navbar-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
-    .navbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9); }
-    .back-btn {
-      background: none; border: 1px solid rgba(255,255,255,0.2); font-size: 0.78rem;
-      color: rgba(255,255,255,0.65); cursor: pointer; padding: 6px 14px;
-      text-decoration: none; transition: all 0.15s;
-    }
-    .back-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
-
-    .container { max-width: 800px; margin: 0 auto; padding: 36px 24px 80px; }
-
-    /* ページヘッダー */
-    .page-header { margin-bottom: 20px; }
-    .page-header h1 { font-size: 1.4rem; font-weight: 700; color: #001f33; letter-spacing: -0.01em; margin-bottom: 4px; }
-    .page-header p { font-size: 0.82rem; color: #8a9bb0; }
-
-    /* ステップ */
-    .step {
-      background: #fff; border: 1.5px solid #e8ecf0;
-      margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
-    .step-header {
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 18px; border-bottom: 1px solid #f0f2f5; background: #fafbfc;
-    }
-    .step-num {
-      width: 24px; height: 24px; background: #001f33; color: #fff;
-      font-size: 0.72rem; font-weight: 800; display: flex; align-items: center;
-      justify-content: center; flex-shrink: 0;
-    }
-    .step-title { font-size: 0.85rem; font-weight: 700; color: #001f33; }
+    /* Badge variants (not in shared CSS) */
     .badge-required {
       font-size: 0.65rem; font-weight: 700; padding: 2px 7px;
-      background: #ffeaea; color: #c0392b; letter-spacing: 0.04em;
+      background: var(--error-bg); color: var(--error-text); letter-spacing: 0.04em;
     }
     .badge-optional {
       font-size: 0.65rem; font-weight: 700; padding: 2px 7px;
-      background: #f0f0f0; color: #636e72; letter-spacing: 0.04em;
+      background: var(--bg); color: var(--text-muted); letter-spacing: 0.04em;
     }
-    .step-desc { font-size: 0.75rem; color: #a0aab4; margin-left: auto; }
-    .step-body { padding: 16px 18px; }
+    .step-desc { font-size: var(--text-xs); color: var(--text-faint); margin-left: auto; }
 
-    /* プラットフォームタブ */
-    .platform-tabs { display: flex; border-bottom: 2px solid #f0f2f5; margin-bottom: 16px; }
+    /* Platform tabs */
+    .platform-tabs { display: flex; border-bottom: 2px solid var(--border-light); margin-bottom: var(--sp-4); }
     .platform-tab {
-      padding: 7px 18px; border: none; background: none; font-family: inherit;
-      font-size: 0.83rem; font-weight: 600; color: #a0aab4; cursor: pointer;
-      border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s;
+      padding: 7px 18px; border: none; background: none; font-family: var(--font-sans);
+      font-size: 0.83rem; font-weight: 600; color: var(--text-faint); cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all var(--ease);
     }
-    .platform-tab.active { color: #001f33; border-bottom-color: #ffb81c; }
-    .platform-tab:hover:not(.active) { color: #4a5568; }
+    .platform-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+    .platform-tab:hover:not(.active) { color: var(--text-secondary); }
 
-    /* URL入力 */
-    .field-label { font-size: 0.78rem; font-weight: 700; color: #4a5568; margin-bottom: 6px; }
+    /* URL input row */
+    .field-label { font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
     .input-row { display: flex; }
     .url-input {
-      flex: 1; padding: 11px 14px; border: 1.5px solid #e2e8f0;
-      font-size: 0.9rem; color: #2d3436; font-family: inherit; outline: none;
-      transition: border-color 0.15s; min-width: 0;
+      flex: 1; padding: 11px 14px; border: 1.5px solid var(--border);
+      font-size: var(--text-base); color: var(--text); font-family: var(--font-sans); outline: none;
+      transition: border-color var(--ease); min-width: 0;
     }
-    .url-input:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); outline: none; }
-    .url-input::placeholder { color: #c8d0da; }
+    .url-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--focus-ring); outline: none; }
+    .url-input::placeholder { color: var(--text-faint); }
 
-    /* 生成ボタン */
-    .generate-btn {
-      width: 100%; padding: 13px; background: #ffb81c; border: none;
-      color: #001f33; font-size: 0.95rem; font-weight: 800; cursor: pointer;
-      font-family: inherit; transition: all 0.15s; margin-bottom: 6px;
-    }
-    .generate-btn:hover:not(:disabled) { background: #f0ac10; }
-    .generate-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    /* Generate button override */
+    .generate-btn { margin-bottom: 6px; }
 
-    .error-msg { font-size: 0.79rem; color: #e17055; min-height: 1.1em; margin-bottom: 16px; }
+    /* Error message override */
+    .error-msg { font-size: 0.79rem; color: var(--error-text); min-height: 1.1em; margin-bottom: var(--sp-4); background: none; border: none; display: block; padding: 0; }
 
-    /* 出力エリア */
+    /* Output area */
     .output-section { display: none; }
 
-    /* ローディング */
+    /* Loading message */
     .loading-msg {
-      text-align: center; padding: 44px 20px; background: #fff;
-      border: 1px solid #e2e8f0; color: #9aa5b4; font-size: 0.87rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      text-align: center; padding: 44px 20px; background: var(--surface);
+      border: 1px solid var(--border); color: var(--text-faint); font-size: 0.87rem;
+      box-shadow: var(--shadow-sm);
     }
     .loading-dots { display: inline-flex; gap: 5px; margin-left: 6px; vertical-align: middle; }
-    .loading-dot { width: 5px; height: 5px; background: #ffb81c; border-radius: 50%; animation: bounce 1.2s ease-in-out infinite; }
-    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
-    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.35; } 40% { transform: scale(1); opacity: 1; } }
 
-    /* 結果エリア */
+    /* Result card */
     .result-card {
-      background: #fff; border: 1px solid #e2e8f0;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      background: var(--surface); border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
     }
 
-    /* パターンタブ */
-    .pattern-tabs { display: flex; border-bottom: 1px solid #edf0f3; }
+    /* Pattern tabs */
+    .pattern-tabs { display: flex; border-bottom: 1px solid var(--border); }
     .pattern-tab {
-      flex: 1; padding: 12px 8px; border: none; background: none; font-family: inherit;
-      font-size: 0.78rem; font-weight: 600; color: #9aa5b4; cursor: pointer;
-      border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s;
+      flex: 1; padding: 12px 8px; border: none; background: none; font-family: var(--font-sans);
+      font-size: var(--text-sm); font-weight: 600; color: var(--text-faint); cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all var(--ease);
       text-align: center; line-height: 1.4;
     }
-    .pattern-tab.active { color: #001f33; border-bottom-color: #ffb81c; background: #fafbfc; }
-    .pattern-tab:hover:not(.active) { color: #4a5568; background: #f9fafb; }
-    .pattern-tab .tab-rec { display: block; font-size: 0.62rem; color: #ffb81c; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 1px; }
+    .pattern-tab.active { color: var(--navy); border-bottom-color: var(--gold); background: var(--surface-alt); }
+    .pattern-tab:hover:not(.active) { color: var(--text-secondary); background: var(--surface-alt); }
+    .pattern-tab .tab-rec { display: block; font-size: 0.62rem; color: var(--gold); font-weight: 800; letter-spacing: 0.05em; margin-bottom: 1px; }
     .pattern-tab .tab-name { display: block; }
 
-    /* パネル */
+    /* Pattern panels */
     .pattern-panel { display: none; padding: 20px; }
     .pattern-panel.active { display: block; }
 
-    /* 投稿テキスト */
+    /* Post text */
     .post-text {
-      font-size: 0.9rem; line-height: 1.85; color: #2d3436;
+      font-size: var(--text-base); line-height: 1.85; color: var(--text);
       white-space: pre-wrap; word-break: break-word;
-      border-left: 3px solid #e2e8f0; padding-left: 14px; margin-bottom: 16px;
+      border-left: 3px solid var(--border); padding-left: 14px; margin-bottom: var(--sp-4);
+      cursor: text;
     }
-    .output-card.recommended .post-text { border-left-color: #ffb81c; }
+    .post-text:hover { border-left-color: var(--gold); }
+    .output-card.recommended .post-text { border-left-color: var(--gold); }
 
-    /* メリデメ */
-    .merit-demerit { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .merit-box, .demerit-box {
-      padding: 10px 13px; font-size: 0.79rem; line-height: 1.6;
-    }
-    .merit-box { background: #f0faf4; border-left: 3px solid #52c878; color: #1a5c32; }
-    .demerit-box { background: #fff5f3; border-left: 3px solid #e88; color: #7a2020; }
+    /* Merit / Demerit */
+    .merit-demerit { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: var(--sp-4); }
+    .merit-box, .demerit-box { padding: 10px 13px; font-size: 0.79rem; line-height: 1.6; }
+    .merit-box { background: var(--success-bg); border-left: 3px solid var(--success-text); color: var(--success-text); }
+    .demerit-box { background: var(--error-bg); border-left: 3px solid var(--error-text); color: var(--error-text); }
     .md-label { font-size: 0.67rem; font-weight: 800; letter-spacing: 0.07em; margin-bottom: 4px; opacity: 0.7; }
 
-    /* おすすめ理由 */
+    /* Recommend reason */
     .reason-row {
       display: flex; align-items: flex-start; gap: 10px;
-      background: #fffbf0; border: 1px solid #fde89a; padding: 10px 13px;
-      margin-bottom: 16px; font-size: 0.81rem; line-height: 1.65; color: #5a4000;
+      background: var(--gold-20); border: 1px solid var(--gold-60); padding: 10px 13px;
+      margin-bottom: var(--sp-4); font-size: 0.81rem; line-height: 1.65; color: #5a4000;
     }
     .reason-row .reason-icon { font-size: 0.9rem; flex-shrink: 0; }
     .reason-row .reason-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.07em; color: #b8860b; margin-bottom: 2px; }
 
-    /* フッター（コピー・文字数） */
+    /* Panel footer (copy / char count) */
     .panel-footer {
       display: flex; align-items: center; justify-content: space-between;
-      padding-top: 14px; border-top: 1px solid #f0f2f5;
+      padding-top: 14px; border-top: 1px solid var(--border-light);
     }
-    .char-count { font-size: 0.74rem; color: #a0aab4; }
-    .char-count.over { color: #e17055; font-weight: 700; }
-    .copy-btn {
-      padding: 6px 18px; background: #001f33; border: none; color: #fff;
-      font-size: 0.77rem; font-weight: 700; cursor: pointer; font-family: inherit;
-      transition: opacity 0.15s;
-    }
-    .copy-btn:hover { opacity: 0.75; }
+    .char-count.over { color: var(--error-text); font-weight: 700; }
 
-    /* 再生成 */
+    /* Regen button */
     .regen-row { margin-top: 12px; }
     .regen-btn {
-      padding: 7px 16px; background: none; border: 1.5px solid #e2e8f0;
-      font-size: 0.77rem; color: #7a8694; cursor: pointer; font-family: inherit;
-      transition: all 0.15s;
+      padding: 7px 16px; background: none; border: 1.5px solid var(--border);
+      font-size: 0.77rem; color: var(--text-muted); cursor: pointer; font-family: var(--font-sans);
+      transition: all var(--ease);
     }
-    .regen-btn:hover { border-color: #ffb81c; color: #001f33; }
+    .regen-btn:hover { border-color: var(--gold); color: var(--navy); }
 
-    /* パターン個別修正 */
+    /* Patch (per-pattern edit) */
     .patch-area { display: none; margin-top: 10px; }
     .patch-area.open { display: flex; gap: 8px; }
     .patch-input {
-      flex: 1; padding: 8px 12px; border: 1.5px solid #e2e8f0; font-size: 0.82rem;
-      font-family: inherit; color: #2d3436; outline: none; min-width: 0;
-      transition: border-color 0.15s;
+      flex: 1; padding: 8px 12px; border: 1.5px solid var(--border); font-size: 0.82rem;
+      font-family: var(--font-sans); color: var(--text); outline: none; min-width: 0;
+      transition: border-color var(--ease);
     }
-    .patch-input:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); outline: none; }
-    .patch-input::placeholder { color: #c8d0da; }
+    .patch-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--focus-ring); outline: none; }
+    .patch-input::placeholder { color: var(--text-faint); }
     .patch-btn {
-      padding: 8px 14px; background: #001f33; border: none; color: #fff;
-      font-size: 0.77rem; font-weight: 700; cursor: pointer; font-family: inherit;
-      white-space: nowrap; transition: opacity 0.15s; flex-shrink: 0;
+      padding: 8px 14px; background: var(--navy); border: none; color: var(--white);
+      font-size: 0.77rem; font-weight: 700; cursor: pointer; font-family: var(--font-sans);
+      white-space: nowrap; transition: opacity var(--ease); flex-shrink: 0;
     }
     .patch-btn:hover { opacity: 0.75; }
     .patch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .edit-toggle-btn {
-      padding: 6px 12px; background: none; border: 1.5px solid #e2e8f0;
-      font-size: 0.75rem; color: #7a8694; cursor: pointer; font-family: inherit;
-      transition: all 0.15s; flex-shrink: 0;
+      padding: 6px 12px; background: none; border: 1.5px solid var(--border);
+      font-size: var(--text-xs); color: var(--text-muted); cursor: pointer; font-family: var(--font-sans);
+      transition: all var(--ease); flex-shrink: 0;
     }
-    .edit-toggle-btn:hover { border-color: #ffb81c; color: #001f33; }
+    .edit-toggle-btn:hover { border-color: var(--gold); color: var(--navy); }
 
-    /* 補足インプット */
+    /* Supplement input options */
     .supp-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
     .supp-tab {
-      padding: 12px 14px; border: 1.5px solid #e2e8f0; background: #fafbfc;
-      font-size: 0.82rem; font-weight: 600; color: #7a8694; cursor: pointer;
-      font-family: inherit; transition: all 0.15s; text-align: left; line-height: 1.5;
+      padding: 12px 14px; border: 1.5px solid var(--border); background: var(--surface-alt);
+      font-size: 0.82rem; font-weight: 600; color: var(--text-muted); cursor: pointer;
+      font-family: var(--font-sans); transition: all var(--ease); text-align: left; line-height: 1.5;
     }
-    .supp-tab:hover { border-color: #ffb81c; color: #001f33; background: #fffbf0; }
-    .supp-tab.active { border-color: #ffb81c; background: #fffbf0; color: #001f33; }
-    .supp-tab .supp-tab-desc { display: block; font-size: 0.7rem; font-weight: 400; color: #a0aab4; margin-top: 2px; }
+    .supp-tab:hover { border-color: var(--gold); color: var(--navy); background: var(--gold-20); }
+    .supp-tab.active { border-color: var(--gold); background: var(--gold-20); color: var(--navy); }
+    .supp-tab .supp-tab-desc { display: block; font-size: 0.7rem; font-weight: 400; color: var(--text-faint); margin-top: 2px; }
     .supp-tab.active .supp-tab-desc { color: #b8860b; }
     .supp-panel { display: none; }
     .supp-panel.active { display: block; }
     .supp-file-label {
       display: flex; align-items: center; gap: 10px; padding: 12px 16px;
-      border: 1.5px dashed #e2e8f0; cursor: pointer; font-size: 0.85rem;
-      color: #7a8694; transition: all 0.15s; background: #fafbfc;
+      border: 1.5px dashed var(--border); cursor: pointer; font-size: 0.85rem;
+      color: var(--text-muted); transition: all var(--ease); background: var(--surface-alt);
     }
-    .supp-file-label:hover { border-color: #ffb81c; color: #001f33; }
-    .supp-file-name { font-size: 0.78rem; color: #52c878; margin-top: 6px; font-weight: 600; display: block; }
+    .supp-file-label:hover { border-color: var(--gold); color: var(--navy); }
+    .supp-file-name { font-size: var(--text-sm); color: var(--success-text); margin-top: 6px; font-weight: 600; display: block; }
     .supp-textarea {
-      width: 100%; min-height: 100px; padding: 10px 14px; border: 1.5px solid #e2e8f0;
-      font-size: 0.85rem; font-family: inherit; color: #2d3436; resize: vertical;
-      outline: none; box-sizing: border-box; transition: border-color 0.15s;
+      width: 100%; min-height: 100px; padding: 10px 14px; border: 1.5px solid var(--border);
+      font-size: 0.85rem; font-family: var(--font-sans); color: var(--text); resize: vertical;
+      outline: none; box-sizing: border-box; transition: border-color var(--ease);
     }
-    .supp-textarea:focus { border-color: #ffb81c; box-shadow: 0 0 0 3px rgba(255,184,28,0.12); outline: none; }
-    .supp-textarea::placeholder { color: #c8d0da; }
-    .supp-hint { font-size: 0.72rem; color: #a0aab4; margin-top: 6px; }
+    .supp-textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--focus-ring); outline: none; }
+    .supp-textarea::placeholder { color: var(--text-faint); }
+    .supp-hint { font-size: var(--text-xs); color: var(--text-faint); margin-top: 6px; }
 
-    /* インライン編集 */
+    /* Inline editing textarea */
     .post-textarea {
-      width: 100%; font-size: 0.9rem; line-height: 1.85; color: #2d3436;
-      border: 1.5px solid #ffb81c; padding: 10px 14px; font-family: inherit;
+      width: 100%; font-size: var(--text-base); line-height: 1.85; color: var(--text);
+      border: 1.5px solid var(--gold); padding: 10px 14px; font-family: var(--font-sans);
       resize: vertical; outline: none; min-height: 80px; box-sizing: border-box;
-      word-break: break-word; margin-bottom: 16px; overflow: hidden;
+      word-break: break-word; margin-bottom: var(--sp-4); overflow: hidden;
     }
-    .post-text { cursor: text; }
-    .post-text:hover { border-left-color: #ffb81c; }
-    .edit-hint { font-size: 0.68rem; color: #c8d0da; margin-bottom: 6px; }
+    .edit-hint { font-size: 0.68rem; color: var(--text-faint); margin-bottom: 6px; }
 
-    /* プレビューセクション */
-    .preview-section { margin-top: 16px; background: #fff; border: 1.5px solid #e8ecf0; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
-    .preview-section-header { padding: 12px 18px; border-bottom: 1px solid #f0f2f5; background: #fafbfc; display: flex; align-items: center; gap: 10px; }
-    .preview-section-title { font-size: 0.85rem; font-weight: 700; color: #001f33; }
-    .preview-tabs { display: flex; border-bottom: 2px solid #f0f2f5; padding: 0 4px; }
+    /* Preview section */
+    .preview-section { margin-top: var(--sp-4); background: var(--surface); border: 1.5px solid var(--border); box-shadow: var(--shadow-sm); }
+    .preview-section-header { padding: 12px 18px; border-bottom: 1px solid var(--border-light); background: var(--surface-alt); display: flex; align-items: center; gap: 10px; }
+    .preview-section-title { font-size: 0.85rem; font-weight: 700; color: var(--navy); }
+    .preview-tabs { display: flex; border-bottom: 2px solid var(--border-light); padding: 0 4px; }
     .preview-tab {
-      padding: 10px 16px; border: none; background: none; font-family: inherit;
-      font-size: 0.82rem; font-weight: 600; color: #a0aab4; cursor: pointer;
-      border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s;
+      padding: 10px 16px; border: none; background: none; font-family: var(--font-sans);
+      font-size: 0.82rem; font-weight: 600; color: var(--text-faint); cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all var(--ease);
     }
-    .preview-tab.active { color: #001f33; border-bottom-color: #ffb81c; }
-    .preview-tab:hover:not(.active) { color: #4a5568; }
+    .preview-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+    .preview-tab:hover:not(.active) { color: var(--text-secondary); }
     .preview-panel { display: none; padding: 18px; }
     .preview-panel.active { display: block; }
-    .preview-char-warning { font-size: 0.75rem; color: #e17055; font-weight: 700; margin-top: 10px; padding: 6px 10px; background: #fff5f3; border-left: 3px solid #e17055; }
+    .preview-char-warning { font-size: var(--text-xs); color: var(--error-text); font-weight: 700; margin-top: 10px; padding: 6px 10px; background: var(--error-bg); border-left: 3px solid var(--error-text); }
 
-    /* Chatterプレビュー */
+    /* Chatter preview */
     .chatter-preview { border: 1px solid #dddbda; overflow: hidden; }
     .chatter-nav { background: #032D60; padding: 8px 14px; display: flex; align-items: center; gap: 8px; }
     .chatter-nav-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.3); }
-    .chatter-nav-label { font-size: 0.72rem; color: rgba(255,255,255,0.65); font-weight: 600; letter-spacing: 0.03em; }
+    .chatter-nav-label { font-size: var(--text-xs); color: rgba(255,255,255,0.65); font-weight: 600; letter-spacing: 0.03em; }
     .chatter-body { padding: 14px; background: #f3f2f2; }
-    .chatter-post-card { background: #fff; border: 1px solid #dddbda; padding: 14px; }
+    .chatter-post-card { background: var(--white); border: 1px solid #dddbda; padding: 14px; }
     .chatter-post-header { display: flex; gap: 10px; margin-bottom: 10px; }
-    .chatter-avatar { width: 38px; height: 38px; border-radius: 50%; background: #0070D2; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; }
+    .chatter-avatar { width: 38px; height: 38px; border-radius: 50%; background: #0070D2; color: var(--white); display: flex; align-items: center; justify-content: center; font-size: var(--text-sm); font-weight: 700; flex-shrink: 0; }
     .chatter-user-name { font-size: 0.86rem; font-weight: 700; color: #0070D2; }
     .chatter-user-meta { font-size: 0.73rem; color: #706E6B; margin-top: 1px; }
     .chatter-post-text { font-size: 0.85rem; line-height: 1.7; color: #3E3E3C; white-space: pre-wrap; word-break: break-word; margin-bottom: 12px; }
     .chatter-actions { display: flex; gap: 16px; padding-top: 8px; border-top: 1px solid #f3f2f2; }
     .chatter-action-btn { background: none; border: none; cursor: default; font-size: 0.77rem; color: #706E6B; display: flex; align-items: center; gap: 4px; padding: 0; }
 
-    /* LinkedInプレビュー */
-    .linkedin-preview { border: 1px solid #e0e0e0; overflow: hidden; background: #fff; }
+    /* LinkedIn preview */
+    .linkedin-preview { border: 1px solid #e0e0e0; overflow: hidden; background: var(--white); }
     .linkedin-post-header { display: flex; gap: 10px; padding: 16px 16px 0; margin-bottom: 10px; }
-    .linkedin-avatar { width: 46px; height: 46px; border-radius: 50%; background: #0a66c2; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
-    .linkedin-user-name { font-size: 0.9rem; font-weight: 700; color: #000; }
+    .linkedin-avatar { width: 46px; height: 46px; border-radius: 50%; background: #0a66c2; color: var(--white); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+    .linkedin-user-name { font-size: 0.9rem; font-weight: 700; color: var(--black); }
     .linkedin-user-meta { font-size: 0.73rem; color: #666; margin-top: 2px; }
-    .linkedin-post-text { font-size: 0.87rem; line-height: 1.7; color: #000; white-space: pre-wrap; word-break: break-word; padding: 0 16px 12px; }
+    .linkedin-post-text { font-size: 0.87rem; line-height: 1.7; color: var(--black); white-space: pre-wrap; word-break: break-word; padding: 0 16px 12px; }
     .linkedin-actions { display: flex; padding: 4px 8px 8px; border-top: 1px solid #e0e0e0; }
     .linkedin-action-btn { flex: 1; background: none; border: none; cursor: default; font-size: 0.76rem; color: #666; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 8px 4px; }
 
-    /* Xプレビュー（ライトモード） */
-    .x-preview { border: 1px solid #e1e8ed; background: #fff; }
+    /* X preview (light mode) */
+    .x-preview { border: 1px solid #e1e8ed; background: var(--white); }
     .x-post { padding: 16px; display: flex; gap: 12px; }
-    .x-avatar { width: 40px; height: 40px; border-radius: 50%; background: #1d9bf0; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 700; flex-shrink: 0; }
+    .x-avatar { width: 40px; height: 40px; border-radius: 50%; background: #1d9bf0; color: var(--white); display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 700; flex-shrink: 0; }
     .x-post-content { flex: 1; min-width: 0; }
     .x-user-header { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; flex-wrap: wrap; }
     .x-user-name { font-size: 0.9rem; font-weight: 700; color: #0f1419; }
     .x-user-handle { font-size: 0.85rem; color: #536471; }
-    .x-post-text { font-size: 0.95rem; line-height: 1.6; color: #0f1419; white-space: pre-wrap; word-break: break-word; margin-bottom: 12px; }
+    .x-post-text { font-size: var(--text-md); line-height: 1.6; color: #0f1419; white-space: pre-wrap; word-break: break-word; margin-bottom: 12px; }
     .x-actions { display: flex; gap: 24px; }
     .x-action-btn { background: none; border: none; cursor: default; font-size: 0.8rem; color: #536471; display: flex; align-items: center; gap: 4px; padding: 0; }
 
-    .sample-hint { font-size: 0.75rem; color: #b2bec3; margin: 6px 0 0; }
+    /* Sample hint */
+    .sample-hint { font-size: var(--text-xs); color: var(--text-faint); margin: 6px 0 0; }
     .sample-btn {
-      background: none; border: none; color: #8a9bb0; font-size: 0.75rem;
-      font-weight: 700; padding: 0; cursor: pointer; font-family: inherit;
-      text-decoration: underline; transition: color 0.15s;
+      background: none; border: none; color: var(--text-muted); font-size: var(--text-xs);
+      font-weight: 700; padding: 0; cursor: pointer; font-family: var(--font-sans);
+      text-decoration: underline; transition: color var(--ease);
     }
-    .sample-btn:hover { color: #001f33; }
+    .sample-btn:hover { color: var(--navy); }
 
-    /* URL履歴ドロップダウン */
+    /* URL history dropdown */
     .url-wrapper { position: relative; flex: 1; min-width: 0; }
     .url-history-dropdown {
       position: absolute; top: 100%; left: 0; right: 0;
-      background: #fff; border: 1.5px solid #ffb81c; border-top: none;
+      background: var(--surface); border: 1.5px solid var(--gold); border-top: none;
       z-index: 100; max-height: 220px; overflow-y: auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none;
+      box-shadow: var(--shadow-md); display: none;
     }
     .url-history-dropdown.open { display: block; }
     .url-history-item {
       display: flex; align-items: center; padding: 8px 12px;
-      font-size: 0.81rem; color: #2d3436; cursor: pointer;
-      border-bottom: 1px solid #f0f2f5; gap: 8px;
+      font-size: 0.81rem; color: var(--text); cursor: pointer;
+      border-bottom: 1px solid var(--border-light); gap: 8px;
     }
     .url-history-item:last-child { border-bottom: none; }
-    .url-history-item:hover { background: #fffbf0; }
+    .url-history-item:hover { background: var(--gold-20); }
     .url-history-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .url-history-delete {
-      background: none; border: none; color: #c8d0da; cursor: pointer;
-      font-size: 0.85rem; padding: 2px 6px; flex-shrink: 0; transition: color 0.15s;
+      background: none; border: none; color: var(--text-faint); cursor: pointer;
+      font-size: 0.85rem; padding: 2px 6px; flex-shrink: 0; transition: color var(--ease);
     }
-    .url-history-delete:hover { color: #e17055; }
-    .url-history-empty { padding: 10px 12px; font-size: 0.8rem; color: #a0aab4; text-align: center; }
-    .app-footer {
-      background: #001f33;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      padding: 16px 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 40px;
-    }
-    .app-footer-text {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.8);
-    }
+    .url-history-delete:hover { color: var(--error-text); }
+    .url-history-empty { padding: 10px 12px; font-size: 0.8rem; color: var(--text-faint); text-align: center; }
 
-    @media (max-width: 768px) {
-      .container { padding: 24px 20px 60px; }
-      .navbar { padding: 0 20px; }
-    }
+    /* Footer override */
+    .app-footer { margin-top: 40px; }
 
+    /* Responsive (app-specific) */
     @media (max-width: 600px) {
-      .navbar { padding: 0 16px; }
-      .container { padding: 20px 16px 60px; }
       .merit-demerit { grid-template-columns: 1fr; }
       .supp-options { grid-template-columns: 1fr; }
     }
   </style>
-  <link rel="stylesheet" href="../../assets/app-styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
@@ -1077,5 +1006,16 @@ AIツールの活用により、コンテンツ制作の工数を従来の1/3に
   <footer class="app-footer">
     <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
   </footer>
+  <script src="../../assets/onboarding.js"></script>
+  <script>initOnboarding({
+    appName: 'sns-post-generator',
+    title: 'Post Generator',
+    description: '記事のシェア投稿を一瞬で作れます',
+    features: [
+      { icon: '📣', text: 'URLを貼るだけでChatter/LinkedIn/X向けの投稿文を生成' },
+      { icon: '🔀', text: '3パターン提案されるので好みを選ぶだけ' },
+      { icon: '👀', text: '各SNSの実際の表示でプレビュー確認' }
+    ]
+  });</script>
 </body>
 </html>
