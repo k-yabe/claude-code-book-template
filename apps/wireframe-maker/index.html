@@ -1013,11 +1013,13 @@
         <button class="ct-btn" onclick="cloneHideSection()">👁️ セクション非表示</button>
         <button class="ct-btn" onclick="cloneEditStyle()">🎨 スタイル</button>
         <button class="ct-btn" onclick="cloneInsertElement()">➕ 要素追加</button>
+        <button class="ct-btn" onclick="cloneMoveElement(-1)" title="選択中の要素を上に移動">⬆ 上へ</button>
+        <button class="ct-btn" onclick="cloneMoveElement(1)" title="選択中の要素を下に移動">⬇ 下へ</button>
         <button class="ct-btn" onclick="cloneEditBgSection()">🖌️ 背景色</button>
         <button class="ct-btn" onclick="cloneReorderSection()">↕️ 並替</button>
         <button class="ct-btn" onclick="cloneExportHTML()">💾 HTML保存</button>
         <div class="ct-sep"></div>
-        <button class="ct-btn" onclick="switchToWireframe()">📐 ワイヤーフレームに変換</button>
+        <button class="ct-btn" onclick="switchToWireframe()" title="このサイトの構成をAIで分析し、WFセクションを自動生成します">📐 構成をWFに変換</button>
         <div style="flex:1"></div>
         <span class="ct-url" id="clone-url-label"></span>
       </div>
@@ -1513,6 +1515,18 @@ async function handleUrlImport() {
       else { target.parentElement ? target.parentElement.insertBefore(newEl, target.nextSibling) : document.body.appendChild(newEl); }
       window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
     }
+    if (e.data.type === 'move-element') {
+      const sel = document.querySelector('[data-clone-selected]');
+      if (!sel) { window.parent.postMessage({ type: 'clone-no-selection' }, '*'); return; }
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+      const parent = sel.parentElement;
+      if (e.data.direction === -1 && sel.previousElementSibling) {
+        parent.insertBefore(sel, sel.previousElementSibling);
+      } else if (e.data.direction === 1 && sel.nextElementSibling) {
+        parent.insertBefore(sel.nextElementSibling, sel);
+      }
+      window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
+    }
     if (e.data.type === 'delete-element') {
       const sel = document.querySelector('[data-clone-selected]');
       if (sel) {
@@ -1768,6 +1782,9 @@ window.addEventListener('message', function(e) {
     pushCloneUndo(e.data.html);
   }
   // 操作後: ボタン状態更新
+  if (e.data.type === 'clone-no-selection') {
+    showToast('要素を選択してから操作してください');
+  }
   if (e.data.type === 'clone-changed') {
     updateCloneUndoButtons();
   }
@@ -1903,13 +1920,18 @@ function cloneInsertElement() {
   panel.style.maxWidth = '320px';
   panel.innerHTML = `
     <div class="sp-title">要素を追加</div>
-    <p style="font-size:12px;color:#8a9bb0;margin:0 0 12px">選択要素の後ろに追加されます</p>
+    <p style="font-size:12px;color:#8a9bb0;margin:0 0 8px">挿入位置:</p>
+    <div style="display:flex;gap:6px;margin:0 0 12px;">
+      <label style="font-size:12px;color:#cfd8e3;cursor:pointer;"><input type="radio" name="clone-insert-pos" value="after" checked style="margin-right:4px;">選択要素の後</label>
+      <label style="font-size:12px;color:#cfd8e3;cursor:pointer;"><input type="radio" name="clone-insert-pos" value="before" style="margin-right:4px;">選択要素の前</label>
+    </div>
     <div style="display:flex;flex-direction:column;gap:8px;">
       <button class="ct-btn" onclick="doCloneInsert('h2','見出しテキスト',{fontSize:'24px',fontWeight:'bold',margin:'16px 0'})" style="width:100%;text-align:left;">📝 見出し (H2)</button>
       <button class="ct-btn" onclick="doCloneInsert('p','テキストを入力してください',{fontSize:'16px',margin:'8px 0',lineHeight:'1.6'})" style="width:100%;text-align:left;">📄 テキスト段落</button>
       <button class="ct-btn" onclick="doCloneInsert('a','ボタンテキスト',{display:'inline-block',padding:'12px 32px',backgroundColor:'#001f33',color:'#fff',textDecoration:'none',fontSize:'16px',fontWeight:'bold',textAlign:'center'})" style="width:100%;text-align:left;">🔘 CTAボタン</button>
       <button class="ct-btn" onclick="doCloneInsert('div','区切り線',{borderTop:'2px solid #ccc',margin:'24px 0',height:'0'})" style="width:100%;text-align:left;">➖ 区切り線</button>
     </div>
+    <p style="font-size:11px;color:#6b7a8d;margin:8px 0 0;">💡 追加後 ⬆⬇ ボタンで位置を調整できます</p>
   `;
   ov.appendChild(panel);
   document.body.appendChild(ov);
@@ -1918,9 +1940,18 @@ function cloneInsertElement() {
 function doCloneInsert(tag, text, style) {
   const frame = document.getElementById('clone-frame');
   if (!frame || !frame.contentWindow) return;
-  frame.contentWindow.postMessage({ type: 'insert-element', tag, text, style, position: 'after' }, '*');
+  const posRadio = document.querySelector('input[name="clone-insert-pos"]:checked');
+  const position = posRadio ? posRadio.value : 'after';
+  frame.contentWindow.postMessage({ type: 'insert-element', tag, text, style, position }, '*');
   document.querySelector('.section-picker-overlay')?.remove();
-  showToast('要素を追加しました');
+  showToast('要素を追加しました（⬆⬇で位置調整可能）');
+}
+
+// クローンモード: 選択要素を上下に移動
+function cloneMoveElement(direction) {
+  const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) { showToast('クローンフレームが利用できません'); return; }
+  frame.contentWindow.postMessage({ type: 'move-element', direction }, '*');
 }
 
 // クローンモード: セクション背景色変更
@@ -2065,9 +2096,9 @@ function switchToWireframe() {
   document.getElementById('clone-container').style.display = '';
   document.getElementById('preview-canvas').classList.remove('hidden');
   document.getElementById('back-to-clone-btn').classList.remove('hidden');
-  showToast('ワイヤーフレームモードに切替');
+  showToast('サイト構成からWFセクションを生成中...');
   if (cloneSourceUrl) {
-    addChatMessage('ai', 'サイト構造からワイヤーフレームを生成しています...');
+    addChatMessage('ai', 'サイトの構成をAIで分析し、ワイヤーフレームのセクションを自動生成しています...');
     generateWireframeFromClone();
   }
 }
@@ -2326,6 +2357,14 @@ function onSectionsChanged() {
   // マルチページと同期
   pages[currentPageIndex].sections = currentSections;
   pages[currentPageIndex].freeTexts = freeTexts;
+  // クローンモード中にセクション操作した場合、WFプレビューを表示
+  if (cloneMode && currentSections.length > 0) {
+    cloneMode = false;
+    document.getElementById('clone-container').classList.add('hidden');
+    document.getElementById('clone-container').style.display = '';
+    document.getElementById('preview-canvas').classList.remove('hidden');
+    document.getElementById('back-to-clone-btn').classList.remove('hidden');
+  }
   renderPreview();
   renderSectionList();
   updateCVRDisplay();
@@ -2941,6 +2980,20 @@ function setDevicePreview(device) {
       b.classList.toggle('active', b.textContent.trim() === { desktop: 'PC', tablet: 'Tab', mobile: 'SP' }[device]);
     }
   });
+  // クローンモード: iframeの幅を変更してレスポンシブ対応。WFモード: 幅プレビューのみ
+  if (cloneMode) {
+    const frame = document.getElementById('clone-frame');
+    if (frame) {
+      const dw = DEVICE_WIDTHS[device];
+      frame.style.width = dw + 'px';
+      frame.style.maxWidth = '100%';
+      frame.style.margin = device === 'desktop' ? '' : '0 auto';
+      frame.style.display = 'block';
+    }
+    showToast(`${({desktop:'PC', tablet:'タブレット', mobile:'スマホ'})[device]}表示に切替（実際のレスポンシブCSSが適用されます）`);
+  } else if (device !== 'desktop') {
+    showToast(`${({tablet:'タブレット', mobile:'スマホ'})[device]}幅でプレビュー（WFのレイアウトは幅縮小のみ）`);
+  }
   applyZoom();
 }
 
