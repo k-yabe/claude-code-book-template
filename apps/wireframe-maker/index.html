@@ -1321,14 +1321,15 @@ async function generateFromContext() {
 }
 
 /* ===== セクション変更時の統合処理 ===== */
-function onSectionsChanged() {
+function onSectionsChanged(forceTabSwitch) {
   // マルチページと同期
   pages[currentPageIndex].sections = currentSections;
   renderPreview();
   renderSectionList();
   updateCVRDisplay();
   renderPageTabs();
-  switchTab('structure');
+  // チャットタブにいる場合はタブを切り替えない（会話フローを維持）
+  if (forceTabSwitch || currentTab !== 'chat') switchTab('structure');
   document.getElementById('empty-preview').classList.add('hidden');
 }
 
@@ -1730,7 +1731,8 @@ const RENDERERS = {
       drawText(g, tx + 20, ry + 28, ['レポート機能', 'API連携', 'カスタムダッシュボード', 'SSO対応', 'SLA保証', '日本語サポート'][r], '10', cs('body'));
       for (let ci = 1; ci < 4; ci++) {
         const cx = tx + ci * cw + cw / 2;
-        const isChecked = ci === 1 || Math.random() > 0.4;
+        // 決定論的パターン: 自社(ci=1)は全チェック、競合A(ci=2)は上4つ、競合B(ci=3)は上2つ
+        const isChecked = ci === 1 || (ci === 2 && r < 4) || (ci === 3 && r < 2);
         drawText(g, cx, ry + 28, isChecked ? '✓' : '—', '14', isChecked ? '#22c55e' : cs('line'), '600', 'middle');
       }
     }
@@ -2016,7 +2018,7 @@ function showShortcuts() {
     <table>
       <tr><td>Ctrl + Z</td><td>元に戻す</td></tr>
       <tr><td>Ctrl + Y</td><td>やり直し</td></tr>
-      <tr><td>Ctrl + S</td><td>SVG ダウンロード</td></tr>
+      <tr><td>Ctrl + S</td><td>プロジェクト保存</td></tr>
       <tr><td>Ctrl + G</td><td>グリッド表示</td></tr>
       <tr><td>Ctrl + P</td><td>プレビュー再生成</td></tr>
       <tr><td>Ctrl + E</td><td>エクスポートタブ</td></tr>
@@ -4819,10 +4821,8 @@ function useMarketTemplate(id) {
   if (!tmpl) return;
   const newSections = JSON.parse(JSON.stringify(tmpl.sections));
   newSections.forEach((s, i) => { s.id = 'sec-' + Date.now() + '-' + i; });
-  pages[currentPageIndex].sections = newSections;
   currentSections = newSections;
-  renderSectionList();
-  _doRenderPreview();
+  onSectionsChanged(true);
   broadcastCollabState();
   document.getElementById('market-overlay')?.remove();
   showToast(`テンプレート「${tmpl.name}」を適用しました`);
@@ -5320,6 +5320,7 @@ if (_origOnSectionsChanged) {
       if (latest.data.context) currentContext = latest.data.context;
       renderPreview();
       renderSectionList();
+      updateCVRDisplay();
       if (typeof renderPageTabs === 'function') renderPageTabs();
     }
   }
