@@ -3414,7 +3414,7 @@ function applyInlineEdit(sectionId) {
 
 // SVGテキスト要素のその場編集
 function editSVGText(sectionId, textEl) {
-  document.querySelectorAll('.svg-text-input').forEach(e => e.remove());
+  document.querySelectorAll('.svg-text-input').forEach(e => { if (e.parentNode) e.parentNode.removeChild(e); });
   const key = textEl.getAttribute('data-edit-key');
   const sec = currentSections.find(s => s.id === sectionId);
   if (!sec || !key) return;
@@ -3591,7 +3591,7 @@ function setupFreeTextEvents(svgRoot) {
 }
 
 function editFreeText(ftId) {
-  document.querySelectorAll('.svg-text-input').forEach(e => e.remove());
+  document.querySelectorAll('.svg-text-input').forEach(e => { if (e.parentNode) e.parentNode.removeChild(e); });
   const ft = freeTexts.find(f => f.id === ftId);
   if (!ft) return;
   const canvas = document.getElementById('preview-canvas');

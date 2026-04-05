@@ -689,7 +689,7 @@ heading, subtext, cta-button, cta-with-note, hero-image, placeholder-image, icon
       },
       body: JSON.stringify({
         model,
-        max_tokens: mode === 'refine' ? 2000 : 4000,
+        max_tokens: mode === 'refine' ? 4000 : 4000,
         temperature: mode === 'variant' ? 0.7 : mode === 'refine' ? 0.2 : 0.3,
         system: systemPrompt,
         messages,
