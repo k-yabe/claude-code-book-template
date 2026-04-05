@@ -57,7 +57,7 @@
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
 | Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040, S041, S042, S043, S044, S045 |
-| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043, S048, S050, S051 |
+| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043, S048, S050, S051, S052, S053 |
 | Cache Checker | `apps/cache-checker/index.html`, `api/fetch-article.js(mode=proxy)` | ✅ 完成 | S037 |
 | Image Converter | `apps/image-converter/index.html` | ✅ 完成 | S047 |
 
@@ -306,3 +306,4 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-04-04 | Wireframe Maker 致命的バグ4件修正(S050) | renderSections/requestPreviewRender未定義→正しい関数名に修正、cloneAIRewriteのframe変数未宣言修正、エクスポートJSON読込ボタンの参照先修正、copySVGのカードレイアウト破壊修正 |
 | 2026-04-05 | Wireframe Maker クローンモードUX4件修正(S051) | 構成パネルにiframeセクション一覧表示、要素追加パネルCSS追加+デザイン刷新、onSectionsChanged自動モード切替削除、WF変換時に編集済みiframe HTML使用で忠実度向上 |
 | 2026-04-05 | Wireframe Maker バグ修正2件(S052) | showUserFlowのp.links型不整合(object→array)修正、HistoryManager.togglePanel未定義→開閉トグル実装 |
+| 2026-04-05 | Wireframe Maker E2Eバグ修正(S053) | editSVGTextのblur/remove競合によるDOMクラッシュ修正、AI修正(refine)のmax_tokens不足(2000→4000)修正 |
