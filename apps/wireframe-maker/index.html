@@ -3414,7 +3414,7 @@ function applyInlineEdit(sectionId) {
 
 // SVGテキスト要素のその場編集
 function editSVGText(sectionId, textEl) {
-  document.querySelectorAll('.svg-text-input').forEach(e => { if (e.parentNode) e.parentNode.removeChild(e); });
+  document.querySelectorAll('.svg-text-input').forEach(e => { e._committed = true; try { e.remove(); } catch(_){} });
   const key = textEl.getAttribute('data-edit-key');
   const sec = currentSections.find(s => s.id === sectionId);
   if (!sec || !key) return;
@@ -3428,6 +3428,7 @@ function editSVGText(sectionId, textEl) {
 
   const input = document.createElement('input');
   input.className = 'svg-text-input';
+  input._committed = false;
   input.value = textEl.textContent;
   input.style.position = 'absolute';
   input.style.top = (rect.top - canvasRect.top + canvas.scrollTop - 4) + 'px';
@@ -3454,6 +3455,8 @@ function editSVGText(sectionId, textEl) {
   input.onclick = e => e.stopPropagation();
 
   const commit = () => {
+    if (input._committed) return;
+    input._committed = true;
     const val = input.value.trim();
     if (val && val !== textEl.textContent) {
       saveUndoState();
@@ -3462,7 +3465,7 @@ function editSVGText(sectionId, textEl) {
       onSectionsChanged();
       showToast('テキスト更新');
     }
-    input.remove();
+    try { input.remove(); } catch(_){}
   };
 
   input.addEventListener('blur', commit);
@@ -3591,7 +3594,7 @@ function setupFreeTextEvents(svgRoot) {
 }
 
 function editFreeText(ftId) {
-  document.querySelectorAll('.svg-text-input').forEach(e => { if (e.parentNode) e.parentNode.removeChild(e); });
+  document.querySelectorAll('.svg-text-input').forEach(e => { e._committed = true; try { e.remove(); } catch(_){} });
   const ft = freeTexts.find(f => f.id === ftId);
   if (!ft) return;
   const canvas = document.getElementById('preview-canvas');
@@ -3608,6 +3611,7 @@ function editFreeText(ftId) {
 
   const input = document.createElement('input');
   input.className = 'svg-text-input';
+  input._committed = false;
   input.value = ft.text;
   input.style.position = 'absolute';
   input.style.top = (rect.top - canvasRect.top + canvas.scrollTop - 4) + 'px';
@@ -3627,6 +3631,8 @@ function editFreeText(ftId) {
   input.onclick = e => e.stopPropagation();
 
   const commit = () => {
+    if (input._committed) return;
+    input._committed = true;
     const val = input.value.trim();
     if (val && val !== ft.text) {
       saveUndoState();
@@ -3642,7 +3648,7 @@ function editFreeText(ftId) {
       renderPreview();
       showToast('テキスト削除');
     }
-    input.remove();
+    try { input.remove(); } catch(_){}
   };
 
   input.addEventListener('blur', commit);
