@@ -740,7 +740,7 @@
   <button class="navbar-btn" onclick="saveProject()" title="プロジェクト保存 (Ctrl+S)" id="save-btn">💾 保存</button>
   <button class="navbar-btn" onclick="showProjectList()" title="プロジェクト一覧">📂 開く</button>
   <button class="navbar-btn" onclick="showShortcuts()" title="ショートカット一覧">⌨ ?</button>
-  <button class="navbar-btn" onclick="HistoryManager.togglePanel()">履歴</button>
+  <button class="navbar-btn" onclick="document.getElementById('hm-panel')?.classList.contains('open') ? HistoryManager.closePanel() : HistoryManager.openPanel()">履歴</button>
 </nav>
 
 <!-- ページバー（マルチページプロトタイプ） -->
@@ -6059,7 +6059,7 @@ function generateFlowSVG() {
   const nodes = pages.map((p, i) => ({
     id: i, name: p.name || `ページ ${i + 1}`,
     sections: p.sections?.length || 0,
-    links: p.links || [],
+    links: Array.isArray(p.links) ? p.links : [],
     hasCTA: (p.sections || []).some(s => s.type === 'cta' || s.type === 'sticky_cta'),
     hasForm: (p.sections || []).some(s => s.type === 'form')
   }));
