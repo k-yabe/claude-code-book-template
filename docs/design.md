@@ -305,3 +305,4 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-04-04 | Wireframe Maker UX致命的バグ4件修正 | クローンモード→WFプレビュー自動切替、「構成をWFに変換」ラベル+tooltip改善、要素移動ボタン(⬆⬇)+挿入位置選択(前/後)+未選択トースト、デバイス切替時iframe幅レスポンシブ+WFモード期待値トースト |
 | 2026-04-04 | Wireframe Maker 致命的バグ4件修正(S050) | renderSections/requestPreviewRender未定義→正しい関数名に修正、cloneAIRewriteのframe変数未宣言修正、エクスポートJSON読込ボタンの参照先修正、copySVGのカードレイアウト破壊修正 |
 | 2026-04-05 | Wireframe Maker クローンモードUX4件修正(S051) | 構成パネルにiframeセクション一覧表示、要素追加パネルCSS追加+デザイン刷新、onSectionsChanged自動モード切替削除、WF変換時に編集済みiframe HTML使用で忠実度向上 |
+| 2026-04-05 | Wireframe Maker バグ修正2件(S052) | showUserFlowのp.links型不整合(object→array)修正、HistoryManager.togglePanel未定義→開閉トグル実装 |
