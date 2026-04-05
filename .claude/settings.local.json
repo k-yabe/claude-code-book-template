@@ -18,7 +18,12 @@
       "Skill(new-spec:*)",
       "Skill(review)",
       "Skill(review:*)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "mcp__52e6052e-b936-46f6-bd61-54536f986204__list_teams",
+      "mcp__52e6052e-b936-46f6-bd61-54536f986204__list_projects",
+      "mcp__52e6052e-b936-46f6-bd61-54536f986204__get_runtime_logs",
+      "mcp__52e6052e-b936-46f6-bd61-54536f986204__web_fetch_vercel_url",
+      "mcp__52e6052e-b936-46f6-bd61-54536f986204__list_deployments"
     ]
   },
   "enableAllProjectMcpServers": true,
