@@ -4502,9 +4502,10 @@ function renderProtoPage(overlay) {
       s.appendChild(group);
       y += height;
     }
-    s.setAttribute('height', y);
     s.setAttribute('viewBox', `0 0 ${WF_WIDTH} ${y}`);
     s.style.width = '900px';
+    s.style.height = (900 / WF_WIDTH) * y + 'px';
+    s.removeAttribute('height');
     protoCanvas.appendChild(s);
   } else {
     protoCanvas.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-size:0.85rem;text-align:center;padding:60px">このページにはまだ構成がありません</div>';
