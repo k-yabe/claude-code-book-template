@@ -255,8 +255,13 @@ ${layoutRule}
 ### chart
 - type: "bar"（比較・ランキング）/ "line"（推移・トレンド）/ "pie"（構成比）
 - labels: 3〜5個
-- data: 実際の数値または文脈から推測できる現実的な数値（架空の100/200/150は禁止）
-- unit: 適切な単位（件、%、人、万円 など）
+- data: **純粋な数値の配列のみ**（単位・通貨記号を絶対に含めないこと）
+  - 正しい例: data: [100, 200, 150]
+  - 間違い例: data: ["100人", "200人", "150人"]、data: ["$500", "$1000"]
+  - 「万」「億」等の日本語単位も禁止。1.2万なら 12000 と書くこと
+- unit: 適切な単位を別フィールドで指定（件、%、人、万円 など）
+  - 例: data: [100, 200, 150], unit: "人"
+- **数値データには絶対に単位や通貨記号を含めないこと。unitフィールドに単位を指定する**
 
 ### flow.steps
 - 2〜6ステップ。各ステップは動詞から始める（「現状分析」→「課題特定」→「施策立案」）
@@ -316,6 +321,7 @@ const REFINE_SYSTEM_PROMPT = `あなたはAKKODiSのプレゼンテーション�
 - large-image-right: { title, body, imageQuery, notes }
 - picture-fullscreen: { title, imageQuery, notes }
 - content-with-chart: { title, body, chart: { type, title, labels[], data[], unit }, notes }
+  ※ chart.data は純粋な数値の配列のみ（単位・通貨記号を含めない）。unitフィールドに単位を指定する
 - content-with-flow: { title, body, flow: { steps[] }, notes }
 - sixbox: { title, boxes: [{ heading, body }], notes }
 - comparison: { title, table: { headers[], rows[][] }, notes }

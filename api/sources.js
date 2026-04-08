@@ -66,7 +66,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   } catch (err) {
     // KV未設定時のフォールバック
-    if (err.message?.includes('REDIS') || err.message?.includes('KV') || err.code === 'ERR_MODULE_NOT_FOUND') {
+    const errMsg = String(err.message || '').toUpperCase();
+    if (errMsg.includes('REDIS') || errMsg.includes('KV') || err.code === 'ERR_MODULE_NOT_FOUND') {
       return res.status(503).json({ error: 'KV_UNAVAILABLE', message: 'Vercel KV が未設定です。localStorageモードで動作します。' });
     }
     return res.status(500).json({ error: err.message });

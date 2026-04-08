@@ -6,6 +6,7 @@ from http.server import BaseHTTPRequestHandler
 import json
 import os
 import io
+import re
 import base64
 import urllib.request
 import urllib.error
@@ -113,13 +114,54 @@ def insert_picture_to_placeholder(slide, ph_idx, image_stream):
     return False
 
 
-def _set(ph_map, idx, text):
+def _set(ph_map, idx, text, font_size_pt=None):
     if idx in ph_map:
         try:
             # python-pptxは自動でXMLエスケープするのでstr変換のみ
             ph_map[idx].text = str(text).strip() if text else ''
+            if font_size_pt is not None and ph_map[idx].text:
+                for para in ph_map[idx].text_frame.paragraphs:
+                    for run in para.runs:
+                        run.font.size = _auto_font_size(text, font_size_pt)
         except Exception:
             pass
+
+
+JP_MULTIPLIERS = {'万': 10000, '億': 100000000, '兆': 1000000000000}
+
+
+def _parse_numeric(v):
+    """数値部分を抽出。「1.2万円」→12000、「$500」→500、「100人」→100。"""
+    if isinstance(v, (int, float)):
+        return float(v)
+    s = str(v).strip()
+    if not s:
+        return 0
+    # 日本語単位の倍率を検出
+    multiplier = 1
+    for unit_char, mult in JP_MULTIPLIERS.items():
+        if unit_char in s:
+            multiplier = mult
+            s = s.replace(unit_char, '')
+            break
+    # 数値部分のみ抽出（マイナス・小数点を許容）
+    cleaned = re.sub(r'[^\d.\-]', '', s)
+    if not cleaned or cleaned in ('.', '-', '-.'):
+        return 0
+    try:
+        return float(cleaned) * multiplier
+    except (ValueError, TypeError):
+        return 0
+
+
+def _auto_font_size(text, base_pt, long_threshold=40, min_pt=8):
+    """テキスト長に応じてフォントサイズを自動調整する。"""
+    length = len(str(text)) if text else 0
+    if length <= long_threshold:
+        return Pt(base_pt)
+    # 長いテキストは段階的に縮小
+    reduction = min((length - long_threshold) // 20, (base_pt - min_pt) // 2)
+    return Pt(max(min_pt, base_pt - reduction * 2))
 
 
 def add_chart(slide, chart_data):
@@ -137,10 +179,7 @@ def add_chart(slide, chart_data):
     values = chart_data.get('data', [])
     num_values = []
     for v in values:
-        try:
-            num_values.append(float(v))
-        except (ValueError, TypeError):
-            num_values.append(0)
+        num_values.append(_parse_numeric(v))
     cd.add_series(chart_data.get('title', ''), num_values)
 
     x, y = Inches(0.8), Inches(2.6)
@@ -201,7 +240,7 @@ def add_chart(slide, chart_data):
 
 
 def add_table(slide, table_data):
-    """ネイティブテーブル（ゼブラストライプ + 見やすいフォーマット）"""
+    """ネイティブテーブル（ゼブラストライプ + 列幅自動調整 + 見やすいフォーマット）"""
     headers = table_data.get('headers', [])
     rows_data = table_data.get('rows', [])
     if not headers:
@@ -216,6 +255,18 @@ def add_table(slide, table_data):
     table_shape = slide.shapes.add_table(row_count, cols, x, y, cx, cy)
     table = table_shape.table
 
+    # 列幅自動調整: 各列の最大文字数に基づいて比例配分
+    col_max_lens = []
+    for j in range(cols):
+        max_len = len(str(headers[j]))
+        for row in rows_data:
+            if j < len(row):
+                max_len = max(max_len, len(str(row[j])))
+        col_max_lens.append(max(max_len, 1))  # 最低1
+    total_len = sum(col_max_lens)
+    for j in range(cols):
+        table.columns[j].width = int(cx * col_max_lens[j] / total_len)
+
     LIGHT_BG = RGBColor(0xF5, 0xF7, 0xFA)
 
     # ヘッダー行
@@ -223,7 +274,7 @@ def add_table(slide, table_data):
         cell = table.cell(0, j)
         cell.text = str(h)
         for para in cell.text_frame.paragraphs:
-            para.font.size = Pt(11)
+            para.font.size = Pt(14)
             para.font.bold = True
             para.font.color.rgb = WHITE
             para.alignment = PP_ALIGN.CENTER
@@ -242,7 +293,7 @@ def add_table(slide, table_data):
                 cell = table.cell(i + 1, j)
                 cell.text = str(val)
                 for para in cell.text_frame.paragraphs:
-                    para.font.size = Pt(10)
+                    para.font.size = _auto_font_size(val, 11)
                     para.font.color.rgb = NAVY
                 cell.margin_top = Pt(4)
                 cell.margin_bottom = Pt(4)
@@ -253,21 +304,32 @@ def add_table(slide, table_data):
 
 
 def add_flow(slide, steps):
-    """フロー図（ステップ番号 + ネイビーボックス + ゴールド矢印）"""
+    """フロー図（ステップ番号 + ネイビーボックス + ゴールド矢印、ステップ数に応じて自動調整）"""
     if not steps:
         return
     n = len(steps)
-    # レスポンシブなサイズ計算
-    max_box_w = Inches(1.8)
-    min_box_w = Inches(1.0)
+    # ステップ数に応じたレスポンシブサイズ計算
     avail_w = Inches(8.4)
-    gap_w = Inches(0.22)
-    box_w = min(max_box_w, int((avail_w - gap_w * (n - 1)) / n))
-    box_w = max(min_box_w, box_w)
+    gap_w = Inches(0.18) if n > 4 else Inches(0.22)
+    box_w = int((avail_w - gap_w * (n - 1)) / n)
+    max_box_w = Inches(1.8)
+    min_box_w = Inches(0.7)
+    box_w = max(min_box_w, min(max_box_w, box_w))
     total = box_w * n + gap_w * (n - 1)
     start_x = Inches(0.8) + (avail_w - total) // 2
     box_h = Inches(0.85)
     y = Inches(3.8)
+
+    # ステップ数に応じたフォントサイズ
+    if n <= 3:
+        step_font = 11
+        num_font = 11
+    elif n <= 5:
+        step_font = 9
+        num_font = 10
+    else:
+        step_font = 8
+        num_font = 9
 
     for i, step in enumerate(steps):
         x = start_x + i * (box_w + gap_w)
@@ -279,7 +341,7 @@ def add_flow(slide, steps):
         num_shape.line.fill.background()
         np = num_shape.text_frame.paragraphs[0]
         np.text = str(i + 1)
-        np.font.size = Pt(11)
+        np.font.size = Pt(num_font)
         np.font.color.rgb = NAVY
         np.font.bold = True
         np.alignment = PP_ALIGN.CENTER
@@ -293,7 +355,7 @@ def add_flow(slide, steps):
         tf.word_wrap = True
         p = tf.paragraphs[0]
         p.text = str(step)
-        p.font.size = Pt(10)
+        p.font.size = _auto_font_size(step, step_font, long_threshold=15, min_pt=7)
         p.font.color.rgb = WHITE
         p.font.bold = True
         p.alignment = PP_ALIGN.CENTER
@@ -417,7 +479,7 @@ def add_metric_callout(slide, value, label, x, y, width=Inches(1.8), height=Inch
     add_accent_line(slide, x, y, width)
 
 
-def set_rich_body(ph, body_text):
+def set_rich_body(ph, body_text, base_size=14):
     """本文をリッチテキスト（太字/サイズ使い分け）で設定"""
     if not body_text:
         ph.text = ''
@@ -437,21 +499,21 @@ def set_rich_body(ph, body_text):
         if line.startswith('【') and '】' in line:
             run = p.add_run()
             run.text = line
-            run.font.size = Pt(12)
+            run.font.size = _auto_font_size(line, base_size + 2)
             run.font.bold = True
             run.font.color.rgb = NAVY
         # 箇条書き行
         elif line.startswith(('・', '- ', '• ', '● ')):
             run = p.add_run()
             run.text = line
-            run.font.size = Pt(10)
+            run.font.size = _auto_font_size(line, base_size)
             run.font.color.rgb = RGBColor(0x2D, 0x34, 0x36)
             p.space_before = Pt(2)
         # 通常行
         else:
             run = p.add_run()
             run.text = line
-            run.font.size = Pt(10)
+            run.font.size = _auto_font_size(line, base_size)
             run.font.color.rgb = RGBColor(0x2D, 0x34, 0x36)
 
 
@@ -459,8 +521,8 @@ def apply_data(slide, layout, data):
     ph_map = {ph.placeholder_format.idx: ph for ph in slide.placeholders}
 
     if layout == 'cover':
-        _set(ph_map, 0, data.get('title', ''))
-        _set(ph_map, 10, data.get('subtitle', ''))
+        _set(ph_map, 0, data.get('title', ''), font_size_pt=36)
+        _set(ph_map, 10, data.get('subtitle', ''), font_size_pt=18)
         _set(ph_map, 11, data.get('date', ''))
 
     elif layout == 'chapter':
@@ -475,7 +537,7 @@ def apply_data(slide, layout, data):
             _set(ph_map, 13 + j * 2, str(j + 1) if j < len(items) else '')
 
     elif layout == 'content':
-        _set(ph_map, 29, data.get('title', ''))
+        _set(ph_map, 29, data.get('title', ''), font_size_pt=28)
         _set(ph_map, 30, '')
         body = data.get('body', '')
         lines = [l.strip() for l in str(body).split('\n') if l.strip()] if body else []
@@ -530,39 +592,39 @@ def apply_data(slide, layout, data):
         add_accent_line(slide, Inches(0.8), Inches(1.85), Inches(1.5))
 
     elif layout == 'content-with-chart':
-        _set(ph_map, 29, data.get('title', ''))
+        _set(ph_map, 29, data.get('title', ''), font_size_pt=28)
         _set(ph_map, 30, '')
         body = data.get('body', '')
         if 32 in ph_map:
-            set_rich_body(ph_map[32], body)
+            set_rich_body(ph_map[32], body, base_size=14)
         # ネイティブチャート追加
         chart = data.get('chart')
         if chart and chart.get('labels') and chart.get('data'):
             add_chart(slide, chart)
 
     elif layout == 'content-with-flow':
-        _set(ph_map, 29, data.get('title', ''))
+        _set(ph_map, 29, data.get('title', ''), font_size_pt=28)
         _set(ph_map, 30, '')
         if 32 in ph_map:
-            set_rich_body(ph_map[32], data.get('body', ''))
+            set_rich_body(ph_map[32], data.get('body', ''), base_size=14)
         # フロー図形追加
         flow = data.get('flow')
         if flow and flow.get('steps'):
             add_flow(slide, flow['steps'])
 
     elif layout == 'sixbox':
-        _set(ph_map, 30, data.get('title', ''))
+        _set(ph_map, 30, data.get('title', ''), font_size_pt=24)
         _set(ph_map, 31, '')
         boxes = data.get('boxes', [])
         for b in range(6):
             box = boxes[b] if b < len(boxes) else {}
             head_idx = (10 + b) if b < 3 else (11 + b)
-            _set(ph_map, head_idx, box.get('heading', ''))
-            _set(ph_map, 17 + b, box.get('body', ''))
+            _set(ph_map, head_idx, box.get('heading', ''), font_size_pt=14)
+            _set(ph_map, 17 + b, box.get('body', ''), font_size_pt=11)
             _set(ph_map, 23 + b, str(b + 1) if box.get('heading') else '')
 
     elif layout == 'comparison':
-        _set(ph_map, 29, data.get('title', ''))
+        _set(ph_map, 29, data.get('title', ''), font_size_pt=28)
         _set(ph_map, 30, '')
         _set(ph_map, 32, '')
         # ネイティブテーブル追加
@@ -594,6 +656,16 @@ def apply_data(slide, layout, data):
                     break
                 except Exception:
                     continue
+
+    # スピーカーノートの追加（全レイアウト共通）
+    notes_text = data.get('notes', '')
+    if notes_text:
+        try:
+            notes_slide = slide.notes_slide
+            tf = notes_slide.notes_text_frame
+            tf.text = str(notes_text).strip()
+        except Exception:
+            pass
 
 
 def build_layout_map(prs):

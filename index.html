@@ -233,8 +233,8 @@
       font-size: 0.72rem;
       font-weight: 700;
       color: #ffb81c;
-      background: rgba(255,184,28,0.1);
-      border: 1px solid rgba(255,184,28,0.3);
+      background: transparent;
+      border: 1.5px solid rgba(255,184,28,0.5);
       border-radius: 0;
       padding: 5px 12px;
       cursor: pointer;
@@ -244,7 +244,7 @@
       letter-spacing: 0.02em;
     }
     .changelog-btn:hover {
-      background: rgba(255,184,28,0.18);
+      background: rgba(0,31,51,0.3);
       border-color: #ffb81c;
     }
     .changelog-btn-dot {
@@ -312,6 +312,11 @@
       gap: 12px;
       justify-content: center;
     }
+    @media (max-width: 480px) {
+      .grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+    }
     @keyframes cardIn {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -357,7 +362,7 @@
       overflow: hidden;
     }
 
-    .card-new-badge, .card-update-badge {
+    .card-new-badge, .card-update-badge, .card-dev-badge {
       position: absolute;
       top: 8px;
       right: 8px;
@@ -374,6 +379,24 @@
     .card-update-badge {
       background: #ffb81c;
       color: #001f33;
+    }
+    .card-dev-badge {
+      background: rgba(0, 31, 51, 0.35);
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 700;
+    }
+    .card.card-dev {
+      opacity: 0.45;
+      filter: grayscale(0.7);
+      border-style: dashed;
+      transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s, opacity 0.3s, filter 0.3s;
+    }
+    .card.card-dev:hover {
+      opacity: 0.9;
+      filter: grayscale(0);
+    }
+    .card.card-dev:hover::before {
+      background: #00ffff !important;
     }
     a.card::before {
       content: '';
@@ -512,27 +535,6 @@
           <div class="card-desc">バナーの2サイズ一括書き出し</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
-        <a class="card" href="apps/wireframe-maker/">
-          <div class="card-update-badge">UPDATE</div>
-          <div class="card-icon-wrap">🎨</div>
-          <div class="card-name">Wireframe Maker</div>
-          <div class="card-desc">LP構成のAI自動生成・プレビュー</div>
-          <div class="card-tag card-tag-web">Web App</div>
-        </a>
-        <a class="card" href="apps/slide-maker/">
-          <div class="card-update-badge">UPDATE</div>
-          <div class="card-icon-wrap">📊</div>
-          <div class="card-name">Slide Maker</div>
-          <div class="card-desc">プレゼン資料のAI自動生成</div>
-          <div class="card-tag card-tag-web">Web App</div>
-        </a>
-        <a class="card" href="apps/prompt-maker/">
-          <div class="card-update-badge">UPDATE</div>
-          <div class="card-icon-wrap">🪄</div>
-          <div class="card-name">Prompt Maker</div>
-          <div class="card-desc">AIプロンプトの構造化生成</div>
-          <div class="card-tag card-tag-web">Web App</div>
-        </a>
         <a class="card" href="apps/youtube-desc/">
           <div class="card-icon-wrap">🎬</div>
           <div class="card-name">YouTube Generator</div>
@@ -579,6 +581,27 @@
           <div class="card-desc">画像フォーマット変換・軽量化</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
+        <a class="card card-dev" href="apps/wireframe-maker/">
+          <div class="card-dev-badge">開発中</div>
+          <div class="card-icon-wrap">🎨</div>
+          <div class="card-name">Wireframe Maker</div>
+          <div class="card-desc">LP構成のAI自動生成・プレビュー</div>
+          <div class="card-tag card-tag-web">Web App</div>
+        </a>
+        <a class="card card-dev" href="apps/slide-maker/">
+          <div class="card-dev-badge">開発中</div>
+          <div class="card-icon-wrap">📊</div>
+          <div class="card-name">Slide Maker</div>
+          <div class="card-desc">プレゼン資料のAI自動生成</div>
+          <div class="card-tag card-tag-web">Web App</div>
+        </a>
+        <a class="card card-dev" href="apps/prompt-maker/">
+          <div class="card-dev-badge">開発中</div>
+          <div class="card-icon-wrap">🪄</div>
+          <div class="card-name">Prompt Maker</div>
+          <div class="card-desc">AIプロンプトの構造化生成</div>
+          <div class="card-tag card-tag-web">Web App</div>
+        </a>
         <a class="card card-external" href="https://m365.cloud.microsoft/chat/?titleId=T_a1399b3a-1906-0ef5-805a-afed44c5d8be&source=embedded-builder" target="_blank" rel="noopener">
           <div class="card-update-badge">UPDATE</div>
           <div class="card-icon-wrap">🛡️</div>
@@ -610,6 +633,12 @@
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
       { icon: '🔄', app: 'Cache Checker',         date: '2026-04-08(水)', desc: 'UX改善：チェック中のキャンセルボタン追加・進捗ステージ表示（取得中→比較中）・Escapeキーで結果クリア/キャンセル・アクセシビリティ属性追加（role="alert", aria-live）' },
+      { icon: '🔍', app: 'OGP Checker',             date: '2026-04-08(水)', desc: 'SEO検証強化(meta robots/viewport/lang属性チェック追加・twitter:card未設定を情報レベルに変更(Sitecore互換)・og:descriptionプラットフォーム別文字数ガイド)・アクセシビリティ改善(ARIA属性追加)・UX改善(キャンセルボタン・画像読み込み失敗プレースホルダー)・セキュリティ改善(inline onerror→addEventListener化)' },
+      { icon: '🖼', app: 'Image Converter',         date: '2026-04-08(水)', desc: '自動1MB最適化モード追加: 品質をバイナリサーチで自動調整し1MB以下に収める機能をデフォルトに。品質スライダーは「詳細設定」折りたたみに移動、変換後に1MB以下判定を表示' },
+      { icon: '🏠', app: 'ポータル全体',          date: '2026-04-08(水)', desc: 'ブランドガイドライン違反修正(changelog-btnの黄色背景除去)・小画面480px以下でカードグリッドが横スクロールしないよう改善・KVエラーハンドリング安全性向上' },
+      { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-08(水)', desc: '要素挿入機能を大幅拡張: テキスト(h1/h2/h3/h4/p/span)・基本図形(矩形/円/線/矢印)・フォーム(input/select/checkbox/radio/textarea/送信ボタン)・その他(画像PH/ボタン2種/区切り線)をカテゴリ別折りたたみUIで追加可能に' },
+      { icon: '🏠', app: 'ポータル全体',          date: '2026-04-08(水)', desc: '開発中アプリ（Wireframe Maker/Slide Maker/Prompt Maker）に「開発中」バッジ追加・カード半透明+グレースケール+破線ボーダーで控えめ表示・並び順を最下段に移動・ホバーで復帰' },
+      { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-08(水)', desc: 'Figma連携強化: Figma互換JSONエクスポート追加・インポート後のCVR/タブ更新修正・セクションのデフォルトfields生成・AIフォールバックのエラー処理改善・クローン編集後チャットへの最新テキスト反映' },
       { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-08(水)', desc: '大きい画像の歪みリサイズ修正：横幅1920px固定・縦は元画像のアスペクト比を保持して自動計算（16:9以外の画像でも歪まずにリサイズ）' },
       { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-08(水)', desc: '画像品質劣化バグ修正：OGP容量制限を100KB→300KBに緩和・圧縮品質下限を0.70→0.80に引き上げ・ソース画像がターゲットより小さい場合の警告UI追加' },
       { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-07(月)', desc: 'プロトタイプ再生モードのSVG表示位置修正: 上半分が空白になる問題を解消(height属性→style.height比率計算)' },
@@ -924,6 +953,9 @@
     });
 
     loadOrder();
+
+    // 開発中カードは常に末尾に固定
+    grid.querySelectorAll('.card-dev').forEach(c => grid.appendChild(c));
   </script>
 </body>
 </html>

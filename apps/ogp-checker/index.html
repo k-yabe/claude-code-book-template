@@ -36,7 +36,21 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .error-msg { margin-bottom: 16px; }
+    .error-msg { margin-bottom: 16px; min-height: 0; }
+
+    /* ── 画像読み込み失敗プレースホルダー ── */
+    .img-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background: var(--surface-alt);
+      color: var(--text-faint);
+      font-size: 0.8rem;
+      text-align: center;
+      padding: 12px;
+    }
 
     /* ── バリデーション スコアカード ── */
     .score-card {
@@ -389,6 +403,7 @@
       <label for="url-input" style="display:none;">チェックするURL</label>
       <input type="text" id="url-input" placeholder="https://example.com/your-page" autocomplete="off" />
       <button class="check-btn" id="check-btn">チェック</button>
+      <button class="check-btn" id="cancel-btn" style="display:none;background:var(--surface);color:var(--text-muted);border:1.5px solid var(--border);box-shadow:none;" aria-label="チェックをキャンセル">キャンセル</button>
     </div>
     <div class="history-wrap" id="history-wrap">
       <span class="history-label">履歴</span>
@@ -403,29 +418,29 @@
         <div class="score-header">
           <span class="score-label">バリデーション</span>
           <div class="score-badges" id="score-badges"></div>
-          <button class="copy-md-btn" id="copy-md-btn">📄 Markdownでコピー</button>
+          <button class="copy-md-btn" id="copy-md-btn" aria-label="結果をMarkdown形式でコピー">📄 Markdownでコピー</button>
         </div>
         <div class="val-list" id="val-list"></div>
-        <button class="copy-result-btn" id="copy-result-btn">📋 結果をコピー</button>
+        <button class="copy-result-btn" id="copy-result-btn" aria-label="チェック結果をテキストでコピー">📋 結果をコピー</button>
         <div id="ogimage-preview" style="display:none;"></div>
       </div>
 
       <!-- タブ -->
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="preview">SNSプレビュー</button>
-        <button class="tab-btn" data-tab="ogp">OGP / SNSタグ</button>
-        <button class="tab-btn" data-tab="seo">SEO</button>
-        <button class="tab-btn" data-tab="structured">構造化データ</button>
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" data-tab="preview" role="tab" aria-selected="true" aria-controls="tab-preview">SNSプレビュー</button>
+        <button class="tab-btn" data-tab="ogp" role="tab" aria-selected="false" aria-controls="tab-ogp">OGP / SNSタグ</button>
+        <button class="tab-btn" data-tab="seo" role="tab" aria-selected="false" aria-controls="tab-seo">SEO</button>
+        <button class="tab-btn" data-tab="structured" role="tab" aria-selected="false" aria-controls="tab-structured">構造化データ</button>
       </div>
 
       <!-- SNSプレビュー -->
-      <div class="tab-pane active" id="tab-preview">
+      <div class="tab-pane active" id="tab-preview" role="tabpanel">
         <div class="preview-grid" id="preview-grid"></div>
       </div>
 
       <!-- OGP / SNSタグ -->
-      <div class="tab-pane" id="tab-ogp">
-        <button class="copy-tags-btn" id="copy-tags-btn">📋 メタタグをHTMLコピー</button>
+      <div class="tab-pane" id="tab-ogp" role="tabpanel">
+        <button class="copy-tags-btn" id="copy-tags-btn" aria-label="メタタグをHTML形式でコピー">📋 メタタグをHTMLコピー</button>
         <div class="section-label">Open Graph</div>
         <div class="tag-card"><table class="tag-table" id="ogp-table"></table></div>
         <div class="section-label">Twitter Card</div>
@@ -433,7 +448,7 @@
       </div>
 
       <!-- SEO -->
-      <div class="tab-pane" id="tab-seo">
+      <div class="tab-pane" id="tab-seo" role="tabpanel">
         <div class="section-label">Google 検索プレビュー</div>
         <div class="google-preview-card" id="google-preview"></div>
         <div class="section-label" style="margin-top:20px;">SEO タグ</div>
@@ -441,7 +456,7 @@
       </div>
 
       <!-- 構造化データ -->
-      <div class="tab-pane" id="tab-structured">
+      <div class="tab-pane" id="tab-structured" role="tabpanel">
         <div id="structured-area"></div>
       </div>
 
@@ -450,24 +465,30 @@
 
   <script>
     if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
+
+    // ── AbortController（キャンセル用）──
+    let _abortController = null;
+
     // ── フェッチ（自前APIルート → 公開プロキシのフォールバック）──
-    async function fetchPage(url) {
+    async function fetchPage(url, signal) {
       const enc = encodeURIComponent(url);
 
       // 1st: 自前 Vercel API（ブラウザ風ヘッダーで取得）
       try {
         const res = await fetch('/api/ogp?url=' + enc, {
-          signal: AbortSignal.timeout(12000),
+          signal: signal || AbortSignal.timeout(12000),
         });
         if (res.ok) {
           const html = await res.text();
           if (html.trim().startsWith('<') || html.includes('<html')) return html;
         }
-      } catch {}
+      } catch (e) {
+        if (e.name === 'AbortError') throw e;
+      }
 
       // 2nd: allorigins.win（フォールバック）
       const res = await fetch('https://api.allorigins.win/get?url=' + enc, {
-        signal: AbortSignal.timeout(12000),
+        signal: signal || AbortSignal.timeout(12000),
       });
       if (!res.ok) throw new Error(`HTTPエラー: ${res.status}`);
       const data = await res.json();
@@ -528,8 +549,13 @@
       else                               addItem('ok',    `og:title OK（${ogp.title.length} 文字）`);
 
       if (!ogp.description)              addItem('error', 'og:description が未設定です');
-      else if (ogp.description.length > 155) addItem('warn', `og:description が ${ogp.description.length} 文字です（推奨155文字以内）`);
-      else                               addItem('ok',    `og:description OK（${ogp.description.length} 文字）`);
+      else {
+        if (ogp.description.length > 155) addItem('warn', `og:description が ${ogp.description.length} 文字です（推奨155文字以内）`);
+        else                              addItem('ok',    `og:description OK（${ogp.description.length} 文字）`);
+        // プラットフォーム別ガイド
+        if (ogp.description.length > 120) addItem('warn', `og:description が Twitter/X では約120文字で切れます（現在 ${ogp.description.length} 文字）`);
+        if (ogp.description.length > 150) addItem('warn', `og:description が Facebook では約150文字で切れます（現在 ${ogp.description.length} 文字）`);
+      }
 
       if (!ogp.image) {
         addItem('error', 'og:image が未設定です（SNSシェア時に画像が表示されません）');
@@ -544,10 +570,9 @@
         addItem('ok', 'og:image が設定されています（サイズ取得不可）');
       }
 
-
-      // Twitter Card（CMSがタグを出力しない場合があるため目視確認を促す）
-      const twWarnSuffix = '（Sitecoreのデフォルト仕様では出力されないため、未検出でも問題ありません）';
-      if (!ogp.twitterCard)  addItem('warn', `twitter:card が未検出です${twWarnSuffix}`);
+      // Twitter Card（Sitecoreではデフォルト未出力のため情報レベル）
+      const twWarnSuffix = '（Sitecoreでは未出力がデフォルトのため問題ありません）';
+      if (!ogp.twitterCard)  addItem('ok', `twitter:card が未設定です${twWarnSuffix}`);
       else                   addItem('ok',   `twitter:card OK（${ogp.twitterCard}）`);
 
       if (!ogp.twitterTitle) addItem('warn', `twitter:title が未検出です${twWarnSuffix}`);
@@ -571,6 +596,22 @@
 
       if (!seo.h1) addItem('warn', 'h1 が未検出です（時間経過後に表示される場合があります。しばらく経ってから再チェックするか、目視でご確認ください）');
       else         addItem('ok',   `h1 OK（「${seo.h1.slice(0, 30)}${seo.h1.length > 30 ? '…' : ''}」）`);
+
+      // meta robots チェック
+      if (seo.robots) {
+        const robotsLower = seo.robots.toLowerCase();
+        if (robotsLower.includes('noindex')) addItem('warn', `meta robots に noindex が設定されています（検索エンジンにインデックスされません）`);
+        if (robotsLower.includes('nofollow')) addItem('warn', `meta robots に nofollow が設定されています（リンクがクロールされません）`);
+        if (!robotsLower.includes('noindex') && !robotsLower.includes('nofollow')) addItem('ok', `meta robots OK（${seo.robots}）`);
+      }
+
+      // viewport メタタグ検証
+      if (!seo.viewport) addItem('warn', 'viewport メタタグが未設定です（モバイル表示に問題が出る可能性があります）');
+      else               addItem('ok', 'viewport が設定されています');
+
+      // lang 属性チェック
+      if (!seo.lang) addItem('warn', 'html要素の lang 属性が未設定です（アクセシビリティ・SEOに影響します）');
+      else           addItem('ok', `lang 属性 OK（${seo.lang}）`);
 
       // カウント
       const ok    = items.filter(i => i.type === 'ok').length;
@@ -599,10 +640,13 @@
       if (ogp.image) {
         imgPreview.innerHTML = `
           <div class="ogimage-thumb-wrap">
-            <img src="${escHtml(ogp.image)}" alt="og:image"
-                 onerror="this.parentElement.innerHTML='<span style=\'color:#b2bec3;font-size:0.78rem;\'>（画像読み込み失敗）</span>'" />
+            <img src="${escHtml(ogp.image)}" alt="OGP画像プレビュー" id="ogimage-thumb-img" />
             <div class="ogimage-thumb-label">og:image プレビュー</div>
           </div>`;
+        const thumbImg = document.getElementById('ogimage-thumb-img');
+        thumbImg.addEventListener('error', function() {
+          this.parentElement.innerHTML = '<div class="img-placeholder" style="height:120px;">画像を読み込めませんでした</div>';
+        }, { once: true });
         imgPreview.style.display = 'block';
       } else {
         imgPreview.style.display = 'none';
@@ -611,8 +655,17 @@
 
     // ── SNSプレビュー描画 ─────────────────────────────────
     function imgBlock(src, cls) {
-      if (!src) return `<div class="${cls}">画像なし</div>`;
-      return `<div class="${cls}"><img src="${escHtml(src)}" alt="" onerror="this.parentElement.innerHTML='（画像読み込み失敗）'" /></div>`;
+      if (!src) return `<div class="${cls}"><div class="img-placeholder">画像なし</div></div>`;
+      return `<div class="${cls}"><img src="${escHtml(src)}" alt="OGP画像プレビュー" data-img-fallback /></div>`;
+    }
+
+    // inline onerror の代わりに addEventListener で画像エラーを処理
+    function attachImageFallbacks(container) {
+      container.querySelectorAll('img[data-img-fallback]').forEach(img => {
+        img.addEventListener('error', function() {
+          this.parentElement.innerHTML = '<div class="img-placeholder">画像を読み込めませんでした</div>';
+        }, { once: true });
+      });
     }
 
     function renderPreviews(ogp, url) {
@@ -645,8 +698,8 @@
           name: 'LINE',
           html: `<div class="line-card">
             ${ogp.image
-              ? `<div class="line-thumb"><img src="${escHtml(ogp.image)}" alt="" onerror="this.parentElement.innerHTML=''" /></div>`
-              : '<div class="line-thumb">画像なし</div>'}
+              ? `<div class="line-thumb"><img src="${escHtml(ogp.image)}" alt="OGP画像プレビュー" data-img-fallback /></div>`
+              : '<div class="line-thumb"><div class="img-placeholder">画像なし</div></div>'}
             <div class="line-info">
               <div class="line-title">${escHtml(trunc(title, 50))}</div>
               <div class="line-desc">${escHtml(trunc(desc, 80))}</div>
@@ -664,12 +717,14 @@
         },
       ];
 
-      document.getElementById('preview-grid').innerHTML = previews.map(p => `
+      const grid = document.getElementById('preview-grid');
+      grid.innerHTML = previews.map(p => `
         <div class="preview-card">
           <div class="preview-card-header">${p.name}</div>
           <div class="preview-card-body">${p.html}</div>
         </div>
       `).join('');
+      attachImageFallbacks(grid);
     }
 
     // ── Google検索プレビュー描画 ──────────────────────────
@@ -692,8 +747,7 @@
       el.innerHTML = `
         <div class="gp-site">
           <div class="gp-favicon">
-            <img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32" alt=""
-                 onerror="this.parentElement.textContent='G'">
+            <img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32" alt="" data-favicon-fallback>
           </div>
           <div>
             <div class="gp-domain">${escHtml(domain)}</div>
@@ -707,6 +761,12 @@
           説明文: <span class="${descOver ? 'gp-char-over' : ''}">${desc.length}文字</span>（推奨160文字以内）
         </div>
       `;
+      const faviconImg = el.querySelector('img[data-favicon-fallback]');
+      if (faviconImg) {
+        faviconImg.addEventListener('error', function() {
+          this.parentElement.textContent = 'G';
+        }, { once: true });
+      }
     }
 
     // ── 構造化データ描画 ──────────────────────────────────
@@ -851,7 +911,7 @@
         lines.push('| 項目 | 値 |');
         lines.push('|------|-----|');
         [['title', s.title], ['meta description', s.metaDesc], ['canonical', s.canonical],
-         ['robots', s.robots], ['h1', s.h1], ['lang', s.lang]].forEach(([k, v]) => {
+         ['robots', s.robots], ['viewport', s.viewport], ['h1', s.h1], ['lang', s.lang]].forEach(([k, v]) => {
           lines.push(`| ${k} | ${v || '（未設定）'} |`);
         });
       }
@@ -891,18 +951,29 @@
       }
 
       const btn = document.getElementById('check-btn');
+      const cancelBtn = document.getElementById('cancel-btn');
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span>取得中...';
+      cancelBtn.style.display = 'inline-block';
       document.getElementById('result-area').style.display = 'none';
       document.getElementById('score-card').style.display = 'none';
+
+      // AbortController でキャンセル可能に
+      if (_abortController) _abortController.abort();
+      _abortController = new AbortController();
+      const signal = _abortController.signal;
+      // タイムアウト12秒
+      const timeoutId = setTimeout(() => _abortController.abort(), 12000);
 
       try {
         let html;
         try {
-          html = await fetchPage(url);
+          html = await fetchPage(url, signal);
         } catch (e) {
+          if (e.name === 'AbortError') throw new Error('チェックがキャンセルされました');
           throw new Error('プロキシ経由での取得に失敗しました。サイトがプロキシをブロックしているか、URLが正しくない可能性があります。');
         }
+        clearTimeout(timeoutId);
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
@@ -926,6 +997,7 @@
           metaDesc:  getMeta(doc, 'description'),
           canonical: getLink(doc, 'canonical'),
           robots:    getMeta(doc, 'robots'),
+          viewport:  getMeta(doc, 'viewport'),
           h1:        doc.querySelector('h1')?.textContent?.trim() || '',
           lang:      doc.querySelector('html')?.getAttribute('lang') || '',
         };
@@ -981,7 +1053,8 @@
           ['&lt;title&gt;',    seo.title,     (seo.title || '').length > 70 ? 'tag-warn' : 'tag-ok'],
           ['meta description', seo.metaDesc,  (seo.metaDesc || '').length > 160 ? 'tag-warn' : 'tag-ok'],
           ['canonical',        seo.canonical, 'tag-ok'],
-          ['robots',           seo.robots,    ''],
+          ['robots',           seo.robots,    seo.robots && /noindex|nofollow/i.test(seo.robots) ? 'tag-warn' : ''],
+          ['viewport',         seo.viewport,  seo.viewport ? 'tag-ok' : ''],
           ['h1',               seo.h1,        ''],
           ['lang',             seo.lang,      seo.lang ? 'tag-ok' : ''],
         ]);
@@ -1002,24 +1075,31 @@
         HistoryManager.save(url, `og:title: ${ogp.title || '—'}\nog:description: ${ogp.description || '—'}`, { url });
 
       } catch (err) {
+        clearTimeout(timeoutId);
         showError(err.message);
       } finally {
         btn.disabled = false;
         btn.textContent = 'チェック';
+        cancelBtn.style.display = 'none';
+        _abortController = null;
       }
     }
 
     // ── タブ切り替え ──────────────────────────────────────
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
         document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
       });
     });
 
     document.getElementById('check-btn').addEventListener('click', check);
+    document.getElementById('cancel-btn').addEventListener('click', () => {
+      if (_abortController) _abortController.abort();
+    });
     document.getElementById('url-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') check();
     });
