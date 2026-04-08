@@ -145,7 +145,7 @@
   <div class="container">
     <div class="page-header">
       <h1>Image Converter</h1>
-      <p class="page-desc">画像をWebP・JPEG・PNGに変換して軽量化。ブラウザ内で完結、サーバーにファイルは送信されません。</p>
+      <p class="page-desc">画像を自動で1MB以下に最適化。フォーマット変換も可能。ブラウザ内で完結、サーバーにファイルは送信されません。</p>
     </div>
 
     <!-- Step 1: アップロード -->
@@ -185,35 +185,50 @@
           </div>
         </div>
 
-        <div class="form-group" id="quality-group">
-          <label class="form-label">品質 <span id="quality-val-label" style="font-weight:400; color:#636e72;">（軽量化 ← → 高品質）</span></label>
-          <div class="slider-row">
-            <span style="font-size:0.75rem; color:#636e72;">1%</span>
-            <input type="range" id="quality-slider" min="1" max="100" value="80">
-            <span style="font-size:0.75rem; color:#636e72;">100%</span>
-            <span class="slider-val" id="quality-val">80%</span>
-          </div>
-          <div class="form-hint">WebP 80%で多くの場合50〜70%の軽量化が可能です</div>
+        <!-- 自動1MB最適化モード -->
+        <div class="form-group">
+          <label class="form-label" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="auto-optimize" checked style="width:16px; height:16px; accent-color:#001f33;">
+            自動で1MB以下に最適化
+          </label>
+          <div class="form-hint" id="auto-optimize-hint">品質を自動調整して1MB以下に収めます。手動設定は不要です。</div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">リサイズ（任意）</label>
-          <div class="resize-row">
-            <span>最大幅</span>
-            <input type="number" id="max-width" placeholder="例: 1920" min="1">
-            <span>px</span>
-            <span style="margin: 0 4px;">×</span>
-            <span>最大高さ</span>
-            <input type="number" id="max-height" placeholder="例: 1080" min="1">
-            <span>px</span>
+        <!-- 詳細設定（折りたたみ） -->
+        <details id="advanced-settings" class="form-group" style="margin-top:8px;">
+          <summary style="font-size:0.84rem; font-weight:600; color:#001f33; cursor:pointer; padding:8px 0; user-select:none;">詳細設定（上級者向け）</summary>
+          <div style="padding-top:12px;">
+            <div class="form-group" id="quality-group">
+              <label class="form-label">品質 <span id="quality-val-label" style="font-weight:400; color:#636e72;">（軽量化 ← → 高品質）</span></label>
+              <div class="slider-row">
+                <span style="font-size:0.75rem; color:#636e72;">1%</span>
+                <input type="range" id="quality-slider" min="1" max="100" value="80">
+                <span style="font-size:0.75rem; color:#636e72;">100%</span>
+                <span class="slider-val" id="quality-val">80%</span>
+              </div>
+              <div class="form-hint">WebP 80%で多くの場合50〜70%の軽量化が可能です</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">リサイズ（任意）</label>
+              <div class="resize-row">
+                <span>最大幅</span>
+                <input type="number" id="max-width" placeholder="例: 1920" min="1">
+                <span>px</span>
+                <span style="margin: 0 4px;">×</span>
+                <span>最大高さ</span>
+                <input type="number" id="max-height" placeholder="例: 1080" min="1">
+                <span>px</span>
+              </div>
+              <div class="form-hint">空欄の場合は元のサイズを維持します。アスペクト比は自動で維持されます。</div>
+            </div>
           </div>
-          <div class="form-hint">空欄の場合は元のサイズを維持します。アスペクト比は自動で維持されます。</div>
-        </div>
+        </details>
       </div>
     </div>
 
     <!-- 変換ボタン -->
-    <button class="cta-btn" id="convert-btn" disabled>変換して軽量化</button>
+    <button class="cta-btn" id="convert-btn" disabled>自動で1MB以下に変換</button>
 
     <div class="error-msg" id="error-msg" role="alert"></div>
 
@@ -273,6 +288,24 @@
     const maxWidthInput = document.getElementById('max-width');
     const maxHeightInput = document.getElementById('max-height');
     const dropzoneText = document.getElementById('dropzone-text');
+    const autoOptimize = document.getElementById('auto-optimize');
+    const advancedSettings = document.getElementById('advanced-settings');
+    const autoOptimizeHint = document.getElementById('auto-optimize-hint');
+
+    const TARGET_SIZE = 1 * 1024 * 1024; // 1MB
+
+    // ── 自動最適化チェックボックス連動 ──
+    autoOptimize.addEventListener('change', () => {
+      if (autoOptimize.checked) {
+        advancedSettings.removeAttribute('open');
+        autoOptimizeHint.textContent = '品質を自動調整して1MB以下に収めます。手動設定は不要です。';
+        convertBtn.textContent = '自動で1MB以下に変換';
+      } else {
+        advancedSettings.setAttribute('open', '');
+        autoOptimizeHint.textContent = '下の詳細設定で品質を手動指定してください。';
+        convertBtn.textContent = '変換して軽量化';
+      }
+    });
 
     const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
     const MAX_FILES = 20;
@@ -334,6 +367,10 @@
         selectedFormat = btn.dataset.format;
         selectedExt = btn.dataset.ext;
         qualityGroup.style.display = selectedFormat === 'image/png' ? 'none' : '';
+        // PNGは品質パラメータがないため自動最適化を非表示
+        const autoOptGroup = autoOptimize.closest('.form-group');
+        autoOptGroup.style.display = selectedFormat === 'image/png' ? 'none' : '';
+        advancedSettings.style.display = selectedFormat === 'image/png' ? 'none' : '';
       });
     });
 
@@ -417,6 +454,7 @@
       clearError();
       if (files.length === 0) return;
 
+      const isAutoMode = autoOptimize.checked;
       const quality = parseInt(qualitySlider.value) / 100;
       const maxW = parseInt(maxWidthInput.value) || 0;
       const maxH = parseInt(maxHeightInput.value) || 0;
@@ -430,11 +468,18 @@
       let totalConverted = 0;
 
       for (let i = 0; i < files.length; i++) {
-        loadingText.textContent = `変換中... (${i + 1}/${files.length})`;
+        loadingText.textContent = isAutoMode
+          ? `自動最適化中... (${i + 1}/${files.length})`
+          : `変換中... (${i + 1}/${files.length})`;
         progressFill.style.width = ((i / files.length) * 100) + '%';
 
         try {
-          const result = await convertImage(files[i], selectedFormat, quality, maxW, maxH);
+          let result;
+          if (isAutoMode && selectedFormat !== 'image/png') {
+            result = await convertImageAutoOptimize(files[i], selectedFormat, maxW, maxH);
+          } else {
+            result = await convertImage(files[i], selectedFormat, quality, maxW, maxH);
+          }
           results.push(result);
           totalOriginal += result.originalSize;
           totalConverted += result.convertedSize;
@@ -468,14 +513,14 @@
       }
     }
 
-    function convertImage(file, format, quality, maxW, maxH) {
+    // ── Canvas準備（共通） ──
+    function prepareCanvas(file, format, maxW, maxH) {
       return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
           let w = img.naturalWidth;
           let h = img.naturalHeight;
 
-          // リサイズ計算
           if (maxW > 0 && w > maxW) { h = Math.round(h * (maxW / w)); w = maxW; }
           if (maxH > 0 && h > maxH) { w = Math.round(w * (maxH / h)); h = maxH; }
 
@@ -484,36 +529,99 @@
           canvas.height = h;
           const ctx = canvas.getContext('2d');
 
-          // JPEG変換時は白背景を描画（透過対策）
           if (format === 'image/jpeg') {
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, w, h);
           }
 
           ctx.drawImage(img, 0, 0, w, h);
-
-          const qualityParam = format === 'image/png' ? undefined : quality;
-          canvas.toBlob(blob => {
-            if (!blob) {
-              reject(new Error('変換に失敗しました（フォーマット非対応の可能性）'));
-              return;
-            }
-            const newName = getBaseName(file.name) + '.' + selectedExt;
-            resolve({
-              name: file.name,
-              newName: newName,
-              originalSize: file.size,
-              convertedSize: blob.size,
-              blob: blob,
-              url: URL.createObjectURL(blob),
-              width: w,
-              height: h,
-            });
-          }, format, qualityParam);
+          resolve({ canvas, w, h });
         };
         img.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
         img.src = URL.createObjectURL(file);
       });
+    }
+
+    // ── canvasをblobに変換 ──
+    function canvasToBlob(canvas, format, quality) {
+      return new Promise((resolve, reject) => {
+        const qualityParam = format === 'image/png' ? undefined : quality;
+        canvas.toBlob(blob => {
+          if (!blob) {
+            reject(new Error('変換に失敗しました（フォーマット非対応の可能性）'));
+            return;
+          }
+          resolve(blob);
+        }, format, qualityParam);
+      });
+    }
+
+    // ── 通常変換 ──
+    async function convertImage(file, format, quality, maxW, maxH) {
+      const { canvas, w, h } = await prepareCanvas(file, format, maxW, maxH);
+      const blob = await canvasToBlob(canvas, format, quality);
+      const newName = getBaseName(file.name) + '.' + selectedExt;
+      return {
+        name: file.name,
+        newName,
+        originalSize: file.size,
+        convertedSize: blob.size,
+        blob,
+        url: URL.createObjectURL(blob),
+        width: w,
+        height: h,
+        autoOptimized: false,
+        finalQuality: quality,
+      };
+    }
+
+    // ── 自動1MB最適化変換（バイナリサーチ） ──
+    async function convertImageAutoOptimize(file, format, maxW, maxH) {
+      const { canvas, w, h } = await prepareCanvas(file, format, maxW, maxH);
+
+      // まず品質95%で試す
+      let blob = await canvasToBlob(canvas, format, 0.95);
+      if (blob.size <= TARGET_SIZE) {
+        const newName = getBaseName(file.name) + '.' + selectedExt;
+        return {
+          name: file.name, newName, originalSize: file.size, convertedSize: blob.size,
+          blob, url: URL.createObjectURL(blob), width: w, height: h,
+          autoOptimized: true, finalQuality: 0.95, underTarget: true,
+        };
+      }
+
+      // バイナリサーチで最適品質を探索
+      let lo = 0.05, hi = 0.95;
+      let bestBlob = blob;
+      let bestQuality = 0.95;
+
+      for (let i = 0; i < 8; i++) {
+        const mid = (lo + hi) / 2;
+        blob = await canvasToBlob(canvas, format, mid);
+        if (blob.size <= TARGET_SIZE) {
+          bestBlob = blob;
+          bestQuality = mid;
+          lo = mid;
+        } else {
+          hi = mid;
+        }
+        await new Promise(r => setTimeout(r, 0));
+      }
+
+      // 最低品質でもオーバーする場合は最低品質の結果を返す
+      if (bestBlob.size > TARGET_SIZE) {
+        blob = await canvasToBlob(canvas, format, 0.05);
+        bestBlob = blob;
+        bestQuality = 0.05;
+      }
+
+      const newName = getBaseName(file.name) + '.' + selectedExt;
+      return {
+        name: file.name, newName, originalSize: file.size, convertedSize: bestBlob.size,
+        blob: bestBlob, url: URL.createObjectURL(bestBlob), width: w, height: h,
+        autoOptimized: true, finalQuality: bestQuality,
+        underTarget: bestBlob.size <= TARGET_SIZE,
+      };
     }
 
     // ── 結果表示 ──
@@ -543,12 +651,25 @@
         const pct = r.originalSize > 0 ? Math.round((1 - r.convertedSize / r.originalSize) * 100) : 0;
         const isSmaller = pct >= 0;
 
+        // 1MB以下判定の表示
+        let sizeStatus = '';
+        if (r.autoOptimized) {
+          if (r.underTarget) {
+            sizeStatus = `<span style="font-size:0.78rem; font-weight:700; color:#00b894; margin-left:6px;">${formatSize(r.convertedSize)} — 1MB以下 OK</span>`;
+          } else {
+            sizeStatus = `<span style="font-size:0.78rem; font-weight:700; color:#c0392b; margin-left:6px;">${formatSize(r.convertedSize)} — 1MB超（最低品質でも超過）</span>`;
+          }
+        }
+
+        const qualityInfo = r.autoOptimized ? `<div style="font-size:0.72rem; color:#636e72; margin-top:2px;">自動品質: ${Math.round(r.finalQuality * 100)}%</div>` : '';
+
         return `<div class="result-item">
           <img class="result-thumb" src="${r.url}" alt="">
           <div class="result-info">
             <div class="result-name">${escHtml(r.newName)}</div>
-            <div class="result-sizes">${formatSize(r.originalSize)} → ${formatSize(r.convertedSize)} (${r.width}×${r.height})</div>
+            <div class="result-sizes">${formatSize(r.originalSize)} → ${formatSize(r.convertedSize)} (${r.width}×${r.height})${sizeStatus}</div>
             <div class="result-saved ${isSmaller ? 'positive' : 'negative'}">${isSmaller ? pct + '%削減' : Math.abs(pct) + '%増加'}</div>
+            ${qualityInfo}
           </div>
           <button class="result-dl-btn" onclick="downloadOne(${i})">ダウンロード</button>
         </div>`;
