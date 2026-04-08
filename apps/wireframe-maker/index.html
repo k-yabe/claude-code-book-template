@@ -328,6 +328,15 @@
     .section-picker-panel .sp-card { padding: 10px 12px; background: #f7f8fa; border: 1.5px solid #e8ecf0; cursor: pointer; transition: all 0.12s; margin-bottom: 6px; }
     .section-picker-panel .sp-card:hover { border-color: #ffb81c; background: #fffbf0; }
 
+    /* ===== 要素ピッカー折りたたみカテゴリ ===== */
+    .insert-category { margin-bottom: 8px; }
+    .insert-category-header { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: #001f33; color: #fff; font-size: 0.72rem; font-weight: 700; cursor: pointer; user-select: none; transition: background 0.15s; }
+    .insert-category-header:hover { background: #002e4d; }
+    .insert-category-header .cat-arrow { font-size: 0.6rem; transition: transform 0.2s; }
+    .insert-category-header.collapsed .cat-arrow { transform: rotate(-90deg); }
+    .insert-category-body { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 8px 0 4px; }
+    .insert-category-header.collapsed + .insert-category-body { display: none; }
+
     /* ===== D1: エクスポート刷新 ===== */
     .export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .export-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 12px; background: #f7f8fa; border: 1.5px solid #e8ecf0; cursor: pointer; transition: all 0.15s; text-align: center; }
@@ -1525,6 +1534,27 @@ async function handleUrlImport() {
       else { target.parentElement ? target.parentElement.insertBefore(newEl, target.nextSibling) : document.body.appendChild(newEl); }
       window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
     }
+    if (e.data.type === 'insert-html') {
+      window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
+      const sel = document.querySelector('[data-clone-selected]');
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = e.data.html;
+      const newEl = wrapper.firstElementChild || wrapper;
+      if (wrapper.firstElementChild) {
+        const frag = document.createDocumentFragment();
+        while (wrapper.firstChild) frag.appendChild(wrapper.firstChild);
+        const container = document.createElement('div');
+        container.appendChild(frag);
+        if (e.data.position === 'before' && sel) { sel.parentElement.insertBefore(container, sel); }
+        else if (sel) { sel.parentElement.insertBefore(container, sel.nextSibling); }
+        else { document.body.appendChild(container); }
+        // Unwrap if single child
+        if (container.childNodes.length === 1 && container.firstElementChild) {
+          container.replaceWith(container.firstElementChild);
+        }
+      }
+      window.parent.postMessage({ type: 'clone-changed', html: getBodySnapshot() }, '*');
+    }
     if (e.data.type === 'move-element') {
       const sel = document.querySelector('[data-clone-selected]');
       if (!sel) { window.parent.postMessage({ type: 'clone-no-selection' }, '*'); return; }
@@ -1937,7 +1967,7 @@ function cloneInsertElement() {
   ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
   const panel = document.createElement('div');
   panel.className = 'section-picker-panel';
-  panel.style.maxWidth = '320px';
+  panel.style.maxWidth = '420px';
   panel.innerHTML = `
     <div class="sp-title">要素を追加</div>
     <p style="font-size:0.7rem;color:#8a9bb0;margin:0 0 8px">挿入位置:</p>
@@ -1945,20 +1975,103 @@ function cloneInsertElement() {
       <label style="font-size:0.7rem;color:#001f33;cursor:pointer;display:flex;align-items:center;gap:4px;"><input type="radio" name="clone-insert-pos" value="after" checked>選択要素の後</label>
       <label style="font-size:0.7rem;color:#001f33;cursor:pointer;display:flex;align-items:center;gap:4px;"><input type="radio" name="clone-insert-pos" value="before">選択要素の前</label>
     </div>
-    <div class="section-picker-grid" style="grid-template-columns:1fr 1fr;">
-      <div class="section-picker-item" onclick="doCloneInsert('h2','見出しテキスト',{fontSize:'24px',fontWeight:'bold',margin:'16px 0'})">
-        <span class="spi-icon">📝</span><span class="spi-name">見出し (H2)</span>
+
+    <!-- テキスト要素 -->
+    <div class="insert-category">
+      <div class="insert-category-header" onclick="this.classList.toggle('collapsed')">
+        <span class="cat-arrow">▼</span> テキスト
       </div>
-      <div class="section-picker-item" onclick="doCloneInsert('p','テキストを入力してください',{fontSize:'16px',margin:'8px 0',lineHeight:'1.6'})">
-        <span class="spi-icon">📄</span><span class="spi-name">テキスト段落</span>
-      </div>
-      <div class="section-picker-item" onclick="doCloneInsert('a','ボタンテキスト',{display:'inline-block',padding:'12px 32px',backgroundColor:'#001f33',color:'#fff',textDecoration:'none',fontSize:'16px',fontWeight:'bold',textAlign:'center'})">
-        <span class="spi-icon">🔘</span><span class="spi-name">CTAボタン</span>
-      </div>
-      <div class="section-picker-item" onclick="doCloneInsert('div','区切り線',{borderTop:'2px solid #ccc',margin:'24px 0',height:'0'})">
-        <span class="spi-icon">➖</span><span class="spi-name">区切り線</span>
+      <div class="insert-category-body">
+        <div class="section-picker-item" onclick="doCloneInsert('h1','大見出しテキスト',{fontSize:'32px',fontWeight:'bold',margin:'20px 0',lineHeight:'1.3'})">
+          <span class="spi-icon">H1</span><span class="spi-name">大見出し</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('h2','見出しテキスト',{fontSize:'24px',fontWeight:'bold',margin:'16px 0'})">
+          <span class="spi-icon">H2</span><span class="spi-name">中見出し</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('h3','小見出しテキスト',{fontSize:'20px',fontWeight:'bold',margin:'12px 0'})">
+          <span class="spi-icon">H3</span><span class="spi-name">小見出し</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('h4','小小見出し',{fontSize:'16px',fontWeight:'bold',margin:'10px 0'})">
+          <span class="spi-icon">H4</span><span class="spi-name">小小見出し</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('p','テキストを入力してください',{fontSize:'16px',margin:'8px 0',lineHeight:'1.6'})">
+          <span class="spi-icon">📄</span><span class="spi-name">段落 (p)</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('span','インラインテキスト',{fontSize:'14px',display:'inline-block'})">
+          <span class="spi-icon">Aa</span><span class="spi-name">インライン</span>
+        </div>
       </div>
     </div>
+
+    <!-- 基本図形 -->
+    <div class="insert-category">
+      <div class="insert-category-header" onclick="this.classList.toggle('collapsed')">
+        <span class="cat-arrow">▼</span> 基本図形
+      </div>
+      <div class="insert-category-body">
+        <div class="section-picker-item" onclick="doCloneInsert('div','',{width:'200px',height:'120px',backgroundColor:'#e8ecf0',border:'1px solid #ccc',margin:'12px 0'})">
+          <span class="spi-icon">▬</span><span class="spi-name">矩形</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('div','',{width:'100px',height:'100px',backgroundColor:'#e8ecf0',border:'1px solid #ccc',borderRadius:'50%',margin:'12px 0'})">
+          <span class="spi-icon">●</span><span class="spi-name">円</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('hr','',{border:'none',borderTop:'2px solid #001f33',margin:'16px 0'})">
+          <span class="spi-icon">—</span><span class="spi-name">線 (hr)</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('__arrow','',{})">
+          <span class="spi-icon">→</span><span class="spi-name">矢印付き線</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- フォーム要素 -->
+    <div class="insert-category">
+      <div class="insert-category-header" onclick="this.classList.toggle('collapsed')">
+        <span class="cat-arrow">▼</span> フォーム
+      </div>
+      <div class="insert-category-body">
+        <div class="section-picker-item" onclick="doCloneInsert('__input-text','',{})">
+          <span class="spi-icon">▭</span><span class="spi-name">テキスト入力</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('__select','',{})">
+          <span class="spi-icon">▾</span><span class="spi-name">セレクト</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('__checkbox','',{})">
+          <span class="spi-icon">☑</span><span class="spi-name">チェックボックス</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('__radio','',{})">
+          <span class="spi-icon">◉</span><span class="spi-name">ラジオボタン</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('__textarea','',{})">
+          <span class="spi-icon">📋</span><span class="spi-name">テキストエリア</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('__submit','',{})">
+          <span class="spi-icon">🔲</span><span class="spi-name">送信ボタン</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- その他 -->
+    <div class="insert-category">
+      <div class="insert-category-header" onclick="this.classList.toggle('collapsed')">
+        <span class="cat-arrow">▼</span> その他
+      </div>
+      <div class="insert-category-body">
+        <div class="section-picker-item" onclick="doCloneInsert('__img-placeholder','',{})">
+          <span class="spi-icon">🖼</span><span class="spi-name">画像PH</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('a','ボタンテキスト',{display:'inline-block',padding:'12px 32px',backgroundColor:'#001f33',color:'#fff',textDecoration:'none',fontSize:'16px',fontWeight:'bold',textAlign:'center'})">
+          <span class="spi-icon">🔘</span><span class="spi-name">プライマリBtn</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('a','ボタンテキスト',{display:'inline-block',padding:'12px 32px',backgroundColor:'#fff',color:'#001f33',textDecoration:'none',fontSize:'16px',fontWeight:'bold',textAlign:'center',border:'2px solid #001f33'})">
+          <span class="spi-icon">◻</span><span class="spi-name">セカンダリBtn</span>
+        </div>
+        <div class="section-picker-item" onclick="doCloneInsert('div','区切り線',{borderTop:'2px solid #ccc',margin:'24px 0',height:'0'})">
+          <span class="spi-icon">➖</span><span class="spi-name">区切り線</span>
+        </div>
+      </div>
+    </div>
+
     <p style="font-size:0.65rem;color:#8a9bb0;margin:10px 0 0;">💡 追加後 ⬆⬇ ボタンで位置を調整できます</p>
   `;
   ov.appendChild(panel);
@@ -1970,7 +2083,54 @@ function doCloneInsert(tag, text, style) {
   if (!frame || !frame.contentWindow) return;
   const posRadio = document.querySelector('input[name="clone-insert-pos"]:checked');
   const position = posRadio ? posRadio.value : 'after';
-  frame.contentWindow.postMessage({ type: 'insert-element', tag, text, style, position }, '*');
+
+  // 特殊要素タイプ（__プレフィックス）はHTML文字列として生成
+  if (tag.startsWith('__')) {
+    let html = '';
+    let wrapTag = 'div';
+    let wrapStyle = { margin: '12px 0' };
+    switch (tag) {
+      case '__arrow':
+        html = '<svg width="200" height="24" viewBox="0 0 200 24" style="display:block;margin:12px 0;"><line x1="0" y1="12" x2="180" y2="12" stroke="#001f33" stroke-width="2"/><polygon points="180,6 196,12 180,18" fill="#001f33"/></svg>';
+        wrapTag = '__raw';
+        break;
+      case '__input-text':
+        html = '<input type="text" placeholder="テキストを入力" style="display:block;width:100%;max-width:320px;padding:10px 12px;font-size:14px;border:1px solid #ccc;background:#fff;font-family:inherit;outline:none;margin:8px 0;">';
+        wrapTag = '__raw';
+        break;
+      case '__select':
+        html = '<select style="display:block;width:100%;max-width:320px;padding:10px 12px;font-size:14px;border:1px solid #ccc;background:#fff;font-family:inherit;margin:8px 0;"><option>選択してください</option><option>オプション1</option><option>オプション2</option><option>オプション3</option></select>';
+        wrapTag = '__raw';
+        break;
+      case '__checkbox':
+        html = '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;cursor:pointer;"><input type="checkbox" style="width:18px;height:18px;accent-color:#001f33;">チェック項目</label>';
+        wrapTag = '__raw';
+        break;
+      case '__radio':
+        html = '<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;cursor:pointer;"><input type="radio" name="wf-radio" style="width:18px;height:18px;accent-color:#001f33;">ラジオ項目</label>';
+        wrapTag = '__raw';
+        break;
+      case '__textarea':
+        html = '<textarea placeholder="テキストを入力してください" rows="4" style="display:block;width:100%;max-width:400px;padding:10px 12px;font-size:14px;border:1px solid #ccc;background:#fff;font-family:inherit;resize:vertical;outline:none;margin:8px 0;"></textarea>';
+        wrapTag = '__raw';
+        break;
+      case '__submit':
+        html = '<button type="button" style="display:inline-block;padding:12px 40px;background:#001f33;color:#fff;font-size:16px;font-weight:bold;border:none;cursor:pointer;font-family:inherit;margin:8px 0;">送信</button>';
+        wrapTag = '__raw';
+        break;
+      case '__img-placeholder':
+        html = '<div style="width:100%;max-width:400px;height:200px;background:#e8ecf0;display:flex;align-items:center;justify-content:center;margin:12px 0;border:1px solid #ccc;"><span style="font-size:2.5rem;opacity:0.4;">🖼</span></div>';
+        wrapTag = '__raw';
+        break;
+    }
+    if (wrapTag === '__raw') {
+      frame.contentWindow.postMessage({ type: 'insert-html', html, position }, '*');
+    } else {
+      frame.contentWindow.postMessage({ type: 'insert-element', tag: wrapTag, text, style: wrapStyle, position }, '*');
+    }
+  } else {
+    frame.contentWindow.postMessage({ type: 'insert-element', tag, text, style, position }, '*');
+  }
   document.querySelector('.section-picker-overlay')?.remove();
   showToast('要素を追加しました（⬆⬇で位置調整可能）');
 }
