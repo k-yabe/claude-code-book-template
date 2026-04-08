@@ -572,7 +572,7 @@
 
       // Twitter Card（Sitecoreではデフォルト未出力のため情報レベル）
       const twWarnSuffix = '（Sitecoreでは未出力がデフォルトのため問題ありません）';
-      if (!ogp.twitterCard)  addItem('info', `twitter:card が未設定です${twWarnSuffix}`);
+      if (!ogp.twitterCard)  addItem('ok', `twitter:card が未設定です${twWarnSuffix}`);
       else                   addItem('ok',   `twitter:card OK（${ogp.twitterCard}）`);
 
       if (!ogp.twitterTitle) addItem('warn', `twitter:title が未検出です${twWarnSuffix}`);
