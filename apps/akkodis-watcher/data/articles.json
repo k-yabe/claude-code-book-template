@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-04-07T23:29:54Z",
+  "last_scraped": "2026-04-08T23:30:33Z",
   "articles": [
+    {
+      "id": "improving-the-acoustic-footprint-of-submarines",
+      "title": "Absolute Stealth: Mastering the Acoustic Signature of Submarines",
+      "url": "https://www.akkodis.com/blog/articles/improving-the-acoustic-footprint-of-submarines",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-04-08T23:29:48Z",
+      "published_date": "2026-04-03T00:00:00Z",
+      "summary_ja": "潜水艦の音響特性を常時監視し、エンジンやポンプなどから発生する騒音の位置特定と低減を行うAIシステムを開発しており、このプラットフォームにより潜水艦の発見可能性を大幅に低下させることができます。開発したシステムは複雑なデータ分析を行いながらも、操作画面はシンプルで直感的に設計されており、現場のオペレーターが素早く対応判断できるようになっています。音響データの分析機能は機器の摩耗や故障の兆候を早期に検出することで、予防的なメンテナンスを可能にし、潜水艦の運用効率と信頼性を高めています。"
+    },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
       "title": "Thinkers & Makers Vol.3 2025",
