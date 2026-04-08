@@ -233,8 +233,8 @@
       font-size: 0.72rem;
       font-weight: 700;
       color: #ffb81c;
-      background: rgba(255,184,28,0.1);
-      border: 1px solid rgba(255,184,28,0.3);
+      background: transparent;
+      border: 1.5px solid rgba(255,184,28,0.5);
       border-radius: 0;
       padding: 5px 12px;
       cursor: pointer;
@@ -244,7 +244,7 @@
       letter-spacing: 0.02em;
     }
     .changelog-btn:hover {
-      background: rgba(255,184,28,0.18);
+      background: rgba(0,31,51,0.3);
       border-color: #ffb81c;
     }
     .changelog-btn-dot {
@@ -311,6 +311,11 @@
       grid-template-columns: repeat(auto-fill, minmax(190px, 190px));
       gap: 12px;
       justify-content: center;
+    }
+    @media (max-width: 480px) {
+      .grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
     }
     @keyframes cardIn {
       from { opacity: 0; transform: translateY(16px); }
@@ -627,6 +632,8 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '🖼', app: 'Image Converter',         date: '2026-04-08(水)', desc: '自動1MB最適化モード追加: 品質をバイナリサーチで自動調整し1MB以下に収める機能をデフォルトに。品質スライダーは「詳細設定」折りたたみに移動、変換後に1MB以下判定を表示' },
+      { icon: '🏠', app: 'ポータル全体',          date: '2026-04-08(水)', desc: 'ブランドガイドライン違反修正(changelog-btnの黄色背景除去)・小画面480px以下でカードグリッドが横スクロールしないよう改善・KVエラーハンドリング安全性向上' },
       { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-08(水)', desc: '要素挿入機能を大幅拡張: テキスト(h1/h2/h3/h4/p/span)・基本図形(矩形/円/線/矢印)・フォーム(input/select/checkbox/radio/textarea/送信ボタン)・その他(画像PH/ボタン2種/区切り線)をカテゴリ別折りたたみUIで追加可能に' },
       { icon: '🏠', app: 'ポータル全体',          date: '2026-04-08(水)', desc: '開発中アプリ（Wireframe Maker/Slide Maker/Prompt Maker）に「開発中」バッジ追加・カード半透明+グレースケール+破線ボーダーで控えめ表示・並び順を最下段に移動・ホバーで復帰' },
       { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-08(水)', desc: 'Figma連携強化: Figma互換JSONエクスポート追加・インポート後のCVR/タブ更新修正・セクションのデフォルトfields生成・AIフォールバックのエラー処理改善・クローン編集後チャットへの最新テキスト反映' },
