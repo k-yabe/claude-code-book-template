@@ -907,6 +907,11 @@
               <div class="ei-label">SVGコピー</div>
               <div class="ei-desc">クリップボードにコピー</div>
             </div>
+            <div class="export-item" onclick="exportFigmaJSON()">
+              <div class="ei-icon"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 38 57'%3E%3Cpath fill='%23F24E1E' d='M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z'/%3E%3Cpath fill='%23FF7262' d='M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z'/%3E%3Cpath fill='%23A259FF' d='M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z'/%3E%3Cpath fill='%230ACF83' d='M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z'/%3E%3Cpath fill='%231ABCFE' d='M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z'/%3E%3C/svg%3E" style="vertical-align:middle"></div>
+              <div class="ei-label">Figma連携</div>
+              <div class="ei-desc">Figma互換JSONをエクスポート</div>
+            </div>
             <div class="export-item" onclick="startNew()">
               <div class="ei-icon">✨</div>
               <div class="ei-label">新規作成</div>
@@ -2387,6 +2392,18 @@ async function sendChat() {
   const text = input.value.trim();
   if (!text) return;
   clearError();
+  // クローンモード中はiframeの最新テキストでimportedContentを更新
+  if (cloneMode && importedContent) {
+    try {
+      const frame = document.getElementById('clone-frame');
+      if (frame?.contentDocument?.body) {
+        const liveText = frame.contentDocument.body.innerText.replace(/\s+/g, ' ').trim().slice(0, 5000);
+        if (liveText.length > 50) {
+          importedContent = importedContent.replace(/## ページテキスト（上から順）\n[\s\S]*$/, '## ページテキスト（上から順・編集反映済み）\n' + liveText);
+        }
+      }
+    } catch (e) { /* cross-origin: fall back to original importedContent */ }
+  }
   addChatMessage('user', text);
   chatHistory.push({ role: 'user', content: text });
   input.value = ''; btn.disabled = true;
@@ -5479,8 +5496,71 @@ showSectionOverlay = function(sectionId) {
 };
 
 // ============================================================
-//  V7 機能3: Figmaインポート
+//  V7 機能3: Figmaインポート / エクスポート
 // ============================================================
+
+function exportFigmaJSON() {
+  if (currentSections.length === 0) { showToast('エクスポートする構成がありません'); return; }
+
+  // WFセクション → Figma互換フレーム構造に変換
+  const WF_W = 1440;
+  let yOffset = 0;
+  const sectionHeights = { navigation: 80, hero: 600, features: 500, social_proof: 400, cta: 300, form: 500, faq: 450, pricing: 500, footer: 200, how_it_works: 400, video: 400, comparison_table: 450, logo_bar: 120, content_text: 350, two_column: 400, stats: 200 };
+
+  const children = currentSections.map((sec, i) => {
+    const h = sectionHeights[sec.type] || 350;
+    const frame = {
+      id: `wf-export-${i}`,
+      name: sec.label || sec.type,
+      type: 'FRAME',
+      x: 0, y: yOffset, width: WF_W, height: h,
+      fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1, a: 1 } }],
+      children: [],
+      sectionMeta: { type: sec.type, description: sec.description || '', fields: sec.fields || {} }
+    };
+
+    // テキストノード生成
+    const addText = (text, x, y, fontSize, bold) => {
+      frame.children.push({ id: `wf-text-${i}-${frame.children.length}`, name: text.slice(0, 30), type: 'TEXT', x, y, width: WF_W - 200, height: fontSize * 1.5, characters: text, style: { fontFamily: 'Noto Sans JP', fontSize, fontWeight: bold ? 700 : 400, textAlignHorizontal: 'LEFT' }, fills: [{ type: 'SOLID', color: { r: 0.17, g: 0.2, b: 0.22, a: 1 } }] });
+    };
+
+    if (sec.fields?.headline) addText(sec.fields.headline, 100, 40, sec.type === 'hero' ? 42 : 28, true);
+    if (sec.fields?.subheadline) addText(sec.fields.subheadline, 100, sec.type === 'hero' ? 100 : 80, 16, false);
+    if (sec.fields?.cta) addText(sec.fields.cta, 100, sec.type === 'hero' ? 160 : 120, 16, true);
+
+    yOffset += h;
+    return frame;
+  });
+
+  const figmaDoc = {
+    name: pages[currentPageIndex]?.name || 'Wireframe Export',
+    document: {
+      id: '0:0', name: 'Document', type: 'DOCUMENT',
+      children: [{
+        id: '0:1', name: pages[currentPageIndex]?.name || 'Page 1', type: 'CANVAS',
+        backgroundColor: { r: 0.96, g: 0.96, b: 0.96, a: 1 },
+        children: [{
+          id: '1:0', name: 'LP Wireframe', type: 'FRAME',
+          x: 0, y: 0, width: WF_W, height: yOffset,
+          fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1, a: 1 } }],
+          children: children
+        }]
+      }]
+    },
+    exportedAt: new Date().toISOString(),
+    generator: 'Wireframe Maker — Figma Export',
+    _importInstructions: 'このJSONはFigma REST API形式に準拠しています。Figmaプラグイン経由でインポートするか、構造参照としてご利用ください。'
+  };
+
+  const blob = new Blob([JSON.stringify(figmaDoc, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `wireframe-figma-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Figma互換JSONをエクスポートしました');
+}
+
 function showFigmaImport() {
   const overlay = document.createElement('div');
   overlay.className = 'figma-overlay';
@@ -5528,11 +5608,8 @@ async function executeFigmaImport() {
     const sections = convertFigmaToSections(data.frames || []);
     if (sections.length === 0) throw new Error('フレームが見つかりません');
 
-    const page = pages[currentPageIndex];
-    page.sections = sections;
-    currentSections = page.sections;
-    renderSectionList();
-    renderPreview();
+    currentSections = sections;
+    onSectionsChanged(true);
     broadcastCollabState();
 
     document.getElementById('figma-overlay')?.remove();
@@ -5547,13 +5624,28 @@ async function executeFigmaImport() {
 
 function convertFigmaToSections(frames) {
   const typeMap = {
-    'header': 'header', 'nav': 'header', 'hero': 'hero', 'main': 'hero',
+    'header': 'navigation', 'nav': 'navigation', 'hero': 'hero', 'main': 'hero',
     'feature': 'features', 'benefit': 'features', 'service': 'features',
     'testimonial': 'social_proof', 'review': 'social_proof', 'logo': 'logo_bar',
     'cta': 'cta', 'button': 'cta', 'form': 'form', 'contact': 'form',
     'faq': 'faq', 'price': 'pricing', 'plan': 'pricing',
     'footer': 'footer', 'step': 'how_it_works', 'process': 'how_it_works',
     'video': 'video', 'compare': 'comparison_table', 'table': 'comparison_table'
+  };
+  const defaultFields = {
+    navigation: { logo: 'LOGO', menuItems: ['サービス', '特徴', '料金', 'お問い合わせ'] },
+    hero: { headline: 'メインコピーをここに', subheadline: 'サブコピー — サービスの価値を一言で', cta: '無料で始める' },
+    features: { headline: '主な特徴', items: ['特徴1', '特徴2', '特徴3'] },
+    social_proof: { headline: 'お客様の声', items: ['導入企業A', '導入企業B'] },
+    cta: { headline: '今すぐ始めましょう', cta: '無料で資料ダウンロード', subtext: '3分で完了 / 営業電話なし' },
+    form: { headline: 'お問い合わせ', fields: ['お名前', 'メールアドレス', '会社名'] },
+    faq: { headline: 'よくある質問', items: ['Q1', 'Q2', 'Q3'] },
+    pricing: { headline: '料金プラン', items: ['ベーシック', 'プロ', 'エンタープライズ'] },
+    footer: { logo: 'LOGO', links: ['プライバシーポリシー', '利用規約'] },
+    how_it_works: { headline: 'ご利用の流れ', steps: ['STEP 1', 'STEP 2', 'STEP 3'] },
+    video: { headline: 'サービス紹介動画' },
+    comparison_table: { headline: '競合比較' },
+    logo_bar: { headline: '導入企業' }
   };
   return frames.map((frame, i) => {
     const name = (frame.name || '').toLowerCase();
@@ -5566,7 +5658,7 @@ function convertFigmaToSections(frames) {
       type: type,
       label: frame.name || `Section ${i + 1}`,
       description: `Figmaインポート: ${frame.name || 'Unnamed'}${frame.width ? ` (${frame.width}x${frame.height})` : ''}`,
-      fields: {}
+      fields: defaultFields[type] || { headline: frame.name || `Section ${i + 1}` }
     };
   });
 }
@@ -5578,18 +5670,22 @@ async function figmaAIFallback(fileKey) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode: 'free', freeText: `Figmaファイル(key:${fileKey})のLP構成を推定し、一般的なLPセクション構成として出力してください。JSON配列で返してください。`, _user: USER })
     });
+    if (!res.ok) throw new Error(`API応答エラー (${res.status})`);
     const data = await res.json();
-    if (data.sections) {
-      const page = pages[currentPageIndex];
-      page.sections = data.sections;
-      currentSections = page.sections;
-      renderSectionList();
-      renderPreview();
-      broadcastCollabState();
+    if (!data.sections || data.sections.length === 0) {
+      showToast('AI推定でセクションを生成できませんでした');
       document.getElementById('figma-overlay')?.remove();
-      showToast('AI推定でセクション構成を生成しました');
+      return;
     }
-  } catch { showToast('インポートに失敗しました'); }
+    currentSections = data.sections;
+    onSectionsChanged(true);
+    broadcastCollabState();
+    document.getElementById('figma-overlay')?.remove();
+    showToast('AI推定でセクション構成を生成しました');
+  } catch (err) {
+    showToast('インポートに失敗しました: ' + (err.message || '不明なエラー'));
+    document.getElementById('figma-overlay')?.remove();
+  }
 }
 
 // ============================================================

@@ -57,7 +57,7 @@
 | Writing Checker | `apps/writing-checker/index.html`, `apps/writing-checker/knowledge.js` | ✅ 完成 | S025 |
 | Slide Maker | `apps/slide-maker/index.html`, `api/slide-generate.js`, `api/slide-export.py`, `api/slide-factcheck.js`, `apps/slide-maker/templates/` | ✅ 完成 | S034, S036, S037 |
 | Prompt Maker | `apps/prompt-maker/index.html`, `api/sources.js`, `api/fetch-transcript.js` | ✅ 完成 | S035, S037, S038, S039, S040, S041, S042, S043, S044, S045 |
-| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043, S048, S050, S051, S052, S053, S054, S055 |
+| Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043, S048, S050, S051, S052, S053, S054, S055, S056 |
 | Cache Checker | `apps/cache-checker/index.html`, `api/fetch-article.js(mode=proxy)` | ✅ 完成 | S037 |
 | Image Converter | `apps/image-converter/index.html` | ✅ 完成 | S047 |
 
@@ -309,5 +309,6 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-04-05 | Wireframe Maker E2Eバグ修正(S053) | editSVGTextのblur/remove競合によるDOMクラッシュ修正、AI修正(refine)のmax_tokens不足(2000→4000)修正 |
 | 2026-04-07 | Wireframe Maker UX改善3件(S054) | SP/Tabプレビュー表示修正(CSS transform方式)、背景色変更時テキスト色自動調整(コントラスト保証)、「✎ 編集」ボタンをshowInlineEditに変更 |
 | 2026-04-07 | Wireframe Maker プロトタイプ表示修正(S055) | プロトタイプ再生モードのSVG表示位置修正(height属性→style.height計算で上部空白解消) |
+| 2026-04-08 | Wireframe Maker Figma連携とインポート改善(S056) | Figmaインポート後onSectionsChanged呼び出し追加、AIフォールバックエラーハンドリング改善、インポートセクションのデフォルトfields生成、クローン編集後チャットへの最新テキスト反映、Figma互換JSONエクスポート機能追加 |
 | 2026-04-08 | Banner Resizer 画像品質劣化バグ修正 | OGP容量制限を100KB→300KBに緩和。圧縮品質下限を0.70→0.80に引き上げ（Lossy・PNG→JPEG変換とも）。ソース画像がターゲットより小さい場合の警告UI追加（AIアップスケール推奨表示） |
 | 2026-04-08 | Banner Resizer 大きい画像の歪みリサイズ修正 | バナー（MV）・一覧サムネイルで横幅1920px固定・縦は元画像のアスペクト比を保持して自動計算するfitWidthモード追加。16:9以外の画像でも歪まずにリサイズされる |
