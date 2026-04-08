@@ -510,7 +510,9 @@
     if (!size || !size.thumbTrim) return;
     const wrap = document.getElementById('wrap-' + sizeId);
     if (!wrap) return;
-    const canvas = createResized(img, size.w, size.h, size.crop);
+    const dlW = size._actualW || size.w;
+    const dlH = size._actualH || size.h;
+    const canvas = createResized(img, dlW, dlH, size.crop);
     canvas.id = 'canvas-' + sizeId;
     if (show) {
       drawThumbTrimOverlay(canvas, size.thumbTrim);
