@@ -65,6 +65,14 @@
     .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
     @keyframes bounce { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
 
+    /* ── キャンセルボタン ── */
+    .cancel-btn {
+      margin-top: var(--sp-3); padding: 8px 24px;
+      background: none; border: 1.5px solid var(--border); color: var(--text-muted);
+      font-size: var(--text-sm); font-weight: 600; cursor: pointer; font-family: var(--font-sans);
+    }
+    .cancel-btn:hover { border-color: var(--navy); color: var(--navy); }
+
     /* ── エラー追加マージン ── */
     .error-msg { margin-bottom: var(--sp-4); }
 
@@ -198,10 +206,11 @@
       </div>
     </div>
 
-    <div class="error-msg" id="error-msg"></div>
-    <div class="loading" id="loading">
-      <div class="loading-text">ページの内容を取得しています...</div>
+    <div class="error-msg" id="error-msg" role="alert"></div>
+    <div class="loading" id="loading" aria-live="polite">
+      <div class="loading-text" id="loading-text">ページの内容を取得しています...</div>
       <div class="loading-dots"><span></span><span></span><span></span></div>
+      <button class="cancel-btn" id="cancel-btn" onclick="cancelCheck()" aria-label="チェックをキャンセル">キャンセル</button>
     </div>
 
     <!-- 診断結果 -->
@@ -261,13 +270,21 @@
     const checkBtn = document.getElementById('check-btn');
     const errorEl = document.getElementById('error-msg');
     const loadingEl = document.getElementById('loading');
+    const loadingTextEl = document.getElementById('loading-text');
     const PROXY_URL = '/api/proxy';
     let lastResult = null;
+    let currentController = null;
 
     function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function showError(msg) { errorEl.textContent = msg; errorEl.classList.add('show'); }
     function clearError() { errorEl.textContent = ''; errorEl.classList.remove('show'); }
-    function setLoading(on) { loadingEl.classList.toggle('show', on); checkBtn.disabled = on; checkBtn.textContent = on ? 'チェック中...' : 'チェック'; }
+    function setLoading(on, msg) {
+      loadingEl.classList.toggle('show', on);
+      checkBtn.disabled = on;
+      checkBtn.textContent = on ? 'チェック中...' : 'チェック';
+      if (msg) loadingTextEl.textContent = msg;
+      else if (!on) loadingTextEl.textContent = 'ページの内容を取得しています...';
+    }
     function fillSample(url) { urlInput.value = url; urlInput.focus(); }
 
     // ── HTML解析（差分検出用） ──
@@ -338,11 +355,16 @@
     }
 
     // ── プロキシ取得 ──
-    async function fetchViaProxy(url) {
-      const res = await fetch(PROXY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+    async function fetchViaProxy(url, signal) {
+      const res = await fetch(PROXY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }), signal });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Proxy error (${res.status})`);
       return data;
+    }
+
+    // ── キャンセル ──
+    function cancelCheck() {
+      if (currentController) { currentController.abort(); currentController = null; }
     }
 
     // ── メイン ──
@@ -361,13 +383,18 @@
       try { parsed = new URL(rawUrl); } catch { showError('有効なURLを入力してください（例: https://www.akkodis.com/ja/）'); urlInput.focus(); return; }
       if (!['http:', 'https:'].includes(parsed.protocol)) { showError('HTTP/HTTPS のURLを入力してください'); return; }
 
-      setLoading(true);
+      currentController = new AbortController();
+      const signal = currentController.signal;
+      setLoading(true, 'サイト訪問者が見る状態を取得中...');
       try {
         const bypassUrl = new URL(rawUrl);
         bypassUrl.searchParams.set('_cb', Date.now() + '-' + Math.random().toString(36).slice(2));
         const bypassUrlStr = bypassUrl.toString();
 
-        const [currentRes, latestRes] = await Promise.all([fetchViaProxy(rawUrl), fetchViaProxy(bypassUrlStr)]);
+        const currentRes = await fetchViaProxy(rawUrl, signal);
+        setLoading(true, 'CMSの最新状態を取得中...');
+        const latestRes = await fetchViaProxy(bypassUrlStr, signal);
+        setLoading(true, '比較中...');
 
         // 差分検出用にパース
         const currentData = parsePageContent(currentRes.body, rawUrl);
@@ -424,8 +451,10 @@
           HistoryManager.save(`${rawUrl} → ${changes.length === 0 ? '反映済み' : changes.map(c=>c.label).join('・') + 'に差分'}`, rawUrl);
         }
       } catch (err) {
-        showError(err.message || 'チェック中にエラーが発生しました');
+        if (err.name === 'AbortError') { /* キャンセル — 静かに初期状態へ */ }
+        else showError(err.message || 'チェック中にエラーが発生しました');
       } finally {
+        currentController = null;
         setLoading(false);
       }
     }
@@ -455,7 +484,23 @@
       else { navigator.clipboard.writeText(text).then(() => { btn.textContent = '✅ コピーしました'; setTimeout(() => { btn.textContent = '結果をコピー'; }, 2000); }); }
     }
 
+    function clearResults() {
+      document.getElementById('verdict').style.display = 'none';
+      document.getElementById('change-summary').classList.remove('show');
+      document.getElementById('compare-grid').classList.remove('show');
+      document.getElementById('next-steps').style.display = 'none';
+      document.getElementById('result-actions').classList.remove('show');
+      clearError();
+      lastResult = null;
+    }
+
     urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') runCheck(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if (currentController) cancelCheck();
+        else clearResults();
+      }
+    });
     HistoryManager.init('Cache Checker');
   </script>
   <script src="../../assets/onboarding.js"></script>
