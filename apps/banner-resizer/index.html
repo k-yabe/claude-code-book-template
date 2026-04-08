@@ -184,14 +184,14 @@
     {
       id: 'mv',
       sizes: [
-        { id: 'banner', label: 'バナー（MV）', w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024, color: '#ffb81c' },
+        { id: 'banner', label: 'バナー（MV）', w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024, color: '#ffb81c', fitWidth: true },
         { id: 'ogp',    label: 'OGP',         w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 300 * 1024, crop: true, color: '#1C304B' },
       ],
     },
     {
       id: 'thumb',
       sizes: [
-        { id: 'index', label: '一覧サムネイル（index）', w: 1920, h: 1080, dlName: 'img-index', maxBytes: 1 * 1024 * 1024, color: '#636e72', thumbTrim: { top: 24, bottom: 24, left: 100, right: 100 } },
+        { id: 'index', label: '一覧サムネイル（index）', w: 1920, h: 1080, dlName: 'img-index', maxBytes: 1 * 1024 * 1024, color: '#636e72', fitWidth: true, thumbTrim: { top: 24, bottom: 24, left: 100, right: 100 } },
       ],
     },
   ];
@@ -347,31 +347,50 @@
     outputContainer.classList.add('active');
 
     for (const size of group.sizes) {
+      // fitWidth: 横幅固定で縦は元画像のアスペクト比に合わせる
+      let targetW = size.w;
+      let targetH = size.h;
+      if (size.fitWidth) {
+        targetW = size.w;
+        targetH = Math.round(size.w * (img.height / img.width));
+      }
+
       // Show warning if source image is smaller than target
       const warnEl = document.getElementById('small-warn-' + size.id);
-      const isSrcSmall = img.width < size.w || img.height < size.h;
+      const isSrcSmall = img.width < targetW || img.height < targetH;
       const aiEnabled = !!aiUpscaleFlags[size.id];
       if (isSrcSmall && warnEl) {
         warnEl.style.display = 'block';
-        warnEl.innerHTML = `⚠ 元画像（${img.width}×${img.height}）がターゲット（${size.w}×${size.h}）より小さいため、拡大により画質が低下します${!aiEnabled ? '。AIアップスケールの有効化を推奨します' : ''}`;
+        warnEl.innerHTML = `⚠ 元画像（${img.width}×${img.height}）がターゲット（${targetW}×${targetH}）より小さいため、拡大により画質が低下します${!aiEnabled ? '。AIアップスケールの有効化を推奨します' : ''}`;
       } else if (warnEl) {
         warnEl.style.display = 'none';
       }
+
+      // Update displayed size to reflect actual output
+      const metaEl = document.querySelector(`#wrap-${size.id}`)?.closest('.output-card')?.querySelector('.output-card-meta');
+      if (metaEl && size.fitWidth) {
+        const maxLabel = size.maxBytes >= 1024*1024 ? (size.maxBytes/1024/1024)+'MB' : (size.maxBytes/1024)+'KB';
+        metaEl.textContent = `${targetW}×${targetH}px　/　上限 ${maxLabel}　/　横幅固定`;
+      }
+
+      // Store actual target for download
+      size._actualW = targetW;
+      size._actualH = targetH;
 
       const wrap = document.getElementById('wrap-' + size.id);
       wrap.style.display = 'flex';
       wrap.innerHTML = '';
 
-      const needsAI = aiEnabled && (img.width < size.w || img.height < size.h);
+      const needsAI = aiEnabled && (img.width < targetW || img.height < targetH);
 
       if (needsAI) {
         wrap.innerHTML = '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AI処理中...</div>';
-        const canvas = await createWithAI(img, size.w, size.h, size.crop);
+        const canvas = await createWithAI(img, targetW, targetH, size.crop);
         canvas.id = 'canvas-' + size.id;
         wrap.innerHTML = '';
         wrap.appendChild(canvas);
       } else {
-        const canvas = createResized(img, size.w, size.h, size.crop);
+        const canvas = createResized(img, targetW, targetH, size.crop);
         canvas.id = 'canvas-' + size.id;
         wrap.appendChild(canvas);
       }
@@ -545,7 +564,9 @@
       const domCanvas = document.getElementById('canvas-' + sizeId);
       let canvas;
       if (domCanvas && domCanvas.dataset.thumbTrimOverlay && sourceImages[groupId]) {
-        canvas = createResized(sourceImages[groupId], size.w, size.h, size.crop);
+        const dlW = size._actualW || size.w;
+        const dlH = size._actualH || size.h;
+        canvas = createResized(sourceImages[groupId], dlW, dlH, size.crop);
       } else {
         canvas = domCanvas;
       }
