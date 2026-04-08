@@ -943,6 +943,9 @@
     });
 
     loadOrder();
+
+    // 開発中カードは常に末尾に固定
+    grid.querySelectorAll('.card-dev').forEach(c => grid.appendChild(c));
   </script>
 </body>
 </html>
