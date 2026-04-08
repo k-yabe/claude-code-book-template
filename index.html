@@ -357,7 +357,7 @@
       overflow: hidden;
     }
 
-    .card-new-badge, .card-update-badge {
+    .card-new-badge, .card-update-badge, .card-dev-badge {
       position: absolute;
       top: 8px;
       right: 8px;
@@ -374,6 +374,24 @@
     .card-update-badge {
       background: #ffb81c;
       color: #001f33;
+    }
+    .card-dev-badge {
+      background: rgba(0, 31, 51, 0.35);
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 700;
+    }
+    .card.card-dev {
+      opacity: 0.45;
+      filter: grayscale(0.7);
+      border-style: dashed;
+      transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s, opacity 0.3s, filter 0.3s;
+    }
+    .card.card-dev:hover {
+      opacity: 0.9;
+      filter: grayscale(0);
+    }
+    .card.card-dev:hover::before {
+      background: #00ffff !important;
     }
     a.card::before {
       content: '';
@@ -512,27 +530,6 @@
           <div class="card-desc">バナーの2サイズ一括書き出し</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
-        <a class="card" href="apps/wireframe-maker/">
-          <div class="card-update-badge">UPDATE</div>
-          <div class="card-icon-wrap">🎨</div>
-          <div class="card-name">Wireframe Maker</div>
-          <div class="card-desc">LP構成のAI自動生成・プレビュー</div>
-          <div class="card-tag card-tag-web">Web App</div>
-        </a>
-        <a class="card" href="apps/slide-maker/">
-          <div class="card-update-badge">UPDATE</div>
-          <div class="card-icon-wrap">📊</div>
-          <div class="card-name">Slide Maker</div>
-          <div class="card-desc">プレゼン資料のAI自動生成</div>
-          <div class="card-tag card-tag-web">Web App</div>
-        </a>
-        <a class="card" href="apps/prompt-maker/">
-          <div class="card-update-badge">UPDATE</div>
-          <div class="card-icon-wrap">🪄</div>
-          <div class="card-name">Prompt Maker</div>
-          <div class="card-desc">AIプロンプトの構造化生成</div>
-          <div class="card-tag card-tag-web">Web App</div>
-        </a>
         <a class="card" href="apps/youtube-desc/">
           <div class="card-icon-wrap">🎬</div>
           <div class="card-name">YouTube Generator</div>
@@ -579,6 +576,27 @@
           <div class="card-desc">画像フォーマット変換・軽量化</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
+        <a class="card card-dev" href="apps/wireframe-maker/">
+          <div class="card-dev-badge">開発中</div>
+          <div class="card-icon-wrap">🎨</div>
+          <div class="card-name">Wireframe Maker</div>
+          <div class="card-desc">LP構成のAI自動生成・プレビュー</div>
+          <div class="card-tag card-tag-web">Web App</div>
+        </a>
+        <a class="card card-dev" href="apps/slide-maker/">
+          <div class="card-dev-badge">開発中</div>
+          <div class="card-icon-wrap">📊</div>
+          <div class="card-name">Slide Maker</div>
+          <div class="card-desc">プレゼン資料のAI自動生成</div>
+          <div class="card-tag card-tag-web">Web App</div>
+        </a>
+        <a class="card card-dev" href="apps/prompt-maker/">
+          <div class="card-dev-badge">開発中</div>
+          <div class="card-icon-wrap">🪄</div>
+          <div class="card-name">Prompt Maker</div>
+          <div class="card-desc">AIプロンプトの構造化生成</div>
+          <div class="card-tag card-tag-web">Web App</div>
+        </a>
         <a class="card card-external" href="https://m365.cloud.microsoft/chat/?titleId=T_a1399b3a-1906-0ef5-805a-afed44c5d8be&source=embedded-builder" target="_blank" rel="noopener">
           <div class="card-update-badge">UPDATE</div>
           <div class="card-icon-wrap">🛡️</div>
@@ -609,6 +627,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '🏠', app: 'ポータル全体',          date: '2026-04-08(水)', desc: '開発中アプリ（Wireframe Maker/Slide Maker/Prompt Maker）に「開発中」バッジ追加・カード半透明+グレースケール+破線ボーダーで控えめ表示・並び順を最下段に移動・ホバーで復帰' },
       { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-08(水)', desc: 'Figma連携強化: Figma互換JSONエクスポート追加・インポート後のCVR/タブ更新修正・セクションのデフォルトfields生成・AIフォールバックのエラー処理改善・クローン編集後チャットへの最新テキスト反映' },
       { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-08(水)', desc: '大きい画像の歪みリサイズ修正：横幅1920px固定・縦は元画像のアスペクト比を保持して自動計算（16:9以外の画像でも歪まずにリサイズ）' },
       { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-08(水)', desc: '画像品質劣化バグ修正：OGP容量制限を100KB→300KBに緩和・圧縮品質下限を0.70→0.80に引き上げ・ソース画像がターゲットより小さい場合の警告UI追加' },
