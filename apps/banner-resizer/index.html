@@ -548,7 +548,7 @@
 <script>
   if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
   const SIZES = [
-    { id: 'ogp',    label: 'OGP',          w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 100 * 1024 },
+    { id: 'ogp',    label: 'OGP',          w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 300 * 1024 },
     { id: 'banner', label: 'バナー（MV）',   w: 1920, h: 1080, dlName: 'img-mv', safeZone: { top: 24, bottom: 24, left: 100, right: 100 }, maxBytes: 1 * 1024 * 1024 },
   ];
 
@@ -862,6 +862,7 @@
       const isCustom = customSizes.some(s => s.id === size.id);
       const aiEnabled = !!aiUpscaleFlags[size.id];
       const needsAI = aiEnabled && (sourceImage.width < size.w || sourceImage.height < size.h);
+      const isSrcSmall = sourceImage.width < size.w || sourceImage.height < size.h;
 
       const item = document.createElement('div');
       item.className = 'preview-item';
@@ -869,6 +870,10 @@
       // ヘッダー部分（カスタムは削除ボタンあり）
       const deleteBtn = isCustom
         ? `<button class="delete-size-btn" title="このサイズを削除" onclick="deleteCustomSize('${size.id}')">✕</button>`
+        : '';
+
+      const smallWarn = isSrcSmall
+        ? `<div style="font-size:0.78rem;color:#c0392b;background:#fff5f4;padding:6px 10px;margin-bottom:8px;font-weight:600;">⚠ 元画像（${sourceImage.width}×${sourceImage.height}）がターゲット（${size.w}×${size.h}）より小さいため、拡大により画質が低下します${!aiEnabled ? '。AIアップスケールの有効化を推奨します' : ''}</div>`
         : '';
 
       item.innerHTML = `
@@ -879,6 +884,7 @@
           </div>
           ${deleteBtn}
         </div>
+        ${smallWarn}
         <label class="ai-upscale-check">
           <input type="checkbox" id="ai-check-${size.id}" ${aiEnabled ? 'checked' : ''}
             onchange="toggleAiUpscale('${size.id}', this.checked)">
@@ -1085,11 +1091,11 @@
       const toBlob = (q) => new Promise(r => canvas.toBlob(b => r(b), mimeType, q));
 
       let blob = await toBlob(0.92);
-      // Auto-compress: reduce quality stepwise (min 0.70 to preserve visual quality)
+      // Auto-compress: reduce quality stepwise (min 0.80 to preserve visual quality)
       if (maxBytes && blob && blob.size > maxBytes) {
         if (mimeType !== 'image/png') {
           // Lossy format — reduce quality
-          const steps = [0.85, 0.78, 0.70];
+          const steps = [0.85, 0.80];
           for (const q of steps) {
             blob = await toBlob(q);
             if (blob.size <= maxBytes) break;
@@ -1097,7 +1103,7 @@
         } else {
           // PNG exceeds limit — auto-fallback to JPEG with quality steps
           const toBlobJpeg = (q) => new Promise(r => canvas.toBlob(b => r(b), 'image/jpeg', q));
-          const jpegSteps = [0.92, 0.85, 0.78, 0.70];
+          const jpegSteps = [0.92, 0.85, 0.80];
           for (const q of jpegSteps) {
             blob = await toBlobJpeg(q);
             if (blob.size <= maxBytes) break;
