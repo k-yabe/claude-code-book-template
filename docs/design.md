@@ -309,3 +309,4 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-04-05 | Wireframe Maker E2Eバグ修正(S053) | editSVGTextのblur/remove競合によるDOMクラッシュ修正、AI修正(refine)のmax_tokens不足(2000→4000)修正 |
 | 2026-04-07 | Wireframe Maker UX改善3件(S054) | SP/Tabプレビュー表示修正(CSS transform方式)、背景色変更時テキスト色自動調整(コントラスト保証)、「✎ 編集」ボタンをshowInlineEditに変更 |
 | 2026-04-07 | Wireframe Maker プロトタイプ表示修正(S055) | プロトタイプ再生モードのSVG表示位置修正(height属性→style.height計算で上部空白解消) |
+| 2026-04-08 | Banner Resizer 画像品質劣化バグ修正 | OGP容量制限を100KB→300KBに緩和。圧縮品質下限を0.70→0.80に引き上げ（Lossy・PNG→JPEG変換とも）。ソース画像がターゲットより小さい場合の警告UI追加（AIアップスケール推奨表示） |
