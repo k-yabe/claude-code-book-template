@@ -570,9 +570,9 @@
         addItem('ok', 'og:image が設定されています（サイズ取得不可）');
       }
 
-      // Twitter Card（twitter:card 未設定はエラーに格上げ）
-      const twWarnSuffix = '（Sitecoreのデフォルト仕様では出力されないため、未検出でも問題ありません）';
-      if (!ogp.twitterCard)  addItem('error', 'twitter:card が未設定です（SNSシェア時にカード形式で表示されません）');
+      // Twitter Card（Sitecoreではデフォルト未出力のため情報レベル）
+      const twWarnSuffix = '（Sitecoreでは未出力がデフォルトのため問題ありません）';
+      if (!ogp.twitterCard)  addItem('info', `twitter:card が未設定です${twWarnSuffix}`);
       else                   addItem('ok',   `twitter:card OK（${ogp.twitterCard}）`);
 
       if (!ogp.twitterTitle) addItem('warn', `twitter:title が未検出です${twWarnSuffix}`);
