@@ -371,10 +371,11 @@ const CHAT_SYSTEM_PROMPT = `あなたはWebページの企画・設計をサポ�
 
 ## ファイル/URL読み込み時の対応
 
-ユーザーがファイルやURLの内容を共有した場合:
-- 内容を分析し、ページの目的・ターゲット・主要コンテンツを推測して仮説を提示
-- 不足している情報（CTA種別、流入経路、信頼材料等）を追加でヒアリング
-- 「この内容をベースに構成案を作りましょうか？」と提案
+ユーザーがファイルやURLの内容を共有した場合（[読み込んだ資料の内容]として会話履歴の先頭に含まれている）:
+- 【重要】あなたはすでにそのサイト/資料の内容を把握している。「何が載っていますか？」「教えてください」等と聞き返してはいけない
+- 内容を分析済みの前提で、すぐに具体的な改善提案を出す
+- ユーザーが「LPO」「改善」「CVR」等と言ったら、読み込んだ内容に基づいて即座にファーストビュー・CTA・構成の改善案を提示する
+- 提案は抽象的にならず、「〇〇のキャッチコピーを△△に変えましょう」のように具体的に
 
 ## 応答スタイル
 
@@ -412,6 +413,12 @@ flowSource: リスティング | SNS広告 | 自然検索 | メール | 不明
 - マーカーはユーザーには見えない（システムが処理する）`;
 
 export default async function handler(req, res) {
+  // CORS: ローカル開発からのアクセスを許可
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(204).end();
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -452,7 +459,7 @@ export default async function handler(req, res) {
       if (importedContent) {
         msgs = [
           { role: 'user', content: `[読み込んだ資料の内容]\n${importedContent.slice(0, 10000)}` },
-          { role: 'assistant', content: '資料の内容を確認しました。この情報をもとにワイヤーフレームの構成を考えましょう。内容を分析して、最適なページ構成を提案します。' },
+          { role: 'assistant', content: 'サイトの内容を把握しました。ページ構成・テキスト・画像配置を分析済みです。改善したい箇所があればすぐに具体的な提案ができます。' },
           ...msgs,
         ];
       }
@@ -550,7 +557,24 @@ export default async function handler(req, res) {
       systemPrompt = SYSTEM_PROMPT;
       messages = [{
         role: 'user',
-        content: `以下の要件をもとに、Webページのワイヤーフレームのセクション構成を作成してください。\nページの目的・ターゲット・必要なコンテンツを読み取り、最適な構成を判断してください。\n\n---\n${freeText}\n---\n\nnavigation と footer を必ず含めてください。`,
+        content: `以下はユーザーがインポートした資料（PDF/Word/PPTX）のテキスト内容です。
+この資料の内容を最大限に活用してWebページのワイヤーフレーム構成を作成してください。
+
+## 重要：資料の内容を必ず反映すること
+- 資料に含まれるキャッチコピー・見出し・説明文は、そのままlabelやdescriptionに使ってください
+- 資料に数値（実績・統計・価格）があれば、stats/pricingセクションに反映してください
+- 資料に顧客の声・事例があれば、testimonialsセクションに反映してください
+- 資料にサービス特長・メリットがあれば、featuresセクションに反映してください
+- 資料に画像の説明（製品写真・スクリーンショット等）があれば、hero-image/placeholder-imageを配置してください
+- 「テキストを入力」「ここに説明」のような汎用プレースホルダーは禁止。必ず資料の実テキストを使うこと
+
+## 資料のテキスト内容
+---
+${freeText}
+---
+
+資料の内容を読み取り、ページの目的・ターゲット・トーンを判断した上で、最適なセクション構成を作成してください。
+navigation と footer を必ず含めてください。`,
       }];
     } else if (mode === 'generate') {
       model = 'claude-sonnet-4-6';
@@ -593,6 +617,58 @@ ${context ? `## コンテキスト\n- ページ目的: ${context.purpose || '不
 
 B案の構成をJSON形式で返してください。`,
       }];
+    } else if (mode === 'url-import') {
+      // URLインポート専用: サイト構造を忠実に再現
+      model = 'claude-sonnet-4-6';
+      systemPrompt = `あなたはWebサイトの構造を忠実にワイヤーフレームとして再現する専門家です。
+入力されたサイトの構造情報をもとに、そのサイトのページ構成をできるだけ正確にワイヤーフレームのセクションJSONとして再現してください。
+
+## 最重要ルール
+- これは「新規LP設計」ではなく「既存サイトの構造コピー」です
+- あなたの知識に基づく「理想のLP構成」を作るのではなく、入力された構造情報に忠実に再現してください
+- サイトに存在しないセクションを勝手に追加しないでください
+- セクションの順序は元サイトの上から下の順序をそのまま維持してください
+- 「キャッチコピーが入ります」等のプレースホルダーは使わない — サイトから抽出した実際のテキストを使ってください
+
+## 出力形式（必ずこのJSON形式のみを返す）
+
+{"sections":[...]}
+
+## セクション構造
+\`\`\`
+{
+  "id": "sec-1",
+  "type": "...",
+  "label": "実際のサイトの見出しテキスト（20文字以内）",
+  "description": "実際のサイトの内容（50文字以内）",
+  "height": "viewport" | "auto",
+  "components": [...],
+  "rationale": "元サイトのどの部分に対応するか"
+}
+\`\`\`
+
+## 使用可能なtype
+navigation, hero, features, content-text, two-column, testimonials, pricing, cta-banner, form, faq, gallery, stats, timeline, cards, footer, video, logo-bar, comparison, sticky-cta
+
+## 使用可能なcomponents
+heading, subtext, cta-button, cta-with-note, hero-image, placeholder-image, icon-card, form-field, submit-button, nav-logo, nav-menu, nav-cta, quote-text, avatar, company-logo, logo-bar, price-card, accordion-item, stat-number, step-item, card-item, link-list, copyright, social-icons, search-bar, breadcrumb, video-placeholder, divider, badge, before-after, review-stars, security-badge, progress-bar, comparison-row, sticky-bar, media-logo, award-badge, countdown-timer, chat-widget
+
+## 構造判定のヒント
+- navItemsがある → navigation セクション
+- h1 + 大きなテキスト + ボタン → hero セクション
+- 複数の同構造要素の繰り返し → features or cards
+- フォーム要素がある → form セクション
+- 画像が多いエリア → gallery セクション
+- 数値データの列挙 → stats セクション
+- 引用やレビュー → testimonials セクション
+- FAQ/Q&A → faq セクション
+- footerLinksがある → footer セクション
+
+必ずJSON形式のみを返してください。`;
+      messages = [{
+        role: 'user',
+        content: freeText,
+      }];
     } else if (mode === 'refine') {
       model = 'claude-haiku-4-5-20251001';
       systemPrompt = REFINE_SYSTEM_PROMPT;
@@ -613,7 +689,7 @@ B案の構成をJSON形式で返してください。`,
       },
       body: JSON.stringify({
         model,
-        max_tokens: mode === 'refine' ? 2000 : 4000,
+        max_tokens: mode === 'refine' ? 4000 : 4000,
         temperature: mode === 'variant' ? 0.7 : mode === 'refine' ? 0.2 : 0.3,
         system: systemPrompt,
         messages,
