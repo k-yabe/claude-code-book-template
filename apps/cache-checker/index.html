@@ -10,8 +10,8 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <style>
-    /* ── Container override: wider for comparison views ── */
-    .container { max-width: 1400px; }
+    /* ── Container: widen when result is visible ── */
+    .container.has-result { max-width: 1400px; }
 
     /* ── 仕組み ── */
     .how-it-works { background: var(--surface); border: 1.5px solid var(--border); padding: 18px 20px; margin-bottom: var(--sp-4); }
@@ -165,8 +165,8 @@
 
   <div class="container">
     <div class="page-header">
-      <h1>CMS更新の反映チェッカー</h1>
-      <p>CMSでページを更新したのに、サイトを見ても変わっていない？<br>それは「キャッシュ」が原因かもしれません。このツールで確認できます。</p>
+      <h1>Cache Checker</h1>
+      <p class="page-desc">CMSでページを更新したのに、サイトを見ても変わっていない？それは「キャッシュ」が原因かもしれません。このツールで確認できます。</p>
     </div>
 
     <div class="how-it-works">
@@ -437,6 +437,7 @@
         }
 
         verdict.style.display = '';
+        document.querySelector('.container').classList.add('has-result');
         document.getElementById('compare-grid').classList.add('show');
 
         // グリッド表示後にiframe描画（display:none中はclientWidthが0のため）
