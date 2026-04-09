@@ -618,15 +618,25 @@
         else if (typeof UPNG !== 'undefined') {
           // PNG8 — indexed color via UPNG.js (like TinyPNG)
           // More colors = higher quality, fewer = smaller file
-          const colorSteps = [256, 192, 128, 96, 64, 48, 32];
+          const colorSteps = [256, 192, 128, 96, 64, 48, 32, 24, 16];
+          let bestPng8 = null;
+          let bestPng8Colors = 0;
           for (const nc of colorSteps) {
             const pBlob = encodePng8(canvas, nc);
-            if (pBlob && pBlob.size <= maxBytes) {
-              blob = pBlob;
-              blob._pngOptimized = true;
-              blob._pngColors = nc;
-              break;
+            if (pBlob) {
+              // Track the best (smallest) PNG8 result
+              if (!bestPng8 || pBlob.size < bestPng8.size) {
+                bestPng8 = pBlob;
+                bestPng8Colors = nc;
+              }
+              if (pBlob.size <= maxBytes) break;
             }
+          }
+          // Always use PNG8 if it's smaller than the original
+          if (bestPng8 && bestPng8.size < blob.size) {
+            blob = bestPng8;
+            blob._pngOptimized = true;
+            blob._pngColors = bestPng8Colors;
           }
         }
       }
