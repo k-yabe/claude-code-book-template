@@ -176,6 +176,8 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/upng-js@2.1.0/UPNG.min.js"></script>
 <script>
   if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
 
@@ -545,40 +547,21 @@
     } else if (blob._compressed) {
       status = `<span style="color:#2196f3;">自動圧縮済み（Q:${Math.round(blob._appliedQuality * 100)}%）✓</span>`;
     } else if (blob._pngOptimized) {
-      const detail = blob._pngBits < 8 ? `blur${blob._pngBlur}px・${blob._pngBits}bit/ch` : `blur${blob._pngBlur}px`;
-      status = `<span style="color:#2196f3;">自動最適化済み（${detail}）✓</span>`;
+      status = `<span style="color:#2196f3;">自動最適化済み（PNG8 ${blob._pngColors}色）✓</span>`;
     } else {
       status = '<span style="color:#43a047;">✓</span>';
     }
     el.innerHTML = `📦 ${label} / 上限 ${maxLabel}　${status}`;
   }
 
-  // ── PNG optimization (blur + posterize) ────────────────
-  function optimizePngCanvas(srcCanvas, blurPx, bits) {
-    const w = srcCanvas.width, h = srcCanvas.height;
-    const dst = document.createElement('canvas');
-    dst.width = w; dst.height = h;
-    const dstCtx = dst.getContext('2d');
-    // Step 1: Apply blur to reduce noise & smooth gradients (improves PNG compression)
-    if (blurPx > 0) {
-      dstCtx.filter = `blur(${blurPx}px)`;
-    }
-    dstCtx.drawImage(srcCanvas, 0, 0, w, h);
-    dstCtx.filter = 'none';
-    // Step 2: Posterize (reduce color levels per channel)
-    if (bits < 8) {
-      const imgData = dstCtx.getImageData(0, 0, w, h);
-      const d = imgData.data;
-      const shift = 8 - bits;
-      const mask = (0xFF >> shift) << shift;
-      for (let i = 0; i < d.length; i += 4) {
-        d[i]     = d[i]     & mask; // R
-        d[i + 1] = d[i + 1] & mask; // G
-        d[i + 2] = d[i + 2] & mask; // B
-      }
-      dstCtx.putImageData(imgData, 0, 0);
-    }
-    return dst;
+  // ── PNG8 optimization (UPNG.js indexed color) ──────────
+  function encodePng8(canvas, numColors) {
+    const w = canvas.width, h = canvas.height;
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.getImageData(0, 0, w, h);
+    // UPNG.encode: RGBA buffer, width, height, palette size (0=lossless, >0=indexed)
+    const pngArrayBuffer = UPNG.encode([imgData.data.buffer], w, h, numColors);
+    return new Blob([pngArrayBuffer], { type: 'image/png' });
   }
 
   // ── Blob generation ───────────────────────────────────
@@ -622,27 +605,16 @@
             if (blob.size <= maxBytes) break;
           }
         }
-        else {
-          // PNG — blur + posterize (graduated steps, mildest first)
-          // blur softens noise → better PNG compression; posterize reduces unique colors
-          const steps = [
-            { blur: 0.5, bits: 8 },  // blur only (very subtle)
-            { blur: 1,   bits: 8 },  // blur only
-            { blur: 1,   bits: 7 },  // blur + light posterize
-            { blur: 1.5, bits: 7 },
-            { blur: 1.5, bits: 6 },
-            { blur: 2,   bits: 6 },
-            { blur: 2,   bits: 5 },
-            { blur: 2.5, bits: 5 },
-          ];
-          for (const s of steps) {
-            const pc = optimizePngCanvas(canvas, s.blur, s.bits);
-            const pBlob = await new Promise(r => pc.toBlob(b => r(b), 'image/png'));
+        else if (typeof UPNG !== 'undefined') {
+          // PNG8 — indexed color via UPNG.js (like TinyPNG)
+          // More colors = higher quality, fewer = smaller file
+          const colorSteps = [256, 192, 128, 96, 64];
+          for (const nc of colorSteps) {
+            const pBlob = encodePng8(canvas, nc);
             if (pBlob && pBlob.size <= maxBytes) {
               blob = pBlob;
               blob._pngOptimized = true;
-              blob._pngBlur = s.blur;
-              blob._pngBits = s.bits;
+              blob._pngColors = nc;
               break;
             }
           }
