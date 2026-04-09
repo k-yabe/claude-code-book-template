@@ -216,7 +216,7 @@
   let format = 'webp';
   const sourceImages = {};  // groupId → Image
   const aiUpscaleFlags = {};
-  const cropOffsets = {};   // sizeId → 0.0~1.0 (0=top/left, 0.5=center, 1=bottom/right)
+  const cropOffsets = {};   // sizeId → {x: 0~1, y: 0~1} (0=left/top, 0.5=center, 1=right/bottom)
 
   // ── AI Upscale ────────────────────────────────────────
   let _libsLoading = null;
@@ -395,7 +395,7 @@
       size._actualH = targetH;
 
       // Initialize crop offset (default: center)
-      if (cropOffsets[size.id] === undefined) cropOffsets[size.id] = 0.5;
+      if (!cropOffsets[size.id]) cropOffsets[size.id] = { x: 0.5, y: 0.5 };
       const offset = cropOffsets[size.id];
 
       const wrap = document.getElementById('wrap-' + size.id);
@@ -416,22 +416,14 @@
         wrap.appendChild(canvas);
       }
 
-      // Enable drag-to-adjust crop position if aspect ratios differ
+      // Enable drag-to-adjust crop position
       if (size.crop) {
-        const srcRatio = img.width / img.height;
-        const dstRatio = targetW / targetH;
-        if (Math.abs(srcRatio - dstRatio) > 0.01) {
-          wrap.classList.add('draggable');
-          const dragAxis = (srcRatio > dstRatio) ? 'x' : 'y';
-          // Add hint label
-          const hint = document.createElement('div');
-          hint.className = 'crop-hint';
-          hint.textContent = dragAxis === 'x' ? '← ドラッグで左右調整 →' : '↑ ドラッグで上下調整 ↓';
-          wrap.appendChild(hint);
-          setupCropDrag(wrap, size.id, group, dragAxis);
-        } else {
-          wrap.classList.remove('draggable');
-        }
+        wrap.classList.add('draggable');
+        const hint = document.createElement('div');
+        hint.className = 'crop-hint';
+        hint.textContent = '✥ ドラッグで位置調整';
+        wrap.appendChild(hint);
+        setupCropDrag(wrap, size.id, group);
       }
 
       if (size.thumbTrim) {
@@ -453,15 +445,16 @@
   function createResized(img, targetW, targetH, crop, cropOffset) {
     let sx = 0, sy = 0, sw = img.width, sh = img.height;
     if (crop) {
-      const offset = (cropOffset !== undefined) ? cropOffset : 0.5;
+      const ox = cropOffset ? cropOffset.x : 0.5;
+      const oy = cropOffset ? cropOffset.y : 0.5;
       const srcRatio = img.width / img.height;
       const dstRatio = targetW / targetH;
       if (srcRatio > dstRatio) {
         sw = img.height * dstRatio;
-        sx = (img.width - sw) * offset;
+        sx = (img.width - sw) * ox;
       } else {
         sh = img.width / dstRatio;
-        sy = (img.height - sh) * offset;
+        sy = (img.height - sh) * oy;
       }
     }
     let srcCanvas = document.createElement('canvas');
@@ -544,36 +537,37 @@
   }
 
   // ── Crop position drag ────────────────────────────────
-  function setupCropDrag(wrap, sizeId, group, axis) {
-    let startPos = 0;
-    let startOffset = 0;
+  function setupCropDrag(wrap, sizeId, group) {
+    let startX = 0, startY = 0;
+    let startOx = 0, startOy = 0;
     let dragging = false;
 
     function onStart(e) {
       e.preventDefault();
       dragging = true;
       const pt = e.touches ? e.touches[0] : e;
-      startPos = axis === 'x' ? pt.clientX : pt.clientY;
-      startOffset = cropOffsets[sizeId];
+      startX = pt.clientX;
+      startY = pt.clientY;
+      startOx = cropOffsets[sizeId].x;
+      startOy = cropOffsets[sizeId].y;
       wrap.style.cursor = 'grabbing';
     }
     function onMove(e) {
       if (!dragging) return;
       e.preventDefault();
       const pt = e.touches ? e.touches[0] : e;
-      const curPos = axis === 'x' ? pt.clientX : pt.clientY;
-      const wrapSize = axis === 'x' ? wrap.offsetWidth : wrap.offsetHeight;
-      // Sensitivity: dragging across the full preview width/height = full range
-      const delta = -(curPos - startPos) / wrapSize;
-      cropOffsets[sizeId] = Math.max(0, Math.min(1, startOffset + delta));
-      // Re-render this size only (lightweight)
+      const dx = -(pt.clientX - startX) / wrap.offsetWidth;
+      const dy = -(pt.clientY - startY) / wrap.offsetHeight;
+      cropOffsets[sizeId] = {
+        x: Math.max(0, Math.min(1, startOx + dx)),
+        y: Math.max(0, Math.min(1, startOy + dy))
+      };
       rerenderSingleSize(sizeId, group);
     }
     function onEnd() {
       if (!dragging) return;
       dragging = false;
       wrap.style.cursor = '';
-      // Update file size display after final position
       updateFileSizeDisplay(sizeId, group.id);
     }
 
@@ -718,26 +712,34 @@
         }
         else if (typeof UPNG !== 'undefined') {
           // PNG8 — indexed color via UPNG.js (like TinyPNG)
-          // More colors = higher quality, fewer = smaller file
-          const colorSteps = [256, 192, 128, 96, 64, 48, 32, 24, 16];
-          let bestPng8 = null;
-          let bestPng8Colors = 0;
+          // Strategy: find highest color count that fits under maxBytes
+          // If none fit, use the highest color count (best quality) as fallback
+          const colorSteps = [256, 192, 128, 96, 64, 48, 32];
+          let fitsBlob = null, fitsColors = 0;   // Best that fits under limit
+          let fallbackBlob = null, fallbackColors = 0; // Best quality fallback
           for (const nc of colorSteps) {
             const pBlob = encodePng8(canvas, nc);
-            if (pBlob) {
-              // Track the best (smallest) PNG8 result
-              if (!bestPng8 || pBlob.size < bestPng8.size) {
-                bestPng8 = pBlob;
-                bestPng8Colors = nc;
-              }
-              if (pBlob.size <= maxBytes) break;
+            if (!pBlob) continue;
+            // Always keep the highest color count (first valid) as fallback
+            if (!fallbackBlob) {
+              fallbackBlob = pBlob;
+              fallbackColors = nc;
+            }
+            if (pBlob.size <= maxBytes) {
+              fitsBlob = pBlob;
+              fitsColors = nc;
+              break; // First match = highest quality that fits
             }
           }
-          // Always use PNG8 if it's smaller than the original
-          if (bestPng8 && bestPng8.size < blob.size) {
-            blob = bestPng8;
+          if (fitsBlob) {
+            blob = fitsBlob;
             blob._pngOptimized = true;
-            blob._pngColors = bestPng8Colors;
+            blob._pngColors = fitsColors;
+          } else if (fallbackBlob && fallbackBlob.size < blob.size) {
+            // None fit, but PNG8 256-color is still much smaller than raw PNG
+            blob = fallbackBlob;
+            blob._pngOptimized = true;
+            blob._pngColors = fallbackColors;
           }
         }
       }
