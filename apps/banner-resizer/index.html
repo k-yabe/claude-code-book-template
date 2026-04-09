@@ -93,6 +93,16 @@
     }
     .dl-all-btn:hover { opacity: 0.85; }
 
+    /* Crop position drag */
+    .preview-canvas-wrap.draggable { cursor: grab; position: relative; }
+    .preview-canvas-wrap.draggable:active { cursor: grabbing; }
+    .crop-hint {
+      position: absolute; bottom: 4px; right: 6px;
+      font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.85);
+      background: rgba(0,0,0,0.5); padding: 2px 6px; pointer-events: none;
+      z-index: 1;
+    }
+
     @media (max-width: 600px) {
       .output-cards { grid-template-columns: 1fr; }
     }
@@ -206,6 +216,7 @@
   let format = 'webp';
   const sourceImages = {};  // groupId → Image
   const aiUpscaleFlags = {};
+  const cropOffsets = {};   // sizeId → 0.0~1.0 (0=top/left, 0.5=center, 1=bottom/right)
 
   // ── AI Upscale ────────────────────────────────────────
   let _libsLoading = null;
@@ -239,9 +250,9 @@
     });
   }
 
-  async function createWithAI(img, w, h, crop) {
+  async function createWithAI(img, w, h, crop, cropOffset) {
     if (img.width >= w && img.height >= h) {
-      return createResized(img, w, h, crop);
+      return createResized(img, w, h, crop, cropOffset);
     }
     try {
       await loadAILibs();
@@ -251,7 +262,7 @@
       }
       const upscaledSrc = await _upscaler.upscale(img);
       const upscaledImg = await loadImageFromSrc(upscaledSrc);
-      return createResized(upscaledImg, w, h, crop);
+      return createResized(upscaledImg, w, h, crop, cropOffset);
     } catch (e) {
       console.warn('AI upscale failed, using standard resize:', e);
       return createResized(img, w, h, crop);
@@ -383,6 +394,10 @@
       size._actualW = targetW;
       size._actualH = targetH;
 
+      // Initialize crop offset (default: center)
+      if (cropOffsets[size.id] === undefined) cropOffsets[size.id] = 0.5;
+      const offset = cropOffsets[size.id];
+
       const wrap = document.getElementById('wrap-' + size.id);
       wrap.style.display = 'flex';
       wrap.innerHTML = '';
@@ -391,14 +406,32 @@
 
       if (needsAI) {
         wrap.innerHTML = '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AI処理中...</div>';
-        const canvas = await createWithAI(img, targetW, targetH, size.crop);
+        const canvas = await createWithAI(img, targetW, targetH, size.crop, offset);
         canvas.id = 'canvas-' + size.id;
         wrap.innerHTML = '';
         wrap.appendChild(canvas);
       } else {
-        const canvas = createResized(img, targetW, targetH, size.crop);
+        const canvas = createResized(img, targetW, targetH, size.crop, offset);
         canvas.id = 'canvas-' + size.id;
         wrap.appendChild(canvas);
+      }
+
+      // Enable drag-to-adjust crop position if aspect ratios differ
+      if (size.crop) {
+        const srcRatio = img.width / img.height;
+        const dstRatio = targetW / targetH;
+        if (Math.abs(srcRatio - dstRatio) > 0.01) {
+          wrap.classList.add('draggable');
+          const dragAxis = (srcRatio > dstRatio) ? 'x' : 'y';
+          // Add hint label
+          const hint = document.createElement('div');
+          hint.className = 'crop-hint';
+          hint.textContent = dragAxis === 'x' ? '← ドラッグで左右調整 →' : '↑ ドラッグで上下調整 ↓';
+          wrap.appendChild(hint);
+          setupCropDrag(wrap, size.id, group, dragAxis);
+        } else {
+          wrap.classList.remove('draggable');
+        }
       }
 
       if (size.thumbTrim) {
@@ -417,17 +450,18 @@
   }
 
   // ── Resize ────────────────────────────────────────────
-  function createResized(img, targetW, targetH, crop) {
+  function createResized(img, targetW, targetH, crop, cropOffset) {
     let sx = 0, sy = 0, sw = img.width, sh = img.height;
     if (crop) {
+      const offset = (cropOffset !== undefined) ? cropOffset : 0.5;
       const srcRatio = img.width / img.height;
       const dstRatio = targetW / targetH;
       if (srcRatio > dstRatio) {
         sw = img.height * dstRatio;
-        sx = (img.width - sw) / 2;
+        sx = (img.width - sw) * offset;
       } else {
         sh = img.width / dstRatio;
-        sy = (img.height - sh) / 2;
+        sy = (img.height - sh) * offset;
       }
     }
     let srcCanvas = document.createElement('canvas');
@@ -509,6 +543,73 @@
     ctx.fillText('サムネイル時にカットされる領域', w / 2, sz.top / 2 || 12);
   }
 
+  // ── Crop position drag ────────────────────────────────
+  function setupCropDrag(wrap, sizeId, group, axis) {
+    let startPos = 0;
+    let startOffset = 0;
+    let dragging = false;
+
+    function onStart(e) {
+      e.preventDefault();
+      dragging = true;
+      const pt = e.touches ? e.touches[0] : e;
+      startPos = axis === 'x' ? pt.clientX : pt.clientY;
+      startOffset = cropOffsets[sizeId];
+      wrap.style.cursor = 'grabbing';
+    }
+    function onMove(e) {
+      if (!dragging) return;
+      e.preventDefault();
+      const pt = e.touches ? e.touches[0] : e;
+      const curPos = axis === 'x' ? pt.clientX : pt.clientY;
+      const wrapSize = axis === 'x' ? wrap.offsetWidth : wrap.offsetHeight;
+      // Sensitivity: dragging across the full preview width/height = full range
+      const delta = -(curPos - startPos) / wrapSize;
+      cropOffsets[sizeId] = Math.max(0, Math.min(1, startOffset + delta));
+      // Re-render this size only (lightweight)
+      rerenderSingleSize(sizeId, group);
+    }
+    function onEnd() {
+      if (!dragging) return;
+      dragging = false;
+      wrap.style.cursor = '';
+      // Update file size display after final position
+      updateFileSizeDisplay(sizeId, group.id);
+    }
+
+    wrap.addEventListener('mousedown', onStart);
+    wrap.addEventListener('touchstart', onStart, { passive: false });
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchend', onEnd);
+  }
+
+  function rerenderSingleSize(sizeId, group) {
+    const size = ALL_SIZES.find(s => s.id === sizeId);
+    const img = sourceImages[group.id];
+    if (!size || !img) return;
+    const targetW = size._actualW || size.w;
+    const targetH = size._actualH || size.h;
+    const offset = cropOffsets[sizeId];
+    const wrap = document.getElementById('wrap-' + sizeId);
+    if (!wrap) return;
+    const canvas = createResized(img, targetW, targetH, size.crop, offset);
+    canvas.id = 'canvas-' + sizeId;
+    // Keep hint element, replace only canvas
+    const oldCanvas = wrap.querySelector('canvas');
+    if (oldCanvas) {
+      wrap.replaceChild(canvas, oldCanvas);
+    }
+    if (size.thumbTrim) {
+      const trimCheck = document.getElementById('trim-check-' + sizeId);
+      if (trimCheck && trimCheck.checked) {
+        drawThumbTrimOverlay(canvas, size.thumbTrim);
+        canvas.dataset.thumbTrimOverlay = '1';
+      }
+    }
+  }
+
   function toggleThumbTrim(groupId, sizeId, show) {
     const img = sourceImages[groupId];
     if (!img) return;
@@ -518,7 +619,7 @@
     if (!wrap) return;
     const dlW = size._actualW || size.w;
     const dlH = size._actualH || size.h;
-    const canvas = createResized(img, dlW, dlH, size.crop);
+    const canvas = createResized(img, dlW, dlH, size.crop, cropOffsets[sizeId]);
     canvas.id = 'canvas-' + sizeId;
     if (show) {
       drawThumbTrimOverlay(canvas, size.thumbTrim);
@@ -594,7 +695,7 @@
       if (domCanvas && domCanvas.dataset.thumbTrimOverlay && sourceImages[groupId]) {
         const dlW = size._actualW || size.w;
         const dlH = size._actualH || size.h;
-        canvas = createResized(sourceImages[groupId], dlW, dlH, size.crop);
+        canvas = createResized(sourceImages[groupId], dlW, dlH, size.crop, cropOffsets[sizeId]);
       } else {
         canvas = domCanvas;
       }
