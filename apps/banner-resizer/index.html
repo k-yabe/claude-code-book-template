@@ -177,7 +177,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/upng-js@2.1.0/UPNG.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/upng-js@2.1.0/UPNG.js"></script>
 <script>
   if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
 
@@ -186,14 +186,14 @@
     {
       id: 'mv',
       sizes: [
-        { id: 'banner', label: 'バナー（MV）', w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024, color: '#ffb81c', fitWidth: true },
+        { id: 'banner', label: 'バナー（MV）', w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024, color: '#ffb81c', crop: true },
         { id: 'ogp',    label: 'OGP',         w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 100 * 1024, crop: true, color: '#1C304B' },
       ],
     },
     {
       id: 'thumb',
       sizes: [
-        { id: 'index', label: '一覧サムネイル（index）', w: 1920, h: 1080, dlName: 'img-index', maxBytes: 1 * 1024 * 1024, color: '#636e72', fitWidth: true, thumbTrim: { top: 24, bottom: 24, left: 100, right: 100 } },
+        { id: 'index', label: '一覧サムネイル（index）', w: 1920, h: 1080, dlName: 'img-index', maxBytes: 1 * 1024 * 1024, color: '#636e72', crop: true, thumbTrim: { top: 24, bottom: 24, left: 100, right: 100 } },
       ],
     },
   ];
@@ -556,12 +556,18 @@
 
   // ── PNG8 optimization (UPNG.js indexed color) ──────────
   function encodePng8(canvas, numColors) {
-    const w = canvas.width, h = canvas.height;
-    const ctx = canvas.getContext('2d');
-    const imgData = ctx.getImageData(0, 0, w, h);
-    // UPNG.encode: RGBA buffer, width, height, palette size (0=lossless, >0=indexed)
-    const pngArrayBuffer = UPNG.encode([imgData.data.buffer], w, h, numColors);
-    return new Blob([pngArrayBuffer], { type: 'image/png' });
+    try {
+      const w = canvas.width, h = canvas.height;
+      const ctx = canvas.getContext('2d');
+      const imgData = ctx.getImageData(0, 0, w, h);
+      // UPNG.encode needs a copy of the buffer (not a view)
+      const rgba = new Uint8Array(imgData.data);
+      const pngArrayBuffer = UPNG.encode([rgba.buffer], w, h, numColors);
+      return new Blob([pngArrayBuffer], { type: 'image/png' });
+    } catch (e) {
+      console.error('UPNG.js encode failed:', e);
+      return null;
+    }
   }
 
   // ── Blob generation ───────────────────────────────────
