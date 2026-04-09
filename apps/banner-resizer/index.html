@@ -714,7 +714,7 @@
           // PNG8 — indexed color via UPNG.js (like TinyPNG)
           // Strategy: find highest color count that fits under maxBytes
           // If none fit, use the highest color count (best quality) as fallback
-          const colorSteps = [256, 192, 128, 96, 64, 48, 32];
+          const colorSteps = [256, 192, 128, 96, 64, 48, 32, 24, 16];
           let fitsBlob = null, fitsColors = 0;   // Best that fits under limit
           let fallbackBlob = null, fallbackColors = 0; // Best quality fallback
           for (const nc of colorSteps) {
