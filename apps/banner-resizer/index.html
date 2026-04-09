@@ -646,7 +646,7 @@
     } else if (blob._compressed) {
       status = `<span style="color:#2196f3;">自動圧縮済み（Q:${Math.round(blob._appliedQuality * 100)}%）✓</span>`;
     } else if (blob._pngOptimized) {
-      status = `<span style="color:#2196f3;">自動最適化済み（PNG8 ${blob._pngColors}色）✓</span>`;
+      status = `<span style="color:#2196f3;">自動最適化済み（PNG8 ${blob._pngColors}色${blob._pngDenoise ? ' +平滑化' : ''}）✓</span>`;
     } else {
       status = '<span style="color:#43a047;">✓</span>';
     }
@@ -654,10 +654,45 @@
   }
 
   // ── PNG8 optimization (UPNG.js indexed color) ──────────
-  function encodePng8(canvas, numColors) {
+  // Light denoise: 3×3 box blur to reduce noise before PNG8 quantization
+  // This lets the same color count look much smoother (fewer wasted palette entries on noise)
+  function denoiseCanvas(srcCanvas) {
+    const w = srcCanvas.width, h = srcCanvas.height;
+    const srcCtx = srcCanvas.getContext('2d');
+    const src = srcCtx.getImageData(0, 0, w, h);
+    const dst = srcCtx.createImageData(w, h);
+    const sd = src.data, dd = dst.data;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        let r = 0, g = 0, b = 0, a = 0, cnt = 0;
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const nx = x + dx, ny = y + dy;
+            if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+              const i = (ny * w + nx) * 4;
+              r += sd[i]; g += sd[i+1]; b += sd[i+2]; a += sd[i+3];
+              cnt++;
+            }
+          }
+        }
+        const i = (y * w + x) * 4;
+        dd[i] = (r / cnt + 0.5) | 0;
+        dd[i+1] = (g / cnt + 0.5) | 0;
+        dd[i+2] = (b / cnt + 0.5) | 0;
+        dd[i+3] = (a / cnt + 0.5) | 0;
+      }
+    }
+    const out = document.createElement('canvas');
+    out.width = w; out.height = h;
+    out.getContext('2d').putImageData(dst, 0, 0);
+    return out;
+  }
+
+  function encodePng8(canvas, numColors, denoise) {
     try {
-      const w = canvas.width, h = canvas.height;
-      const ctx = canvas.getContext('2d');
+      const src = denoise ? denoiseCanvas(canvas) : canvas;
+      const w = src.width, h = src.height;
+      const ctx = src.getContext('2d');
       const imgData = ctx.getImageData(0, 0, w, h);
       // UPNG.encode needs a copy of the buffer (not a view)
       const rgba = new Uint8Array(imgData.data);
@@ -712,31 +747,46 @@
         }
         else if (typeof UPNG !== 'undefined') {
           // PNG8 — indexed color via UPNG.js (like TinyPNG)
-          // Strategy: find highest color count that fits under maxBytes
-          // If none fit, use the highest color count (best quality) as fallback
+          // Strategy: try without denoise first, then with denoise
+          // Denoise reduces noise → same color count produces smaller files
+          // → higher color count fits under limit → better quality
           const colorSteps = [256, 192, 128, 96, 64, 48, 32, 24, 16];
-          let fitsBlob = null, fitsColors = 0;   // Best that fits under limit
-          let fallbackBlob = null, fallbackColors = 0; // Best quality fallback
+          let fitsBlob = null, fitsColors = 0, fitsDenoise = false;
+          let fallbackBlob = null, fallbackColors = 0;
+
+          // Pass 1: no denoise (sharpest)
           for (const nc of colorSteps) {
-            const pBlob = encodePng8(canvas, nc);
+            const pBlob = encodePng8(canvas, nc, false);
             if (!pBlob) continue;
-            // Always keep the highest color count (first valid) as fallback
-            if (!fallbackBlob) {
-              fallbackBlob = pBlob;
-              fallbackColors = nc;
-            }
+            if (!fallbackBlob) { fallbackBlob = pBlob; fallbackColors = nc; }
             if (pBlob.size <= maxBytes) {
-              fitsBlob = pBlob;
-              fitsColors = nc;
-              break; // First match = highest quality that fits
+              fitsBlob = pBlob; fitsColors = nc; fitsDenoise = false;
+              break;
             }
           }
+
+          // Pass 2: with denoise — only if pass 1 result uses ≤64 colors
+          // (low color = visible banding; denoise lets us use MORE colors)
+          if (!fitsBlob || fitsColors <= 64) {
+            const denoiseTarget = fitsColors || 999;
+            for (const nc of colorSteps) {
+              if (fitsBlob && nc <= fitsColors) continue; // only try higher colors
+              const pBlob = encodePng8(canvas, nc, true);
+              if (!pBlob) continue;
+              if (pBlob.size <= maxBytes) {
+                // Denoise version fits with MORE colors → better quality
+                fitsBlob = pBlob; fitsColors = nc; fitsDenoise = true;
+                break;
+              }
+            }
+          }
+
           if (fitsBlob) {
             blob = fitsBlob;
             blob._pngOptimized = true;
             blob._pngColors = fitsColors;
+            blob._pngDenoise = fitsDenoise;
           } else if (fallbackBlob && fallbackBlob.size < blob.size) {
-            // None fit, but PNG8 256-color is still much smaller than raw PNG
             blob = fallbackBlob;
             blob._pngOptimized = true;
             blob._pngColors = fallbackColors;
