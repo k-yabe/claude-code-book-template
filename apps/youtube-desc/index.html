@@ -5,14 +5,10 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube Generator</title>
+  <title>YouTube Description Generator</title>
   <link rel="stylesheet" href="../../assets/app-styles.css">
   <style>
     /* ── App-specific: Layout ── */
-    .wrap { max-width: 800px; margin: 0 auto; padding: 36px 20px 0; }
-
-    .page-title { font-size: var(--text-xl); font-weight: 700; color: var(--navy); letter-spacing: -0.01em; margin-bottom: var(--sp-1); }
-    .page-sub { font-size: var(--text-base); color: var(--text-muted); margin-bottom: var(--sp-7); }
 
     /* ── App-specific: Badges ── */
     .step-badge {
@@ -91,7 +87,7 @@
       color: var(--navy);
       margin-bottom: var(--sp-3);
       padding-bottom: 10px;
-      border-bottom: 2px solid var(--gold);
+      border-bottom: 2px solid var(--navy);
     }
 
     .out-section { margin-bottom: var(--sp-4); }
@@ -222,12 +218,14 @@
   <div class="navbar-brand">
     <a href="../../" class="back-btn">← アプリ一覧へ</a>
     <div class="navbar-divider"></div>
-    <span class="navbar-title">YouTube説明文ジェネレーター</span>
+    <span class="navbar-title">YouTube Description Generator</span>
   </div>
 </nav>
-<div class="wrap">
-  <p class="page-title">YouTube説明文ジェネレーター</p>
-  <p class="page-sub">台本・原稿を貼るだけで、説明文・ハッシュタグをAIが自動作成します</p>
+<div class="container" style="max-width:800px;">
+  <div class="page-header">
+    <h1>YouTube Description Generator</h1>
+    <p class="page-desc">台本・原稿を貼るだけで、説明文・ハッシュタグをAIが自動作成します</p>
+  </div>
 
   <!-- STEP 1 -->
   <div class="step">
