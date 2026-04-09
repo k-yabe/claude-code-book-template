@@ -83,7 +83,7 @@
 
     .issue-diff { display: flex; align-items: stretch; gap: 0; }
     .issue-before, .issue-after { flex: 1; padding: 14px var(--sp-4); }
-    .issue-before { background: #f5f6f8; border-right: 1px solid var(--border); border-left: 3px solid var(--gold); }
+    .issue-before { background: var(--surface-alt); border-right: 1px solid var(--border); border-left: 3px solid var(--gold); }
     .issue-after  { background: var(--navy); }
     .diff-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; margin-bottom: var(--sp-1); }
     .issue-before .diff-label { color: var(--text-muted); }
@@ -109,7 +109,7 @@
       flex-shrink: 0; letter-spacing: 0.04em;
     }
     .tag-style   { background: rgba(0,31,51,0.08); color: var(--navy); }
-    .tag-brand   { background: rgba(255,184,28,0.25); color: #5c3d00; }
+    .tag-brand   { background: var(--gold-20); color: var(--navy); }
     .tag-iown    { background: var(--gold); color: var(--navy); }
 
     /* Copy button inside dark issue-after panel (override shared style) */
@@ -129,7 +129,7 @@
     .corrected-card {
       background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--navy);
     }
-    .corrected-card:focus-within { box-shadow: 0 0 0 3px rgba(0,31,51,0.08); }
+    .corrected-card:focus-within { box-shadow: 0 0 0 3px var(--focus-ring); }
     .corrected-display {
       width: 100%; min-height: 200px; padding: 14px var(--sp-4);
       font-size: 0.92rem; font-family: var(--font-sans); color: var(--text); line-height: 1.7;
