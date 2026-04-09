@@ -541,13 +541,36 @@
     const over = size.maxBytes && blob.size > size.maxBytes;
     let status;
     if (over) {
-      status = '<span style="color:#e53935;font-weight:600;">⚠ 超過（これ以上の圧縮不可）</span>';
+      status = '<span style="color:#e53935;font-weight:600;">⚠ 超過</span>';
     } else if (blob._compressed) {
       status = `<span style="color:#2196f3;">自動圧縮済み（Q:${Math.round(blob._appliedQuality * 100)}%）✓</span>`;
+    } else if (blob._posterized) {
+      status = `<span style="color:#2196f3;">色数削減済み（${blob._posterizeBits}bit/ch）✓</span>`;
     } else {
       status = '<span style="color:#43a047;">✓</span>';
     }
     el.innerHTML = `📦 ${label} / 上限 ${maxLabel}　${status}`;
+  }
+
+  // ── PNG posterization (color quantization) ────────────
+  function posterizeCanvas(srcCanvas, bits) {
+    const w = srcCanvas.width, h = srcCanvas.height;
+    const dst = document.createElement('canvas');
+    dst.width = w; dst.height = h;
+    const srcCtx = srcCanvas.getContext('2d');
+    const dstCtx = dst.getContext('2d');
+    const imgData = srcCtx.getImageData(0, 0, w, h);
+    const d = imgData.data;
+    const shift = 8 - bits;
+    const mask = (0xFF >> shift) << shift;
+    for (let i = 0; i < d.length; i += 4) {
+      d[i]     = d[i]     & mask; // R
+      d[i + 1] = d[i + 1] & mask; // G
+      d[i + 2] = d[i + 2] & mask; // B
+      // Alpha unchanged
+    }
+    dstCtx.putImageData(imgData, 0, 0);
+    return dst;
   }
 
   // ── Blob generation ───────────────────────────────────
@@ -591,7 +614,20 @@
             if (blob.size <= maxBytes) break;
           }
         }
-        // PNG is lossless — no quality reduction possible, keep as-is (UI shows ⚠ 超過)
+        else {
+          // PNG — reduce colors via posterization to shrink file size
+          const posterizeSteps = [6, 5, 4, 3]; // bits per channel: 6→64色/ch, 5→32, 4→16, 3→8
+          for (const bits of posterizeSteps) {
+            const pCanvas = posterizeCanvas(canvas, bits);
+            const pBlob = await new Promise(r => pCanvas.toBlob(b => r(b), 'image/png'));
+            if (pBlob && pBlob.size <= maxBytes) {
+              blob = pBlob;
+              blob._posterized = true;
+              blob._posterizeBits = bits;
+              break;
+            }
+          }
+        }
       }
       if (blob && blob.type !== mimeType && !blob._actualExt) {
         blob._actualExt = getExtFromMime(blob.type);
