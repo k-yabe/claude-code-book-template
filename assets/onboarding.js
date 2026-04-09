@@ -3,6 +3,7 @@
  *
  * - 初回〜毎回表示（閉じても次回また出る）
  * - 「今後表示しない」チェックで非表示にできる
+ * - updates 配列があれば「最近のアップデート」セクションを表示
  *
  * 使い方:
  *   <script src="../../assets/onboarding.js"></script>
@@ -15,13 +16,17 @@
  *         { icon: '🔍', text: 'URLを貼るだけでOGP・Twitter Cardを自動取得' },
  *         { icon: '📱', text: 'SNSでの表示をその場でプレビュー' },
  *         { icon: '⚠️', text: '設定ミスがあればすぐわかる' }
+ *       ],
+ *       updates: [
+ *         { date: '2026-04-08', text: 'SEO検証強化・アクセシビリティ改善' },
+ *         { date: '2026-04-03', text: 'Twitter Card・h1チェック追加' }
  *       ]
  *     });
  *   </script>
  */
 
 /* eslint-disable no-unused-vars */
-var OB_VERSION = 2; // この数字を上げると全員に再表示される
+var OB_VERSION = 3; // この数字を上げると全員に再表示される
 function initOnboarding(config) {
   const key = config.appName + '_onboarded_v' + OB_VERSION;
   if (localStorage.getItem(key) === '1') return;
@@ -92,10 +97,37 @@ function initOnboarding(config) {
         transition: opacity 0.15s;
       }
       .ob-btn:hover { opacity: 0.85; }
+      .ob-updates {
+        padding: 0 24px 8px;
+      }
+      .ob-updates-title {
+        font-size: 0.7rem; font-weight: 700; color: #001f33;
+        letter-spacing: 0.08em; text-transform: uppercase;
+        margin: 0 0 10px; padding: 12px 0 8px;
+        border-top: 1px solid #e8ecf0;
+        display: flex; align-items: center; gap: 6px;
+      }
+      .ob-updates-title::before {
+        content: ''; display: block; width: 3px; height: 14px;
+        background: #ffb81c; flex-shrink: 0;
+      }
+      .ob-update-item {
+        display: flex; align-items: flex-start; gap: 10px;
+        padding: 7px 0; font-size: 0.76rem; color: #2d3436;
+        line-height: 1.45;
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+      }
+      .ob-update-date {
+        flex-shrink: 0; font-size: 0.68rem; font-weight: 600;
+        color: #5a6a7a; background: #e8ecf0; padding: 2px 7px;
+        white-space: nowrap;
+      }
+      .ob-update-text { min-width: 0; }
       @media (max-width: 600px) {
         .ob-modal { max-width: 95vw; }
         .ob-header { padding: 18px 16px 14px; }
         .ob-features { padding: 14px 16px 6px; }
+        .ob-updates { padding: 0 16px 8px; }
         .ob-footer { padding: 12px 16px 16px; flex-direction: column-reverse; gap: 10px; align-items: stretch; }
         .ob-btn { text-align: center; }
         .ob-dismiss { justify-content: center; }
@@ -113,6 +145,19 @@ function initOnboarding(config) {
     </div>
   `).join('');
 
+  const updates = config.updates || [];
+  const updatesHtml = updates.length > 0 ? `
+    <div class="ob-updates">
+      <div class="ob-updates-title">最近のアップデート</div>
+      ${updates.map(u => `
+        <div class="ob-update-item">
+          <span class="ob-update-date">${u.date}</span>
+          <span class="ob-update-text">${u.text}</span>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+
   const overlay = document.createElement('div');
   overlay.className = 'ob-overlay';
   overlay.setAttribute('role', 'dialog');
@@ -124,6 +169,7 @@ function initOnboarding(config) {
         <p>${config.description}</p>
       </div>
       <div class="ob-features">${featuresHtml}</div>
+      ${updatesHtml}
       <div class="ob-footer">
         <label class="ob-dismiss">
           <input type="checkbox" id="ob-no-more">今後表示しない
