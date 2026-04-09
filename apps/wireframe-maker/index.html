@@ -64,7 +64,11 @@
     /* プレビューSVG */
     .right-panel-canvas svg { display: block; margin: 0 auto; transform-origin: top center; transition: transform 0.2s; box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
     .right-panel-canvas svg .section-group { cursor: pointer; }
+    .right-panel-canvas svg .img-click-area { cursor: pointer; }
+    .right-panel-canvas svg .img-click-area:hover { opacity: 0.7; }
     .right-panel-canvas svg .section-group:hover rect.section-bg { stroke: var(--gold); stroke-width: 2; }
+    .right-panel-canvas svg text[data-edit-key] { cursor: text; }
+    .right-panel-canvas svg text[data-edit-key]:hover { opacity: 0.7; }
     .right-panel-canvas svg .section-group.selected rect.section-bg { stroke: var(--navy); stroke-width: 2.5; stroke-dasharray: 8 4; }
 
     /* セクションオーバーレイツールバー */
@@ -205,8 +209,11 @@
     .section-card .drag-handle { color: #d0d5dc; font-size: 0.85rem; cursor: grab; user-select: none; flex-shrink: 0; }
     .section-card .sec-info { flex: 1; min-width: 0; }
     .section-card .sec-type-badge { display: inline-block; font-size: 0.58rem; color: #8a9bb0; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; background: #f0f2f5; padding: 1px 5px; margin-bottom: 2px; }
-    .section-card .sec-label { font-size: 0.78rem; font-weight: 600; color: #2d3436; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .section-card .sec-desc { font-size: 0.68rem; color: #8a9bb0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .section-card .sec-label { font-size: 0.78rem; font-weight: 600; color: #2d3436; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: text; min-height: 1.2em; padding: 1px 3px; }
+    .section-card .sec-desc { font-size: 0.68rem; color: #8a9bb0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: text; min-height: 1em; padding: 1px 3px; }
+    .section-card .sec-label:hover, .section-card .sec-desc:hover { background: rgba(255,184,28,0.08); }
+    .section-card .sec-label:empty::before { content: 'クリックして名前を入力'; color: #b0bec5; font-weight: 400; font-style: italic; }
+    .section-card .sec-desc:empty::before { content: 'クリックして説明を入力'; color: #b0bec5; font-style: italic; }
     .section-card .sec-label[contenteditable="true"],
     .section-card .sec-desc[contenteditable="true"] { outline: none; background: #fffbf0; border-bottom: 2px solid #ffb81c; cursor: text; white-space: normal; }
     .section-card .sec-actions { display: flex; gap: 1px; flex-shrink: 0; }
@@ -974,34 +981,37 @@
         <button class="toolbar-btn" onclick="setDevicePreview('mobile')" data-tip="スマホ 375px">SP</button>
       </div>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" id="grid-toggle" onclick="toggleGrid()" data-tip="グリッド表示">Grid</button>
-      <button class="toolbar-btn" id="scheme-toggle" onclick="cycleColorScheme()" data-tip="配色切替">🎨</button>
-      <button class="toolbar-btn" id="add-text-btn" onclick="toggleTextPlacementMode()" data-tip="テキストを自由配置（クリックで追加）">Aa+</button>
+      <button class="toolbar-btn" id="grid-toggle" onclick="toggleGrid()" title="グリッド表示">Grid</button>
+      <button class="toolbar-btn" id="scheme-toggle" onclick="cycleColorScheme()" title="グレー/ブランドカラー/設計図の3配色を切替">配色</button>
+      <button class="toolbar-btn" id="add-text-btn" onclick="toggleTextPlacementMode()" title="クリック位置にテキストを自由配置">+テキスト</button>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" id="variant-btn" onclick="generateVariant()" data-tip="A/Bバリアント生成">A/B</button>
-      <button class="toolbar-btn" id="link-btn" onclick="addPageLink()" data-tip="ページ間リンク">🔗</button>
+      <button class="toolbar-btn" onclick="exportHTMLCSS()" title="HTML/CSSとしてエクスポート">HTML出力</button>
+      <button class="toolbar-btn" id="copy-gen-btn" onclick="generateAICopy()" title="AIがセクションのコピーテキストを提案">AIコピー</button>
       <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" id="heatmap-btn" onclick="toggleHeatmap()" data-tip="ヒートマップ予測">🔥</button>
-      <button class="toolbar-btn" onclick="showResponsivePreview()" data-tip="レスポンシブ3画面">📱</button>
-      <button class="toolbar-btn" onclick="startPrototypeMode()" data-tip="プロトタイプ再生">▶</button>
-      <button class="toolbar-btn" id="copy-gen-btn" onclick="generateAICopy()" data-tip="AIコピー生成">✍</button>
-      <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" onclick="runA11yCheck()" data-tip="アクセシビリティチェック">♿</button>
-      <button class="toolbar-btn" onclick="showCompetitorAnalysis()" data-tip="競合分析">🔍</button>
-      <button class="toolbar-btn" onclick="exportHTMLCSS()" data-tip="HTML/CSSエクスポート">&lt;/&gt;</button>
-      <button class="toolbar-btn" onclick="showDesignTokens()" data-tip="デザイントークン">🎯</button>
-      <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" id="collab-btn" onclick="showCollabModal()" data-tip="共同編集">👥</button>
-      <button class="toolbar-btn" onclick="showComponentLibrary()" data-tip="コンポーネント">📦</button>
-      <button class="toolbar-btn" onclick="showFigmaImport()" title="Figmaインポート"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 38 57'%3E%3Cpath fill='%23F24E1E' d='M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z'/%3E%3Cpath fill='%23FF7262' d='M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z'/%3E%3Cpath fill='%23A259FF' d='M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z'/%3E%3Cpath fill='%230ACF83' d='M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z'/%3E%3Cpath fill='%231ABCFE' d='M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z'/%3E%3C/svg%3E" alt="F" style="width:14px;height:14px"></button>
-      <button class="toolbar-btn" onclick="showABTestExport()" data-tip="ABテスト連携">🧪</button>
-      <button class="toolbar-btn" onclick="showPublishLP()" data-tip="LP公開">🚀</button>
-      <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" onclick="showAIReview()" data-tip="AIレビュー">🤖</button>
-      <button class="toolbar-btn" onclick="showUserFlow()" data-tip="ユーザーフロー">🔀</button>
-      <button class="toolbar-btn" id="handoff-btn" onclick="toggleHandoff()" data-tip="ハンドオフ">📏</button>
-      <button class="toolbar-btn" onclick="showTemplateMarket()" data-tip="テンプレート">🏪</button>
-      <button class="toolbar-btn" onclick="showPerfPrediction()" data-tip="パフォーマンス予測">⚡</button>
+      <!-- 詳細機能（折りたたみ） -->
+      <div style="position:relative;display:inline-block">
+        <button class="toolbar-btn" id="more-tools-btn" onclick="document.getElementById('more-tools-menu').classList.toggle('hidden')" title="詳細ツール">その他 ▾</button>
+        <div id="more-tools-menu" class="hidden" style="position:absolute;bottom:100%;right:0;background:#001f33;border:1px solid rgba(255,255,255,0.1);padding:4px;z-index:100;min-width:180px;max-height:400px;overflow-y:auto;box-shadow:0 -4px 16px rgba(0,0,0,0.3)">
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="generateVariant()" title="A/Bバリアント生成">A/B バリアント</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="addPageLink()" title="ページ間リンク">ページリンク</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="toggleHeatmap()" title="ヒートマップ予測">ヒートマップ</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="showResponsivePreview()" title="レスポンシブ3画面プレビュー">レスポンシブ</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="startPrototypeMode()" title="プロトタイプ再生">プロトタイプ</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="runA11yCheck()" title="アクセシビリティチェック">A11yチェック</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="showCompetitorAnalysis()" title="競合分析">競合分析</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="showDesignTokens()" title="デザイントークン">デザイントークン</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="showCollabModal()" title="共同編集">共同編集</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="showComponentLibrary()" title="コンポーネント">コンポーネント</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="showFigmaImport()" title="Figmaインポート">Figmaインポート</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="showABTestExport()" title="ABテスト連携">ABテスト連携</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="showPublishLP()" title="LP公開">LP公開</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="showAIReview()" title="AIレビュー">AIレビュー</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="showUserFlow()" title="ユーザーフロー">ユーザーフロー</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" id="handoff-btn" onclick="toggleHandoff()" title="ハンドオフ">ハンドオフ</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="showTemplateMarket()" title="テンプレート">テンプレート</button>
+          <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="showPerfPrediction()" title="パフォーマンス予測">パフォーマンス予測</button>
+        </div>
+      </div>
       <div style="flex:1"></div>
       <div class="collab-bar" id="collab-bar" style="display:none">
         <div class="collab-avatars" id="collab-avatars"></div>
@@ -1013,8 +1023,12 @@
     <div id="preview-canvas" class="right-panel-canvas">
       <div class="empty-preview" id="empty-preview">
         <div class="empty-icon">📐</div>
-        <p>左パネルからテンプレートを選択するか、<br>チャットで要件を伝えてください</p>
-        <div class="empty-hint">構成が生成されると、ここにリアルタイムプレビューが表示されます</div>
+        <p>ワイヤーフレームを作成しましょう</p>
+        <div class="empty-hint">
+          <strong>方法1:</strong> 左パネル下部「＋ セクション追加」でパーツを選択<br>
+          <strong>方法2:</strong> 左パネルのチャットで要件を入力してAI生成<br>
+          <strong>方法3:</strong> テンプレートから選択して開始
+        </div>
       </div>
     </div>
     <!-- クローンモード（サイト再現） -->
@@ -2678,13 +2692,40 @@ function renderSectionList() {
         <button class="sec-action-btn" onclick="event.stopPropagation();duplicateSection(${i})" title="複製">⧉</button>
         <button class="sec-action-btn sec-delete" onclick="event.stopPropagation();deleteSection(${i})" title="削除">✕</button>
       </div>`;
-    // クリックでプレビュー上のセクションを選択
-    card.addEventListener('click', () => selectSection(sec.id));
-    // インライン編集
+    // クリックでプレビュー上のセクションを選択（テキスト編集中は除く）
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.sec-label, .sec-desc')) return; // テキストクリック時はセクション選択しない
+      selectSection(sec.id);
+    });
+    // インライン編集（クリックで即編集可能に）
     card.querySelectorAll('.sec-label, .sec-desc').forEach(el => {
-      el.addEventListener('click', e => { e.stopPropagation(); el.contentEditable = 'true'; el.focus(); });
-      el.addEventListener('blur', () => { el.contentEditable = 'false'; const idx = parseInt(el.dataset.index); currentSections[idx][el.dataset.field] = el.textContent.trim(); saveUndoState(); renderPreview(); });
-      el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        el.contentEditable = 'true';
+        el.focus();
+        // テキスト全選択（空でない場合）
+        if (el.textContent.trim()) {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      });
+      el.addEventListener('blur', () => {
+        el.contentEditable = 'false';
+        const idx = parseInt(el.dataset.index);
+        if (idx >= 0 && idx < currentSections.length) {
+          const newVal = el.textContent.trim();
+          const oldVal = currentSections[idx][el.dataset.field] || '';
+          if (newVal !== oldVal) {
+            currentSections[idx][el.dataset.field] = newVal;
+            saveUndoState();
+            renderPreview();
+          }
+        }
+      });
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } if (e.key === 'Escape') { el.textContent = currentSections[parseInt(el.dataset.index)]?.[el.dataset.field] || ''; el.blur(); } });
     });
     // ドラッグ&ドロップ
     card.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); card.classList.add('dragging'); });
@@ -2858,15 +2899,24 @@ function drawImg(g, x, y, w, h, sectionImage) {
     img.setAttribute('href', sectionImage);
     img.setAttribute('preserveAspectRatio', 'xMidYMid slice');
     g.appendChild(img);
+    // クリックで画像差し替え
+    const clickArea = svgEl('rect', { x, y, width: w, height: h, fill: 'transparent', style: 'cursor:pointer' });
+    clickArea.classList.add('img-click-area');
+    g.appendChild(clickArea);
   } else {
-    // プレースホルダー
-    g.appendChild(svgEl('rect', { x, y, width: w, height: h, fill: cs('img'), stroke: cs('imgStroke'), 'stroke-width': 1 }));
-    g.appendChild(svgEl('line', { x1: x, y1: y, x2: x+w, y2: y+h, stroke: cs('imgStroke'), 'stroke-width': 1 }));
-    g.appendChild(svgEl('line', { x1: x+w, y1: y, x2: x, y2: y+h, stroke: cs('imgStroke'), 'stroke-width': 1 }));
+    // プレースホルダー（クリック可能）
+    const bgRect = svgEl('rect', { x, y, width: w, height: h, fill: cs('img'), stroke: cs('imgStroke'), 'stroke-width': 1, style: 'cursor:pointer' });
+    bgRect.classList.add('img-click-area');
+    g.appendChild(bgRect);
+    g.appendChild(svgEl('line', { x1: x, y1: y, x2: x+w, y2: y+h, stroke: cs('imgStroke'), 'stroke-width': 1, style: 'pointer-events:none' }));
+    g.appendChild(svgEl('line', { x1: x+w, y1: y, x2: x, y2: y+h, stroke: cs('imgStroke'), 'stroke-width': 1, style: 'pointer-events:none' }));
     const iconY = y + h/2 - 8;
     const iconX = x + w/2 - 10;
-    const icon = svgEl('text', { x: iconX + 10, y: iconY + 14, fill: cs('imgStroke'), 'font-size': '16', 'text-anchor': 'middle', 'font-family': 'sans-serif', opacity: '0.5' });
+    const icon = svgEl('text', { x: iconX + 10, y: iconY + 14, fill: cs('imgStroke'), 'font-size': '16', 'text-anchor': 'middle', 'font-family': 'sans-serif', opacity: '0.5', style: 'pointer-events:none' });
     icon.textContent = '🖼'; g.appendChild(icon);
+    // クリックで画像アップロードのヒントテキスト
+    const hint = svgEl('text', { x: x + w/2, y: y + h/2 + 20, fill: cs('imgStroke'), 'font-size': '11', 'text-anchor': 'middle', 'font-family': 'sans-serif', opacity: '0.4', style: 'pointer-events:none' });
+    hint.textContent = 'クリックで画像挿入'; g.appendChild(hint);
   }
 }
 function drawBtn(g, x, y, w, h, label, primary, editKey) {
@@ -2901,16 +2951,30 @@ function renderSection(sec, yOff) {
   const render = RENDERERS[sec.type] || RENDERERS['content-text'];
   render(group, h, sec);
 
-  group.addEventListener('click', () => selectSection(sec.id));
-  group.addEventListener('dblclick', e => {
-    e.stopPropagation();
-    // テキスト要素をクリックした場合はその場でテキスト編集
+  group.addEventListener('click', (e) => {
+    // 画像プレースホルダークリックで画像アップロード
+    if (e.target.classList.contains('img-click-area')) {
+      e.stopPropagation();
+      uploadSectionImage(sec.id);
+      return;
+    }
+    // テキスト要素クリックでその場編集（シングルクリック）
     const textEl = e.target.closest('text[data-edit-key]');
     if (textEl) {
+      e.stopPropagation();
+      selectSection(sec.id);
       editSVGText(sec.id, textEl);
-    } else {
-      showInlineEdit(sec.id);
+      return;
     }
+    selectSection(sec.id);
+  });
+  group.addEventListener('dblclick', e => {
+    e.stopPropagation();
+    // 画像・テキストは上のclickハンドラで処理済み
+    if (e.target.classList.contains('img-click-area')) return;
+    const textEl = e.target.closest('text[data-edit-key]');
+    if (textEl) return; // 既にシングルクリックで処理
+    showInlineEdit(sec.id);
   });
   return { group, height: h };
 }
@@ -5500,6 +5564,14 @@ document.addEventListener('DOMContentLoaded', () => {
       collabChannel.postMessage({ type: 'cursor', userId: collabUserId, userName: collabUserName, x: e.clientX - rect.left, y: e.clientY - rect.top });
     });
   }
+  // 「その他」メニューをクリック外で閉じる
+  document.addEventListener('click', e => {
+    const menu = document.getElementById('more-tools-menu');
+    const btn = document.getElementById('more-tools-btn');
+    if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target) && e.target !== btn) {
+      menu.classList.add('hidden');
+    }
+  });
 });
 
 // Hook into section changes to broadcast state
