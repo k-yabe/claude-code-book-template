@@ -38,97 +38,128 @@ function initOnboarding(config) {
     style.textContent = `
       .ob-overlay {
         position: fixed; inset: 0; z-index: 9999;
-        background: rgba(0,31,51,0.55);
+        background: rgba(0,31,51,0.6);
         display: flex; align-items: center; justify-content: center;
         padding: 20px;
-        opacity: 0; transition: opacity 0.25s ease;
+        opacity: 0; transition: opacity 0.3s ease;
       }
       .ob-overlay.show { opacity: 1; }
       .ob-modal {
-        background: #fff; width: 90vw; max-width: 420px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-        transform: translateY(12px); transition: transform 0.25s ease;
+        background: #fff; width: 90vw; max-width: 440px;
+        box-shadow: 0 24px 64px rgba(0,31,51,0.3);
+        transform: scale(0.94) translateY(16px);
+        transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
         overflow: hidden;
       }
-      .ob-overlay.show .ob-modal { transform: translateY(0); }
+      .ob-overlay.show .ob-modal { transform: scale(1) translateY(0); }
+
+      /* ── ヘッダー ── */
       .ob-header {
-        background: #001f33; padding: 22px 24px 18px; color: #fff;
+        background: #001f33; padding: 24px 28px 20px; color: #fff;
+        border-bottom: 3px solid #ffb81c;
       }
       .ob-header h2 {
-        font-size: 1.05rem; font-weight: 700; margin: 0 0 4px;
+        font-size: 1.08rem; font-weight: 800; margin: 0 0 6px;
         font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        letter-spacing: 0.01em;
       }
       .ob-header h2 span { color: #ffb81c; }
       .ob-header p {
-        font-size: 0.78rem; color: rgba(255,255,255,0.65); margin: 0;
+        font-size: 0.78rem; color: rgba(255,255,255,0.78); margin: 0;
         line-height: 1.5;
         font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
       }
+
+      /* ── 機能リスト ── */
       .ob-features {
-        padding: 18px 24px 8px; display: flex; flex-direction: column; gap: 10px;
+        padding: 20px 28px 12px; display: flex; flex-direction: column; gap: 10px;
       }
       .ob-feature {
-        display: flex; align-items: center; gap: 12px;
-        padding: 10px 14px; background: #f7f8fa; border: 1.5px solid #e8ecf0;
+        display: flex; align-items: center; gap: 14px;
+        padding: 13px 16px;
+        background: rgba(0,31,51,0.04);
+        border-left: 3px solid rgba(0,31,51,0.15);
+        transition: background 0.15s, border-color 0.15s;
       }
-      .ob-feature-icon { font-size: 1.1rem; flex-shrink: 0; }
+      .ob-feature:hover {
+        background: rgba(0,31,51,0.08);
+        border-left-color: #ffb81c;
+      }
+      .ob-feature-icon { font-size: 1.3rem; flex-shrink: 0; }
       .ob-feature-text {
-        font-size: 0.8rem; color: #2d3436; line-height: 1.4;
+        font-size: 0.82rem; color: #001f33; line-height: 1.45;
         font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        font-weight: 500;
       }
+
+      /* ── フッター ── */
       .ob-footer {
-        padding: 14px 24px 20px;
+        padding: 16px 28px 22px;
         display: flex; align-items: center; justify-content: space-between;
+        border-top: 1px solid rgba(0,31,51,0.08);
       }
       .ob-dismiss {
-        display: flex; align-items: center; gap: 5px;
-        font-size: 0.72rem; color: #8a9bb0; cursor: pointer;
+        display: flex; align-items: center; gap: 6px;
+        font-size: 0.72rem; color: rgba(0,31,51,0.45); cursor: pointer;
         user-select: none;
         font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        transition: color 0.15s;
       }
+      .ob-dismiss:hover { color: rgba(0,31,51,0.7); }
       .ob-dismiss input {
-        accent-color: #001f33; width: 13px; height: 13px; cursor: pointer;
+        accent-color: #ffb81c; width: 14px; height: 14px; cursor: pointer;
       }
       .ob-btn {
         background: #001f33; color: #fff; border: none;
-        padding: 10px 28px; font-size: 0.82rem; font-weight: 700;
-        cursor: pointer; letter-spacing: 0.04em;
+        padding: 11px 32px; font-size: 0.84rem; font-weight: 800;
+        cursor: pointer; letter-spacing: 0.05em;
         font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-        transition: opacity 0.15s;
+        transition: all 0.18s;
+        box-shadow: 0 4px 16px rgba(0,31,51,0.18);
       }
-      .ob-btn:hover { opacity: 0.85; }
+      .ob-btn:hover {
+        opacity: 0.92;
+        box-shadow: 0 6px 24px rgba(0,31,51,0.28);
+        transform: translateY(-1px);
+      }
+
+      /* ── アップデートセクション ── */
       .ob-updates {
-        padding: 0 24px 8px;
+        padding: 0 28px 10px;
       }
       .ob-updates-title {
-        font-size: 0.7rem; font-weight: 700; color: #001f33;
-        letter-spacing: 0.08em; text-transform: uppercase;
-        margin: 0 0 10px; padding: 12px 0 8px;
-        border-top: 1px solid #e8ecf0;
-        display: flex; align-items: center; gap: 6px;
+        font-size: 0.7rem; font-weight: 800; color: #001f33;
+        letter-spacing: 0.12em; text-transform: uppercase;
+        margin: 0 0 10px; padding: 14px 0 10px;
+        border-top: 2px solid #ffb81c;
+        display: flex; align-items: center; gap: 8px;
       }
       .ob-updates-title::before {
-        content: ''; display: block; width: 3px; height: 14px;
+        content: ''; display: block; width: 4px; height: 16px;
         background: #ffb81c; flex-shrink: 0;
       }
       .ob-update-item {
         display: flex; align-items: flex-start; gap: 10px;
-        padding: 7px 0; font-size: 0.76rem; color: #2d3436;
-        line-height: 1.45;
+        padding: 9px 0;
+        border-bottom: 1px solid rgba(0,31,51,0.06);
+        font-size: 0.78rem; color: #001f33;
+        line-height: 1.5;
         font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
       }
+      .ob-update-item:last-child { border-bottom: none; }
       .ob-update-date {
-        flex-shrink: 0; font-size: 0.68rem; font-weight: 600;
-        color: #5a6a7a; background: #e8ecf0; padding: 2px 7px;
+        flex-shrink: 0; font-size: 0.68rem; font-weight: 700;
+        color: #fff; background: #001f33; padding: 3px 8px;
         white-space: nowrap;
       }
       .ob-update-text { min-width: 0; }
+
       @media (max-width: 600px) {
         .ob-modal { max-width: 95vw; }
-        .ob-header { padding: 18px 16px 14px; }
-        .ob-features { padding: 14px 16px 6px; }
-        .ob-updates { padding: 0 16px 8px; }
-        .ob-footer { padding: 12px 16px 16px; flex-direction: column-reverse; gap: 10px; align-items: stretch; }
+        .ob-header { padding: 20px 18px 16px; }
+        .ob-features { padding: 16px 18px 8px; }
+        .ob-updates { padding: 0 18px 8px; }
+        .ob-footer { padding: 14px 18px 18px; flex-direction: column-reverse; gap: 10px; align-items: stretch; }
         .ob-btn { text-align: center; }
         .ob-dismiss { justify-content: center; }
       }
