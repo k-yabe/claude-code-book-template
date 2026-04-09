@@ -119,7 +119,7 @@
     <div class="step-header">
       <span class="step-num">1</span>
       <span class="step-title">出力形式</span>
-      <span class="step-desc">OGPはPNG固定</span>
+      <span class="step-desc">OGPはPNG固定（100KB以下）</span>
     </div>
     <div class="step-body">
       <div class="format-row">
@@ -185,7 +185,7 @@
       id: 'mv',
       sizes: [
         { id: 'banner', label: 'バナー（MV）', w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024, color: '#ffb81c', fitWidth: true },
-        { id: 'ogp',    label: 'OGP',         w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 300 * 1024, crop: true, color: '#1C304B' },
+        { id: 'ogp',    label: 'OGP',         w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 100 * 1024, crop: true, color: '#1C304B' },
       ],
     },
     {
@@ -552,10 +552,12 @@
 
   // ── Blob generation ───────────────────────────────────
   function getRequestedMimeType(forcePng) {
-    return forcePng ? 'image/png' : format === 'webp' ? 'image/webp' : 'image/png';
+    if (forcePng) return 'image/png';
+    return format === 'webp' ? 'image/webp' : 'image/png';
   }
   function getExtFromMime(mime) {
     if (mime === 'image/webp') return 'webp';
+    if (mime === 'image/jpeg') return 'jpg';
     return 'png';
   }
 
@@ -577,29 +579,19 @@
       const maxBytes = size.maxBytes;
       const toBlob = (q) => new Promise(r => canvas.toBlob(b => r(b), mimeType, q));
       let blob = await toBlob(0.92);
-      // Auto-compress: reduce quality stepwise (min 0.80 to preserve visual quality)
+      // Auto-compress: reduce quality stepwise to meet size limit
       let appliedQuality = 0.92;
       if (maxBytes && blob && blob.size > maxBytes) {
         if (mimeType !== 'image/png') {
           // Lossy format — reduce quality
-          const steps = [0.85, 0.80];
+          const steps = [0.85, 0.80, 0.75, 0.70];
           for (const q of steps) {
             blob = await toBlob(q);
             appliedQuality = q;
             if (blob.size <= maxBytes) break;
           }
-        } else {
-          // PNG exceeds limit — auto-fallback to JPEG with quality steps
-          const toBlobJpeg = (q) => new Promise(r => canvas.toBlob(b => r(b), 'image/jpeg', q));
-          const jpegSteps = [0.92, 0.85, 0.80];
-          for (const q of jpegSteps) {
-            blob = await toBlobJpeg(q);
-            appliedQuality = q;
-            if (blob.size <= maxBytes) break;
-          }
-          blob._actualExt = 'jpg';
-          blob._formatNote = 'jpeg';
         }
+        // PNG is lossless — no quality reduction possible, keep as-is (UI shows ⚠ 超過)
       }
       if (blob && blob.type !== mimeType && !blob._actualExt) {
         blob._actualExt = getExtFromMime(blob.type);
