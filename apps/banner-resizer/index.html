@@ -176,10 +176,14 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pako@1.0.11/dist/pako.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/upng-js@2.1.0/UPNG.js"></script>
 <script>
   if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
+
+  // Verify UPNG.js loaded
+  if (typeof UPNG === 'undefined') console.warn('⚠ UPNG.js not loaded — PNG8 optimization disabled');
+  else console.log('✓ UPNG.js loaded');
 
   // Group definitions: which sizes belong to which upload
   const GROUPS = [
