@@ -217,6 +217,7 @@
   const sourceImages = {};  // groupId → Image
   const aiUpscaleFlags = {};
   const cropOffsets = {};   // sizeId → {x: 0~1, y: 0~1} (0=left/top, 0.5=center, 1=right/bottom)
+  const cropZooms = {};     // sizeId → zoom level (1.0 = no zoom, 2.0 = 2x zoom in)
 
   // ── AI Upscale ────────────────────────────────────────
   let _libsLoading = null;
@@ -250,9 +251,9 @@
     });
   }
 
-  async function createWithAI(img, w, h, crop, cropOffset) {
+  async function createWithAI(img, w, h, crop, cropOffset, zoom) {
     if (img.width >= w && img.height >= h) {
-      return createResized(img, w, h, crop, cropOffset);
+      return createResized(img, w, h, crop, cropOffset, zoom);
     }
     try {
       await loadAILibs();
@@ -262,7 +263,7 @@
       }
       const upscaledSrc = await _upscaler.upscale(img);
       const upscaledImg = await loadImageFromSrc(upscaledSrc);
-      return createResized(upscaledImg, w, h, crop, cropOffset);
+      return createResized(upscaledImg, w, h, crop, cropOffset, zoom);
     } catch (e) {
       console.warn('AI upscale failed, using standard resize:', e);
       return createResized(img, w, h, crop);
@@ -394,9 +395,11 @@
       size._actualW = targetW;
       size._actualH = targetH;
 
-      // Initialize crop offset (default: center)
+      // Initialize crop offset (default: center) and zoom (default: 1x)
       if (!cropOffsets[size.id]) cropOffsets[size.id] = { x: 0.5, y: 0.5 };
+      if (!cropZooms[size.id]) cropZooms[size.id] = 1;
       const offset = cropOffsets[size.id];
+      const zoom = cropZooms[size.id];
 
       const wrap = document.getElementById('wrap-' + size.id);
       wrap.style.display = 'flex';
@@ -406,23 +409,29 @@
 
       if (needsAI) {
         wrap.innerHTML = '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AI処理中...</div>';
-        const canvas = await createWithAI(img, targetW, targetH, size.crop, offset);
+        const canvas = await createWithAI(img, targetW, targetH, size.crop, offset, zoom);
         canvas.id = 'canvas-' + size.id;
         wrap.innerHTML = '';
         wrap.appendChild(canvas);
       } else {
-        const canvas = createResized(img, targetW, targetH, size.crop, offset);
+        const canvas = createResized(img, targetW, targetH, size.crop, offset, zoom);
         canvas.id = 'canvas-' + size.id;
         wrap.appendChild(canvas);
       }
 
-      // Enable drag-to-adjust crop position
+      // Enable drag-to-adjust crop position + zoom
       if (size.crop) {
         wrap.classList.add('draggable');
         const hint = document.createElement('div');
         hint.className = 'crop-hint';
-        hint.textContent = '✥ ドラッグで位置調整';
+        hint.textContent = '✥ ドラッグで位置調整 / ホイールでズーム';
         wrap.appendChild(hint);
+        const zoomBadge = document.createElement('div');
+        zoomBadge.className = 'crop-hint';
+        zoomBadge.id = 'zoom-badge-' + size.id;
+        zoomBadge.style.cssText = 'left:6px; right:auto; bottom:4px;';
+        zoomBadge.textContent = zoom > 1 ? `🔍 ${Math.round(zoom * 100)}%` : '';
+        wrap.appendChild(zoomBadge);
         setupCropDrag(wrap, size.id, group);
       }
 
@@ -442,11 +451,12 @@
   }
 
   // ── Resize ────────────────────────────────────────────
-  function createResized(img, targetW, targetH, crop, cropOffset) {
+  function createResized(img, targetW, targetH, crop, cropOffset, zoom) {
     let sx = 0, sy = 0, sw = img.width, sh = img.height;
     if (crop) {
       const ox = cropOffset ? cropOffset.x : 0.5;
       const oy = cropOffset ? cropOffset.y : 0.5;
+      const z = Math.max(1, zoom || 1);
       const srcRatio = img.width / img.height;
       const dstRatio = targetW / targetH;
       if (srcRatio > dstRatio) {
@@ -455,6 +465,15 @@
       } else {
         sh = img.width / dstRatio;
         sy = (img.height - sh) * oy;
+      }
+      // Apply zoom: shrink crop rectangle (= zoom into the image)
+      if (z > 1) {
+        const newSw = sw / z;
+        const newSh = sh / z;
+        sx = sx + (sw - newSw) * ox;
+        sy = sy + (sh - newSh) * oy;
+        sw = newSw;
+        sh = newSh;
       }
     }
     let srcCanvas = document.createElement('canvas');
@@ -536,13 +555,25 @@
     ctx.fillText('サムネイル時にカットされる領域', w / 2, sz.top / 2 || 12);
   }
 
-  // ── Crop position drag ────────────────────────────────
+  // ── Crop position drag + zoom ─────────────────────────
+  const ZOOM_MIN = 1, ZOOM_MAX = 3, ZOOM_STEP = 0.1;
+
   function setupCropDrag(wrap, sizeId, group) {
     let startX = 0, startY = 0;
     let startOx = 0, startOy = 0;
     let dragging = false;
+    let pinchStartDist = 0, pinchStartZoom = 1;
+    let rafPending = false;
 
+    function scheduleRerender() {
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(() => { rafPending = false; rerenderSingleSize(sizeId, group); });
+    }
+
+    // ── Drag (1-finger touch / mouse) ──
     function onStart(e) {
+      if (e.touches && e.touches.length >= 2) return; // let pinch handler take over
       e.preventDefault();
       dragging = true;
       const pt = e.touches ? e.touches[0] : e;
@@ -554,6 +585,7 @@
     }
     function onMove(e) {
       if (!dragging) return;
+      if (e.touches && e.touches.length >= 2) { dragging = false; return; }
       e.preventDefault();
       const pt = e.touches ? e.touches[0] : e;
       const dx = -(pt.clientX - startX) / wrap.offsetWidth;
@@ -562,7 +594,7 @@
         x: Math.max(0, Math.min(1, startOx + dx)),
         y: Math.max(0, Math.min(1, startOy + dy))
       };
-      rerenderSingleSize(sizeId, group);
+      scheduleRerender();
     }
     function onEnd() {
       if (!dragging) return;
@@ -571,12 +603,67 @@
       updateFileSizeDisplay(sizeId, group.id);
     }
 
+    // ── Wheel zoom (desktop) ──
+    function onWheel(e) {
+      e.preventDefault();
+      const dir = e.deltaY < 0 ? 1 : -1;
+      const cur = cropZooms[sizeId] || 1;
+      cropZooms[sizeId] = Math.round(Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, cur + dir * ZOOM_STEP)) * 100) / 100;
+      scheduleRerender();
+      updateFileSizeDisplay(sizeId, group.id);
+    }
+
+    // ── Pinch zoom (touch) ──
+    function getPinchDist(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.hypot(dx, dy);
+    }
+    function onTouchStart(e) {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        dragging = false;
+        pinchStartDist = getPinchDist(e.touches);
+        pinchStartZoom = cropZooms[sizeId] || 1;
+      } else if (e.touches.length === 1) {
+        onStart(e);
+      }
+    }
+    function onTouchMove(e) {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = getPinchDist(e.touches);
+        const scale = dist / pinchStartDist;
+        cropZooms[sizeId] = Math.round(Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, pinchStartZoom * scale)) * 100) / 100;
+        scheduleRerender();
+      } else {
+        onMove(e);
+      }
+    }
+    function onTouchEnd(e) {
+      if (e.touches.length < 2) {
+        updateFileSizeDisplay(sizeId, group.id);
+      }
+      if (e.touches.length === 0) onEnd();
+    }
+
+    // ── Double-click reset ──
+    function onDblClick(e) {
+      e.preventDefault();
+      cropOffsets[sizeId] = { x: 0.5, y: 0.5 };
+      cropZooms[sizeId] = 1;
+      rerenderSingleSize(sizeId, group);
+      updateFileSizeDisplay(sizeId, group.id);
+    }
+
     wrap.addEventListener('mousedown', onStart);
-    wrap.addEventListener('touchstart', onStart, { passive: false });
+    wrap.addEventListener('touchstart', onTouchStart, { passive: false });
     document.addEventListener('mousemove', onMove);
-    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
     document.addEventListener('mouseup', onEnd);
-    document.addEventListener('touchend', onEnd);
+    document.addEventListener('touchend', onTouchEnd);
+    wrap.addEventListener('wheel', onWheel, { passive: false });
+    wrap.addEventListener('dblclick', onDblClick);
   }
 
   function rerenderSingleSize(sizeId, group) {
@@ -586,9 +673,13 @@
     const targetW = size._actualW || size.w;
     const targetH = size._actualH || size.h;
     const offset = cropOffsets[sizeId];
+    const zoom = cropZooms[sizeId] || 1;
     const wrap = document.getElementById('wrap-' + sizeId);
     if (!wrap) return;
-    const canvas = createResized(img, targetW, targetH, size.crop, offset);
+    const canvas = createResized(img, targetW, targetH, size.crop, offset, zoom);
+    // Update zoom badge
+    const badge = document.getElementById('zoom-badge-' + sizeId);
+    if (badge) badge.textContent = zoom > 1 ? `🔍 ${Math.round(zoom * 100)}%` : '';
     canvas.id = 'canvas-' + sizeId;
     // Keep hint element, replace only canvas
     const oldCanvas = wrap.querySelector('canvas');
@@ -613,7 +704,7 @@
     if (!wrap) return;
     const dlW = size._actualW || size.w;
     const dlH = size._actualH || size.h;
-    const canvas = createResized(img, dlW, dlH, size.crop, cropOffsets[sizeId]);
+    const canvas = createResized(img, dlW, dlH, size.crop, cropOffsets[sizeId], cropZooms[sizeId]);
     canvas.id = 'canvas-' + sizeId;
     if (show) {
       drawThumbTrimOverlay(canvas, size.thumbTrim);
@@ -724,7 +815,7 @@
       if (domCanvas && domCanvas.dataset.thumbTrimOverlay && sourceImages[groupId]) {
         const dlW = size._actualW || size.w;
         const dlH = size._actualH || size.h;
-        canvas = createResized(sourceImages[groupId], dlW, dlH, size.crop, cropOffsets[sizeId]);
+        canvas = createResized(sourceImages[groupId], dlW, dlH, size.crop, cropOffsets[sizeId], cropZooms[sizeId]);
       } else {
         canvas = domCanvas;
       }
