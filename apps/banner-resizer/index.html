@@ -618,7 +618,7 @@
         else if (typeof UPNG !== 'undefined') {
           // PNG8 — indexed color via UPNG.js (like TinyPNG)
           // More colors = higher quality, fewer = smaller file
-          const colorSteps = [256, 192, 128, 96, 64];
+          const colorSteps = [256, 192, 128, 96, 64, 48, 32];
           for (const nc of colorSteps) {
             const pBlob = encodePng8(canvas, nc);
             if (pBlob && pBlob.size <= maxBytes) {
