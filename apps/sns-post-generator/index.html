@@ -461,7 +461,8 @@
 </div>
 
 <script>
-  const LIMITS = { chatter: 1000, linkedin: 1300, x: 140 };
+  const LIMITS = { chatter: 5000, linkedin: 3000, x: 280 };
+  const OPTIMAL = { chatter: { min: 40, max: 200, label: '40〜200文字が最適' }, linkedin: { min: 100, max: 700, label: '100〜700文字が最適' }, x: { min: 50, max: 240, label: '50〜240文字が最適（画像付きは200以下推奨）' } };
   const ANGLES = ['数字・データ軸', '読者の共感軸', '意外性・問いかけ軸'];
   const HISTORY_KEY = 'post-gen-url-history';
   const HISTORY_MAX = 10;
@@ -781,6 +782,7 @@ ${styleRule}
         </div>` : ''}
         <div class="panel-footer">
           <span class="char-count${over ? ' over' : ''}">${charLen} / ${limit}文字</span>
+          <span style="font-size:0.65rem;color:${charLen >= (OPTIMAL[platform]?.min || 0) && charLen <= (OPTIMAL[platform]?.max || Infinity) ? 'var(--success-text)' : 'var(--warn-text)'};margin-left:6px">${OPTIMAL[platform] ? (charLen >= OPTIMAL[platform].min && charLen <= OPTIMAL[platform].max ? '✓ 最適な長さ' : OPTIMAL[platform].label) : ''}</span>
           <div style="display:flex;gap:6px;">
             <button class="edit-toggle-btn">✏️ 修正</button>
             <button class="copy-btn" data-text="${escAttr(text)}">コピー</button>
@@ -954,7 +956,7 @@ ${styleRule}
     });
   });
 
-  const PREVIEW_LIMITS = { chatter: 1000, linkedin: 1300, x: 140 };
+  const PREVIEW_LIMITS = { chatter: 5000, linkedin: 3000, x: 280 };
 
   function updatePreview(text) {
     ['chatter', 'linkedin', 'x'].forEach(pl => {

@@ -180,6 +180,7 @@
               WebP
               <span class="badge-rec">おすすめ</span>
             </button>
+            <button class="format-option" data-format="image/avif" data-ext="avif" type="button">AVIF</button>
             <button class="format-option" data-format="image/jpeg" data-ext="jpg" type="button">JPEG</button>
             <button class="format-option" data-format="image/png" data-ext="png" type="button">PNG</button>
           </div>
@@ -344,7 +345,16 @@
       return canvas.toDataURL('image/webp').startsWith('data:image/webp');
     }
 
+    function checkFormatSupport(mimeType) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1;
+      canvas.height = 1;
+      return canvas.toDataURL(mimeType).startsWith(`data:${mimeType}`);
+    }
+
     const supportsWebP = checkWebPSupport();
+    const supportsAVIF = checkFormatSupport('image/avif');
+
     if (!supportsWebP) {
       const webpBtn = document.querySelector('[data-format="image/webp"]');
       webpBtn.style.opacity = '0.4';
@@ -358,10 +368,18 @@
       selectedExt = 'jpg';
     }
 
+    if (!supportsAVIF) {
+      const avifBtn = document.querySelector('[data-format="image/avif"]');
+      avifBtn.style.opacity = '0.4';
+      avifBtn.style.cursor = 'not-allowed';
+      avifBtn.title = 'このブラウザはAVIF出力に対応していません';
+    }
+
     // ── フォーマット選択 ──
     formatOptions.forEach(btn => {
       btn.addEventListener('click', () => {
         if (!supportsWebP && btn.dataset.format === 'image/webp') return;
+        if (!supportsAVIF && btn.dataset.format === 'image/avif') return;
         formatOptions.forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         selectedFormat = btn.dataset.format;
