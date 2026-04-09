@@ -305,66 +305,6 @@
     .cl-app { font-weight: 700; font-size: 0.75rem; color: #2d3436; }
     .cl-date { font-size: 0.68rem; color: #5a6a7a; background: #e8ecf0; padding: 2px 7px; border-radius: 0; font-weight: 600; }
     .cl-desc { color: #636e72; font-size: 0.72rem; line-height: 1.4; }
-    .cl-desc.truncated { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
-    .cl-desc.truncated:hover { color: #001f33; }
-    .cl-desc.truncated.expanded { -webkit-line-clamp: unset; }
-    .cl-date-header {
-      font-size: 0.72rem; font-weight: 700; color: #001f33;
-      padding: 12px 0 4px; margin-top: 4px;
-      border-bottom: 2px solid #001f33; display: flex; align-items: center; gap: 6px;
-    }
-    .cl-date-header::before { content: ''; width: 3px; height: 14px; background: #ffb81c; flex-shrink: 0; }
-    .cl-date-header:first-child { margin-top: 0; padding-top: 0; }
-
-    /* WHAT'S NEW モーダル */
-    .wn-overlay {
-      position: fixed; inset: 0; z-index: 9998;
-      background: rgba(0,31,51,0.55);
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px; opacity: 0; transition: opacity 0.25s ease;
-    }
-    .wn-overlay.show { opacity: 1; }
-    .wn-modal {
-      background: #fff; width: 90vw; max-width: 520px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-      transform: translateY(12px); transition: transform 0.25s ease;
-      overflow: hidden; max-height: 85vh; display: flex; flex-direction: column;
-    }
-    .wn-overlay.show .wn-modal { transform: translateY(0); }
-    .wn-header {
-      background: #001f33; padding: 20px 24px 16px; color: #fff; flex-shrink: 0;
-    }
-    .wn-header h2 {
-      font-size: 1rem; font-weight: 700; margin: 0 0 4px;
-      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-    }
-    .wn-header h2 span { color: #ffb81c; }
-    .wn-header p {
-      font-size: 0.76rem; color: rgba(255,255,255,0.6); margin: 0;
-      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-    }
-    .wn-body {
-      padding: 16px 24px; overflow-y: auto; flex: 1;
-    }
-    .wn-footer {
-      padding: 14px 24px; border-top: 1px solid #e8ecf0; flex-shrink: 0;
-      display: flex; justify-content: flex-end;
-    }
-    .wn-btn {
-      background: #001f33; color: #fff; border: none;
-      padding: 10px 28px; font-size: 0.82rem; font-weight: 700;
-      cursor: pointer; letter-spacing: 0.04em;
-      font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-      transition: opacity 0.15s;
-    }
-    .wn-btn:hover { opacity: 0.85; }
-    .wn-count { display: inline-block; background: #ffb81c; color: #001f33; font-weight: 800; font-size: 0.7rem; padding: 1px 7px; margin-left: 8px; }
-    @media (max-width: 600px) {
-      .wn-modal { max-width: 95vw; }
-      .wn-header { padding: 16px 16px 12px; }
-      .wn-body { padding: 12px 16px; }
-      .wn-footer { padding: 12px 16px; }
-    }
 
     .grid {
       display: grid;
@@ -597,7 +537,7 @@
         </a>
         <a class="card" href="apps/youtube-desc/">
           <div class="card-icon-wrap">🎬</div>
-          <div class="card-name">YouTube Description Generator</div>
+          <div class="card-name">YouTube Generator</div>
           <div class="card-desc">動画説明文・タグのAI生成</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
@@ -623,7 +563,7 @@
         <a class="card" href="apps/sns-post-generator/">
           <div class="card-new-badge">NEW</div>
           <div class="card-icon-wrap">📣</div>
-          <div class="card-name">SNS Post Generator</div>
+          <div class="card-name">Post Generator</div>
           <div class="card-desc">SNS投稿文のAI生成</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
@@ -692,9 +632,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
-      { icon: '🎨', app: '全アプリ共通',           date: '2026-04-09(木)', desc: 'デザインシステム洗練化: CSS変数統一・ブランドルール違反修正・タイトル統一（Cache Checker/YouTube Desc/SNS Post Generator）・Writing Checker空帯修正・Cache Checkerレイアウト改善' },
-      { icon: '🏠', app: 'ポータル全体',          date: '2026-04-09(木)', desc: 'WHAT\'S NEWを自動ポップアップ化（前回アクセス以降の新着のみ表示）・日付グループ化・説明文クリックで展開・各アプリのオンボーディングに「最近のアップデート」セクション追加' },
-      { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-09(木)', desc: 'OGP PNG8画質改善: デノイズ前処理でより多い色数を確保（100KB以下維持） / クロップ位置ドラッグ調整（上下左右・各サイズ独立） / PNG固定・UPNG.js PNG8最適化 / MV・サムネイル: センタークロップ固定出力' },
+      { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-09(木)', desc: 'OGP上限500KBに緩和（高画質化） / ズームイン機能（ホイール/ピンチ1x〜3x） / クロップ位置ドラッグ調整（上下左右） / PNG8デノイズ最適化 / MV・サムネイル: センタークロップ固定出力' },
       { icon: '🔄', app: 'Cache Checker',         date: '2026-04-08(水)', desc: 'UX改善：チェック中のキャンセルボタン追加・進捗ステージ表示（取得中→比較中）・Escapeキーで結果クリア/キャンセル・アクセシビリティ属性追加（role="alert", aria-live）' },
       { icon: '🔍', app: 'OGP Checker',             date: '2026-04-08(水)', desc: 'SEO検証強化(meta robots/viewport/lang属性チェック追加・twitter:card未設定を情報レベルに変更(Sitecore互換)・og:descriptionプラットフォーム別文字数ガイド)・アクセシビリティ改善(ARIA属性追加)・UX改善(キャンセルボタン・画像読み込み失敗プレースホルダー)・セキュリティ改善(inline onerror→addEventListener化)' },
       { icon: '🖼', app: 'Image Converter',         date: '2026-04-08(水)', desc: '自動1MB最適化モード追加: 品質をバイナリサーチで自動調整し1MB以下に収める機能をデフォルトに。品質スライダーは「詳細設定」折りたたみに移動、変換後に1MB以下判定を表示' },
@@ -798,35 +736,6 @@
       { icon: '📣', app: 'Post Generator',     date: '2026-03-17(火)', desc: 'URL履歴・インライン編集・3パターン+メリデメ生成' },
     ];
 
-    // 日付グループ化ヘルパー
-    function groupByDate(items) {
-      const groups = [];
-      let lastDate = null;
-      items.forEach(w => {
-        const d = w.date.replace(/\(.*\)/, ''); // "2026-04-09(木)" → "2026-04-09"
-        if (d !== lastDate) {
-          groups.push({ date: w.date, items: [] });
-          lastDate = d;
-        }
-        groups[groups.length - 1].items.push(w);
-      });
-      return groups;
-    }
-
-    function renderGroupedItems(items, truncate) {
-      return groupByDate(items).map(g => `
-        <div class="cl-date-header">${g.date}</div>
-        ${g.items.map(w => `
-          <div class="cl-item">
-            <span class="cl-icon">${w.icon}</span>
-            <div class="cl-content">
-              <div class="cl-top"><span class="cl-app">${w.app}</span></div>
-              <div class="cl-desc${truncate ? ' truncated' : ''}">${w.desc}</div>
-            </div>
-          </div>`).join('')}
-      `).join('');
-    }
-
     let changelogReady = false;
     function initChangelog() {
       if (changelogReady) return;
@@ -839,72 +748,24 @@
         <div class="changelog-header">
           <span class="changelog-title">WHAT'S NEW</span>
         </div>
-        <div class="changelog-body">${renderGroupedItems(WHATS_NEW, true)}</div>`;
-
-      // 説明文クリックで展開/折りたたみ
-      dropdown.addEventListener('click', e => {
-        if (e.target.classList.contains('truncated')) e.target.classList.toggle('expanded');
-      });
+        <div class="changelog-body">
+          ${WHATS_NEW.map(w => `
+            <div class="cl-item">
+              <span class="cl-icon">${w.icon}</span>
+              <div class="cl-content">
+                <div class="cl-top">
+                  <span class="cl-app">${w.app}</span>
+                  <span class="cl-date">${w.date}</span>
+                </div>
+                <div class="cl-desc">${w.desc}</div>
+              </div>
+            </div>`).join('')}
+        </div>`;
 
       const wrap = document.querySelector('.changelog-wrap');
       btn.addEventListener('click', () => dropdown.classList.toggle('open'));
       document.addEventListener('click', e => {
         if (!wrap.contains(e.target)) dropdown.classList.remove('open');
-      });
-      document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') dropdown.classList.remove('open');
-      });
-    }
-
-    // 新着 WHAT'S NEW モーダル自動表示
-    function showWhatsNewModal() {
-      const lastSeen = localStorage.getItem('changelog_last_seen') || '2000-01-01';
-      const newItems = WHATS_NEW.filter(w => {
-        const d = w.date.replace(/\(.*\)/, '');
-        return d > lastSeen;
-      });
-      if (newItems.length === 0) return;
-
-      const overlay = document.createElement('div');
-      overlay.className = 'wn-overlay';
-      overlay.setAttribute('role', 'dialog');
-      overlay.setAttribute('aria-modal', 'true');
-      overlay.innerHTML = `
-        <div class="wn-modal">
-          <div class="wn-header">
-            <h2><span>WHAT'S NEW</span><span class="wn-count">${newItems.length}件</span></h2>
-            <p>前回アクセス以降のアップデート</p>
-          </div>
-          <div class="wn-body">${renderGroupedItems(newItems, true)}</div>
-          <div class="wn-footer">
-            <button class="wn-btn">OK</button>
-          </div>
-        </div>`;
-      document.body.appendChild(overlay);
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => overlay.classList.add('show'));
-      });
-
-      // 説明文クリックで展開
-      overlay.querySelector('.wn-body').addEventListener('click', e => {
-        if (e.target.classList.contains('truncated')) e.target.classList.toggle('expanded');
-      });
-
-      function closeModal() {
-        // 今日の日付を保存
-        const today = new Date().toISOString().slice(0, 10);
-        localStorage.setItem('changelog_last_seen', today);
-        overlay.classList.remove('show');
-        setTimeout(() => overlay.remove(), 300);
-        // ドロップダウンのバッジも更新
-        const btn = document.getElementById('changelog-btn');
-        if (btn) btn.innerHTML = `<span class="changelog-btn-dot"></span>WHAT'S NEW <span style="opacity:0.7;font-weight:400;">${WHATS_NEW.length}</span>`;
-      }
-      overlay.querySelector('.wn-btn').addEventListener('click', closeModal);
-      overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
-      document.addEventListener('keydown', function handler(e) {
-        if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', handler); }
       });
     }
 
@@ -919,7 +780,6 @@
         appScreen.style.display = 'block';
         loadAntennaBadge();
         initChangelog();
-        showWhatsNewModal();
       }, 450);
     }
 
