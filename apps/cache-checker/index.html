@@ -13,24 +13,16 @@
     /* ── Container: widen when result is visible ── */
     .container.has-result { max-width: 1400px; }
 
-    /* ── Hero: compact navy band ── */
-    .hero {
-      padding: 32px; margin-bottom: var(--sp-5);
-      background: var(--navy); color: var(--white);
-    }
-    .hero h1 { font-size: 1.6rem; font-weight: 800; margin: 0 0 4px; color: var(--white); }
-    .hero-sub { font-size: var(--text-sm); color: rgba(255,255,255,0.55); margin: 0; }
-
-    /* ── Input: prominent search bar ── */
+    /* ── Input ── */
     .input-area { margin-bottom: var(--sp-4); }
-    .input-row { display: flex; gap: 0; }
+    .input-row { display: flex; gap: var(--sp-2); }
     .input-field {
-      flex: 1; padding: 14px 18px; border: 2px solid var(--navy);
+      flex: 1; padding: 12px 14px; border: 1.5px solid var(--border);
       font-size: var(--text-base); font-family: var(--font-sans); color: var(--text); background: var(--surface); outline: none;
     }
     .input-field::placeholder { color: var(--text-faint); }
     .input-field:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--focus-ring); }
-    .check-btn { padding: 14px 32px; width: auto; white-space: nowrap; margin-left: -2px; }
+    .check-btn { padding: 12px 28px; width: auto; white-space: nowrap; }
     .sample-row { display: flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-2); flex-wrap: wrap; }
     .sample-label { font-size: var(--text-xs); color: var(--text-faint); }
     .sample-btn {
@@ -237,8 +229,7 @@
 
     /* ── Responsive ── */
     @media (max-width: 768px) {
-      .input-row { flex-direction: column; gap: 8px; }
-      .input-row .check-btn { margin-left: 0; width: 100%; }
+      .input-row { flex-direction: column; }
       .change-badges { flex-direction: column; }
     }
   </style>
@@ -254,13 +245,13 @@
     </div>
   </nav>
 
-  <div class="hero">
-    <h1>Cache Checker</h1>
-    <p class="hero-sub">CMS更新の反映状況を診断</p>
-  </div>
-
   <div class="container">
-    <!-- 入力: 最優先 -->
+    <div class="page-header">
+      <h1>Cache Checker</h1>
+      <p class="page-desc">CMS更新の反映状況を診断</p>
+    </div>
+
+    <!-- 入力 -->
     <div class="input-area">
       <div class="input-row">
         <input type="url" id="url-input" class="input-field" placeholder="URLを入力してチェック" autocomplete="url">
