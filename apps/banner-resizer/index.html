@@ -544,8 +544,11 @@
       status = '<span style="color:#e53935;font-weight:600;">⚠ 超過</span>';
     } else if (blob._compressed) {
       status = `<span style="color:#2196f3;">自動圧縮済み（Q:${Math.round(blob._appliedQuality * 100)}%）✓</span>`;
-    } else if (blob._posterized) {
-      status = `<span style="color:#2196f3;">色数削減済み（${blob._posterizeBits}bit/ch）✓</span>`;
+    } else if (blob._posterized || blob._pngScale) {
+      const parts = [];
+      if (blob._pngScale) parts.push(`${Math.round(blob._pngScale * 100)}%縮小`);
+      if (blob._posterized) parts.push(`${blob._posterizeBits}bit/ch`);
+      status = `<span style="color:#2196f3;">自動最適化済み（${parts.join('・')}）✓</span>`;
     } else {
       status = '<span style="color:#43a047;">✓</span>';
     }
@@ -615,17 +618,38 @@
           }
         }
         else {
-          // PNG — reduce colors via posterization to shrink file size
-          const posterizeSteps = [6, 5, 4, 3]; // bits per channel: 6→64色/ch, 5→32, 4→16, 3→8
-          for (const bits of posterizeSteps) {
-            const pCanvas = posterizeCanvas(canvas, bits);
-            const pBlob = await new Promise(r => pCanvas.toBlob(b => r(b), 'image/png'));
+          // PNG — posterize then scale down until under limit
+          let fitted = false;
+          const scaleSteps = [1.0, 0.9, 0.8, 0.7, 0.6];
+          const posterBits = [7, 6, 5, 4];
+          for (const scale of scaleSteps) {
+            const sw = Math.round(canvas.width * scale);
+            const sh = Math.round(canvas.height * scale);
+            const sc = document.createElement('canvas');
+            sc.width = sw; sc.height = sh;
+            sc.getContext('2d').drawImage(canvas, 0, 0, sw, sh);
+            // Try without posterization first at this scale
+            let pBlob = await new Promise(r => sc.toBlob(b => r(b), 'image/png'));
             if (pBlob && pBlob.size <= maxBytes) {
               blob = pBlob;
-              blob._posterized = true;
-              blob._posterizeBits = bits;
+              if (scale < 1.0) { blob._pngScale = scale; }
+              fitted = true;
               break;
             }
+            // Then try posterization at this scale
+            for (const bits of posterBits) {
+              const pc = posterizeCanvas(sc, bits);
+              pBlob = await new Promise(r => pc.toBlob(b => r(b), 'image/png'));
+              if (pBlob && pBlob.size <= maxBytes) {
+                blob = pBlob;
+                blob._posterized = true;
+                blob._posterizeBits = bits;
+                if (scale < 1.0) { blob._pngScale = scale; }
+                fitted = true;
+                break;
+              }
+            }
+            if (fitted) break;
           }
         }
       }
