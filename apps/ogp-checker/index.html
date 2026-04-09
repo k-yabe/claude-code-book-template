@@ -138,7 +138,7 @@
     .tag-table th {
       background: var(--surface-alt);
       font-weight: 700;
-      color: #636e72;
+      color: var(--text-muted);
       width: 210px;
       font-family: var(--font-mono);
       font-size: var(--text-sm);
@@ -162,7 +162,7 @@
       font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 0.06em;
-      color: #636e72;
+      color: var(--text-muted);
       border-bottom: 1.5px solid var(--border);
       background: var(--surface-alt);
     }
@@ -205,8 +205,8 @@
 
     /* 構造化データ */
     .json-block {
-      background: #1e2a35;
-      color: #a8d8a8;
+      background: var(--navy);
+      color: var(--cyan);
       font-family: var(--font-mono);
       font-size: var(--text-sm);
       padding: 16px;
@@ -240,7 +240,7 @@
       padding: 3px 10px;
       background: var(--surface);
       border: 1.5px solid var(--border);
-      color: #636e72;
+      color: var(--text-muted);
       cursor: pointer;
       transition: all var(--ease);
       font-family: inherit;
@@ -336,7 +336,7 @@
       font-size: 0.73rem;
       color: var(--text-faint);
     }
-    .gp-char-over { color: #e17055; font-weight: 600; }
+    .gp-char-over { color: var(--error-text); font-weight: 600; }
 
     /* ── Markdownコピーボタン ── */
     .copy-md-btn {
@@ -790,7 +790,7 @@
         parts.push(microdataItems.map(item => {
           const propsJson = JSON.stringify(item.props, null, 2);
           return `
-            <div style="font-size:0.75rem;color:#8a9bb0;margin:4px 0 4px;font-family:'Courier New',monospace;">${escHtml(item.type)}</div>
+            <div style="font-size:0.75rem;color:var(--text-faint);margin:4px 0 4px;font-family:'Courier New',monospace;">${escHtml(item.type)}</div>
             <div class="json-block">${escHtml(propsJson)}</div>
           `;
         }).join(''));
@@ -798,7 +798,7 @@
 
       if (parts.length === 0) {
         const jsNote = !hasH1
-          ? '<br><span style="font-size:0.8rem;color:#b2bec3;">※ このページはJavaScriptでレンダリングされているため、静的取得では構造化データを確認できません</span>'
+          ? '<br><span style="font-size:0.8rem;color:var(--text-faint);">※ このページはJavaScriptでレンダリングされているため、静的取得では構造化データを確認できません</span>'
           : '';
         area.innerHTML = `<div class="no-data">構造化データ（JSON-LD / Microdata）が見つかりませんでした${jsNote}</div>`;
         return;
@@ -1062,7 +1062,7 @@
         if (!seo.h1) {
           const seoTable = document.getElementById('seo-table');
           const note = document.createElement('tr');
-          note.innerHTML = '<td colspan="2" style="padding:8px 14px;font-size:0.75rem;color:#b2bec3;font-style:italic;">※ h1・構造化データが空の場合、ページがJavaScriptでレンダリングされている可能性があります</td>';
+          note.innerHTML = '<td colspan="2" style="padding:8px 14px;font-size:0.75rem;color:var(--text-faint);font-style:italic;">※ h1・構造化データが空の場合、ページがJavaScriptでレンダリングされている可能性があります</td>';
           seoTable.appendChild(note);
         }
 

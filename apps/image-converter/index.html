@@ -85,7 +85,7 @@
 
     /* ── App-specific: 進捗バー ── */
     .progress-bar { width: 100%; height: 6px; background: var(--border); margin-top: var(--sp-2); }
-    .progress-fill { height: 100%; background: var(--gold); width: 0; transition: width 0.3s; }
+    .progress-fill { height: 100%; background: var(--gold); width: 0; transition: width var(--ease); }
 
     /* ── App-specific: 結果セクション ── */
     .result-section { margin-top: var(--sp-6); }
@@ -118,7 +118,7 @@
       padding: 12px 24px; font-size: var(--text-base); font-weight: 700; border: none; cursor: pointer; transition: all var(--ease);
     }
     .bulk-btn.primary { background: var(--gold); color: var(--navy); }
-    .bulk-btn.primary:hover { background: #f0ac10; }
+    .bulk-btn.primary:hover { background: var(--gold-80); }
     .bulk-btn.secondary { background: none; border: 1.5px solid var(--border); color: var(--navy); }
 
     /* ── App-specific: レスポンシブ ── */
@@ -188,7 +188,7 @@
         <!-- 自動1MB最適化モード -->
         <div class="form-group">
           <label class="form-label" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-            <input type="checkbox" id="auto-optimize" checked style="width:16px; height:16px; accent-color:#001f33;">
+            <input type="checkbox" id="auto-optimize" checked style="width:16px; height:16px; accent-color:var(--navy);">
             自動で1MB以下に最適化
           </label>
           <div class="form-hint" id="auto-optimize-hint">品質を自動調整して1MB以下に収めます。手動設定は不要です。</div>
@@ -196,14 +196,14 @@
 
         <!-- 詳細設定（折りたたみ） -->
         <details id="advanced-settings" class="form-group" style="margin-top:8px;">
-          <summary style="font-size:0.84rem; font-weight:600; color:#001f33; cursor:pointer; padding:8px 0; user-select:none;">詳細設定（上級者向け）</summary>
+          <summary style="font-size:0.84rem; font-weight:600; color:var(--navy); cursor:pointer; padding:8px 0; user-select:none;">詳細設定（上級者向け）</summary>
           <div style="padding-top:12px;">
             <div class="form-group" id="quality-group">
-              <label class="form-label">品質 <span id="quality-val-label" style="font-weight:400; color:#636e72;">（軽量化 ← → 高品質）</span></label>
+              <label class="form-label">品質 <span id="quality-val-label" style="font-weight:400; color:var(--text-muted);">（軽量化 ← → 高品質）</span></label>
               <div class="slider-row">
-                <span style="font-size:0.75rem; color:#636e72;">1%</span>
+                <span style="font-size:0.75rem; color:var(--text-muted);">1%</span>
                 <input type="range" id="quality-slider" min="1" max="100" value="80">
-                <span style="font-size:0.75rem; color:#636e72;">100%</span>
+                <span style="font-size:0.75rem; color:var(--text-muted);">100%</span>
                 <span class="slider-val" id="quality-val">80%</span>
               </div>
               <div class="form-hint">WebP 80%で多くの場合50〜70%の軽量化が可能です</div>
@@ -661,7 +661,7 @@
           }
         }
 
-        const qualityInfo = r.autoOptimized ? `<div style="font-size:0.72rem; color:#636e72; margin-top:2px;">自動品質: ${Math.round(r.finalQuality * 100)}%</div>` : '';
+        const qualityInfo = r.autoOptimized ? `<div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">自動品質: ${Math.round(r.finalQuality * 100)}%</div>` : '';
 
         return `<div class="result-item">
           <img class="result-thumb" src="${r.url}" alt="">

@@ -27,7 +27,7 @@
       padding: var(--sp-6);
       text-align: center;
       cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
+      transition: border-color var(--ease), background var(--ease);
       position: relative;
     }
     .upload-area:hover { border-color: var(--gold); background: var(--gold-20); }
@@ -268,7 +268,7 @@
           <div class="upload-text">PDF / PPTX / DOCX / TXT をドラッグ&ドロップ、またはクリックして選択</div>
           <div class="upload-filename" id="upload-filename" style="display:none"></div>
         </div>
-        <p style="font-size:0.75rem;color:#e17055;margin-top:8px;">⚠️ 機密情報・個人情報を含むファイルはアップロードしないでください</p>
+        <p style="font-size:0.75rem;color:var(--error-text);margin-top:8px;">⚠️ 機密情報・個人情報を含むファイルはアップロードしないでください</p>
       </div>
     </div>
 

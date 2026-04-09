@@ -103,10 +103,10 @@
     .reason-row {
       display: flex; align-items: flex-start; gap: 10px;
       background: var(--gold-20); border: 1px solid var(--gold-60); padding: 10px 13px;
-      margin-bottom: var(--sp-4); font-size: 0.81rem; line-height: 1.65; color: #5a4000;
+      margin-bottom: var(--sp-4); font-size: 0.81rem; line-height: 1.65; color: var(--navy);
     }
     .reason-row .reason-icon { font-size: 0.9rem; flex-shrink: 0; }
-    .reason-row .reason-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.07em; color: #b8860b; margin-bottom: 2px; }
+    .reason-row .reason-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.07em; color: var(--gold-80); margin-bottom: 2px; }
 
     /* Panel footer (copy / char count) */
     .panel-footer {
@@ -158,7 +158,7 @@
     .supp-tab:hover { border-color: var(--gold); color: var(--navy); background: var(--gold-20); }
     .supp-tab.active { border-color: var(--gold); background: var(--gold-20); color: var(--navy); }
     .supp-tab .supp-tab-desc { display: block; font-size: 0.7rem; font-weight: 400; color: var(--text-faint); margin-top: 2px; }
-    .supp-tab.active .supp-tab-desc { color: #b8860b; }
+    .supp-tab.active .supp-tab-desc { color: var(--gold-80); }
     .supp-panel { display: none; }
     .supp-panel.active { display: block; }
     .supp-file-label {
@@ -382,7 +382,7 @@
       <div class="preview-section">
         <div class="preview-section-header">
           <span class="preview-section-title">👁 投稿プレビュー</span>
-          <span style="font-size:0.75rem;color:#a0aab4;">選択中のパターンのイメージです</span>
+          <span style="font-size:0.75rem;color:var(--text-faint);">選択中のパターンのイメージです</span>
         </div>
         <div class="preview-tabs">
           <button class="preview-tab active" data-preview="chatter">☁ Chatter</button>
@@ -758,7 +758,7 @@ ${styleRule}
       const over = charLen > limit;
 
       panel.innerHTML = `
-        <div style="font-size:0.71rem;font-weight:800;letter-spacing:0.07em;color:#9aa5b4;margin-bottom:10px;">${ANGLES[i].toUpperCase()}</div>
+        <div style="font-size:0.71rem;font-weight:800;letter-spacing:0.07em;color:var(--text-faint);margin-bottom:10px;">${ANGLES[i].toUpperCase()}</div>
         <div class="edit-hint">クリックして編集できます</div>
         <div class="post-text" data-idx="${i}">${escHtml(text)}</div>
         <div class="merit-demerit">

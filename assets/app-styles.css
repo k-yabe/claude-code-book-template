@@ -80,6 +80,8 @@
 
   /* ── Transitions ── */
   --ease: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-fast: 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ══════════════════════════════════════════
@@ -114,7 +116,8 @@ body {
   top: 0;
   z-index: 10;
   gap: var(--sp-3);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
+  border-bottom: 2px solid var(--gold);
 }
 
 .navbar-brand {
@@ -137,8 +140,8 @@ body {
 
 .navbar-title {
   font-size: var(--text-md);
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  font-weight: 700;
+  color: var(--white);
   letter-spacing: 0.01em;
 }
 
@@ -159,8 +162,8 @@ body {
 }
 
 .back-btn:hover {
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--gold);
+  background: rgba(255, 184, 28, 0.1);
   color: var(--white);
 }
 
@@ -179,6 +182,7 @@ body {
   background: var(--surface);
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-light);
+  border-top: 3px solid var(--navy);
 }
 
 /* ══════════════════════════════════════════
@@ -193,8 +197,11 @@ body {
   font-weight: 800;
   color: var(--navy);
   letter-spacing: -0.02em;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   line-height: 1.3;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--gold);
+  display: inline-block;
 }
 
 .page-header p,
@@ -328,16 +335,24 @@ button:disabled,
   border: 1px solid var(--border);
   margin-bottom: var(--sp-5);
   box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--ease-fast), border-color var(--ease-fast);
+}
+
+.card:hover,
+.step:hover,
+.section-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--navy-20);
 }
 
 .card-header,
 .step-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 22px;
+  gap: 12px;
+  padding: 16px 22px;
   border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface-alt) 100%);
   border-left: 3px solid var(--navy);
 }
 
@@ -348,8 +363,8 @@ button:disabled,
 
 /* Step Number Badge */
 .step-num {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   background: var(--navy);
   color: var(--white);
   font-size: var(--text-xs);
@@ -358,7 +373,8 @@ button:disabled,
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 31, 51, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 31, 51, 0.25);
+  border: 2px solid var(--gold);
 }
 
 .step-title {
@@ -387,15 +403,27 @@ input[type="search"],
 textarea,
 select {
   width: 100%;
-  padding: 11px 14px;
+  padding: 12px 16px;
+  min-height: 44px;
   border: 1.5px solid var(--border);
   background: var(--surface);
   font-size: var(--text-base);
   color: var(--text);
   font-family: var(--font-sans);
   outline: none;
-  transition: border-color var(--ease), box-shadow var(--ease);
+  transition: border-color var(--ease), box-shadow var(--ease), background var(--ease-fast);
   box-shadow: inset 0 1px 2px rgba(0, 31, 51, 0.04);
+}
+
+input[type="text"]:hover,
+input[type="url"]:hover,
+input[type="email"]:hover,
+input[type="number"]:hover,
+input[type="search"]:hover,
+textarea:hover,
+select:hover {
+  border-color: var(--navy-20);
+  background: var(--surface-alt);
 }
 
 input::placeholder,
@@ -565,12 +593,22 @@ select {
    14. File Upload Zone
    ══════════════════════════════════════════ */
 .file-drop {
-  border: 2px dashed var(--border);
+  border: 2px dashed var(--navy-20);
   background: var(--surface-alt);
   padding: 48px var(--sp-6);
   text-align: center;
   cursor: pointer;
   transition: all var(--ease);
+  position: relative;
+}
+
+.file-drop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(0,31,51,0.02) 100%);
+  pointer-events: none;
+  transition: opacity var(--ease);
 }
 
 .file-drop:hover,
@@ -595,7 +633,7 @@ select {
    ══════════════════════════════════════════ */
 .app-footer {
   background: var(--navy);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 2px solid var(--gold);
   padding: var(--sp-4) var(--sp-10);
   text-align: center;
 }
@@ -668,6 +706,7 @@ a:hover {
 .preview-area {
   background: var(--surface);
   border: 1px solid var(--border);
+  border-left: 3px solid var(--navy);
   box-shadow: var(--shadow-sm);
   padding: 20px;
 }
