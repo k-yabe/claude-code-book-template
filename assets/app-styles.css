@@ -117,7 +117,6 @@ body {
   z-index: 10;
   gap: var(--sp-3);
   box-shadow: var(--shadow-md);
-  border-bottom: 2px solid var(--gold);
 }
 
 .navbar-brand {
@@ -199,8 +198,6 @@ body {
   letter-spacing: -0.02em;
   margin-bottom: 6px;
   line-height: 1.3;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--gold);
   display: inline-block;
 }
 
@@ -374,7 +371,6 @@ button:disabled,
   justify-content: center;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgba(0, 31, 51, 0.25);
-  border: 2px solid var(--gold);
 }
 
 .step-title {
@@ -613,9 +609,8 @@ select {
 
 .file-drop:hover,
 .file-drop.dragover {
-  border-color: var(--gold);
-  background: var(--gold-20);
-  box-shadow: inset 0 0 0 1px var(--gold-40);
+  border-color: var(--navy);
+  background: var(--surface);
 }
 
 .file-drop-icon {
@@ -633,7 +628,6 @@ select {
    ══════════════════════════════════════════ */
 .app-footer {
   background: var(--navy);
-  border-top: 2px solid var(--gold);
   padding: var(--sp-4) var(--sp-10);
   text-align: center;
 }
