@@ -544,32 +544,40 @@
       status = '<span style="color:#e53935;font-weight:600;">⚠ 超過</span>';
     } else if (blob._compressed) {
       status = `<span style="color:#2196f3;">自動圧縮済み（Q:${Math.round(blob._appliedQuality * 100)}%）✓</span>`;
-    } else if (blob._posterized) {
-      status = `<span style="color:#2196f3;">自動最適化済み（${blob._posterizeBits}bit/ch）✓</span>`;
+    } else if (blob._pngOptimized) {
+      const detail = blob._pngBits < 8 ? `blur${blob._pngBlur}px・${blob._pngBits}bit/ch` : `blur${blob._pngBlur}px`;
+      status = `<span style="color:#2196f3;">自動最適化済み（${detail}）✓</span>`;
     } else {
       status = '<span style="color:#43a047;">✓</span>';
     }
     el.innerHTML = `📦 ${label} / 上限 ${maxLabel}　${status}`;
   }
 
-  // ── PNG posterization (color quantization) ────────────
-  function posterizeCanvas(srcCanvas, bits) {
+  // ── PNG optimization (blur + posterize) ────────────────
+  function optimizePngCanvas(srcCanvas, blurPx, bits) {
     const w = srcCanvas.width, h = srcCanvas.height;
     const dst = document.createElement('canvas');
     dst.width = w; dst.height = h;
-    const srcCtx = srcCanvas.getContext('2d');
     const dstCtx = dst.getContext('2d');
-    const imgData = srcCtx.getImageData(0, 0, w, h);
-    const d = imgData.data;
-    const shift = 8 - bits;
-    const mask = (0xFF >> shift) << shift;
-    for (let i = 0; i < d.length; i += 4) {
-      d[i]     = d[i]     & mask; // R
-      d[i + 1] = d[i + 1] & mask; // G
-      d[i + 2] = d[i + 2] & mask; // B
-      // Alpha unchanged
+    // Step 1: Apply blur to reduce noise & smooth gradients (improves PNG compression)
+    if (blurPx > 0) {
+      dstCtx.filter = `blur(${blurPx}px)`;
     }
-    dstCtx.putImageData(imgData, 0, 0);
+    dstCtx.drawImage(srcCanvas, 0, 0, w, h);
+    dstCtx.filter = 'none';
+    // Step 2: Posterize (reduce color levels per channel)
+    if (bits < 8) {
+      const imgData = dstCtx.getImageData(0, 0, w, h);
+      const d = imgData.data;
+      const shift = 8 - bits;
+      const mask = (0xFF >> shift) << shift;
+      for (let i = 0; i < d.length; i += 4) {
+        d[i]     = d[i]     & mask; // R
+        d[i + 1] = d[i + 1] & mask; // G
+        d[i + 2] = d[i + 2] & mask; // B
+      }
+      dstCtx.putImageData(imgData, 0, 0);
+    }
     return dst;
   }
 
@@ -615,19 +623,29 @@
           }
         }
         else {
-          // PNG — try gentle posterization only (preserve dimensions & quality)
-          const posterBits = [7, 6]; // 7bit=128色/ch, 6bit=64色/ch — visually minimal impact
-          for (const bits of posterBits) {
-            const pc = posterizeCanvas(canvas, bits);
+          // PNG — blur + posterize (graduated steps, mildest first)
+          // blur softens noise → better PNG compression; posterize reduces unique colors
+          const steps = [
+            { blur: 0.5, bits: 8 },  // blur only (very subtle)
+            { blur: 1,   bits: 8 },  // blur only
+            { blur: 1,   bits: 7 },  // blur + light posterize
+            { blur: 1.5, bits: 7 },
+            { blur: 1.5, bits: 6 },
+            { blur: 2,   bits: 6 },
+            { blur: 2,   bits: 5 },
+            { blur: 2.5, bits: 5 },
+          ];
+          for (const s of steps) {
+            const pc = optimizePngCanvas(canvas, s.blur, s.bits);
             const pBlob = await new Promise(r => pc.toBlob(b => r(b), 'image/png'));
             if (pBlob && pBlob.size <= maxBytes) {
               blob = pBlob;
-              blob._posterized = true;
-              blob._posterizeBits = bits;
+              blob._pngOptimized = true;
+              blob._pngBlur = s.blur;
+              blob._pngBits = s.bits;
               break;
             }
           }
-          // If still over limit, keep original quality — don't sacrifice dimensions or visual quality
         }
       }
       if (blob && blob.type !== mimeType && !blob._actualExt) {
