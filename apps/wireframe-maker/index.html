@@ -1245,7 +1245,8 @@ if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
-addChatMessage('ai', 'ワイヤーフレームの構成を一緒に考えましょう。\n\nテンプレートを選ぶか、作りたいページについて教えてください。右側にリアルタイムプレビューが表示されます。');
+// 初期表示は #welcome-cards のモード選択（ゼロから作る / 既存サイトから作る）を優先。
+// AIの初期メッセージ・サジェストはユーザーが何かアクションを取った後に表示する。
 showSuggestions(['BtoB向けリード獲得LP', '新サービスの紹介サイト', '既存LPを改善したい']);
 
 /* ===== ユーティリティ ===== */
