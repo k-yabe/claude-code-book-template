@@ -3644,19 +3644,20 @@ function showSectionOverlay(sectionId) {
   bar.style.top = (groupRect.top - canvasRect.top + canvas.scrollTop) + 'px';
 
   const btns = [
-    { label: '↑ 上へ', action: () => moveSection(idx, -1), hide: idx === 0 },
-    { label: '↓ 下へ', action: () => moveSection(idx, 1), hide: idx === currentSections.length - 1 },
-    { label: '⧉ 複製', action: () => { duplicateSection(idx); showSectionOverlay(sectionId); } },
-    { label: '✎ 編集', action: () => showInlineEdit(sectionId) },
-    { label: '🖼 画像', action: () => uploadSectionImage(sectionId) },
-    { label: '🎨 色', action: () => showSectionStyleEditor(sectionId) },
-    { label: '🔗 リンク', action: () => showLinkPicker(sectionId) },
-    { label: '✕', action: () => { deleteSection(idx); }, cls: 'danger' },
+    { label: '↑ 上へ', tip: 'セクションを1つ上へ移動', action: () => moveSection(idx, -1), hide: idx === 0 },
+    { label: '↓ 下へ', tip: 'セクションを1つ下へ移動', action: () => moveSection(idx, 1), hide: idx === currentSections.length - 1 },
+    { label: '⧉ 複製', tip: 'このセクションを複製', action: () => { duplicateSection(idx); showSectionOverlay(sectionId); } },
+    { label: '✎ 編集', tip: 'テキスト・ラベルをまとめて編集', action: () => showInlineEdit(sectionId) },
+    { label: '🖼 画像', tip: '画像をアップロードして差し込み', action: () => uploadSectionImage(sectionId) },
+    { label: '🎨 色', tip: 'セクションの配色を変更', action: () => showSectionStyleEditor(sectionId) },
+    { label: '🔗 リンク', tip: 'CTA等にリンクを設定', action: () => showLinkPicker(sectionId) },
+    { label: '✕', tip: 'セクションを削除', action: () => { deleteSection(idx); }, cls: 'danger' },
   ];
   btns.forEach(b => {
     if (b.hide) return;
     const btn = document.createElement('button');
     btn.textContent = b.label;
+    if (b.tip) btn.title = b.tip;
     if (b.cls) btn.className = b.cls;
     btn.onclick = e => { e.stopPropagation(); b.action(); };
     bar.appendChild(btn);
@@ -4918,6 +4919,7 @@ showSectionOverlay = function(sectionId) {
   const commentCount = (sectionComments[sectionId] || []).length;
   const btn = document.createElement('button');
   btn.textContent = `💬${commentCount > 0 ? commentCount : ''}`;
+  btn.title = 'コメントを追加';
   btn.onclick = e => {
     e.stopPropagation();
     const badges = document.querySelectorAll('.comment-badge');
