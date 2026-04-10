@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-04-09T23:30:54Z",
+  "last_scraped": "2026-04-10T23:26:43Z",
   "articles": [
+    {
+      "id": "thinkers-and-makers-innovation-akkodis-intelligence-action",
+      "title": "The Innovation Advantage: Akkodis Intelligence in Action",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-innovation-akkodis-intelligence-action",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-04-10T23:25:53Z",
+      "published_date": "2026-04-10T00:00:00Z",
+      "summary_ja": "アッコディスは研究と実務的なエンジニアリングの専門知識を組み合わせることで、気候変動への対応など社会的な課題に向き合う革新的なソリューションを生み出しています。沿岸部の洪水防止を目指すSABRESプロジェクトでは、海上で自動的に展開・収納できるロボット防波堤の開発に取り組んでおり、海洋生物学からAIまで複数の専門分野の技術者が協力して複雑な課題に対応しています。トゥールーズとリヨンに設置した実験工房では、エンジニアが自由にアイデアを試し、試作品を作ることで、理論から実際の製品化までのプロセスを効率的に進めることができる環境を整備しています。"
+    },
     {
       "id": "improving-the-acoustic-footprint-of-submarines",
       "title": "Absolute Stealth: Mastering the Acoustic Signature of Submarines",
