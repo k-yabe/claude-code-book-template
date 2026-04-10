@@ -2972,7 +2972,18 @@ function drawCircle(g, cx, cy, r) { g.appendChild(svgEl('circle', { cx, cy, r, f
 function drawText(g, x, y, text, size, color, weight, anchor, editKey) {
   const t = svgEl('text', { x, y, fill: color || cs('heading'), 'font-size': size || '14', 'font-family': "'Segoe UI', sans-serif", 'font-weight': weight || '400', 'text-anchor': anchor || 'start' });
   if (editKey) { t.setAttribute('data-edit-key', editKey); t.style.cursor = 'text'; }
-  t.textContent = text; g.appendChild(t);
+  const str = String(text == null ? '' : text);
+  if (str.indexOf('\n') >= 0) {
+    const lh = (parseFloat(size || '14') * 1.25);
+    str.split('\n').forEach((line, i) => {
+      const ts = svgEl('tspan', { x, dy: i === 0 ? 0 : lh });
+      ts.textContent = line;
+      t.appendChild(ts);
+    });
+  } else {
+    t.textContent = str;
+  }
+  g.appendChild(t);
 }
 function drawCard(g, x, y, w, h) {
   g.appendChild(svgEl('rect', { x, y, width: w, height: h, fill: cs('card'), stroke: cs('border'), 'stroke-width': 1, filter: 'url(#card-shadow)' }));
@@ -3037,10 +3048,15 @@ const RENDERERS = {
     g.appendChild(svgEl('rect', { x: 0, y: SEC_PAD, width: WF_WIDTH, height: h - SEC_PAD, fill: cs('card') }));
     drawText(g, 80, 120, t.heading || 'キャッチコピーが入ります', '28', cs('heading'), '700', null, 'heading');
     drawText(g, 80, 152, t.subheading || 'サブコピー — サービスの価値を一言で伝えるメッセージ', '14', cs('body'), null, null, 'subheading');
-    drawLines(g, 80, 170, 380, 2, 6, cs('line'));
+    drawText(g, 80, 178, t.body || '主要なベネフィット・特長を1〜2行で補足説明します', '12', cs('body'), null, null, 'body');
+    drawText(g, 80, 196, t.body2 || '数値や実績を入れると説得力が増します', '12', cs('body'), null, null, 'body2');
     drawBtn(g, 80, 220, 220, 52, t.cta || '無料で資料ダウンロード', true, 'cta');
     drawText(g, 86, 290, t.ctaSub || '3分で完了 / 営業電話なし', '10', cs('body'), null, null, 'ctaSub');
-    for (let i = 0; i < 5; i++) g.appendChild(svgEl('rect', { x: 80 + i * 90, y: 320, width: 70, height: 24, fill: cs('img') }));
+    const defHeroLogos = ['企業A', '企業B', '企業C', '企業D', '企業E'];
+    for (let i = 0; i < 5; i++) {
+      g.appendChild(svgEl('rect', { x: 80 + i * 90, y: 320, width: 70, height: 24, fill: cs('img') }));
+      drawText(g, 115 + i * 90, 336, t['logo' + i] || defHeroLogos[i], '10', cs('body'), '500', 'middle', 'logo' + i);
+    }
     drawText(g, 80, 364, t.social || '導入企業 12,847社', '10', cs('body'), null, null, 'social');
     drawImg(g, 640, 70, 480, 360, sec && sec.image);
   },
@@ -3078,7 +3094,11 @@ const RENDERERS = {
   testimonials(g, h, sec) {
     const t = (sec && sec.texts) || {};
     drawText(g, WF_WIDTH / 2, 38, t.heading || 'お客様の声', '18', cs('heading'), '700', 'middle', 'heading');
-    for (let i = 0; i < 6; i++) g.appendChild(svgEl('rect', { x: 80 + i * 170, y: 55, width: 120, height: 28, fill: cs('img') }));
+    const defClients = ['導入企業A', '導入企業B', '導入企業C', '導入企業D', '導入企業E', '導入企業F'];
+    for (let i = 0; i < 6; i++) {
+      g.appendChild(svgEl('rect', { x: 80 + i * 170, y: 55, width: 120, height: 28, fill: cs('img') }));
+      drawText(g, 140 + i * 170, 74, t['client' + i] || defClients[i], '10', cs('body'), '500', 'middle', 'client' + i);
+    }
     const cols = 2, cw = 480, gap = (WF_WIDTH - cols * cw) / (cols + 1);
     for (let i = 0; i < cols; i++) {
       const x = gap + i * (cw + gap);
@@ -3227,8 +3247,11 @@ const RENDERERS = {
     const t = (sec && sec.texts) || {};
     const count = 6, lw = 120, gap = (WF_WIDTH - count * lw) / (count + 1);
     drawText(g, WF_WIDTH / 2, 24, t.heading || 'TRUSTED BY 12,847+ COMPANIES', '9', cs('body'), '600', 'middle', 'heading');
+    const defBarLogos = ['LOGO A', 'LOGO B', 'LOGO C', 'LOGO D', 'LOGO E', 'LOGO F'];
     for (let i = 0; i < count; i++) {
-      g.appendChild(svgEl('rect', { x: gap + i * (lw + gap), y: 40, width: lw, height: 36, fill: cs('img') }));
+      const lx = gap + i * (lw + gap);
+      g.appendChild(svgEl('rect', { x: lx, y: 40, width: lw, height: 36, fill: cs('img') }));
+      drawText(g, lx + lw / 2, 62, t['logo' + i] || defBarLogos[i], '11', cs('body'), '600', 'middle', 'logo' + i);
     }
   },
   comparison(g, h, sec) {
@@ -3736,10 +3759,14 @@ function editSVGText(sectionId, textEl) {
   const anchor = textEl.getAttribute('text-anchor') || 'start';
   const zf = zoomLevel || 1;
 
-  const input = document.createElement('input');
+  // 現在値は sec.texts 優先（改行保持のため）
+  const currentValue = (sec.texts && sec.texts[key] != null) ? sec.texts[key] : textEl.textContent;
+
+  const input = document.createElement('textarea');
   input.className = 'svg-text-input';
   input._committed = false;
-  input.value = textEl.textContent;
+  input.value = currentValue;
+  input.rows = Math.max(1, String(currentValue).split('\n').length);
   input.style.position = 'absolute';
   input.style.top = (rect.top - canvasRect.top + canvas.scrollTop - 4) + 'px';
   input.style.fontSize = (fontSize * zf) + 'px';
@@ -3750,6 +3777,9 @@ function editSVGText(sectionId, textEl) {
   input.style.outline = 'none';
   input.style.padding = '2px 6px';
   input.style.fontFamily = "'Segoe UI', sans-serif";
+  input.style.lineHeight = '1.25';
+  input.style.resize = 'none';
+  input.style.overflow = 'hidden';
   input.style.zIndex = '40';
   input.style.minWidth = '120px';
 
@@ -3764,27 +3794,35 @@ function editSVGText(sectionId, textEl) {
 
   input.onclick = e => e.stopPropagation();
 
+  const autoResize = () => {
+    input.style.height = 'auto';
+    input.style.height = (input.scrollHeight + 2) + 'px';
+  };
+
   const commit = () => {
     if (input._committed) return;
     input._committed = true;
-    const val = input.value.trim();
-    if (val && val !== textEl.textContent) {
+    const val = input.value.replace(/^\s+|\s+$/g, '');
+    if (val && val !== currentValue) {
       saveUndoState();
       if (!sec.texts) sec.texts = {};
       sec.texts[key] = val;
       onSectionsChanged();
-      showToast('テキスト更新');
+      showToast('テキスト更新（Shift+Enter で改行）');
     }
     try { input.remove(); } catch(_){}
   };
 
   input.addEventListener('blur', commit);
+  input.addEventListener('input', autoResize);
   input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-    if (e.key === 'Escape') { input.value = textEl.textContent; input.blur(); }
+    // Enter=確定 / Shift+Enter=改行
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); input.blur(); return; }
+    if (e.key === 'Escape') { e.preventDefault(); input.value = currentValue; input.blur(); }
   });
 
   canvas.appendChild(input);
+  autoResize();
   input.focus();
   input.select();
 }
