@@ -130,6 +130,32 @@
     .free-text-toolbar button:hover { color: #ffb81c; border-color: #ffb81c; }
     .free-text-toolbar select { appearance: none; padding-right: 4px; }
     .free-text-toolbar input[type="color"] { width: 22px; height: 22px; padding: 0; border: none; cursor: pointer; }
+    /* スタート画面再表示バー */
+    .chat-reopen-bar { padding: 8px 12px 0; display: flex; justify-content: flex-end; }
+    .chat-reopen-btn { padding: 6px 12px; font-size: 0.7rem; font-family: inherit; cursor: pointer; border: 1px solid #e8ecf0; background: #fff; color: #4a5568; transition: all 0.12s; }
+    .chat-reopen-btn:hover { border-color: #ffb81c; color: #ffb81c; background: #fffbf0; }
+    /* スタートモーダル（ゼロから/既存サイトから選択） */
+    .wf-start-modal { position: fixed; inset: 0; z-index: 250; background: rgba(0,31,51,0.55); display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .wf-start-box { background: #fff; max-width: 720px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 16px 48px rgba(0,0,0,0.25); border-top: 4px solid #ffb81c; }
+    .wf-start-header { padding: 22px 28px 12px; border-bottom: 1px solid #eef1f4; }
+    .wf-start-header h2 { font-size: 1.05rem; font-weight: 700; color: #001f33; margin: 0 0 6px; }
+    .wf-start-header p { font-size: 0.78rem; color: #6a7a8c; margin: 0; line-height: 1.55; }
+    .wf-start-body { padding: 18px 24px 22px; }
+    .wf-start-section { margin-bottom: 18px; }
+    .wf-start-section:last-child { margin-bottom: 0; }
+    .wf-start-section-label { font-size: 0.68rem; font-weight: 700; color: #ffb81c; letter-spacing: 0.08em; margin-bottom: 8px; text-transform: uppercase; }
+    .wf-start-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 560px) { .wf-start-cards { grid-template-columns: 1fr; } }
+    .wf-start-card { display: flex; gap: 12px; padding: 14px 16px; background: #f7f8fa; border: 1.5px solid #e8ecf0; cursor: pointer; transition: all 0.15s; text-align: left; align-items: flex-start; font-family: inherit; }
+    .wf-start-card:hover { border-color: #ffb81c; background: #fffbf0; transform: translateY(-1px); }
+    .wf-start-card .wsc-icon { font-size: 1.5rem; flex-shrink: 0; width: 32px; text-align: center; line-height: 1.2; }
+    .wf-start-card .wsc-body { flex: 1; min-width: 0; }
+    .wf-start-card .wsc-label { font-size: 0.82rem; font-weight: 700; color: #001f33; margin-bottom: 3px; }
+    .wf-start-card .wsc-desc { font-size: 0.68rem; color: #6a7a8c; line-height: 1.5; }
+    .wf-start-footer { padding: 12px 24px 18px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eef1f4; background: #fafbfc; }
+    .wf-start-footer label { font-size: 0.7rem; color: #6a7a8c; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .wf-start-footer button { padding: 8px 16px; font-size: 0.75rem; font-family: inherit; cursor: pointer; border: 1px solid #e8ecf0; background: #fff; color: #4a5568; }
+    .wf-start-footer button:hover { border-color: #ffb81c; color: #ffb81c; }
     /* インポートモーダル */
     .import-mode-modal { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; }
     .import-mode-box { background: #fff; padding: 24px; max-width: 400px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
@@ -830,35 +856,10 @@
             <button class="tpl-chip" data-tpl="recruitment">採用</button>
             <button class="tpl-chip" data-tpl="event-seminar">イベント</button>
           </div>
-          <div id="chat-messages" class="chat-messages">
-            <div id="welcome-cards" class="welcome-cards">
-              <div class="welcome-title">Wireframe Maker</div>
-              <div class="welcome-sub">ワイヤーフレームの作り方を選んでください</div>
-              <div class="welcome-mode-label">ゼロから作る</div>
-              <div class="welcome-card" onclick="document.querySelector('.tpl-chip').click()">
-                <div class="wc-icon">📋</div>
-                <div class="wc-body">
-                  <div class="wc-label">テンプレートから作成</div>
-                  <div class="wc-desc">BtoB LP・SaaS・ECなど10種のテンプレートを選んで即スタート</div>
-                </div>
-              </div>
-              <div class="welcome-card" onclick="document.getElementById('chat-input').focus()">
-                <div class="wc-icon">💬</div>
-                <div class="wc-body">
-                  <div class="wc-label">AIに要件を伝えて作成</div>
-                  <div class="wc-desc">チャットで要件を伝えるとAIが最適な構成を提案</div>
-                </div>
-              </div>
-              <div class="welcome-mode-label" style="margin-top:12px">既存サイトから作る</div>
-              <div class="welcome-card" onclick="document.getElementById('url-input').focus()">
-                <div class="wc-icon">🌐</div>
-                <div class="wc-body">
-                  <div class="wc-label">サイトURLを読み込む</div>
-                  <div class="wc-desc">URLを入力 → サイトを表示・編集 → WFセクションに自動変換</div>
-                </div>
-              </div>
-            </div>
+          <div class="chat-reopen-bar">
+            <button type="button" class="chat-reopen-btn" onclick="showStartModal()" title="スタート画面を開く">✨ はじめ方を選ぶ</button>
           </div>
+          <div id="chat-messages" class="chat-messages"></div>
           <div id="suggestions-area" class="suggestions"></div>
           <div id="ready-banner" class="ready-banner hidden">
             <span>要件整理完了</span>
@@ -1245,9 +1246,96 @@ if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
-// 初期表示は #welcome-cards のモード選択（ゼロから作る / 既存サイトから作る）を優先。
-// AIの初期メッセージ・サジェストはユーザーが何かアクションを取った後に表示する。
+// 初期サジェスト（ユーザーが入力を始めるヒント）
 showSuggestions(['BtoB向けリード獲得LP', '新サービスの紹介サイト', '既存LPを改善したい']);
+
+// スタートモーダル：初回起動時に「ゼロから作る / 既存サイトから作る」選択を表示
+const WF_START_SKIP_KEY = 'wf-maker-skip-start-modal';
+function showStartModal() {
+  if (document.querySelector('.wf-start-modal')) return;
+  const modal = document.createElement('div');
+  modal.className = 'wf-start-modal';
+  modal.innerHTML = `
+    <div class="wf-start-box" role="dialog" aria-labelledby="wf-start-title" aria-modal="true">
+      <div class="wf-start-header">
+        <h2 id="wf-start-title">Wireframe Maker へようこそ</h2>
+        <p>どこから始めますか？目的に合う方法を1つ選んでください（あとで切り替えできます）</p>
+      </div>
+      <div class="wf-start-body">
+        <div class="wf-start-section">
+          <div class="wf-start-section-label">ゼロから作る</div>
+          <div class="wf-start-cards">
+            <button type="button" class="wf-start-card" data-act="tpl">
+              <div class="wsc-icon">📋</div>
+              <div class="wsc-body">
+                <div class="wsc-label">テンプレートから作成</div>
+                <div class="wsc-desc">BtoB LP・SaaS・EC など 10 種類から選んで即スタート</div>
+              </div>
+            </button>
+            <button type="button" class="wf-start-card" data-act="chat">
+              <div class="wsc-icon">💬</div>
+              <div class="wsc-body">
+                <div class="wsc-label">AI に要件を伝えて作成</div>
+                <div class="wsc-desc">チャットで要件を伝えると AI が最適な構成を提案</div>
+              </div>
+            </button>
+            <button type="button" class="wf-start-card" data-act="file">
+              <div class="wsc-icon">📄</div>
+              <div class="wsc-body">
+                <div class="wsc-label">営業資料・提案書から作成</div>
+                <div class="wsc-desc">PDF / Word / PPTX をインポートし、見出し・本文・数値をそのまま使って構成を生成。不足箇所はクリックで編集可</div>
+              </div>
+            </button>
+            <button type="button" class="wf-start-card" data-act="manual">
+              <div class="wsc-icon">🧱</div>
+              <div class="wsc-body">
+                <div class="wsc-label">手動でセクションを追加</div>
+                <div class="wsc-desc">構成タブの「＋セクション追加」から1つずつ組み立て</div>
+              </div>
+            </button>
+          </div>
+        </div>
+        <div class="wf-start-section">
+          <div class="wf-start-section-label">既存サイトから作る</div>
+          <div class="wf-start-cards">
+            <button type="button" class="wf-start-card" data-act="url">
+              <div class="wsc-icon">🌐</div>
+              <div class="wsc-body">
+                <div class="wsc-label">サイト URL を読み込む</div>
+                <div class="wsc-desc">URL を入力 → サイトを表示・編集 → WF セクションに自動変換</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="wf-start-footer">
+        <label><input type="checkbox" id="wf-start-skip"> 次回から表示しない</label>
+        <button type="button" data-act="close">閉じる</button>
+      </div>
+    </div>
+  `;
+  const close = () => {
+    const skip = modal.querySelector('#wf-start-skip');
+    if (skip && skip.checked) { try { localStorage.setItem(WF_START_SKIP_KEY, '1'); } catch(_){} }
+    modal.remove();
+  };
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  modal.querySelectorAll('[data-act]').forEach(btn => {
+    btn.onclick = () => {
+      const act = btn.dataset.act;
+      close();
+      if (act === 'tpl') { const chip = document.querySelector('.tpl-chip'); if (chip) chip.click(); }
+      else if (act === 'chat') { const el = document.getElementById('chat-input'); if (el) el.focus(); }
+      else if (act === 'file') { const el = document.getElementById('file-input'); if (el) el.click(); }
+      else if (act === 'manual') { const tab = document.querySelector('[data-tab="structure"]'); if (tab) tab.click(); }
+      else if (act === 'url') { const el = document.getElementById('url-input'); if (el) el.focus(); }
+    };
+  });
+  document.addEventListener('keydown', function onEsc(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onEsc); } });
+  document.body.appendChild(modal);
+}
+// 初回（未スキップ）起動時のみ自動表示
+try { if (!localStorage.getItem(WF_START_SKIP_KEY)) setTimeout(showStartModal, 300); } catch(_){}
 
 /* ===== ユーティリティ ===== */
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
