@@ -1035,8 +1035,7 @@
           <strong>テンプレート:</strong> 左パネルの「TPL:」から業種テンプレートを選択<br>
           <strong>AIチャット:</strong> 左パネル下部で要件を入力してAI生成<br>
           <strong>サイトから:</strong> URLを入力して既存サイトの構成をWFに変換<br>
-          <strong>手動:</strong> 構成タブの「＋ セクション追加」でパーツを選択<br>
-          <strong>方法3:</strong> テンプレートから選択して開始
+          <strong>手動:</strong> 構成タブの「＋ セクション追加」でパーツを選択
         </div>
       </div>
     </div>
@@ -1252,7 +1251,11 @@ showSuggestions(['BtoB向けリード獲得LP', '新サービスの紹介サイ�
 
 /* ===== ユーティリティ ===== */
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function showError(msg) { let el = document.querySelector('.error-msg'); if (!el) { el = document.createElement('div'); el.className = 'error-msg'; el.setAttribute('role', 'alert'); document.querySelector('.panel-body').prepend(el); } el.textContent = msg; }
+function showError(msg) {
+  let el = document.querySelector('.error-msg'); if (!el) { el = document.createElement('div'); el.className = 'error-msg'; el.setAttribute('role', 'alert'); document.querySelector('.panel-body').prepend(el); }
+  const isNetwork = /Failed to fetch|NetworkError|ECONNREFUSED|Load failed/i.test(msg);
+  el.textContent = isNetwork ? 'サーバーに接続できません。しばらく待ってから再度お試しください。（手動でセクション追加は構成タブから可能です）' : msg;
+}
 function clearError() { const el = document.querySelector('.error-msg'); if (el) el.textContent = ''; }
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -3100,7 +3103,7 @@ const RENDERERS = {
       drawCard(g, x, 60, cw, h - 90);
       if (isRec) {
         g.appendChild(svgEl('rect', { x: x, y: 60, width: cw, height: 24, fill: cs('accent') }));
-        drawText(g, x + cw / 2, 77, 'RECOMMENDED', '10', cs('accentText'), '700', 'middle');
+        drawText(g, x + cw / 2, 77, t.badge || 'RECOMMENDED', '10', cs('accentText'), '700', 'middle', 'badge');
       }
       drawText(g, x + cw / 2, isRec ? 108 : 92, t['plan' + i] || defNames[i], '14', cs('heading'), '600', 'middle', 'plan' + i);
       drawText(g, x + cw / 2, isRec ? 140 : 124, t['price' + i] || defPrices[i], '22', cs('heading'), '700', 'middle', 'price' + i);
@@ -3180,7 +3183,7 @@ const RENDERERS = {
     defSteps.forEach((s, i) => {
       const y = 60 + i * 66;
       drawCircle(g, 141, y + 12, 12);
-      drawText(g, 141, y + 16, `${i + 1}`, '10', cs('heading'), '700', 'middle');
+      drawText(g, 141, y + 16, t['stepNum' + i] || `${i + 1}`, '10', cs('heading'), '700', 'middle', 'stepNum' + i);
       drawText(g, 180, y + 12, t['step' + i] || s, '14', cs('heading'), '600', null, 'step' + i);
       drawText(g, 180, y + 32, t['stepDesc' + i] || 'ステップの説明テキストが入ります', '10', cs('body'), null, null, 'stepDesc' + i);
     });
