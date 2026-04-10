@@ -68,7 +68,9 @@
     .right-panel-canvas svg .img-click-area:hover { opacity: 0.7; }
     .right-panel-canvas svg .section-group:hover rect.section-bg { stroke: var(--gold); stroke-width: 2; }
     .right-panel-canvas svg text[data-edit-key] { cursor: text; }
-    .right-panel-canvas svg text[data-edit-key]:hover { opacity: 0.7; }
+    .right-panel-canvas svg text[data-edit-key]:hover { opacity: 0.7; fill: #001f33; text-decoration: underline; }
+    .right-panel-canvas svg rect[data-edit-key]:hover { opacity: 0.8; }
+    .right-panel-canvas svg rect[data-edit-key] { cursor: text; }
     .right-panel-canvas svg .section-group.selected rect.section-bg { stroke: var(--navy); stroke-width: 2.5; stroke-dasharray: 8 4; }
 
     /* セクションオーバーレイツールバー */
@@ -83,6 +85,8 @@
     .clone-toolbar .ct-btn { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); padding: 3px 10px; font-size: 0.65rem; cursor: pointer; font-family: inherit; transition: all 0.15s; }
     .clone-toolbar .ct-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
     .clone-toolbar .ct-btn.active { background: rgba(255,184,28,0.15); border-color: var(--gold); color: var(--gold); }
+    .clone-toolbar .ct-btn-primary { background: var(--gold); border-color: var(--gold); color: var(--navy); font-weight: 700; }
+    .clone-toolbar .ct-btn-primary:hover { opacity: 0.9; background: var(--gold); color: var(--navy); }
     .clone-toolbar .ct-sep { width: 1px; height: 16px; background: rgba(255,255,255,0.1); }
     .clone-toolbar .ct-url { flex: 1; font-size: 0.62rem; color: rgba(255,255,255,0.35); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .clone-edit-hint { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--navy); color: var(--white); padding: 8px 20px; font-size: 0.75rem; z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease; pointer-events: none; }
@@ -306,7 +310,8 @@
     /* ===== A1: ウェルカムカード ===== */
     .welcome-cards { display: flex; flex-direction: column; gap: 8px; padding: 16px 12px; }
     .welcome-title { font-size: 0.88rem; font-weight: 700; color: #001f33; margin-bottom: 4px; text-align: center; }
-    .welcome-sub { font-size: 0.7rem; color: #8a9bb0; text-align: center; margin-bottom: 8px; }
+    .welcome-sub { font-size: 0.7rem; color: #8a9bb0; text-align: center; margin-bottom: 12px; }
+    .welcome-mode-label { font-size: 0.68rem; font-weight: 700; color: #8a9bb0; text-transform: uppercase; letter-spacing: 0.5px; padding: 0 4px; margin-bottom: 2px; }
     .welcome-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #f7f8fa; border: 1.5px solid #e8ecf0; cursor: pointer; transition: all 0.15s; }
     .welcome-card:hover { border-color: #ffb81c; background: #fffbf0; }
     .welcome-card .wc-icon { font-size: 1.4rem; flex-shrink: 0; width: 36px; text-align: center; }
@@ -809,8 +814,8 @@
             </div>
             <div class="import-url-row" style="flex:2">
               <label for="url-input" class="hidden">URL</label>
-              <input type="url" class="import-url-input" id="url-input" placeholder="URLを入力してサイトをそのまま再現" onkeydown="if(event.key==='Enter')handleUrlImport()">
-              <button class="btn-url-go" onclick="handleUrlImport()" title="URLのサイトをそのまま表示して編集可能に">🌐 サイト再現</button>
+              <input type="url" class="import-url-input" id="url-input" placeholder="https://example.com を入力" onkeydown="if(event.key==='Enter')handleUrlImport()">
+              <button class="btn-url-go" onclick="handleUrlImport()" title="URLのサイトを読み込み → 編集 → WFに変換">🌐 読み込む</button>
             </div>
           </div>
           <div class="tpl-bar">
@@ -829,26 +834,28 @@
           <div id="chat-messages" class="chat-messages">
             <div id="welcome-cards" class="welcome-cards">
               <div class="welcome-title">Wireframe Maker</div>
-              <div class="welcome-sub">AIがワイヤーフレームの構成を提案します</div>
-              <div class="welcome-card" onclick="document.getElementById('url-input').focus()">
-                <div class="wc-icon">🌐</div>
-                <div class="wc-body">
-                  <div class="wc-label">URLからコピー</div>
-                  <div class="wc-desc">既存サイトのURLを入力して構成を自動生成</div>
-                </div>
-              </div>
+              <div class="welcome-sub">ワイヤーフレームの作り方を選んでください</div>
+              <div class="welcome-mode-label">ゼロから作る</div>
               <div class="welcome-card" onclick="document.querySelector('.tpl-chip').click()">
                 <div class="wc-icon">📋</div>
                 <div class="wc-body">
-                  <div class="wc-label">テンプレートから選ぶ</div>
-                  <div class="wc-desc">BtoB LP・SaaS・EC商品など10種類のテンプレート</div>
+                  <div class="wc-label">テンプレートから作成</div>
+                  <div class="wc-desc">BtoB LP・SaaS・ECなど10種のテンプレートを選んで即スタート</div>
                 </div>
               </div>
               <div class="welcome-card" onclick="document.getElementById('chat-input').focus()">
                 <div class="wc-icon">💬</div>
                 <div class="wc-body">
-                  <div class="wc-label">自由に要件を伝える</div>
+                  <div class="wc-label">AIに要件を伝えて作成</div>
                   <div class="wc-desc">チャットで要件を伝えるとAIが最適な構成を提案</div>
+                </div>
+              </div>
+              <div class="welcome-mode-label" style="margin-top:12px">既存サイトから作る</div>
+              <div class="welcome-card" onclick="document.getElementById('url-input').focus()">
+                <div class="wc-icon">🌐</div>
+                <div class="wc-body">
+                  <div class="wc-label">サイトURLを読み込む</div>
+                  <div class="wc-desc">URLを入力 → サイトを表示・編集 → WFセクションに自動変換</div>
                 </div>
               </div>
             </div>
@@ -1023,10 +1030,12 @@
     <div id="preview-canvas" class="right-panel-canvas">
       <div class="empty-preview" id="empty-preview">
         <div class="empty-icon">📐</div>
-        <p>ワイヤーフレームを作成しましょう</p>
+        <p>左パネルから作成方法を選んでください</p>
         <div class="empty-hint">
-          <strong>方法1:</strong> 左パネル下部「＋ セクション追加」でパーツを選択<br>
-          <strong>方法2:</strong> 左パネルのチャットで要件を入力してAI生成<br>
+          <strong>テンプレート:</strong> 左パネルの「TPL:」から業種テンプレートを選択<br>
+          <strong>AIチャット:</strong> 左パネル下部で要件を入力してAI生成<br>
+          <strong>サイトから:</strong> URLを入力して既存サイトの構成をWFに変換<br>
+          <strong>手動:</strong> 構成タブの「＋ セクション追加」でパーツを選択<br>
           <strong>方法3:</strong> テンプレートから選択して開始
         </div>
       </div>
@@ -1052,7 +1061,8 @@
         <button class="ct-btn" onclick="cloneReorderSection()">↕️ 並替</button>
         <button class="ct-btn" onclick="cloneExportHTML()">💾 HTML保存</button>
         <div class="ct-sep"></div>
-        <button class="ct-btn" onclick="switchToWireframe()" title="このサイトの構成をAIで分析し、WFセクションを自動生成します">📐 構成をWFに変換</button>
+        <div class="ct-sep"></div>
+        <button class="ct-btn ct-btn-primary" onclick="switchToWireframe()" title="このサイトの構成をAIで分析し、WFセクションを自動生成します">📐 WFに変換 →</button>
         <div style="flex:1"></div>
         <span class="ct-url" id="clone-url-label"></span>
       </div>
@@ -1629,12 +1639,35 @@ async function handleUrlImport() {
       window.parent.postMessage({ type: 'clone-html', html: clone.outerHTML }, '*');
     }
     if (e.data.type === 'get-sections') {
-      const sections = document.querySelectorAll('section, header, footer, nav, [class*="section"], [class*="block"], [class*="area"]');
+      // セマンティック要素 + クラス名ベース + 直下の大きなdivをフォールバック
+      let sections = document.querySelectorAll('section, header, footer, nav, main, article, aside, [class*="section"], [class*="block"], [class*="area"], [class*="wrapper"], [class*="container"], [class*="hero"], [class*="banner"], [class*="footer"], [class*="header"], [role="banner"], [role="main"], [role="contentinfo"], [role="navigation"]');
+      // セマンティック要素が少ない場合、bodyの直下divもフォールバックで取得
+      if (sections.length < 3) {
+        const bodyChildren = document.querySelectorAll('body > div, body > main > div');
+        const merged = new Set([...sections, ...bodyChildren]);
+        sections = merged;
+      }
       const list = [];
-      sections.forEach((sec, i) => {
+      const seen = new Set();
+      (sections.forEach ? sections : [...sections]).forEach((sec, i) => {
+        // 重複排除（親子関係で重複する場合がある）
+        if (seen.has(sec)) return;
+        seen.add(sec);
+        // 小さすぎる要素はスキップ（高さ30px未満）
+        const rect = sec.getBoundingClientRect();
+        if (rect.height < 30) return;
         const h = sec.querySelector('h1,h2,h3,h4,h5,h6');
         const cs = window.getComputedStyle(sec);
-        list.push({ index: i, tag: sec.tagName.toLowerCase(), heading: h ? h.textContent.trim().slice(0, 40) : '', hidden: sec.classList.contains('clone-section-hidden'), bgColor: cs.backgroundColor });
+        // テキスト内容のサマリーも取得
+        const textContent = sec.textContent.replace(/\\s+/g, ' ').trim().slice(0, 100);
+        // CTAボタンを検出
+        const ctaEl = sec.querySelector('a[class*="btn"], a[class*="button"], a[class*="cta"], button[class*="btn"], button[class*="cta"]');
+        const ctaText = ctaEl ? ctaEl.textContent.trim().slice(0, 30) : '';
+        // 画像の有無
+        const hasImage = sec.querySelector('img, video, picture, svg') !== null;
+        // フォームの有無
+        const hasForm = sec.querySelector('form, input[type="email"], input[type="text"]') !== null;
+        list.push({ index: list.length, tag: sec.tagName.toLowerCase(), className: (sec.className || '').toString().slice(0, 80), heading: h ? h.textContent.trim().slice(0, 60) : '', hidden: sec.classList.contains('clone-section-hidden'), bgColor: cs.backgroundColor, textPreview: textContent, ctaText, hasImage, hasForm, height: Math.round(rect.height) });
       });
       window.parent.postMessage({ type: 'clone-sections', sections: list }, '*');
     }
@@ -1714,8 +1747,8 @@ async function handleUrlImport() {
     }
     importedContent = contentForAI;
 
-    addChatMessage('ai', `✅ 「${title}」をそのまま読み込みました。画像・CSS含め完全再現しています。\n\n編集モードがONです:\n・テキストをクリックして直接編集\n・画像をクリックして差替\n・AIリライトで文章を改善\n・セクション非表示でLPO検証\n\nチャットでLPO改善を相談することもできます。`);
-    showToast('サイト再現完了 — 編集モードON');
+    addChatMessage('ai', `✅ 「${title}」を読み込みました。\n\n**Step 1（今ここ）: サイトを確認・編集**\n・テキストをクリックして直接編集\n・画像をクリックして差替\n・不要なセクションは「セクション非表示」で除外\n\n**Step 2: WFに変換**\n・ツールバー右側の「📐 WFに変換 →」ボタンを押すと、この構成がWFセクションに自動変換されます\n\n💡 編集せずそのままWFに変換してもOKです。`);
+    showToast('サイト読込完了 — 編集後「WFに変換」で次へ');
   } catch (e) { removeLoadingBubble(); showError(e.message); }
   finally { document.getElementById('chat-send').disabled = false; }
 }
@@ -2400,13 +2433,20 @@ function formatCloneStructureForAI(sections, htmlText) {
   if (titleMatch) out += `サイトタイトル: ${titleMatch[1].trim()}\n\n`;
 
   if (sections.length > 0) {
-    out += `## セクション構造（上から順、${sections.length}セクション）\n`;
-    for (let i = 0; i < sections.length; i++) {
-      const sec = sections[i];
-      if (sec.hidden) continue; // 非表示セクションはスキップ
-      out += `\n### セクション${i + 1} [${sec.tag.toUpperCase()}]\n`;
+    const visible = sections.filter(s => !s.hidden);
+    out += `## セクション構造（上から順、${visible.length}セクション）\n`;
+    for (let i = 0; i < visible.length; i++) {
+      const sec = visible[i];
+      out += `\n### セクション${i + 1} [${sec.tag.toUpperCase()}]`;
+      if (sec.className) out += ` class="${sec.className}"`;
+      out += `\n`;
       if (sec.heading) out += `見出し: ${sec.heading}\n`;
+      if (sec.textPreview) out += `テキスト概要: ${sec.textPreview}\n`;
+      if (sec.ctaText) out += `CTAボタン: ${sec.ctaText}\n`;
+      if (sec.hasImage) out += `画像あり\n`;
+      if (sec.hasForm) out += `フォームあり\n`;
       out += `背景色: ${sec.bgColor || '不明'}\n`;
+      out += `高さ: ${sec.height || '不明'}px\n`;
     }
     out += '\n';
   }
@@ -2616,7 +2656,7 @@ document.querySelectorAll('.tpl-chip').forEach(chip => {
       if (!r.ok) throw new Error(data.error?.message || data.error || '生成失敗');
       removeLoadingBubble();
       currentSections = data.sections;
-      addChatMessage('ai', `「${chip.textContent}」構成を生成（${data.sections.length}セクション）`);
+      addChatMessage('ai', `「${chip.textContent}」構成を生成（${data.sections.length}セクション）\n\n💡 **テキストはクリックで編集できます**（ホバーで下線が表示される箇所）。セクションのダブルクリックで一括編集も可能です。`);
       onSectionsChanged();
     } catch (e) { removeLoadingBubble(); showError(e.message); }
     finally { document.getElementById('chat-send').disabled = false; }
@@ -2634,7 +2674,7 @@ async function generateFromContext() {
     if (!r.ok) throw new Error(data.error?.message || data.error || '生成失敗');
     removeLoadingBubble();
     currentSections = data.sections;
-    addChatMessage('ai', `構成を生成しました（${data.sections.length}セクション）。`);
+    addChatMessage('ai', `構成を生成しました（${data.sections.length}セクション）。\n\n💡 **テキストはクリックで編集できます**（ホバーで下線が表示される箇所）。セクションのダブルクリックで一括編集も可能です。`);
     onSectionsChanged();
   } catch (e) { removeLoadingBubble(); showError(e.message); }
   finally { document.getElementById('chat-send').disabled = false; }
@@ -2981,14 +3021,13 @@ function renderSection(sec, yOff) {
 
 /* --- 各セクションレンダラー --- */
 const RENDERERS = {
-  navigation(g, h) {
+  navigation(g, h, sec) {
+    const t = (sec && sec.texts) || {};
     g.appendChild(svgEl('rect', { x: 0, y: 0, width: WF_WIDTH, height: h, fill: cs('card') }));
-    // ロゴ
-    drawText(g, 40, 38, 'LOGO', '16', cs('heading'), '700');
-    // ナビリンク
-    const links = ['サービス', '特徴', '事例', '料金'];
-    links.forEach((l, i) => drawText(g, 480 + i * 110, 38, l, '12', cs('body'), '500'));
-    drawBtn(g, WF_WIDTH - 220, 14, 150, 32, '無料で資料請求', true);
+    drawText(g, 40, 38, t.logo || 'LOGO', '16', cs('heading'), '700', null, 'logo');
+    const defLinks = ['サービス', '特徴', '事例', '料金'];
+    defLinks.forEach((l, i) => drawText(g, 480 + i * 110, 38, t['nav' + i] || l, '12', cs('body'), '500', null, 'nav' + i));
+    drawBtn(g, WF_WIDTH - 220, 14, 150, 32, t.cta || '無料で資料請求', true, 'cta');
   },
   hero(g, h, sec) {
     const t = (sec && sec.texts) || {};
@@ -3011,21 +3050,25 @@ const RENDERERS = {
       drawCard(g, x, y, cw, h - 100);
       drawCircle(g, x + cw / 2, y + 50, 28);
       drawText(g, x + cw / 2, y + 105, t['feat' + i] || `特徴 ${i + 1} のタイトル`, '14', cs('heading'), '600', 'middle', 'feat' + i);
-      drawLines(g, x + 30, y + 125, cw - 60, 3, 5, cs('line'));
+      const defDescs = ['業界トップクラスの機能で業務効率を大幅に改善します', '24時間365日の万全なサポート体制で安心です', '直感的なUIで導入初日から使いこなせます'];
+      drawText(g, x + cw / 2, y + 130, t['featDesc' + i] || defDescs[i], '10', cs('body'), null, 'middle', 'featDesc' + i);
     }
   },
   'content-text'(g, h, sec) {
     const t = (sec && sec.texts) || {};
     drawText(g, 80, 60, t.heading || 'こんなお悩みはありませんか？', '20', cs('heading'), '700', null, 'heading');
     drawText(g, 80, 88, t.subheading || '多くの企業が直面する課題とその解決策をご紹介します', '12', cs('body'), null, null, 'subheading');
-    drawLines(g, 80, 110, 600, 4, 6, cs('line'));
-    drawImg(g, 80, 190, WF_WIDTH - 160, 100, sec && sec.image);
+    drawText(g, 80, 118, t.body || '本文テキストが入ります。サービスの詳細な説明や、ユーザーへのメッセージをここに記載します。', '11', cs('body'), null, null, 'body');
+    drawText(g, 80, 140, t.body2 || '具体的な課題とその解決方法を、わかりやすく伝えることが重要です。', '11', cs('body'), null, null, 'body2');
+    drawImg(g, 80, 170, WF_WIDTH - 160, 100, sec && sec.image);
   },
   'two-column'(g, h, sec) {
     const t = (sec && sec.texts) || {};
     const half = (WF_WIDTH - 120) / 2;
     drawText(g, 60, 70, t.heading || '解決策のタイトル', '18', cs('heading'), '700', null, 'heading');
-    drawLines(g, 60, 90, half - 20, 5, 6, cs('line'));
+    drawText(g, 60, 100, t.body || '具体的な説明文が入ります。ユーザーの課題に対して', '11', cs('body'), null, null, 'body');
+    drawText(g, 60, 118, t.body2 || 'どのように解決できるかを分かりやすく伝えます。', '11', cs('body'), null, null, 'body2');
+    drawText(g, 60, 136, t.body3 || '数値や実績を交えると説得力が増します。', '11', cs('body'), null, null, 'body3');
     drawBtn(g, 60, 240, 180, 40, t.cta || '詳しく見る', false, 'cta');
     drawImg(g, 60 + half + 20, 50, half, h - 80, sec && sec.image);
   },
@@ -3042,7 +3085,8 @@ const RENDERERS = {
       drawText(g, x + 70, 148, t['name' + i] || '山田 太郎', '12', cs('heading'), '600', null, 'name' + i);
       drawText(g, x + 70, 164, t['title' + i] || '株式会社サンプル / マーケティング部長', '9', cs('body'), null, null, 'title' + i);
       for (let s = 0; s < 5; s++) { const star = svgEl('text', { x: x + 30 + s * 16, y: 196, fill: '#ffb81c', 'font-size': '12', 'font-family': 'sans-serif' }); star.textContent = '★'; g.appendChild(star); }
-      drawLines(g, x + 30, 210, cw - 60, 3, 5, cs('line'));
+      const defReviews = ['導入後3ヶ月で問い合わせ数が2倍に増加しました。', 'サポート体制が充実しており安心して使えています。'];
+      drawText(g, x + 30, 224, t['review' + i] || defReviews[i], '10', cs('body'), null, null, 'review' + i);
     }
   },
   pricing(g, h, sec) {
@@ -3060,12 +3104,12 @@ const RENDERERS = {
       }
       drawText(g, x + cw / 2, isRec ? 108 : 92, t['plan' + i] || defNames[i], '14', cs('heading'), '600', 'middle', 'plan' + i);
       drawText(g, x + cw / 2, isRec ? 140 : 124, t['price' + i] || defPrices[i], '22', cs('heading'), '700', 'middle', 'price' + i);
-      const features = ['基本機能', 'メールサポート', 'API連携', 'カスタマイズ'];
-      features.forEach((f, fi) => {
+      const defFeats = ['基本機能', 'メールサポート', 'API連携', 'カスタマイズ'];
+      defFeats.forEach((f, fi) => {
         const fy = (isRec ? 165 : 150) + fi * 28;
         const check = fi <= [1, 3, 3][i];
         drawText(g, x + 30, fy, check ? '✓' : '—', '12', check ? '#22c55e' : cs('line'), '600');
-        drawText(g, x + 50, fy, f, '11', cs('body'));
+        drawText(g, x + 50, fy, t['feat' + i + '_' + fi] || f, '11', cs('body'), null, null, 'feat' + i + '_' + fi);
       });
       drawBtn(g, x + 40, h - 90, cw - 80, 36, isRec ? (t.ctaRec || '今すぐ始める') : (t.cta || 'お問い合わせ'), isRec, isRec ? 'ctaRec' : 'cta');
     }
@@ -3083,12 +3127,13 @@ const RENDERERS = {
     const fw = 500, fx = (WF_WIDTH - fw) / 2;
     drawCard(g, fx - 20, 30, fw + 40, h - 60);
     drawText(g, WF_WIDTH / 2, 60, t.heading || '資料請求フォーム', '16', cs('heading'), '700', 'middle', 'heading');
-    const fields = ['会社名', 'お名前', 'メールアドレス', '電話番号'];
-    fields.forEach((f, i) => {
+    const defFields = ['会社名', 'お名前', 'メールアドレス', '電話番号'];
+    defFields.forEach((f, i) => {
       const y = 85 + i * 70;
-      drawText(g, fx, y, f, '11', cs('heading'), '600');
+      const label = t['field' + i] || f;
+      drawText(g, fx, y, label, '11', cs('heading'), '600', null, 'field' + i);
       g.appendChild(svgEl('rect', { x: fx, y: y + 16, width: fw, height: 36, fill: '#fff', stroke: cs('border'), 'stroke-width': 1 }));
-      drawText(g, fx + 10, y + 38, f + 'を入力', '10', cs('line'));
+      drawText(g, fx + 10, y + 38, label + 'を入力', '10', cs('line'));
     });
     drawBtn(g, fx, h - 75, fw, 44, t.cta || '無料で資料をダウンロード', true, 'cta');
   },
@@ -3107,8 +3152,13 @@ const RENDERERS = {
   gallery(g, h, sec) {
     const t = (sec && sec.texts) || {};
     drawText(g, WF_WIDTH / 2, 38, t.heading || '導入イメージ', '18', cs('heading'), '700', 'middle', 'heading');
-    const cols = 4, iw = 240, ih = 180, gap = (WF_WIDTH - cols * iw) / (cols + 1);
-    for (let i = 0; i < cols; i++) drawImg(g, gap + i * (iw + gap), 55, iw, ih, sec && sec.image);
+    const cols = 4, iw = 240, ih = 160, gap = (WF_WIDTH - cols * iw) / (cols + 1);
+    const defCaptions = ['導入事例 1', '導入事例 2', '導入事例 3', '導入事例 4'];
+    for (let i = 0; i < cols; i++) {
+      const x = gap + i * (iw + gap);
+      drawImg(g, x, 55, iw, ih, sec && sec.image);
+      drawText(g, x + iw / 2, 55 + ih + 18, t['cap' + i] || defCaptions[i], '10', cs('body'), '500', 'middle', 'cap' + i);
+    }
   },
   stats(g, h, sec) {
     const t = (sec && sec.texts) || {};
@@ -3144,59 +3194,65 @@ const RENDERERS = {
       drawCard(g, x, 55, cw, h - 85);
       drawImg(g, x, 55, cw, 130, sec && sec.image);
       drawText(g, x + 16, 210, t['card' + i] || '事例タイトル', '13', cs('heading'), '600', null, 'card' + i);
-      drawLines(g, x + 16, 225, cw - 32, 2, 5, cs('line'));
+      const defCardDescs = ['課題を解決し、成果を出した事例です', '導入後の変化をご紹介します', '具体的な数値改善をご報告します'];
+      drawText(g, x + 16, 230, t['cardDesc' + i] || defCardDescs[i], '10', cs('body'), null, null, 'cardDesc' + i);
       drawBtn(g, x + 16, h - 70, cw - 32, 30, t.cta || '詳しく見る', false, 'cta');
     }
   },
-  footer(g, h) {
+  footer(g, h, sec) {
+    const t = (sec && sec.texts) || {};
     g.appendChild(svgEl('rect', { x: 0, y: 0, width: WF_WIDTH, height: h, fill: cs('dark') }));
-    drawText(g, 80, 35, 'LOGO', '14', '#777', '700');
-    const footerSections = ['サービス', '会社情報', 'サポート', 'お問い合わせ'];
-    footerSections.forEach((s, i) => {
+    drawText(g, 80, 35, t.logo || 'LOGO', '14', '#777', '700', null, 'logo');
+    const defSections = ['サービス', '会社情報', 'サポート', 'お問い合わせ'];
+    defSections.forEach((s, i) => {
       const x = 80 + i * 280;
-      drawText(g, x, 70, s, '10', '#888', '600');
-      for (let j = 0; j < 3; j++) g.appendChild(svgEl('rect', { x, y: 85 + j * 18, width: 60 + Math.random() * 50, height: 5, fill: '#555' }));
+      drawText(g, x, 70, t['col' + i] || s, '10', '#888', '600', null, 'col' + i);
+      for (let j = 0; j < 3; j++) g.appendChild(svgEl('rect', { x, y: 85 + j * 18, width: 80, height: 5, fill: '#555' }));
     });
-    drawText(g, WF_WIDTH / 2, h - 16, '© 2026 Company Name. All rights reserved.', '9', '#555', '400', 'middle');
+    drawText(g, WF_WIDTH / 2, h - 16, t.copyright || '\u00a9 2026 Company Name. All rights reserved.', '9', '#555', '400', 'middle', 'copyright');
   },
-  video(g, h) {
-    drawText(g, WF_WIDTH / 2, 38, 'プロダクトデモ', '16', cs('heading'), '700', 'middle');
+  video(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || 'プロダクトデモ', '16', cs('heading'), '700', 'middle', 'heading');
     const vw = 800, vh = 300, vx = (WF_WIDTH - vw) / 2, vy = 55;
     g.appendChild(svgEl('rect', { x: vx, y: vy, width: vw, height: vh, fill: '#1a1a2e', stroke: '#333', 'stroke-width': 1 }));
     const play = svgEl('polygon', { points: `${vx+vw/2-20},${vy+vh/2-25} ${vx+vw/2-20},${vy+vh/2+25} ${vx+vw/2+25},${vy+vh/2}`, fill: '#fff', opacity: '0.7' });
     g.appendChild(play);
-    drawText(g, WF_WIDTH / 2, vy + vh + 24, '2分でわかるサービス紹介', '11', cs('body'), '500', 'middle');
+    drawText(g, WF_WIDTH / 2, vy + vh + 24, t.caption || '2分でわかるサービス紹介', '11', cs('body'), '500', 'middle', 'caption');
   },
-  'logo-bar'(g, h) {
+  'logo-bar'(g, h, sec) {
+    const t = (sec && sec.texts) || {};
     const count = 6, lw = 120, gap = (WF_WIDTH - count * lw) / (count + 1);
-    drawText(g, WF_WIDTH / 2, 24, 'TRUSTED BY 12,847+ COMPANIES', '9', cs('body'), '600', 'middle');
+    drawText(g, WF_WIDTH / 2, 24, t.heading || 'TRUSTED BY 12,847+ COMPANIES', '9', cs('body'), '600', 'middle', 'heading');
     for (let i = 0; i < count; i++) {
       g.appendChild(svgEl('rect', { x: gap + i * (lw + gap), y: 40, width: lw, height: 36, fill: cs('img') }));
     }
   },
-  comparison(g, h) {
-    drawText(g, WF_WIDTH / 2, 38, '競合比較', '18', cs('heading'), '700', 'middle');
+  comparison(g, h, sec) {
+    const t = (sec && sec.texts) || {};
+    drawText(g, WF_WIDTH / 2, 38, t.heading || '競合比較', '18', cs('heading'), '700', 'middle', 'heading');
     const tw = 900, tx = (WF_WIDTH - tw) / 2;
     g.appendChild(svgEl('rect', { x: tx, y: 55, width: tw, height: 36, fill: cs('dark'), opacity: '0.06' }));
-    const cols = ['機能', '自社', '競合A', '競合B'];
+    const defCols = ['機能', '自社', '競合A', '競合B'];
     const cw = tw / 4;
-    cols.forEach((c, i) => drawText(g, tx + i * cw + cw / 2, 78, c, '11', cs('heading'), '600', 'middle'));
+    defCols.forEach((c, i) => drawText(g, tx + i * cw + cw / 2, 78, t['col' + i] || c, '11', cs('heading'), '600', 'middle', 'col' + i));
+    const defRows = ['レポート機能', 'API連携', 'カスタムダッシュボード', 'SSO対応', 'SLA保証', '日本語サポート'];
     for (let r = 0; r < 6; r++) {
       const ry = 91 + r * 44;
       g.appendChild(svgEl('rect', { x: tx, y: ry, width: tw, height: 44, fill: r % 2 === 0 ? cs('card') : cs('bg'), stroke: cs('border'), 'stroke-width': 0.5 }));
-      drawText(g, tx + 20, ry + 28, ['レポート機能', 'API連携', 'カスタムダッシュボード', 'SSO対応', 'SLA保証', '日本語サポート'][r], '10', cs('body'));
+      drawText(g, tx + 20, ry + 28, t['row' + r] || defRows[r], '10', cs('body'), null, null, 'row' + r);
       for (let ci = 1; ci < 4; ci++) {
         const cx = tx + ci * cw + cw / 2;
-        // 決定論的パターン: 自社(ci=1)は全チェック、競合A(ci=2)は上4つ、競合B(ci=3)は上2つ
         const isChecked = ci === 1 || (ci === 2 && r < 4) || (ci === 3 && r < 2);
         drawText(g, cx, ry + 28, isChecked ? '✓' : '—', '14', isChecked ? '#22c55e' : cs('line'), '600', 'middle');
       }
     }
   },
-  'sticky-cta'(g, h) {
+  'sticky-cta'(g, h, sec) {
+    const t = (sec && sec.texts) || {};
     g.appendChild(svgEl('rect', { x: 0, y: 0, width: WF_WIDTH, height: h, fill: '#fff', stroke: cs('border'), 'stroke-width': 1 }));
-    drawText(g, 40, 38, '今すぐ始めましょう', '12', cs('heading'), '600');
-    drawBtn(g, WF_WIDTH - 280, 12, 220, 36, '無料トライアル開始', true);
+    drawText(g, 40, 38, t.heading || '今すぐ始めましょう', '12', cs('heading'), '600', null, 'heading');
+    drawBtn(g, WF_WIDTH - 280, 12, 220, 36, t.cta || '無料トライアル開始', true, 'cta');
   },
 };
 
