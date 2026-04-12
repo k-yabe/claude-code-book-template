@@ -1393,6 +1393,18 @@ function switchTab(tab) {
   }
 }
 
+// タブリストのキーボードナビゲーション（矢印キー + Home/End）
+document.querySelector('[role="tablist"]')?.addEventListener('keydown', e => {
+  const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+  const current = tabs.findIndex(t => t.getAttribute('aria-selected') === 'true');
+  let next = -1;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { next = (current + 1) % tabs.length; }
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { next = (current - 1 + tabs.length) % tabs.length; }
+  else if (e.key === 'Home') { next = 0; }
+  else if (e.key === 'End') { next = tabs.length - 1; }
+  if (next >= 0) { e.preventDefault(); const tabName = tabs[next].dataset.tab; switchTab(tabName); tabs[next].focus(); }
+});
+
 /* ===== リサイズハンドル ===== */
 (function initResize() {
   const handle = document.getElementById('resize-handle');
@@ -1627,9 +1639,9 @@ async function handleUrlImport() {
     }
   }, true);
 
-  // 親からのメッセージ受信（同一オリジンのみ許可）
+  // 親からのメッセージ受信（同一オリジン or srcdoc null オリジンのみ許可）
   window.addEventListener('message', function(e) {
-    if (e.origin !== window.location.origin) return;
+    if (e.origin !== window.location.origin && e.origin !== 'null') return;
     if (e.data.type === 'set-edit-mode') window.__cloneEditMode = e.data.value;
     if (e.data.type === 'get-selected-text') {
       const sel = document.querySelector('[data-clone-selected]');
@@ -1947,9 +1959,9 @@ function cloneReplaceImage() {
   // イベントはiframe側のpostMessageで処理
 }
 
-// 親ウィンドウのメッセージ受信（同一オリジンのみ許可）
+// 親ウィンドウのメッセージ受信（同一オリジン or srcdoc null オリジンのみ許可）
 window.addEventListener('message', function(e) {
-  if (e.origin !== window.location.origin) return;
+  if (e.origin !== window.location.origin && e.origin !== 'null') return;
   if (e.data.type === 'clone-img-click') {
     const input = document.createElement('input');
     input.type = 'file';
@@ -3763,6 +3775,10 @@ document.addEventListener('keydown', e => {
     if (idx >= 0) { saveUndoState(); currentSections.splice(idx, 1); selectedSectionId = null; onSectionsChanged(); showToast('セクション削除'); }
   }
   if (e.key === 'Escape' && textPlacementMode) { e.preventDefault(); toggleTextPlacementMode(); }
+  if (e.key === 'Escape' && !textPlacementMode) {
+    const modals = document.querySelectorAll('[role="dialog"]');
+    if (modals.length > 0) { e.preventDefault(); modals[modals.length - 1].remove(); }
+  }
   if (!ctrl && e.key === '?') { e.preventDefault(); showShortcuts(); }
   if (!ctrl && e.key === '1') { e.preventDefault(); switchTab('chat'); }
   if (!ctrl && e.key === '2' && currentSections.length > 0) { e.preventDefault(); switchTab('structure'); }
@@ -4351,6 +4367,8 @@ async function generateVariant() {
   const overlay = document.createElement('div');
   overlay.className = 'variant-overlay';
   overlay.id = 'variant-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
   const scoreA = calculateCVRScore(currentSections).total;
@@ -4855,6 +4873,8 @@ function showResponsivePreview() {
   const overlay = document.createElement('div');
   overlay.className = 'responsive-preview-overlay';
   overlay.id = 'responsive-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
   overlay.innerHTML = `
@@ -4924,6 +4944,8 @@ function startPrototypeMode() {
   const overlay = document.createElement('div');
   overlay.className = 'proto-overlay';
   overlay.id = 'proto-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   protoCurrentPage = currentPageIndex;
 
   renderProtoPage(overlay);
@@ -5184,6 +5206,8 @@ function runA11yCheck() {
   const overlay = document.createElement('div');
   overlay.className = 'a11y-overlay';
   overlay.id = 'a11y-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
   overlay.innerHTML = `
@@ -5215,6 +5239,8 @@ function showCompetitorAnalysis() {
   const overlay = document.createElement('div');
   overlay.className = 'competitor-overlay';
   overlay.id = 'competitor-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
   overlay.innerHTML = `
@@ -5409,6 +5435,8 @@ function exportHTMLCSS() {
   const overlay = document.createElement('div');
   overlay.className = 'code-export-overlay';
   overlay.id = 'code-export-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
   overlay.innerHTML = `
@@ -5597,6 +5625,8 @@ function showDesignTokens() {
   const overlay = document.createElement('div');
   overlay.className = 'token-overlay';
   overlay.id = 'token-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
   const renderGroup = (title, items, showSwatch) => `
@@ -5661,7 +5691,7 @@ let collabChannel = null;
 let collabRoomId = null;
 let collabPeers = {};
 const collabColors = ['#F24E1E','#A259FF','#1ABCFE','#0ACF83','#FF7262','#FFBD12'];
-const collabUserId = Math.random().toString(36).slice(2, 8);
+const collabUserId = Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b => b.toString(36)).join('').slice(0, 6);
 const collabUserName = USER || ('User-' + collabUserId.slice(0, 4));
 
 function showCollabModal() {
@@ -5669,7 +5699,9 @@ function showCollabModal() {
   const overlay = document.createElement('div');
   overlay.className = 'collab-overlay';
   overlay.id = 'collab-overlay';
-  const newRoom = Math.random().toString(36).slice(2, 8).toUpperCase();
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  const newRoom = Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b => b.toString(36)).join('').slice(0, 6).toUpperCase();
   overlay.innerHTML = `<div class="collab-modal">
     <h3>👥 リアルタイム共同編集</h3>
     <label style="font-size:0.72rem;font-weight:600;color:#001f33;margin-bottom:4px;display:block">新しいルームを作成</label>
@@ -5870,6 +5902,8 @@ function showComponentLibrary() {
   const overlay = document.createElement('div');
   overlay.className = 'complib-overlay';
   overlay.id = 'complib-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.innerHTML = `<div class="complib-panel">
     <div class="complib-header">
       <h3>📦 コンポーネントライブラリ</h3>
@@ -6029,6 +6063,8 @@ function showFigmaImport() {
   const overlay = document.createElement('div');
   overlay.className = 'figma-overlay';
   overlay.id = 'figma-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.innerHTML = `<div class="figma-modal">
     <h3><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 38 57'%3E%3Cpath fill='%23F24E1E' d='M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z'/%3E%3Cpath fill='%23FF7262' d='M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z'/%3E%3Cpath fill='%23A259FF' d='M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z'/%3E%3Cpath fill='%230ACF83' d='M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z'/%3E%3Cpath fill='%231ABCFE' d='M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z'/%3E%3C/svg%3E" style="vertical-align:middle;margin-right:8px"> Figmaインポート</h3>
     <p>FigmaファイルのフレームをLP構成に自動変換し、CVR分析にかけます</p>
@@ -6176,6 +6212,8 @@ function showABTestExport() {
   const overlay = document.createElement('div');
   overlay.className = 'abtest-overlay';
   overlay.id = 'abtest-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.innerHTML = `<div class="abtest-panel">
     <div class="abtest-header">
       <h3>🧪 ABテスト連携</h3>
@@ -6307,6 +6345,8 @@ function showPublishLP() {
   const overlay = document.createElement('div');
   overlay.className = 'publish-overlay';
   overlay.id = 'publish-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.innerHTML = `<div class="publish-modal">
     <h3>🚀 LP公開</h3>
     <p>ワイヤーフレームから実稼働HTMLを生成し、Vercelにデプロイします</p>
@@ -6513,6 +6553,8 @@ function showAIReview() {
   const overlay = document.createElement('div');
   overlay.className = 'review-overlay';
   overlay.id = 'review-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
   overlay.innerHTML = `<div class="review-panel">
     <div class="review-header"><h3>🤖 AIデザインレビュー</h3><button class="review-close" onclick="document.getElementById('review-overlay').remove()">✕</button></div>
@@ -6619,6 +6661,8 @@ function showUserFlow() {
   const overlay = document.createElement('div');
   overlay.className = 'flow-overlay';
   overlay.id = 'flow-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
   const flowSVG = generateFlowSVG();
@@ -6811,6 +6855,8 @@ function showTemplateMarket() {
   const overlay = document.createElement('div');
   overlay.className = 'market-overlay';
   overlay.id = 'market-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
   overlay.innerHTML = `<div class="market-panel">
     <div class="market-header"><h3>🏪 テンプレートマーケット</h3><button class="market-close" onclick="document.getElementById('market-overlay').remove()">✕</button></div>
@@ -6964,6 +7010,8 @@ function showPerfPrediction() {
   const overlay = document.createElement('div');
   overlay.className = 'perf-overlay';
   overlay.id = 'perf-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
   overlay.innerHTML = `<div class="perf-panel">
@@ -7330,6 +7378,8 @@ function showProjectList() {
   const overlay = document.createElement('div');
   overlay.className = 'project-list-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:center;justify-content:center;';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
   const panel = document.createElement('div');

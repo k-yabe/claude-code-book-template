@@ -31,11 +31,16 @@ Wireframe Maker を「完璧なアプリ」として使えるレベルに引き�
 - [x] 追加: ドラッグ transform nullチェック
 - [x] 追加: 空 setInterval 削除
 - [x] 追加: postMessage タイムアウト延長（1秒→5秒）
+- [x] 追加: postMessage srcdocオリジン（"null"）許可修正（2箇所）
+- [x] 追加: Math.random()→crypto.getRandomValues()（collabUserId/roomId 2箇所）
+- [x] 追加: 全モーダル（17箇所）に role="dialog" / aria-modal="true"
+- [x] 追加: Escapeキーでモーダル閉じ（role="dialog"要素を自動検出）
+- [x] 追加: タブリスト矢印キーナビゲーション（ArrowLeft/Right/Home/End）
 
 ### やらないこと（スコープ外）
 - モジュール分割・リファクタリング（別ステアリングで扱う）
-- アクセシビリティ全面対応（別ステアリング）
-- モバイル対応強化（別ステアリング）
+- タッチイベント対応（ドラッグ操作のモバイル対応）
+- フォーカストラッピング（モーダル内タブ循環）
 
 ---
 
@@ -78,3 +83,6 @@ Wireframe Maker を「完璧なアプリ」として使えるレベルに引き�
   - API: fetch 3箇所にres.okチェック追加、postMessageタイムアウト1秒→5秒（3箇所統一）
   - UI: more-tools-menu z-index 100→110
   - リソース: URL.createObjectURL revoke漏れ2箇所修正
+- 2026-04-12: 追加修正5件
+  - セキュリティ: postMessage srcdocオリジン（"null"）許可修正2箇所（iframe通信断絶バグ修正）、Math.random()→crypto.getRandomValues()（collabUserId/roomId）
+  - アクセシビリティ: 全モーダル17箇所にrole="dialog"/aria-modal="true"追加、Escapeキーモーダル閉じ機能、タブリスト矢印キーナビゲーション（ArrowLeft/Right/Home/End対応）
