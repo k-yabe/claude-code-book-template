@@ -36,6 +36,8 @@ Wireframe Maker を「完璧なアプリ」として使えるレベルに引き�
 - [x] 追加: 全モーダル（17箇所）に role="dialog" / aria-modal="true"
 - [x] 追加: Escapeキーでモーダル閉じ（role="dialog"要素を自動検出）
 - [x] 追加: タブリスト矢印キーナビゲーション（ArrowLeft/Right/Home/End）
+- [x] 追加: コラボレーション機能のXSSエスケープ（p.name/userName 2箇所）
+- [x] 追加: 全閉じるボタン（18箇所）に aria-label="閉じる" 追加
 
 ### やらないこと（スコープ外）
 - モジュール分割・リファクタリング（別ステアリングで扱う）
@@ -86,3 +88,6 @@ Wireframe Maker を「完璧なアプリ」として使えるレベルに引き�
 - 2026-04-12: 追加修正5件
   - セキュリティ: postMessage srcdocオリジン（"null"）許可修正2箇所（iframe通信断絶バグ修正）、Math.random()→crypto.getRandomValues()（collabUserId/roomId）
   - アクセシビリティ: 全モーダル17箇所にrole="dialog"/aria-modal="true"追加、Escapeキーモーダル閉じ機能、タブリスト矢印キーナビゲーション（ArrowLeft/Right/Home/End対応）
+- 2026-04-12: 追加修正2件
+  - セキュリティ: コラボレーション機能のXSSエスケープ（アバター名・カーソルラベル 2箇所）
+  - アクセシビリティ: 全閉じるボタン18箇所にaria-label="閉じる"追加

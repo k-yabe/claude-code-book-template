@@ -2987,7 +2987,7 @@ function showSectionPicker() {
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
   const picker = document.createElement('div');
   picker.className = 'section-picker';
-  picker.innerHTML = '<h3>セクションを追加</h3><div class="section-picker-grid"></div><button class="section-picker-close" onclick="this.closest(\'.section-picker-overlay\').remove()">閉じる</button>';
+  picker.innerHTML = '<h3>セクションを追加</h3><div class="section-picker-grid"></div><button class="section-picker-close" aria-label="閉じる" onclick="this.closest(\'.section-picker-overlay\').remove()">閉じる</button>';
   const grid = picker.querySelector('.section-picker-grid');
   SECTION_TYPES.forEach(st => {
     const item = document.createElement('div');
@@ -3752,7 +3752,7 @@ function showShortcuts() {
       <tr><td>Delete</td><td>選択セクション削除</td></tr>
       <tr><td>?</td><td>このヘルプ</td></tr>
     </table>
-    <button class="sc-close" onclick="this.closest('.shortcuts-overlay').remove()">閉じる</button>
+    <button class="sc-close" aria-label="閉じる" onclick="this.closest('.shortcuts-overlay').remove()">閉じる</button>
   </div>`;
   document.body.appendChild(overlay);
 }
@@ -4377,7 +4377,7 @@ async function generateVariant() {
     <div class="variant-panel">
       <div class="variant-header">
         <h3>A/B バリアント比較</h3>
-        <button class="variant-close" onclick="document.getElementById('variant-overlay').remove()">✕</button>
+        <button class="variant-close" aria-label="閉じる" onclick="document.getElementById('variant-overlay').remove()">✕</button>
       </div>
       <div class="variant-body">
         <div class="variant-col">
@@ -4652,7 +4652,7 @@ function showLinkPicker(sectionId) {
   overlay.innerHTML = `<div class="shortcuts-card" style="max-width:350px">
     <h3 style="font-size:0.85rem">リンク先ページを選択</h3>
     <div style="margin:12px 0;display:flex;flex-direction:column;gap:4px">${optionsHtml}</div>
-    <button class="sc-close" onclick="this.closest('.shortcuts-overlay').remove()">閉じる</button>
+    <button class="sc-close" aria-label="閉じる" onclick="this.closest('.shortcuts-overlay').remove()">閉じる</button>
   </div>`;
   document.body.appendChild(overlay);
 }
@@ -4881,7 +4881,7 @@ function showResponsivePreview() {
     <div class="responsive-preview-panel">
       <div class="rp-header">
         <h3>レスポンシブプレビュー</h3>
-        <button class="rp-close" onclick="document.getElementById('responsive-overlay').remove()">✕</button>
+        <button class="rp-close" aria-label="閉じる" onclick="document.getElementById('responsive-overlay').remove()">✕</button>
       </div>
       <div class="rp-body">
         <div class="rp-device">
@@ -4973,7 +4973,7 @@ function renderProtoPage(overlay) {
       <span class="pt-page-info">${protoCurrentPage + 1} / ${pages.length}</span>
       <button onclick="navigateProto(-1)" ${protoCurrentPage === 0 ? 'disabled style="opacity:0.3"' : ''}>← 前へ</button>
       <button onclick="navigateProto(1)" ${protoCurrentPage === pages.length - 1 ? 'disabled style="opacity:0.3"' : ''}>次へ →</button>
-      <button onclick="document.getElementById('proto-overlay').remove()">✕ 終了</button>
+      <button aria-label="閉じる" onclick="document.getElementById('proto-overlay').remove()">✕ 終了</button>
     </div>
     <div class="proto-canvas" id="proto-canvas"></div>
     <div class="proto-page-dots" id="proto-dots"></div>`;
@@ -5092,7 +5092,7 @@ function toggleCommentPopover(sectionId, badge) {
   popover.innerHTML = `
     <div class="comment-popover-header">
       <span>${escHtml(sec?.label || 'セクション')}</span>
-      <button onclick="this.closest('.comment-popover').remove()">✕</button>
+      <button aria-label="閉じる" onclick="this.closest('.comment-popover').remove()">✕</button>
     </div>
     <div class="comment-list" id="cl-${sectionId}">
       ${comments.map(c => `<div class="comment-item"><span class="ci-author">${escHtml(c.author)} ${c.time}</span><br>${escHtml(c.text)}</div>`).join('')}
@@ -5215,7 +5215,7 @@ function runA11yCheck() {
       <div class="a11y-header">
         <h3>♿ アクセシビリティチェック</h3>
         <span class="a11y-score ${scoreClass}">${score}/100</span>
-        <button onclick="document.getElementById('a11y-overlay').remove()">✕</button>
+        <button aria-label="閉じる" onclick="document.getElementById('a11y-overlay').remove()">✕</button>
       </div>
       <div class="a11y-body">
         ${Object.entries(cats).map(([cat, items]) => `
@@ -5247,7 +5247,7 @@ function showCompetitorAnalysis() {
     <div class="competitor-panel">
       <div class="comp-header">
         <h3>🔍 競合サイト構成分析</h3>
-        <button onclick="document.getElementById('competitor-overlay').remove()">✕</button>
+        <button aria-label="閉じる" onclick="document.getElementById('competitor-overlay').remove()">✕</button>
       </div>
       <div class="comp-input-row">
         <input type="url" id="comp-url-input" placeholder="競合サイトのURLを入力..." onkeydown="if(event.key==='Enter')analyzeCompetitor()">
@@ -5443,7 +5443,7 @@ function exportHTMLCSS() {
     <div class="code-export-panel">
       <div class="ce-header">
         <h3>&lt;/&gt; HTML/CSS エクスポート</h3>
-        <button onclick="document.getElementById('code-export-overlay').remove()">✕</button>
+        <button aria-label="閉じる" onclick="document.getElementById('code-export-overlay').remove()">✕</button>
       </div>
       <div class="ce-tabs">
         <button class="ce-tab active" onclick="switchCodeTab('html',this)">HTML</button>
@@ -5644,7 +5644,7 @@ function showDesignTokens() {
     <div class="token-panel">
       <div class="token-header">
         <h3>🎯 デザイントークン (${colorScheme})</h3>
-        <button onclick="document.getElementById('token-overlay').remove()">✕</button>
+        <button aria-label="閉じる" onclick="document.getElementById('token-overlay').remove()">✕</button>
       </div>
       <div class="token-body">
         ${renderGroup('Colors', tokens.colors, true)}
@@ -5806,7 +5806,7 @@ function updateCollabAvatars() {
   const peers = Object.entries(collabPeers);
   container.innerHTML = peers.map(([id, p], i) => {
     const color = collabColors[i % collabColors.length];
-    return `<div class="collab-avatar" style="background:${color}" title="${p.name}">${p.name.charAt(0).toUpperCase()}</div>`;
+    return `<div class="collab-avatar" style="background:${color}" title="${escHtml(p.name)}">${escHtml(p.name.charAt(0).toUpperCase())}</div>`;
   }).join('');
 }
 
@@ -5820,7 +5820,7 @@ function showRemoteCursor(userId, userName, x, y) {
     cursor.id = 'collab-cursor-' + userId;
     const idx = Object.keys(collabPeers).indexOf(userId);
     const color = collabColors[(idx >= 0 ? idx : 0) % collabColors.length];
-    cursor.innerHTML = `<svg class="collab-cursor-arrow" viewBox="0 0 12 16"><path d="M0 0L12 10L6 10L4 16L0 0Z" fill="${color}"/></svg><span class="collab-cursor-label" style="background:${color}">${userName}</span>`;
+    cursor.innerHTML = `<svg class="collab-cursor-arrow" viewBox="0 0 12 16"><path d="M0 0L12 10L6 10L4 16L0 0Z" fill="${color}"/></svg><span class="collab-cursor-label" style="background:${color}">${escHtml(userName)}</span>`;
     canvas.appendChild(cursor);
   }
   cursor.style.left = x + 'px';
@@ -5908,7 +5908,7 @@ function showComponentLibrary() {
     <div class="complib-header">
       <h3>📦 コンポーネントライブラリ</h3>
       <input class="complib-search" id="complib-search" placeholder="検索..." oninput="filterComponents()">
-      <button class="complib-close" onclick="document.getElementById('complib-overlay').remove()">✕</button>
+      <button class="complib-close" aria-label="閉じる" onclick="document.getElementById('complib-overlay').remove()">✕</button>
     </div>
     <div class="complib-cats" id="complib-cats">
       ${Object.entries(COMP_CATEGORIES).map(([k, v]) => `<button class="complib-cat${k === 'all' ? ' active' : ''}" data-cat="${k}" onclick="filterComponents('${k}')">${v}</button>`).join('')}
@@ -6217,7 +6217,7 @@ function showABTestExport() {
   overlay.innerHTML = `<div class="abtest-panel">
     <div class="abtest-header">
       <h3>🧪 ABテスト連携</h3>
-      <button class="abtest-close" onclick="document.getElementById('abtest-overlay').remove()">✕</button>
+      <button class="abtest-close" aria-label="閉じる" onclick="document.getElementById('abtest-overlay').remove()">✕</button>
     </div>
     <div class="abtest-body">
       <div class="abtest-section">
@@ -6557,7 +6557,7 @@ function showAIReview() {
   overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
   overlay.innerHTML = `<div class="review-panel">
-    <div class="review-header"><h3>🤖 AIデザインレビュー</h3><button class="review-close" onclick="document.getElementById('review-overlay').remove()">✕</button></div>
+    <div class="review-header"><h3>🤖 AIデザインレビュー</h3><button class="review-close" aria-label="閉じる" onclick="document.getElementById('review-overlay').remove()">✕</button></div>
     <div class="review-body" id="review-body"><div class="review-loading">🔍 ワイヤーフレームを分析中...</div></div>
   </div>`;
   document.body.appendChild(overlay);
@@ -6667,11 +6667,11 @@ function showUserFlow() {
 
   const flowSVG = generateFlowSVG();
   overlay.innerHTML = `<div class="flow-panel">
-    <div class="flow-header"><h3>🔀 ユーザーフロー</h3><button class="flow-close" onclick="document.getElementById('flow-overlay').remove()">✕</button></div>
+    <div class="flow-header"><h3>🔀 ユーザーフロー</h3><button class="flow-close" aria-label="閉じる" onclick="document.getElementById('flow-overlay').remove()">✕</button></div>
     <div class="flow-body" id="flow-body">${flowSVG}</div>
     <div class="flow-footer">
       <button style="background:#001f33;color:#fff;border:none" onclick="downloadFlowSVG()">SVGダウンロード</button>
-      <button style="background:#fff;color:#001f33;border:2px solid #001f33" onclick="document.getElementById('flow-overlay').remove()">閉じる</button>
+      <button style="background:#fff;color:#001f33;border:2px solid #001f33" aria-label="閉じる" onclick="document.getElementById('flow-overlay').remove()">閉じる</button>
     </div>
   </div>`;
   document.body.appendChild(overlay);
@@ -6859,7 +6859,7 @@ function showTemplateMarket() {
   overlay.setAttribute('aria-modal', 'true');
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
   overlay.innerHTML = `<div class="market-panel">
-    <div class="market-header"><h3>🏪 テンプレートマーケット</h3><button class="market-close" onclick="document.getElementById('market-overlay').remove()">✕</button></div>
+    <div class="market-header"><h3>🏪 テンプレートマーケット</h3><button class="market-close" aria-label="閉じる" onclick="document.getElementById('market-overlay').remove()">✕</button></div>
     <div class="market-tabs">
       <button class="market-tab active" data-tab="browse" onclick="switchMarketTab('browse')">テンプレート一覧</button>
       <button class="market-tab" data-tab="publish" onclick="switchMarketTab('publish')">公開する</button>
@@ -7015,7 +7015,7 @@ function showPerfPrediction() {
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
   overlay.innerHTML = `<div class="perf-panel">
-    <div class="perf-header"><h3>⚡ パフォーマンス予測</h3><button class="perf-close" onclick="document.getElementById('perf-overlay').remove()">✕</button></div>
+    <div class="perf-header"><h3>⚡ パフォーマンス予測</h3><button class="perf-close" aria-label="閉じる" onclick="document.getElementById('perf-overlay').remove()">✕</button></div>
     <div class="perf-body">
       <div class="perf-vitals">
         <div class="perf-vital">
@@ -7390,7 +7390,7 @@ function showProjectList() {
       <button onclick="exportProjectJSON()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:#fff;padding:4px 10px;font-size:0.7rem;cursor:pointer;">JSON出力</button>
       <button onclick="document.getElementById('proj-import-file').click()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:#fff;padding:4px 10px;font-size:0.7rem;cursor:pointer;">JSON読込</button>
       <input type="file" id="proj-import-file" accept=".json" style="display:none" onchange="importProjectJSON(this.files[0])">
-      <button onclick="this.closest('.project-list-overlay').remove()" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:1.1rem;cursor:pointer;">✕</button>
+      <button aria-label="閉じる" onclick="this.closest('.project-list-overlay').remove()" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:1.1rem;cursor:pointer;">✕</button>
     </div>
   </div>`;
 
