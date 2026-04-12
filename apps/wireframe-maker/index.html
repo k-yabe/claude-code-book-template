@@ -1939,6 +1939,7 @@ async function cloneAIRewrite() {
         _user: USER
       })
     });
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
     const data = await res.json();
     removeLoadingBubble();
 
