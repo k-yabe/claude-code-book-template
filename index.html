@@ -633,7 +633,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
-      { icon: '📐', app: 'Wireframe Maker',       date: '2026-04-12(土)', desc: '【品質改善】セキュリティ強化（postMessageオリジンチェック・innerHTML XSSエスケープ・HTMLサニタイズ・crypto.getRandomValues導入）、パフォーマンス改善（イベントリスナー累積リーク修正・ミニマップデバウンス・空setInterval削除）、安定性向上（getScreenCTM/iframe/DOM nullガード・localStorage容量超過対策・URL.revokeObjectURL漏れ修正・srcdocオリジン互換修正）、描画の決定論化（drawLinesをMath.random→固定パターン）、fetchエラーハンドリング追加、z-index衝突解消、モバイル対応強化（375px/768pxレスポンシブCSS・ナビバーコンパクト化・ツールバー折返し）、アクセシビリティ改善（全モーダルにrole=dialog/aria-modal・tablist矢印キーナビゲーション・Escapeキーでモーダル閉じ・全閉じるボタンにaria-label・tablist/tab/tabpanel ARIA・ツールバーrole・フォームラベル・aria-live）、コラボレーション機能XSSエスケープ追加' },
+      { icon: '📐', app: 'Wireframe Maker',       date: '2026-04-12(日)', desc: '【品質改善】セキュリティ強化（postMessageオリジンチェック・innerHTML XSSエスケープ・HTMLサニタイズ・crypto.getRandomValues導入）、パフォーマンス改善（イベントリスナー累積リーク修正・ミニマップデバウンス・空setInterval削除）、安定性向上（getScreenCTM/iframe/DOM nullガード・localStorage容量超過対策・URL.revokeObjectURL漏れ修正・srcdocオリジン互換修正）、描画の決定論化（drawLinesをMath.random→固定パターン）、fetchエラーハンドリング追加、z-index衝突解消、モバイル対応強化（375px/768pxレスポンシブCSS・ナビバーコンパクト化・ツールバー折返し）、アクセシビリティ改善（全モーダルにrole=dialog/aria-modal・tablist矢印キーナビゲーション・Escapeキーでモーダル閉じ・全閉じるボタンにaria-label・tablist/tab/tabpanel ARIA・ツールバーrole・フォームラベル・aria-live）、コラボレーション機能XSSエスケープ追加' },
       { icon: '📐', app: 'Wireframe Maker',       date: '2026-04-10(金)', desc: '【UX改善】スタートモーダル導入：初回起動時にポップアップで「ゼロから作る（テンプレ／AI／営業資料インポート／手動）」「既存サイトから作る（URL）」を大きく提示。「営業資料・提案書から作成」を独立カード化しPDF/Word/PPTXインポート動線を明確化（資料のテキスト・見出し・数値をそのまま使ってAI構成生成、不足はクリック編集）。チャットタブに「✨ はじめ方を選ぶ」再表示ボタン追加。「次回から表示しない」設定・Esc/背景クリックで閉じる対応' },
       { icon: '📐', app: 'Wireframe Maker',       date: '2026-04-10(金)', desc: '【基本機能修正】テキスト編集で改行できない問題を解消（textarea化／Shift+Enter=改行・Enter=確定・自動高さ調整）。サブコピー下のグレーバー（drawLines）を編集可能な本文テキスト2行に置換。ヒーロー/テスティモニアル/ロゴバーのロゴ画像プレースホルダー内にクリック編集可能なロゴ名テキストを配置（計17箇所）。drawTextをtspan対応し複数行テキストを描画可能に' },
       { icon: '📐', app: 'Wireframe Maker',       date: '2026-04-10(金)', desc: '【重要修正】モード選択カード（ゼロから作る/既存サイトから作る）が初期表示で消えていた問題を修正。初期化時のAIメッセージがwelcome-cardsを削除していたため、ユーザーがアクションを取るまで残るように変更' },
@@ -656,10 +656,10 @@
       { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-08(水)', desc: 'Figma連携強化: Figma互換JSONエクスポート追加・インポート後のCVR/タブ更新修正・セクションのデフォルトfields生成・AIフォールバックのエラー処理改善・クローン編集後チャットへの最新テキスト反映' },
       { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-08(水)', desc: '大きい画像の歪みリサイズ修正：横幅1920px固定・縦は元画像のアスペクト比を保持して自動計算（16:9以外の画像でも歪まずにリサイズ）' },
       { icon: '🖼️', app: 'Banner Resizer',      date: '2026-04-08(水)', desc: '画像品質劣化バグ修正：OGP容量制限を100KB→300KBに緩和・圧縮品質下限を0.70→0.80に引き上げ・ソース画像がターゲットより小さい場合の警告UI追加' },
-      { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-07(月)', desc: 'プロトタイプ再生モードのSVG表示位置修正: 上半分が空白になる問題を解消(height属性→style.height比率計算)' },
-      { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-07(月)', desc: 'UX改善3件: SP/Tabプレビュー表示修正(CSS transform方式で内容が読めるように)・背景色変更時テキスト色自動調整(コントラスト保証)・「✎ 編集」ボタンをインライン編集パネル表示に変更' },
-      { icon: '🛡️', app: 'Brand Guardian Pro',   date: '2026-04-07(月)', desc: 'Copilot AgentリンクURLを更新' },
-      { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-05(土)', desc: 'E2Eバグ修正: SVGインラインテキスト編集のDOMクラッシュ修正(blur/remove競合)・AI修正(refine)のmax_tokens不足→パース失敗修正(2000→4000)' },
+      { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-07(火)', desc: 'プロトタイプ再生モードのSVG表示位置修正: 上半分が空白になる問題を解消(height属性→style.height比率計算)' },
+      { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-07(火)', desc: 'UX改善3件: SP/Tabプレビュー表示修正(CSS transform方式で内容が読めるように)・背景色変更時テキスト色自動調整(コントラスト保証)・「✎ 編集」ボタンをインライン編集パネル表示に変更' },
+      { icon: '🛡️', app: 'Brand Guardian Pro',   date: '2026-04-07(火)', desc: 'Copilot AgentリンクURLを更新' },
+      { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-05(日)', desc: 'E2Eバグ修正: SVGインラインテキスト編集のDOMクラッシュ修正(blur/remove競合)・AI修正(refine)のmax_tokens不足→パース失敗修正(2000→4000)' },
       { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-05(日)', desc: 'バグ修正2件: ユーザーフロー表示(🔀)のクラッシュ修正(p.linksの型不整合)・ナビバー「履歴」ボタンの動作修正(togglePanel未定義→開閉トグル実装)' },
       { icon: '🎨', app: 'Wireframe Maker',        date: '2026-04-05(日)', desc: '致命的バグ修正5件: 比較表の表示安定化・チャット中のタブ強制切替抑止・Ctrl+Sショートカット誤表記修正・自動復元時CVR表示・テンプレート適用時の状態更新統一' },
       { icon: '🔧', app: 'Wireframe Maker',        date: '2026-04-05(日)', desc: 'クローンモードUX4件修正: 構成パネルにiframeセクション一覧表示、要素追加パネルデザイン刷新、セクション追加時のモード維持、WF変換時に編集済みHTML使用で忠実度向上' },
