@@ -13,7 +13,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
-  <script>if(localStorage.getItem('auth')!=='1')location.href='/';</script>
+  <script>try{if(localStorage.getItem('auth')!=='1')location.href='/';}catch(e){location.href='/';}</script>
   <style>
     body { min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
     .hidden { display: none !important; }
@@ -998,7 +998,7 @@
       <!-- 詳細機能（折りたたみ） -->
       <div style="position:relative;display:inline-block">
         <button class="toolbar-btn" id="more-tools-btn" onclick="document.getElementById('more-tools-menu').classList.toggle('hidden')" title="詳細ツール">その他 ▾</button>
-        <div id="more-tools-menu" class="hidden" style="position:absolute;bottom:100%;right:0;background:#001f33;border:1px solid rgba(255,255,255,0.1);padding:4px;z-index:100;min-width:180px;max-height:400px;overflow-y:auto;box-shadow:0 -4px 16px rgba(0,0,0,0.3)">
+        <div id="more-tools-menu" class="hidden" style="position:absolute;bottom:100%;right:0;background:#001f33;border:1px solid rgba(255,255,255,0.1);padding:4px;z-index:110;min-width:180px;max-height:400px;overflow-y:auto;box-shadow:0 -4px 16px rgba(0,0,0,0.3)">
           <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="generateVariant()" title="A/Bバリアント生成">A/B バリアント</button>
           <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="addPageLink()" title="ページ間リンク">ページリンク</button>
           <button class="toolbar-btn" style="display:block;width:100%;text-align:left;padding:6px 10px" onclick="toggleHeatmap()" title="ヒートマップ予測">ヒートマップ</button>
@@ -1340,7 +1340,7 @@ try { if (!localStorage.getItem(WF_START_SKIP_KEY)) setTimeout(showStartModal, 3
 /* ===== ユーティリティ ===== */
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function showError(msg) {
-  let el = document.querySelector('.error-msg'); if (!el) { el = document.createElement('div'); el.className = 'error-msg'; el.setAttribute('role', 'alert'); document.querySelector('.panel-body').prepend(el); }
+  let el = document.querySelector('.error-msg'); if (!el) { el = document.createElement('div'); el.className = 'error-msg'; el.setAttribute('role', 'alert'); const pb = document.querySelector('.panel-body'); if (!pb) return; pb.prepend(el); }
   const isNetwork = /Failed to fetch|NetworkError|ECONNREFUSED|Load failed/i.test(msg);
   el.textContent = isNetwork ? 'サーバーに接続できません。しばらく待ってから再度お試しください。（手動でセクション追加は構成タブから可能です）' : msg;
 }
@@ -1599,8 +1599,9 @@ async function handleUrlImport() {
     }
   }, true);
 
-  // 親からのメッセージ受信
+  // 親からのメッセージ受信（同一オリジンのみ許可）
   window.addEventListener('message', function(e) {
+    if (e.origin !== window.location.origin) return;
     if (e.data.type === 'set-edit-mode') window.__cloneEditMode = e.data.value;
     if (e.data.type === 'get-selected-text') {
       const sel = document.querySelector('[data-clone-selected]');
@@ -1653,7 +1654,8 @@ async function handleUrlImport() {
       window.parent.postMessage({ type: 'clone-snapshot', html: getBodySnapshot() }, '*');
       const sel = document.querySelector('[data-clone-selected]');
       const wrapper = document.createElement('div');
-      wrapper.innerHTML = e.data.html;
+      const safeHtml = (e.data.html || '').replace(/<script[\s\S]*?<\/script>/gi, '').replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '').replace(/\bon\w+\s*=\s*[^\s>]+/gi, '').replace(/javascript\s*:/gi, '');
+      wrapper.innerHTML = safeHtml;
       const newEl = wrapper.firstElementChild || wrapper;
       if (wrapper.firstElementChild) {
         const frag = document.createDocumentFragment();
@@ -1823,7 +1825,7 @@ async function handleUrlImport() {
     let pageText = '';
     try {
       const tempDiv = document.createElement('div');
-      const cleaned = rawHtml.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<nav[\s\S]*?<\/nav>/gi, '').replace(/<footer[\s\S]*?<\/footer>/gi, '');
+      const cleaned = rawHtml.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<nav[\s\S]*?<\/nav>/gi, '').replace(/<footer[\s\S]*?<\/footer>/gi, '').replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '').replace(/\bon\w+\s*=\s*[^\s>]+/gi, '');
       tempDiv.innerHTML = cleaned;
       pageText = tempDiv.textContent.replace(/\s+/g, ' ').trim().slice(0, 5000);
     } catch(ex) { pageText = ''; }
@@ -1849,6 +1851,7 @@ function toggleCloneEdit() {
   cloneEditMode = !cloneEditMode;
   document.getElementById('ct-edit-btn').classList.toggle('active', cloneEditMode);
   const frame = document.getElementById('clone-frame');
+  if (!frame || !frame.contentWindow) { showToast('クローンフレームが利用できません'); return; }
   frame.contentWindow.postMessage({ type: 'set-edit-mode', value: cloneEditMode }, '*');
   showToast(cloneEditMode ? '編集モード ON' : '編集モード OFF');
 }
@@ -1865,8 +1868,9 @@ async function cloneAIRewrite() {
     };
     window.addEventListener('message', handler);
     const frame = document.getElementById('clone-frame');
+    if (!frame || !frame.contentWindow) { resolve(''); return; }
     frame.contentWindow.postMessage({ type: 'get-selected-text' }, '*');
-    setTimeout(() => { window.removeEventListener('message', handler); resolve(''); }, 1000);
+    setTimeout(() => { window.removeEventListener('message', handler); resolve(''); }, 5000);
   });
   if (!originalText) { showToast('リライトするテキストをクリックして選択してください'); return; }
 
@@ -1915,8 +1919,9 @@ function cloneReplaceImage() {
   // イベントはiframe側のpostMessageで処理
 }
 
-// 親ウィンドウのメッセージ受信
+// 親ウィンドウのメッセージ受信（同一オリジンのみ許可）
 window.addEventListener('message', function(e) {
+  if (e.origin !== window.location.origin) return;
   if (e.data.type === 'clone-img-click') {
     const input = document.createElement('input');
     input.type = 'file';
@@ -2027,9 +2032,10 @@ function showCloneSectionPicker(sections) {
     const card = document.createElement('div');
     card.className = 'sp-card';
     card.style.opacity = sec.hidden ? '0.4' : '1';
-    card.innerHTML = `<span class="sp-icon">${sec.hidden ? '👁️‍🗨️' : '👁️'}</span><span class="sp-name">${sec.tag.toUpperCase()}: ${sec.heading || '(見出しなし)'}</span>`;
+    card.innerHTML = `<span class="sp-icon">${sec.hidden ? '👁️‍🗨️' : '👁️'}</span><span class="sp-name">${escHtml(sec.tag.toUpperCase())}: ${escHtml(sec.heading || '(見出しなし)')}</span>`;
     card.onclick = () => {
       const frame = document.getElementById('clone-frame');
+      if (!frame || !frame.contentWindow) return;
       frame.contentWindow.postMessage({ type: 'hide-section', index: sec.index }, '*');
       sec.hidden = !sec.hidden;
       card.style.opacity = sec.hidden ? '0.4' : '1';
@@ -2299,7 +2305,7 @@ function showCloneBgPicker(sections) {
     const row = document.createElement('div');
     row.className = 'sp-card';
     row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '8px';
-    row.innerHTML = `<span style="font-size:12px;flex:1;">${sec.tag.toUpperCase()}: ${sec.heading || '(見出しなし)'}</span>
+    row.innerHTML = `<span style="font-size:12px;flex:1;">${escHtml(sec.tag.toUpperCase())}: ${escHtml(sec.heading || '(見出しなし)')}</span>
       <input type="color" value="${rgbToHex(sec.bgColor)}" style="width:40px;height:28px;border:none;cursor:pointer;" data-sec-idx="${sec.index}">
       <button class="ct-btn" style="padding:4px 8px;font-size:11px;" onclick="applyCloneBg(${sec.index}, this.previousElementSibling.value)">適用</button>`;
     panel.appendChild(row);
@@ -2346,7 +2352,7 @@ function showCloneReorderPicker(sections) {
     row.setAttribute('data-reorder-idx', sec.index);
     row.innerHTML = `<button class="ct-btn" style="padding:2px 6px;" onclick="moveCloneSection(${sec.index}, -1)">↑</button>
       <button class="ct-btn" style="padding:2px 6px;" onclick="moveCloneSection(${sec.index}, 1)">↓</button>
-      <span style="font-size:12px;flex:1;">${sec.tag.toUpperCase()}: ${sec.heading || '(見出しなし)'}</span>`;
+      <span style="font-size:12px;flex:1;">${escHtml(sec.tag.toUpperCase())}: ${escHtml(sec.heading || '(見出しなし)')}</span>`;
     list.appendChild(row);
   });
   panel.appendChild(list);
@@ -2463,7 +2469,7 @@ async function generateWireframeFromClone() {
       } else {
         resolve([]);
       }
-      setTimeout(() => { window.removeEventListener('message', handler); resolve([]); }, 3000);
+      setTimeout(() => { window.removeEventListener('message', handler); resolve([]); }, 5000);
     });
 
     // iframe HTMLの実際のテキストも取得
@@ -2482,7 +2488,7 @@ async function generateWireframeFromClone() {
       } else {
         resolve('');
       }
-      setTimeout(() => { window.removeEventListener('message', handler); resolve(''); }, 3000);
+      setTimeout(() => { window.removeEventListener('message', handler); resolve(''); }, 5000);
     });
 
     // iframe構造からAI用テキストを生成
@@ -3017,7 +3023,7 @@ function createDefs() {
   return defs;
 }
 
-function drawLines(g, x, y, w, n, h, c) { for (let i = 0; i < n; i++) { const lw = w * (0.6 + Math.random() * 0.4); g.appendChild(svgEl('rect', { x, y: y + i * (h + 8), width: lw, height: h, fill: c || cs('line') })); } }
+function drawLines(g, x, y, w, n, h, c) { const pattern = [1.0, 0.85, 0.92, 0.7, 0.78, 0.95, 0.65, 0.88]; for (let i = 0; i < n; i++) { const lw = w * pattern[i % pattern.length]; g.appendChild(svgEl('rect', { x, y: y + i * (h + 8), width: lw, height: h, fill: c || cs('line') })); } }
 function drawImg(g, x, y, w, h, sectionImage) {
   if (sectionImage) {
     // 実画像を表示
@@ -3565,13 +3571,17 @@ function applyZoom() {
 }
 
 /* ===== ミニマップ ===== */
+let _minimapTimer = null;
 function updateMinimap() {
+  if (_minimapTimer) clearTimeout(_minimapTimer);
+  _minimapTimer = setTimeout(_updateMinimapNow, 150);
+}
+function _updateMinimapNow() {
   const minimap = document.getElementById('minimap');
   const svgRoot = document.querySelector('#preview-canvas svg');
-  if (!svgRoot || !minimap) { minimap.innerHTML = ''; return; }
+  if (!svgRoot || !minimap) { if (minimap) minimap.innerHTML = ''; return; }
   const clone = svgRoot.cloneNode(true);
   clone.style.transform = ''; clone.style.width = '100%';
-  // グリッドを除去
   const gridG = clone.querySelector('.grid-group');
   if (gridG) gridG.remove();
   minimap.innerHTML = '';
@@ -3821,8 +3831,11 @@ function applyInlineEdit(sectionId) {
   if (!panel) return;
   const sec = currentSections.find(s => s.id === sectionId);
   if (!sec) return;
-  const newLabel = panel.querySelector('.edit-label').value.trim();
-  const newDesc = panel.querySelector('.edit-desc').value.trim();
+  const labelEl = panel.querySelector('.edit-label');
+  const descEl = panel.querySelector('.edit-desc');
+  if (!labelEl || !descEl) return;
+  const newLabel = labelEl.value.trim();
+  const newDesc = descEl.value.trim();
   if (newLabel !== sec.label || newDesc !== sec.description) {
     saveUndoState();
     sec.label = newLabel;
@@ -3951,7 +3964,12 @@ function addFreeTextAt(svgX, svgY) {
   setTimeout(() => editFreeText(ft.id), 50);
 }
 
+let _freeTextAbort = null;
 function setupFreeTextEvents(svgRoot) {
+  // 前回のリスナーを全て破棄（累積リーク防止）
+  if (_freeTextAbort) _freeTextAbort.abort();
+  _freeTextAbort = new AbortController();
+  const _ftSignal = _freeTextAbort.signal;
   const canvas = document.getElementById('preview-canvas');
 
   // キャンバスクリックでテキスト配置
@@ -3959,12 +3977,14 @@ function setupFreeTextEvents(svgRoot) {
     if (!textPlacementMode) return;
     e.stopPropagation();
     const pt = svgRoot.createSVGPoint();
-    const ctm = svgRoot.getScreenCTM().inverse();
+    const screenCTM = svgRoot.getScreenCTM();
+    if (!screenCTM) return;
+    const ctm = screenCTM.inverse();
     pt.x = e.clientX; pt.y = e.clientY;
     const svgPt = pt.matrixTransform(ctm);
     addFreeTextAt(svgPt.x, svgPt.y);
     toggleTextPlacementMode(); // 1つ配置したらモード解除
-  });
+  }, { signal: _ftSignal });
 
   // 各テキストグループにイベント設定
   svgRoot.querySelectorAll('.free-text-group').forEach(fg => {
@@ -3988,9 +4008,11 @@ function setupFreeTextEvents(svgRoot) {
     fg.addEventListener('mousedown', e => {
       if (textPlacementMode) return;
       e.stopPropagation();
-      dragging = true;
       const pt = svgRoot.createSVGPoint();
-      const ctm = svgRoot.getScreenCTM().inverse();
+      const screenCTM = svgRoot.getScreenCTM();
+      if (!screenCTM) return;
+      dragging = true;
+      const ctm = screenCTM.inverse();
       pt.x = e.clientX; pt.y = e.clientY;
       const svgPt = pt.matrixTransform(ctm);
       startX = svgPt.x; startY = svgPt.y;
@@ -4001,17 +4023,20 @@ function setupFreeTextEvents(svgRoot) {
     document.addEventListener('mousemove', e => {
       if (!dragging) return;
       const pt = svgRoot.createSVGPoint();
-      const ctm = svgRoot.getScreenCTM().inverse();
+      const screenCTM = svgRoot.getScreenCTM();
+      if (!screenCTM) return;
+      const ctm = screenCTM.inverse();
       pt.x = e.clientX; pt.y = e.clientY;
       const svgPt = pt.matrixTransform(ctm);
       const dx = svgPt.x - startX, dy = svgPt.y - startY;
       fg.setAttribute('transform', `translate(${origX + dx},${origY + dy})`);
-    });
+    }, { signal: _ftSignal });
     document.addEventListener('mouseup', () => {
       if (!dragging) return;
       dragging = false;
       fg.style.opacity = '1';
       const transform = fg.getAttribute('transform');
+      if (!transform) return;
       const match = transform.match(/translate\(([^,]+),([^)]+)\)/);
       if (match) {
         const ft = freeTexts.find(f => f.id === ftId);
@@ -4025,7 +4050,7 @@ function setupFreeTextEvents(svgRoot) {
           }
         }
       }
-    });
+    }, { signal: _ftSignal });
   });
 }
 
@@ -5200,6 +5225,7 @@ async function analyzeCompetitor() {
         _user: USER
       })
     });
+    if (!r.ok) throw new Error(`API エラー (${r.status})`);
     const data = await r.json();
 
     // AIの応答からセクション構成を推定（freeモードで再生成）
@@ -5762,16 +5788,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Hook into section changes to broadcast state
-const _origRenderSectionsV7 = typeof renderSections === 'function' ? renderSections : null;
-if (_origRenderSectionsV7) {
-  const _origFn = renderSections;
-  // We'll broadcast after any section change via a debounced hook
-  setInterval(() => {
-    if (collabChannel && collabRoomId) {
-      // lightweight: just broadcast periodically if connected
-    }
-  }, 5000);
-}
+// Collab broadcast placeholder removed (was empty setInterval)
 
 // ============================================================
 //  V7 機能2: コンポーネントライブラリ
@@ -5787,7 +5804,7 @@ function getComponentLibrary() {
 }
 
 function saveComponentLibrary(lib) {
-  localStorage.setItem(COMPLIB_KEY, JSON.stringify(lib));
+  try { localStorage.setItem(COMPLIB_KEY, JSON.stringify(lib)); } catch(e) { showToast('保存容量が上限に達しました'); }
 }
 
 function saveToComponentLibrary(section) {
@@ -5855,8 +5872,8 @@ function renderComponentList(lib, filter, search) {
   list.innerHTML = filtered.map(c => `<div class="complib-item">
     <div class="complib-item-icon">${icons[c.category] || '📎'}</div>
     <div class="complib-item-info">
-      <div class="complib-item-name">${c.name}</div>
-      <div class="complib-item-type">${c.type} / ${COMP_CATEGORIES[c.category] || 'その他'}</div>
+      <div class="complib-item-name">${escHtml(c.name)}</div>
+      <div class="complib-item-type">${escHtml(c.type)} / ${escHtml(COMP_CATEGORIES[c.category] || 'その他')}</div>
     </div>
     <div class="complib-item-actions">
       <button class="complib-insert" onclick="insertComponent('${c.id}')">挿入</button>
@@ -6020,6 +6037,7 @@ async function executeFigmaImport() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fileKey, token })
     });
+    if (!res.ok) throw new Error(`Figma API エラー (${res.status})`);
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
@@ -6302,13 +6320,15 @@ async function executePublishLP() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ html: optimizedHtml, name: page.name || 'lp-wireframe' })
     });
+    if (!res.ok) throw new Error(`デプロイ API エラー (${res.status})`);
     const data = await res.json();
     if (data.url) {
       updatePublishStep(3, 'done');
       const urlDiv = document.getElementById('publish-url');
       if (urlDiv) {
         urlDiv.style.display = 'block';
-        urlDiv.innerHTML = `✅ 公開完了！<br><a href="${data.url}" target="_blank" style="color:#166534;font-weight:600">${data.url}</a>`;
+        const safeUrl = /^https?:\/\//.test(data.url) ? escHtml(data.url) : '#';
+        urlDiv.innerHTML = `✅ 公開完了！<br><a href="${safeUrl}" target="_blank" style="color:#166534;font-weight:600">${safeUrl}</a>`;
       }
       showToast('LP公開完了！');
     } else {
@@ -6757,7 +6777,7 @@ const MARKET_CATEGORIES = ['BtoB LP', 'BtoC LP', 'SaaS', 'EC', '採用', 'イベ
 function getMarketTemplates() {
   try { return JSON.parse(localStorage.getItem(MARKET_KEY) || '[]'); } catch { return []; }
 }
-function saveMarketTemplates(list) { localStorage.setItem(MARKET_KEY, JSON.stringify(list)); }
+function saveMarketTemplates(list) { try { localStorage.setItem(MARKET_KEY, JSON.stringify(list)); } catch(e) { showToast('保存容量が上限に達しました'); } }
 
 function showTemplateMarket() {
   const overlay = document.createElement('div');
@@ -6794,9 +6814,9 @@ function renderMarketBrowse() {
   }
   body.innerHTML = `<div class="market-grid">${templates.map(t => `
     <div class="market-card">
-      <div class="market-card-name">${t.name}</div>
-      <div class="market-card-meta">${t.category} · ${t.sections.length}セクション · ${t.author || 'Anonymous'}</div>
-      <div class="market-card-sections">${t.sections.slice(0, 6).map(s => `<span class="market-card-tag">${s.type}</span>`).join('')}${t.sections.length > 6 ? `<span class="market-card-tag">+${t.sections.length - 6}</span>` : ''}</div>
+      <div class="market-card-name">${escHtml(t.name)}</div>
+      <div class="market-card-meta">${escHtml(t.category)} · ${t.sections.length}セクション · ${escHtml(t.author || 'Anonymous')}</div>
+      <div class="market-card-sections">${t.sections.slice(0, 6).map(s => `<span class="market-card-tag">${escHtml(s.type)}</span>`).join('')}${t.sections.length > 6 ? `<span class="market-card-tag">+${t.sections.length - 6}</span>` : ''}</div>
       <div class="market-card-actions">
         <button class="market-use" onclick="useMarketTemplate('${t.id}')">使用</button>
         <button class="market-del" onclick="deleteMarketTemplate('${t.id}')">削除</button>
@@ -7155,6 +7175,7 @@ function exportPDF() {
         a.href = URL.createObjectURL(pdfBlob);
         a.download = (currentContext?.purpose || 'wireframe') + '.pdf';
         a.click();
+        URL.revokeObjectURL(a.href);
         showToast('PDFダウンロード完了');
       };
       reader.onerror = () => { showToast('PDF生成に失敗しました'); };
@@ -7214,7 +7235,7 @@ let autoSaveTimer = null;
 function getProjects() {
   try { return JSON.parse(localStorage.getItem(PROJECTS_KEY) || '[]'); } catch { return []; }
 }
-function setProjects(list) { localStorage.setItem(PROJECTS_KEY, JSON.stringify(list)); }
+function setProjects(list) { try { localStorage.setItem(PROJECTS_KEY, JSON.stringify(list)); } catch(e) { showToast('保存容量が上限に達しました'); } }
 
 function getProjectData() {
   // 保存前にfreeTextsをpagesに同期
@@ -7324,7 +7345,7 @@ function exportProjectJSON() {
   const data = getProjectData();
   const name = currentContext?.purpose || 'wireframe';
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name.slice(0, 30) + '.json'; a.click();
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name.slice(0, 30) + '.json'; a.click(); URL.revokeObjectURL(a.href);
   showToast('JSONエクスポート完了');
 }
 
