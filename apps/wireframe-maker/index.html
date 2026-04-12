@@ -1428,20 +1428,32 @@ if (dropZone) {
   dropZone.addEventListener('drop', e => { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files[0]) handleFileImport(e.dataTransfer.files[0]); });
 }
 
+const WF_IMPORT_MAX_CHARS = 15000;
+
+function sliceWithTruncateFlag(text) {
+  const full = (text || '').trim();
+  if (full.length <= WF_IMPORT_MAX_CHARS) return { text: full, truncated: false, originalLength: full.length };
+  return { text: full.slice(0, WF_IMPORT_MAX_CHARS), truncated: true, originalLength: full.length };
+}
+
 async function handleFileImport(file) {
   if (!file) return;
   const ext = file.name.split('.').pop().toLowerCase();
   clearError(); addLoadingBubble();
   document.getElementById('chat-send').disabled = true;
   try {
-    let text = '';
-    if (ext === 'pdf') text = await extractPdfText(file);
-    else if (ext === 'docx') text = await extractDocxText(file);
-    else if (ext === 'pptx') text = await extractPptxText(file);
+    let result;
+    if (ext === 'pdf') result = await extractPdfText(file);
+    else if (ext === 'docx') result = await extractDocxText(file);
+    else if (ext === 'pptx') result = await extractPptxText(file);
     else { removeLoadingBubble(); showError('対応形式: PDF, Word, PPTX'); return; }
-    importedContent = text;
+    importedContent = result.text;
     removeLoadingBubble();
-    addChatMessage('ai', `「${file.name}」を読み込みました（${text.length.toLocaleString()}文字）。\n資料のテキスト・見出し・数値をそのまま使ってワイヤーフレーム構成を生成します。`, { label: '資料の内容でワイヤーフレームを作成', action: () => generateFromImport() });
+    const baseMsg = `「${file.name}」を読み込みました（${result.text.length.toLocaleString()}文字）。`;
+    const warnMsg = result.truncated
+      ? `\n⚠️ 元データが ${result.originalLength.toLocaleString()}文字と大きいため、先頭 ${WF_IMPORT_MAX_CHARS.toLocaleString()}文字のみを使用します。重要な内容が冒頭に来るよう、必要なら資料を分割してください。`
+      : '';
+    addChatMessage('ai', `${baseMsg}${warnMsg}\n資料のテキスト・見出し・数値をそのまま使ってワイヤーフレーム構成を生成します。`, { label: '資料の内容でワイヤーフレームを作成', action: () => generateFromImport() });
   } catch (err) {
     removeLoadingBubble(); showError('読み込み失敗: ' + err.message);
   } finally {
@@ -1459,13 +1471,13 @@ async function extractPdfText(file) {
     const tc = await page.getTextContent();
     text += tc.items.map(it => it.str).join(' ') + '\n';
   }
-  return text.trim().slice(0, 15000);
+  return sliceWithTruncateFlag(text);
 }
 
 async function extractDocxText(file) {
   const buf = await file.arrayBuffer();
   const result = await mammoth.extractRawText({ arrayBuffer: buf });
-  return (result.value || '').trim().slice(0, 15000);
+  return sliceWithTruncateFlag(result.value || '');
 }
 
 async function extractPptxText(file) {
@@ -1478,7 +1490,7 @@ async function extractPptxText(file) {
     const matches = xml.match(/<a:t>([^<]*)<\/a:t>/g) || [];
     text += matches.map(m => m.replace(/<\/?a:t>/g, '')).join(' ').trim() + '\n---\n';
   }
-  return text.trim().slice(0, 15000);
+  return sliceWithTruncateFlag(text);
 }
 
 let cloneMode = false;
@@ -1492,9 +1504,14 @@ const CLONE_MAX_UNDO = 30;
 
 async function handleUrlImport() {
   const url = document.getElementById('url-input').value.trim();
-  if (!url || !/^https?:\/\/.+/.test(url)) return;
+  if (!url || !/^https?:\/\/.+/.test(url)) {
+    showError('有効な URL を入力してください（例: https://example.com）');
+    return;
+  }
   if (cloneMode && cloneUndoStack.length > 0) {
-    if (!confirm('現在の編集内容は失われます。新しいサイトを読み込みますか？')) return;
+    if (!confirm('現在のクローン編集内容は失われます。新しいサイトを読み込みますか？')) return;
+  } else if (!cloneMode && currentSections.length > 0) {
+    if (!confirm('現在のワイヤーフレーム構成は破棄される可能性があります。サイトを読み込みますか？（履歴から復元できます）')) return;
   }
   clearError();
   document.getElementById('url-input').value = '';
@@ -2494,43 +2511,52 @@ async function generateWireframeFromClone() {
   window.__cloneSectionsForWF = true;
   window.__cloneHtmlForWF = true;
   try {
-    // 編集済みiframe HTMLからセクション構造を直接解析する
-    const iframeStructure = await new Promise((resolve) => {
+    const frame = document.getElementById('clone-frame');
+    if (!frame || !frame.contentWindow) {
+      throw new Error('クローンモードのプレビューが見つかりません。URLを再読込してから変換してください。');
+    }
+
+    // 編集済みiframe HTMLからセクション構造を直接解析する（iframe 到達失敗と空結果を区別）
+    const iframeStructure = await new Promise((resolve, reject) => {
+      let settled = false;
       const handler = (e) => {
         if (e.data.type === 'clone-sections') {
+          if (settled) return; settled = true;
           window.removeEventListener('message', handler);
           window.__cloneSectionsForWF = false;
-          resolve(e.data.sections);
+          resolve(e.data.sections || []);
         }
       };
       window.addEventListener('message', handler);
-      const frame = document.getElementById('clone-frame');
-      if (frame && frame.contentWindow) {
-        frame.contentWindow.postMessage({ type: 'get-sections' }, '*');
-      } else {
-        resolve([]);
-      }
-      setTimeout(() => { window.removeEventListener('message', handler); resolve([]); }, 5000);
+      try { frame.contentWindow.postMessage({ type: 'get-sections' }, '*'); }
+      catch (err) { settled = true; window.removeEventListener('message', handler); reject(new Error('プレビューと通信できませんでした: ' + err.message)); return; }
+      setTimeout(() => {
+        if (settled) return; settled = true;
+        window.removeEventListener('message', handler);
+        window.__cloneSectionsForWF = false;
+        reject(new Error('サイトプレビューから応答がありません。ページの読み込みが完了してから再度お試しください。'));
+      }, 5000);
     });
 
     // iframe HTMLの実際のテキストも取得
     const iframeHtmlText = await new Promise((resolve) => {
+      let settled = false;
       const handler = (e) => {
         if (e.data.type === 'clone-html') {
+          if (settled) return; settled = true;
           window.removeEventListener('message', handler);
           window.__cloneHtmlForWF = false;
-          resolve(e.data.html);
+          resolve(e.data.html || '');
         }
       };
       window.addEventListener('message', handler);
-      const frame = document.getElementById('clone-frame');
-      if (frame && frame.contentWindow) {
-        frame.contentWindow.postMessage({ type: 'get-html' }, '*');
-      } else {
-        resolve('');
-      }
-      setTimeout(() => { window.removeEventListener('message', handler); resolve(''); }, 5000);
+      try { frame.contentWindow.postMessage({ type: 'get-html' }, '*'); } catch(_) {}
+      setTimeout(() => { if (settled) return; settled = true; window.removeEventListener('message', handler); window.__cloneHtmlForWF = false; resolve(''); }, 5000);
     });
+
+    if (!Array.isArray(iframeStructure) || iframeStructure.length === 0) {
+      throw new Error('サイト内にセクション要素を検出できませんでした。別ページを指定するか、「✨ 手動でセクション追加」から組み立ててください。');
+    }
 
     // iframe構造からAI用テキストを生成
     const structureText = formatCloneStructureForAI(iframeStructure, iframeHtmlText);
@@ -2543,6 +2569,9 @@ async function generateWireframeFromClone() {
     if (!genRes.ok) throw new Error(genData.error?.message || genData.error || '生成失敗');
     removeLoadingBubble();
     const newSections = genData.sections;
+    if (!Array.isArray(newSections) || newSections.length === 0) {
+      throw new Error('AI がセクションを生成できませんでした。もう一度お試しいただくか、テンプレート／手動追加をご利用ください。');
+    }
     const applyImport = (mode) => {
       saveUndoState();
       if (mode === 'append') {
@@ -2819,6 +2848,20 @@ async function generateFromContext() {
 }
 
 /* ===== セクション変更時の統合処理 ===== */
+let __wfExportHintShown = false;
+function notifyReadyToExport() {
+  if (__wfExportHintShown) return;
+  if (!currentSections || currentSections.length === 0) return;
+  __wfExportHintShown = true;
+  try {
+    addChatMessage('ai', '✅ ワイヤーフレームの下書きができました。細部を整えたら「エクスポート」タブから SVG / PNG / HTML で書き出して完了です。', {
+      label: '📤 エクスポートタブへ進む',
+      action: () => { const tab = document.querySelector('[data-tab="export"]'); if (tab) tab.click(); }
+    });
+  } catch(_) {}
+  showToast('エクスポートタブから書き出せます');
+}
+
 function onSectionsChanged(forceTabSwitch) {
   // マルチページと同期
   pages[currentPageIndex].sections = currentSections;
@@ -2831,6 +2874,8 @@ function onSectionsChanged(forceTabSwitch) {
   // チャットタブにいる場合はタブを切り替えない（会話フローを維持）
   if (forceTabSwitch || currentTab !== 'chat') switchTab('structure');
   document.getElementById('empty-preview').classList.add('hidden');
+  // 初回のセクション生成時にエクスポート導線を案内
+  if (currentSections && currentSections.length > 0) notifyReadyToExport();
 }
 
 /* ===== 構成編集 ===== */
@@ -3631,39 +3676,59 @@ function _updateMinimapNow() {
 
 /* ===== エクスポート ===== */
 function exportSVG() {
-  const s = document.querySelector('#preview-canvas svg');
-  if (!s) return;
-  const clone = s.cloneNode(true); clone.style.transform = ''; clone.style.width = '';
-  const gridG = clone.querySelector('.grid-group');
-  if (gridG) gridG.remove();
-  const str = new XMLSerializer().serializeToString(clone);
-  download(new Blob([str], { type: 'image/svg+xml' }), 'wireframe.svg');
-  saveHistory(); showToast('SVG ダウンロード');
+  try {
+    const s = document.querySelector('#preview-canvas svg');
+    if (!s) { showToast('プレビューがありません。まず構成を生成してください'); return; }
+    const clone = s.cloneNode(true); clone.style.transform = ''; clone.style.width = '';
+    const gridG = clone.querySelector('.grid-group');
+    if (gridG) gridG.remove();
+    const str = new XMLSerializer().serializeToString(clone);
+    download(new Blob([str], { type: 'image/svg+xml' }), 'wireframe.svg');
+    saveHistory(); showToast('SVG ダウンロード');
+  } catch (err) {
+    console.error('[exportSVG]', err);
+    showError('SVG エクスポートに失敗しました: ' + (err && err.message ? err.message : err));
+  }
 }
 
 function exportPNG() {
-  const s = document.querySelector('#preview-canvas svg');
-  if (!s) { showToast('プレビューがありません'); return; }
-  const clone = s.cloneNode(true); clone.style.transform = ''; clone.style.width = '';
-  const gridG = clone.querySelector('.grid-group');
-  if (gridG) gridG.remove();
-  const str = new XMLSerializer().serializeToString(clone);
-  const blob = new Blob([str], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
-  const img = new Image();
-  img.onload = () => {
-    const w = parseInt(clone.getAttribute('width')) || img.naturalWidth || 800;
-    const h = parseInt(clone.getAttribute('height')) || img.naturalHeight || 600;
-    const c = document.createElement('canvas');
-    c.width = w * 2;
-    c.height = h * 2;
-    const ctx = c.getContext('2d');
-    ctx.scale(2, 2); ctx.drawImage(img, 0, 0);
-    URL.revokeObjectURL(url);
-    c.toBlob(b => { download(b, 'wireframe.png'); saveHistory(); showToast('PNG ダウンロード'); }, 'image/png');
-  };
-  img.onerror = () => { URL.revokeObjectURL(url); showToast('PNG生成に失敗しました'); };
-  img.src = url;
+  try {
+    const s = document.querySelector('#preview-canvas svg');
+    if (!s) { showToast('プレビューがありません。まず構成を生成してください'); return; }
+    const clone = s.cloneNode(true); clone.style.transform = ''; clone.style.width = '';
+    const gridG = clone.querySelector('.grid-group');
+    if (gridG) gridG.remove();
+    const str = new XMLSerializer().serializeToString(clone);
+    const blob = new Blob([str], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const w = parseInt(clone.getAttribute('width')) || img.naturalWidth || 800;
+        const h = parseInt(clone.getAttribute('height')) || img.naturalHeight || 600;
+        const scale = Math.min(2, 6000 / Math.max(w, h));
+        const c = document.createElement('canvas');
+        c.width = Math.round(w * scale);
+        c.height = Math.round(h * scale);
+        const ctx = c.getContext('2d');
+        ctx.scale(scale, scale); ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        c.toBlob(b => {
+          if (!b) { showError('PNG 生成に失敗しました（キャンバスが大きすぎる可能性があります）'); return; }
+          download(b, 'wireframe.png'); saveHistory(); showToast('PNG ダウンロード');
+        }, 'image/png');
+      } catch (err) {
+        URL.revokeObjectURL(url);
+        console.error('[exportPNG onload]', err);
+        showError('PNG 変換に失敗しました: ' + (err && err.message ? err.message : err));
+      }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); showError('PNG 生成に失敗しました（SVG をブラウザが読み込めませんでした）'); };
+    img.src = url;
+  } catch (err) {
+    console.error('[exportPNG]', err);
+    showError('PNG エクスポートに失敗しました: ' + (err && err.message ? err.message : err));
+  }
 }
 
 function copySVG() {
@@ -3707,7 +3772,7 @@ function saveHistory() {
 function startNew() {
   if (currentSections.length > 0 && !confirm('現在の編集内容はすべて失われます。新規作成しますか？')) return;
   chatHistory = []; currentContext = null; currentSections = []; selectedSectionId = null; zoomLevel = 1; importedContent = '';
-  freeTexts = []; textPlacementMode = false;
+  freeTexts = []; textPlacementMode = false; __wfExportHintShown = false;
   pages = [{ id: 'page-1', name: 'トップ', sections: [], links: {}, freeTexts: [] }]; currentPageIndex = 0; variantSections = null;
   document.getElementById('chat-messages').innerHTML = '';
   document.getElementById('suggestions-area').innerHTML = '';
