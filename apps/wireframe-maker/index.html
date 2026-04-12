@@ -387,14 +387,37 @@
     /* モバイル対応 */
     @media (max-width: 768px) {
       .editor-layout { flex-direction: column; }
-      .left-panel { width: 100% !important; max-width: 100%; min-width: 0; height: 50vh; border-right: none; border-bottom: 1px solid #e8ecf0; }
+      .left-panel { width: 100% !important; max-width: 100%; min-width: 0; height: 45vh; border-right: none; border-bottom: 1px solid #e8ecf0; }
       .resize-handle { display: none; }
-      .right-panel { height: 50vh; }
+      .right-panel { height: 55vh; }
       .minimap { display: none; }
       .clone-toolbar { flex-wrap: wrap; gap: 3px; padding: 4px 6px; }
       .clone-toolbar .ct-btn { padding: 6px 8px; font-size: 0.72rem; min-height: 32px; }
       .clone-toolbar .ct-sep { display: none; }
       .clone-toolbar .ct-url { display: none; }
+      .right-panel-toolbar { gap: 4px; padding: 6px 8px; }
+      .toolbar-btn { padding: 4px 6px; font-size: 0.65rem; }
+      .toolbar-sep { margin: 0 2px; }
+    }
+    @media (max-width: 480px) {
+      .navbar { padding: 0 8px; gap: 4px; }
+      .navbar .back-btn { display: none; }
+      .navbar .navbar-divider { display: none; }
+      .navbar .app-title { font-size: 0.75rem; }
+      .navbar-btn { padding: 3px 6px; font-size: 0.6rem; }
+      .navbar-score .score-bar { width: 40px; }
+      .editor-layout { height: calc(100vh - 72px); max-height: calc(100vh - 72px); }
+      .left-panel { height: 40vh; }
+      .right-panel { height: 60vh; }
+      .panel-tab { padding: 8px 4px; font-size: 0.6rem; }
+      .panel-tab .tab-icon { font-size: 0.85rem; }
+      .right-panel-toolbar { gap: 3px; padding: 4px 6px; flex-wrap: wrap; }
+      .toolbar-btn { padding: 3px 5px; font-size: 0.6rem; }
+      .toolbar-sep { display: none; }
+      .zoom-display { font-size: 0.6rem; min-width: 28px; }
+      .right-panel-canvas { padding: 8px; }
+      .page-bar { padding: 0 8px; height: 26px; }
+      .page-tab { padding: 3px 8px; font-size: 0.6rem; }
     }
 
     /* ===== ページバー ===== */
@@ -799,10 +822,10 @@
 <div class="editor-layout">
   <!-- 左パネル -->
   <div class="left-panel" id="left-panel">
-    <div class="panel-tabs">
-      <div class="panel-tab active" data-tab="chat" onclick="switchTab('chat')"><span class="tab-icon">💬</span>チャット</div>
-      <div class="panel-tab" data-tab="structure" onclick="switchTab('structure')"><span class="tab-icon">📐</span>構成</div>
-      <div class="panel-tab" data-tab="export" onclick="switchTab('export')"><span class="tab-icon">📥</span>出力</div>
+    <div class="panel-tabs" role="tablist" aria-label="パネル切替">
+      <div class="panel-tab active" data-tab="chat" onclick="switchTab('chat')" role="tab" aria-selected="true" aria-controls="tab-chat" tabindex="0"><span class="tab-icon">💬</span>チャット</div>
+      <div class="panel-tab" data-tab="structure" onclick="switchTab('structure')" role="tab" aria-selected="false" aria-controls="tab-structure" tabindex="-1"><span class="tab-icon">📐</span>構成</div>
+      <div class="panel-tab" data-tab="export" onclick="switchTab('export')" role="tab" aria-selected="false" aria-controls="tab-export" tabindex="-1"><span class="tab-icon">📥</span>出力</div>
     </div>
 
     <!-- ナレッジストリップ -->
@@ -830,7 +853,7 @@
 
     <div class="panel-body">
       <!-- チャットタブ -->
-      <div class="panel-content active" id="tab-chat">
+      <div class="panel-content active" id="tab-chat" role="tabpanel" aria-labelledby="tab-chat-tab">
         <div class="chat-panel">
           <div class="import-zone">
             <div class="import-drop" id="import-drop" onclick="document.getElementById('file-input').click()" title="PDF/Word/PPTXファイルをドロップまたはクリック">
@@ -839,7 +862,7 @@
             </div>
             <div class="import-url-row" style="flex:2">
               <label for="url-input" class="hidden">URL</label>
-              <input type="url" class="import-url-input" id="url-input" placeholder="https://example.com を入力" onkeydown="if(event.key==='Enter')handleUrlImport()">
+              <input type="url" class="import-url-input" id="url-input" placeholder="https://example.com を入力" aria-label="インポートするサイトURL" onkeydown="if(event.key==='Enter')handleUrlImport()">
               <button class="btn-url-go" onclick="handleUrlImport()" title="URLのサイトを読み込み → 編集 → WFに変換">🌐 読み込む</button>
             </div>
           </div>
@@ -867,14 +890,14 @@
           </div>
           <div class="chat-input-bar">
             <label for="chat-input" class="hidden">メッセージ</label>
-            <textarea id="chat-input" placeholder="要件を入力..." rows="1"></textarea>
+            <textarea id="chat-input" placeholder="要件を入力..." rows="1" aria-label="AIへの要件入力"></textarea>
             <button id="chat-send" onclick="sendChat()">送信</button>
           </div>
         </div>
       </div>
 
       <!-- 構成タブ -->
-      <div class="panel-content" id="tab-structure">
+      <div class="panel-content" id="tab-structure" role="tabpanel" aria-labelledby="tab-structure-tab">
         <div class="structure-panel">
           <div class="structure-header">
             <span class="sh-count" id="section-count">0 セクション</span>
@@ -898,7 +921,7 @@
       </div>
 
       <!-- エクスポートタブ -->
-      <div class="panel-content" id="tab-export">
+      <div class="panel-content" id="tab-export" role="tabpanel" aria-labelledby="tab-export-tab">
         <div class="export-panel">
           <h3 style="font-size:0.88rem;color:#001f33;margin-bottom:4px">エクスポート</h3>
           <p id="export-summary" style="font-size:0.72rem;color:#8a9bb0;margin-bottom:12px">セクション構成のワイヤーフレームです</p>
@@ -975,11 +998,11 @@
 
   <!-- 右パネル（プレビュー） -->
   <div class="right-panel">
-    <div class="right-panel-toolbar">
-      <div class="toolbar-group">
-        <button class="toolbar-btn" onclick="zoom(-0.1)" data-tip="縮小">−</button>
-        <span class="zoom-display" id="zoom-level">100%</span>
-        <button class="toolbar-btn" onclick="zoom(0.1)" data-tip="拡大">＋</button>
+    <div class="right-panel-toolbar" role="toolbar" aria-label="プレビューツールバー">
+      <div class="toolbar-group" role="group" aria-label="ズーム">
+        <button class="toolbar-btn" onclick="zoom(-0.1)" data-tip="縮小" aria-label="縮小">−</button>
+        <span class="zoom-display" id="zoom-level" aria-live="polite">100%</span>
+        <button class="toolbar-btn" onclick="zoom(0.1)" data-tip="拡大" aria-label="拡大">＋</button>
       </div>
       <div class="toolbar-sep"></div>
       <div class="toolbar-group">
@@ -1027,7 +1050,7 @@
       <button class="toolbar-btn hidden" id="back-to-clone-btn" onclick="switchToClone()" data-tip="サイト再現モードに戻る">🌐 サイト再現</button>
       <span id="selected-label" style="font-size:0.68rem;color:#8a9bb0"></span>
     </div>
-    <div id="preview-canvas" class="right-panel-canvas">
+    <div id="preview-canvas" class="right-panel-canvas" role="region" aria-label="ワイヤーフレームプレビュー">
       <div class="empty-preview" id="empty-preview">
         <div class="empty-icon">📐</div>
         <p>左パネルから作成方法を選んでください</p>
@@ -1078,8 +1101,8 @@
 
 <div id="toast" class="toast"></div>
 
-<footer class="app-footer">
-  <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
+<footer class="app-footer" role="contentinfo">
+  <span class="app-footer-text" role="status">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
 </footer>
 
 <script src="/assets/copy-utils.js"></script>
@@ -1356,7 +1379,12 @@ function switchTab(tab) {
   if (tab === 'structure' && currentSections.length === 0) { showToast('まず構成を生成してください'); return; }
   if (tab === 'export' && currentSections.length === 0) { showToast('まず構成を生成してください'); return; }
   currentTab = tab;
-  document.querySelectorAll('.panel-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.panel-tab').forEach(t => {
+    const isActive = t.dataset.tab === tab;
+    t.classList.toggle('active', isActive);
+    t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    t.setAttribute('tabindex', isActive ? '0' : '-1');
+  });
   document.querySelectorAll('.panel-content').forEach(c => c.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   if (tab === 'structure') renderSectionList();

@@ -54,7 +54,7 @@ Wireframe Maker を「完璧なアプリ」として使えるレベルに引き�
 
 | ファイル | 変更種別 |
 |---------|---------|
-| `apps/wireframe-maker/index.html` | 変更（28箇所修正） |
+| `apps/wireframe-maker/index.html` | 変更（28箇所修正 + モバイルCSS + ARIA属性） |
 | `index.html` | 変更（WHAT'S NEW追加） |
 | `docs/design.md` | 変更（変更ログ追加） |
 
