@@ -632,7 +632,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
-      { icon: '🛡️', app: '全アプリ共通', badge: 'UPDATE', date: '2026-04-13(日)', desc: '【品質改善】Banner Resizerイベントリスナーメモリリーク修正（AbortController導入）、Writing Checkerペースト時XSSサニタイズ、Image Converter変換キャンセル機能追加、SNS Post Generatorモバイルレスポンシブ対応、OGP Checkerローディングスケルトン表示、ドロップゾーンアクセシビリティ強化（role/aria-label/キーボード操作）' },
+      { icon: '🛡️', app: '全アプリ共通', badge: 'UPDATE', date: '2026-04-13(月)', desc: '【品質改善】Banner Resizerイベントリスナーメモリリーク修正（AbortController導入）、Writing Checkerペースト時XSSサニタイズ、Image Converter変換キャンセル機能追加、SNS Post Generatorモバイルレスポンシブ対応、OGP Checkerローディングスケルトン表示、ドロップゾーンアクセシビリティ強化（role/aria-label/キーボード操作）' },
       { icon: '📐', app: 'Wireframe Maker',       date: '2026-04-12(日)', desc: '正式公開！「開発中」バッジを解除。最終品質チェック完了（UI/UX・エラーなし・初心者導線・テンプレート即生成を確認）' },
       { icon: '📐', app: 'Wireframe Maker', badge: 'UPDATE', date: '2026-04-11(土)', desc: '【ゼロから完了までの導線強化】既存サイト→WF変換でiframe無応答・セクション0件・AI空応答を沈黙せず明確なエラーで案内。資料インポート(PDF/Word/PPTX)が15000文字で打ち切られる場合は元文字数を含めて警告表示。URLインポート時に既存WFが破棄される可能性がある場合も確認ダイアログ。SVG/PNGエクスポートに例外ハンドリング追加（PNGは最大6000pxでOOM回避）。構成生成成功時に「エクスポートタブへ進む」CTAを1度チャットに挿入し、完了までの導線を明示化' },
       { icon: '📐', app: 'Wireframe Maker',       date: '2026-04-12(日)', desc: '【品質改善】セキュリティ強化（postMessageオリジンチェック・innerHTML XSSエスケープ・HTMLサニタイズ・crypto.getRandomValues導入）、パフォーマンス改善（イベントリスナー累積リーク修正・ミニマップデバウンス・空setInterval削除）、安定性向上（getScreenCTM/iframe/DOM nullガード・localStorage容量超過対策・URL.revokeObjectURL漏れ修正・srcdocオリジン互換修正）、描画の決定論化（drawLinesをMath.random→固定パターン）、fetchエラーハンドリング追加、z-index衝突解消、モバイル対応強化（375px/768pxレスポンシブCSS・ナビバーコンパクト化・ツールバー折返し）、アクセシビリティ改善（全モーダルにrole=dialog/aria-modal・tablist矢印キーナビゲーション・Escapeキーでモーダル閉じ・全閉じるボタンにaria-label・tablist/tab/tabpanel ARIA・ツールバーrole・フォームラベル・aria-live）、コラボレーション機能XSSエスケープ追加' },
