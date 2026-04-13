@@ -226,6 +226,23 @@
 
     .result-area { display: none; }
 
+    /* ── スケルトンローディング ── */
+    .skeleton-area { display: none; margin-top: 20px; }
+    .skeleton-area.show { display: block; }
+    .skeleton-line {
+      height: 14px; background: linear-gradient(90deg, var(--border-light) 25%, var(--surface-alt) 50%, var(--border-light) 75%);
+      background-size: 200% 100%; animation: shimmer 1.5s infinite;
+    }
+    .skeleton-line + .skeleton-line { margin-top: 10px; }
+    .skeleton-line.w60 { width: 60%; }
+    .skeleton-line.w80 { width: 80%; }
+    .skeleton-line.w40 { width: 40%; }
+    .skeleton-block {
+      height: 160px; background: linear-gradient(90deg, var(--border-light) 25%, var(--surface-alt) 50%, var(--border-light) 75%);
+      background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-top: 12px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
     /* ── 履歴 ── */
     .history-wrap {
       display: none;
@@ -412,6 +429,14 @@
       <div id="history-chips"></div>
     </div>
     <div class="error-msg" id="error-msg" role="alert"></div>
+
+    <div class="skeleton-area" id="skeleton-area" aria-busy="true" aria-label="読み込み中">
+      <div class="skeleton-line w60"></div>
+      <div class="skeleton-line w80"></div>
+      <div class="skeleton-block"></div>
+      <div class="skeleton-line w40"></div>
+      <div class="skeleton-line w80"></div>
+    </div>
 
     <div class="result-area" id="result-area">
 
@@ -959,6 +984,7 @@
       cancelBtn.style.display = 'inline-block';
       document.getElementById('result-area').style.display = 'none';
       document.getElementById('score-card').style.display = 'none';
+      document.getElementById('skeleton-area').classList.add('show');
 
       // AbortController でキャンセル可能に
       if (_abortController) _abortController.abort();
@@ -1072,6 +1098,7 @@
         renderStructured(jsonLdList, microdataItems, !!seo.h1);
         renderValidation(ogp, seo, imgSize);
 
+        document.getElementById('skeleton-area').classList.remove('show');
         document.getElementById('result-area').style.display = 'block';
         document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
         HistoryManager.save(url, `og:title: ${ogp.title || '—'}\nog:description: ${ogp.description || '—'}`, { url });
@@ -1080,6 +1107,7 @@
         clearTimeout(timeoutId);
         showError(err.message);
       } finally {
+        document.getElementById('skeleton-area').classList.remove('show');
         btn.disabled = false;
         btn.textContent = 'チェック';
         cancelBtn.style.display = 'none';
@@ -1130,6 +1158,7 @@
       { icon: '⚠️', text: 'タグの設定ミスや不足をすぐ発見' }
     ],
     updates: [
+      { date: '04/13', text: 'ローディングスケルトン表示追加（フェッチ中の体感速度向上）' },
       { date: '04/08', text: 'SEO検証強化（robots/viewport/lang）・アクセシビリティ改善' },
       { date: '04/03', text: 'Twitter Card・h1チェック追加' }
     ]

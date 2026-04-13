@@ -148,7 +148,7 @@
       <span class="step-desc">1枚の画像からMVとOGPを生成</span>
     </div>
     <div class="step-body">
-      <div class="dropzone" id="dz-mv" onclick="document.getElementById('file-mv').click()">
+      <div class="dropzone" id="dz-mv" role="button" aria-label="MV/OGP用の画像をドラッグ＆ドロップまたはクリックして選択" tabindex="0" onclick="document.getElementById('file-mv').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('file-mv').click()}">
         <div class="dropzone-icon">📤</div>
         <div class="dropzone-text">画像をドロップ or クリック</div>
         <div class="dropzone-sub">推奨: 1920×1080px</div>
@@ -166,7 +166,7 @@
       <span class="step-desc">CMS上で上下24px・左右100pxが自動カット</span>
     </div>
     <div class="step-body">
-      <div class="dropzone" id="dz-thumb" onclick="document.getElementById('file-thumb').click()">
+      <div class="dropzone" id="dz-thumb" role="button" aria-label="サムネイル用の画像をドラッグ＆ドロップまたはクリックして選択" tabindex="0" onclick="document.getElementById('file-thumb').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('file-thumb').click()}">
         <div class="dropzone-icon">📤</div>
         <div class="dropzone-text">画像をドロップ or クリック</div>
         <div class="dropzone-sub">推奨: 1920×1080px</div>
@@ -218,6 +218,7 @@
   const aiUpscaleFlags = {};
   const cropOffsets = {};   // sizeId → {x: 0~1, y: 0~1} (0=left/top, 0.5=center, 1=right/bottom)
   const cropZooms = {};     // sizeId → zoom level (1.0 = no zoom, 2.0 = 2x zoom in)
+  const cropDragAborts = {}; // sizeId → AbortController (for cleaning up event listeners)
 
   // ── AI Upscale ────────────────────────────────────────
   let _libsLoading = null;
@@ -559,6 +560,12 @@
   const ZOOM_MIN = 1, ZOOM_MAX = 3, ZOOM_STEP = 0.1;
 
   function setupCropDrag(wrap, sizeId, group) {
+    // Abort previous listeners for this sizeId to prevent accumulation
+    if (cropDragAborts[sizeId]) cropDragAborts[sizeId].abort();
+    const ac = new AbortController();
+    cropDragAborts[sizeId] = ac;
+    const sig = { signal: ac.signal };
+
     let startX = 0, startY = 0;
     let startOx = 0, startOy = 0;
     let dragging = false;
@@ -573,7 +580,7 @@
 
     // ── Drag (1-finger touch / mouse) ──
     function onStart(e) {
-      if (e.touches && e.touches.length >= 2) return; // let pinch handler take over
+      if (e.touches && e.touches.length >= 2) return;
       e.preventDefault();
       dragging = true;
       const pt = e.touches ? e.touches[0] : e;
@@ -656,14 +663,14 @@
       updateFileSizeDisplay(sizeId, group.id);
     }
 
-    wrap.addEventListener('mousedown', onStart);
-    wrap.addEventListener('touchstart', onTouchStart, { passive: false });
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('touchmove', onTouchMove, { passive: false });
-    document.addEventListener('mouseup', onEnd);
-    document.addEventListener('touchend', onTouchEnd);
-    wrap.addEventListener('wheel', onWheel, { passive: false });
-    wrap.addEventListener('dblclick', onDblClick);
+    wrap.addEventListener('mousedown', onStart, sig);
+    wrap.addEventListener('touchstart', onTouchStart, { passive: false, signal: ac.signal });
+    document.addEventListener('mousemove', onMove, sig);
+    document.addEventListener('touchmove', onTouchMove, { passive: false, signal: ac.signal });
+    document.addEventListener('mouseup', onEnd, sig);
+    document.addEventListener('touchend', onTouchEnd, sig);
+    wrap.addEventListener('wheel', onWheel, { passive: false, signal: ac.signal });
+    wrap.addEventListener('dblclick', onDblClick, sig);
   }
 
   function rerenderSingleSize(sizeId, group) {
@@ -966,9 +973,9 @@
       { icon: '🖼️', text: 'サムネイルのカット領域も事前に確認できる' }
     ],
     updates: [
+      { date: '04/13', text: 'イベントリスナーメモリリーク修正・ドロップゾーンアクセシビリティ強化' },
       { date: '04/09', text: 'クロップズームイン機能追加（1x〜3x）・OGP PNG8画質改善' },
-      { date: '04/08', text: '横幅1920px固定で歪みリサイズ修正・圧縮品質改善' },
-      { date: '04/03', text: 'UI刷新（ステップ型レイアウト）・自動圧縮＆状態表示' }
+      { date: '04/08', text: '横幅1920px固定で歪みリサイズ修正・圧縮品質改善' }
     ]
   });</script>
 </body>
