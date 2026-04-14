@@ -532,7 +532,7 @@ X→ https://x.com/AkkodisJapan
       document.getElementById('yt-preview-tags').textContent = parsed.hashtags || '';
       renderYtPreview(desc);
       outputEl.classList.add('on');
-      outputEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      outputEl.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
 
     } catch (err) {
       showErr(err.message);
