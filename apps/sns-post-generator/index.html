@@ -885,7 +885,7 @@ ${styleRule}
     outputSection.style.display = 'block';
     loadingArea.style.display = 'block';
     resultsArea.style.display = 'none';
-    outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    outputSection.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
 
     try {
       const pastedText = document.getElementById('supp-text-input').value.trim();

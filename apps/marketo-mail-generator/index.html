@@ -460,7 +460,7 @@
       rebuildOutputs();
       renderUrlList();
       document.getElementById('output-section').style.display = 'block';
-      document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('output-section').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
       HistoryManager.save(campaign, document.getElementById('text-output').textContent);
     });
 

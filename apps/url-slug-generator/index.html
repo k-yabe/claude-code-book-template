@@ -399,14 +399,18 @@
       e.preventDefault();
       uploadArea.classList.remove('dragover');
       const file = e.dataTransfer.files[0];
-      if (file && isAccepted(file)) {
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        pdfInput.files = dt.files;
-        uploadFilename.textContent = file.name;
-        uploadFilename.style.display = 'block';
-        uploadArea.classList.add('has-file');
+      if (!file) return;
+      if (!isAccepted(file)) {
+        showError(`非対応のファイル形式です。${ACCEPTED_EXTS.join(' / ')} のいずれかをアップロードしてください`);
+        return;
       }
+      hideError();
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      pdfInput.files = dt.files;
+      uploadFilename.textContent = file.name;
+      uploadFilename.style.display = 'block';
+      uploadArea.classList.add('has-file');
     });
 
     // ── 生成 ───────────────────────────────────────────
@@ -536,7 +540,7 @@
             _user: sessionStorage.getItem('username') || 'unknown',
             _app: 'URL Slug Generator',
             model: 'claude-haiku-4-5-20251001',
-            max_tokens: 256,
+            max_tokens: 512,
             system: `あなたはWebページのURLスラッグを生成する専門家です。
 以下のルールに従ってURLスラッグ候補を生成してください：
 - 小文字の英数字とハイフンのみ使用
@@ -558,7 +562,7 @@
         const slugs = raw.split('\n')
           .map(l => l.trim().replace(/^[-\s\d.]+/, '').trim())
           .filter(l => /^[a-z0-9-]+$/.test(l))
-          .slice(0, 3);
+          .slice(0, 5);
 
         if (slugs.length === 0) throw new Error('候補の生成に失敗しました。もう一度お試しください。');
 
@@ -572,7 +576,7 @@
         );
         renderSlugs(sortedSlugs);
         outputSection.style.display = 'block';
-        outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        outputSection.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
 
       } catch (err) {
         showError(err.message);
@@ -628,6 +632,7 @@
       { icon: '📏', text: '命名規則の統一に役立つ' }
     ],
     updates: [
+      { date: '04/14', text: '候補数を3件→5件に拡張／非対応ファイルドロップ時のエラー表示追加' },
       { date: '03/21', text: 'サンプルボタン追加' },
       { date: '03/18', text: 'スコア表示を星評価（★）に改善' }
     ]

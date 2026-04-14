@@ -485,7 +485,7 @@
       if (!raw) throw new Error('チェックに失敗しました');
       const parsed = parseResult(raw);
       renderResult(parsed);
-      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('result').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
       if (!parsed.ok) {
         const corrected = document.getElementById('corrected-display')?.innerText || '';
         HistoryManager.save(text.slice(0, 300), corrected);

@@ -1100,7 +1100,7 @@
 
         document.getElementById('skeleton-area').classList.remove('show');
         document.getElementById('result-area').style.display = 'block';
-        document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('result-area').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
         HistoryManager.save(url, `og:title: ${ogp.title || '—'}\nog:description: ${ogp.description || '—'}`, { url });
 
       } catch (err) {
