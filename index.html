@@ -304,6 +304,9 @@
     .cl-top { display: flex; align-items: center; gap: 8px; }
     .cl-app { font-weight: 700; font-size: 0.75rem; color: #2d3436; }
     .cl-date { font-size: 0.68rem; color: #5a6a7a; background: #e8ecf0; padding: 2px 7px; border-radius: 0; font-weight: 600; }
+    .cl-badge { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 0; }
+    .cl-badge.new { background: #ffb81c; color: #001f33; }
+    .cl-badge.update { background: #001f33; color: #ffffff; }
     .cl-desc { color: #636e72; font-size: 0.72rem; line-height: 1.4; }
 
     .grid {
@@ -632,12 +635,12 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '🏠', app: 'ポータル全体', badge: 'UPDATE', date: '2026-04-14(火)', desc: '【WHAT\'S NEW 刷新】各エントリにNEW/UPDATEバッジを表示（Goldバッジ=NEW、Navyバッジ=UPDATE）。04/11土の重複エントリを削除。Wireframe Maker 04/12の正式公開エントリをNEWバッジ化。運用ルールをCLAUDE.mdに明文化（必須5キー・NEW/UPDATE使い分け・重複禁止）' },
       { icon: '♿', app: '全アプリ共通', badge: 'UPDATE', date: '2026-04-14(火)', desc: '【アクセシビリティ】scrollIntoView の smooth スクロールが OS の「視差効果を減らす」設定（prefers-reduced-motion）を無視していた問題を修正。URL Slug Generator / Marketo Mail / Writing Checker / SNS Post Generator / YouTube Desc / Prompt Maker / OGP Checker の全8箇所で、モーション低減設定時は瞬間スクロールに自動切替' },
       { icon: '🔗', app: 'URL Slug Generator', badge: 'UPDATE', date: '2026-04-14(火)', desc: 'URL候補の生成数を3件→5件に拡張し選択肢を拡大（max_tokens 256→512）。システムプロンプトの「5個生成」指示とコード側の絞り込み件数の不整合を解消／非対応ファイルをドロップした際にサイレント無視せず明示的なエラーメッセージを表示するよう改善' },
       { icon: '🛡️', app: '全アプリ共通', badge: 'UPDATE', date: '2026-04-13(月)', desc: '【品質改善】Banner Resizerイベントリスナーメモリリーク修正（AbortController導入）、Writing Checkerペースト時XSSサニタイズ、Image Converter変換キャンセル機能追加、SNS Post Generatorモバイルレスポンシブ対応、OGP Checkerローディングスケルトン表示、ドロップゾーンアクセシビリティ強化（role/aria-label/キーボード操作）' },
-      { icon: '📐', app: 'Wireframe Maker',       date: '2026-04-12(日)', desc: '正式公開！「開発中」バッジを解除。最終品質チェック完了（UI/UX・エラーなし・初心者導線・テンプレート即生成を確認）' },
-      { icon: '📐', app: 'Wireframe Maker', badge: 'UPDATE', date: '2026-04-11(土)', desc: '【ゼロから完了までの導線強化】既存サイト→WF変換でiframe無応答・セクション0件・AI空応答を沈黙せず明確なエラーで案内。資料インポート(PDF/Word/PPTX)が15000文字で打ち切られる場合は元文字数を含めて警告表示。URLインポート時に既存WFが破棄される可能性がある場合も確認ダイアログ。SVG/PNGエクスポートに例外ハンドリング追加（PNGは最大6000pxでOOM回避）。構成生成成功時に「エクスポートタブへ進む」CTAを1度チャットに挿入し、完了までの導線を明示化' },
-      { icon: '📐', app: 'Wireframe Maker',       date: '2026-04-12(日)', desc: '【品質改善】セキュリティ強化（postMessageオリジンチェック・innerHTML XSSエスケープ・HTMLサニタイズ・crypto.getRandomValues導入）、パフォーマンス改善（イベントリスナー累積リーク修正・ミニマップデバウンス・空setInterval削除）、安定性向上（getScreenCTM/iframe/DOM nullガード・localStorage容量超過対策・URL.revokeObjectURL漏れ修正・srcdocオリジン互換修正）、描画の決定論化（drawLinesをMath.random→固定パターン）、fetchエラーハンドリング追加、z-index衝突解消、モバイル対応強化（375px/768pxレスポンシブCSS・ナビバーコンパクト化・ツールバー折返し）、アクセシビリティ改善（全モーダルにrole=dialog/aria-modal・tablist矢印キーナビゲーション・Escapeキーでモーダル閉じ・全閉じるボタンにaria-label・tablist/tab/tabpanel ARIA・ツールバーrole・フォームラベル・aria-live）、コラボレーション機能XSSエスケープ追加' },
+      { icon: '📐', app: 'Wireframe Maker', badge: 'NEW',    date: '2026-04-12(日)', desc: '正式公開！「開発中」バッジを解除。最終品質チェック完了（UI/UX・エラーなし・初心者導線・テンプレート即生成を確認）' },
+      { icon: '📐', app: 'Wireframe Maker', badge: 'UPDATE', date: '2026-04-12(日)', desc: '【品質改善】セキュリティ強化（postMessageオリジンチェック・innerHTML XSSエスケープ・HTMLサニタイズ・crypto.getRandomValues導入）、パフォーマンス改善（イベントリスナー累積リーク修正・ミニマップデバウンス・空setInterval削除）、安定性向上（getScreenCTM/iframe/DOM nullガード・localStorage容量超過対策・URL.revokeObjectURL漏れ修正・srcdocオリジン互換修正）、描画の決定論化（drawLinesをMath.random→固定パターン）、fetchエラーハンドリング追加、z-index衝突解消、モバイル対応強化（375px/768pxレスポンシブCSS・ナビバーコンパクト化・ツールバー折返し）、アクセシビリティ改善（全モーダルにrole=dialog/aria-modal・tablist矢印キーナビゲーション・Escapeキーでモーダル閉じ・全閉じるボタンにaria-label・tablist/tab/tabpanel ARIA・ツールバーrole・フォームラベル・aria-live）、コラボレーション機能XSSエスケープ追加' },
       { icon: '📐', app: 'Wireframe Maker', badge: 'UPDATE', date: '2026-04-11(土)', desc: '【ゼロから完了までの導線強化】既存サイト→WF変換でiframe無応答・セクション0件・AI空応答を沈黙せず明確なエラーで案内。資料インポート(PDF/Word/PPTX)が15000文字で打ち切られる場合は元文字数を含めて警告表示。URLインポート時に既存WFが破棄される可能性がある場合も確認ダイアログ。SVG/PNGエクスポートに例外ハンドリング追加（PNGは最大6000pxでOOM回避）。構成生成成功時に「エクスポートタブへ進む」CTAを1度チャットに挿入し、完了までの導線を明示化' },
       { icon: '📐', app: 'Wireframe Maker',       date: '2026-04-10(金)', desc: '【UX改善】スタートモーダル導入：初回起動時にポップアップで「ゼロから作る（テンプレ／AI／営業資料インポート／手動）」「既存サイトから作る（URL）」を大きく提示。「営業資料・提案書から作成」を独立カード化しPDF/Word/PPTXインポート動線を明確化（資料のテキスト・見出し・数値をそのまま使ってAI構成生成、不足はクリック編集）。チャットタブに「✨ はじめ方を選ぶ」再表示ボタン追加。「次回から表示しない」設定・Esc/背景クリックで閉じる対応' },
       { icon: '📐', app: 'Wireframe Maker',       date: '2026-04-10(金)', desc: '【基本機能修正】テキスト編集で改行できない問題を解消（textarea化／Shift+Enter=改行・Enter=確定・自動高さ調整）。サブコピー下のグレーバー（drawLines）を編集可能な本文テキスト2行に置換。ヒーロー/テスティモニアル/ロゴバーのロゴ画像プレースホルダー内にクリック編集可能なロゴ名テキストを配置（計17箇所）。drawTextをtspan対応し複数行テキストを描画可能に' },
@@ -768,17 +771,22 @@
           <span class="changelog-title">WHAT'S NEW</span>
         </div>
         <div class="changelog-body">
-          ${WHATS_NEW.map(w => `
+          ${WHATS_NEW.map(w => {
+            const badge = (w.badge || 'UPDATE').toUpperCase();
+            const badgeCls = badge === 'NEW' ? 'new' : 'update';
+            return `
             <div class="cl-item">
               <span class="cl-icon">${w.icon}</span>
               <div class="cl-content">
                 <div class="cl-top">
                   <span class="cl-app">${w.app}</span>
+                  <span class="cl-badge ${badgeCls}">${badge}</span>
                   <span class="cl-date">${w.date}</span>
                 </div>
                 <div class="cl-desc">${w.desc}</div>
               </div>
-            </div>`).join('')}
+            </div>`;
+          }).join('')}
         </div>`;
 
       const wrap = document.querySelector('.changelog-wrap');
