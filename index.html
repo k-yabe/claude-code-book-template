@@ -305,8 +305,8 @@
     .cl-app { font-weight: 700; font-size: 0.75rem; color: #2d3436; }
     .cl-date { font-size: 0.68rem; color: #5a6a7a; background: #e8ecf0; padding: 2px 7px; border-radius: 0; font-weight: 600; }
     .cl-badge { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 0; }
-    .cl-badge.new { background: #ffb81c; color: #001f33; }
-    .cl-badge.update { background: #001f33; color: #ffffff; }
+    .cl-badge.new { background: #001f33; color: #ffb81c; }
+    .cl-badge.update { background: #ffb81c; color: #001f33; }
     .cl-desc { color: #636e72; font-size: 0.72rem; line-height: 1.4; }
 
     .grid {
@@ -635,7 +635,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
-      { icon: '🏠', app: 'ポータル全体', badge: 'UPDATE', date: '2026-04-14(火)', desc: '【WHAT\'S NEW 刷新】各エントリにNEW/UPDATEバッジを表示（Goldバッジ=NEW、Navyバッジ=UPDATE）。04/11土の重複エントリを削除。Wireframe Maker 04/12の正式公開エントリをNEWバッジ化。運用ルールをCLAUDE.mdに明文化（必須5キー・NEW/UPDATE使い分け・重複禁止）' },
+      { icon: '🏠', app: 'ポータル全体', badge: 'UPDATE', date: '2026-04-14(火)', desc: '【WHAT\'S NEW 刷新】各エントリにNEW/UPDATEバッジを表示し、カード側のバッジと配色を統一（NEW=Navy背景+Gold文字、UPDATE=Gold背景+Navy文字）。04/11土の重複エントリを削除。Wireframe Maker 04/12の正式公開エントリをNEWバッジ化。運用ルールをCLAUDE.mdに明文化（必須5キー・NEW/UPDATE使い分け・重複禁止・色統一）' },
       { icon: '♿', app: '全アプリ共通', badge: 'UPDATE', date: '2026-04-14(火)', desc: '【アクセシビリティ】scrollIntoView の smooth スクロールが OS の「視差効果を減らす」設定（prefers-reduced-motion）を無視していた問題を修正。URL Slug Generator / Marketo Mail / Writing Checker / SNS Post Generator / YouTube Desc / Prompt Maker / OGP Checker の全8箇所で、モーション低減設定時は瞬間スクロールに自動切替' },
       { icon: '🔗', app: 'URL Slug Generator', badge: 'UPDATE', date: '2026-04-14(火)', desc: 'URL候補の生成数を3件→5件に拡張し選択肢を拡大（max_tokens 256→512）。システムプロンプトの「5個生成」指示とコード側の絞り込み件数の不整合を解消／非対応ファイルをドロップした際にサイレント無視せず明示的なエラーメッセージを表示するよう改善' },
       { icon: '🛡️', app: '全アプリ共通', badge: 'UPDATE', date: '2026-04-13(月)', desc: '【品質改善】Banner Resizerイベントリスナーメモリリーク修正（AbortController導入）、Writing Checkerペースト時XSSサニタイズ、Image Converter変換キャンセル機能追加、SNS Post Generatorモバイルレスポンシブ対応、OGP Checkerローディングスケルトン表示、ドロップゾーンアクセシビリティ強化（role/aria-label/キーボード操作）' },
