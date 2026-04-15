@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-04-14T23:37:12Z",
+  "last_scraped": "2026-04-15T23:34:07Z",
   "articles": [
+    {
+      "id": "thinkers-and-makers-innovation-akkodis-intelligence-action",
+      "title": "The Innovation Advantage: Akkodis Intelligence in Action",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-innovation-akkodis-intelligence-action",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-04-10T23:25:53Z",
+      "published_date": "2026-04-10T00:00:00Z",
+      "summary_ja": "アッコディスは研究と実務的なエンジニアリングの専門知識を組み合わせることで、気候変動への対応など社会的な課題に向き合う革新的なソリューションを生み出しています。沿岸部の洪水防止を目指すSABRESプロジェクトでは、海上で自動的に展開・収納できるロボット防波堤の開発に取り組んでおり、海洋生物学からAIまで複数の専門分野の技術者が協力して複雑な課題に対応しています。トゥールーズとリヨンに設置した実験工房では、エンジニアが自由にアイデアを試し、試作品を作ることで、理論から実際の製品化までのプロセスを効率的に進めることができる環境を整備しています。"
+    },
     {
       "id": "it-operations-havent-accelerated-after-automation-ai",
       "title": "Why IT Operations Haven’t Accelerated After Decades of Automation and AI",
@@ -50,16 +60,6 @@
       "first_seen": "2026-04-14T23:35:17Z",
       "published_date": "2026-04-01T00:00:00Z",
       "summary_ja": "ゲームを通じた認知機能の測定にAIを組み合わせることで、医師が高齢者の認知低下をリアルタイムで検出できるようになり、従来の検査より迅速かつ正確な早期介入が可能になります。AkkodisのAI専門家が進めるSTAYWELLプロジェクトでは、ウェアラブルデバイスから収集した健康データとゲームの分析結果を統合し、特にアルツハイマー病や多発性硬化症などの年齢関連疾患の発見を支援しています。このAI技術は医師の臨床判断を補助するツールとして設計されており、医療機関や介護施設との協力を通じて、より多くの患者に個別化された予防的ケアを提供することを目指しています。"
-    },
-    {
-      "id": "thinkers-and-makers-innovation-akkodis-intelligence-action",
-      "title": "The Innovation Advantage: Akkodis Intelligence in Action",
-      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-innovation-akkodis-intelligence-action",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-04-10T23:25:53Z",
-      "published_date": "2026-04-10T00:00:00Z",
-      "summary_ja": "アッコディスは研究と実務的なエンジニアリングの専門知識を組み合わせることで、気候変動への対応など社会的な課題に向き合う革新的なソリューションを生み出しています。沿岸部の洪水防止を目指すSABRESプロジェクトでは、海上で自動的に展開・収納できるロボット防波堤の開発に取り組んでおり、海洋生物学からAIまで複数の専門分野の技術者が協力して複雑な課題に対応しています。トゥールーズとリヨンに設置した実験工房では、エンジニアが自由にアイデアを試し、試作品を作ることで、理論から実際の製品化までのプロセスを効率的に進めることができる環境を整備しています。"
     },
     {
       "id": "improving-the-acoustic-footprint-of-submarines",
