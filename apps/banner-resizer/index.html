@@ -219,6 +219,7 @@
   const cropOffsets = {};   // sizeId → {x: 0~1, y: 0~1} (0=left/top, 0.5=center, 1=right/bottom)
   const cropZooms = {};     // sizeId → zoom level (1.0 = no zoom, 2.0 = 2x zoom in)
   const cropDragAborts = {}; // sizeId → AbortController (for cleaning up event listeners)
+  const safeAreaFitFlags = {}; // sizeId → boolean (auto-margin生成モード)
 
   // ── AI Upscale ────────────────────────────────────────
   let _libsLoading = null;
@@ -311,6 +312,11 @@
             <input type="checkbox" id="trim-check-${size.id}" checked
               onchange="toggleThumbTrim('${group.id}', '${size.id}', this.checked)">
             サムネイル時のカット領域を表示
+          </label>
+          <label class="option-check" title="要素を端まで配置していてもCMSで切れないよう、元画像をセーフエリア（${size.w - (size.thumbTrim.left + size.thumbTrim.right)}×${size.h - (size.thumbTrim.top + size.thumbTrim.bottom)}px）内に縮小し、外周はぼかし背景で自動生成します">
+            <input type="checkbox" id="safearea-check-${size.id}"
+              onchange="toggleSafeAreaFit('${group.id}', '${size.id}', this.checked)">
+            セーフエリア内に収めて周囲を自動生成（カット対策）
           </label>` : ''}
           <div class="file-size-info" id="filesize-${size.id}"></div>
           <button class="dl-btn" id="dl-btn-${size.id}" onclick="downloadSingle('${group.id}', '${size.id}')" disabled>ダウンロード</button>
@@ -406,9 +412,31 @@
       wrap.style.display = 'flex';
       wrap.innerHTML = '';
 
+      const safeAreaFit = !!safeAreaFitFlags[size.id] && !!size.thumbTrim;
       const needsAI = aiEnabled && (img.width < targetW || img.height < targetH);
 
-      if (needsAI) {
+      if (safeAreaFit) {
+        // セーフエリアフィット: クロップ/ズームは無視、AIアップスケールは背景画質のために尊重
+        let baseImg = img;
+        if (needsAI) {
+          wrap.innerHTML = '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AI処理中...</div>';
+          try {
+            await loadAILibs();
+            if (!_upscaler) {
+              const modelArg = window.ESRGANSlim ? window.ESRGANSlim['2x'] : undefined;
+              _upscaler = new Upscaler(modelArg ? { model: modelArg } : {});
+            }
+            const upscaledSrc = await _upscaler.upscale(img);
+            baseImg = await loadImageFromSrc(upscaledSrc);
+          } catch (e) {
+            console.warn('AI upscale failed, using original:', e);
+          }
+          wrap.innerHTML = '';
+        }
+        const canvas = createWithSafeAreaFit(baseImg, targetW, targetH, size.thumbTrim);
+        canvas.id = 'canvas-' + size.id;
+        wrap.appendChild(canvas);
+      } else if (needsAI) {
         wrap.innerHTML = '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AI処理中...</div>';
         const canvas = await createWithAI(img, targetW, targetH, size.crop, offset, zoom);
         canvas.id = 'canvas-' + size.id;
@@ -420,8 +448,8 @@
         wrap.appendChild(canvas);
       }
 
-      // Enable drag-to-adjust crop position + zoom
-      if (size.crop) {
+      // Enable drag-to-adjust crop position + zoom（セーフエリアフィット時は無効）
+      if (size.crop && !safeAreaFit) {
         wrap.classList.add('draggable');
         const hint = document.createElement('div');
         hint.className = 'crop-hint';
@@ -434,9 +462,13 @@
         zoomBadge.textContent = zoom > 1 ? `🔍 ${Math.round(zoom * 100)}%` : '';
         wrap.appendChild(zoomBadge);
         setupCropDrag(wrap, size.id, group);
+      } else {
+        wrap.classList.remove('draggable');
+        if (cropDragAborts[size.id]) { cropDragAborts[size.id].abort(); cropDragAborts[size.id] = null; }
       }
 
-      if (size.thumbTrim) {
+      // セーフエリアフィット時はカット領域オーバーレイは無意味（要素は内側に収まる）→ 自動非表示
+      if (size.thumbTrim && !safeAreaFit) {
         const trimCheck = document.getElementById('trim-check-' + size.id);
         const show = trimCheck ? trimCheck.checked : true;
         if (show) {
@@ -508,6 +540,64 @@
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(srcCanvas, 0, 0, targetW, targetH);
+    return canvas;
+  }
+
+  // ── Safe-area fit with auto-generated blurred margins ──
+  // 元画像をセーフエリア(targetW - L - R, targetH - T - B)内にcontainで配置し、
+  // 外周は同画像の拡大ぼかしで埋める。これによりCMSで自動カットされても本来の要素が失われない。
+  function createWithSafeAreaFit(img, targetW, targetH, thumbTrim) {
+    const canvas = document.createElement('canvas');
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    // 1. 背景: 拡大カバー＋ぼかし
+    // ぼかしフィルタは縁の不透明度を落とすため、AKKODiSネイビーで下塗り
+    ctx.fillStyle = '#001f33';
+    ctx.fillRect(0, 0, targetW, targetH);
+
+    const srcRatio = img.width / img.height;
+    const dstRatio = targetW / targetH;
+    let coverW, coverH;
+    if (srcRatio > dstRatio) {
+      coverH = targetH;
+      coverW = coverH * srcRatio;
+    } else {
+      coverW = targetW;
+      coverH = coverW / srcRatio;
+    }
+    // 1.15倍オーバースキャンしてぼかしの透明エッジを画面外に追い出す
+    const overscan = 1.15;
+    const bgW = coverW * overscan;
+    const bgH = coverH * overscan;
+    const bgX = (targetW - bgW) / 2;
+    const bgY = (targetH - bgH) / 2;
+
+    ctx.save();
+    ctx.filter = 'blur(48px) brightness(0.88) saturate(1.05)';
+    ctx.drawImage(img, bgX, bgY, bgW, bgH);
+    ctx.restore();
+
+    // 2. 前景: 安全エリア内にcontain配置
+    const safeW = targetW - thumbTrim.left - thumbTrim.right;
+    const safeH = targetH - thumbTrim.top - thumbTrim.bottom;
+    const safeRatio = safeW / safeH;
+    let fgW, fgH;
+    if (srcRatio > safeRatio) {
+      fgW = safeW;
+      fgH = fgW / srcRatio;
+    } else {
+      fgH = safeH;
+      fgW = fgH * srcRatio;
+    }
+    // キャンバス全体に対して中央配置（左右上下の余白が対称になる）
+    const fgX = (targetW - fgW) / 2;
+    const fgY = (targetH - fgH) / 2;
+    ctx.drawImage(img, fgX, fgY, fgW, fgH);
+
     return canvas;
   }
 
@@ -707,6 +797,12 @@
     if (!img) return;
     const size = ALL_SIZES.find(s => s.id === sizeId);
     if (!size || !size.thumbTrim) return;
+    // セーフエリアフィット中はカット領域は無意味なのでオーバーレイ描画をスキップし、グループ全体を再レンダリング
+    if (safeAreaFitFlags[sizeId]) {
+      const group = GROUPS.find(g => g.id === groupId);
+      if (group) renderGroup(group);
+      return;
+    }
     const wrap = document.getElementById('wrap-' + sizeId);
     if (!wrap) return;
     const dlW = size._actualW || size.w;
@@ -719,6 +815,18 @@
     }
     wrap.innerHTML = '';
     wrap.appendChild(canvas);
+  }
+
+  function toggleSafeAreaFit(groupId, sizeId, enabled) {
+    safeAreaFitFlags[sizeId] = enabled;
+    // ON時はカット領域オーバーレイのチェックを自動的にOFFかつdisabledにする
+    const trimCheck = document.getElementById('trim-check-' + sizeId);
+    if (trimCheck) {
+      if (enabled) { trimCheck.checked = false; trimCheck.disabled = true; }
+      else { trimCheck.checked = true; trimCheck.disabled = false; }
+    }
+    const group = GROUPS.find(g => g.id === groupId);
+    if (sourceImages[groupId] && group) renderGroup(group);
   }
 
   function toggleAiUpscale(groupId, sizeId, enabled) {
@@ -819,7 +927,11 @@
       if (!size) { resolve(null); return; }
       const domCanvas = document.getElementById('canvas-' + sizeId);
       let canvas;
-      if (domCanvas && domCanvas.dataset.thumbTrimOverlay && sourceImages[groupId]) {
+      if (safeAreaFitFlags[sizeId] && size.thumbTrim && sourceImages[groupId]) {
+        // セーフエリアフィット時はDOMキャンバスがそのまま使える（オーバーレイ焼き込みなし）
+        // ただし AI upscale を使った場合の再呼び出しはコスト高なのでDOMをそのまま返す
+        canvas = domCanvas;
+      } else if (domCanvas && domCanvas.dataset.thumbTrimOverlay && sourceImages[groupId]) {
         const dlW = size._actualW || size.w;
         const dlH = size._actualH || size.h;
         canvas = createResized(sourceImages[groupId], dlW, dlH, size.crop, cropOffsets[sizeId], cropZooms[sizeId]);
@@ -973,9 +1085,9 @@
       { icon: '🖼️', text: 'サムネイルのカット領域も事前に確認できる' }
     ],
     updates: [
+      { date: '04/15', text: 'サムネ「セーフエリア内に収めて周囲を自動生成」モード追加。要素を端まで配置していてもCMSの自動カット（上下24px・左右100px）で切れなくなる' },
       { date: '04/13', text: 'イベントリスナーメモリリーク修正・ドロップゾーンアクセシビリティ強化' },
-      { date: '04/09', text: 'クロップズームイン機能追加（1x〜3x）・OGP PNG8画質改善' },
-      { date: '04/08', text: '横幅1920px固定で歪みリサイズ修正・圧縮品質改善' }
+      { date: '04/09', text: 'クロップズームイン機能追加（1x〜3x）・OGP PNG8画質改善' }
     ]
   });</script>
 </body>
