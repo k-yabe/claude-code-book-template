@@ -467,8 +467,9 @@
         if (cropDragAborts[size.id]) { cropDragAborts[size.id].abort(); cropDragAborts[size.id] = null; }
       }
 
-      // セーフエリアフィット時はカット領域オーバーレイは無意味（要素は内側に収まる）→ 自動非表示
-      if (size.thumbTrim && !safeAreaFit) {
+      // カット領域オーバーレイ: trim チェックが ON なら safeAreaFit の有無に関わらず描画
+      // （safeAreaFit 中でも「どこが切れる領域か」を確認したいケースがあるため両立可能にする）
+      if (size.thumbTrim) {
         const trimCheck = document.getElementById('trim-check-' + size.id);
         const show = trimCheck ? trimCheck.checked : true;
         if (show) {
@@ -797,34 +798,14 @@
     if (!img) return;
     const size = ALL_SIZES.find(s => s.id === sizeId);
     if (!size || !size.thumbTrim) return;
-    // セーフエリアフィット中はカット領域は無意味なのでオーバーレイ描画をスキップし、グループ全体を再レンダリング
-    if (safeAreaFitFlags[sizeId]) {
-      const group = GROUPS.find(g => g.id === groupId);
-      if (group) renderGroup(group);
-      return;
-    }
-    const wrap = document.getElementById('wrap-' + sizeId);
-    if (!wrap) return;
-    const dlW = size._actualW || size.w;
-    const dlH = size._actualH || size.h;
-    const canvas = createResized(img, dlW, dlH, size.crop, cropOffsets[sizeId], cropZooms[sizeId]);
-    canvas.id = 'canvas-' + sizeId;
-    if (show) {
-      drawThumbTrimOverlay(canvas, size.thumbTrim);
-      canvas.dataset.thumbTrimOverlay = '1';
-    }
-    wrap.innerHTML = '';
-    wrap.appendChild(canvas);
+    // renderGroup に委譲する（safeAreaFit の有無に関わらず現在の canvas を再生成＋オーバーレイ再適用）
+    const group = GROUPS.find(g => g.id === groupId);
+    if (group) renderGroup(group);
   }
 
   function toggleSafeAreaFit(groupId, sizeId, enabled) {
     safeAreaFitFlags[sizeId] = enabled;
-    // ON時はカット領域オーバーレイのチェックを自動的にOFFかつdisabledにする
-    const trimCheck = document.getElementById('trim-check-' + sizeId);
-    if (trimCheck) {
-      if (enabled) { trimCheck.checked = false; trimCheck.disabled = true; }
-      else { trimCheck.checked = true; trimCheck.disabled = false; }
-    }
+    // 2つのチェックボックスは独立に動作可能（カット領域表示はユーザー選択を尊重）
     const group = GROUPS.find(g => g.id === groupId);
     if (sourceImages[groupId] && group) renderGroup(group);
   }
@@ -1085,7 +1066,7 @@
       { icon: '🖼️', text: 'サムネイルのカット領域も事前に確認できる' }
     ],
     updates: [
-      { date: '04/15', text: 'サムネ「セーフエリア内に収めて周囲を自動生成」モード追加。要素を端まで配置していてもCMSの自動カット（上下24px・左右100px）で切れなくなる' },
+      { date: '04/15', text: 'サムネ「セーフエリア内に収めて周囲を自動生成」モード追加。要素を端まで配置していてもCMSの自動カット（上下24px・左右100px）で切れなくなる。「カット領域を表示」とも併用可能' },
       { date: '04/13', text: 'イベントリスナーメモリリーク修正・ドロップゾーンアクセシビリティ強化' },
       { date: '04/09', text: 'クロップズームイン機能追加（1x〜3x）・OGP PNG8画質改善' }
     ]
