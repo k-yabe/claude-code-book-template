@@ -416,7 +416,7 @@
       const needsAI = aiEnabled && (img.width < targetW || img.height < targetH);
 
       if (safeAreaFit) {
-        // セーフエリアフィット: クロップ/ズームは無視、AIアップスケールは背景画質のために尊重
+        // セーフエリアフィット: zoom/drag も有効化（安全エリア内でパン＆ズーム、範囲外はクリップ）
         let baseImg = img;
         if (needsAI) {
           wrap.innerHTML = '<div class="ai-loading"><span class="ai-loading-spinner">⏳</span><br>AI処理中...</div>';
@@ -433,7 +433,7 @@
           }
           wrap.innerHTML = '';
         }
-        const canvas = createWithSafeAreaFit(baseImg, targetW, targetH, size.thumbTrim);
+        const canvas = createWithSafeAreaFit(baseImg, targetW, targetH, size.thumbTrim, offset, zoom);
         canvas.id = 'canvas-' + size.id;
         wrap.appendChild(canvas);
       } else if (needsAI) {
@@ -448,12 +448,14 @@
         wrap.appendChild(canvas);
       }
 
-      // Enable drag-to-adjust crop position + zoom（セーフエリアフィット時は無効）
-      if (size.crop && !safeAreaFit) {
+      // ドラッグ位置調整 + ホイール/ピンチズーム（セーフエリアfit中でも有効）
+      if (size.crop) {
         wrap.classList.add('draggable');
         const hint = document.createElement('div');
         hint.className = 'crop-hint';
-        hint.textContent = '✥ ドラッグで位置調整 / ホイールでズーム';
+        hint.textContent = safeAreaFit
+          ? '✥ 安全エリア内でドラッグ / ホイールでズーム'
+          : '✥ ドラッグで位置調整 / ホイールでズーム';
         wrap.appendChild(hint);
         const zoomBadge = document.createElement('div');
         zoomBadge.className = 'crop-hint';
@@ -462,9 +464,6 @@
         zoomBadge.textContent = zoom > 1 ? `🔍 ${Math.round(zoom * 100)}%` : '';
         wrap.appendChild(zoomBadge);
         setupCropDrag(wrap, size.id, group);
-      } else {
-        wrap.classList.remove('draggable');
-        if (cropDragAborts[size.id]) { cropDragAborts[size.id].abort(); cropDragAborts[size.id] = null; }
       }
 
       // カット領域オーバーレイ: trim チェックが ON なら safeAreaFit の有無に関わらず描画
@@ -547,7 +546,9 @@
   // ── Safe-area fit with auto-generated blurred margins ──
   // 元画像をセーフエリア(targetW - L - R, targetH - T - B)内にcontainで配置し、
   // 外周は同画像の拡大ぼかしで埋める。これによりCMSで自動カットされても本来の要素が失われない。
-  function createWithSafeAreaFit(img, targetW, targetH, thumbTrim) {
+  // zoom > 1 の場合は「元画像の一部を拡大表示」としてセーフエリア内にクリップ描画する。
+  // cropOffset は zoom > 1 時の表示位置（0〜1）。1倍時は中央固定で効かない。
+  function createWithSafeAreaFit(img, targetW, targetH, thumbTrim, cropOffset, zoom) {
     const canvas = document.createElement('canvas');
     canvas.width = targetW;
     canvas.height = targetH;
@@ -582,22 +583,40 @@
     ctx.drawImage(img, bgX, bgY, bgW, bgH);
     ctx.restore();
 
-    // 2. 前景: 安全エリア内にcontain配置
+    // 2. 前景: 安全エリア内に配置（zoom で拡大・cropOffset で位置調整、安全エリア外はクリップ）
     const safeW = targetW - thumbTrim.left - thumbTrim.right;
     const safeH = targetH - thumbTrim.top - thumbTrim.bottom;
     const safeRatio = safeW / safeH;
-    let fgW, fgH;
+    // ベースは contain（zoom=1 で画像全体がセーフエリア内に収まる）
+    let baseW, baseH;
     if (srcRatio > safeRatio) {
-      fgW = safeW;
-      fgH = fgW / srcRatio;
+      baseW = safeW;
+      baseH = baseW / srcRatio;
     } else {
-      fgH = safeH;
-      fgW = fgH * srcRatio;
+      baseH = safeH;
+      baseW = baseH * srcRatio;
     }
-    // キャンバス全体に対して中央配置（左右上下の余白が対称になる）
-    const fgX = (targetW - fgW) / 2;
-    const fgY = (targetH - fgH) / 2;
-    ctx.drawImage(img, fgX, fgY, fgW, fgH);
+    const z = Math.max(1, zoom || 1);
+    const dispW = baseW * z;
+    const dispH = baseH * z;
+    const ox = cropOffset ? cropOffset.x : 0.5;
+    const oy = cropOffset ? cropOffset.y : 0.5;
+    // ズーム時は画像が安全エリアよりはみ出すので cropOffset でパンニング、
+    // はみ出さない軸は中央配置
+    const fgX = dispW > safeW
+      ? thumbTrim.left - (dispW - safeW) * ox
+      : thumbTrim.left + (safeW - dispW) / 2;
+    const fgY = dispH > safeH
+      ? thumbTrim.top - (dispH - safeH) * oy
+      : thumbTrim.top + (safeH - dispH) / 2;
+
+    // セーフエリア外をクリップ（背景のぼかしを上書きしないため）
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(thumbTrim.left, thumbTrim.top, safeW, safeH);
+    ctx.clip();
+    ctx.drawImage(img, fgX, fgY, dispW, dispH);
+    ctx.restore();
 
     return canvas;
   }
@@ -774,7 +793,10 @@
     const zoom = cropZooms[sizeId] || 1;
     const wrap = document.getElementById('wrap-' + sizeId);
     if (!wrap) return;
-    const canvas = createResized(img, targetW, targetH, size.crop, offset, zoom);
+    const safeAreaFit = !!safeAreaFitFlags[sizeId] && !!size.thumbTrim;
+    const canvas = safeAreaFit
+      ? createWithSafeAreaFit(img, targetW, targetH, size.thumbTrim, offset, zoom)
+      : createResized(img, targetW, targetH, size.crop, offset, zoom);
     // Update zoom badge
     const badge = document.getElementById('zoom-badge-' + sizeId);
     if (badge) badge.textContent = zoom > 1 ? `🔍 ${Math.round(zoom * 100)}%` : '';
@@ -908,13 +930,15 @@
       if (!size) { resolve(null); return; }
       const domCanvas = document.getElementById('canvas-' + sizeId);
       let canvas;
+      const overlayBaked = domCanvas && domCanvas.dataset.thumbTrimOverlay;
+      const dlW = size._actualW || size.w;
+      const dlH = size._actualH || size.h;
       if (safeAreaFitFlags[sizeId] && size.thumbTrim && sourceImages[groupId]) {
-        // セーフエリアフィット時はDOMキャンバスがそのまま使える（オーバーレイ焼き込みなし）
-        // ただし AI upscale を使った場合の再呼び出しはコスト高なのでDOMをそのまま返す
-        canvas = domCanvas;
-      } else if (domCanvas && domCanvas.dataset.thumbTrimOverlay && sourceImages[groupId]) {
-        const dlW = size._actualW || size.w;
-        const dlH = size._actualH || size.h;
+        // セーフエリアfit: overlay焼き込み時はクリーン版を再生成、そうでなければDOMを再利用
+        canvas = overlayBaked
+          ? createWithSafeAreaFit(sourceImages[groupId], dlW, dlH, size.thumbTrim, cropOffsets[sizeId], cropZooms[sizeId])
+          : domCanvas;
+      } else if (overlayBaked && sourceImages[groupId]) {
         canvas = createResized(sourceImages[groupId], dlW, dlH, size.crop, cropOffsets[sizeId], cropZooms[sizeId]);
       } else {
         canvas = domCanvas;
@@ -1066,7 +1090,7 @@
       { icon: '🖼️', text: 'サムネイルのカット領域も事前に確認できる' }
     ],
     updates: [
-      { date: '04/15', text: 'サムネ「セーフエリア内に収めて周囲を自動生成」モード追加。要素を端まで配置していてもCMSの自動カット（上下24px・左右100px）で切れなくなる。「カット領域を表示」とも併用可能' },
+      { date: '04/15', text: 'サムネ「セーフエリア内に収めて周囲を自動生成」モード追加。要素を端まで配置していてもCMSの自動カット（上下24px・左右100px）で切れなくなる。「カット領域を表示」と併用可能。セーフエリアfit中もドラッグ＋ズーム可能' },
       { date: '04/13', text: 'イベントリスナーメモリリーク修正・ドロップゾーンアクセシビリティ強化' },
       { date: '04/09', text: 'クロップズームイン機能追加（1x〜3x）・OGP PNG8画質改善' }
     ]
