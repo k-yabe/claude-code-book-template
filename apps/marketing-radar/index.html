@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketing Radar</title>
+  <link rel="stylesheet" href="../../assets/app-styles.css">
+  <style>
+    body { min-height: 100vh; padding: 0 0 60px; background: var(--bg); }
+
+    .page-header {
+      max-width: 1180px;
+      margin: var(--sp-8) auto 0;
+      padding: 0 var(--sp-5) var(--sp-3);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--sp-2);
+    }
+    .page-title-wrap { display: flex; align-items: center; gap: 12px; }
+    .page-title-wrap h1 { margin: 0; font-size: 1.6rem; color: var(--navy); letter-spacing: 0.01em; }
+    .page-subtitle { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
+    .meta-text { font-size: 0.72rem; color: var(--text-faint); }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: var(--sp-2) var(--sp-5) 0;
+    }
+
+    /* ── Hero: 前日ハイライト ── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #002d4a 60%, #003d66 100%);
+      color: #fff;
+      padding: 22px 24px 24px;
+      margin-bottom: var(--sp-4);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute; right: -40px; top: -40px;
+      width: 180px; height: 180px;
+      background: var(--gold); opacity: 0.08;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero-kicker {
+      display: inline-block;
+      background: var(--gold); color: var(--navy);
+      font-size: 0.7rem; font-weight: 800;
+      padding: 3px 10px; letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .hero-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 14px; opacity: 0.95; }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } }
+    .hero-item {
+      background: rgba(255,255,255,0.06);
+      border-left: 3px solid var(--gold);
+      padding: 12px 14px;
+      text-decoration: none; color: #fff;
+      transition: background var(--ease-fast);
+    }
+    .hero-item:hover { background: rgba(255,255,255,0.12); }
+    .hero-item-source { font-size: 0.7rem; color: var(--gold); font-weight: 700; margin-bottom: 4px; }
+    .hero-item-title {
+      font-size: 0.9rem; font-weight: 600; line-height: 1.45;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .hero-empty {
+      grid-column: 1 / -1;
+      text-align: center; padding: 18px 0;
+      color: rgba(255,255,255,0.7); font-size: 0.85rem;
+    }
+
+    /* ── Filters bar ── */
+    .filters {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: var(--sp-3);
+    }
+    .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.78rem; font-weight: 600;
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: all var(--ease-fast);
+    }
+    .chip:hover { border-color: var(--navy); color: var(--navy); }
+    .chip.is-active {
+      background: var(--navy); border-color: var(--navy); color: #fff;
+    }
+    .chip .count { opacity: 0.7; margin-left: 4px; font-weight: 500; }
+
+    .date-filter { display: flex; gap: 6px; }
+    .date-filter .chip.is-active {
+      background: var(--gold); border-color: var(--gold); color: var(--navy);
+    }
+
+    /* ── News grid ── */
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
+    }
+    .news-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-top: 4px solid var(--border);
+      padding: 14px 16px 14px;
+      display: flex; flex-direction: column;
+      text-decoration: none; color: inherit;
+      transition: all var(--ease-fast);
+      position: relative;
+    }
+    .news-card:hover {
+      border-color: var(--navy);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 31, 51, 0.08);
+    }
+    .news-card[data-cat="marketing_jp"]     { border-top-color: var(--gold); }
+    .news-card[data-cat="marketing_global"] { border-top-color: var(--cyan); }
+    .news-card[data-cat="business"]         { border-top-color: var(--navy); }
+    .news-card[data-cat="tech"]             { border-top-color: #9966cc; }
+    .news-card[data-cat="sns"]              { border-top-color: #1da1f2; }
+
+    .news-meta {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.7rem; color: var(--text-faint);
+      margin-bottom: 8px;
+    }
+    .news-source {
+      font-weight: 700; color: var(--navy);
+      font-size: 0.7rem;
+    }
+    .news-cat {
+      font-size: 0.65rem; font-weight: 700;
+      padding: 2px 7px;
+      background: var(--surface-alt); color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+    .news-card[data-cat="marketing_jp"]     .news-cat { background: #fff4d6; color: #7a5a00; }
+    .news-card[data-cat="marketing_global"] .news-cat { background: #ccffff; color: #006666; }
+    .news-card[data-cat="business"]         .news-cat { background: #cce0ee; color: var(--navy); }
+    .news-card[data-cat="tech"]             .news-cat { background: #ece0f5; color: #5b2d91; }
+    .news-card[data-cat="sns"]              .news-cat { background: #d4edfb; color: #0d5a8c; }
+
+    .news-title {
+      font-size: 0.92rem; font-weight: 700; color: var(--navy);
+      line-height: 1.4;
+      margin-bottom: 8px;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .news-summary {
+      font-size: 0.78rem; color: var(--text-muted);
+      line-height: 1.55;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+      flex-grow: 1;
+      margin-bottom: 10px;
+    }
+    .news-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.68rem; color: var(--text-faint);
+      padding-top: 8px;
+      border-top: 1px solid var(--border-light);
+    }
+    .news-footer .arrow { color: var(--navy); font-weight: 700; }
+
+    .news-card.is-yesterday { background: #fffdf5; }
+    .news-card.is-yesterday::before {
+      content: "前日";
+      position: absolute; top: 0; right: 0;
+      background: var(--gold); color: var(--navy);
+      font-size: 0.62rem; font-weight: 800;
+      padding: 2px 7px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-faint);
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 8px; opacity: 0.5; }
+    .empty-state .msg { font-size: 0.9rem; }
+
+    /* ── Loading skeleton ── */
+    .skeleton-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
+    }
+    .sk-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      padding: 14px 16px;
+      height: 170px;
+    }
+    .sk-line {
+      background: linear-gradient(90deg, #eef0f3 0%, #f8f9fb 50%, #eef0f3 100%);
+      background-size: 200% 100%;
+      animation: sk 1.2s ease-in-out infinite;
+      height: 10px; margin-bottom: 8px;
+    }
+    .sk-line.w60 { width: 60%; } .sk-line.w80 { width: 80%; } .sk-line.w40 { width: 40%; }
+    @keyframes sk { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+
+    @media (max-width: 480px) {
+      .page-header { margin-top: var(--sp-5); }
+      .page-title-wrap h1 { font-size: 1.3rem; }
+      .hero { padding: 16px 14px 18px; }
+      .hero-title { font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a href="../../" class="back-btn">← アプリ一覧へ</a>
+      <div class="navbar-divider"></div>
+      <span class="navbar-title">Marketing Radar</span>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="page-title-wrap">
+      <h1>📰 Marketing Radar</h1>
+    </div>
+    <div class="header-right" style="display:flex;align-items:center;gap:10px;">
+      <span class="meta-text" id="meta-generated"></span>
+      <button class="chip" id="refresh-btn" title="再読み込み" aria-label="再読み込み">↻ 更新</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <p class="page-subtitle" style="margin-bottom: var(--sp-3);">マーケ・市場・テックの最新ニュースを日次で集約。前日のハイライトを一目でキャッチアップ。</p>
+  </div>
+
+  <div class="wrap">
+    <section class="hero" aria-label="前日のハイライト">
+      <span class="hero-kicker" id="hero-kicker">YESTERDAY'S HIGHLIGHTS</span>
+      <div class="hero-title" id="hero-title">前日のハイライトを読み込み中…</div>
+      <div class="hero-grid" id="hero-grid"></div>
+    </section>
+
+    <div class="filters">
+      <div class="chip-group" id="cat-chips" role="tablist" aria-label="カテゴリ"></div>
+      <div class="date-filter chip-group" role="tablist" aria-label="期間">
+        <button class="chip" data-range="today">今日</button>
+        <button class="chip is-active" data-range="yesterday">前日</button>
+        <button class="chip" data-range="7d">7日間</button>
+        <button class="chip" data-range="all">全期間</button>
+      </div>
+    </div>
+
+    <div id="news-area">
+      <div class="skeleton-grid" id="skeleton">
+        <div class="sk-card"><div class="sk-line w40"></div><div class="sk-line w80"></div><div class="sk-line w60"></div><div class="sk-line w80"></div></div>
+        <div class="sk-card"><div class="sk-line w40"></div><div class="sk-line w80"></div><div class="sk-line w60"></div><div class="sk-line w80"></div></div>
+        <div class="sk-card"><div class="sk-line w40"></div><div class="sk-line w80"></div><div class="sk-line w60"></div><div class="sk-line w80"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <span class="app-footer-text">⚠️ 外部メディアの記事タイトル・要約はRSSから取得しています。各記事の権利は発行元に帰属します。</span>
+  </footer>
+
+  <script>
+    const state = {
+      items: [],
+      categories: {},
+      activeCategory: 'all',
+      activeRange: 'yesterday',
+      generatedAt: '',
+    };
+
+    // ── 日付ユーティリティ ──
+    function startOfDay(d) {
+      const x = new Date(d); x.setHours(0, 0, 0, 0); return x;
+    }
+    function daysAgoStart(n) {
+      const x = startOfDay(new Date()); x.setDate(x.getDate() - n); return x;
+    }
+    function formatRelative(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d)) return '';
+      const diffMs = Date.now() - d.getTime();
+      const h = Math.floor(diffMs / 3600000);
+      if (h < 1) return 'たった今';
+      if (h < 24) return `${h}時間前`;
+      const day = Math.floor(h / 24);
+      if (day < 7) return `${day}日前`;
+      return d.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
+    }
+    function isYesterday(iso) {
+      if (!iso) return false;
+      const d = new Date(iso);
+      const start = daysAgoStart(1);
+      const end   = startOfDay(new Date());
+      return d >= start && d < end;
+    }
+
+    // ── HTMLエスケープ ──
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    // ── データ読み込み ──
+    async function loadData() {
+      try {
+        const res = await fetch(`data/news.json?t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        state.items = Array.isArray(data.items) ? data.items : [];
+        state.categories = data.categories || {};
+        state.generatedAt = data.generated_at || '';
+        render();
+      } catch (e) {
+        console.error(e);
+        document.getElementById('news-area').innerHTML =
+          `<div class="empty-state"><div class="icon">⚠️</div><div class="msg">ニュースデータを読み込めませんでした（${esc(e.message)}）</div></div>`;
+      }
+    }
+
+    // ── カテゴリチップ ──
+    function renderCategoryChips() {
+      const counts = { all: state.items.length };
+      for (const it of state.items) {
+        counts[it.category] = (counts[it.category] || 0) + 1;
+      }
+      const order = ['all', 'marketing_jp', 'marketing_global', 'business', 'tech', 'sns'];
+      const labels = { all: 'すべて', ...state.categories };
+      const el = document.getElementById('cat-chips');
+      el.innerHTML = order
+        .filter(k => k === 'all' || labels[k])
+        .map(k => `
+          <button class="chip ${k === state.activeCategory ? 'is-active' : ''}"
+                  data-cat="${esc(k)}" role="tab"
+                  aria-selected="${k === state.activeCategory}">
+            ${esc(labels[k] || k)}<span class="count">${counts[k] || 0}</span>
+          </button>
+        `).join('');
+      el.querySelectorAll('.chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.activeCategory = btn.dataset.cat;
+          render();
+        });
+      });
+    }
+
+    // ── 期間フィルタ ──
+    function filterByRange(items) {
+      const now = new Date();
+      const endToday     = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      const startToday   = startOfDay(now);
+      const startYstd    = daysAgoStart(1);
+      const start7d      = daysAgoStart(7);
+      return items.filter(it => {
+        if (!it.published_at) return state.activeRange === 'all';
+        const d = new Date(it.published_at);
+        if (state.activeRange === 'today')     return d >= startToday && d < endToday;
+        if (state.activeRange === 'yesterday') return d >= startYstd  && d < startToday;
+        if (state.activeRange === '7d')        return d >= start7d    && d < endToday;
+        return true;
+      });
+    }
+
+    // ── ヒーロー描画（前日ハイライト top3） ──
+    function renderHero() {
+      const ystd = state.items.filter(it => isYesterday(it.published_at));
+      const top = ystd.slice(0, 3);
+      const grid = document.getElementById('hero-grid');
+      const title = document.getElementById('hero-title');
+      if (top.length === 0) {
+        title.textContent = '前日のニュースはまだありません';
+        grid.innerHTML = '<div class="hero-empty">GitHub Actionsが次回走ると自動的にここに表示されます。</div>';
+        return;
+      }
+      title.textContent = `前日のマーケティング重要ニュース（${ystd.length}件）`;
+      grid.innerHTML = top.map(it => `
+        <a class="hero-item" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">
+          <div class="hero-item-source">${esc(it.source_label || '')}</div>
+          <div class="hero-item-title">${esc(it.title)}</div>
+        </a>
+      `).join('');
+    }
+
+    // ── カード一覧 ──
+    function renderList() {
+      let items = state.items;
+      if (state.activeCategory !== 'all') {
+        items = items.filter(it => it.category === state.activeCategory);
+      }
+      items = filterByRange(items);
+
+      const area = document.getElementById('news-area');
+      if (items.length === 0) {
+        area.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            <div class="msg">この条件のニュースはありません。期間やカテゴリを変えて再検索してください。</div>
+          </div>`;
+        return;
+      }
+      const catLabels = state.categories;
+      area.innerHTML = `<div class="news-grid">` + items.map(it => {
+        const yesterday = isYesterday(it.published_at);
+        return `
+          <a class="news-card ${yesterday ? 'is-yesterday' : ''}" data-cat="${esc(it.category)}"
+             href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">
+            <div class="news-meta">
+              <span class="news-source">${esc(it.source_label || '')}</span>
+              <span class="news-cat">${esc(catLabels[it.category] || it.category)}</span>
+            </div>
+            <div class="news-title">${esc(it.title)}</div>
+            <div class="news-summary">${esc(it.summary || '')}</div>
+            <div class="news-footer">
+              <span>${esc(formatRelative(it.published_at))}</span>
+              <span class="arrow">読む →</span>
+            </div>
+          </a>`;
+      }).join('') + `</div>`;
+    }
+
+    // ── メタ情報 ──
+    function renderMeta() {
+      const el = document.getElementById('meta-generated');
+      if (!state.generatedAt) { el.textContent = ''; return; }
+      const d = new Date(state.generatedAt);
+      if (isNaN(d)) { el.textContent = ''; return; }
+      el.textContent = `最終更新: ${d.toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
+    }
+
+    function render() {
+      renderMeta();
+      renderCategoryChips();
+      renderHero();
+      renderList();
+    }
+
+    // ── イベント ──
+    document.querySelectorAll('.date-filter .chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.date-filter .chip').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        state.activeRange = btn.dataset.range;
+        renderList();
+      });
+    });
+    document.getElementById('refresh-btn').addEventListener('click', loadData);
+
+    // 初期読み込み
+    loadData();
+  </script>
+
+  <script src="../../assets/onboarding.js"></script>
+  <script>
+    initOnboarding({
+      appName: 'marketing-radar',
+      title: '📰 Marketing Radar',
+      description: 'マーケ・市場・テックのニュースを日次アグリゲート。前日のハイライトで朝のキャッチアップを効率化。',
+      features: [
+        { icon: '🗓️', text: '前日／今日／7日間の期間フィルタで情報を絞り込み' },
+        { icon: '🏷️', text: 'カテゴリタブ（国内マーケ／海外マーケ／市場／テック）で切替' },
+        { icon: '🔄', text: 'GitHub Actionsが毎日JST 7:00に主要メディアのRSSを自動収集' }
+      ],
+      updates: [
+        { date: '04/15', text: '初版公開：12媒体のRSSアグリゲート＋前日ハイライト＋カテゴリタブ' }
+      ]
+    });
+  </script>
+
+</body>
+</html>

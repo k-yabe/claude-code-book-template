@@ -1,0 +1,35 @@
+name: Marketing Radar
+
+on:
+  schedule:
+    # 毎日 JST 7:00（UTC 22:00）に実行
+    - cron: '0 22 * * *'
+  workflow_dispatch: # 手動実行も可能
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r apps/marketing-radar/requirements.txt
+
+      - name: Run scraper
+        run: python apps/marketing-radar/scraper.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apps/marketing-radar/data/news.json
+          git diff --cached --quiet || git commit -m "chore: update marketing-radar news [skip ci]"
+          git push

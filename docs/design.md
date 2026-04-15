@@ -60,6 +60,7 @@
 | Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043, S048, S050, S051, S052, S053, S054, S055, S056, S066, S068, S069, S070 |
 | Cache Checker | `apps/cache-checker/index.html`, `api/fetch-article.js(mode=proxy)` | ✅ 完成 | S037 |
 | Image Converter | `apps/image-converter/index.html` | ✅ 完成 | S047 |
+| Marketing Radar | `apps/marketing-radar/index.html`, `apps/marketing-radar/scraper.py`, `.github/workflows/marketing-radar.yml` | ✅ 完成 | S073 |
 
 ---
 
@@ -201,6 +202,26 @@ NotebookLM超えの2ペインレイアウトでプロンプトを対話生成す
 | デザイントークン | カラースキームからCSS変数/JSONを自動生成（色・スペーシング・タイポグラフィ・レイアウト） |
 | テキスト自由配置 | T+ボタンでキャンバス任意位置にテキスト追加、ドラッグ移動、ダブルクリック編集、ツールバーでサイズ/色/太さ/削除 |
 | インポートモード選択 | URLインポート・ファイルインポート時に「既存に追加」「全て置換」をモーダルで選択（既存セクション保護） |
+
+### Marketing Radar（`apps/marketing-radar/`）
+
+マーケ・市場・テック系メディアのRSSを日次で集約するニュースアグリゲーター。Global Antenna（社内サイト監視）と対になる外部メディア向けアプリ。
+
+**構成**:
+- `scraper.py` — Python + feedparser + requests。`SOURCES` に登録された12媒体のRSSを巡回し、`data/news.json` を生成
+- `data/news.json` — 直近14日分の記事（title / url / summary / source / category / published_at）を格納
+- `index.html` — JSONをfetchしてカテゴリタブ・期間フィルタ・前日ハイライトで表示
+- `.github/workflows/marketing-radar.yml` — 毎日 JST 7:00 (UTC 22:00) に scraper 実行→ JSON をコミット
+
+**カテゴリ**: `marketing_jp` / `marketing_global` / `business` / `tech` / `sns`（SNSは手動キュレーション運用）
+
+**UI機能**:
+- Hero: 前日分の上位3件を Navy+Gold のグラデーションで強調
+- カテゴリチップ（件数付き）+ 期間チップ（今日/前日/7日間/全期間）
+- カード: カテゴリ別トップボーダー色、前日記事には「前日」バッジ
+- レスポンシブ（375px〜）、ブランドカラー準拠
+
+**拡張余地**: Twitter/X 連携（Nitter等）、AI要約の付与、お気に入りメディア設定
 
 ### Todoアプリ（`todo.html`）
 

@@ -1,0 +1,92 @@
+{
+  "generated_at": "2026-04-15T00:00:00Z",
+  "sources": [
+    { "id": "markezine",     "label": "MarkeZine",         "category": "marketing_jp" },
+    { "id": "webtan",        "label": "Web担当者Forum",    "category": "marketing_jp" },
+    { "id": "advertimes",    "label": "AdverTimes",        "category": "marketing_jp" },
+    { "id": "itm_marketing", "label": "ITmedia Marketing", "category": "marketing_jp" },
+    { "id": "martech",       "label": "MarTech",           "category": "marketing_global" },
+    { "id": "marketingweek", "label": "Marketing Week",    "category": "marketing_global" },
+    { "id": "hubspot",       "label": "HubSpot Marketing", "category": "marketing_global" },
+    { "id": "xtrend",        "label": "日経クロストレンド","category": "business" },
+    { "id": "reuters_biz",   "label": "Reuters Business",  "category": "business" },
+    { "id": "prtimes_mkt",   "label": "PR TIMES (マーケ)", "category": "business" },
+    { "id": "techcrunch_jp", "label": "TechCrunch Japan",  "category": "tech" },
+    { "id": "itm_news",      "label": "ITmedia NEWS",      "category": "tech" }
+  ],
+  "categories": {
+    "marketing_jp":     "マーケ（国内）",
+    "marketing_global": "マーケ（海外）",
+    "business":         "ビジネス・市場",
+    "tech":             "テック・AI",
+    "sns":              "SNSピック"
+  },
+  "items": [
+    {
+      "id": "seed:1",
+      "title": "【サンプル】初回データはGitHub Actionsで自動収集されます",
+      "url": "https://markezine.jp/",
+      "summary": "Marketing Radar は毎日 JST 7:00 に各媒体のRSSを巡回して最新ニュースをここに並べます。まだ自動収集が走っていないため、現在はサンプルカードが表示されています。Actions 実行後に実データへ切り替わります。",
+      "image": "",
+      "source_id": "markezine",
+      "source_label": "MarkeZine",
+      "category": "marketing_jp",
+      "published_at": "2026-04-14T22:00:00Z"
+    },
+    {
+      "id": "seed:2",
+      "title": "【サンプル】マーケ（海外）カテゴリのプレビュー",
+      "url": "https://martech.org/",
+      "summary": "MarTech / Marketing Week / HubSpot Blog など海外のマーケティングメディアがこのカテゴリに入ります。Attribution・CDP・AIマーケ・ブランド戦略などのトピックを日次でキャッチアップできます。",
+      "image": "",
+      "source_id": "martech",
+      "source_label": "MarTech",
+      "category": "marketing_global",
+      "published_at": "2026-04-14T18:00:00Z"
+    },
+    {
+      "id": "seed:3",
+      "title": "【サンプル】ビジネス・市場カテゴリのプレビュー",
+      "url": "https://xtrend.nikkei.com/",
+      "summary": "日経クロストレンド / Reuters Business / PR TIMES などから、マーケ視点で押さえておきたい市場動向を集めます。実データ投入後は「前日ハイライト」にも自動で反映されます。",
+      "image": "",
+      "source_id": "xtrend",
+      "source_label": "日経クロストレンド",
+      "category": "business",
+      "published_at": "2026-04-14T12:00:00Z"
+    },
+    {
+      "id": "seed:4",
+      "title": "【サンプル】テック・AIカテゴリのプレビュー",
+      "url": "https://jp.techcrunch.com/",
+      "summary": "TechCrunch Japan / ITmedia NEWS など、マーケティング施策に影響する新プロダクト・生成AI・広告プラットフォーム更新をフォロー。",
+      "image": "",
+      "source_id": "techcrunch_jp",
+      "source_label": "TechCrunch Japan",
+      "category": "tech",
+      "published_at": "2026-04-14T09:00:00Z"
+    },
+    {
+      "id": "seed:5",
+      "title": "【サンプル】SNSピックは手動キュレーション運用です",
+      "url": "https://twitter.com/",
+      "summary": "Twitter/X は API 制約のため、当面は編集者が curated.json に有益な投稿を追加して運用します。将来的には代替RSSブリッジの採用を検討予定。",
+      "image": "",
+      "source_id": "sns_curated",
+      "source_label": "編集部ピック",
+      "category": "sns",
+      "published_at": "2026-04-14T07:30:00Z"
+    },
+    {
+      "id": "seed:6",
+      "title": "【サンプル】今日の記事（本日の掲載例）",
+      "url": "https://webtan.impress.co.jp/",
+      "summary": "「今日」フィルタで本日分だけを絞り込めます。前日フィルタが初期値ですが、タブ切替で範囲を調整できます。",
+      "image": "",
+      "source_id": "webtan",
+      "source_label": "Web担当者Forum",
+      "category": "marketing_jp",
+      "published_at": "2026-04-15T01:30:00Z"
+    }
+  ]
+}
