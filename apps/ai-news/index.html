@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>AI NEWS — AKKODiS Marketing Apps</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
+  <link rel="stylesheet" href="../../assets/app-styles.css">
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <style>
+    /* ── レイアウト全体 ── */
+    body { background: var(--bg); }
+    .news-shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--sp-6) var(--sp-6) var(--sp-10);
+    }
+    @media (max-width: 600px) {
+      .news-shell { padding: var(--sp-4) var(--sp-3) var(--sp-8); }
+    }
+
+    /* ── ヒーロー ── */
+    .hero {
+      background: var(--navy);
+      color: var(--white);
+      padding: var(--sp-7) var(--sp-7) var(--sp-6);
+      margin-bottom: var(--sp-5);
+      position: relative;
+      overflow: hidden;
+      border-top: 3px solid var(--gold);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      right: -80px; top: -80px;
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(255,184,28,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      color: var(--gold);
+      margin-bottom: var(--sp-2);
+    }
+    .hero-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--sp-2);
+      line-height: 1.15;
+    }
+    .hero-title .pulse {
+      display: inline-block;
+      width: 10px; height: 10px;
+      background: var(--gold);
+      border-radius: 50%;
+      margin-right: 10px;
+      animation: pulse 1.6s ease-in-out infinite;
+      vertical-align: middle;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,184,28,0.6); }
+      50% { opacity: 0.6; box-shadow: 0 0 0 8px rgba(255,184,28,0); }
+    }
+    .hero-sub {
+      font-size: var(--text-sm);
+      color: rgba(255,255,255,0.7);
+      margin-bottom: var(--sp-5);
+    }
+    .hero-meta {
+      display: flex; flex-wrap: wrap; gap: var(--sp-5);
+      padding-top: var(--sp-4);
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .hero-stat {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .hero-stat-num {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: -0.01em;
+      line-height: 1;
+    }
+    .hero-stat-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+    @media (max-width: 600px) {
+      .hero { padding: var(--sp-5) var(--sp-4); }
+      .hero-title { font-size: 1.4rem; }
+      .hero-meta { gap: var(--sp-4); }
+      .hero-stat-num { font-size: 1.2rem; }
+    }
+
+    /* ── ツールバー（フィルタ・検索） ── */
+    .toolbar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: var(--sp-4) var(--sp-5);
+      margin-bottom: var(--sp-4);
+      display: flex; flex-direction: column; gap: var(--sp-3);
+    }
+    .toolbar-row {
+      display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3);
+    }
+    .tabs {
+      display: flex; flex-wrap: wrap; gap: 4px;
+    }
+    .tab {
+      padding: 7px 14px;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      transition: all var(--ease-base);
+      letter-spacing: 0.01em;
+    }
+    .tab:hover { color: var(--navy); background: var(--surface-alt); }
+    .tab.active {
+      color: var(--white);
+      background: var(--navy);
+    }
+    .tab .tab-count {
+      display: inline-block;
+      margin-left: 6px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      opacity: 0.7;
+    }
+
+    .search-wrap {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+    .search-input {
+      width: 100%;
+      padding: 9px 14px 9px 36px;
+      font-size: var(--text-sm);
+      font-family: var(--font-sans);
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+      transition: border-color var(--ease-base), box-shadow var(--ease-base);
+    }
+    .search-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px var(--focus-ring);
+    }
+    .search-icon {
+      position: absolute;
+      left: 12px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-faint);
+      font-size: 0.95rem;
+      pointer-events: none;
+    }
+
+    .toolbar-actions {
+      display: flex; gap: var(--sp-2); align-items: center;
+    }
+    .icon-toggle {
+      padding: 7px 12px;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      font-family: var(--font-sans);
+      transition: all var(--ease-base);
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .icon-toggle:hover { border-color: var(--navy); color: var(--navy); }
+    .icon-toggle.active {
+      background: var(--gold);
+      color: var(--navy);
+      border-color: var(--gold);
+    }
+    .icon-toggle .star { font-size: 0.85rem; }
+
+    /* ── ソース chip ── */
+    .source-chips {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    }
+    .chip-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-right: 4px;
+    }
+    .chip {
+      padding: 4px 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-family: var(--font-sans);
+      transition: all var(--ease-base);
+    }
+    .chip:hover { color: var(--navy); border-color: var(--navy-40); }
+    .chip.active {
+      background: var(--navy);
+      color: var(--white);
+      border-color: var(--navy);
+    }
+    .chip-clear {
+      font-size: 0.65rem;
+      color: var(--text-faint);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0 6px;
+      font-family: var(--font-sans);
+    }
+    .chip-clear:hover { color: var(--navy); }
+
+    /* ── レイアウト: メイン + サイド ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: var(--sp-5);
+      align-items: flex-start;
+    }
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── ニュースグリッド ── */
+    .news-section-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: var(--sp-3);
+      display: flex; align-items: center; gap: var(--sp-2);
+    }
+    .news-section-title .line {
+      flex: 1; height: 1px; background: var(--border);
+    }
+    .news-section-title .count {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      background: var(--border-light);
+      padding: 1px 8px;
+      letter-spacing: 0.04em;
+    }
+
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-6);
+    }
+    @media (max-width: 600px) {
+      .news-grid { grid-template-columns: 1fr; }
+    }
+
+    .news-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: var(--sp-4) var(--sp-4) var(--sp-3);
+      display: flex; flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      transition: transform var(--ease-base), box-shadow var(--ease-base), border-color var(--ease-base);
+      cursor: pointer;
+    }
+    .news-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: transparent;
+      transition: background var(--ease-base);
+    }
+    .news-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,31,51,0.08);
+      border-color: var(--navy-40);
+    }
+    .news-card:hover::before { background: var(--gold); }
+    .news-card.read { opacity: 0.55; }
+    .news-card.read::before { background: var(--navy-20); }
+
+    .card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-2);
+      margin-bottom: var(--sp-3);
+    }
+    .card-source {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--navy);
+      text-transform: uppercase;
+    }
+    .card-source-dot {
+      width: 6px; height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .card-source.cat-marketing .card-source-dot { background: var(--gold); }
+    .card-source.cat-market    .card-source-dot { background: var(--cyan); }
+    .card-source.cat-ai        .card-source-dot { background: var(--navy); }
+    .card-source.cat-x         .card-source-dot { background: #1da1f2; }
+    .star-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 1.05rem;
+      color: var(--navy-20);
+      padding: 0;
+      line-height: 1;
+      transition: color var(--ease-base), transform var(--ease-base);
+    }
+    .star-btn:hover { transform: scale(1.15); color: var(--gold); }
+    .star-btn.starred { color: var(--gold); }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.4;
+      margin-bottom: var(--sp-2);
+      letter-spacing: -0.005em;
+    }
+    .card-summary {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      margin-bottom: var(--sp-3);
+      flex: 1;
+    }
+    .card-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-2);
+      padding-top: var(--sp-3);
+      border-top: 1px solid var(--border-light);
+    }
+    .card-time {
+      font-size: 0.65rem;
+      color: var(--text-faint);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .card-tags {
+      display: flex; gap: 4px; flex-wrap: wrap;
+    }
+    .card-tag {
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--border-light);
+      padding: 2px 7px;
+      letter-spacing: 0.02em;
+    }
+    .card-cat-badge {
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      padding: 2px 7px;
+      text-transform: uppercase;
+    }
+    .card-cat-badge.cat-marketing { background: var(--gold-20); color: var(--navy); }
+    .card-cat-badge.cat-market    { background: rgba(0,255,255,0.15); color: var(--navy); }
+    .card-cat-badge.cat-ai        { background: var(--navy); color: var(--gold); }
+
+    /* ── X サイドパネル ── */
+    .side {
+      position: sticky;
+      top: 80px;
+      align-self: flex-start;
+    }
+    @media (max-width: 960px) { .side { position: static; } }
+
+    .x-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--navy);
+      padding: var(--sp-4) var(--sp-4) var(--sp-3);
+    }
+    .x-panel-head {
+      display: flex; align-items: center; gap: var(--sp-2);
+      padding-bottom: var(--sp-3);
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: var(--sp-3);
+    }
+    .x-panel-icon {
+      width: 28px; height: 28px;
+      background: var(--navy);
+      color: var(--white);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .x-panel-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: 0.02em;
+    }
+    .x-panel-sub {
+      font-size: 0.62rem;
+      color: var(--text-faint);
+      letter-spacing: 0.06em;
+    }
+    .x-list { display: flex; flex-direction: column; gap: var(--sp-3); }
+    .x-item {
+      display: block;
+      padding: var(--sp-3);
+      background: var(--surface-alt);
+      border-left: 3px solid var(--navy-20);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color var(--ease-base), background var(--ease-base);
+    }
+    .x-item:hover {
+      border-left-color: var(--gold);
+      background: var(--surface);
+    }
+    .x-item-head {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 6px;
+    }
+    .x-author {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .x-handle {
+      font-size: 0.65rem;
+      color: var(--text-faint);
+    }
+    .x-text {
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      margin-bottom: 6px;
+    }
+    .x-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.62rem;
+      color: var(--text-faint);
+    }
+    .x-foot-tag {
+      background: var(--border-light);
+      padding: 1px 6px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* ── 空ステート / スケルトン ── */
+    .empty {
+      text-align: center;
+      padding: var(--sp-10) var(--sp-5);
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      color: var(--text-muted);
+    }
+    .empty-icon { font-size: 2rem; margin-bottom: var(--sp-2); opacity: 0.5; }
+    .empty-text { font-size: var(--text-sm); }
+
+    .skel-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: var(--sp-4);
+      height: 200px;
+    }
+    .skel-line {
+      height: 10px;
+      background: linear-gradient(90deg, var(--border-light), var(--border), var(--border-light));
+      background-size: 200% 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+      margin-bottom: 10px;
+    }
+    .skel-line.short { width: 40%; }
+    .skel-line.medium { width: 70%; }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── 注記フッター ── */
+    .data-note {
+      margin-top: var(--sp-5);
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--surface);
+      border-left: 3px solid var(--gold);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .data-note strong { color: var(--navy); }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a class="navbar-brand" href="../../index.html" title="Marketing Apps トップへ">
+      <span class="navbar-title">📰 AI NEWS</span>
+    </a>
+    <span class="navbar-spacer"></span>
+    <a class="back-btn" href="../../index.html">← Apps</a>
+  </nav>
+
+  <div class="news-shell">
+
+    <!-- ヒーロー -->
+    <section class="hero">
+      <div class="hero-eyebrow">DAILY MARKETING BRIEF</div>
+      <h1 class="hero-title"><span class="pulse"></span>前日のマーケ業界、5分でキャッチアップ</h1>
+      <p class="hero-sub">複数媒体のニュースとXの有益情報を、マーケティングメンバー向けに横串で集約します。</p>
+      <div class="hero-meta">
+        <div class="hero-stat">
+          <span class="hero-stat-num" id="stat-total">—</span>
+          <span class="hero-stat-label">Today's Items</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num" id="stat-sources">—</span>
+          <span class="hero-stat-label">Sources</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num" id="stat-date">—</span>
+          <span class="hero-stat-label">Brief Date</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ツールバー -->
+    <div class="toolbar">
+      <div class="toolbar-row">
+        <div class="tabs" id="tabs" role="tablist"></div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="search" class="search-input" id="search" placeholder="キーワードで絞り込み（タイトル・要約・タグ）" aria-label="キーワード検索">
+        </div>
+        <div class="toolbar-actions">
+          <button class="icon-toggle" id="toggle-fav" aria-pressed="false">
+            <span class="star">★</span><span>お気に入りのみ</span>
+          </button>
+          <button class="icon-toggle" id="mark-all-read" title="表示中のニュースをすべて既読にする">既読化</button>
+          <button class="icon-toggle" id="clear-read" title="既読状態をリセット">既読クリア</button>
+        </div>
+      </div>
+      <div class="source-chips" id="source-chips"></div>
+    </div>
+
+    <!-- メイン + サイド -->
+    <div class="layout">
+      <main>
+        <div class="news-section-title">
+          <span>Top Stories</span>
+          <span class="count" id="visible-count">0</span>
+          <span class="line"></span>
+        </div>
+        <div class="news-grid" id="news-grid" aria-live="polite"></div>
+      </main>
+
+      <aside class="side">
+        <div class="x-panel">
+          <div class="x-panel-head">
+            <div class="x-panel-icon">𝕏</div>
+            <div>
+              <div class="x-panel-title">今日のXハイライト</div>
+              <div class="x-panel-sub">マーケに効く投稿</div>
+            </div>
+          </div>
+          <div class="x-list" id="x-list"></div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="data-note">
+      <strong>📌 データ供給について</strong> ：MVPでは厳選サンプルを表示しています。将来は <code>api/news-fetch.js</code> 経由で複数メディア／X のリアルタイム取得に差し替え予定です（リンクはすべて実在の公開記事/投稿）。
+    </div>
+  </div>
+
+  <script src="../../assets/onboarding.js"></script>
+  <script src="./app.js"></script>
+  <script>
+    if (window.initOnboarding) initOnboarding({
+      appName: 'ai-news',
+      title: 'AI NEWS',
+      description: '前日のマーケ業界・市場・X の有益情報をワンビューで',
+      features: [
+        { icon: '📰', text: '複数メディアのニュースをカテゴリ別に横串チェック' },
+        { icon: '𝕏', text: 'マーケに効くX投稿をサイドパネルで一気見' },
+        { icon: '⭐', text: 'お気に入り保存・既読管理で「見逃し」をゼロに' }
+      ],
+      updates: [
+        { date: '04/15', text: '初回リリース（マーケ／市場／AI／X の4カテゴリ・検索・お気に入り・既読）' }
+      ]
+    });
+  </script>
+</body>
+</html>

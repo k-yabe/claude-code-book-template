@@ -513,7 +513,7 @@
     <div class="portal-body">
       <div class="section-bar">
         <span class="section-bar-title">All Apps</span>
-        <span class="section-bar-count">14</span>
+        <span class="section-bar-count">15</span>
         <span class="section-bar-line"></span>
         <span class="section-bar-drag">⠿ ドラッグで並び替え</span>
       </div>
@@ -555,6 +555,13 @@
           <div class="card-icon-wrap">📡</div>
           <div class="card-name">Global Antenna</div>
           <div class="card-desc">グローバル新着記事のチェック</div>
+          <div class="card-tag card-tag-web">Web App</div>
+        </a>
+        <a class="card" href="apps/ai-news/">
+          <div class="card-new-badge">NEW</div>
+          <div class="card-icon-wrap">📰</div>
+          <div class="card-name">AI NEWS</div>
+          <div class="card-desc">前日のマーケ業界＆Xを横串でキャッチアップ</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
         <a class="card" href="apps/writing-checker/">
@@ -636,6 +643,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '📰', app: 'AI NEWS', badge: 'NEW', date: '2026-04-15(水)', desc: '【新規アプリ公開】マーケティングメンバー向けのデイリーニュースダッシュボードを追加。複数メディア（マーケ／市場・業界／AI）と Xハイライトを横串で集約し、前日のトレンドを5分で把握できる。カテゴリタブ・ソース絞り込み・キーワード検索・お気に入り（★）・既読管理・既読クリアを実装。レスポンシブ対応（モバイル1カラム / タブ2カラム / PC3カラム）。データはMVPシード（将来 api/news-fetch.js でリアルタイム取得に差し替え予定）' },
       { icon: '🖼️', app: 'Banner Resizer', badge: 'UPDATE', date: '2026-04-15(水)', desc: '【サムネカット対策】一覧サムネイル(1920×1080)はCMSで上下24px・左右100pxが自動カットされる仕様に対応。「セーフエリア内に収めて周囲を自動生成」モードを追加（チェックボックスでON）。元画像をセーフエリア（1720×1032）内にcontain配置し、外周は同画像の拡大ぼかし背景（blur 48px・1.15倍カバー）で自動充填。要素を端まで配置していてもカットされない。プレビュー・ダウンロード両方に反映。「カット領域を表示」オーバーレイと併用可（独立操作）。セーフエリアfit中もドラッグで位置調整・ホイール/ピンチで1x〜3xズーム可能（安全エリア外は自動クリップ）' },
       { icon: '🏠', app: 'ポータル全体', badge: 'UPDATE', date: '2026-04-14(火)', desc: '【WHAT\'S NEW 刷新】各エントリにNEW/UPDATEバッジを表示し、カード側のバッジと配色を統一（NEW=Navy背景+Gold文字、UPDATE=Gold背景+Navy文字）。04/11土の重複エントリを削除。Wireframe Maker 04/12の正式公開エントリをNEWバッジ化。運用ルールをCLAUDE.mdに明文化（必須5キー・NEW/UPDATE使い分け・重複禁止・色統一）' },
       { icon: '♿', app: '全アプリ共通', badge: 'UPDATE', date: '2026-04-14(火)', desc: '【アクセシビリティ】scrollIntoView の smooth スクロールが OS の「視差効果を減らす」設定（prefers-reduced-motion）を無視していた問題を修正。URL Slug Generator / Marketo Mail / Writing Checker / SNS Post Generator / YouTube Desc / Prompt Maker / OGP Checker の全8箇所で、モーション低減設定時は瞬間スクロールに自動切替' },
