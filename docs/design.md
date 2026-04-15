@@ -60,6 +60,7 @@
 | Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043, S048, S050, S051, S052, S053, S054, S055, S056, S066, S068, S069, S070 |
 | Cache Checker | `apps/cache-checker/index.html`, `api/fetch-article.js(mode=proxy)` | ✅ 完成 | S037 |
 | Image Converter | `apps/image-converter/index.html` | ✅ 完成 | S047 |
+| Marketing News Radar | `apps/marketing-news/index.html`, `api/marketing-news.js` | ✅ 完成 | S073 |
 
 ---
 
@@ -201,6 +202,50 @@ NotebookLM超えの2ペインレイアウトでプロンプトを対話生成す
 | デザイントークン | カラースキームからCSS変数/JSONを自動生成（色・スペーシング・タイポグラフィ・レイアウト） |
 | テキスト自由配置 | T+ボタンでキャンバス任意位置にテキスト追加、ドラッグ移動、ダブルクリック編集、ツールバーでサイズ/色/太さ/削除 |
 | インポートモード選択 | URLインポート・ファイルインポート時に「既存に追加」「全て置換」をモーダルで選択（既存セクション保護） |
+
+### Marketing News Radar（`apps/marketing-news/`）
+
+AI・マーケ・市場・コミュニティの複数媒体（11ソース）を毎回サーバ側で並列取得し、マーケ視点の日本語要約＋3行デイリーサマリを添えて一覧表示するダッシュボードアプリ。
+
+| 要素 | 実装 |
+|------|------|
+| フロント | `apps/marketing-news/index.html`（単一HTML、`assets/app-styles.css`利用） |
+| バックエンド | `api/marketing-news.js`（Vercel Serverless Function、maxDuration 60秒） |
+| RSSパース | 依存なし。正規表現ベースで RSS 2.0 / Atom 両対応 |
+| AI要約 | Claude Haiku 4.5（タイトル翻訳＋マーケ視点の1〜2文要約、JSONバッチで1リクエスト） |
+| デイリーサマリ | Claude Haiku 4.5 で上位12記事から3行要約 |
+| キャッシュ | プロセス内メモリ、TTL 5分、キー `${hours}|${category}` |
+| 既定期間 | 24時間（`?window=24h` / `48h` / `7d`） |
+| カテゴリ | `all` / `ai` / `marketing` / `community` |
+
+**RSSフィード（MVP）**:
+- AI(日本語): ITmedia AI+, ビジネス+IT
+- AI(英語): TechCrunch AI, The Verge AI, VentureBeat AI
+- マーケ: MarTech, Marketing Dive, HubSpot Marketing, Content Marketing Institute
+- コミュニティ: Hacker News (100pt+), Product Hunt
+
+**API レスポンス**:
+```json
+{
+  "generatedAt": "2026-04-15T...",
+  "window": "24h",
+  "category": "all",
+  "digest": "3行サマリ本文",
+  "counts": { "all": 30, "ai": 12, "marketing": 14, "community": 4 },
+  "articles": [
+    { "title": "...", "title_ja": "...", "summary_ja": "...",
+      "url": "...", "published": "ISO",
+      "source": "MarTech", "category": "marketing", "lang": "en" }
+  ],
+  "sources": [...],
+  "hasAI": true
+}
+```
+
+**設計上の注意**:
+- Twitter/X は認証必須のため MVP では不採用。コミュニティ的情報は Hacker News と Product Hunt で代替
+- ANTHROPIC_API_KEY 未設定時はAI要約をスキップし、原題＋原文サマリのまま表示（`hasAI: false`）
+- 記事はタイトル頭40文字でデデュプ、最大40件を AI 要約対象にクランプ（トークン抑制）
 
 ### Todoアプリ（`todo.html`）
 

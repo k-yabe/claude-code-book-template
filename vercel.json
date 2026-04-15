@@ -7,7 +7,8 @@
     "api/slide-research.js": { "maxDuration": 120 },
     "api/fetch-article.js": { "maxDuration": 30 },
     "api/sources.js": { "maxDuration": 10 },
-    "api/fetch-transcript.js": { "maxDuration": 30 }
+    "api/fetch-transcript.js": { "maxDuration": 30 },
+    "api/marketing-news.js": { "maxDuration": 60 }
   },
   "rewrites": [
     { "source": "/api/proxy", "destination": "/api/fetch-article?mode=proxy" },
