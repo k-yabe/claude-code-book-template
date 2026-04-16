@@ -223,6 +223,43 @@
       user-select: none;
     }
 
+    /* ── 最近開いたアプリ ── */
+    .recent-section { display: none; margin-bottom: 18px; }
+    .recent-section.has-items { display: block; }
+    .recent-bar {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 8px;
+    }
+    .recent-bar-title {
+      font-size: 0.67rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: #ffb81c; white-space: nowrap;
+    }
+    .recent-bar-line { flex: 1; height: 1px; background: #e4e8ed; }
+    .recent-row {
+      display: flex; gap: 8px;
+      overflow-x: auto; padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .recent-row::-webkit-scrollbar { display: none; }
+    .recent-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
+      background: #fff;
+      border: 1px solid #e4e8ed;
+      text-decoration: none; color: #001f33;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .recent-pill:hover {
+      border-color: #ffb81c;
+      background: #fffcf4;
+    }
+    .recent-pill-icon { font-size: 1rem; line-height: 1; }
+    .recent-pill-name { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; }
+
     /* ── 更新履歴ドロップダウン ── */
     .changelog-wrap { position: relative; }
 
@@ -511,6 +548,15 @@
     </nav>
 
     <div class="portal-body">
+      <!-- 最近開いたアプリ（履歴ゼロ時は非表示） -->
+      <div class="recent-section" id="recent-section">
+        <div class="recent-bar">
+          <span class="recent-bar-title">Recent</span>
+          <span class="recent-bar-line"></span>
+        </div>
+        <div class="recent-row" id="recent-row"></div>
+      </div>
+
       <div class="section-bar">
         <span class="section-bar-title">All Apps</span>
         <span class="section-bar-count">15</span>
@@ -643,6 +689,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '🏠', app: 'ポータル全体', badge: 'UPDATE', date: '2026-04-16(木)', desc: '【最近開いたアプリ】アプリ一覧の上部に「RECENT」行を追加。直近5件のアプリ開封履歴をlocalStorageに保存し、次回ポータル表示時にアイコン＋名前の横並びpillですぐアクセス可能に。15アプリから毎回探す手間を省く。履歴がない初回は自動的に非表示' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-16(木)', desc: '【表示状態の永続化 + 「未読のみ」フィルタ】MORE READS のカテゴリタブ・お気に入り絞り込み・新規追加した「未読のみ」絞り込みの状態を localStorage に保存し、次回開いたときに前回の表示状態のまま再開できるように。「あと読み終わってないやつだけ見たい」が1タップで叶うように' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-16(木)', desc: '【スクロール中も操作可・ファーストペイント高速化・読了予算の最適化】コマンドバー（既読プログレス / 次の未読 / 全部既読）をsticky化し、画面のどこを読んでいても1タップで操作可能に。起動シーケンスを「シードデータで即render → バックグラウンドでnews.json取得 → 成功したらリスト差し替え」方式に変更し、最大8秒のfetchを待たずに第一画面が即座に出るように改善。読了時間（readMin）を重要度連動（TOP=2分／BRIEFING=1分／MORE=1分）にscraper側で正規化し「10分で読める」予算を確実に保つ' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-16(木)', desc: '【「読み切る」体験の強化】既読プログレスバー（X / Y 件 既読）を追加し「あと何件で全部読める」を可視化。「↓ 次の未読」「✓ 全部既読」のクイックアクションと、キーボードショートカット（／＝検索、j/k＝記事間移動、Enter＝開く、f＝★、n＝次の未読、m＝全部既読、？＝ヘルプ）を実装。最終更新時刻をヘッダに常時表示し、シードデータ表示中は「更新: シードデータ表示中」と明示。loadRemote() に8秒タイムアウト（AbortController）を入れ、自動収集データの取得が詰まっても即シードへフォールバック' },
@@ -998,6 +1045,42 @@
 
     // 開発中カードは常に末尾に固定
     grid.querySelectorAll('.card-dev').forEach(c => grid.appendChild(c));
+
+    // ── 最近開いたアプリ ────────────────────
+    const RECENT_KEY = 'recentApps';
+    const RECENT_MAX = 5;
+
+    function getRecentApps() {
+      try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); }
+      catch { return []; }
+    }
+    function saveRecentApp(href, name, icon) {
+      let recents = getRecentApps().filter(r => r.href !== href);
+      recents.unshift({ href, name, icon, ts: Date.now() });
+      recents = recents.slice(0, RECENT_MAX);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(recents));
+    }
+    function renderRecents() {
+      const recents = getRecentApps();
+      const section = document.getElementById('recent-section');
+      const row = document.getElementById('recent-row');
+      if (!section || !row) return;
+      if (!recents.length) { section.classList.remove('has-items'); return; }
+      section.classList.add('has-items');
+      row.innerHTML = recents.map(r =>
+        `<a class="recent-pill" href="${r.href}"><span class="recent-pill-icon">${r.icon}</span><span class="recent-pill-name">${r.name}</span></a>`
+      ).join('');
+    }
+    // カードクリック時に履歴保存
+    grid.addEventListener('click', e => {
+      const card = e.target.closest('a.card');
+      if (!card) return;
+      const icon = (card.querySelector('.card-icon-wrap') || {}).textContent || '';
+      const name = (card.querySelector('.card-name') || {}).textContent || '';
+      const href = card.getAttribute('href') || '';
+      if (href) saveRecentApp(href, name.trim(), icon.trim());
+    });
+    renderRecents();
   </script>
 </body>
 </html>
