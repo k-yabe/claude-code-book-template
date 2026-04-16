@@ -448,6 +448,126 @@
     }
     .data-note strong { color: var(--navy); }
 
+    /* ── コマンドバー（進捗 / クイックアクション） ── */
+    .cmd-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: var(--sp-3);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 10px var(--sp-4);
+      margin-bottom: var(--sp-3);
+      /* スクロール中も常に手元に。navbar (56px sticky) の直下に貼り付き */
+      position: sticky;
+      top: 56px;
+      z-index: 9;
+      box-shadow: 0 2px 8px rgba(0,31,51,0.04);
+    }
+    @media (max-width: 600px) {
+      .cmd-bar { padding: 8px 10px; }
+      .cmd-progress { flex-basis: 100%; min-width: 0; }
+    }
+    .cmd-progress {
+      display: flex; align-items: center; gap: 10px;
+      flex: 1 1 240px; min-width: 200px;
+    }
+    .cmd-progress-text {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .cmd-progress-text strong { color: var(--navy); font-size: 0.85rem; }
+    .cmd-progress-bar {
+      flex: 1; height: 6px;
+      background: var(--border-light);
+      overflow: hidden;
+      max-width: 240px;
+    }
+    .cmd-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), #ffd166);
+      width: 0%;
+      transition: width 320ms ease;
+    }
+    .cmd-actions {
+      display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+    }
+    .cmd-updated {
+      font-size: 0.65rem;
+      color: var(--text-faint);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-right: 4px;
+    }
+    .cmd-updated.seed { color: var(--gold); }
+    .cmd-btn {
+      padding: 5px 10px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--navy);
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      font-family: var(--font-sans);
+      transition: all var(--ease-base);
+      white-space: nowrap;
+    }
+    .cmd-btn:hover { border-color: var(--navy); background: var(--surface-alt); }
+    .cmd-btn.primary { background: var(--navy); color: var(--gold); border-color: var(--navy); }
+    .cmd-btn.primary:hover { background: #00304d; }
+    .cmd-btn.icon { width: 30px; padding: 5px 0; text-align: center; }
+
+    /* ── キーボードショートカット モーダル ── */
+    .kbd-modal[hidden] { display: none; }
+    .kbd-modal {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,31,51,0.55);
+      display: flex; align-items: center; justify-content: center;
+      padding: var(--sp-4);
+    }
+    .kbd-content {
+      background: var(--white);
+      border-top: 3px solid var(--gold);
+      padding: var(--sp-5);
+      max-width: 360px; width: 100%;
+    }
+    .kbd-title {
+      font-size: 0.95rem; font-weight: 800; color: var(--navy);
+      margin-bottom: var(--sp-3);
+      letter-spacing: 0.02em;
+    }
+    .kbd-table { width: 100%; border-collapse: collapse; margin-bottom: var(--sp-3); }
+    .kbd-table td {
+      padding: 6px 4px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .kbd-table td:first-child { width: 90px; }
+    kbd {
+      display: inline-block;
+      font-family: var(--font-mono, ui-monospace, monospace);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      background: var(--navy);
+      color: var(--gold);
+      letter-spacing: 0.04em;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* ── キーボードフォーカス可視化 ── */
+    .top-card:focus-visible,
+    .brief-item:focus-visible,
+    .more-item:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: -2px;
+      background: var(--surface-alt);
+    }
+
     /* ── 小画面: more-item をシンプル化 ── */
     @media (max-width: 600px) {
       .more-item {
@@ -495,6 +615,20 @@
       </div>
     </section>
 
+    <!-- コマンドバー -->
+    <div class="cmd-bar">
+      <div class="cmd-progress">
+        <span class="cmd-progress-text"><strong id="progress-read">0</strong> / <span id="progress-total">0</span> 既読</span>
+        <div class="cmd-progress-bar"><div class="cmd-progress-fill" id="progress-fill"></div></div>
+      </div>
+      <div class="cmd-actions">
+        <span class="cmd-updated" id="cmd-updated">更新: —</span>
+        <button class="cmd-btn primary" id="btn-next-unread" title="次の未読 (n)">↓ 次の未読</button>
+        <button class="cmd-btn" id="btn-mark-all" title="全部既読にする">✓ 全部既読</button>
+        <button class="cmd-btn icon" id="btn-help" title="ショートカット (?)" aria-label="キーボードショートカット">?</button>
+      </div>
+    </div>
+
     <!-- 🔥 TOP STORY -->
     <div class="sec-head">
       <span class="sec-icon gold">🔥</span>
@@ -527,6 +661,7 @@
           <span class="more-search-icon">🔍</span>
           <input type="search" id="search" placeholder="検索" aria-label="キーワード検索">
         </div>
+        <button class="icon-toggle" id="toggle-unread" aria-pressed="false" title="未読のみ表示">未読</button>
         <button class="icon-toggle" id="toggle-fav" aria-pressed="false" title="お気に入りのみ表示">★</button>
       </div>
     </div>
@@ -543,8 +678,26 @@
       <div class="x-grid" id="x-grid"></div>
     </section>
 
-    <div class="data-note">
-      <strong>📌 自動更新：</strong>毎朝8:00 JSTにRSS横断＋AI要約で自動更新予定（現在はシードデータ表示）。重要度はAIが自動採点します。
+    <div class="data-note" id="data-note">
+      <strong>📌 自動更新：</strong>毎朝8:00 JSTにRSS横断＋AI要約で自動更新（取得失敗時はシードデータにフォールバック）。重要度はAIが自動採点します。
+    </div>
+  </div>
+
+  <!-- キーボードショートカット モーダル -->
+  <div class="kbd-modal" id="kbd-modal" hidden role="dialog" aria-modal="true" aria-labelledby="kbd-modal-title">
+    <div class="kbd-content">
+      <div class="kbd-title" id="kbd-modal-title">キーボードショートカット</div>
+      <table class="kbd-table">
+        <tr><td><kbd>/</kbd></td><td>検索フォーカス</td></tr>
+        <tr><td><kbd>j</kbd> / <kbd>k</kbd></td><td>次 / 前の記事へ</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>記事を開く</td></tr>
+        <tr><td><kbd>f</kbd></td><td>★ をトグル</td></tr>
+        <tr><td><kbd>n</kbd></td><td>次の未読へ</td></tr>
+        <tr><td><kbd>m</kbd></td><td>全部既読にする</td></tr>
+        <tr><td><kbd>?</kbd></td><td>このヘルプ</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>閉じる</td></tr>
+      </table>
+      <button class="cmd-btn" id="kbd-close" style="width:100%;">閉じる</button>
     </div>
   </div>
 
@@ -558,10 +711,12 @@
       features: [
         { icon: '🔥', text: 'TOP STORY：今日の最重要1件を大きく表示' },
         { icon: '⚡', text: 'BRIEFING：押さえる5本を1分ずつ読める形に' },
-        { icon: '📑', text: 'MORE READS：残りはスキャンしやすい1行リスト' }
+        { icon: '⌨️', text: 'キーボードで読み進め可：「/」検索・「j/k」移動・「n」次の未読・「?」ヘルプ' }
       ],
       updates: [
-        { date: '04/15', text: '初回リリース：TOP/BRIEFING/MORE の優先度別レイアウトで「10分で読める」体験に' }
+        { date: '04/16', text: 'カテゴリ・お気に入り・「未読のみ」フィルタの状態が次回起動時にも復元されるように' },
+        { date: '04/16', text: 'コマンドバーをスクロール追従(sticky)化：どこを読んでいても「次の未読」が1タップで使える' },
+        { date: '04/16', text: '起動を「シード即表示→裏で実データ差し替え」方式に。fetch完了を待たず一瞬で読み始められる' }
       ]
     });
   </script>

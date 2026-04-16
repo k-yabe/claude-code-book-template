@@ -15,7 +15,7 @@
   const Y     = '2026-04-14';
   const NEWS_DATA = [
     {
-      id: 'm3', importance: 1, readMin: 1,
+      id: 'm3', importance: 1, readMin: 2,
       title: 'B2B購買行動調査2026：意思決定者の73%が「営業より先にAI検索を信頼」',
       summary: 'Gartner調査。比較段階での主要情報源として ChatGPT / Perplexity が営業資料・営業面談を上回るとの結果。コンテンツの AI検索最適化（GEO）が今や必須の打ち手となる。',
       source: 'Gartner', sourceType: 'media', category: 'marketing',
@@ -143,17 +143,9 @@
   ];
   const CAT_LABEL = { marketing: 'MARKETING', market: 'MARKET', ai: 'AI' };
 
-  const STORE_KEY_FAV  = 'ai-news:fav:v1';
-  const STORE_KEY_READ = 'ai-news:read:v1';
-
-  /* ────────── ④ 状態 ──────────  */
-  const state = {
-    activeCat: 'all',
-    favOnly: false,
-    keyword: '',
-    fav:  loadSet(STORE_KEY_FAV),
-    read: loadSet(STORE_KEY_READ)
-  };
+  const STORE_KEY_FAV   = 'ai-news:fav:v1';
+  const STORE_KEY_READ  = 'ai-news:read:v1';
+  const STORE_KEY_PREFS = 'ai-news:prefs:v1';
 
   function loadSet(k) {
     try { return new Set(JSON.parse(localStorage.getItem(k) || '[]')); }
@@ -162,6 +154,30 @@
   function saveSet(k, set) {
     try { localStorage.setItem(k, JSON.stringify([...set])); } catch {}
   }
+  function loadPrefs() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY_PREFS) || '{}') || {}; }
+    catch { return {}; }
+  }
+  function savePrefs() {
+    try {
+      localStorage.setItem(STORE_KEY_PREFS, JSON.stringify({
+        activeCat: state.activeCat,
+        favOnly: state.favOnly,
+        unreadOnly: state.unreadOnly
+      }));
+    } catch {}
+  }
+
+  /* ────────── ④ 状態 ──────────  */
+  const _prefs = loadPrefs();
+  const state = {
+    activeCat: ['all','marketing','market','ai'].includes(_prefs.activeCat) ? _prefs.activeCat : 'all',
+    favOnly: !!_prefs.favOnly,
+    unreadOnly: !!_prefs.unreadOnly,
+    keyword: '',
+    fav:  loadSet(STORE_KEY_FAV),
+    read: loadSet(STORE_KEY_READ)
+  };
 
   /* ────────── ⑤ ユーティリティ ──────────  */
   function escapeHtml(s) {
@@ -194,6 +210,7 @@
     state.read.add(id);
     saveSet(STORE_KEY_READ, state.read);
     if (el) el.classList.add('read');
+    updateProgress();
   }
   function toggleFav(id, btn) {
     if (state.fav.has(id)) state.fav.delete(id);
@@ -238,7 +255,7 @@
     const isFav  = state.fav.has(top.id);
     const cat = top.category;
     root.innerHTML = `
-      <article class="top-card${isRead ? ' read' : ''}" data-id="${top.id}" data-url="${escapeHtml(top.url)}">
+      <article class="top-card${isRead ? ' read' : ''}" data-id="${top.id}" data-url="${escapeHtml(top.url)}" tabindex="0" role="link" aria-label="${escapeHtml(top.title)}">
         <div class="top-meta">
           <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
           <span class="meta-source">${escapeHtml(top.source)}</span>
@@ -276,7 +293,7 @@
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
       return `
-        <div class="brief-item${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}">
+        <div class="brief-item${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="link" aria-label="${escapeHtml(n.title)}">
           <div class="brief-num">${String(i+1).padStart(2,'0')}</div>
           <div class="brief-body">
             <div class="brief-meta">
@@ -318,6 +335,7 @@
     root.querySelectorAll('.tab').forEach(el => {
       el.addEventListener('click', () => {
         state.activeCat = el.dataset.cat;
+        savePrefs();
         renderTabs(more);
         renderMore(more);
       });
@@ -330,6 +348,7 @@
     const items = allMore.filter(n => {
       if (state.activeCat !== 'all' && n.category !== state.activeCat) return false;
       if (state.favOnly && !state.fav.has(n.id)) return false;
+      if (state.unreadOnly && state.read.has(n.id)) return false;
       if (kw) {
         const hay = (n.title + ' ' + n.summary + ' ' + (n.tags||[]).join(' ') + ' ' + n.source).toLowerCase();
         if (!hay.includes(kw)) return false;
@@ -344,7 +363,7 @@
       const isRead = state.read.has(n.id);
       const cat = n.category;
       return `
-        <div class="more-item${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}">
+        <div class="more-item${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="link" aria-label="${escapeHtml(n.title)}">
           <span class="more-cat ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
           <div class="more-title">${escapeHtml(n.title)}</div>
           <span class="more-source">${escapeHtml(n.source)}</span>
@@ -389,20 +408,40 @@
       t = setTimeout(() => { state.keyword = search.value; renderMore(more); }, 120);
     });
     const fav = document.getElementById('toggle-fav');
-    fav.addEventListener('click', () => {
-      state.favOnly = !state.favOnly;
+    if (fav) {
+      // 永続化されたactive状態を復元
       fav.classList.toggle('active', state.favOnly);
       fav.setAttribute('aria-pressed', state.favOnly);
-      renderMore(more);
-    });
+      fav.addEventListener('click', () => {
+        state.favOnly = !state.favOnly;
+        fav.classList.toggle('active', state.favOnly);
+        fav.setAttribute('aria-pressed', state.favOnly);
+        savePrefs();
+        renderMore(more);
+      });
+    }
+    const unread = document.getElementById('toggle-unread');
+    if (unread) {
+      unread.classList.toggle('active', state.unreadOnly);
+      unread.setAttribute('aria-pressed', state.unreadOnly);
+      unread.addEventListener('click', () => {
+        state.unreadOnly = !state.unreadOnly;
+        unread.classList.toggle('active', state.unreadOnly);
+        unread.setAttribute('aria-pressed', state.unreadOnly);
+        savePrefs();
+        renderMore(more);
+      });
+    }
   }
 
   /* ────────── ⑨ データ取得（自動更新JSON → 失敗時シード） ──────────  */
   let dataMeta = { updatedAt: null, generatedFor: null };
 
   async function loadRemote() {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
     try {
-      const res = await fetch('./data/news.json', { cache: 'no-cache' });
+      const res = await fetch('./data/news.json', { cache: 'no-cache', signal: ctrl.signal });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const json = await res.json();
       if (!json || !Array.isArray(json.items) || json.items.length === 0) {
@@ -431,27 +470,200 @@
     } catch (e) {
       console.info('[ai-news] using bundled seed data:', e.message);
       return false;
+    } finally {
+      clearTimeout(timer);
     }
   }
 
-  function applyMeta() {
-    if (!dataMeta.generatedFor) return;
-    const el = document.getElementById('stat-date');
-    if (el) el.textContent = fmtBriefDate(dataMeta.generatedFor);
+  function applyMeta(isRemote) {
+    // Brief 日付（generatedFor がなければシードのYのまま）
+    if (dataMeta.generatedFor) {
+      const el = document.getElementById('stat-date');
+      if (el) el.textContent = fmtBriefDate(dataMeta.generatedFor);
+    }
+    // 「最終更新 MM/DD HH:MM」表示
+    const upd = document.getElementById('cmd-updated');
+    if (!upd) return;
+    if (isRemote && dataMeta.updatedAt) {
+      upd.textContent = `更新: ${fmtDate(dataMeta.updatedAt)}`;
+      upd.classList.remove('seed');
+      upd.title = `news.json: ${dataMeta.updatedAt}`;
+    } else {
+      upd.textContent = '更新: シードデータ表示中';
+      upd.classList.add('seed');
+      upd.title = '自動収集データの取得に失敗、またはまだ生成されていません。バンドル済みのシードを表示しています。';
+    }
   }
 
-  /* ────────── ⑩ 起動 ──────────  */
-  async function init() {
-    await loadRemote(); // 失敗時はシード継続
+  /* ────────── ⑩ 進捗 / 全部既読 / 次の未読 ──────────  */
+  function getNavItems() {
+    return Array.from(document.querySelectorAll('.top-card[data-id], .brief-item[data-id], .more-item[data-id]'));
+  }
+  function updateProgress() {
+    // 母数は NEWS_DATA 全件（MORE のフィルタで分母が変動しないように）
+    const total = NEWS_DATA.length;
+    const read  = NEWS_DATA.filter(n => state.read.has(n.id)).length;
+    const txt = document.getElementById('progress-read');
+    const tot = document.getElementById('progress-total');
+    const fill = document.getElementById('progress-fill');
+    if (txt) txt.textContent = read;
+    if (tot) tot.textContent = total;
+    if (fill) fill.style.width = (total ? (read / total * 100) : 0) + '%';
+  }
+  function jumpToNextUnread() {
+    const items = getNavItems();
+    const target = items.find(el => !state.read.has(el.dataset.id));
+    if (!target) {
+      // 全件既読
+      const upd = document.getElementById('cmd-updated');
+      if (upd) {
+        const orig = upd.textContent;
+        upd.textContent = '🎉 全て読了';
+        setTimeout(() => { upd.textContent = orig; }, 1800);
+      }
+      return;
+    }
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function markAllRead() {
+    NEWS_DATA.forEach(n => state.read.add(n.id));
+    saveSet(STORE_KEY_READ, state.read);
+    document.querySelectorAll('.top-card[data-id], .brief-item[data-id], .more-item[data-id]')
+      .forEach(el => el.classList.add('read'));
+    updateProgress();
+  }
+  function moveFocus(dir) {
+    const items = getNavItems();
+    if (!items.length) return;
+    const cur = document.activeElement;
+    const idx = items.indexOf(cur);
+    let next;
+    if (idx === -1) next = dir > 0 ? items[0] : items[items.length - 1];
+    else next = items[Math.min(items.length - 1, Math.max(0, idx + dir))];
+    if (next) {
+      next.focus({ preventScroll: true });
+      next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+  function toggleFavOnFocused() {
+    const cur = document.activeElement;
+    if (!cur || !cur.dataset || !cur.dataset.id) return;
+    const btn = cur.querySelector('.star-btn');
+    toggleFav(cur.dataset.id, btn);
+  }
+  function openFocused() {
+    const cur = document.activeElement;
+    if (!cur || !cur.dataset || !cur.dataset.url) return;
+    markRead(cur.dataset.id, cur);
+    openExternal(cur.dataset.url);
+  }
+
+  /* ────────── ⑪ キーボードショートカット ──────────  */
+  function isTypingTarget(t) {
+    if (!t) return false;
+    const tag = (t.tagName || '').toLowerCase();
+    return tag === 'input' || tag === 'textarea' || tag === 'select' || t.isContentEditable;
+  }
+  function showHelp(show) {
+    const m = document.getElementById('kbd-modal');
+    if (!m) return;
+    if (show) m.removeAttribute('hidden'); else m.setAttribute('hidden', '');
+  }
+  function wireKeyboard() {
+    document.addEventListener('keydown', e => {
+      // モーダル: Escで閉じる
+      const modal = document.getElementById('kbd-modal');
+      const modalOpen = modal && !modal.hasAttribute('hidden');
+      if (modalOpen && (e.key === 'Escape' || e.key === '?')) {
+        e.preventDefault();
+        showHelp(false);
+        return;
+      }
+      // 入力欄ではショートカット無効（Escでblurだけ許可）
+      if (isTypingTarget(e.target)) {
+        if (e.key === 'Escape') e.target.blur();
+        return;
+      }
+      switch (e.key) {
+        case '/':
+          e.preventDefault();
+          const s = document.getElementById('search');
+          if (s) { s.focus(); s.select(); }
+          break;
+        case 'j': e.preventDefault(); moveFocus(1); break;
+        case 'k': e.preventDefault(); moveFocus(-1); break;
+        case 'Enter': openFocused(); break;
+        case 'f': toggleFavOnFocused(); break;
+        case 'n': e.preventDefault(); jumpToNextUnread(); break;
+        case 'm': e.preventDefault(); markAllRead(); break;
+        case '?': e.preventDefault(); showHelp(true); break;
+      }
+    });
+    const help = document.getElementById('btn-help');
+    if (help) help.addEventListener('click', () => showHelp(true));
+    const close = document.getElementById('kbd-close');
+    if (close) close.addEventListener('click', () => showHelp(false));
+    const modal = document.getElementById('kbd-modal');
+    if (modal) modal.addEventListener('click', e => { if (e.target === modal) showHelp(false); });
+    const next = document.getElementById('btn-next-unread');
+    if (next) next.addEventListener('click', jumpToNextUnread);
+    const all = document.getElementById('btn-mark-all');
+    if (all) all.addEventListener('click', markAllRead);
+  }
+
+  /* ────────── ⑫ 起動 ──────────
+     方針: ファーストペイント最優先。
+     1) まずシードデータで即座にrender（fetch完了を待たない）
+     2) バックグラウンドで loadRemote()
+     3) 成功したら NEWS_DATA を上書きしてリストだけ再render（ヒーロー/Xはそのまま）
+  ────────────────────────────  */
+  let _moreRef = []; // wireUp が掴む more 配列の最新参照（再renderで差し替える）
+
+  function fullRender() {
     const { top, briefing, more } = partition();
-    renderHero();
-    applyMeta();
+    _moreRef = more;
     renderTopStory(top);
     renderBriefing(briefing);
     renderTabs(more);
     renderMore(more);
+    updateProgress();
+  }
+
+  async function init() {
+    // ── 1. シードデータで即時パーティション + render（ブロックなし） ──
+    renderHero();
+    applyMeta(false);   // とりあえず「シードデータ表示中」
+    fullRender();
     renderX();
-    wireUp(more);
+    wireUp(_moreRef);
+    wireKeyboard();
+
+    // ── 2. バックグラウンドで実データ取得（最大8秒） ──
+    const isRemote = await loadRemote();
+    if (isRemote) {
+      // ── 3. ヒーローの Brief 日付・Items・Read time を再計算 + リスト差し替え ──
+      renderHero();
+      applyMeta(true);
+      fullRender();
+      // wireUp が掴んでた more 参照を新しい _moreRef に置き換える
+      rewireMore();
+    }
+  }
+  function rewireMore() {
+    // wireUp 内で more を closure キャプチャしているため、検索/★絞り込みも最新リストで再評価できるよう
+    // ハンドラを掛け直す。重複を避けるためノードごと差し替え。
+    const oldSearch = document.getElementById('search');
+    if (oldSearch) {
+      const ns = oldSearch.cloneNode(true);
+      oldSearch.parentNode.replaceChild(ns, oldSearch);
+    }
+    const oldFav = document.getElementById('toggle-fav');
+    if (oldFav) {
+      const nf = oldFav.cloneNode(true);
+      oldFav.parentNode.replaceChild(nf, oldFav);
+    }
+    wireUp(_moreRef);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
