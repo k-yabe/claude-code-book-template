@@ -153,11 +153,29 @@ def fetch_all() -> list[dict]:
                 if not title:
                     continue
                 raw_summary = strip_html(getattr(e, "summary", "") or getattr(e, "description", "") or "")
+                # 画像抽出（media:content / enclosure / media:thumbnail）
+                image = None
+                for mc in getattr(e, "media_content", []) or []:
+                    mtype = (mc.get("type") or "").lower()
+                    if mtype.startswith("image/") or mc.get("url", "").split("?")[0].endswith((".jpg", ".jpeg", ".png", ".webp")):
+                        image = mc.get("url")
+                        break
+                if not image:
+                    for mt in getattr(e, "media_thumbnail", []) or []:
+                        if mt.get("url"):
+                            image = mt["url"]
+                            break
+                if not image and hasattr(e, "enclosures"):
+                    for enc in e.enclosures or []:
+                        if (enc.get("type") or "").startswith("image/"):
+                            image = enc.get("href") or enc.get("url")
+                            break
                 seen_urls.add(url)
                 all_items.append({
                     "id": make_id(url),
                     "title": truncate(title, 200),
                     "url": url,
+                    "image": image,
                     "raw_summary": raw_summary,
                     "source": src["name"],
                     "sourceType": "media",

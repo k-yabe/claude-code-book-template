@@ -30,6 +30,7 @@
       actionItem: '来週の定例で自社コンテンツのGEO対策（ChatGPT/Perplexityでの自社表示確認）を議題に入れる。',
       source: 'Gartner', sourceType: 'media', category: 'marketing',
       url: 'https://www.gartner.com/en/newsroom/press-releases/2026-04-16-b2b-buying-behavior-survey',
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop',
       publishedAt: `${Y}T09:10:00+09:00`,
       tags: ['B2B', 'GEO', '購買行動']
     },
@@ -41,6 +42,7 @@
       actionItem: 'Search Consoleで主要キーワードのCTR変化をモニタリング開始。AI Overviewsに自社が表示されているか確認。',
       source: 'Google Search Central', sourceType: 'media', category: 'ai',
       url: 'https://developers.google.com/search/blog/2026/04/ai-overviews-japan-default',
+      image: 'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=400&h=250&fit=crop',
       publishedAt: `${Y}T18:40:00+09:00`,
       tags: ['SEO', 'GEO', 'Google']
     },
@@ -52,6 +54,7 @@
       actionItem: '自社のSalesforce契約でAgentforce利用可否を営業担当に確認する。',
       source: 'Salesforce News', sourceType: 'media', category: 'market',
       url: 'https://www.salesforce.com/news/press-releases/2026/04/agentforce-cmo-revenue-agent/',
+      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop',
       publishedAt: `${Y}T14:45:00+09:00`,
       tags: ['SaaS', 'AIエージェント', 'CMO']
     },
@@ -63,6 +66,7 @@
       actionItem: '今抱えているレポート業務で試用し、時間短縮効果を検証する。',
       source: 'Anthropic', sourceType: 'media', category: 'ai',
       url: 'https://www.anthropic.com/news/claude-4-6-opus-long-context',
+      image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop',
       publishedAt: `${Y}T22:00:00+09:00`,
       tags: ['Claude', 'LLM', '要約']
     },
@@ -74,6 +78,7 @@
       actionItem: 'Google Ads管理画面でブランド除外レポートを確認し、月次レポートに追加。',
       source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
       url: 'https://blog.google/products/ads-commerce/performance-max-brand-exclusion-report/',
+      image: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=400&h=250&fit=crop',
       publishedAt: `${Y}T08:30:00+09:00`,
       tags: ['広告', 'PMax', 'Google']
     },
@@ -85,6 +90,7 @@
       actionItem: '次の予算策定で動画広告枠の比率増を提案する際のエビデンスとしてストック。',
       source: '電通', sourceType: 'media', category: 'market',
       url: 'https://www.dentsu.co.jp/news/release/2026/0416-digital-ad-spending/',
+      image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop',
       publishedAt: `${Y}T10:00:00+09:00`,
       tags: ['広告費', '日本', '統計']
     },
@@ -96,6 +102,7 @@
       actionItem: '利用中のDSP/SSPがUID2.0対応済みか確認し、未対応なら代替を検討。',
       source: 'AdExchanger', sourceType: 'media', category: 'market',
       url: 'https://www.adexchanger.com/data-driven-thinking/uid2-adoption-triples-in-japan/',
+      image: 'https://images.unsplash.com/photo-1563986768609-322da13575f2?w=400&h=250&fit=crop',
       publishedAt: `${Y}T07:50:00+09:00`,
       tags: ['Cookieless', 'AdTech']
     },
@@ -107,6 +114,7 @@
       actionItem: 'Marketo利用中なら設定画面でAI件名最適化をONにして次回配信でテスト。',
       source: 'Adobe Marketo Engage', sourceType: 'media', category: 'marketing',
       url: 'https://business.adobe.com/blog/the-latest/marketo-ai-subject-line-optimization-all-plans',
+      image: null,
       publishedAt: `${Y}T11:05:00+09:00`,
       tags: ['MA', 'メール', 'AI']
     },
@@ -118,6 +126,7 @@
       actionItem: 'AI活用のコンテンツ制作フローがある場合、β申請を検討。',
       source: 'OpenAI', sourceType: 'media', category: 'ai',
       url: 'https://openai.com/blog/gpt-5-brand-voice-constraint-api',
+      image: null,
       publishedAt: `${Y}T20:15:00+09:00`,
       tags: ['GPT-5', 'API', 'ブランドガバナンス']
     },
@@ -129,6 +138,7 @@
       actionItem: 'ターゲットにZ世代を含む場合、TikTok Search Adsのβ申請を検討。',
       source: 'TikTok for Business', sourceType: 'media', category: 'marketing',
       url: 'https://newsroom.tiktok.com/ja-jp/tiktok-search-ads-japan-launch',
+      image: null,
       publishedAt: `${Y}T13:00:00+09:00`,
       tags: ['SNS', '検索広告']
     },
@@ -140,6 +150,7 @@
       actionItem: 'HubSpot利用中ならZoom連携をONにして、商談要約のコンテンツ活用を試す。',
       source: 'HubSpot', sourceType: 'media', category: 'marketing',
       url: 'https://blog.hubspot.com/news/free-crm-conversation-intelligence-launch',
+      image: null,
       publishedAt: `${Y}T15:20:00+09:00`,
       tags: ['CRM', 'セールス']
     }
@@ -361,6 +372,8 @@
     const sorted = [...NEWS_DATA].sort((a, b) => {
       const ua = URG_ORDER[a.urgency] ?? 2, ub = URG_ORDER[b.urgency] ?? 2;
       if (ua !== ub) return ua - ub;
+      // 同urgency内: importance昇順 → 新しい順
+      if (a.importance !== b.importance) return a.importance - b.importance;
       return new Date(b.publishedAt) - new Date(a.publishedAt);
     });
     const mustKnow  = sorted.filter(n => n.urgency === 'must_know').slice(0, 2);
@@ -404,6 +417,9 @@
       const isRead = state.read.has(n.id);
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
+      const thumbHtml = n.image
+        ? `<div class="top-thumb"><img src="${escapeHtml(n.image)}" alt="" loading="lazy"></div>`
+        : `<div class="top-thumb"><span class="top-thumb-placeholder">${escapeHtml(n.source)}</span></div>`;
       return `
       <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" aria-label="${escapeHtml(n.title)}">
         <div class="top-meta">
@@ -411,8 +427,13 @@
           <span class="meta-source">${escapeHtml(n.source)}</span>
           <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
         </div>
-        <h2 class="top-title"><a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a></h2>
-        <p class="top-summary">${escapeHtml(n.summary)}</p>
+        <div class="top-body">
+          <div class="top-body-text">
+            <h2 class="top-title"><a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a></h2>
+            <p class="top-summary">${escapeHtml(n.summary)}</p>
+          </div>
+          ${thumbHtml}
+        </div>
         ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label">マーケへの影響</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
         ${n.actionItem ? `<div class="intel-block action"><div class="intel-label">💡 推奨アクション</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
         <div class="top-foot">
@@ -451,24 +472,30 @@
       const isRead = state.read.has(n.id);
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
+      const briefThumb = n.image
+        ? `<div class="brief-card-thumb"><img src="${escapeHtml(n.image)}" alt="" loading="lazy"></div>`
+        : `<div class="brief-card-thumb"><span class="brief-card-thumb-placeholder">${escapeHtml(n.source)}</span></div>`;
       return `
         <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          <div class="brief-card-head">
-            <span class="brief-card-num">${String(i+1).padStart(2,'0')}</span>
-            <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-            <span class="meta-source">${escapeHtml(n.source)}</span>
-            <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
-          </div>
-          <div class="brief-card-title">${escapeHtml(n.title)}</div>
-          <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
-          ${n.whyItMatters ? `<div class="brief-card-impact">⚡ ${escapeHtml(n.whyItMatters)}</div>` : ''}
-          ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
-          <div class="brief-card-foot">
-            <div class="brief-card-tags">${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
-              <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-              <a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>
+          ${briefThumb}
+          <div class="brief-card-content">
+            <div class="brief-card-head">
+              <span class="brief-card-num">${String(i+1).padStart(2,'0')}</span>
+              <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
+              <span class="meta-source">${escapeHtml(n.source)}</span>
+              <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
+            </div>
+            <div class="brief-card-title">${escapeHtml(n.title)}</div>
+            <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
+            ${n.whyItMatters ? `<div class="brief-card-impact">⚡ ${escapeHtml(n.whyItMatters)}</div>` : ''}
+            ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
+            <div class="brief-card-foot">
+              <div class="brief-card-tags">${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
+                <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
+                <a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>
+              </div>
             </div>
           </div>
         </div>`;
@@ -652,6 +679,7 @@
           sourceType: it.sourceType || 'media',
           category:   ['marketing','market','ai'].includes(it.category) ? it.category : 'marketing',
           url:        String(it.url || ''),
+          image:      it.image || null,
           publishedAt: it.publishedAt || new Date().toISOString(),
           tags: Array.isArray(it.tags) ? it.tags.map(String) : []
         });
@@ -764,7 +792,8 @@
           actionItem: String(it.actionItem || '').trim(), urgency: urg,
           source: String(it.source || '').trim(), sourceType: it.sourceType || 'media',
           category: ['marketing','market','ai'].includes(it.category) ? it.category : 'marketing',
-          url: String(it.url || ''), publishedAt: it.publishedAt || new Date().toISOString(),
+          url: String(it.url || ''), image: it.image || null,
+          publishedAt: it.publishedAt || new Date().toISOString(),
           tags: Array.isArray(it.tags) ? it.tags.map(String) : []
         });
       }
@@ -910,6 +939,83 @@
     if (modal) modal.addEventListener('click', e => { if (e.target === modal) showHelp(false); });
   }
 
+  /* ────────── ⑪b 音声読み上げ（Web Speech API） ──────────  */
+  let speechState = { playing: false, utterances: [], currentIdx: 0 };
+
+  function buildSpeechScript() {
+    const lines = [];
+    // サマリー
+    lines.push('今日のサマリーです。');
+    for (const line of EXEC_SUMMARY) {
+      lines.push(line);
+    }
+    // 重要ニュース
+    const { mustKnow, thisWeek } = partition();
+    if (mustKnow.length) {
+      lines.push('続いて、重要ニュースです。');
+      for (const n of mustKnow) {
+        lines.push(n.title + '。' + n.summary);
+        if (n.whyItMatters) lines.push('マーケへの影響。' + n.whyItMatters);
+        if (n.actionItem) lines.push('推奨アクション。' + n.actionItem);
+      }
+    }
+    // 注目ニュース
+    if (thisWeek.length) {
+      lines.push('次に、注目ニュースです。');
+      for (const n of thisWeek) {
+        lines.push(n.title + '。' + n.summary);
+        if (n.actionItem) lines.push('推奨アクション。' + n.actionItem);
+      }
+    }
+    lines.push('以上、今日のブリーフでした。');
+    return lines;
+  }
+
+  function startSpeech() {
+    if (!('speechSynthesis' in window)) return;
+    stopSpeech();
+    const lines = buildSpeechScript();
+    const btn = document.getElementById('btn-listen');
+    speechState.playing = true;
+    speechState.currentIdx = 0;
+    if (btn) { btn.textContent = '⏹ 停止'; btn.classList.add('playing'); }
+
+    function speakNext(idx) {
+      if (idx >= lines.length || !speechState.playing) {
+        stopSpeech();
+        return;
+      }
+      const u = new SpeechSynthesisUtterance(lines[idx]);
+      u.lang = 'ja-JP';
+      u.rate = 1.1;
+      u.onend = () => speakNext(idx + 1);
+      u.onerror = () => speakNext(idx + 1);
+      speechState.currentIdx = idx;
+      window.speechSynthesis.speak(u);
+    }
+    speakNext(0);
+  }
+
+  function stopSpeech() {
+    speechState.playing = false;
+    window.speechSynthesis.cancel();
+    const btn = document.getElementById('btn-listen');
+    if (btn) { btn.textContent = '🔊 聴く'; btn.classList.remove('playing'); }
+  }
+
+  function wireSpeech() {
+    const btn = document.getElementById('btn-listen');
+    if (!btn) return;
+    if (!('speechSynthesis' in window)) {
+      btn.style.display = 'none';
+      return;
+    }
+    btn.addEventListener('click', () => {
+      if (speechState.playing) stopSpeech();
+      else startSpeech();
+    });
+  }
+
   /* ────────── ⑫ 起動 ──────────
      方針: ファーストペイント最優先。
      1) まずシードデータで即座にrender（fetch完了を待たない）
@@ -939,6 +1045,7 @@
     wireUp(_moreRef);
     wireKeyboard();
     wireDateNav();
+    wireSpeech();
 
     // ── 2. バックグラウンドで実データ取得（最大8秒） ──
     // ローディング表示をセット
