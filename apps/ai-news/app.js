@@ -341,7 +341,7 @@
       return;
     }
     root.innerHTML = lines.map(line =>
-      `<div class="exec-line">▸ ${escapeHtml(line)}</div>`
+      `<div class="exec-line"><span class="exec-arrow">▸</span><span>${escapeHtml(line)}</span></div>`
     ).join('');
   }
 
@@ -474,7 +474,7 @@
           <span class="more-cat ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
           <div class="more-title-wrap">
             <div class="more-title">${escapeHtml(n.title)}</div>
-            <div class="more-summary">${escapeHtml(n.summary)}</div>
+            <div class="more-summary">${escapeHtml(n.whyItMatters || n.summary)}</div>
           </div>
           <span class="more-source">${escapeHtml(n.source)}</span>
           <button class="star-btn${state.fav.has(n.id) ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>

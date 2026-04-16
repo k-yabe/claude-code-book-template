@@ -104,7 +104,14 @@
     }
     .sec-line { flex: 1; height: 2px; background: var(--border); }
 
-    /* ── 🔥 TOP STORY（ネイビー背景ヒーローカード） ── */
+    /* ── 🔥 MUST-KNOW コンテナ ── */
+    #must-know {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-4);
+    }
+
+    /* ── 🔥 MUST-KNOW カード（ネイビー背景） ── */
     .top-card {
       background: var(--navy);
       color: var(--white);
@@ -437,71 +444,80 @@
     /* ── Executive Summary ── */
     .exec-box {
       background: var(--navy);
-      border-top: 3px solid var(--gold);
-      padding: var(--sp-5) var(--sp-6);
-      margin-bottom: var(--sp-4);
+      border-top: 4px solid var(--gold);
+      padding: var(--sp-6);
+      margin-bottom: var(--sp-5);
     }
     .exec-line {
-      font-size: 0.95rem;
+      display: flex;
+      gap: var(--sp-3);
+      font-size: 1rem;
       font-weight: 600;
       color: rgba(255,255,255,0.92);
-      line-height: 1.7;
-      padding: 6px 0;
+      line-height: 1.65;
+      padding: var(--sp-3) 0;
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
     .exec-line:last-child { border-bottom: none; }
+    .exec-arrow {
+      color: var(--gold);
+      font-weight: 800;
+      flex-shrink: 0;
+      font-size: 1.05rem;
+    }
     @media (max-width: 600px) {
       .exec-box { padding: var(--sp-4); }
-      .exec-line { font-size: 0.85rem; }
+      .exec-line { font-size: 0.88rem; }
     }
 
     /* ── MUST-KNOW: インテリジェンスブロック ── */
     .intel-block {
-      padding: var(--sp-3) var(--sp-4);
-      margin: var(--sp-2) 0;
+      padding: var(--sp-4) var(--sp-5);
+      margin: var(--sp-3) 0;
     }
     .intel-block.impact {
-      background: rgba(255,255,255,0.06);
-      border-left: 3px solid var(--cyan);
+      background: rgba(0,255,255,0.06);
+      border-left: 4px solid var(--cyan);
     }
     .intel-block.action {
-      background: rgba(255,184,28,0.12);
-      border-left: 3px solid var(--gold);
+      background: rgba(255,184,28,0.10);
+      border-left: 4px solid var(--gold);
     }
     .intel-label {
-      font-size: 0.65rem;
+      font-size: 0.68rem;
       font-weight: 800;
       letter-spacing: 0.1em;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
     }
     .intel-block.impact .intel-label { color: var(--cyan); }
     .intel-block.action .intel-label { color: var(--gold); }
     .intel-text {
-      font-size: 0.88rem;
+      font-size: 0.95rem;
       font-weight: 600;
       color: var(--white);
-      line-height: 1.55;
+      line-height: 1.6;
     }
 
     /* ── THIS WEEK: 影響 + アクション行 ── */
     .brief-card-impact {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       font-weight: 700;
       color: var(--navy);
-      background: rgba(0,255,255,0.08);
-      padding: 5px 10px;
+      background: rgba(0,255,255,0.07);
+      padding: 8px 12px;
       margin-bottom: 4px;
-      line-height: 1.5;
+      line-height: 1.55;
       border-left: 3px solid var(--cyan);
     }
     .brief-card-action {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       font-weight: 700;
       color: var(--navy);
-      background: rgba(255,184,28,0.12);
-      padding: 5px 10px;
+      background: rgba(255,184,28,0.10);
+      padding: 8px 12px;
       margin-bottom: var(--sp-3);
-      line-height: 1.5;
+      line-height: 1.55;
       border-left: 3px solid var(--gold);
     }
 
@@ -709,12 +725,14 @@
     }
     .top-ext-link:hover { color: var(--gold); }
 
-    /* ── MORE READS サマリー付き ── */
+    /* ── FYI: whyItMatters 表示 ── */
     .more-summary {
       font-size: 0.75rem; color: var(--text-secondary);
       line-height: 1.55; margin-top: 2px;
       display: -webkit-box; -webkit-line-clamp: 2;
       -webkit-box-orient: vertical; overflow: hidden;
+      font-weight: 600;
+      font-style: italic;
     }
     .more-title-wrap { min-width: 0; }
 
@@ -749,8 +767,8 @@
     <section class="hero">
       <div class="hero-left">
         <div>
-          <div class="hero-eyebrow">DAILY MARKETING BRIEF</div>
-          <div class="hero-title"><span class="hero-pulse"></span>10分で読める、前日のマーケ動向</div>
+          <div class="hero-eyebrow">MARKETING INTELLIGENCE BRIEF</div>
+          <div class="hero-title"><span class="hero-pulse"></span>何が起きた？ なぜ重要？ 何をすべき？</div>
         </div>
       </div>
       <div class="hero-meta">
@@ -769,14 +787,6 @@
       </div>
     </section>
 
-    <!-- アクションバー -->
-    <div class="cmd-bar">
-      <span class="cmd-updated" id="cmd-updated">更新: —</span>
-      <div class="cmd-actions">
-        <button class="cmd-btn icon" id="btn-help" title="ショートカット (?)" aria-label="キーボードショートカット">?</button>
-      </div>
-    </div>
-
     <!-- 📋 今日の要点 (Executive Summary) -->
     <div class="sec-head">
       <span class="sec-icon gold">📋</span>
@@ -786,7 +796,13 @@
     </div>
     <div class="exec-box" id="exec-summary"></div>
 
-    <!-- トレンドバー -->
+    <!-- アクションバー + トレンド -->
+    <div class="cmd-bar">
+      <span class="cmd-updated" id="cmd-updated">更新: —</span>
+      <div class="cmd-actions">
+        <button class="cmd-btn icon" id="btn-help" title="ショートカット (?)" aria-label="キーボードショートカット">?</button>
+      </div>
+    </div>
     <div class="trend-bar" id="trend-bar">
       <span class="trend-label">TRENDS</span>
     </div>
