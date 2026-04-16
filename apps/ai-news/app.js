@@ -143,17 +143,9 @@
   ];
   const CAT_LABEL = { marketing: 'MARKETING', market: 'MARKET', ai: 'AI' };
 
-  const STORE_KEY_FAV  = 'ai-news:fav:v1';
-  const STORE_KEY_READ = 'ai-news:read:v1';
-
-  /* ────────── ④ 状態 ──────────  */
-  const state = {
-    activeCat: 'all',
-    favOnly: false,
-    keyword: '',
-    fav:  loadSet(STORE_KEY_FAV),
-    read: loadSet(STORE_KEY_READ)
-  };
+  const STORE_KEY_FAV   = 'ai-news:fav:v1';
+  const STORE_KEY_READ  = 'ai-news:read:v1';
+  const STORE_KEY_PREFS = 'ai-news:prefs:v1';
 
   function loadSet(k) {
     try { return new Set(JSON.parse(localStorage.getItem(k) || '[]')); }
@@ -162,6 +154,30 @@
   function saveSet(k, set) {
     try { localStorage.setItem(k, JSON.stringify([...set])); } catch {}
   }
+  function loadPrefs() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY_PREFS) || '{}') || {}; }
+    catch { return {}; }
+  }
+  function savePrefs() {
+    try {
+      localStorage.setItem(STORE_KEY_PREFS, JSON.stringify({
+        activeCat: state.activeCat,
+        favOnly: state.favOnly,
+        unreadOnly: state.unreadOnly
+      }));
+    } catch {}
+  }
+
+  /* ────────── ④ 状態 ──────────  */
+  const _prefs = loadPrefs();
+  const state = {
+    activeCat: ['all','marketing','market','ai'].includes(_prefs.activeCat) ? _prefs.activeCat : 'all',
+    favOnly: !!_prefs.favOnly,
+    unreadOnly: !!_prefs.unreadOnly,
+    keyword: '',
+    fav:  loadSet(STORE_KEY_FAV),
+    read: loadSet(STORE_KEY_READ)
+  };
 
   /* ────────── ⑤ ユーティリティ ──────────  */
   function escapeHtml(s) {
@@ -319,6 +335,7 @@
     root.querySelectorAll('.tab').forEach(el => {
       el.addEventListener('click', () => {
         state.activeCat = el.dataset.cat;
+        savePrefs();
         renderTabs(more);
         renderMore(more);
       });
@@ -331,6 +348,7 @@
     const items = allMore.filter(n => {
       if (state.activeCat !== 'all' && n.category !== state.activeCat) return false;
       if (state.favOnly && !state.fav.has(n.id)) return false;
+      if (state.unreadOnly && state.read.has(n.id)) return false;
       if (kw) {
         const hay = (n.title + ' ' + n.summary + ' ' + (n.tags||[]).join(' ') + ' ' + n.source).toLowerCase();
         if (!hay.includes(kw)) return false;
@@ -390,12 +408,30 @@
       t = setTimeout(() => { state.keyword = search.value; renderMore(more); }, 120);
     });
     const fav = document.getElementById('toggle-fav');
-    fav.addEventListener('click', () => {
-      state.favOnly = !state.favOnly;
+    if (fav) {
+      // 永続化されたactive状態を復元
       fav.classList.toggle('active', state.favOnly);
       fav.setAttribute('aria-pressed', state.favOnly);
-      renderMore(more);
-    });
+      fav.addEventListener('click', () => {
+        state.favOnly = !state.favOnly;
+        fav.classList.toggle('active', state.favOnly);
+        fav.setAttribute('aria-pressed', state.favOnly);
+        savePrefs();
+        renderMore(more);
+      });
+    }
+    const unread = document.getElementById('toggle-unread');
+    if (unread) {
+      unread.classList.toggle('active', state.unreadOnly);
+      unread.setAttribute('aria-pressed', state.unreadOnly);
+      unread.addEventListener('click', () => {
+        state.unreadOnly = !state.unreadOnly;
+        unread.classList.toggle('active', state.unreadOnly);
+        unread.setAttribute('aria-pressed', state.unreadOnly);
+        savePrefs();
+        renderMore(more);
+      });
+    }
   }
 
   /* ────────── ⑨ データ取得（自動更新JSON → 失敗時シード） ──────────  */

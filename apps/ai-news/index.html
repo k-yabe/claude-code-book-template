@@ -661,6 +661,7 @@
           <span class="more-search-icon">🔍</span>
           <input type="search" id="search" placeholder="検索" aria-label="キーワード検索">
         </div>
+        <button class="icon-toggle" id="toggle-unread" aria-pressed="false" title="未読のみ表示">未読</button>
         <button class="icon-toggle" id="toggle-fav" aria-pressed="false" title="お気に入りのみ表示">★</button>
       </div>
     </div>
@@ -713,9 +714,9 @@
         { icon: '⌨️', text: 'キーボードで読み進め可：「/」検索・「j/k」移動・「n」次の未読・「?」ヘルプ' }
       ],
       updates: [
+        { date: '04/16', text: 'カテゴリ・お気に入り・「未読のみ」フィルタの状態が次回起動時にも復元されるように' },
         { date: '04/16', text: 'コマンドバーをスクロール追従(sticky)化：どこを読んでいても「次の未読」が1タップで使える' },
-        { date: '04/16', text: '起動を「シード即表示→裏で実データ差し替え」方式に。fetch完了を待たず一瞬で読み始められる' },
-        { date: '04/16', text: '読了体験を強化：既読プログレス・「次の未読」「全部既読」・キーボードショートカット (?) を追加' }
+        { date: '04/16', text: '起動を「シード即表示→裏で実データ差し替え」方式に。fetch完了を待たず一瞬で読み始められる' }
       ]
     });
   </script>
