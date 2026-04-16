@@ -13,101 +13,131 @@
   */
   const TODAY = '2026-04-15';
   const Y     = '2026-04-14';
+
+  /* ── Executive Summary（シードデータ） ── */
+  let EXEC_SUMMARY = [
+    'AI検索が購買行動の中心に移行中 → 自社コンテンツのGEO（AI検索最適化）対策を今月中に着手すべき',
+    'デジタル広告費4兆円突破、動画が牽引 → 動画コンテンツ投資の妥当性が裏付けられた。予算配分を再検討',
+    'MarTech各社がAIエージェント競争に突入 → 自社MA/CRMのAI機能ロードマップを確認し、乗り換え検討の材料に'
+  ];
+
   const NEWS_DATA = [
     {
-      id: 'm3', importance: 1, readMin: 2,
+      id: 'm3', importance: 1, readMin: 2, urgency: 'must_know',
       title: 'B2B購買行動調査2026：意思決定者の73%が「営業より先にAI検索を信頼」',
       summary: 'Gartner調査。比較段階での主要情報源として ChatGPT / Perplexity が営業資料・営業面談を上回るとの結果。コンテンツの AI検索最適化（GEO）が今や必須の打ち手となる。',
+      whyItMatters: '営業主導のリード獲得が通用しなくなる可能性。コンテンツ戦略の根本的な転換が急務。',
+      actionItem: '来週の定例で自社コンテンツのGEO対策（ChatGPT/Perplexityでの自社表示確認）を議題に入れる。',
       source: 'Gartner', sourceType: 'media', category: 'marketing',
       url: 'https://www.gartner.com/en/marketing',
       publishedAt: `${Y}T09:10:00+09:00`,
       tags: ['B2B', 'GEO', '購買行動']
     },
     {
-      id: 'mk2', importance: 2, readMin: 1,
-      title: 'Salesforce、Slack＋AgentforceでCMO向け「収益AIエージェント」発表',
-      summary: '案件・キャンペーン・コンテンツの優先度を自動再計算し、予算配分提案までを担う。Adobe・HubSpotとの主導権争いが激化。',
-      source: 'Salesforce News', sourceType: 'media', category: 'market',
-      url: 'https://www.salesforce.com/news/',
-      publishedAt: `${Y}T14:45:00+09:00`,
-      tags: ['SaaS', 'AIエージェント', 'CMO']
-    },
-    {
-      id: 'a1', importance: 2, readMin: 1,
-      title: 'Anthropic、Claude 4.6 Opusの長文タスク性能を公開（200kコンテキスト維持）',
-      summary: '100ページ超の競合資料を一気に要約・差分抽出。マーケのレポート作成時間が平均1/4に短縮との顧客事例。',
-      source: 'Anthropic', sourceType: 'media', category: 'ai',
-      url: 'https://www.anthropic.com/news',
-      publishedAt: `${Y}T22:00:00+09:00`,
-      tags: ['Claude', 'LLM', '要約']
-    },
-    {
-      id: 'm1', importance: 2, readMin: 1,
-      title: 'Google、Performance Max に「ブランド除外」レポート機能を正式追加',
-      summary: 'これまでブラックボックス気味だったブランドキーワード除外の効果が、配信レポート上で個別可視化できるように。CPA改善の根拠提示が容易になる。',
-      source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
-      url: 'https://support.google.com/google-ads/answer/10724817',
-      publishedAt: `${Y}T08:30:00+09:00`,
-      tags: ['広告', 'PMax', 'Google']
-    },
-    {
-      id: 'a3', importance: 2, readMin: 1,
+      id: 'a3', importance: 1, readMin: 2, urgency: 'must_know',
       title: 'Google検索の「AI Overviews」、すべての日本語クエリで標準ON化',
       summary: '従来オプトインだった日本語AI回答が標準表示に。CTR下落への備えとしてGEO（Generative Engine Optimization）対応が急務。',
+      whyItMatters: 'オーガニック検索流入が大幅減少するリスク。SEO戦略の前提が変わる。',
+      actionItem: 'Search Consoleで主要キーワードのCTR変化をモニタリング開始。AI Overviewsに自社が表示されているか確認。',
       source: 'Google Search Central', sourceType: 'media', category: 'ai',
       url: 'https://developers.google.com/search/blog',
       publishedAt: `${Y}T18:40:00+09:00`,
       tags: ['SEO', 'GEO', 'Google']
     },
     {
-      id: 'mk1', importance: 2, readMin: 1,
+      id: 'mk2', importance: 2, readMin: 1, urgency: 'this_week',
+      title: 'Salesforce、Slack＋AgentforceでCMO向け「収益AIエージェント」発表',
+      summary: '案件・キャンペーン・コンテンツの優先度を自動再計算し、予算配分提案までを担う。Adobe・HubSpotとの主導権争いが激化。',
+      whyItMatters: 'MA/CRM選定に直結。エージェントAI搭載が今後の差別化要因になる。',
+      actionItem: '自社のSalesforce契約でAgentforce利用可否を営業担当に確認する。',
+      source: 'Salesforce News', sourceType: 'media', category: 'market',
+      url: 'https://www.salesforce.com/news/',
+      publishedAt: `${Y}T14:45:00+09:00`,
+      tags: ['SaaS', 'AIエージェント', 'CMO']
+    },
+    {
+      id: 'a1', importance: 2, readMin: 1, urgency: 'this_week',
+      title: 'Anthropic、Claude 4.6 Opusの長文タスク性能を公開（200kコンテキスト維持）',
+      summary: '100ページ超の競合資料を一気に要約・差分抽出。マーケのレポート作成時間が平均1/4に短縮との顧客事例。',
+      whyItMatters: 'レポート作成・競合分析の工数を劇的に削減できる可能性。',
+      actionItem: '今抱えているレポート業務で試用し、時間短縮効果を検証する。',
+      source: 'Anthropic', sourceType: 'media', category: 'ai',
+      url: 'https://www.anthropic.com/news',
+      publishedAt: `${Y}T22:00:00+09:00`,
+      tags: ['Claude', 'LLM', '要約']
+    },
+    {
+      id: 'm1', importance: 2, readMin: 1, urgency: 'this_week',
+      title: 'Google、Performance Max に「ブランド除外」レポート機能を正式追加',
+      summary: 'これまでブラックボックス気味だったブランドキーワード除外の効果が、配信レポート上で個別可視化できるように。CPA改善の根拠提示が容易になる。',
+      whyItMatters: 'PMax運用の透明性が向上。CPA改善の根拠を社内レポートに反映できる。',
+      actionItem: 'Google Ads管理画面でブランド除外レポートを確認し、月次レポートに追加。',
+      source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
+      url: 'https://support.google.com/google-ads/answer/10724817',
+      publishedAt: `${Y}T08:30:00+09:00`,
+      tags: ['広告', 'PMax', 'Google']
+    },
+    {
+      id: 'mk1', importance: 2, readMin: 1, urgency: 'this_week',
       title: '日本のデジタル広告費、初の4兆円突破（電通報告）',
       summary: '2025年は4兆1,200億円・前年比+9.4%。インターネット広告がマス4媒体合計を再び大きく上回り、動画広告の伸長が牽引。',
+      whyItMatters: '動画広告への投資シフトが市場全体のトレンドとして確定。予算配分の説得材料になる。',
+      actionItem: '次の予算策定で動画広告枠の比率増を提案する際のエビデンスとしてストック。',
       source: '電通', sourceType: 'media', category: 'market',
       url: 'https://www.dentsu.co.jp/news/release/2025/',
       publishedAt: `${Y}T10:00:00+09:00`,
       tags: ['広告費', '日本', '統計']
     },
     {
-      id: 'm2', importance: 3, readMin: 1,
-      title: 'Marketo、生成AIによる「件名A/B自動最適化」を全プランで提供開始',
-      summary: '送信開始30分のオープン率を学習し、残りセグメントに最適件名を自動配信。中堅B2BでもCTRが平均+18%との社内ベンチ。',
-      source: 'Adobe Marketo Engage', sourceType: 'media', category: 'marketing',
-      url: 'https://business.adobe.com/products/marketo/adobe-marketo.html',
-      publishedAt: `${Y}T11:05:00+09:00`,
-      tags: ['MA', 'メール', 'AI']
-    },
-    {
-      id: 'a2', importance: 3, readMin: 1,
-      title: 'OpenAI、GPT-5系で「ブランドボイス制約」APIパラメータをβ提供',
-      summary: 'システムプロンプトで定義したトーン＆マナーへの逸脱を確率でブロック。広報・MAテンプレでの誤発信リスクを低減。',
-      source: 'OpenAI', sourceType: 'media', category: 'ai',
-      url: 'https://openai.com/blog',
-      publishedAt: `${Y}T20:15:00+09:00`,
-      tags: ['GPT-5', 'API', 'ブランドガバナンス']
-    },
-    {
-      id: 'm5', importance: 3, readMin: 1,
-      title: 'TikTok、Search Adsを日本含む新規10カ国へ拡大',
-      summary: '検索結果に純広告枠を追加。Z世代の「TikTokで検索」傾向の中、検索面でのブランド露出が新たに獲得可能に。',
-      source: 'TikTok for Business', sourceType: 'media', category: 'marketing',
-      url: 'https://www.tiktok.com/business/ja',
-      publishedAt: `${Y}T13:00:00+09:00`,
-      tags: ['SNS', '検索広告']
-    },
-    {
-      id: 'mk3', importance: 3, readMin: 1,
+      id: 'mk3', importance: 2, readMin: 1, urgency: 'this_week',
       title: 'Cookieless時代のIDソリューション、UID2.0採用が前年比3倍に',
       summary: 'The Trade Desk主導のUnified ID 2.0が国内DSP/SSPでも標準対応に。Chromeのサードパーティクッキー段階廃止を見据えた動き。',
+      whyItMatters: 'リターゲティング施策の代替手段確保が急務。移行が遅れると配信効率が低下する。',
+      actionItem: '利用中のDSP/SSPがUID2.0対応済みか確認し、未対応なら代替を検討。',
       source: 'AdExchanger', sourceType: 'media', category: 'market',
       url: 'https://www.adexchanger.com/',
       publishedAt: `${Y}T07:50:00+09:00`,
       tags: ['Cookieless', 'AdTech']
     },
     {
-      id: 'm4', importance: 3, readMin: 1,
+      id: 'm2', importance: 3, readMin: 1, urgency: 'fyi',
+      title: 'Marketo、生成AIによる「件名A/B自動最適化」を全プランで提供開始',
+      summary: '送信開始30分のオープン率を学習し、残りセグメントに最適件名を自動配信。中堅B2BでもCTRが平均+18%との社内ベンチ。',
+      whyItMatters: 'メールマーケのROI改善に直結する機能。Marketo利用者は即検討可。',
+      actionItem: 'Marketo利用中なら設定画面でAI件名最適化をONにして次回配信でテスト。',
+      source: 'Adobe Marketo Engage', sourceType: 'media', category: 'marketing',
+      url: 'https://business.adobe.com/products/marketo/adobe-marketo.html',
+      publishedAt: `${Y}T11:05:00+09:00`,
+      tags: ['MA', 'メール', 'AI']
+    },
+    {
+      id: 'a2', importance: 3, readMin: 1, urgency: 'fyi',
+      title: 'OpenAI、GPT-5系で「ブランドボイス制約」APIパラメータをβ提供',
+      summary: 'システムプロンプトで定義したトーン＆マナーへの逸脱を確率でブロック。広報・MAテンプレでの誤発信リスクを低減。',
+      whyItMatters: 'AI生成コンテンツのブランド一貫性を担保する機能。ガバナンス強化に有用。',
+      actionItem: 'AI活用のコンテンツ制作フローがある場合、β申請を検討。',
+      source: 'OpenAI', sourceType: 'media', category: 'ai',
+      url: 'https://openai.com/blog',
+      publishedAt: `${Y}T20:15:00+09:00`,
+      tags: ['GPT-5', 'API', 'ブランドガバナンス']
+    },
+    {
+      id: 'm5', importance: 3, readMin: 1, urgency: 'fyi',
+      title: 'TikTok、Search Adsを日本含む新規10カ国へ拡大',
+      summary: '検索結果に純広告枠を追加。Z世代の「TikTokで検索」傾向の中、検索面でのブランド露出が新たに獲得可能に。',
+      whyItMatters: 'Z世代ターゲットの場合、TikTok検索広告が新たなリーチ手段になる。',
+      actionItem: 'ターゲットにZ世代を含む場合、TikTok Search Adsのβ申請を検討。',
+      source: 'TikTok for Business', sourceType: 'media', category: 'marketing',
+      url: 'https://www.tiktok.com/business/ja',
+      publishedAt: `${Y}T13:00:00+09:00`,
+      tags: ['SNS', '検索広告']
+    },
+    {
+      id: 'm4', importance: 3, readMin: 1, urgency: 'fyi',
       title: 'HubSpot、無料CRMに「会話インテリジェンス（録音文字起こし＋要約）」追加',
       summary: 'Zoom/Google Meet と連携し、商談を自動要約してCRM上の連絡先に紐付け。Starter以下でも月25時間まで利用可能に。',
+      whyItMatters: '営業とマーケの情報連携が自動化される。商談インサイトのコンテンツ活用が容易に。',
+      actionItem: 'HubSpot利用中ならZoom連携をONにして、商談要約のコンテンツ活用を試す。',
       source: 'HubSpot', sourceType: 'media', category: 'marketing',
       url: 'https://www.hubspot.com/products/sales/conversation-intelligence',
       publishedAt: `${Y}T15:20:00+09:00`,
@@ -277,26 +307,19 @@
     });
   }
 
-  /* ────────── ⑤c ポイント抽出（サマリーから要点を1行抽出） ──────────  */
-  function extractTakeaway(summary) {
-    if (!summary) return '';
-    const sentences = summary.split(/[。．\.\n]/).filter(s => s.trim());
-    if (sentences.length <= 1) return summary.trim();
-    return sentences[sentences.length - 1].trim();
-  }
-
-  /* ────────── ⑥ 仕分け ──────────  */
+  /* ────────── ⑥ 仕分け（urgency ベース） ──────────  */
+  const URG_ORDER = { must_know: 0, this_week: 1, fyi: 2 };
   function partition() {
     const sorted = [...NEWS_DATA].sort((a, b) => {
-      // importance昇順 → publishedAt降順
-      if ((a.importance||3) !== (b.importance||3)) return (a.importance||3) - (b.importance||3);
+      const ua = URG_ORDER[a.urgency] ?? 2, ub = URG_ORDER[b.urgency] ?? 2;
+      if (ua !== ub) return ua - ub;
       return new Date(b.publishedAt) - new Date(a.publishedAt);
     });
-    const top      = sorted.find(n => n.importance === 1) || sorted[0];
-    const briefing = sorted.filter(n => n !== top && n.importance === 2).slice(0, 5);
-    const usedIds  = new Set([top?.id, ...briefing.map(n => n.id)]);
-    const more     = sorted.filter(n => !usedIds.has(n.id));
-    return { top, briefing, more };
+    const mustKnow  = sorted.filter(n => n.urgency === 'must_know').slice(0, 2);
+    const thisWeek  = sorted.filter(n => n.urgency === 'this_week').slice(0, 6);
+    const usedIds   = new Set([...mustKnow.map(n => n.id), ...thisWeek.map(n => n.id)]);
+    const fyi       = sorted.filter(n => !usedIds.has(n.id));
+    return { mustKnow, thisWeek, fyi };
   }
 
   /* ────────── ⑦ レンダリング ──────────  */
@@ -308,58 +331,73 @@
     document.getElementById('stat-read').textContent  = `${read}分`;
   }
 
-  function renderTopStory(top) {
-    const root = document.getElementById('top-story');
-    if (!top) {
-      root.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">本日のトップストーリーはありません</div></div>';
+  /* ── Executive Summary ── */
+  function renderExecSummary() {
+    const root = document.getElementById('exec-summary');
+    if (!root) return;
+    const lines = EXEC_SUMMARY;
+    if (!lines || !lines.length) {
+      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-text">今日の要点はまだ生成されていません</div></div>';
       return;
     }
-    const isRead = state.read.has(top.id);
-    const isFav  = state.fav.has(top.id);
-    const cat = top.category;
-    const takeaway = extractTakeaway(top.summary);
-    root.innerHTML = `
-      <article class="top-card${isRead ? ' read' : ''}" data-id="${top.id}" data-url="${escapeHtml(top.url)}" tabindex="0" role="link" aria-label="${escapeHtml(top.title)}">
+    root.innerHTML = lines.map(line =>
+      `<div class="exec-line"><span class="exec-arrow">▸</span><span>${escapeHtml(line)}</span></div>`
+    ).join('');
+  }
+
+  /* ── MUST-KNOW レンダリング ── */
+  function renderMustKnow(items) {
+    const root = document.getElementById('must-know');
+    if (!items.length) {
+      root.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">本日の最重要ニュースはありません</div></div>';
+      return;
+    }
+    root.innerHTML = items.map(n => {
+      const isRead = state.read.has(n.id);
+      const isFav  = state.fav.has(n.id);
+      const cat = n.category;
+      return `
+      <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="link" aria-label="${escapeHtml(n.title)}">
         <div class="top-meta">
           <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-          <span class="meta-source">${escapeHtml(top.source)}</span>
-          <span class="meta-time">${escapeHtml(fmtRelative(top.publishedAt))}</span>
-          <span class="meta-read">⏱ 約${top.readMin || 1}分</span>
+          <span class="meta-source">${escapeHtml(n.source)}</span>
+          <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
         </div>
-        <h2 class="top-title">${escapeHtml(top.title)}</h2>
-        <p class="top-summary">${escapeHtml(top.summary)}</p>
-        <div class="top-takeaway">
-          <div class="top-takeaway-label">💡 ポイント</div>
-          <div class="top-takeaway-text">${escapeHtml(takeaway)}</div>
-        </div>
+        <h2 class="top-title">${escapeHtml(n.title)}</h2>
+        <p class="top-summary">${escapeHtml(n.summary)}</p>
+        ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label">マーケへの影響</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
+        ${n.actionItem ? `<div class="intel-block action"><div class="intel-label">💡 Next Step</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
         <div class="top-foot">
-          <div>${(top.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ')}</div>
+          <div>${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ')}</div>
           <div style="display:flex;align-items:center;gap:12px;">
-            <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${top.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-            <a class="top-ext-link" href="${escapeHtml(top.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（英語）→</a>
+            <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
+            <a class="top-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>
           </div>
         </div>
       </article>`;
-    const card = root.querySelector('.top-card');
-    card.addEventListener('click', e => {
-      if (e.target.closest('.star-btn') || e.target.closest('.top-ext-link')) return;
-      markRead(top.id, card);
+    }).join('');
+    root.querySelectorAll('.top-card').forEach(card => {
+      const id = card.dataset.id;
+      card.addEventListener('click', e => {
+        if (e.target.closest('.star-btn') || e.target.closest('.top-ext-link')) return;
+        markRead(id, card);
+      });
     });
-    const star = root.querySelector('.star-btn');
-    if (star) star.addEventListener('click', e => { e.stopPropagation(); toggleFav(top.id, star); });
+    root.querySelectorAll('.star-btn').forEach(btn => {
+      btn.addEventListener('click', e => { e.stopPropagation(); toggleFav(btn.dataset.fav, btn); });
+    });
   }
 
-  function renderBriefing(items) {
-    const root = document.getElementById('briefing');
+  function renderThisWeek(items) {
+    const root = document.getElementById('this-week');
     if (!items.length) {
-      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-text">本日のブリーフィング項目はありません</div></div>';
+      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-text">今週チェックすべき項目はありません</div></div>';
       return;
     }
     root.innerHTML = items.map((n, i) => {
       const isRead = state.read.has(n.id);
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
-      const takeaway = extractTakeaway(n.summary);
       return `
         <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="link" aria-label="${escapeHtml(n.title)}">
           <div class="brief-card-head">
@@ -370,12 +408,13 @@
           </div>
           <div class="brief-card-title">${escapeHtml(n.title)}</div>
           <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
-          <div class="brief-card-why">→ ${escapeHtml(takeaway)}</div>
+          ${n.whyItMatters ? `<div class="brief-card-impact">⚡ ${escapeHtml(n.whyItMatters)}</div>` : ''}
+          ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
           <div class="brief-card-foot">
             <div class="brief-card-tags">${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
             <div style="display:flex;align-items:center;gap:8px;">
               <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-              <a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事（英語）→</a>
+              <a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>
             </div>
           </div>
         </div>`;
@@ -391,10 +430,10 @@
     });
   }
 
-  function renderTabs(more) {
+  function renderTabs(fyi) {
     const root = document.getElementById('tabs');
     root.innerHTML = CATEGORIES.map(c => {
-      const count = c.key === 'all' ? more.length : more.filter(n => n.category === c.key).length;
+      const count = c.key === 'all' ? fyi.length : fyi.filter(n => n.category === c.key).length;
       const active = c.key === state.activeCat ? ' active' : '';
       return `<button class="tab${active}" role="tab" data-cat="${c.key}" aria-selected="${c.key === state.activeCat}">
         ${escapeHtml(c.label)}<span class="tab-count">${count}</span>
@@ -404,8 +443,8 @@
       el.addEventListener('click', () => {
         state.activeCat = el.dataset.cat;
         savePrefs();
-        renderTabs(more);
-        renderMore(more);
+        renderTabs(fyi);
+        renderMore(fyi);
       });
     });
   }
@@ -435,7 +474,7 @@
           <span class="more-cat ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
           <div class="more-title-wrap">
             <div class="more-title">${escapeHtml(n.title)}</div>
-            <div class="more-summary">${escapeHtml(n.summary)}</div>
+            <div class="more-summary">${escapeHtml(n.whyItMatters || n.summary)}</div>
           </div>
           <span class="more-source">${escapeHtml(n.source)}</span>
           <button class="star-btn${state.fav.has(n.id) ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
@@ -520,14 +559,20 @@
       }
       // 受信データで NEWS_DATA を置換
       NEWS_DATA.length = 0;
+      const VALID_URG = ['must_know', 'this_week', 'fyi'];
       for (const it of json.items) {
-        // 必須フィールドを正規化
+        const imp = Number(it.importance) || 3;
+        const urg = VALID_URG.includes(it.urgency) ? it.urgency
+                  : imp === 1 ? 'must_know' : imp === 2 ? 'this_week' : 'fyi';
         NEWS_DATA.push({
           id: it.id || ('n_' + Math.random().toString(36).slice(2, 10)),
-          importance: Number(it.importance) || 3,
+          importance: imp,
           readMin:    Number(it.readMin) || 1,
           title:      String(it.title || '').trim(),
           summary:    String(it.summary || '').trim(),
+          whyItMatters: String(it.whyItMatters || '').trim(),
+          actionItem:   String(it.actionItem || '').trim(),
+          urgency:    urg,
           source:     String(it.source || '').trim(),
           sourceType: it.sourceType || 'media',
           category:   ['marketing','market','ai'].includes(it.category) ? it.category : 'marketing',
@@ -535,6 +580,10 @@
           publishedAt: it.publishedAt || new Date().toISOString(),
           tags: Array.isArray(it.tags) ? it.tags.map(String) : []
         });
+      }
+      // Executive Summary を更新
+      if (Array.isArray(json.executiveSummary) && json.executiveSummary.length) {
+        EXEC_SUMMARY = json.executiveSummary.map(String);
       }
       dataMeta = { updatedAt: json.updatedAt || null, generatedFor: json.generatedFor || null };
       return true;
@@ -568,7 +617,7 @@
 
   /* ────────── ⑩ 進捗 / 全部既読 / 次の未読 ──────────  */
   function getNavItems() {
-    return Array.from(document.querySelectorAll('.top-card[data-id], .brief-card[data-id], .more-item[data-id]'));
+    return Array.from(document.querySelectorAll('[data-id][tabindex]'));
   }
   function updateProgress() {
     // 母数は NEWS_DATA 全件（MORE のフィルタで分母が変動しないように）
@@ -600,7 +649,7 @@
   function markAllRead() {
     NEWS_DATA.forEach(n => state.read.add(n.id));
     saveSet(STORE_KEY_READ, state.read);
-    document.querySelectorAll('.top-card[data-id], .brief-card[data-id], .more-item[data-id]')
+    document.querySelectorAll('[data-id][tabindex]')
       .forEach(el => el.classList.add('read'));
     updateProgress();
   }
@@ -683,16 +732,17 @@
      2) バックグラウンドで loadRemote()
      3) 成功したら NEWS_DATA を上書きしてリストだけ再render（ヒーロー/Xはそのまま）
   ────────────────────────────  */
-  let _moreRef = []; // wireUp が掴む more 配列の最新参照（再renderで差し替える）
+  let _moreRef = []; // wireUp が掴む fyi 配列の最新参照（再renderで差し替える）
 
   function fullRender() {
-    const { top, briefing, more } = partition();
-    _moreRef = more;
+    const { mustKnow, thisWeek, fyi } = partition();
+    _moreRef = fyi;
+    renderExecSummary();
     renderTrends();
-    renderTopStory(top);
-    renderBriefing(briefing);
-    renderTabs(more);
-    renderMore(more);
+    renderMustKnow(mustKnow);
+    renderThisWeek(thisWeek);
+    renderTabs(fyi);
+    renderMore(fyi);
     updateProgress();
   }
 
