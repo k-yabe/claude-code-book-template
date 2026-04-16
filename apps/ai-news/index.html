@@ -549,6 +549,37 @@
     }
     .ext-btn:hover { opacity: 0.85; }
 
+    /* ── Picker コメント（専門家視点） ── */
+    .picker-comment {
+      display: flex;
+      gap: 8px;
+      padding: var(--sp-3) var(--sp-5);
+      margin: var(--sp-2) 0;
+      background: rgba(255,255,255,0.04);
+      border-left: 2px solid rgba(255,255,255,0.15);
+    }
+    .picker-comment.brief {
+      background: rgba(0,31,51,0.03);
+      border-left: 2px solid var(--navy-20);
+      padding: 6px 10px;
+      margin-bottom: var(--sp-2);
+    }
+    .picker-icon {
+      flex-shrink: 0;
+      font-size: 0.8rem;
+      margin-top: 1px;
+    }
+    .picker-text {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.55;
+      font-style: italic;
+    }
+    .picker-comment.brief .picker-text {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
     /* ── THIS WEEK: 既読トグル + 元記事リンク ── */
     .brief-read-toggle {
       background: none;
@@ -976,9 +1007,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/16', text: '記事サムネイル画像追加。「🔊 聴く」ボタンで音声読み上げ対応。カード・色味をシンプルに整理' },
-        { date: '04/16', text: 'セクション名を「重要ニュース／注目ニュース／その他のニュース」に刷新。日付ナビで過去記事も閲覧可能に' },
-        { date: '04/16', text: '全UIを日本語化。インテリジェンス・ブリーフとして再設計。記事ごとに「マーケへの影響」「推奨アクション」を表示' }
+        { date: '04/16', text: '専門家コメント（Picker風）追加。高品質音声読み上げ対応。スワイプで日付移動。閲覧傾向パーソナライズ' },
+        { date: '04/16', text: '記事サムネイル画像・音声読み上げ・カード色味をシンプルに整理' },
+        { date: '04/16', text: 'セクション名刷新・日付ナビ・全UI日本語化。インテリジェンス・ブリーフとして全面再設計' }
       ]
     });
   </script>

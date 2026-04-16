@@ -28,6 +28,7 @@
       summary: 'Gartner調査。B2B購買の比較段階で主要情報源としてChatGPT/Perplexityが営業資料・営業面談を上回った。回答者の73%が「営業と会う前にAI検索で候補を絞る」と回答。',
       whyItMatters: 'AKKODiSのサービスページがAI検索結果に出ていなければ、比較検討の土俵にすら乗れない。SEOとは別軸の対策が必要。',
       actionItem: '来週の定例で自社コンテンツのGEO対策（ChatGPT/Perplexityでの自社表示確認）を議題に入れる。',
+      pickerComment: 'GEO（Generative Engine Optimization）はSEOの次の戦場。人材業界では「エンジニア 転職」等のキーワードでAI検索結果に表示されるかが採用数に直結する。早い者勝ちの領域。',
       source: 'Gartner', sourceType: 'media', category: 'marketing',
       url: 'https://www.gartner.com/en/newsroom/press-releases/2026-04-16-b2b-buying-behavior-survey',
       image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop',
@@ -40,6 +41,7 @@
       summary: 'Google検索のAI Overviews（AI生成回答）が日本語クエリ全件で標準ON化。従来のオプトインから全面展開へ移行完了。',
       whyItMatters: '自然検索のCTRが20〜40%下落する可能性あり。AKKODiSの採用LP・サービスページへの流入減に直結する。早急にAI Overviewsでの引用状況を確認すべき。',
       actionItem: 'Search Consoleで主要キーワードのCTR変化をモニタリング開始。AI Overviewsに自社が表示されているか確認。',
+      pickerComment: 'SEO担当者は今すぐ「site:自社ドメイン」でAI Overviewsに引用されているか確認すべき。構造化データのFAQ・HowToマークアップが引用率を高める傾向がある。',
       source: 'Google Search Central', sourceType: 'media', category: 'ai',
       url: 'https://developers.google.com/search/blog/2026/04/ai-overviews-japan-default',
       image: 'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=400&h=250&fit=crop',
@@ -52,6 +54,7 @@
       summary: 'SalesforceがSlack統合のAIエージェント「Agentforce」をCMO向けに正式発表。案件・キャンペーンの優先度を自動再計算し予算配分まで提案。',
       whyItMatters: '現在のMA/CRM契約更新時に「AIエージェント搭載か否か」が選定基準になる。Salesforce利用中なら追加費用なしで使える可能性あり。',
       actionItem: '自社のSalesforce契約でAgentforce利用可否を営業担当に確認する。',
+      pickerComment: 'SalesforceのAIエージェント戦略はMarketing Cloud全体に波及する。既存ユーザーは追加費用なしで使える可能性が高いので、営業担当に確認するだけでROIが出る案件。',
       source: 'Salesforce News', sourceType: 'media', category: 'market',
       url: 'https://www.salesforce.com/news/press-releases/2026/04/agentforce-cmo-revenue-agent/',
       image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop',
@@ -64,6 +67,7 @@
       summary: 'Anthropic がClaude 4.6 Opusを発表。200kコンテキストで100ページ超の資料を一括処理可能。レポート作成時間が平均1/4に短縮との事例。',
       whyItMatters: '競合分析レポートや市場調査の工数が1/4になるなら、浮いた時間を施策立案に回せる。人材業界の競合レポートで試す価値あり。',
       actionItem: '今抱えているレポート業務で試用し、時間短縮効果を検証する。',
+      pickerComment: '200kトークンは文庫本1冊分。競合分析で10社分のIR資料を一括投入して比較表を作れる。レポート業務の「素材集め→構造化」が自動化される。',
       source: 'Anthropic', sourceType: 'media', category: 'ai',
       url: 'https://www.anthropic.com/news/claude-4-6-opus-long-context',
       image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop',
@@ -76,6 +80,7 @@
       summary: 'Google Ads Performance Maxに「ブランド除外レポート」が正式追加。ブランドKW除外の効果が配信レポート上で個別に可視化可能に。',
       whyItMatters: 'PMax経由のCPAが高止まりしている場合、ブランドKW流入の混在が原因かもしれない。このレポートで切り分けて改善根拠を示せる。',
       actionItem: 'Google Ads管理画面でブランド除外レポートを確認し、月次レポートに追加。',
+      pickerComment: 'PMaxはブラックボックスだった部分にようやく透明性が出てきた。特にBtoBはブランドKWの混在でCPAが歪みやすいので、この機能でROAS改善の根拠を示しやすくなる。',
       source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
       url: 'https://blog.google/products/ads-commerce/performance-max-brand-exclusion-report/',
       image: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=400&h=250&fit=crop',
@@ -88,6 +93,7 @@
       summary: '電通発表。2025年の日本デジタル広告費は4兆1,200億円（前年比+9.4%）。ネット広告がマス4媒体合計を再び大きく上回り、動画広告が成長を牽引。',
       whyItMatters: '「動画に予算を寄せたい」と社内提案する際の決定的エビデンス。人材業界でも採用動画・サービス紹介動画の優先度を上げる根拠になる。',
       actionItem: '次の予算策定で動画広告枠の比率増を提案する際のエビデンスとしてストック。',
+      pickerComment: '動画広告の伸びはショート動画が牽引。採用マーケでは30秒以内の「社員の1日」系コンテンツがCPV最安で成果が出ている企業が多い。',
       source: '電通', sourceType: 'media', category: 'market',
       url: 'https://www.dentsu.co.jp/news/release/2026/0416-digital-ad-spending/',
       image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop',
@@ -100,6 +106,7 @@
       summary: 'The Trade Desk主導のUnified ID 2.0が国内DSP/SSPでも標準対応に。採用数は前年比3倍。Chrome 3rdパーティクッキー段階廃止を見据えた動き。',
       whyItMatters: '現在のリターゲティング施策がクッキー依存なら、配信効率が半減するリスク。人材系のディスプレイ広告は特に影響大。',
       actionItem: '利用中のDSP/SSPがUID2.0対応済みか確認し、未対応なら代替を検討。',
+      pickerComment: 'UID2.0はメールアドレスベースなので、会員登録フローを持つ採用サイトとは相性が良い。自社の1st Partyデータ活用戦略と合わせて検討する価値がある。',
       source: 'AdExchanger', sourceType: 'media', category: 'market',
       url: 'https://www.adexchanger.com/data-driven-thinking/uid2-adoption-triples-in-japan/',
       image: 'https://images.unsplash.com/photo-1563986768609-322da13575f2?w=400&h=250&fit=crop',
@@ -112,6 +119,7 @@
       summary: 'Marketo Engageが生成AIによる「件名A/B自動最適化」を全プランで提供開始。送信30分のオープン率を学習し残りセグメントに最適件名を自動配信。',
       whyItMatters: '設定をONにするだけでメール開封率+18%の可能性。ナーチャリング施策の費用対効果が設定変更だけで改善できる。',
       actionItem: 'Marketo利用中なら設定画面でAI件名最適化をONにして次回配信でテスト。',
+      pickerComment: 'MA各社がAI件名最適化を投入中。設定ONだけで効果が出るので、使わない理由がない。ただし日本語の件名最適化精度は英語より低い傾向があるので、最初の数回は結果を注視すべき。',
       source: 'Adobe Marketo Engage', sourceType: 'media', category: 'marketing',
       url: 'https://business.adobe.com/blog/the-latest/marketo-ai-subject-line-optimization-all-plans',
       image: null,
@@ -124,6 +132,7 @@
       summary: 'OpenAIがGPT-5系で「ブランドボイス制約」APIパラメータをβ提供開始。トーン＆マナーからの逸脱を確率でブロックする機能。',
       whyItMatters: 'AI生成コンテンツで「AKKODiSのトーンと違う」事故を防げる。採用広報やメルマガでAIを使っているなら導入メリット大。',
       actionItem: 'AI活用のコンテンツ制作フローがある場合、β申請を検討。',
+      pickerComment: '「ブランドボイス制約」はエンタープライズ向けAI利用の大きなペインポイントを解消する。採用広報でAI生成テキストを使っている企業は導入検討の価値あり。',
       source: 'OpenAI', sourceType: 'media', category: 'ai',
       url: 'https://openai.com/blog/gpt-5-brand-voice-constraint-api',
       image: null,
@@ -136,6 +145,7 @@
       summary: 'TikTokがSearch Ads（検索連動型広告）を日本含む新規10カ国で提供開始。検索結果画面に広告枠が新設される。',
       whyItMatters: '新卒・第二新卒の採用ターゲットはTikTok検索が定着済み。採用マーケでのリーチ手段が1つ増える。',
       actionItem: 'ターゲットにZ世代を含む場合、TikTok Search Adsのβ申請を検討。',
+      pickerComment: 'TikTok検索は「〇〇 転職」で実際に使われ始めている。新卒採用でTikTokを活用している企業は検索広告も試す価値がある。CPCはまだGoogleより安い。',
       source: 'TikTok for Business', sourceType: 'media', category: 'marketing',
       url: 'https://newsroom.tiktok.com/ja-jp/tiktok-search-ads-japan-launch',
       image: null,
@@ -148,6 +158,7 @@
       summary: 'HubSpot無料CRMに「会話インテリジェンス」追加。Zoom/Google Meetの商談を自動文字起こし・要約しCRMに紐付け。月25時間まで無料。',
       whyItMatters: '商談で聞いた「お客様の課題」が自動でテキスト化される。コンテンツマーケのネタ出しや採用広報の声素材として転用できる。',
       actionItem: 'HubSpot利用中ならZoom連携をONにして、商談要約のコンテンツ活用を試す。',
+      pickerComment: '商談の文字起こしをそのままコンテンツマーケのネタ帳にする発想が重要。「お客様がよく使うフレーズ」をLP・広告コピーに反映すると、共感率が上がる。',
       source: 'HubSpot', sourceType: 'media', category: 'marketing',
       url: 'https://blog.hubspot.com/news/free-crm-conversation-intelligence-launch',
       image: null,
@@ -436,6 +447,7 @@
         </div>
         ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label">マーケへの影響</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
         ${n.actionItem ? `<div class="intel-block action"><div class="intel-label">💡 推奨アクション</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
+        ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💬</span><span class="picker-text">${escapeHtml(n.pickerComment)}</span></div>` : ''}
         <div class="top-foot">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             ${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ')}
@@ -489,6 +501,7 @@
             <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
             ${n.whyItMatters ? `<div class="brief-card-impact">⚡ ${escapeHtml(n.whyItMatters)}</div>` : ''}
             ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
+            ${n.pickerComment ? `<div class="picker-comment brief"><span class="picker-icon">💬</span><span class="picker-text">${escapeHtml(n.pickerComment)}</span></div>` : ''}
             <div class="brief-card-foot">
               <div class="brief-card-tags">${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
               <div style="display:flex;align-items:center;gap:8px;">
@@ -552,15 +565,17 @@
       }
       return true;
     });
-    if (!items.length) {
+    // パーソナライズ: カテゴリフィルタがallの場合、閲覧傾向で並び替え
+    const sorted = state.activeCat === 'all' ? getPersonalizedOrder(items) : items;
+    if (!sorted.length) {
       root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">📭</div><div class="empty-text">条件に一致するニュースがありません</div></div>';
       return;
     }
-    root.innerHTML = items.map(n => {
+    root.innerHTML = sorted.map(n => {
       const isRead = state.read.has(n.id);
       const cat = n.category;
       return `
-        <div class="more-item${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+        <div class="more-item${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           <span class="more-cat ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
           <div class="more-title-wrap">
             <div class="more-title">${escapeHtml(n.title)}</div>
@@ -577,6 +592,7 @@
       el.addEventListener('click', e => {
         if (e.target.closest('.star-btn') || e.target.closest('.brief-read-toggle')) return;
         markRead(el.dataset.id, el);
+        if (el.dataset.cat) recordClick(el.dataset.cat);
         openExternal(el.dataset.url);
       });
     });
@@ -674,6 +690,7 @@
           summary:    String(it.summary || '').trim(),
           whyItMatters: String(it.whyItMatters || '').trim(),
           actionItem:   String(it.actionItem || '').trim(),
+          pickerComment: String(it.pickerComment || '').trim(),
           urgency:    urg,
           source:     String(it.source || '').trim(),
           sourceType: it.sourceType || 'media',
@@ -789,7 +806,8 @@
           importance: imp, readMin: Number(it.readMin) || 1,
           title: String(it.title || '').trim(), summary: String(it.summary || '').trim(),
           whyItMatters: String(it.whyItMatters || '').trim(),
-          actionItem: String(it.actionItem || '').trim(), urgency: urg,
+          actionItem: String(it.actionItem || '').trim(),
+          pickerComment: String(it.pickerComment || '').trim(), urgency: urg,
           source: String(it.source || '').trim(), sourceType: it.sourceType || 'media',
           category: ['marketing','market','ai'].includes(it.category) ? it.category : 'marketing',
           url: String(it.url || ''), image: it.image || null,
@@ -939,17 +957,13 @@
     if (modal) modal.addEventListener('click', e => { if (e.target === modal) showHelp(false); });
   }
 
-  /* ────────── ⑪b 音声読み上げ（Web Speech API） ──────────  */
-  let speechState = { playing: false, utterances: [], currentIdx: 0 };
+  /* ────────── ⑪b 音声読み上げ（OpenAI TTS → Web Speech API フォールバック） ──────────  */
+  let speechState = { playing: false, audio: null };
 
   function buildSpeechScript() {
     const lines = [];
-    // サマリー
     lines.push('今日のサマリーです。');
-    for (const line of EXEC_SUMMARY) {
-      lines.push(line);
-    }
-    // 重要ニュース
+    for (const line of EXEC_SUMMARY) lines.push(line);
     const { mustKnow, thisWeek } = partition();
     if (mustKnow.length) {
       lines.push('続いて、重要ニュースです。');
@@ -959,7 +973,6 @@
         if (n.actionItem) lines.push('推奨アクション。' + n.actionItem);
       }
     }
-    // 注目ニュース
     if (thisWeek.length) {
       lines.push('次に、注目ニュースです。');
       for (const n of thisWeek) {
@@ -971,49 +984,132 @@
     return lines;
   }
 
-  function startSpeech() {
-    if (!('speechSynthesis' in window)) return;
+  function setBtnState(label, playing) {
+    const btn = document.getElementById('btn-listen');
+    if (!btn) return;
+    btn.textContent = label;
+    btn.classList.toggle('playing', playing);
+  }
+
+  async function tryOpenAITTS(text) {
+    try {
+      const res = await fetch('/api/ai-news-tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.slice(0, 4800) }),
+      });
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      return URL.createObjectURL(blob);
+    } catch { return null; }
+  }
+
+  async function startSpeech() {
     stopSpeech();
     const lines = buildSpeechScript();
-    const btn = document.getElementById('btn-listen');
+    const fullText = lines.join('\n');
     speechState.playing = true;
-    speechState.currentIdx = 0;
-    if (btn) { btn.textContent = '⏹ 停止'; btn.classList.add('playing'); }
+    setBtnState('⏳ 準備中…', true);
 
-    function speakNext(idx) {
-      if (idx >= lines.length || !speechState.playing) {
-        stopSpeech();
-        return;
-      }
-      const u = new SpeechSynthesisUtterance(lines[idx]);
+    // OpenAI TTS を試行
+    const audioUrl = await tryOpenAITTS(fullText);
+    if (!speechState.playing) return; // 待機中にキャンセルされた
+
+    if (audioUrl) {
+      // 高品質音声再生
+      const audio = new Audio(audioUrl);
+      speechState.audio = audio;
+      setBtnState('⏹ 停止', true);
+      audio.onended = () => stopSpeech();
+      audio.onerror = () => { fallbackWebSpeech(lines); };
+      audio.play().catch(() => { fallbackWebSpeech(lines); });
+    } else {
+      fallbackWebSpeech(lines);
+    }
+  }
+
+  function fallbackWebSpeech(lines) {
+    if (!('speechSynthesis' in window) || !speechState.playing) { stopSpeech(); return; }
+    setBtnState('⏹ 停止', true);
+    let idx = 0;
+    function speakNext() {
+      if (idx >= lines.length || !speechState.playing) { stopSpeech(); return; }
+      const u = new SpeechSynthesisUtterance(lines[idx++]);
       u.lang = 'ja-JP';
       u.rate = 1.1;
-      u.onend = () => speakNext(idx + 1);
-      u.onerror = () => speakNext(idx + 1);
-      speechState.currentIdx = idx;
+      u.onend = speakNext;
+      u.onerror = speakNext;
       window.speechSynthesis.speak(u);
     }
-    speakNext(0);
+    speakNext();
   }
 
   function stopSpeech() {
     speechState.playing = false;
-    window.speechSynthesis.cancel();
-    const btn = document.getElementById('btn-listen');
-    if (btn) { btn.textContent = '🔊 聴く'; btn.classList.remove('playing'); }
+    if (speechState.audio) {
+      speechState.audio.pause();
+      speechState.audio = null;
+    }
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setBtnState('🔊 聴く', false);
   }
 
   function wireSpeech() {
     const btn = document.getElementById('btn-listen');
     if (!btn) return;
-    if (!('speechSynthesis' in window)) {
-      btn.style.display = 'none';
-      return;
-    }
     btn.addEventListener('click', () => {
       if (speechState.playing) stopSpeech();
       else startSpeech();
     });
+  }
+
+  /* ────────── ⑪c パーソナライズ（閲覧傾向ベース） ──────────  */
+  const STORE_KEY_CLICKS = 'ai-news:clicks:v1';
+
+  function loadClickHistory() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY_CLICKS) || '{}'); }
+    catch { return {}; }
+  }
+  function recordClick(category) {
+    const hist = loadClickHistory();
+    hist[category] = (hist[category] || 0) + 1;
+    try { localStorage.setItem(STORE_KEY_CLICKS, JSON.stringify(hist)); } catch {}
+  }
+  function getPersonalizedOrder(items) {
+    const hist = loadClickHistory();
+    const total = Object.values(hist).reduce((a, b) => a + b, 0);
+    if (total < 5) return items; // 5クリック未満はパーソナライズしない
+    return [...items].sort((a, b) => {
+      const sa = hist[a.category] || 0;
+      const sb = hist[b.category] || 0;
+      if (sb !== sa) return sb - sa; // よく読むカテゴリを上に
+      return new Date(b.publishedAt) - new Date(a.publishedAt);
+    });
+  }
+
+  /* ────────── ⑪d スワイプ（モバイルカードナビ） ──────────  */
+  function wireSwipe() {
+    let startX = 0, startY = 0;
+    const shell = document.querySelector('.news-shell');
+    if (!shell) return;
+    shell.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+    shell.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      // 横スワイプが十分大きく、縦スクロールより横が大きい場合のみ
+      if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        if (dx < 0) {
+          // 左スワイプ → 翌日
+          shiftDate(1);
+        } else {
+          // 右スワイプ → 前日
+          shiftDate(-1);
+        }
+      }
+    }, { passive: true });
   }
 
   /* ────────── ⑫ 起動 ──────────
@@ -1046,6 +1142,7 @@
     wireKeyboard();
     wireDateNav();
     wireSpeech();
+    wireSwipe();
 
     // ── 2. バックグラウンドで実データ取得（最大8秒） ──
     // ローディング表示をセット
