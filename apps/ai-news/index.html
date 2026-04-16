@@ -77,10 +77,10 @@
 
     /* ── 共通: セクション見出し ── */
     .sec-head {
-      display: flex; align-items: center; gap: var(--sp-2);
-      margin: var(--sp-7) 0 var(--sp-4);
+      display: flex; align-items: center; gap: var(--sp-3);
+      margin: var(--sp-8) 0 var(--sp-4);
     }
-    .sec-head:first-child { margin-top: var(--sp-3); }
+    .sec-head:first-child { margin-top: var(--sp-4); }
     .sec-icon {
       width: 32px; height: 32px;
       background: var(--navy);
@@ -92,7 +92,7 @@
     .sec-icon.gold { background: var(--gold); color: var(--navy); }
     .sec-icon.cyan { background: rgba(0,255,255,0.15); color: var(--navy); }
     .sec-title {
-      font-size: 1.05rem;
+      font-size: 1.15rem;
       font-weight: 800;
       color: var(--navy);
       letter-spacing: 0.02em;
@@ -100,7 +100,7 @@
     .sec-sub {
       font-size: 0.72rem;
       color: var(--text-muted);
-      margin-left: 4px;
+      margin-left: 6px;
     }
     .sec-line { flex: 1; height: 2px; background: var(--border); }
 
@@ -115,12 +115,18 @@
     .top-card {
       background: var(--navy);
       color: var(--white);
-      padding: var(--sp-6) var(--sp-6) var(--sp-5);
+      padding: var(--sp-7) var(--sp-7) var(--sp-6);
       cursor: default;
       position: relative;
       border-top: 4px solid var(--gold);
     }
-    .top-card.read { opacity: 0.7; }
+    .top-card.read { opacity: 0.88; }
+    .top-card.read::after {
+      content: '✓ 既読';
+      position: absolute; top: var(--sp-3); right: var(--sp-4);
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.4);
+    }
     .top-meta {
       display: flex; align-items: center; gap: var(--sp-2);
       margin-bottom: var(--sp-4);
@@ -130,18 +136,18 @@
     .top-meta .meta-time { color: rgba(255,255,255,0.5); }
     .top-meta .meta-read { color: rgba(255,255,255,0.5); }
     .top-title {
-      font-size: 1.7rem;
+      font-size: 1.5rem;
       font-weight: 800;
       color: var(--gold);
-      line-height: 1.3;
+      line-height: 1.35;
       letter-spacing: -0.01em;
-      margin-bottom: var(--sp-4);
+      margin-bottom: var(--sp-5);
     }
     .top-summary {
-      font-size: 1.05rem;
-      color: rgba(255,255,255,0.88);
-      line-height: 1.85;
-      margin-bottom: var(--sp-2);
+      font-size: 1rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.9;
+      margin-bottom: var(--sp-4);
     }
     .top-foot {
       display: flex; align-items: center; justify-content: space-between;
@@ -179,7 +185,7 @@
     }
     .brief-item:last-child { border-bottom: none; }
     .brief-item:hover { background: var(--surface-alt); }
-    .brief-item.read { opacity: 0.55; }
+    .brief-item.read { opacity: 0.8; }
     .brief-num {
       font-size: 0.95rem;
       font-weight: 800;
@@ -303,7 +309,7 @@
       grid-template-columns: auto 1fr auto auto;
       gap: var(--sp-3);
       align-items: center;
-      padding: 10px var(--sp-4);
+      padding: var(--sp-4);
       border-bottom: 1px solid var(--border-light);
       cursor: pointer;
       transition: background var(--ease-base);
@@ -312,7 +318,10 @@
     }
     .more-item:last-child { border-bottom: none; }
     .more-item:hover { background: var(--surface-alt); }
-    .more-item.read { opacity: 0.55; }
+    .more-item.read { opacity: 0.8; }
+    .more-item.read .more-title::before {
+      content: '✓ '; color: var(--gold); font-weight: 800; font-size: 0.7rem;
+    }
     .more-cat {
       font-size: 0.58rem;
       font-weight: 800;
@@ -322,10 +331,10 @@
       text-align: center;
     }
     .more-title {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: var(--navy);
-      line-height: 1.4;
+      line-height: 1.45;
     }
     .more-source {
       font-size: 0.65rem;
@@ -444,18 +453,18 @@
     /* ── Executive Summary ── */
     .exec-box {
       background: var(--navy);
-      border-top: 4px solid var(--gold);
-      padding: var(--sp-6);
+      border-left: 5px solid var(--gold);
+      padding: var(--sp-6) var(--sp-7);
       margin-bottom: var(--sp-5);
     }
     .exec-line {
       display: flex;
-      gap: var(--sp-3);
-      font-size: 1rem;
+      gap: var(--sp-4);
+      font-size: 1.05rem;
       font-weight: 600;
       color: rgba(255,255,255,0.92);
-      line-height: 1.65;
-      padding: var(--sp-3) 0;
+      line-height: 1.7;
+      padding: var(--sp-4) 0;
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
     .exec-line:last-child { border-bottom: none; }
@@ -463,7 +472,8 @@
       color: var(--gold);
       font-weight: 800;
       flex-shrink: 0;
-      font-size: 1.05rem;
+      font-size: 1.1rem;
+      margin-top: 2px;
     }
     @media (max-width: 600px) {
       .exec-box { padding: var(--sp-4); }
@@ -664,13 +674,13 @@
     .brief-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: var(--sp-3);
+      gap: var(--sp-4);
     }
     .brief-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-top: 3px solid var(--cyan);
-      padding: var(--sp-4);
+      border-top: 3px solid var(--navy);
+      padding: var(--sp-5);
       cursor: pointer;
       transition: transform var(--ease), box-shadow var(--ease);
       position: relative;
@@ -679,8 +689,15 @@
     .brief-card:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-md);
+      border-top-color: var(--gold);
     }
-    .brief-card.read { opacity: 0.55; }
+    .brief-card.read { opacity: 0.85; }
+    .brief-card.read::after {
+      content: '✓ 既読';
+      position: absolute; top: var(--sp-2); right: var(--sp-3);
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em;
+      color: var(--gold); opacity: 0.6;
+    }
     .brief-card-head {
       display: flex; align-items: center; gap: var(--sp-2);
       margin-bottom: var(--sp-2);
@@ -693,13 +710,13 @@
       flex-shrink: 0;
     }
     .brief-card-title {
-      font-size: 0.95rem; font-weight: 700;
+      font-size: 1.05rem; font-weight: 800;
       color: var(--navy); line-height: 1.4;
-      margin-bottom: var(--sp-2);
+      margin-bottom: var(--sp-3);
     }
     .brief-card-summary {
-      font-size: 0.84rem; color: var(--text-secondary);
-      line-height: 1.7; margin-bottom: var(--sp-2);
+      font-size: 0.85rem; color: var(--text-secondary);
+      line-height: 1.75; margin-bottom: var(--sp-3);
       flex: 1;
     }
     /* (旧 brief-card-why は brief-card-impact / brief-card-action に移行) */
