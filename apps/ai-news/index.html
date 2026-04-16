@@ -468,12 +468,17 @@
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
     .exec-line:last-child { border-bottom: none; }
-    .exec-arrow {
-      color: var(--gold);
-      font-weight: 800;
+    .exec-badge {
       flex-shrink: 0;
-      font-size: 1.1rem;
-      margin-top: 2px;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+      align-self: flex-start;
+      margin-top: 4px;
     }
     @media (max-width: 600px) {
       .exec-box { padding: var(--sp-4); }
@@ -529,6 +534,66 @@
       margin-bottom: var(--sp-3);
       line-height: 1.55;
       border-left: 3px solid var(--gold);
+    }
+
+    /* ── MUST-KNOW: タイトルリンク ── */
+    .top-title-link {
+      color: var(--gold);
+      text-decoration: none;
+      transition: opacity var(--ease-base);
+    }
+    .top-title-link:hover { opacity: 0.8; text-decoration: underline; }
+
+    /* ── 既読トグルボタン ── */
+    .read-toggle {
+      background: none;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.5);
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      letter-spacing: 0.04em;
+      transition: all var(--ease-base);
+    }
+    .read-toggle:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ── 元記事リンクボタン ── */
+    .ext-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 6px 14px;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: opacity var(--ease-base);
+    }
+    .ext-btn:hover { opacity: 0.85; }
+
+    /* ── THIS WEEK: 既読トグル + 元記事リンク ── */
+    .brief-read-toggle {
+      background: none;
+      border: 1.5px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      letter-spacing: 0.04em;
+      transition: all var(--ease-base);
+    }
+    .brief-read-toggle:hover {
+      border-color: var(--gold);
+      color: var(--navy);
     }
 
     /* ── 注記 ── */
@@ -771,11 +836,11 @@
 </head>
 <body>
   <nav class="navbar">
-    <a class="navbar-brand" href="../../index.html" title="Marketing Apps トップへ">
+    <div class="navbar-brand">
+      <a class="back-btn" href="../../">← アプリ一覧へ</a>
+      <div class="navbar-divider"></div>
       <span class="navbar-title">📰 AI NEWS</span>
-    </a>
-    <span class="navbar-spacer"></span>
-    <a class="back-btn" href="../../index.html">← Apps</a>
+    </div>
   </nav>
 
   <div class="news-shell">
@@ -807,8 +872,8 @@
     <!-- 📋 今日の要点 (Executive Summary) -->
     <div class="sec-head">
       <span class="sec-icon gold">📋</span>
-      <span class="sec-title">今日の要点</span>
-      <span class="sec-sub">3分で全体像をつかむ</span>
+      <span class="sec-title">今日のアクション</span>
+      <span class="sec-sub">今日やるべきこと3つ</span>
       <span class="sec-line"></span>
     </div>
     <div class="exec-box" id="exec-summary"></div>
@@ -907,9 +972,9 @@
         { icon: '⚡', text: '今週チェック：影響と推奨アクション付きのカード形式' }
       ],
       updates: [
-        { date: '04/16', text: 'インテリジェンス・ブリーフ化：「今日の要点」3行サマリー新設、各記事に「マーケへの影響」「Next Step」を追加' },
-        { date: '04/16', text: 'urgencyベース分類に移行：「今すぐ押さえる」「今週チェック」「知っておけばOK」の3段階で判断しやすく' },
-        { date: '04/16', text: 'セクション名を日本語化、RSSリーダーから脱却し実務に直結するブリーフへ' }
+        { date: '04/16', text: '「今日のアクション」で期限付きTo-Do 3件を冒頭提示。既読の取消・元記事ボタン・日本人X投稿を追加' },
+        { date: '04/16', text: 'AKKODiS視点のインテリジェンス強化：記事ごとに「マーケへの影響」「Next Step」を分離表示' },
+        { date: '04/16', text: 'urgencyベース分類＋ナビバー統一。RSSリーダーから脱却し判断材料を届けるブリーフへ' }
       ]
     });
   </script>

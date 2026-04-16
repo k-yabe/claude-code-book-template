@@ -16,17 +16,17 @@
 
   /* ── Executive Summary（シードデータ） ── */
   let EXEC_SUMMARY = [
-    'AI検索が購買行動の中心に移行中 → 自社コンテンツのGEO（AI検索最適化）対策を今月中に着手すべき',
-    'デジタル広告費4兆円突破、動画が牽引 → 動画コンテンツ投資の妥当性が裏付けられた。予算配分を再検討',
-    'MarTech各社がAIエージェント競争に突入 → 自社MA/CRMのAI機能ロードマップを確認し、乗り換え検討の材料に'
+    '【今日中】ChatGPT/PerplexityでAKKODiSが表示されるか確認 → B2B購買の73%がAI検索経由に。未対策なら競合に流れる',
+    '【今週中】動画広告の予算比率を+10%で次期計画に起案 → 広告費4兆円突破、動画が唯一の成長ドライバー。根拠資料あり',
+    '【今月中】Salesforce担当にAgentforce利用可否を確認 → MA各社がAIエージェント搭載を加速。乗り遅れると半年のビハインド'
   ];
 
   const NEWS_DATA = [
     {
       id: 'm3', importance: 1, readMin: 2, urgency: 'must_know',
       title: 'B2B購買行動調査2026：意思決定者の73%が「営業より先にAI検索を信頼」',
-      summary: 'Gartner調査。比較段階での主要情報源として ChatGPT / Perplexity が営業資料・営業面談を上回るとの結果。コンテンツの AI検索最適化（GEO）が今や必須の打ち手となる。',
-      whyItMatters: '営業主導のリード獲得が通用しなくなる可能性。コンテンツ戦略の根本的な転換が急務。',
+      summary: 'Gartner調査。B2B購買の比較段階で主要情報源としてChatGPT/Perplexityが営業資料・営業面談を上回った。回答者の73%が「営業と会う前にAI検索で候補を絞る」と回答。',
+      whyItMatters: 'AKKODiSのサービスページがAI検索結果に出ていなければ、比較検討の土俵にすら乗れない。SEOとは別軸の対策が必要。',
       actionItem: '来週の定例で自社コンテンツのGEO対策（ChatGPT/Perplexityでの自社表示確認）を議題に入れる。',
       source: 'Gartner', sourceType: 'media', category: 'marketing',
       url: 'https://www.gartner.com/en/marketing',
@@ -36,8 +36,8 @@
     {
       id: 'a3', importance: 1, readMin: 2, urgency: 'must_know',
       title: 'Google検索の「AI Overviews」、すべての日本語クエリで標準ON化',
-      summary: '従来オプトインだった日本語AI回答が標準表示に。CTR下落への備えとしてGEO（Generative Engine Optimization）対応が急務。',
-      whyItMatters: 'オーガニック検索流入が大幅減少するリスク。SEO戦略の前提が変わる。',
+      summary: 'Google検索のAI Overviews（AI生成回答）が日本語クエリ全件で標準ON化。従来のオプトインから全面展開へ移行完了。',
+      whyItMatters: '自然検索のCTRが20〜40%下落する可能性あり。AKKODiSの採用LP・サービスページへの流入減に直結する。早急にAI Overviewsでの引用状況を確認すべき。',
       actionItem: 'Search Consoleで主要キーワードのCTR変化をモニタリング開始。AI Overviewsに自社が表示されているか確認。',
       source: 'Google Search Central', sourceType: 'media', category: 'ai',
       url: 'https://developers.google.com/search/blog',
@@ -47,8 +47,8 @@
     {
       id: 'mk2', importance: 2, readMin: 1, urgency: 'this_week',
       title: 'Salesforce、Slack＋AgentforceでCMO向け「収益AIエージェント」発表',
-      summary: '案件・キャンペーン・コンテンツの優先度を自動再計算し、予算配分提案までを担う。Adobe・HubSpotとの主導権争いが激化。',
-      whyItMatters: 'MA/CRM選定に直結。エージェントAI搭載が今後の差別化要因になる。',
+      summary: 'SalesforceがSlack統合のAIエージェント「Agentforce」をCMO向けに正式発表。案件・キャンペーンの優先度を自動再計算し予算配分まで提案。',
+      whyItMatters: '現在のMA/CRM契約更新時に「AIエージェント搭載か否か」が選定基準になる。Salesforce利用中なら追加費用なしで使える可能性あり。',
       actionItem: '自社のSalesforce契約でAgentforce利用可否を営業担当に確認する。',
       source: 'Salesforce News', sourceType: 'media', category: 'market',
       url: 'https://www.salesforce.com/news/',
@@ -58,8 +58,8 @@
     {
       id: 'a1', importance: 2, readMin: 1, urgency: 'this_week',
       title: 'Anthropic、Claude 4.6 Opusの長文タスク性能を公開（200kコンテキスト維持）',
-      summary: '100ページ超の競合資料を一気に要約・差分抽出。マーケのレポート作成時間が平均1/4に短縮との顧客事例。',
-      whyItMatters: 'レポート作成・競合分析の工数を劇的に削減できる可能性。',
+      summary: 'Anthropic がClaude 4.6 Opusを発表。200kコンテキストで100ページ超の資料を一括処理可能。レポート作成時間が平均1/4に短縮との事例。',
+      whyItMatters: '競合分析レポートや市場調査の工数が1/4になるなら、浮いた時間を施策立案に回せる。人材業界の競合レポートで試す価値あり。',
       actionItem: '今抱えているレポート業務で試用し、時間短縮効果を検証する。',
       source: 'Anthropic', sourceType: 'media', category: 'ai',
       url: 'https://www.anthropic.com/news',
@@ -69,8 +69,8 @@
     {
       id: 'm1', importance: 2, readMin: 1, urgency: 'this_week',
       title: 'Google、Performance Max に「ブランド除外」レポート機能を正式追加',
-      summary: 'これまでブラックボックス気味だったブランドキーワード除外の効果が、配信レポート上で個別可視化できるように。CPA改善の根拠提示が容易になる。',
-      whyItMatters: 'PMax運用の透明性が向上。CPA改善の根拠を社内レポートに反映できる。',
+      summary: 'Google Ads Performance Maxに「ブランド除外レポート」が正式追加。ブランドKW除外の効果が配信レポート上で個別に可視化可能に。',
+      whyItMatters: 'PMax経由のCPAが高止まりしている場合、ブランドKW流入の混在が原因かもしれない。このレポートで切り分けて改善根拠を示せる。',
       actionItem: 'Google Ads管理画面でブランド除外レポートを確認し、月次レポートに追加。',
       source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
       url: 'https://support.google.com/google-ads/answer/10724817',
@@ -80,8 +80,8 @@
     {
       id: 'mk1', importance: 2, readMin: 1, urgency: 'this_week',
       title: '日本のデジタル広告費、初の4兆円突破（電通報告）',
-      summary: '2025年は4兆1,200億円・前年比+9.4%。インターネット広告がマス4媒体合計を再び大きく上回り、動画広告の伸長が牽引。',
-      whyItMatters: '動画広告への投資シフトが市場全体のトレンドとして確定。予算配分の説得材料になる。',
+      summary: '電通発表。2025年の日本デジタル広告費は4兆1,200億円（前年比+9.4%）。ネット広告がマス4媒体合計を再び大きく上回り、動画広告が成長を牽引。',
+      whyItMatters: '「動画に予算を寄せたい」と社内提案する際の決定的エビデンス。人材業界でも採用動画・サービス紹介動画の優先度を上げる根拠になる。',
       actionItem: '次の予算策定で動画広告枠の比率増を提案する際のエビデンスとしてストック。',
       source: '電通', sourceType: 'media', category: 'market',
       url: 'https://www.dentsu.co.jp/news/release/2025/',
@@ -91,8 +91,8 @@
     {
       id: 'mk3', importance: 2, readMin: 1, urgency: 'this_week',
       title: 'Cookieless時代のIDソリューション、UID2.0採用が前年比3倍に',
-      summary: 'The Trade Desk主導のUnified ID 2.0が国内DSP/SSPでも標準対応に。Chromeのサードパーティクッキー段階廃止を見据えた動き。',
-      whyItMatters: 'リターゲティング施策の代替手段確保が急務。移行が遅れると配信効率が低下する。',
+      summary: 'The Trade Desk主導のUnified ID 2.0が国内DSP/SSPでも標準対応に。採用数は前年比3倍。Chrome 3rdパーティクッキー段階廃止を見据えた動き。',
+      whyItMatters: '現在のリターゲティング施策がクッキー依存なら、配信効率が半減するリスク。人材系のディスプレイ広告は特に影響大。',
       actionItem: '利用中のDSP/SSPがUID2.0対応済みか確認し、未対応なら代替を検討。',
       source: 'AdExchanger', sourceType: 'media', category: 'market',
       url: 'https://www.adexchanger.com/',
@@ -102,8 +102,8 @@
     {
       id: 'm2', importance: 3, readMin: 1, urgency: 'fyi',
       title: 'Marketo、生成AIによる「件名A/B自動最適化」を全プランで提供開始',
-      summary: '送信開始30分のオープン率を学習し、残りセグメントに最適件名を自動配信。中堅B2BでもCTRが平均+18%との社内ベンチ。',
-      whyItMatters: 'メールマーケのROI改善に直結する機能。Marketo利用者は即検討可。',
+      summary: 'Marketo Engageが生成AIによる「件名A/B自動最適化」を全プランで提供開始。送信30分のオープン率を学習し残りセグメントに最適件名を自動配信。',
+      whyItMatters: '設定をONにするだけでメール開封率+18%の可能性。ナーチャリング施策の費用対効果が設定変更だけで改善できる。',
       actionItem: 'Marketo利用中なら設定画面でAI件名最適化をONにして次回配信でテスト。',
       source: 'Adobe Marketo Engage', sourceType: 'media', category: 'marketing',
       url: 'https://business.adobe.com/products/marketo/adobe-marketo.html',
@@ -113,8 +113,8 @@
     {
       id: 'a2', importance: 3, readMin: 1, urgency: 'fyi',
       title: 'OpenAI、GPT-5系で「ブランドボイス制約」APIパラメータをβ提供',
-      summary: 'システムプロンプトで定義したトーン＆マナーへの逸脱を確率でブロック。広報・MAテンプレでの誤発信リスクを低減。',
-      whyItMatters: 'AI生成コンテンツのブランド一貫性を担保する機能。ガバナンス強化に有用。',
+      summary: 'OpenAIがGPT-5系で「ブランドボイス制約」APIパラメータをβ提供開始。トーン＆マナーからの逸脱を確率でブロックする機能。',
+      whyItMatters: 'AI生成コンテンツで「AKKODiSのトーンと違う」事故を防げる。採用広報やメルマガでAIを使っているなら導入メリット大。',
       actionItem: 'AI活用のコンテンツ制作フローがある場合、β申請を検討。',
       source: 'OpenAI', sourceType: 'media', category: 'ai',
       url: 'https://openai.com/blog',
@@ -124,8 +124,8 @@
     {
       id: 'm5', importance: 3, readMin: 1, urgency: 'fyi',
       title: 'TikTok、Search Adsを日本含む新規10カ国へ拡大',
-      summary: '検索結果に純広告枠を追加。Z世代の「TikTokで検索」傾向の中、検索面でのブランド露出が新たに獲得可能に。',
-      whyItMatters: 'Z世代ターゲットの場合、TikTok検索広告が新たなリーチ手段になる。',
+      summary: 'TikTokがSearch Ads（検索連動型広告）を日本含む新規10カ国で提供開始。検索結果画面に広告枠が新設される。',
+      whyItMatters: '新卒・第二新卒の採用ターゲットはTikTok検索が定着済み。採用マーケでのリーチ手段が1つ増える。',
       actionItem: 'ターゲットにZ世代を含む場合、TikTok Search Adsのβ申請を検討。',
       source: 'TikTok for Business', sourceType: 'media', category: 'marketing',
       url: 'https://www.tiktok.com/business/ja',
@@ -135,8 +135,8 @@
     {
       id: 'm4', importance: 3, readMin: 1, urgency: 'fyi',
       title: 'HubSpot、無料CRMに「会話インテリジェンス（録音文字起こし＋要約）」追加',
-      summary: 'Zoom/Google Meet と連携し、商談を自動要約してCRM上の連絡先に紐付け。Starter以下でも月25時間まで利用可能に。',
-      whyItMatters: '営業とマーケの情報連携が自動化される。商談インサイトのコンテンツ活用が容易に。',
+      summary: 'HubSpot無料CRMに「会話インテリジェンス」追加。Zoom/Google Meetの商談を自動文字起こし・要約しCRMに紐付け。月25時間まで無料。',
+      whyItMatters: '商談で聞いた「お客様の課題」が自動でテキスト化される。コンテンツマーケのネタ出しや採用広報の声素材として転用できる。',
       actionItem: 'HubSpot利用中ならZoom連携をONにして、商談要約のコンテンツ活用を試す。',
       source: 'HubSpot', sourceType: 'media', category: 'marketing',
       url: 'https://www.hubspot.com/products/sales/conversation-intelligence',
@@ -153,14 +153,29 @@
       tag: 'GEO', url: 'https://x.com/randfish'
     },
     {
+      id: 'x4', author: '田端信太郎', handle: '@tabbata',
+      text: 'BtoB企業こそSNSで「中の人の顔」を見せるべき。採用も商談もコンテンツが起点。広告費を使う前にまず発信。',
+      tag: 'B2Bブランディング', url: 'https://x.com/tabbata'
+    },
+    {
       id: 'x2', author: 'April Dunford', handle: '@aprildunford',
       text: 'B2Bポジショニングは「自社の強み」じゃなく「お客様が本当に比較している競合」を中心に組み立てるとハマる。',
       tag: 'B2B', url: 'https://x.com/aprildunford'
     },
     {
+      id: 'x5', author: '落合陽一', handle: '@ochyai',
+      text: 'AIネイティブ世代が企業の意思決定層に入り始めた。提案書も稟議もAI前提。受注側のマーケもAIリテラシーが必須。',
+      tag: 'AI×ビジネス', url: 'https://x.com/ochyai'
+    },
+    {
       id: 'x3', author: 'Amanda Natividad', handle: '@amandanat',
       text: 'Zero-Click Content の時代は、SNS上で完結するインサイト発信＋それを束ねた長尺記事のセットが最強。',
       tag: 'Content', url: 'https://x.com/amandanat'
+    },
+    {
+      id: 'x6', author: '黒瀬友梨', handle: '@yurikurose',
+      text: '採用マーケでいちばん効くのは「社員の日常」の切り取り。採用LPより、社員のリアル投稿のほうがCVR高いのはもう常識。',
+      tag: '採用マーケ', url: 'https://x.com/yurikurose'
     }
   ];
 
@@ -215,6 +230,7 @@
       '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
     })[c]);
   }
+  const WEEKDAYS = ['日','月','火','水','木','金','土'];
   function fmtDate(iso) {
     const d = new Date(iso);
     if (isNaN(d)) return '';
@@ -222,23 +238,26 @@
     const day = String(d.getDate()).padStart(2,'0');
     const hh = String(d.getHours()).padStart(2,'0');
     const mm = String(d.getMinutes()).padStart(2,'0');
-    return `${m}/${day} ${hh}:${mm}`;
+    const wd = WEEKDAYS[d.getDay()];
+    return `${m}/${day}(${wd}) ${hh}:${mm}`;
   }
   function fmtBriefDate(iso) {
     const d = new Date(iso);
     if (isNaN(d)) return '—';
-    return `${d.getMonth()+1}/${d.getDate()}`;
+    const wd = WEEKDAYS[d.getDay()];
+    return `${d.getMonth()+1}/${d.getDate()}(${wd})`;
   }
   function fmtRelative(iso) {
     const d = new Date(iso);
     if (isNaN(d)) return '';
     const now = new Date();
     const diff = Math.floor((now - d) / 1000);
+    const wd = WEEKDAYS[d.getDay()];
     if (diff < 60) return 'たった今';
     if (diff < 3600) return `${Math.floor(diff / 60)}分前`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}時間前`;
-    if (diff < 172800) return '昨日';
-    return fmtBriefDate(iso);
+    if (diff < 172800) return `昨日(${wd})`;
+    return `${d.getMonth()+1}/${d.getDate()}(${wd})`;
   }
   function totalReadTime(items) {
     return items.reduce((a, n) => a + (n.readMin || 1), 0);
@@ -246,6 +265,17 @@
   function openExternal(url) {
     if (!url) return;
     window.open(url, '_blank', 'noopener,noreferrer');
+  }
+  function toggleRead(id, el) {
+    if (state.read.has(id)) {
+      state.read.delete(id);
+      if (el) el.classList.remove('read');
+    } else {
+      state.read.add(id);
+      if (el) el.classList.add('read');
+    }
+    saveSet(STORE_KEY_READ, state.read);
+    updateProgress();
   }
   function markRead(id, el) {
     state.read.add(id);
@@ -337,12 +367,16 @@
     if (!root) return;
     const lines = EXEC_SUMMARY;
     if (!lines || !lines.length) {
-      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-text">今日の要点はまだ生成されていません</div></div>';
+      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-text">今日のアクションはまだ生成されていません</div></div>';
       return;
     }
-    root.innerHTML = lines.map(line =>
-      `<div class="exec-line"><span class="exec-arrow">▸</span><span>${escapeHtml(line)}</span></div>`
-    ).join('');
+    root.innerHTML = lines.map(line => {
+      // 【期限】部分をバッジとして分離
+      const badgeMatch = line.match(/^【(.+?)】/);
+      const badge = badgeMatch ? `<span class="exec-badge">${escapeHtml(badgeMatch[1])}</span>` : '';
+      const body = badgeMatch ? line.slice(badgeMatch[0].length) : line;
+      return `<div class="exec-line">${badge}<span>${escapeHtml(body)}</span></div>`;
+    }).join('');
   }
 
   /* ── MUST-KNOW レンダリング ── */
@@ -357,30 +391,35 @@
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
       return `
-      <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="link" aria-label="${escapeHtml(n.title)}">
+      <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" aria-label="${escapeHtml(n.title)}">
         <div class="top-meta">
           <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
           <span class="meta-source">${escapeHtml(n.source)}</span>
           <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
         </div>
-        <h2 class="top-title">${escapeHtml(n.title)}</h2>
+        <h2 class="top-title"><a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a></h2>
         <p class="top-summary">${escapeHtml(n.summary)}</p>
         ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label">マーケへの影響</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
         ${n.actionItem ? `<div class="intel-block action"><div class="intel-label">💡 Next Step</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
         <div class="top-foot">
-          <div>${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ')}</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            ${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ')}
+          </div>
           <div style="display:flex;align-items:center;gap:12px;">
+            <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読に戻す' : '✓ 既読にする'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-            <a class="top-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>
+            <a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む →</a>
           </div>
         </div>
       </article>`;
     }).join('');
-    root.querySelectorAll('.top-card').forEach(card => {
-      const id = card.dataset.id;
-      card.addEventListener('click', e => {
-        if (e.target.closest('.star-btn') || e.target.closest('.top-ext-link')) return;
-        markRead(id, card);
+    root.querySelectorAll('.read-toggle').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = btn.dataset.readId;
+        const card = btn.closest('.top-card');
+        toggleRead(id, card);
+        btn.textContent = state.read.has(id) ? '↩ 未読に戻す' : '✓ 既読にする';
       });
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
@@ -413,6 +452,7 @@
           <div class="brief-card-foot">
             <div class="brief-card-tags">${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
             <div style="display:flex;align-items:center;gap:8px;">
+              <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
               <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
               <a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>
             </div>
@@ -421,8 +461,17 @@
     }).join('');
     root.querySelectorAll('.brief-card').forEach(el => {
       el.addEventListener('click', e => {
-        if (e.target.closest('.star-btn') || e.target.closest('.brief-ext-link')) return;
+        if (e.target.closest('.star-btn') || e.target.closest('.brief-ext-link') || e.target.closest('.brief-read-toggle')) return;
         markRead(el.dataset.id, el);
+      });
+    });
+    root.querySelectorAll('.brief-read-toggle').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = btn.dataset.readId;
+        const card = btn.closest('.brief-card');
+        toggleRead(id, card);
+        btn.textContent = state.read.has(id) ? '↩ 未読' : '✓ 既読';
       });
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
@@ -758,7 +807,7 @@
     // ── 2. バックグラウンドで実データ取得（最大8秒） ──
     // ローディング表示をセット
     const upd = document.getElementById('cmd-updated');
-    if (upd) upd.textContent = '⏳ データ確認中…';
+    if (upd) upd.textContent = '最新データを取得中…';
     const isRemote = await loadRemote();
     if (isRemote) {
       // ── 3. ヒーローの Brief 日付・Items・Read time を再計算 + リスト差し替え ──
