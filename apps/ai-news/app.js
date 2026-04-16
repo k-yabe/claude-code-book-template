@@ -30,7 +30,7 @@
       actionItem: '来週の定例で自社コンテンツのGEO対策（ChatGPT/Perplexityでの自社表示確認）を議題に入れる。',
       pickerComment: 'GEO（Generative Engine Optimization）はSEOの次の戦場。人材業界では「エンジニア 転職」等のキーワードでAI検索結果に表示されるかが採用数に直結する。早い者勝ちの領域。',
       source: 'Gartner', sourceType: 'media', category: 'marketing',
-      url: 'https://www.gartner.com/en/newsroom/press-releases/2026-04-16-b2b-buying-behavior-survey',
+      url: '',
       image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop',
       publishedAt: `${Y}T09:10:00+09:00`,
       tags: ['B2B', 'GEO', '購買行動']
@@ -43,7 +43,7 @@
       actionItem: 'Search Consoleで主要キーワードのCTR変化をモニタリング開始。AI Overviewsに自社が表示されているか確認。',
       pickerComment: 'SEO担当者は今すぐ「site:自社ドメイン」でAI Overviewsに引用されているか確認すべき。構造化データのFAQ・HowToマークアップが引用率を高める傾向がある。',
       source: 'Google Search Central', sourceType: 'media', category: 'ai',
-      url: 'https://developers.google.com/search/blog/2026/04/ai-overviews-japan-default',
+      url: '',
       image: 'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=400&h=250&fit=crop',
       publishedAt: `${Y}T18:40:00+09:00`,
       tags: ['SEO', 'GEO', 'Google']
@@ -56,7 +56,7 @@
       actionItem: '自社のSalesforce契約でAgentforce利用可否を営業担当に確認する。',
       pickerComment: 'SalesforceのAIエージェント戦略はMarketing Cloud全体に波及する。既存ユーザーは追加費用なしで使える可能性が高いので、営業担当に確認するだけでROIが出る案件。',
       source: 'Salesforce News', sourceType: 'media', category: 'market',
-      url: 'https://www.salesforce.com/news/press-releases/2026/04/agentforce-cmo-revenue-agent/',
+      url: '',
       image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop',
       publishedAt: `${Y}T14:45:00+09:00`,
       tags: ['SaaS', 'AIエージェント', 'CMO']
@@ -69,7 +69,7 @@
       actionItem: '今抱えているレポート業務で試用し、時間短縮効果を検証する。',
       pickerComment: '200kトークンは文庫本1冊分。競合分析で10社分のIR資料を一括投入して比較表を作れる。レポート業務の「素材集め→構造化」が自動化される。',
       source: 'Anthropic', sourceType: 'media', category: 'ai',
-      url: 'https://www.anthropic.com/news/claude-4-6-opus-long-context',
+      url: '',
       image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop',
       publishedAt: `${Y}T22:00:00+09:00`,
       tags: ['Claude', 'LLM', '要約']
@@ -82,7 +82,7 @@
       actionItem: 'Google Ads管理画面でブランド除外レポートを確認し、月次レポートに追加。',
       pickerComment: 'PMaxはブラックボックスだった部分にようやく透明性が出てきた。特にBtoBはブランドKWの混在でCPAが歪みやすいので、この機能でROAS改善の根拠を示しやすくなる。',
       source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
-      url: 'https://blog.google/products/ads-commerce/performance-max-brand-exclusion-report/',
+      url: '',
       image: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=400&h=250&fit=crop',
       publishedAt: `${Y}T08:30:00+09:00`,
       tags: ['広告', 'PMax', 'Google']
@@ -95,7 +95,7 @@
       actionItem: '次の予算策定で動画広告枠の比率増を提案する際のエビデンスとしてストック。',
       pickerComment: '動画広告の伸びはショート動画が牽引。採用マーケでは30秒以内の「社員の1日」系コンテンツがCPV最安で成果が出ている企業が多い。',
       source: '電通', sourceType: 'media', category: 'market',
-      url: 'https://www.dentsu.co.jp/news/release/2026/0416-digital-ad-spending/',
+      url: '',
       image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop',
       publishedAt: `${Y}T10:00:00+09:00`,
       tags: ['広告費', '日本', '統計']
@@ -108,7 +108,7 @@
       actionItem: '利用中のDSP/SSPがUID2.0対応済みか確認し、未対応なら代替を検討。',
       pickerComment: 'UID2.0はメールアドレスベースなので、会員登録フローを持つ採用サイトとは相性が良い。自社の1st Partyデータ活用戦略と合わせて検討する価値がある。',
       source: 'AdExchanger', sourceType: 'media', category: 'market',
-      url: 'https://www.adexchanger.com/data-driven-thinking/uid2-adoption-triples-in-japan/',
+      url: '',
       image: 'https://images.unsplash.com/photo-1563986768609-322da13575f2?w=400&h=250&fit=crop',
       publishedAt: `${Y}T07:50:00+09:00`,
       tags: ['Cookieless', 'AdTech']
@@ -121,7 +121,7 @@
       actionItem: 'Marketo利用中なら設定画面でAI件名最適化をONにして次回配信でテスト。',
       pickerComment: 'MA各社がAI件名最適化を投入中。設定ONだけで効果が出るので、使わない理由がない。ただし日本語の件名最適化精度は英語より低い傾向があるので、最初の数回は結果を注視すべき。',
       source: 'Adobe Marketo Engage', sourceType: 'media', category: 'marketing',
-      url: 'https://business.adobe.com/blog/the-latest/marketo-ai-subject-line-optimization-all-plans',
+      url: '',
       image: null,
       publishedAt: `${Y}T11:05:00+09:00`,
       tags: ['MA', 'メール', 'AI']
@@ -134,7 +134,7 @@
       actionItem: 'AI活用のコンテンツ制作フローがある場合、β申請を検討。',
       pickerComment: '「ブランドボイス制約」はエンタープライズ向けAI利用の大きなペインポイントを解消する。採用広報でAI生成テキストを使っている企業は導入検討の価値あり。',
       source: 'OpenAI', sourceType: 'media', category: 'ai',
-      url: 'https://openai.com/blog/gpt-5-brand-voice-constraint-api',
+      url: '',
       image: null,
       publishedAt: `${Y}T20:15:00+09:00`,
       tags: ['GPT-5', 'API', 'ブランドガバナンス']
@@ -147,7 +147,7 @@
       actionItem: 'ターゲットにZ世代を含む場合、TikTok Search Adsのβ申請を検討。',
       pickerComment: 'TikTok検索は「〇〇 転職」で実際に使われ始めている。新卒採用でTikTokを活用している企業は検索広告も試す価値がある。CPCはまだGoogleより安い。',
       source: 'TikTok for Business', sourceType: 'media', category: 'marketing',
-      url: 'https://newsroom.tiktok.com/ja-jp/tiktok-search-ads-japan-launch',
+      url: '',
       image: null,
       publishedAt: `${Y}T13:00:00+09:00`,
       tags: ['SNS', '検索広告']
@@ -160,7 +160,7 @@
       actionItem: 'HubSpot利用中ならZoom連携をONにして、商談要約のコンテンツ活用を試す。',
       pickerComment: '商談の文字起こしをそのままコンテンツマーケのネタ帳にする発想が重要。「お客様がよく使うフレーズ」をLP・広告コピーに反映すると、共感率が上がる。',
       source: 'HubSpot', sourceType: 'media', category: 'marketing',
-      url: 'https://blog.hubspot.com/news/free-crm-conversation-intelligence-launch',
+      url: '',
       image: null,
       publishedAt: `${Y}T15:20:00+09:00`,
       tags: ['CRM', 'セールス']
@@ -428,9 +428,13 @@
       const isRead = state.read.has(n.id);
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
+      const hasUrl = !!n.url;
       const thumbHtml = n.image
         ? `<div class="top-thumb"><img src="${escapeHtml(n.image)}" alt="" loading="lazy"></div>`
         : `<div class="top-thumb"><span class="top-thumb-placeholder">${escapeHtml(n.source)}</span></div>`;
+      const titleHtml = hasUrl
+        ? `<a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a>`
+        : escapeHtml(n.title);
       return `
       <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" aria-label="${escapeHtml(n.title)}">
         <div class="top-meta">
@@ -440,7 +444,7 @@
         </div>
         <div class="top-body">
           <div class="top-body-text">
-            <h2 class="top-title"><a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a></h2>
+            <h2 class="top-title">${titleHtml}</h2>
             <p class="top-summary">${escapeHtml(n.summary)}</p>
           </div>
           ${thumbHtml}
@@ -455,7 +459,7 @@
           <div style="display:flex;align-items:center;gap:12px;">
             <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読に戻す' : '✓ 既読にする'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-            <a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む →</a>
+            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む →</a>` : ''}
           </div>
         </div>
       </article>`;
@@ -484,11 +488,12 @@
       const isRead = state.read.has(n.id);
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
+      const hasUrl = !!n.url;
       const briefThumb = n.image
         ? `<div class="brief-card-thumb"><img src="${escapeHtml(n.image)}" alt="" loading="lazy"></div>`
         : `<div class="brief-card-thumb"><span class="brief-card-thumb-placeholder">${escapeHtml(n.source)}</span></div>`;
       return `
-        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           ${briefThumb}
           <div class="brief-card-content">
             <div class="brief-card-head">
@@ -507,7 +512,7 @@
               <div style="display:flex;align-items:center;gap:8px;">
                 <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
                 <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-                <a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>
+                ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
               </div>
             </div>
           </div>
@@ -517,6 +522,8 @@
       el.addEventListener('click', e => {
         if (e.target.closest('.star-btn') || e.target.closest('.brief-ext-link') || e.target.closest('.brief-read-toggle')) return;
         markRead(el.dataset.id, el);
+        if (el.dataset.cat) recordClick(el.dataset.cat);
+        openExternal(el.dataset.url);
       });
     });
     root.querySelectorAll('.brief-read-toggle').forEach(btn => {
@@ -573,24 +580,38 @@
     }
     root.innerHTML = sorted.map(n => {
       const isRead = state.read.has(n.id);
+      const isFav = state.fav.has(n.id);
       const cat = n.category;
+      const hasUrl = !!n.url;
+      const imgHtml = n.image
+        ? `<div class="fyi-thumb"><img src="${escapeHtml(n.image)}" alt="" loading="lazy"></div>`
+        : '';
       return `
-        <div class="more-item${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          <span class="more-cat ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-          <div class="more-title-wrap">
-            <div class="more-title">${escapeHtml(n.title)}</div>
-            <div class="more-summary">${escapeHtml(n.whyItMatters || n.summary)}</div>
+        <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+          ${imgHtml}
+          <div class="fyi-body">
+            <div class="fyi-meta">
+              <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
+              <span class="meta-source">${escapeHtml(n.source)}</span>
+              <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
+            </div>
+            <div class="fyi-title">${escapeHtml(n.title)}</div>
+            ${n.whyItMatters ? `<div class="fyi-why">${escapeHtml(n.whyItMatters)}</div>` : (n.summary ? `<div class="fyi-why">${escapeHtml(n.summary)}</div>` : '')}
+            ${n.actionItem ? `<div class="fyi-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
+            <div class="fyi-foot">
+              <div class="fyi-tags">${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
+                <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
+                ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
+              </div>
+            </div>
           </div>
-          <span class="more-source">${escapeHtml(n.source)}</span>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩' : '✓'}</button>
-            <button class="star-btn${state.fav.has(n.id) ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
-          </div>
-        </div>`;
+        </article>`;
     }).join('');
-    root.querySelectorAll('.more-item').forEach(el => {
+    root.querySelectorAll('.fyi-card').forEach(el => {
       el.addEventListener('click', e => {
-        if (e.target.closest('.star-btn') || e.target.closest('.brief-read-toggle')) return;
+        if (e.target.closest('.star-btn') || e.target.closest('.brief-read-toggle') || e.target.closest('.brief-ext-link')) return;
         markRead(el.dataset.id, el);
         if (el.dataset.cat) recordClick(el.dataset.cat);
         openExternal(el.dataset.url);
@@ -600,9 +621,9 @@
       btn.addEventListener('click', e => {
         e.stopPropagation();
         const id = btn.dataset.readId;
-        const item = btn.closest('.more-item');
+        const item = btn.closest('.fyi-card');
         toggleRead(id, item);
-        btn.textContent = state.read.has(id) ? '↩' : '✓';
+        btn.textContent = state.read.has(id) ? '↩ 未読' : '✓ 既読';
       });
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
@@ -957,31 +978,57 @@
     if (modal) modal.addEventListener('click', e => { if (e.target === modal) showHelp(false); });
   }
 
-  /* ────────── ⑪b 音声読み上げ（OpenAI TTS → Web Speech API フォールバック） ──────────  */
+  /* ────────── ⑪b 音声ダイジェスト（AI要約 → TTS読み上げ） ──────────  */
   let speechState = { playing: false, audio: null };
 
-  function buildSpeechScript() {
+  function buildArticlePayload() {
+    const { mustKnow, thisWeek } = partition();
+    return {
+      execSummary: EXEC_SUMMARY,
+      mustKnow: mustKnow.map(n => ({
+        title: n.title, summary: n.summary,
+        whyItMatters: n.whyItMatters, actionItem: n.actionItem
+      })),
+      thisWeek: thisWeek.map(n => ({
+        title: n.title, summary: n.summary, actionItem: n.actionItem
+      }))
+    };
+  }
+
+  // フォールバック用の簡易スクリプト（API不可時）
+  function buildFallbackScript() {
     const lines = [];
-    lines.push('今日のサマリーです。');
+    lines.push('今日のニュースダイジェストです。');
     for (const line of EXEC_SUMMARY) lines.push(line);
     const { mustKnow, thisWeek } = partition();
     if (mustKnow.length) {
-      lines.push('続いて、重要ニュースです。');
+      lines.push('重要ニュースです。');
       for (const n of mustKnow) {
         lines.push(n.title + '。' + n.summary);
-        if (n.whyItMatters) lines.push('マーケへの影響。' + n.whyItMatters);
-        if (n.actionItem) lines.push('推奨アクション。' + n.actionItem);
+        if (n.whyItMatters) lines.push(n.whyItMatters);
       }
     }
     if (thisWeek.length) {
-      lines.push('次に、注目ニュースです。');
+      lines.push('次に注目ニュースです。');
       for (const n of thisWeek) {
         lines.push(n.title + '。' + n.summary);
-        if (n.actionItem) lines.push('推奨アクション。' + n.actionItem);
       }
     }
-    lines.push('以上、今日のブリーフでした。');
+    lines.push('以上、今日のダイジェストでした。');
     return lines;
+  }
+
+  async function generateDigest() {
+    try {
+      const res = await fetch('/api/ai-news-digest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildArticlePayload()),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.script || null;
+    } catch { return null; }
   }
 
   function setBtnState(label, playing) {
@@ -1006,25 +1053,33 @@
 
   async function startSpeech() {
     stopSpeech();
-    const lines = buildSpeechScript();
-    const fullText = lines.join('\n');
     speechState.playing = true;
-    setBtnState('⏳ 準備中…', true);
+    setBtnState('⏳ ダイジェスト生成中…', true);
 
-    // OpenAI TTS を試行
-    const audioUrl = await tryOpenAITTS(fullText);
-    if (!speechState.playing) return; // 待機中にキャンセルされた
+    // Step 1: Claude でダイジェスト生成
+    const digest = await generateDigest();
+    if (!speechState.playing) return;
 
-    if (audioUrl) {
-      // 高品質音声再生
-      const audio = new Audio(audioUrl);
-      speechState.audio = audio;
-      setBtnState('⏹ 停止', true);
-      audio.onended = () => stopSpeech();
-      audio.onerror = () => { fallbackWebSpeech(lines); };
-      audio.play().catch(() => { fallbackWebSpeech(lines); });
+    if (digest) {
+      // Step 2: OpenAI TTS で高品質音声化
+      setBtnState('⏳ 音声変換中…', true);
+      const audioUrl = await tryOpenAITTS(digest);
+      if (!speechState.playing) return;
+
+      if (audioUrl) {
+        const audio = new Audio(audioUrl);
+        speechState.audio = audio;
+        setBtnState('⏹ 停止', true);
+        audio.onended = () => stopSpeech();
+        audio.onerror = () => { fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean)); };
+        audio.play().catch(() => { fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean)); });
+        return;
+      }
+      // TTS API 不可 → ダイジェストテキストをブラウザ読み上げ
+      fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean));
     } else {
-      fallbackWebSpeech(lines);
+      // ダイジェスト生成不可 → フォールバックスクリプトをブラウザ読み上げ
+      fallbackWebSpeech(buildFallbackScript());
     }
   }
 

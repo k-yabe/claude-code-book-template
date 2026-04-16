@@ -279,43 +279,69 @@
       border: 1px solid var(--border);
       display: flex; flex-direction: column;
     }
-    .more-item {
-      display: grid;
-      grid-template-columns: auto 1fr auto auto;
-      gap: var(--sp-3);
-      align-items: center;
-      padding: var(--sp-4);
+
+    /* ── FYI カードデザイン ── */
+    .fyi-card {
+      display: flex;
+      gap: var(--sp-4);
+      padding: var(--sp-5);
       border-bottom: 1px solid var(--border-light);
       cursor: pointer;
       transition: background var(--ease-base);
-      text-decoration: none;
-      color: inherit;
+      position: relative;
     }
-    .more-item:last-child { border-bottom: none; }
-    .more-item:hover { background: var(--surface-alt); }
-    .more-item.read { opacity: 0.8; }
-    .more-item.read .more-title::before {
-      content: '✓ '; color: var(--gold); font-weight: 800; font-size: 0.7rem;
+    .fyi-card:last-child { border-bottom: none; }
+    .fyi-card:hover { background: var(--surface-alt); }
+    .fyi-card.read { opacity: 0.8; }
+    .fyi-card.read::after {
+      content: '✓ 既読';
+      position: absolute; top: var(--sp-2); right: var(--sp-3);
+      font-size: 0.55rem; font-weight: 700;
+      color: var(--gold); opacity: 0.6;
     }
-    .more-cat {
-      font-size: 0.58rem;
+    .fyi-thumb {
+      flex-shrink: 0;
+      width: 140px; height: 95px;
+      background: var(--surface-alt);
+      overflow: hidden;
+    }
+    .fyi-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .fyi-body { flex: 1; min-width: 0; }
+    .fyi-meta {
+      display: flex; align-items: center; gap: var(--sp-2);
+      margin-bottom: 6px;
+    }
+    .fyi-title {
+      font-size: 0.95rem;
       font-weight: 800;
-      letter-spacing: 0.08em;
-      padding: 2px 6px;
-      width: 80px;
-      text-align: center;
-    }
-    .more-title {
-      font-size: 0.9rem;
-      font-weight: 700;
       color: var(--navy);
       line-height: 1.45;
+      margin-bottom: 6px;
     }
-    .more-source {
-      font-size: 0.65rem;
-      color: var(--text-faint);
-      white-space: nowrap;
+    .fyi-why {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 6px;
     }
+    .fyi-action {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--navy);
+      background: rgba(255,184,28,0.08);
+      padding: 5px 10px;
+      margin-bottom: var(--sp-3);
+      line-height: 1.5;
+    }
+    .fyi-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-2); flex-wrap: wrap;
+      padding-top: var(--sp-2);
+    }
+    .fyi-tags { display: flex; gap: 4px; flex-wrap: wrap; }
 
     /* ── カテゴリ色（統一） ── */
     .cat-marketing, .cat-market, .cat-ai {
@@ -703,7 +729,7 @@
     /* ── キーボードフォーカス可視化 ── */
     .top-card:focus-visible,
     .brief-card:focus-visible,
-    .more-item:focus-visible {
+    .fyi-card:focus-visible {
       outline: 2px solid var(--gold);
       outline-offset: -2px;
       background: var(--surface-alt);
@@ -837,23 +863,10 @@
     }
     .top-ext-link:hover { color: var(--gold); }
 
-    /* ── FYI: whyItMatters 表示 ── */
-    .more-summary {
-      font-size: 0.73rem; color: var(--text-muted);
-      line-height: 1.5; margin-top: 2px;
-      display: -webkit-box; -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical; overflow: hidden;
-      font-weight: 500;
-    }
-    .more-title-wrap { min-width: 0; }
-
     /* ── 小画面 ── */
     @media (max-width: 600px) {
-      .more-item {
-        grid-template-columns: auto 1fr;
-        row-gap: 6px;
-      }
-      .more-source { grid-column: 2; }
+      .fyi-card { flex-direction: column; padding: var(--sp-4); }
+      .fyi-thumb { width: 100%; height: 120px; }
       .brief-grid { grid-template-columns: 1fr; }
       .brief-card-thumb { height: 120px; }
       .trend-bar { padding: var(--sp-2) var(--sp-3); }
@@ -1007,8 +1020,8 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
+        { date: '04/16', text: 'AIダイジェスト音声。その他ニュースをカード形式に刷新。クリックで元記事を開くよう改善。リンク安全性を強化' },
         { date: '04/16', text: '専門家コメント（Picker風）追加。高品質音声読み上げ対応。スワイプで日付移動。閲覧傾向パーソナライズ' },
-        { date: '04/16', text: '記事サムネイル画像・音声読み上げ・カード色味をシンプルに整理' },
         { date: '04/16', text: 'セクション名刷新・日付ナビ・全UI日本語化。インテリジェンス・ブリーフとして全面再設計' }
       ]
     });
