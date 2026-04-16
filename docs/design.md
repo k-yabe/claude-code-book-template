@@ -60,7 +60,7 @@
 | Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043, S048, S050, S051, S052, S053, S054, S055, S056, S066, S068, S069, S070 |
 | Cache Checker | `apps/cache-checker/index.html`, `api/fetch-article.js(mode=proxy)` | ✅ 完成 | S037 |
 | Image Converter | `apps/image-converter/index.html` | ✅ 完成 | S047 |
-| AI NEWS | `apps/ai-news/index.html`, `apps/ai-news/app.js`, `apps/ai-news/scraper.py`, `api/ai-news-tts.js`, `.github/workflows/ai-news-collect.yml` | ✅ 完成（毎朝8時 JST RSS自動収集 + Claude Haikuインテリジェンス・ブリーフ + Picker風専門家コメント + 高品質音声読み上げ + スワイプナビ + パーソナライズ + サムネイル画像 + 全UI日本語化） | S073, S074, S075, S077, S078 |
+| AI NEWS | `apps/ai-news/index.html`, `apps/ai-news/app.js`, `apps/ai-news/scraper.py`, `api/ai-news-tts.js`, `api/ai-news-digest.js`, `.github/workflows/ai-news-collect.yml` | ✅ 完成（毎朝8時 JST RSS自動収集 + Claude Haikuインテリジェンス・ブリーフ + AIダイジェスト音声 + Picker風専門家コメント + 高品質音声読み上げ + スワイプナビ + パーソナライズ + サムネイル画像 + FYIカードデザイン + 全UI日本語化 + リンク安全性強化） | S073, S074, S075, S077, S078 |
 
 ---
 
