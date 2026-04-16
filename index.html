@@ -357,6 +357,23 @@
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       }
     }
+
+    /* ── モバイル/タブレット最適化 ── */
+    @media (max-width: 768px) {
+      .portal-body { padding: 16px 16px 50px; }
+      .section-bar-drag { display: none; }
+    }
+    @media (max-width: 600px) {
+      .navbar { padding: 0 12px; height: 50px; gap: 8px; }
+      .navbar-title { font-size: 0.82rem; }
+      .changelog-btn { padding: 4px 8px; font-size: 0.65rem; gap: 4px; }
+      .changelog-btn-dot { width: 5px; height: 5px; }
+      .logout-btn { padding: 4px 10px; font-size: 0.68rem; }
+      .portal-body { padding: 12px 12px 40px; }
+      .section-bar { gap: 6px; margin-bottom: 10px; }
+      .changelog-dropdown { right: -40px; width: 92vw; }
+    }
+
     @keyframes cardIn {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -689,6 +706,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '📱', app: 'ポータル全体', badge: 'UPDATE', date: '2026-04-16(木)', desc: '【モバイル/タブレット最適化】ポータルのnavbar・コンテンツ余白・WHAT\'S NEWドロップダウンをスマホ幅（〜600px）で最適化。タブレット幅でカード余白を調整し「ドラッグで並び替え」ヒントを非表示に。WHAT\'S NEWドロップダウンをEscapeキーで閉じられるように。Global AntennaのグリッドもiPad幅で2カラム化' },
       { icon: '🏠', app: 'ポータル全体', badge: 'UPDATE', date: '2026-04-16(木)', desc: '【最近開いたアプリ】アプリ一覧の上部に「RECENT」行を追加。直近5件のアプリ開封履歴をlocalStorageに保存し、次回ポータル表示時にアイコン＋名前の横並びpillですぐアクセス可能に。15アプリから毎回探す手間を省く。履歴がない初回は自動的に非表示' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-16(木)', desc: '【表示状態の永続化 + 「未読のみ」フィルタ】MORE READS のカテゴリタブ・お気に入り絞り込み・新規追加した「未読のみ」絞り込みの状態を localStorage に保存し、次回開いたときに前回の表示状態のまま再開できるように。「あと読み終わってないやつだけ見たい」が1タップで叶うように' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-16(木)', desc: '【スクロール中も操作可・ファーストペイント高速化・読了予算の最適化】コマンドバー（既読プログレス / 次の未読 / 全部既読）をsticky化し、画面のどこを読んでいても1タップで操作可能に。起動シーケンスを「シードデータで即render → バックグラウンドでnews.json取得 → 成功したらリスト差し替え」方式に変更し、最大8秒のfetchを待たずに第一画面が即座に出るように改善。読了時間（readMin）を重要度連動（TOP=2分／BRIEFING=1分／MORE=1分）にscraper側で正規化し「10分で読める」予算を確実に保つ' },
@@ -854,6 +872,12 @@
       btn.addEventListener('click', () => dropdown.classList.toggle('open'));
       document.addEventListener('click', e => {
         if (!wrap.contains(e.target)) dropdown.classList.remove('open');
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && dropdown.classList.contains('open')) {
+          dropdown.classList.remove('open');
+          btn.focus();
+        }
       });
     }
 
