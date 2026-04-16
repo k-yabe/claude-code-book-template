@@ -309,6 +309,20 @@
       width: 100%; height: 100%;
       object-fit: cover;
     }
+    .fyi-thumb-ph {
+      background: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .fyi-thumb-ph[data-cat="marketing"] { background: linear-gradient(135deg, #001f33 0%, #003355 100%); }
+    .fyi-thumb-ph[data-cat="market"] { background: linear-gradient(135deg, #001a2e 0%, #002d4f 100%); }
+    .fyi-thumb-ph[data-cat="ai"] { background: linear-gradient(135deg, #00243d 0%, #003a66 100%); }
+    .fyi-thumb-label {
+      font-size: 0.65rem; font-weight: 700;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.08em;
+      text-align: center;
+      line-height: 1.3;
+    }
     .fyi-body { flex: 1; min-width: 0; }
     .fyi-meta {
       display: flex; align-items: center; gap: var(--sp-2);
@@ -1048,9 +1062,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
+        { date: '04/16', text: '画像プレースホルダー表示。Xアバター外部依存ゼロ化。音声ダイジェストをラジオ番組構成に改善。Claude生成プロンプトを3幕構成に強化' },
         { date: '04/16', text: 'リンク安全性を全面強化。シード偽URL・偽画像を全排除。画像onerrorフォールバック。Xアバター表示対応。日付移動の競合防止' },
-        { date: '04/16', text: 'AIダイジェスト音声。その他ニュースをカード形式に刷新。クリックで元記事を開くよう改善' },
-        { date: '04/16', text: '専門家コメント（Picker風）・高品質音声読み上げ・スワイプ日付移動・閲覧傾向パーソナライズ' }
+        { date: '04/16', text: 'AIダイジェスト音声。その他ニュースをカード形式に刷新。クリックで元記事を開くよう改善' }
       ]
     });
   </script>

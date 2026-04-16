@@ -176,31 +176,31 @@
   let X_HIGHLIGHTS = [
     {
       id: 'x1', author: '深津貴之', handle: '@fladdict',
-      avatar: 'https://pbs.twimg.com/profile_images/1814947773948469248/QSYjKVbz_normal.jpg',
+      avatar: '',
       text: 'Claude Codeが本当にやばい。プロンプト1行で「設計→実装→テスト→デプロイ」まで全部やる。エンジニアの仕事の定義が変わりつつある。',
       tag: 'Claude Code', url: ''
     },
     {
       id: 'x2', author: '安宅和人', handle: '@klozan',
-      avatar: 'https://pbs.twimg.com/profile_images/619665682/img_ataka_normal.jpg',
+      avatar: '',
       text: '生成AIで「知的生産のコスト」が限りなくゼロに近づく。差別化は「何を作るか」ではなく「何を問うか」に完全シフトした。',
       tag: 'AI戦略', url: ''
     },
     {
       id: 'x3', author: '松尾豊', handle: '@ymatsuo',
-      avatar: 'https://pbs.twimg.com/profile_images/1773330029444706304/kWIsh_Al_normal.jpg',
+      avatar: '',
       text: '日本企業のAI導入率がようやく50%を超えた。だが「導入した」と「成果が出ている」の間には巨大なギャップがある。プロンプト教育だけでは不十分で、業務プロセス自体の再設計が必須。',
       tag: 'AI導入', url: ''
     },
     {
       id: 'x4', author: '落合陽一', handle: '@ochyai',
-      avatar: 'https://pbs.twimg.com/profile_images/1806958443623698433/jW3NYCOC_normal.jpg',
+      avatar: '',
       text: 'マルチモーダルAIの進化で「テキストだけのマーケティング」は確実に価値が下がる。画像・動画・音声を横断的に生成・最適化できるチームが勝つ。',
       tag: 'マルチモーダルAI', url: ''
     },
     {
       id: 'x5', author: '成田悠輔', handle: '@narita_yusuke2',
-      avatar: 'https://pbs.twimg.com/profile_images/1661009874728091648/O8n20xAb_normal.jpg',
+      avatar: '',
       text: 'AIが「平均的な仕事」を代替するスピードが想定より速い。採用市場では「AIを使いこなせる人」のプレミアムが月単位で上がっている感覚。',
       tag: 'AI×採用', url: ''
     },
@@ -218,7 +218,7 @@
     },
     {
       id: 'x8', author: '田中邦裕', handle: '@kunihirotanaka',
-      avatar: 'https://pbs.twimg.com/profile_images/1672230977/tanaka_san_normal.jpg',
+      avatar: '',
       text: 'さくらインターネットのGPUクラウド、想定の3倍の申し込みが来ている。日本企業が自社でAIを動かしたい需要がここまで大きいとは。国産クラウドの出番。',
       tag: 'AI基盤', url: ''
     },
@@ -609,7 +609,7 @@
       const safeImg = safeImgUrl(n.image);
       const imgHtml = safeImg
         ? `<div class="fyi-thumb"><img src="${escapeHtml(safeImg)}" alt="" loading="lazy" onerror="${IMG_ONERROR}"></div>`
-        : '';
+        : `<div class="fyi-thumb fyi-thumb-ph" data-cat="${cat}"><span class="fyi-thumb-label">${escapeHtml(n.source)}</span></div>`;
       return `
         <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           ${imgHtml}
@@ -1042,26 +1042,60 @@
     };
   }
 
-  // フォールバック用の簡易スクリプト（API不可時）
+  // フォールバック用スクリプト（ラジオ番組構成、APIキーなしでも高品質）
   function buildFallbackScript() {
     const lines = [];
-    lines.push('今日のニュースダイジェストです。');
-    for (const line of EXEC_SUMMARY) lines.push(line);
+    const dateLabel = dataMeta.generatedFor || Y;
+    const d = new Date(dateLabel + 'T00:00:00+09:00');
+    const dateStr = isNaN(d) ? dateLabel : `${d.getMonth()+1}月${d.getDate()}日`;
+
+    // 冒頭：挨拶 + 3つのポイント予告
+    lines.push(`おはようございます。${dateStr}のマーケティング・ニュースダイジェストです。`);
+    if (EXEC_SUMMARY.length >= 3) {
+      lines.push('今日のポイントは3つ。');
+      lines.push(`1つ目、${EXEC_SUMMARY[0]}`);
+      lines.push(`2つ目、${EXEC_SUMMARY[1]}`);
+      lines.push(`3つ目、${EXEC_SUMMARY[2]}`);
+    } else if (EXEC_SUMMARY.length) {
+      lines.push('今日のポイントです。');
+      for (const s of EXEC_SUMMARY) lines.push(s);
+    }
+
+    lines.push('では、詳しく見ていきましょう。');
+
+    // 本編：重要ニュース
     const { mustKnow, thisWeek } = partition();
     if (mustKnow.length) {
-      lines.push('重要ニュースです。');
-      for (const n of mustKnow) {
-        lines.push(n.title + '。' + n.summary);
-        if (n.whyItMatters) lines.push(n.whyItMatters);
-      }
+      lines.push('まず最も重要なニュースです。');
+      mustKnow.forEach((n, i) => {
+        if (i > 0) lines.push('続いて。');
+        lines.push(`${n.title}。`);
+        lines.push(n.summary);
+        if (n.whyItMatters) lines.push(`これがなぜ重要かというと、${n.whyItMatters}`);
+        if (n.actionItem) lines.push(`具体的には、${n.actionItem}`);
+      });
     }
+
+    // 本編：注目ニュース
     if (thisWeek.length) {
-      lines.push('次に注目ニュースです。');
+      lines.push('次に、チェックしておきたいニュースです。');
       for (const n of thisWeek) {
-        lines.push(n.title + '。' + n.summary);
+        lines.push(`${n.title}。`);
+        lines.push(n.summary);
+        if (n.actionItem) lines.push(`アクションとしては、${n.actionItem}`);
       }
     }
-    lines.push('以上、今日のダイジェストでした。');
+
+    // まとめ
+    lines.push('最後にまとめです。');
+    if (EXEC_SUMMARY.length >= 3) {
+      const kw = EXEC_SUMMARY.map(s => {
+        const m = s.match(/[「『]([^」』]+)[」』]/);
+        return m ? m[1] : s.slice(0, 20);
+      });
+      lines.push(`今日押さえるべきは、${kw[0]}、${kw[1]}、${kw[2]}の3つです。`);
+    }
+    lines.push('今日も頑張りましょう。');
     return lines;
   }
 
