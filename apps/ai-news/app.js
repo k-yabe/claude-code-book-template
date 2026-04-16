@@ -15,7 +15,7 @@
   const Y     = '2026-04-14';
   const NEWS_DATA = [
     {
-      id: 'm3', importance: 1, readMin: 1,
+      id: 'm3', importance: 1, readMin: 2,
       title: 'B2B購買行動調査2026：意思決定者の73%が「営業より先にAI検索を信頼」',
       summary: 'Gartner調査。比較段階での主要情報源として ChatGPT / Perplexity が営業資料・営業面談を上回るとの結果。コンテンツの AI検索最適化（GEO）が今や必須の打ち手となる。',
       source: 'Gartner', sourceType: 'media', category: 'marketing',
@@ -576,20 +576,58 @@
     if (all) all.addEventListener('click', markAllRead);
   }
 
-  /* ────────── ⑫ 起動 ──────────  */
-  async function init() {
-    const isRemote = await loadRemote(); // 失敗時はシード継続
+  /* ────────── ⑫ 起動 ──────────
+     方針: ファーストペイント最優先。
+     1) まずシードデータで即座にrender（fetch完了を待たない）
+     2) バックグラウンドで loadRemote()
+     3) 成功したら NEWS_DATA を上書きしてリストだけ再render（ヒーロー/Xはそのまま）
+  ────────────────────────────  */
+  let _moreRef = []; // wireUp が掴む more 配列の最新参照（再renderで差し替える）
+
+  function fullRender() {
     const { top, briefing, more } = partition();
-    renderHero();
-    applyMeta(isRemote);
+    _moreRef = more;
     renderTopStory(top);
     renderBriefing(briefing);
     renderTabs(more);
     renderMore(more);
-    renderX();
-    wireUp(more);
-    wireKeyboard();
     updateProgress();
+  }
+
+  async function init() {
+    // ── 1. シードデータで即時パーティション + render（ブロックなし） ──
+    renderHero();
+    applyMeta(false);   // とりあえず「シードデータ表示中」
+    fullRender();
+    renderX();
+    wireUp(_moreRef);
+    wireKeyboard();
+
+    // ── 2. バックグラウンドで実データ取得（最大8秒） ──
+    const isRemote = await loadRemote();
+    if (isRemote) {
+      // ── 3. ヒーローの Brief 日付・Items・Read time を再計算 + リスト差し替え ──
+      renderHero();
+      applyMeta(true);
+      fullRender();
+      // wireUp が掴んでた more 参照を新しい _moreRef に置き換える
+      rewireMore();
+    }
+  }
+  function rewireMore() {
+    // wireUp 内で more を closure キャプチャしているため、検索/★絞り込みも最新リストで再評価できるよう
+    // ハンドラを掛け直す。重複を避けるためノードごと差し替え。
+    const oldSearch = document.getElementById('search');
+    if (oldSearch) {
+      const ns = oldSearch.cloneNode(true);
+      oldSearch.parentNode.replaceChild(ns, oldSearch);
+    }
+    const oldFav = document.getElementById('toggle-fav');
+    if (oldFav) {
+      const nf = oldFav.cloneNode(true);
+      oldFav.parentNode.replaceChild(nf, oldFav);
+    }
+    wireUp(_moreRef);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

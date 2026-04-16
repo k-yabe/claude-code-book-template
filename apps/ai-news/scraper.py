@@ -175,6 +175,17 @@ def fetch_all() -> list[dict]:
 
 
 # ── 要約 ──────────────────────────────────────────
+# 重要度 → 推定読了時間（分）。「10分で読める」を保つための予算配分。
+#  importance=1 (TOP)      : 2分（じっくり）
+#  importance=2 (BRIEFING) : 1分（要点だけ）
+#  importance=3 (MORE)     : 1分（流し読み）
+READ_MIN_BY_IMPORTANCE: dict[int, int] = {1: 2, 2: 1, 3: 1}
+
+
+def normalize_read_min(importance: int) -> int:
+    return READ_MIN_BY_IMPORTANCE.get(importance, 1)
+
+
 def fallback_summarize(items: list[dict]) -> list[dict]:
     """API無し / 失敗時の素朴フォールバック。先頭1件をTOP、次5件をBRIEFINGとする。"""
     for idx, it in enumerate(items):
@@ -187,7 +198,7 @@ def fallback_summarize(items: list[dict]) -> list[dict]:
             it["importance"] = 2
         else:
             it["importance"] = 3
-        it["readMin"] = 1
+        it["readMin"] = normalize_read_min(it["importance"])
     return items
 
 
@@ -269,16 +280,13 @@ def call_anthropic(items: list[dict]) -> list[dict] | None:
             if imp == 1:
                 top_assigned = True
             it["importance"] = imp
-            try:
-                rm = int(o.get("readMin") or 1)
-            except Exception:
-                rm = 1
-            it["readMin"] = max(1, min(3, rm))
+            # readMin は importance に連動させる（「10分で読める」予算を保つため）
+            it["readMin"] = normalize_read_min(imp)
         else:
             it["summary"] = truncate(raw, SUMMARY_CHARS) or it["title"]
             it["tags"] = []
             it["importance"] = 3
-            it["readMin"] = 1
+            it["readMin"] = normalize_read_min(3)
 
     # 上限を超えた分はフォールバック（全部 more 扱い）
     if len(items) > SUMMARIZE_MAX:
@@ -286,7 +294,7 @@ def call_anthropic(items: list[dict]) -> list[dict] | None:
         fallback_summarize(rest)
         for it in rest:
             it["importance"] = 3
-            it["readMin"] = 1
+            it["readMin"] = normalize_read_min(3)
     return items
 
 

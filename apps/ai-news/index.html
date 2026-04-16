@@ -456,6 +456,15 @@
       border: 1px solid var(--border);
       padding: 10px var(--sp-4);
       margin-bottom: var(--sp-3);
+      /* スクロール中も常に手元に。navbar (56px sticky) の直下に貼り付き */
+      position: sticky;
+      top: 56px;
+      z-index: 9;
+      box-shadow: 0 2px 8px rgba(0,31,51,0.04);
+    }
+    @media (max-width: 600px) {
+      .cmd-bar { padding: 8px 10px; }
+      .cmd-progress { flex-basis: 100%; min-width: 0; }
     }
     .cmd-progress {
       display: flex; align-items: center; gap: 10px;
@@ -704,9 +713,9 @@
         { icon: '⌨️', text: 'キーボードで読み進め可：「/」検索・「j/k」移動・「n」次の未読・「?」ヘルプ' }
       ],
       updates: [
-        { date: '04/16', text: '読み切る体験を強化：既読プログレス・「次の未読」「全部既読」・キーボードショートカット (?) を追加' },
-        { date: '04/16', text: '最終更新時刻をヘッダに表示。シード／実データの状態が一目で分かるように' },
-        { date: '04/15', text: '初回リリース：TOP/BRIEFING/MORE の優先度別レイアウトで「10分で読める」体験に' }
+        { date: '04/16', text: 'コマンドバーをスクロール追従(sticky)化：どこを読んでいても「次の未読」が1タップで使える' },
+        { date: '04/16', text: '起動を「シード即表示→裏で実データ差し替え」方式に。fetch完了を待たず一瞬で読み始められる' },
+        { date: '04/16', text: '読了体験を強化：既読プログレス・「次の未読」「全部既読」・キーボードショートカット (?) を追加' }
       ]
     });
   </script>
