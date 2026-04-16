@@ -222,6 +222,58 @@
     }
   }
 
+  /* ────────── ⑤b トレンド抽出 ──────────  */
+  function extractTrends() {
+    const freq = {};
+    for (const n of NEWS_DATA) {
+      for (const t of (n.tags || [])) {
+        freq[t] = (freq[t] || 0) + 1;
+      }
+    }
+    return Object.entries(freq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([tag, count]) => ({ tag, count }));
+  }
+
+  function renderTrends() {
+    const bar = document.getElementById('trend-bar');
+    if (!bar) return;
+    const trends = extractTrends();
+    const label = '<span class="trend-label">TRENDS</span>';
+    const pills = trends.map(t =>
+      `<button class="trend-pill" data-trend="${escapeHtml(t.tag)}">#${escapeHtml(t.tag)}<span class="trend-count">${t.count}</span></button>`
+    ).join('');
+    bar.innerHTML = label + pills;
+    bar.querySelectorAll('.trend-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tag = btn.dataset.trend;
+        const search = document.getElementById('search');
+        if (search) {
+          const isActive = btn.classList.contains('active');
+          bar.querySelectorAll('.trend-pill').forEach(b => b.classList.remove('active'));
+          if (isActive) {
+            search.value = '';
+            state.keyword = '';
+          } else {
+            btn.classList.add('active');
+            search.value = tag;
+            state.keyword = tag;
+          }
+          renderMore(_moreRef);
+        }
+      });
+    });
+  }
+
+  /* ────────── ⑤c ポイント抽出（サマリーから要点を1行抽出） ──────────  */
+  function extractTakeaway(summary) {
+    if (!summary) return '';
+    const sentences = summary.split(/[。．\.\n]/).filter(s => s.trim());
+    if (sentences.length <= 1) return summary.trim();
+    return sentences[sentences.length - 1].trim();
+  }
+
   /* ────────── ⑥ 仕分け ──────────  */
   function partition() {
     const sorted = [...NEWS_DATA].sort((a, b) => {
@@ -254,6 +306,7 @@
     const isRead = state.read.has(top.id);
     const isFav  = state.fav.has(top.id);
     const cat = top.category;
+    const takeaway = extractTakeaway(top.summary);
     root.innerHTML = `
       <article class="top-card${isRead ? ' read' : ''}" data-id="${top.id}" data-url="${escapeHtml(top.url)}" tabindex="0" role="link" aria-label="${escapeHtml(top.title)}">
         <div class="top-meta">
@@ -264,19 +317,22 @@
         </div>
         <h2 class="top-title">${escapeHtml(top.title)}</h2>
         <p class="top-summary">${escapeHtml(top.summary)}</p>
+        <div class="top-takeaway">
+          <div class="top-takeaway-label">💡 ポイント</div>
+          <div class="top-takeaway-text">${escapeHtml(takeaway)}</div>
+        </div>
         <div class="top-foot">
           <div>${(top.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ')}</div>
           <div style="display:flex;align-items:center;gap:12px;">
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${top.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-            <span class="meta-source" style="color:var(--gold);">記事を開く →</span>
+            <a class="top-ext-link" href="${escapeHtml(top.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（英語）→</a>
           </div>
         </div>
       </article>`;
     const card = root.querySelector('.top-card');
     card.addEventListener('click', e => {
-      if (e.target.closest('.star-btn')) return;
+      if (e.target.closest('.star-btn') || e.target.closest('.top-ext-link')) return;
       markRead(top.id, card);
-      openExternal(top.url);
     });
     const star = root.querySelector('.star-btn');
     if (star) star.addEventListener('click', e => { e.stopPropagation(); toggleFav(top.id, star); });
@@ -293,29 +349,28 @@
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
       return `
-        <div class="brief-item${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="link" aria-label="${escapeHtml(n.title)}">
-          <div class="brief-num">${String(i+1).padStart(2,'0')}</div>
-          <div class="brief-body">
-            <div class="brief-meta">
-              <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-              <span class="meta-source">${escapeHtml(n.source)}</span>
-              <span class="meta-time">${escapeHtml(fmtDate(n.publishedAt))}</span>
-            </div>
-            <div class="brief-title">${escapeHtml(n.title)}</div>
-            <div class="brief-summary">${escapeHtml(n.summary)}</div>
+        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="link" aria-label="${escapeHtml(n.title)}">
+          <div class="brief-card-head">
+            <span class="brief-card-num">${String(i+1).padStart(2,'0')}</span>
+            <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
+            <span class="meta-source">${escapeHtml(n.source)}</span>
+            <span class="meta-time">${escapeHtml(fmtDate(n.publishedAt))}</span>
           </div>
-          <div class="brief-side">
-            <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-            <span class="meta-read">⏱ ${n.readMin || 1}分</span>
+          <div class="brief-card-title">${escapeHtml(n.title)}</div>
+          <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
+          <div class="brief-card-foot">
+            <div class="brief-card-tags">${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
+              <a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事（英語）→</a>
+            </div>
           </div>
         </div>`;
     }).join('');
-    root.querySelectorAll('.brief-item').forEach(el => {
+    root.querySelectorAll('.brief-card').forEach(el => {
       el.addEventListener('click', e => {
-        if (e.target.closest('.star-btn')) return;
-        const id = el.dataset.id;
-        markRead(id, el);
-        openExternal(el.dataset.url);
+        if (e.target.closest('.star-btn') || e.target.closest('.brief-ext-link')) return;
+        markRead(el.dataset.id, el);
       });
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
@@ -365,7 +420,10 @@
       return `
         <div class="more-item${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="link" aria-label="${escapeHtml(n.title)}">
           <span class="more-cat ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-          <div class="more-title">${escapeHtml(n.title)}</div>
+          <div class="more-title-wrap">
+            <div class="more-title">${escapeHtml(n.title)}</div>
+            <div class="more-summary">${escapeHtml(n.summary)}</div>
+          </div>
           <span class="more-source">${escapeHtml(n.source)}</span>
           <button class="star-btn${state.fav.has(n.id) ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
         </div>`;
@@ -497,7 +555,7 @@
 
   /* ────────── ⑩ 進捗 / 全部既読 / 次の未読 ──────────  */
   function getNavItems() {
-    return Array.from(document.querySelectorAll('.top-card[data-id], .brief-item[data-id], .more-item[data-id]'));
+    return Array.from(document.querySelectorAll('.top-card[data-id], .brief-card[data-id], .more-item[data-id]'));
   }
   function updateProgress() {
     // 母数は NEWS_DATA 全件（MORE のフィルタで分母が変動しないように）
@@ -529,7 +587,7 @@
   function markAllRead() {
     NEWS_DATA.forEach(n => state.read.add(n.id));
     saveSet(STORE_KEY_READ, state.read);
-    document.querySelectorAll('.top-card[data-id], .brief-item[data-id], .more-item[data-id]')
+    document.querySelectorAll('.top-card[data-id], .brief-card[data-id], .more-item[data-id]')
       .forEach(el => el.classList.add('read'));
     updateProgress();
   }
@@ -623,6 +681,7 @@
   function fullRender() {
     const { top, briefing, more } = partition();
     _moreRef = more;
+    renderTrends();
     renderTopStory(top);
     renderBriefing(briefing);
     renderTabs(more);

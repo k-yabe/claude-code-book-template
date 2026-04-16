@@ -123,7 +123,7 @@
       flex-wrap: wrap;
     }
     .top-title {
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       font-weight: 800;
       color: var(--navy);
       line-height: 1.35;
@@ -131,10 +131,10 @@
       margin-bottom: var(--sp-3);
     }
     .top-summary {
-      font-size: 0.92rem;
+      font-size: 1rem;
       color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: var(--sp-3);
+      line-height: 1.8;
+      margin-bottom: var(--sp-2);
     }
     .top-foot {
       display: flex; align-items: center; justify-content: space-between;
@@ -145,8 +145,8 @@
     }
     @media (max-width: 600px) {
       .top-card { padding: var(--sp-4); }
-      .top-title { font-size: 1.1rem; }
-      .top-summary { font-size: 0.84rem; }
+      .top-title { font-size: 1.2rem; }
+      .top-summary { font-size: 0.88rem; line-height: 1.7; }
     }
 
     /* ── ⚡ BRIEFING ── */
@@ -312,15 +312,10 @@
       text-align: center;
     }
     .more-title {
-      font-size: 0.82rem;
-      font-weight: 600;
+      font-size: 0.85rem;
+      font-weight: 700;
       color: var(--navy);
       line-height: 1.4;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
     }
     .more-source {
       font-size: 0.65rem;
@@ -561,22 +556,148 @@
 
     /* ── キーボードフォーカス可視化 ── */
     .top-card:focus-visible,
-    .brief-item:focus-visible,
+    .brief-card:focus-visible,
     .more-item:focus-visible {
       outline: 2px solid var(--gold);
       outline-offset: -2px;
       background: var(--surface-alt);
     }
 
-    /* ── 小画面: more-item をシンプル化 ── */
+    /* ── トレンドバー ── */
+    .trend-bar {
+      display: flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      margin-bottom: var(--sp-3);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .trend-bar::-webkit-scrollbar { display: none; }
+    .trend-label {
+      font-size: 0.62rem; font-weight: 800; color: var(--navy);
+      letter-spacing: 0.08em; white-space: nowrap; margin-right: 4px;
+    }
+    .trend-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      font-size: 0.68rem; font-weight: 700;
+      color: var(--navy); background: var(--surface-alt);
+      border: 1.5px solid var(--border);
+      cursor: pointer; white-space: nowrap;
+      font-family: var(--font-sans);
+      transition: all var(--ease);
+    }
+    .trend-pill:hover { border-color: var(--gold); background: var(--gold-20); }
+    .trend-pill.active { background: var(--navy); color: var(--gold); border-color: var(--navy); }
+    .trend-count {
+      font-size: 0.58rem; font-weight: 800;
+      background: var(--border-light); color: var(--text-muted);
+      padding: 1px 5px;
+    }
+    .trend-pill.active .trend-count { background: rgba(255,255,255,0.15); color: var(--gold); }
+
+    /* ── BRIEFING カードグリッド ── */
+    .brief-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--sp-3);
+    }
+    .brief-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--cyan);
+      padding: var(--sp-4);
+      cursor: pointer;
+      transition: transform var(--ease), box-shadow var(--ease);
+      position: relative;
+      display: flex; flex-direction: column;
+    }
+    .brief-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .brief-card.read { opacity: 0.55; }
+    .brief-card-head {
+      display: flex; align-items: center; gap: var(--sp-2);
+      margin-bottom: var(--sp-2);
+    }
+    .brief-card-num {
+      width: 28px; height: 28px;
+      background: var(--navy); color: var(--gold);
+      font-size: 0.72rem; font-weight: 800;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .brief-card-title {
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--navy); line-height: 1.4;
+      margin-bottom: var(--sp-2);
+    }
+    .brief-card-summary {
+      font-size: 0.84rem; color: var(--text-secondary);
+      line-height: 1.7; margin-bottom: var(--sp-3);
+      flex: 1;
+    }
+    .brief-card-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-2);
+      padding-top: var(--sp-2);
+      border-top: 1px solid var(--border-light);
+      flex-wrap: wrap;
+    }
+    .brief-card-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .brief-ext-link {
+      font-size: 0.62rem; color: var(--text-faint); font-weight: 600;
+      text-decoration: none; white-space: nowrap;
+    }
+    .brief-ext-link:hover { color: var(--gold); }
+
+    /* ── TOP STORY ポイントCallout ── */
+    .top-takeaway {
+      background: var(--gold-20);
+      border-left: 3px solid var(--gold);
+      padding: var(--sp-3) var(--sp-4);
+      margin: var(--sp-3) 0;
+    }
+    .top-takeaway-label {
+      font-size: 0.65rem; font-weight: 800; color: var(--gold);
+      letter-spacing: 0.1em; margin-bottom: 2px;
+    }
+    .top-takeaway-text {
+      font-size: 0.88rem; font-weight: 600; color: var(--navy);
+      line-height: 1.5;
+    }
+    .top-ext-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.7rem; color: var(--text-faint); font-weight: 600;
+      text-decoration: none; padding: 4px 0;
+    }
+    .top-ext-link:hover { color: var(--gold); }
+
+    /* ── MORE READS サマリー付き ── */
+    .more-summary {
+      font-size: 0.75rem; color: var(--text-secondary);
+      line-height: 1.55; margin-top: 2px;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .more-title-wrap { min-width: 0; }
+
+    /* ── 小画面 ── */
     @media (max-width: 600px) {
       .more-item {
         grid-template-columns: auto 1fr;
         row-gap: 6px;
       }
       .more-source { grid-column: 2; }
-      .brief-item { grid-template-columns: 32px 1fr; }
-      .brief-side { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+      .brief-grid { grid-template-columns: 1fr; }
+      .brief-card { padding: var(--sp-3); }
+      .trend-bar { padding: var(--sp-2) var(--sp-3); }
+    }
+    @media (max-width: 900px) {
+      .brief-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -615,6 +736,11 @@
       </div>
     </section>
 
+    <!-- トレンドバー -->
+    <div class="trend-bar" id="trend-bar">
+      <span class="trend-label">TRENDS</span>
+    </div>
+
     <!-- コマンドバー -->
     <div class="cmd-bar">
       <div class="cmd-progress">
@@ -645,7 +771,7 @@
       <span class="sec-sub">押さえておくべき5本（各1分）</span>
       <span class="sec-line"></span>
     </div>
-    <div class="brief-list" id="briefing"></div>
+    <div class="brief-grid" id="briefing"></div>
 
     <!-- 📑 MORE READS -->
     <div class="sec-head">
@@ -714,9 +840,9 @@
         { icon: '⌨️', text: 'キーボードで読み進め可：「/」検索・「j/k」移動・「n」次の未読・「?」ヘルプ' }
       ],
       updates: [
-        { date: '04/16', text: 'カテゴリ・お気に入り・「未読のみ」フィルタの状態が次回起動時にも復元されるように' },
-        { date: '04/16', text: 'コマンドバーをスクロール追従(sticky)化：どこを読んでいても「次の未読」が1タップで使える' },
-        { date: '04/16', text: '起動を「シード即表示→裏で実データ差し替え」方式に。fetch完了を待たず一瞬で読み始められる' }
+        { date: '04/16', text: 'マガジン型UIに大幅リデザイン：サマリー中心設計で英語リンク不要、トレンドバー追加、BRIEFINGをカードグリッド化' },
+        { date: '04/16', text: 'TOP STORYに「💡 ポイント」Calloutを追加：一行で要点が把握できる' },
+        { date: '04/16', text: 'トレンドキーワード可視化：今日のホットトピックが一目でわかる' }
       ]
     });
   </script>
