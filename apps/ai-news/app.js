@@ -145,37 +145,55 @@
     }
   ];
 
-  /* ────────── ② Xハイライト ──────────  */
-  const X_HIGHLIGHTS = [
+  /* ────────── ② Xハイライト（生成AIトレンド収集） ──────────
+     目的: Xで話題の生成AI関連ポストを収集し、マーケ実務に活かせるトレンドを提示する。
+     将来的にはX APIで自動収集。現在はシードデータ。
+  */
+  let X_HIGHLIGHTS = [
     {
-      id: 'x1', author: 'Rand Fishkin', handle: '@randfish',
-      text: '「SEO is dead」じゃなくて「Search is everywhere」。LLM・YouTube・TikTok・Redditそれぞれにブランドを置く時代へ。',
+      id: 'x1', author: '深津貴之', handle: '@fladdict',
+      text: 'Claude Codeが本当にやばい。プロンプト1行で「設計→実装→テスト→デプロイ」まで全部やる。エンジニアの仕事の定義が変わりつつある。',
+      tag: 'AIエージェント', url: 'https://x.com/fladdict'
+    },
+    {
+      id: 'x2', author: 'Ethan Mollick', handle: '@emollick',
+      text: 'AI is not replacing jobs. It\'s replacing tasks. The companies that win will be the ones that redesign workflows around AI, not just add AI to existing ones.',
+      tag: 'AI×組織変革', url: 'https://x.com/emollick'
+    },
+    {
+      id: 'x3', author: '安宅和人', handle: '@klozan',
+      text: '生成AIで「知的生産のコスト」が限りなくゼロに近づく。差別化は「何を作るか」ではなく「何を問うか」に完全シフトした。',
+      tag: 'AI戦略', url: 'https://x.com/klozan'
+    },
+    {
+      id: 'x4', author: 'Andrew Ng', handle: '@AndrewYNg',
+      text: 'Agentic workflows are the next frontier. Instead of prompting a model once, build systems where AI agents iterate, critique, and refine. The quality leap is dramatic.',
+      tag: 'AIエージェント', url: 'https://x.com/AndrewYNg'
+    },
+    {
+      id: 'x5', author: '松尾豊', handle: '@ymatsuo',
+      text: '日本企業のAI導入率がようやく50%を超えた。だが「導入した」と「成果が出ている」の間には巨大なギャップがある。プロンプト教育だけでは不十分で、業務プロセス自体の再設計が必須。',
+      tag: 'AI導入', url: 'https://x.com/ymatsuo'
+    },
+    {
+      id: 'x6', author: 'Lenny Rachitsky', handle: '@lennysan',
+      text: 'Every PM I know is using AI daily now. The ones pulling ahead aren\'t just writing prompts — they\'re building internal tools with Claude/GPT that save their team 10+ hrs/week.',
+      tag: 'AI×プロダクト', url: 'https://x.com/lennysan'
+    },
+    {
+      id: 'x7', author: '落合陽一', handle: '@ochyai',
+      text: 'マルチモーダルAIの進化で「テキストだけのマーケティング」は確実に価値が下がる。画像・動画・音声を横断的に生成・最適化できるチームが勝つ。',
+      tag: 'マルチモーダルAI', url: 'https://x.com/ochyai'
+    },
+    {
+      id: 'x8', author: 'Rand Fishkin', handle: '@randfish',
+      text: '「SEO is dead」じゃなくて「Search is everywhere」。ChatGPT・Perplexity・YouTube・TikTok・Redditそれぞれにブランドを置く時代。GEOは生成AI時代のSEO。',
       tag: 'GEO', url: 'https://x.com/randfish'
     },
     {
-      id: 'x4', author: '田端信太郎', handle: '@tabbata',
-      text: 'BtoB企業こそSNSで「中の人の顔」を見せるべき。採用も商談もコンテンツが起点。広告費を使う前にまず発信。',
-      tag: 'B2Bブランディング', url: 'https://x.com/tabbata'
-    },
-    {
-      id: 'x2', author: 'April Dunford', handle: '@aprildunford',
-      text: 'B2Bポジショニングは「自社の強み」じゃなく「お客様が本当に比較している競合」を中心に組み立てるとハマる。',
-      tag: 'B2B', url: 'https://x.com/aprildunford'
-    },
-    {
-      id: 'x5', author: '落合陽一', handle: '@ochyai',
-      text: 'AIネイティブ世代が企業の意思決定層に入り始めた。提案書も稟議もAI前提。受注側のマーケもAIリテラシーが必須。',
-      tag: 'AI×ビジネス', url: 'https://x.com/ochyai'
-    },
-    {
-      id: 'x3', author: 'Amanda Natividad', handle: '@amandanat',
-      text: 'Zero-Click Content の時代は、SNS上で完結するインサイト発信＋それを束ねた長尺記事のセットが最強。',
-      tag: 'Content', url: 'https://x.com/amandanat'
-    },
-    {
-      id: 'x6', author: '黒瀬友梨', handle: '@yurikurose',
-      text: '採用マーケでいちばん効くのは「社員の日常」の切り取り。採用LPより、社員のリアル投稿のほうがCVR高いのはもう常識。',
-      tag: '採用マーケ', url: 'https://x.com/yurikurose'
+      id: 'x9', author: '成田悠輔', handle: '@naaboron',
+      text: 'AIが「平均的な仕事」を代替するスピードが想定より速い。採用市場では「AIを使いこなせる人」のプレミアムが月単位で上がっている感覚。',
+      tag: 'AI×採用市場', url: 'https://x.com/naaboron'
     }
   ];
 
@@ -634,6 +652,17 @@
       if (Array.isArray(json.executiveSummary) && json.executiveSummary.length) {
         EXEC_SUMMARY = json.executiveSummary.map(String);
       }
+      // X Highlights を更新（将来 scraper が収集した場合）
+      if (Array.isArray(json.xHighlights) && json.xHighlights.length) {
+        X_HIGHLIGHTS = json.xHighlights.map((x, i) => ({
+          id: x.id || ('x_' + i),
+          author: String(x.author || ''),
+          handle: String(x.handle || ''),
+          text: String(x.text || ''),
+          tag: String(x.tag || ''),
+          url: String(x.url || '')
+        }));
+      }
       dataMeta = { updatedAt: json.updatedAt || null, generatedFor: json.generatedFor || null };
       return true;
     } catch (e) {
@@ -814,6 +843,7 @@
       renderHero();
       applyMeta(true);
       fullRender();
+      renderX();
       // wireUp が掴んでた more 参照を新しい _moreRef に置き換える
       rewireMore();
     }
