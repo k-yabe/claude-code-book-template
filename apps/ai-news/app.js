@@ -456,7 +456,7 @@
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
       return `
-        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="link" aria-label="${escapeHtml(n.title)}">
+        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           <div class="brief-card-head">
             <span class="brief-card-num">${String(i+1).padStart(2,'0')}</span>
             <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
@@ -537,21 +537,33 @@
       const isRead = state.read.has(n.id);
       const cat = n.category;
       return `
-        <div class="more-item${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="link" aria-label="${escapeHtml(n.title)}">
+        <div class="more-item${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           <span class="more-cat ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
           <div class="more-title-wrap">
             <div class="more-title">${escapeHtml(n.title)}</div>
             <div class="more-summary">${escapeHtml(n.whyItMatters || n.summary)}</div>
           </div>
           <span class="more-source">${escapeHtml(n.source)}</span>
-          <button class="star-btn${state.fav.has(n.id) ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩' : '✓'}</button>
+            <button class="star-btn${state.fav.has(n.id) ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
+          </div>
         </div>`;
     }).join('');
     root.querySelectorAll('.more-item').forEach(el => {
       el.addEventListener('click', e => {
-        if (e.target.closest('.star-btn')) return;
+        if (e.target.closest('.star-btn') || e.target.closest('.brief-read-toggle')) return;
         markRead(el.dataset.id, el);
         openExternal(el.dataset.url);
+      });
+    });
+    root.querySelectorAll('.brief-read-toggle').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = btn.dataset.readId;
+        const item = btn.closest('.more-item');
+        toggleRead(id, item);
+        btn.textContent = state.read.has(id) ? '↩' : '✓';
       });
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
