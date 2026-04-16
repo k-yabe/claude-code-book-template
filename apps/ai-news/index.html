@@ -13,166 +13,260 @@
     /* ── レイアウト全体 ── */
     body { background: var(--bg); }
     .news-shell {
-      max-width: 1280px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: var(--sp-6) var(--sp-6) var(--sp-10);
+      padding: var(--sp-5) var(--sp-5) var(--sp-10);
     }
     @media (max-width: 600px) {
-      .news-shell { padding: var(--sp-4) var(--sp-3) var(--sp-8); }
+      .news-shell { padding: var(--sp-4) var(--sp-3) var(--sp-7); }
     }
 
-    /* ── ヒーロー ── */
+    /* ── ヒーロー（slim） ── */
     .hero {
       background: var(--navy);
       color: var(--white);
-      padding: var(--sp-7) var(--sp-7) var(--sp-6);
-      margin-bottom: var(--sp-5);
-      position: relative;
-      overflow: hidden;
+      padding: var(--sp-5) var(--sp-6);
+      margin-bottom: var(--sp-4);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: var(--sp-4);
       border-top: 3px solid var(--gold);
     }
-    .hero::after {
-      content: '';
-      position: absolute;
-      right: -80px; top: -80px;
-      width: 320px; height: 320px;
-      background: radial-gradient(circle, rgba(255,184,28,0.18) 0%, transparent 70%);
-      pointer-events: none;
-    }
+    .hero-left { display: flex; align-items: center; gap: var(--sp-4); }
     .hero-eyebrow {
-      font-size: 0.65rem;
-      font-weight: 800;
-      letter-spacing: 0.22em;
-      color: var(--gold);
-      margin-bottom: var(--sp-2);
+      font-size: 0.6rem; font-weight: 800;
+      letter-spacing: 0.2em; color: var(--gold);
+      margin-bottom: 4px;
     }
     .hero-title {
-      font-size: 1.85rem;
+      font-size: 1.25rem;
       font-weight: 800;
-      letter-spacing: -0.02em;
-      margin-bottom: var(--sp-2);
-      line-height: 1.15;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
     }
-    .hero-title .pulse {
+    .hero-pulse {
       display: inline-block;
-      width: 10px; height: 10px;
+      width: 8px; height: 8px;
       background: var(--gold);
       border-radius: 50%;
-      margin-right: 10px;
-      animation: pulse 1.6s ease-in-out infinite;
+      margin-right: 8px;
       vertical-align: middle;
+      animation: pulse 1.6s ease-in-out infinite;
     }
     @keyframes pulse {
       0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,184,28,0.6); }
-      50% { opacity: 0.6; box-shadow: 0 0 0 8px rgba(255,184,28,0); }
-    }
-    .hero-sub {
-      font-size: var(--text-sm);
-      color: rgba(255,255,255,0.7);
-      margin-bottom: var(--sp-5);
+      50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(255,184,28,0); }
     }
     .hero-meta {
-      display: flex; flex-wrap: wrap; gap: var(--sp-5);
-      padding-top: var(--sp-4);
-      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex; gap: var(--sp-4); flex-wrap: wrap;
     }
     .hero-stat {
-      display: flex; flex-direction: column; gap: 2px;
+      display: flex; flex-direction: column; gap: 1px; min-width: 60px;
     }
     .hero-stat-num {
-      font-size: 1.55rem;
-      font-weight: 800;
-      color: var(--gold);
-      letter-spacing: -0.01em;
-      line-height: 1;
+      font-size: 1.05rem; font-weight: 800; color: var(--white); line-height: 1;
     }
+    .hero-stat-num.accent { color: var(--gold); }
     .hero-stat-label {
-      font-size: 0.65rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.5);
+      font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
     }
     @media (max-width: 600px) {
-      .hero { padding: var(--sp-5) var(--sp-4); }
-      .hero-title { font-size: 1.4rem; }
-      .hero-meta { gap: var(--sp-4); }
-      .hero-stat-num { font-size: 1.2rem; }
+      .hero { padding: var(--sp-4); }
+      .hero-title { font-size: 1.05rem; }
     }
 
-    /* ── ツールバー（フィルタ・検索） ── */
-    .toolbar {
+    /* ── 共通: セクション見出し ── */
+    .sec-head {
+      display: flex; align-items: center; gap: var(--sp-2);
+      margin: var(--sp-5) 0 var(--sp-3);
+    }
+    .sec-head:first-child { margin-top: var(--sp-2); }
+    .sec-icon {
+      width: 28px; height: 28px;
+      background: var(--navy);
+      color: var(--gold);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+    .sec-icon.gold { background: var(--gold); color: var(--navy); }
+    .sec-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: 0.01em;
+    }
+    .sec-sub {
+      font-size: 0.7rem;
+      color: var(--text-faint);
+      margin-left: 4px;
+    }
+    .sec-line { flex: 1; height: 1px; background: var(--border); }
+
+    /* ── 🔥 TOP STORY ── */
+    .top-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      padding: var(--sp-4) var(--sp-5);
-      margin-bottom: var(--sp-4);
-      display: flex; flex-direction: column; gap: var(--sp-3);
+      border-left: 4px solid var(--gold);
+      padding: var(--sp-5) var(--sp-5) var(--sp-4);
+      cursor: pointer;
+      position: relative;
+      transition: transform var(--ease-base), box-shadow var(--ease-base);
     }
-    .toolbar-row {
-      display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3);
+    .top-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0,31,51,0.10);
+    }
+    .top-meta {
+      display: flex; align-items: center; gap: var(--sp-2);
+      margin-bottom: var(--sp-3);
+      flex-wrap: wrap;
+    }
+    .top-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      margin-bottom: var(--sp-3);
+    }
+    .top-summary {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: var(--sp-3);
+    }
+    .top-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-2);
+      padding-top: var(--sp-3);
+      border-top: 1px solid var(--border-light);
+      flex-wrap: wrap;
+    }
+    @media (max-width: 600px) {
+      .top-card { padding: var(--sp-4); }
+      .top-title { font-size: 1.1rem; }
+      .top-summary { font-size: 0.84rem; }
+    }
+
+    /* ── ⚡ BRIEFING ── */
+    .brief-list {
+      display: flex; flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .brief-item {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: var(--sp-3);
+      align-items: flex-start;
+      padding: var(--sp-4) var(--sp-4);
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+      transition: background var(--ease-base);
+      text-decoration: none;
+      color: inherit;
+    }
+    .brief-item:last-child { border-bottom: none; }
+    .brief-item:hover { background: var(--surface-alt); }
+    .brief-item.read { opacity: 0.55; }
+    .brief-num {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1.4;
+      letter-spacing: 0.02em;
+    }
+    .brief-body { min-width: 0; }
+    .brief-meta {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .brief-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    .brief-summary {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+    .brief-side {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+    }
+
+    /* ── 📑 MORE READS ── */
+    .more-toolbar {
+      display: flex; flex-wrap: wrap; gap: var(--sp-2);
+      align-items: center; justify-content: space-between;
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom: none;
     }
     .tabs {
       display: flex; flex-wrap: wrap; gap: 4px;
     }
     .tab {
-      padding: 7px 14px;
-      font-size: var(--text-sm);
-      font-weight: 600;
+      padding: 4px 10px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
       color: var(--text-muted);
       background: transparent;
       border: 1.5px solid transparent;
       cursor: pointer;
       font-family: var(--font-sans);
       transition: all var(--ease-base);
-      letter-spacing: 0.01em;
     }
     .tab:hover { color: var(--navy); background: var(--surface-alt); }
     .tab.active {
-      color: var(--white);
+      color: var(--gold);
       background: var(--navy);
     }
     .tab .tab-count {
       display: inline-block;
-      margin-left: 6px;
-      font-size: 0.62rem;
-      font-weight: 700;
+      margin-left: 4px;
+      font-size: 0.6rem;
       opacity: 0.7;
     }
-
-    .search-wrap {
-      flex: 1;
-      min-width: 200px;
-      position: relative;
+    .more-actions {
+      display: flex; gap: 4px; align-items: center;
     }
-    .search-input {
+    .more-search {
+      position: relative;
+      width: 220px;
+      max-width: 100%;
+    }
+    .more-search input {
       width: 100%;
-      padding: 9px 14px 9px 36px;
-      font-size: var(--text-sm);
-      font-family: var(--font-sans);
+      padding: 6px 12px 6px 30px !important;
+      min-height: 30px !important;
+      font-size: 0.75rem !important;
       border: 1.5px solid var(--border);
       background: var(--surface);
       color: var(--text);
       outline: none;
-      transition: border-color var(--ease-base), box-shadow var(--ease-base);
+      box-shadow: none !important;
+      font-family: var(--font-sans);
     }
-    .search-input:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px var(--focus-ring);
+    .more-search input:focus {
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 0 3px var(--focus-ring) !important;
     }
-    .search-icon {
+    .more-search-icon {
       position: absolute;
-      left: 12px; top: 50%;
-      transform: translateY(-50%);
+      left: 10px; top: 50%; transform: translateY(-50%);
       color: var(--text-faint);
-      font-size: 0.95rem;
+      font-size: 0.8rem;
       pointer-events: none;
     }
-
-    .toolbar-actions {
-      display: flex; gap: var(--sp-2); align-items: center;
-    }
     .icon-toggle {
-      padding: 7px 12px;
-      font-size: var(--text-xs);
+      padding: 5px 10px;
+      font-size: 0.68rem;
       font-weight: 700;
       letter-spacing: 0.04em;
       color: var(--text-muted);
@@ -181,7 +275,6 @@
       cursor: pointer;
       font-family: var(--font-sans);
       transition: all var(--ease-base);
-      display: inline-flex; align-items: center; gap: 5px;
     }
     .icon-toggle:hover { border-color: var(--navy); color: var(--navy); }
     .icon-toggle.active {
@@ -189,243 +282,114 @@
       color: var(--navy);
       border-color: var(--gold);
     }
-    .icon-toggle .star { font-size: 0.85rem; }
 
-    /* ── ソース chip ── */
-    .source-chips {
-      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-    }
-    .chip-label {
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      margin-right: 4px;
-    }
-    .chip {
-      padding: 4px 10px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      background: var(--surface-alt);
-      border: 1px solid var(--border);
-      cursor: pointer;
-      font-family: var(--font-sans);
-      transition: all var(--ease-base);
-    }
-    .chip:hover { color: var(--navy); border-color: var(--navy-40); }
-    .chip.active {
-      background: var(--navy);
-      color: var(--white);
-      border-color: var(--navy);
-    }
-    .chip-clear {
-      font-size: 0.65rem;
-      color: var(--text-faint);
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-decoration: underline;
-      padding: 0 6px;
-      font-family: var(--font-sans);
-    }
-    .chip-clear:hover { color: var(--navy); }
-
-    /* ── レイアウト: メイン + サイド ── */
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: var(--sp-5);
-      align-items: flex-start;
-    }
-    @media (max-width: 960px) {
-      .layout { grid-template-columns: 1fr; }
-    }
-
-    /* ── ニュースグリッド ── */
-    .news-section-title {
-      font-size: 0.7rem;
-      font-weight: 800;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      margin-bottom: var(--sp-3);
-      display: flex; align-items: center; gap: var(--sp-2);
-    }
-    .news-section-title .line {
-      flex: 1; height: 1px; background: var(--border);
-    }
-    .news-section-title .count {
-      font-size: 0.62rem;
-      color: var(--text-muted);
-      background: var(--border-light);
-      padding: 1px 8px;
-      letter-spacing: 0.04em;
-    }
-
-    .news-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: var(--sp-3);
-      margin-bottom: var(--sp-6);
-    }
-    @media (max-width: 600px) {
-      .news-grid { grid-template-columns: 1fr; }
-    }
-
-    .news-card {
+    .more-list {
       background: var(--surface);
       border: 1px solid var(--border);
-      padding: var(--sp-4) var(--sp-4) var(--sp-3);
       display: flex; flex-direction: column;
+    }
+    .more-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      gap: var(--sp-3);
+      align-items: center;
+      padding: 10px var(--sp-4);
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+      transition: background var(--ease-base);
       text-decoration: none;
       color: inherit;
-      position: relative;
-      transition: transform var(--ease-base), box-shadow var(--ease-base), border-color var(--ease-base);
-      cursor: pointer;
     }
-    .news-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: transparent;
-      transition: background var(--ease-base);
+    .more-item:last-child { border-bottom: none; }
+    .more-item:hover { background: var(--surface-alt); }
+    .more-item.read { opacity: 0.55; }
+    .more-cat {
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 2px 6px;
+      width: 80px;
+      text-align: center;
     }
-    .news-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0,31,51,0.08);
-      border-color: var(--navy-40);
-    }
-    .news-card:hover::before { background: var(--gold); }
-    .news-card.read { opacity: 0.55; }
-    .news-card.read::before { background: var(--navy-20); }
-
-    .card-head {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: var(--sp-2);
-      margin-bottom: var(--sp-3);
-    }
-    .card-source {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
+    .more-title {
+      font-size: 0.82rem;
+      font-weight: 600;
       color: var(--navy);
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .more-source {
+      font-size: 0.65rem;
+      color: var(--text-faint);
+      white-space: nowrap;
+    }
+
+    /* ── カテゴリ色（共通） ── */
+    .cat-marketing { background: var(--gold-20); color: var(--navy); }
+    .cat-market    { background: rgba(0,255,255,0.15); color: var(--navy); }
+    .cat-ai        { background: var(--navy); color: var(--gold); }
+
+    .meta-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.62rem; font-weight: 700;
+      padding: 2px 8px; letter-spacing: 0.06em;
       text-transform: uppercase;
     }
-    .card-source-dot {
-      width: 6px; height: 6px;
-      background: var(--gold);
-      border-radius: 50%;
-      flex-shrink: 0;
+    .meta-source {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: 0.04em;
     }
-    .card-source.cat-marketing .card-source-dot { background: var(--gold); }
-    .card-source.cat-market    .card-source-dot { background: var(--cyan); }
-    .card-source.cat-ai        .card-source-dot { background: var(--navy); }
-    .card-source.cat-x         .card-source-dot { background: #1da1f2; }
+    .meta-time {
+      font-size: 0.65rem;
+      color: var(--text-faint);
+      font-weight: 600;
+    }
+    .meta-read {
+      font-size: 0.62rem;
+      color: var(--text-faint);
+      font-weight: 600;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--border-light);
+      padding: 1px 7px;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── ★ ボタン ── */
     .star-btn {
       background: none; border: none; cursor: pointer;
-      font-size: 1.05rem;
+      font-size: 1rem;
       color: var(--navy-20);
-      padding: 0;
-      line-height: 1;
+      padding: 0; line-height: 1;
       transition: color var(--ease-base), transform var(--ease-base);
     }
     .star-btn:hover { transform: scale(1.15); color: var(--gold); }
     .star-btn.starred { color: var(--gold); }
 
-    .card-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--navy);
-      line-height: 1.4;
-      margin-bottom: var(--sp-2);
-      letter-spacing: -0.005em;
-    }
-    .card-summary {
-      font-size: 0.78rem;
-      color: var(--text-secondary);
-      line-height: 1.55;
-      margin-bottom: var(--sp-3);
-      flex: 1;
-    }
-    .card-foot {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: var(--sp-2);
-      padding-top: var(--sp-3);
-      border-top: 1px solid var(--border-light);
-    }
-    .card-time {
-      font-size: 0.65rem;
-      color: var(--text-faint);
-      font-weight: 600;
-      letter-spacing: 0.02em;
-    }
-    .card-tags {
-      display: flex; gap: 4px; flex-wrap: wrap;
-    }
-    .card-tag {
-      font-size: 0.6rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      background: var(--border-light);
-      padding: 2px 7px;
-      letter-spacing: 0.02em;
-    }
-    .card-cat-badge {
-      font-size: 0.58rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      padding: 2px 7px;
-      text-transform: uppercase;
-    }
-    .card-cat-badge.cat-marketing { background: var(--gold-20); color: var(--navy); }
-    .card-cat-badge.cat-market    { background: rgba(0,255,255,0.15); color: var(--navy); }
-    .card-cat-badge.cat-ai        { background: var(--navy); color: var(--gold); }
-
-    /* ── X サイドパネル ── */
-    .side {
-      position: sticky;
-      top: 80px;
-      align-self: flex-start;
-    }
-    @media (max-width: 960px) { .side { position: static; } }
-
-    .x-panel {
+    /* ── 𝕏 HIGHLIGHTS ── */
+    .x-section {
+      margin-top: var(--sp-6);
       background: var(--surface);
       border: 1px solid var(--border);
       border-top: 3px solid var(--navy);
-      padding: var(--sp-4) var(--sp-4) var(--sp-3);
+      padding: var(--sp-4) var(--sp-5) var(--sp-3);
     }
-    .x-panel-head {
-      display: flex; align-items: center; gap: var(--sp-2);
-      padding-bottom: var(--sp-3);
-      border-bottom: 1px solid var(--border-light);
-      margin-bottom: var(--sp-3);
+    .x-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: var(--sp-3);
     }
-    .x-panel-icon {
-      width: 28px; height: 28px;
-      background: var(--navy);
-      color: var(--white);
-      display: inline-flex; align-items: center; justify-content: center;
-      font-weight: 800;
-      font-size: 0.85rem;
-      flex-shrink: 0;
-    }
-    .x-panel-title {
-      font-size: 0.78rem;
-      font-weight: 800;
-      color: var(--navy);
-      letter-spacing: 0.02em;
-    }
-    .x-panel-sub {
-      font-size: 0.62rem;
-      color: var(--text-faint);
-      letter-spacing: 0.06em;
-    }
-    .x-list { display: flex; flex-direction: column; gap: var(--sp-3); }
     .x-item {
       display: block;
       padding: var(--sp-3);
@@ -433,75 +397,46 @@
       border-left: 3px solid var(--navy-20);
       text-decoration: none;
       color: inherit;
-      transition: border-color var(--ease-base), background var(--ease-base);
+      transition: all var(--ease-base);
     }
     .x-item:hover {
       border-left-color: var(--gold);
       background: var(--surface);
     }
-    .x-item-head {
+    .x-head {
       display: flex; align-items: center; gap: 8px;
       margin-bottom: 6px;
     }
-    .x-author {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--navy);
-    }
-    .x-handle {
-      font-size: 0.65rem;
-      color: var(--text-faint);
-    }
+    .x-author { font-size: 0.72rem; font-weight: 700; color: var(--navy); }
+    .x-handle { font-size: 0.65rem; color: var(--text-faint); }
     .x-text {
-      font-size: 0.74rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
       line-height: 1.55;
       margin-bottom: 6px;
     }
     .x-foot {
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: 0.62rem;
-      color: var(--text-faint);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.6rem; color: var(--text-faint);
     }
     .x-foot-tag {
       background: var(--border-light);
       padding: 1px 6px;
       font-weight: 600;
-      color: var(--text-muted);
     }
 
-    /* ── 空ステート / スケルトン ── */
+    /* ── 空ステート ── */
     .empty {
       text-align: center;
-      padding: var(--sp-10) var(--sp-5);
+      padding: var(--sp-7) var(--sp-5);
       background: var(--surface);
       border: 1px dashed var(--border);
       color: var(--text-muted);
     }
-    .empty-icon { font-size: 2rem; margin-bottom: var(--sp-2); opacity: 0.5; }
-    .empty-text { font-size: var(--text-sm); }
+    .empty-icon { font-size: 1.6rem; margin-bottom: 6px; opacity: 0.5; }
+    .empty-text { font-size: 0.78rem; }
 
-    .skel-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: var(--sp-4);
-      height: 200px;
-    }
-    .skel-line {
-      height: 10px;
-      background: linear-gradient(90deg, var(--border-light), var(--border), var(--border-light));
-      background-size: 200% 100%;
-      animation: shimmer 1.4s ease-in-out infinite;
-      margin-bottom: 10px;
-    }
-    .skel-line.short { width: 40%; }
-    .skel-line.medium { width: 70%; }
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    /* ── 注記フッター ── */
+    /* ── 注記 ── */
     .data-note {
       margin-top: var(--sp-5);
       padding: var(--sp-3) var(--sp-4);
@@ -512,6 +447,17 @@
       line-height: 1.6;
     }
     .data-note strong { color: var(--navy); }
+
+    /* ── 小画面: more-item をシンプル化 ── */
+    @media (max-width: 600px) {
+      .more-item {
+        grid-template-columns: auto 1fr;
+        row-gap: 6px;
+      }
+      .more-source { grid-column: 2; }
+      .brief-item { grid-template-columns: 32px 1fr; }
+      .brief-side { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+    }
   </style>
 </head>
 <body>
@@ -527,71 +473,78 @@
 
     <!-- ヒーロー -->
     <section class="hero">
-      <div class="hero-eyebrow">DAILY MARKETING BRIEF</div>
-      <h1 class="hero-title"><span class="pulse"></span>前日のマーケ業界、5分でキャッチアップ</h1>
-      <p class="hero-sub">複数媒体のニュースとXの有益情報を、マーケティングメンバー向けに横串で集約します。</p>
+      <div class="hero-left">
+        <div>
+          <div class="hero-eyebrow">DAILY MARKETING BRIEF</div>
+          <div class="hero-title"><span class="hero-pulse"></span>10分で読める、前日のマーケ動向</div>
+        </div>
+      </div>
       <div class="hero-meta">
         <div class="hero-stat">
+          <span class="hero-stat-num accent" id="stat-date">—</span>
+          <span class="hero-stat-label">Brief</span>
+        </div>
+        <div class="hero-stat">
           <span class="hero-stat-num" id="stat-total">—</span>
-          <span class="hero-stat-label">Today's Items</span>
+          <span class="hero-stat-label">Items</span>
         </div>
         <div class="hero-stat">
-          <span class="hero-stat-num" id="stat-sources">—</span>
-          <span class="hero-stat-label">Sources</span>
-        </div>
-        <div class="hero-stat">
-          <span class="hero-stat-num" id="stat-date">—</span>
-          <span class="hero-stat-label">Brief Date</span>
+          <span class="hero-stat-num" id="stat-read">—</span>
+          <span class="hero-stat-label">Read time</span>
         </div>
       </div>
     </section>
 
-    <!-- ツールバー -->
-    <div class="toolbar">
-      <div class="toolbar-row">
-        <div class="tabs" id="tabs" role="tablist"></div>
-        <div class="search-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="search" class="search-input" id="search" placeholder="キーワードで絞り込み（タイトル・要約・タグ）" aria-label="キーワード検索">
+    <!-- 🔥 TOP STORY -->
+    <div class="sec-head">
+      <span class="sec-icon gold">🔥</span>
+      <span class="sec-title">TOP STORY</span>
+      <span class="sec-sub">今日、これだけは押さえる</span>
+      <span class="sec-line"></span>
+    </div>
+    <div id="top-story"></div>
+
+    <!-- ⚡ BRIEFING -->
+    <div class="sec-head">
+      <span class="sec-icon">⚡</span>
+      <span class="sec-title">BRIEFING</span>
+      <span class="sec-sub">押さえておくべき5本（各1分）</span>
+      <span class="sec-line"></span>
+    </div>
+    <div class="brief-list" id="briefing"></div>
+
+    <!-- 📑 MORE READS -->
+    <div class="sec-head">
+      <span class="sec-icon">📑</span>
+      <span class="sec-title">MORE READS</span>
+      <span class="sec-sub">時間があれば</span>
+      <span class="sec-line"></span>
+    </div>
+    <div class="more-toolbar">
+      <div class="tabs" id="tabs" role="tablist"></div>
+      <div class="more-actions">
+        <div class="more-search">
+          <span class="more-search-icon">🔍</span>
+          <input type="search" id="search" placeholder="検索" aria-label="キーワード検索">
         </div>
-        <div class="toolbar-actions">
-          <button class="icon-toggle" id="toggle-fav" aria-pressed="false">
-            <span class="star">★</span><span>お気に入りのみ</span>
-          </button>
-          <button class="icon-toggle" id="mark-all-read" title="表示中のニュースをすべて既読にする">既読化</button>
-          <button class="icon-toggle" id="clear-read" title="既読状態をリセット">既読クリア</button>
-        </div>
+        <button class="icon-toggle" id="toggle-fav" aria-pressed="false" title="お気に入りのみ表示">★</button>
       </div>
-      <div class="source-chips" id="source-chips"></div>
     </div>
+    <div class="more-list" id="more-list" aria-live="polite"></div>
 
-    <!-- メイン + サイド -->
-    <div class="layout">
-      <main>
-        <div class="news-section-title">
-          <span>Top Stories</span>
-          <span class="count" id="visible-count">0</span>
-          <span class="line"></span>
-        </div>
-        <div class="news-grid" id="news-grid" aria-live="polite"></div>
-      </main>
-
-      <aside class="side">
-        <div class="x-panel">
-          <div class="x-panel-head">
-            <div class="x-panel-icon">𝕏</div>
-            <div>
-              <div class="x-panel-title">今日のXハイライト</div>
-              <div class="x-panel-sub">マーケに効く投稿</div>
-            </div>
-          </div>
-          <div class="x-list" id="x-list"></div>
-        </div>
-      </aside>
+    <!-- 𝕏 HIGHLIGHTS -->
+    <div class="sec-head">
+      <span class="sec-icon">𝕏</span>
+      <span class="sec-title">X HIGHLIGHTS</span>
+      <span class="sec-sub">マーケに効く投稿</span>
+      <span class="sec-line"></span>
     </div>
+    <section class="x-section">
+      <div class="x-grid" id="x-grid"></div>
+    </section>
 
     <div class="data-note">
-      <strong>📌 データ供給について</strong> ：MVPでは厳選サンプルを表示しています。将来は <code>api/news-fetch.js</code> 経由で複数メディア／X のリアルタイム取得に差し替え予定です（リンクはすべて実在の公開記事/投稿）。
+      <strong>📌 自動更新：</strong>毎朝8:00 JSTにRSS横断＋AI要約で自動更新予定（現在はシードデータ表示）。重要度はAIが自動採点します。
     </div>
   </div>
 
@@ -600,15 +553,15 @@
   <script>
     if (window.initOnboarding) initOnboarding({
       appName: 'ai-news',
-      title: 'AI NEWS',
-      description: '前日のマーケ業界・市場・X の有益情報をワンビューで',
+      title: 'AI NEWS — 10分で読めるマーケ動向',
+      description: '前日のマーケ業界・市場・AI・X の有益情報を、優先度順に配信',
       features: [
-        { icon: '📰', text: '複数メディアのニュースをカテゴリ別に横串チェック' },
-        { icon: '𝕏', text: 'マーケに効くX投稿をサイドパネルで一気見' },
-        { icon: '⭐', text: 'お気に入り保存・既読管理で「見逃し」をゼロに' }
+        { icon: '🔥', text: 'TOP STORY：今日の最重要1件を大きく表示' },
+        { icon: '⚡', text: 'BRIEFING：押さえる5本を1分ずつ読める形に' },
+        { icon: '📑', text: 'MORE READS：残りはスキャンしやすい1行リスト' }
       ],
       updates: [
-        { date: '04/15', text: '初回リリース（マーケ／市場／AI／X の4カテゴリ・検索・お気に入り・既読）' }
+        { date: '04/15', text: '初回リリース：TOP/BRIEFING/MORE の優先度別レイアウトで「10分で読める」体験に' }
       ]
     });
   </script>

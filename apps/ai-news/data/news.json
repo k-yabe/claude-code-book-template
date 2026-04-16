@@ -1,0 +1,7 @@
+{
+  "updatedAt": null,
+  "generatedFor": null,
+  "count": 0,
+  "items": [],
+  "_note": "このファイルは GitHub Actions (.github/workflows/ai-news-collect.yml) によって毎朝8:00 JSTに自動更新されます。空の場合はアプリ側でバンドル済みのシードデータが表示されます。"
+}
