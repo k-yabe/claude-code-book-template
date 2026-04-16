@@ -78,75 +78,78 @@
     /* ── 共通: セクション見出し ── */
     .sec-head {
       display: flex; align-items: center; gap: var(--sp-2);
-      margin: var(--sp-5) 0 var(--sp-3);
+      margin: var(--sp-7) 0 var(--sp-4);
     }
-    .sec-head:first-child { margin-top: var(--sp-2); }
+    .sec-head:first-child { margin-top: var(--sp-3); }
     .sec-icon {
-      width: 28px; height: 28px;
+      width: 32px; height: 32px;
       background: var(--navy);
       color: var(--gold);
       display: inline-flex; align-items: center; justify-content: center;
-      font-size: 0.95rem;
+      font-size: 1rem;
       flex-shrink: 0;
     }
     .sec-icon.gold { background: var(--gold); color: var(--navy); }
+    .sec-icon.cyan { background: rgba(0,255,255,0.15); color: var(--navy); }
     .sec-title {
-      font-size: 0.95rem;
+      font-size: 1.05rem;
       font-weight: 800;
       color: var(--navy);
-      letter-spacing: 0.01em;
+      letter-spacing: 0.02em;
     }
     .sec-sub {
-      font-size: 0.7rem;
-      color: var(--text-faint);
+      font-size: 0.72rem;
+      color: var(--text-muted);
       margin-left: 4px;
     }
-    .sec-line { flex: 1; height: 1px; background: var(--border); }
+    .sec-line { flex: 1; height: 2px; background: var(--border); }
 
-    /* ── 🔥 TOP STORY ── */
+    /* ── 🔥 TOP STORY（ネイビー背景ヒーローカード） ── */
     .top-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-left: 4px solid var(--gold);
-      padding: var(--sp-5) var(--sp-5) var(--sp-4);
-      cursor: pointer;
+      background: var(--navy);
+      color: var(--white);
+      padding: var(--sp-6) var(--sp-6) var(--sp-5);
+      cursor: default;
       position: relative;
-      transition: transform var(--ease-base), box-shadow var(--ease-base);
+      border-top: 4px solid var(--gold);
     }
-    .top-card:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 24px rgba(0,31,51,0.10);
-    }
+    .top-card.read { opacity: 0.7; }
     .top-meta {
       display: flex; align-items: center; gap: var(--sp-2);
-      margin-bottom: var(--sp-3);
+      margin-bottom: var(--sp-4);
       flex-wrap: wrap;
     }
+    .top-meta .meta-source { color: rgba(255,255,255,0.7); }
+    .top-meta .meta-time { color: rgba(255,255,255,0.5); }
+    .top-meta .meta-read { color: rgba(255,255,255,0.5); }
     .top-title {
-      font-size: 1.6rem;
+      font-size: 1.7rem;
       font-weight: 800;
-      color: var(--navy);
-      line-height: 1.35;
+      color: var(--gold);
+      line-height: 1.3;
       letter-spacing: -0.01em;
-      margin-bottom: var(--sp-3);
+      margin-bottom: var(--sp-4);
     }
     .top-summary {
-      font-size: 1rem;
-      color: var(--text-secondary);
-      line-height: 1.8;
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.85;
       margin-bottom: var(--sp-2);
     }
     .top-foot {
       display: flex; align-items: center; justify-content: space-between;
       gap: var(--sp-2);
       padding-top: var(--sp-3);
-      border-top: 1px solid var(--border-light);
+      border-top: 1px solid rgba(255,255,255,0.12);
       flex-wrap: wrap;
     }
+    .top-foot .tag { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+    .top-foot .star-btn { color: rgba(255,255,255,0.3); }
+    .top-foot .star-btn.starred { color: var(--gold); }
     @media (max-width: 600px) {
       .top-card { padding: var(--sp-4); }
-      .top-title { font-size: 1.2rem; }
-      .top-summary { font-size: 0.88rem; line-height: 1.7; }
+      .top-title { font-size: 1.25rem; }
+      .top-summary { font-size: 0.9rem; line-height: 1.75; }
     }
 
     /* ── ⚡ BRIEFING ── */
@@ -324,9 +327,9 @@
     }
 
     /* ── カテゴリ色（共通） ── */
-    .cat-marketing { background: var(--gold-20); color: var(--navy); }
-    .cat-market    { background: rgba(0,255,255,0.15); color: var(--navy); }
-    .cat-ai        { background: var(--navy); color: var(--gold); }
+    .cat-marketing { background: var(--gold); color: var(--navy); font-weight: 800; }
+    .cat-market    { background: var(--navy); color: var(--cyan); font-weight: 800; }
+    .cat-ai        { background: var(--navy); color: var(--gold); font-weight: 800; }
 
     .meta-pill {
       display: inline-flex; align-items: center; gap: 5px;
@@ -443,47 +446,21 @@
     }
     .data-note strong { color: var(--navy); }
 
-    /* ── コマンドバー（進捗 / クイックアクション） ── */
+    /* ── アクションバー（更新状態 + ショートカット） ── */
     .cmd-bar {
       display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: var(--sp-3);
+      gap: var(--sp-3);
       background: var(--surface);
       border: 1px solid var(--border);
-      padding: 10px var(--sp-4);
-      margin-bottom: var(--sp-3);
-      /* スクロール中も常に手元に。navbar (56px sticky) の直下に貼り付き */
+      padding: 8px var(--sp-4);
+      margin-bottom: var(--sp-4);
       position: sticky;
       top: 56px;
       z-index: 9;
       box-shadow: 0 2px 8px rgba(0,31,51,0.04);
     }
     @media (max-width: 600px) {
-      .cmd-bar { padding: 8px 10px; }
-      .cmd-progress { flex-basis: 100%; min-width: 0; }
-    }
-    .cmd-progress {
-      display: flex; align-items: center; gap: 10px;
-      flex: 1 1 240px; min-width: 200px;
-    }
-    .cmd-progress-text {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      letter-spacing: 0.04em;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-    .cmd-progress-text strong { color: var(--navy); font-size: 0.85rem; }
-    .cmd-progress-bar {
-      flex: 1; height: 6px;
-      background: var(--border-light);
-      overflow: hidden;
-      max-width: 240px;
-    }
-    .cmd-progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--gold), #ffd166);
-      width: 0%;
-      transition: width 320ms ease;
+      .cmd-bar { padding: 6px 10px; }
     }
     .cmd-actions {
       display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
@@ -506,12 +483,10 @@
       border: 1.5px solid var(--border);
       cursor: pointer;
       font-family: var(--font-sans);
-      transition: all var(--ease-base);
+      transition: all var(--ease);
       white-space: nowrap;
     }
     .cmd-btn:hover { border-color: var(--navy); background: var(--surface-alt); }
-    .cmd-btn.primary { background: var(--navy); color: var(--gold); border-color: var(--navy); }
-    .cmd-btn.primary:hover { background: #00304d; }
     .cmd-btn.icon { width: 30px; padding: 5px 0; text-align: center; }
 
     /* ── キーボードショートカット モーダル ── */
@@ -637,8 +612,15 @@
     }
     .brief-card-summary {
       font-size: 0.84rem; color: var(--text-secondary);
-      line-height: 1.7; margin-bottom: var(--sp-3);
+      line-height: 1.7; margin-bottom: var(--sp-2);
       flex: 1;
+    }
+    .brief-card-why {
+      font-size: 0.78rem; font-weight: 700; color: var(--gold);
+      background: var(--navy);
+      padding: 6px 10px;
+      margin-bottom: var(--sp-3);
+      line-height: 1.5;
     }
     .brief-card-foot {
       display: flex; align-items: center; justify-content: space-between;
@@ -656,7 +638,7 @@
 
     /* ── TOP STORY ポイントCallout ── */
     .top-takeaway {
-      background: var(--gold-20);
+      background: rgba(255,184,28,0.1);
       border-left: 3px solid var(--gold);
       padding: var(--sp-3) var(--sp-4);
       margin: var(--sp-3) 0;
@@ -666,12 +648,12 @@
       letter-spacing: 0.1em; margin-bottom: 2px;
     }
     .top-takeaway-text {
-      font-size: 0.88rem; font-weight: 600; color: var(--navy);
-      line-height: 1.5;
+      font-size: 0.92rem; font-weight: 600; color: var(--white);
+      line-height: 1.55;
     }
     .top-ext-link {
       display: inline-flex; align-items: center; gap: 4px;
-      font-size: 0.7rem; color: var(--text-faint); font-weight: 600;
+      font-size: 0.72rem; color: rgba(255,255,255,0.5); font-weight: 600;
       text-decoration: none; padding: 4px 0;
     }
     .top-ext-link:hover { color: var(--gold); }
@@ -741,16 +723,10 @@
       <span class="trend-label">TRENDS</span>
     </div>
 
-    <!-- コマンドバー -->
+    <!-- アクションバー -->
     <div class="cmd-bar">
-      <div class="cmd-progress">
-        <span class="cmd-progress-text"><strong id="progress-read">0</strong> / <span id="progress-total">0</span> 既読</span>
-        <div class="cmd-progress-bar"><div class="cmd-progress-fill" id="progress-fill"></div></div>
-      </div>
+      <span class="cmd-updated" id="cmd-updated">更新: —</span>
       <div class="cmd-actions">
-        <span class="cmd-updated" id="cmd-updated">更新: —</span>
-        <button class="cmd-btn primary" id="btn-next-unread" title="次の未読 (n)">↓ 次の未読</button>
-        <button class="cmd-btn" id="btn-mark-all" title="全部既読にする">✓ 全部既読</button>
         <button class="cmd-btn icon" id="btn-help" title="ショートカット (?)" aria-label="キーボードショートカット">?</button>
       </div>
     </div>
@@ -766,7 +742,7 @@
 
     <!-- ⚡ BRIEFING -->
     <div class="sec-head">
-      <span class="sec-icon">⚡</span>
+      <span class="sec-icon cyan">⚡</span>
       <span class="sec-title">BRIEFING</span>
       <span class="sec-sub">押さえておくべき5本（各1分）</span>
       <span class="sec-line"></span>
@@ -818,8 +794,6 @@
         <tr><td><kbd>j</kbd> / <kbd>k</kbd></td><td>次 / 前の記事へ</td></tr>
         <tr><td><kbd>Enter</kbd></td><td>記事を開く</td></tr>
         <tr><td><kbd>f</kbd></td><td>★ をトグル</td></tr>
-        <tr><td><kbd>n</kbd></td><td>次の未読へ</td></tr>
-        <tr><td><kbd>m</kbd></td><td>全部既読にする</td></tr>
         <tr><td><kbd>?</kbd></td><td>このヘルプ</td></tr>
         <tr><td><kbd>Esc</kbd></td><td>閉じる</td></tr>
       </table>
@@ -840,9 +814,9 @@
         { icon: '⌨️', text: 'キーボードで読み進め可：「/」検索・「j/k」移動・「n」次の未読・「?」ヘルプ' }
       ],
       updates: [
-        { date: '04/16', text: 'マガジン型UIに大幅リデザイン：サマリー中心設計で英語リンク不要、トレンドバー追加、BRIEFINGをカードグリッド化' },
-        { date: '04/16', text: 'TOP STORYに「💡 ポイント」Calloutを追加：一行で要点が把握できる' },
-        { date: '04/16', text: 'トレンドキーワード可視化：今日のホットトピックが一目でわかる' }
+        { date: '04/16', text: 'TOP STORYをネイビー背景ヒーロー化、ゴールドタイトルで一目で最重要記事が伝わるように' },
+        { date: '04/16', text: 'BRIEFINGカードに「→ なぜ重要？」行を追加、相対時間表示（3時間前）に変更' },
+        { date: '04/16', text: 'カテゴリ色を大胆に強化（MARKETING=金、MARKET=シアン、AI=金on紺）。トレンドバーで今日のキーワードを可視化' }
       ]
     });
   </script>
