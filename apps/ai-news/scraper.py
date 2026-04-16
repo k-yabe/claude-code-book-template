@@ -212,6 +212,7 @@ def fallback_summarize(items: list[dict]) -> list[dict]:
         it["tags"] = []
         it["whyItMatters"] = ""
         it["actionItem"] = ""
+        it["pickerComment"] = ""
         if idx == 0:
             it["importance"] = 1
             it["urgency"] = "must_know"
@@ -267,6 +268,9 @@ def call_anthropic(items: list[dict]) -> list[dict] | None:
         "- actionItem: 推奨アクション（1文、具体的に。誰が・何を・いつまでにの要素を含む）\n"
         "- urgency: must_know（重要ニュース、最大2件）/ this_week（注目ニュース、最大5件）/ fyi（その他）\n"
         "- tags: 3〜5個の日本語タグ\n"
+        "- pickerComment: 専門家の視点コメント（1〜2文）。"
+        "マーケ戦略コンサルタントやCMO経験者の立場で、この記事への洞察・補足・注意点を書く。"
+        "「〜に注目」「〜が鍵」のような定型は避け、具体的な業界知識に基づくコメントにする。\n"
         "- importance: 1=最重要1件のみ、2=押さえるべき5件、3=その他\n"
         "- readMin: 推定読了時間（1〜3分）\n\n"
         "## executiveSummary\n"
@@ -276,7 +280,7 @@ def call_anthropic(items: list[dict]) -> list[dict] | None:
         "煽りや推測は避け、事実ベースで。\n"
         "出力は厳密にJSONのみで、以下の形式に従ってください:\n"
         "{\"executiveSummary\":[\"...\",\"...\",\"...\"],"
-        "\"items\":[{\"i\":0,\"summary\":\"...\",\"whyItMatters\":\"...\",\"actionItem\":\"...\",\"urgency\":\"must_know\",\"tags\":[\"...\"],\"importance\":1,\"readMin\":2}, ...]}"
+        "\"items\":[{\"i\":0,\"summary\":\"...\",\"whyItMatters\":\"...\",\"actionItem\":\"...\",\"pickerComment\":\"...\",\"urgency\":\"must_know\",\"tags\":[\"...\"],\"importance\":1,\"readMin\":2}, ...]}"
     )
 
     user_prompt = (
@@ -319,6 +323,7 @@ def call_anthropic(items: list[dict]) -> list[dict] | None:
             it["summary"] = truncate((o.get("summary") or "").strip(), SUMMARY_CHARS) or truncate(raw, SUMMARY_CHARS)
             it["whyItMatters"] = truncate((o.get("whyItMatters") or "").strip(), 200)
             it["actionItem"] = truncate((o.get("actionItem") or "").strip(), 200)
+            it["pickerComment"] = truncate((o.get("pickerComment") or "").strip(), 250)
             urg = (o.get("urgency") or "fyi").strip()
             it["urgency"] = urg if urg in VALID_URGENCY else "fyi"
             tags = o.get("tags") or []
@@ -343,6 +348,7 @@ def call_anthropic(items: list[dict]) -> list[dict] | None:
             it["summary"] = truncate(raw, SUMMARY_CHARS) or it["title"]
             it["whyItMatters"] = ""
             it["actionItem"] = ""
+            it["pickerComment"] = ""
             it["urgency"] = "fyi"
             it["tags"] = []
             it["importance"] = 3
