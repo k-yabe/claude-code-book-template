@@ -293,10 +293,10 @@
       white-space: nowrap;
     }
 
-    /* ── カテゴリ色（共通） ── */
-    .cat-marketing { background: var(--gold); color: var(--navy); font-weight: 800; }
-    .cat-market    { background: var(--navy); color: var(--cyan); font-weight: 800; }
-    .cat-ai        { background: var(--navy); color: var(--gold); font-weight: 800; }
+    /* ── カテゴリ色（統一） ── */
+    .cat-marketing, .cat-market, .cat-ai {
+      background: var(--navy); color: var(--white); font-weight: 800;
+    }
 
     .meta-pill {
       display: inline-flex; align-items: center; gap: 5px;
@@ -419,17 +419,12 @@
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
     .exec-line:last-child { border-bottom: none; }
-    .exec-badge {
-      flex-shrink: 0;
-      background: var(--gold);
-      color: var(--navy);
-      font-size: 0.68rem;
+    .exec-arrow {
+      color: var(--gold);
       font-weight: 800;
-      padding: 3px 10px;
-      letter-spacing: 0.06em;
-      white-space: nowrap;
-      align-self: flex-start;
-      margin-top: 4px;
+      flex-shrink: 0;
+      font-size: 1.1rem;
+      margin-top: 2px;
     }
     @media (max-width: 600px) {
       .exec-box { padding: var(--sp-4); }
@@ -511,6 +506,13 @@
     .read-toggle:hover {
       border-color: var(--gold);
       color: var(--gold);
+    }
+
+    /* ── 日付ナビゲーション ── */
+    .date-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     /* ── 元記事リンクボタン ── */
@@ -800,22 +802,22 @@
     <section class="hero">
       <div class="hero-left">
         <div>
-          <div class="hero-eyebrow">MARKETING INTELLIGENCE BRIEF</div>
+          <div class="hero-eyebrow">マーケティング・インテリジェンス・ブリーフ</div>
           <div class="hero-title"><span class="hero-pulse"></span>何が起きた？ なぜ重要？ 何をすべき？</div>
         </div>
       </div>
       <div class="hero-meta">
         <div class="hero-stat">
           <span class="hero-stat-num accent" id="stat-date">—</span>
-          <span class="hero-stat-label">Brief</span>
+          <span class="hero-stat-label">日付</span>
         </div>
         <div class="hero-stat">
           <span class="hero-stat-num" id="stat-total">—</span>
-          <span class="hero-stat-label">Items</span>
+          <span class="hero-stat-label">記事数</span>
         </div>
         <div class="hero-stat">
           <span class="hero-stat-num" id="stat-read">—</span>
-          <span class="hero-stat-label">Read time</span>
+          <span class="hero-stat-label">読了目安</span>
         </div>
       </div>
     </section>
@@ -823,28 +825,33 @@
     <!-- 📋 今日の要点 (Executive Summary) -->
     <div class="sec-head">
       <span class="sec-icon gold">📋</span>
-      <span class="sec-title">今日のアクション</span>
-      <span class="sec-sub">今日やるべきこと3つ</span>
+      <span class="sec-title">今日の3行サマリー</span>
+      <span class="sec-sub">全体像をつかむ</span>
       <span class="sec-line"></span>
     </div>
     <div class="exec-box" id="exec-summary"></div>
 
-    <!-- アクションバー + トレンド -->
+    <!-- 日付ナビ + アクションバー -->
     <div class="cmd-bar">
-      <span class="cmd-updated" id="cmd-updated">更新: —</span>
+      <div class="date-nav">
+        <button class="cmd-btn icon" id="btn-prev-date" title="前日" aria-label="前日のブリーフ">◀</button>
+        <span class="cmd-updated" id="cmd-updated">—</span>
+        <button class="cmd-btn icon" id="btn-next-date" title="翌日" aria-label="翌日のブリーフ">▶</button>
+      </div>
       <div class="cmd-actions">
+        <button class="cmd-btn" id="btn-today" style="display:none;">今日に戻る</button>
         <button class="cmd-btn icon" id="btn-help" title="ショートカット (?)" aria-label="キーボードショートカット">?</button>
       </div>
     </div>
     <div class="trend-bar" id="trend-bar">
-      <span class="trend-label">TRENDS</span>
+      <span class="trend-label">トレンド</span>
     </div>
 
     <!-- 🔥 今すぐ押さえる (MUST-KNOW) -->
     <div class="sec-head">
       <span class="sec-icon gold">🔥</span>
-      <span class="sec-title">今すぐ押さえる</span>
-      <span class="sec-sub">今日中に全員が把握すべきニュース</span>
+      <span class="sec-title">重要ニュース</span>
+      <span class="sec-sub">必ず目を通すべきニュース</span>
       <span class="sec-line"></span>
     </div>
     <div id="must-know"></div>
@@ -852,8 +859,8 @@
     <!-- ⚡ 今週チェック (THIS WEEK) -->
     <div class="sec-head">
       <span class="sec-icon cyan">⚡</span>
-      <span class="sec-title">今週チェック</span>
-      <span class="sec-sub">今週中に目を通しておくべき動き</span>
+      <span class="sec-title">注目ニュース</span>
+      <span class="sec-sub">チェックしておきたい動き</span>
       <span class="sec-line"></span>
     </div>
     <div class="brief-grid" id="this-week"></div>
@@ -861,7 +868,7 @@
     <!-- 📑 知っておけばOK (FYI) -->
     <div class="sec-head">
       <span class="sec-icon">📑</span>
-      <span class="sec-title">知っておけばOK</span>
+      <span class="sec-title">その他のニュース</span>
       <span class="sec-sub">余裕があれば目を通す</span>
       <span class="sec-line"></span>
     </div>
@@ -918,14 +925,14 @@
       title: 'AI NEWS — マーケティング・インテリジェンス・ブリーフ',
       description: 'ニュースを届けるのではなく、判断材料を届ける。「何が起きた？」「なぜ重要？」「何をすべき？」まで一気通貫',
       features: [
-        { icon: '📋', text: '今日の要点：3行で全体像をつかめるExecutive Summary' },
-        { icon: '🔥', text: '今すぐ押さえる：マーケへの影響＋具体的なNext Stepを提示' },
-        { icon: '⚡', text: '今週チェック：影響と推奨アクション付きのカード形式' }
+        { icon: '📋', text: '今日の3行サマリー：毎朝3行で全体像をつかめる' },
+        { icon: '🔥', text: '重要ニュース：マーケへの影響＋推奨アクションを提示' },
+        { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/16', text: '「今日のアクション」で期限付きTo-Do 3件を冒頭提示。既読の取消・元記事ボタン・日本人X投稿を追加' },
-        { date: '04/16', text: 'AKKODiS視点のインテリジェンス強化：記事ごとに「マーケへの影響」「Next Step」を分離表示' },
-        { date: '04/16', text: 'urgencyベース分類＋ナビバー統一。RSSリーダーから脱却し判断材料を届けるブリーフへ' }
+        { date: '04/16', text: 'セクション名を「重要ニュース／注目ニュース／その他のニュース」に刷新。日付ナビで過去記事も閲覧可能に' },
+        { date: '04/16', text: '全UIを日本語化。Xトレンドも日本語投稿・Claude Code中心に変更' },
+        { date: '04/16', text: 'インテリジェンス・ブリーフとして再設計。記事ごとに「マーケへの影響」「推奨アクション」を表示' }
       ]
     });
   </script>
