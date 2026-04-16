@@ -60,7 +60,7 @@
 | Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043, S048, S050, S051, S052, S053, S054, S055, S056, S066, S068, S069, S070 |
 | Cache Checker | `apps/cache-checker/index.html`, `api/fetch-article.js(mode=proxy)` | ✅ 完成 | S037 |
 | Image Converter | `apps/image-converter/index.html` | ✅ 完成 | S047 |
-| AI NEWS | `apps/ai-news/index.html`, `apps/ai-news/app.js`, `apps/ai-news/scraper.py`, `.github/workflows/ai-news-collect.yml` | ✅ 完成（毎朝8時 JST RSS自動収集 + Claude Haikuインテリジェンス・ブリーフ生成 + Executive Summary + urgencyベース3段階分類 + 「マーケへの影響」「Next Step」付き + トレンドバー） | S073, S074, S075, S077, S078 |
+| AI NEWS | `apps/ai-news/index.html`, `apps/ai-news/app.js`, `apps/ai-news/scraper.py`, `.github/workflows/ai-news-collect.yml` | ✅ 完成（毎朝8時 JST RSS自動収集 + Claude Haikuインテリジェンス・ブリーフ生成 + 「今日のアクション」期限付きTo-Do + urgencyベース3段階分類 + AKKODiS採用マーケ・B2B視点プロンプト + 既読トグル + 日本人X投稿） | S073, S074, S075, S077, S078 |
 
 ---
 
