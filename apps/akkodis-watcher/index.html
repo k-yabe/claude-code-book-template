@@ -46,7 +46,8 @@
       gap: var(--sp-3);
       align-items: start;
     }
-    @media (max-width: 760px) { .columns { grid-template-columns: 1fr; } }
+    @media (max-width: 1000px) { .columns { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .columns { grid-template-columns: 1fr; } }
 
     /* ── App-specific: column cards ── */
     .col {

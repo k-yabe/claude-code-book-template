@@ -640,6 +640,9 @@
     wireKeyboard();
 
     // ── 2. バックグラウンドで実データ取得（最大8秒） ──
+    // ローディング表示をセット
+    const upd = document.getElementById('cmd-updated');
+    if (upd) upd.textContent = '⏳ データ確認中…';
     const isRemote = await loadRemote();
     if (isRemote) {
       // ── 3. ヒーローの Brief 日付・Items・Read time を再計算 + リスト差し替え ──
