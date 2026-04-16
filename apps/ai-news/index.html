@@ -111,7 +111,7 @@
       gap: var(--sp-4);
     }
 
-    /* ── 🔥 MUST-KNOW カード（ネイビー背景） ── */
+    /* ── 🔥 重要ニュース カード（ネイビー背景） ── */
     .top-card {
       background: var(--navy);
       color: var(--white);
@@ -127,6 +127,28 @@
       font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em;
       color: rgba(255,255,255,0.4);
     }
+    .top-body {
+      display: flex; gap: var(--sp-5);
+    }
+    .top-body-text { flex: 1; min-width: 0; }
+    .top-thumb {
+      flex-shrink: 0;
+      width: 180px; height: 120px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .top-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .top-thumb-placeholder {
+      font-size: 0.7rem; font-weight: 700;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.08em;
+      text-align: center;
+      line-height: 1.4;
+    }
     .top-meta {
       display: flex; align-items: center; gap: var(--sp-2);
       margin-bottom: var(--sp-4);
@@ -136,17 +158,17 @@
     .top-meta .meta-time { color: rgba(255,255,255,0.5); }
     .top-meta .meta-read { color: rgba(255,255,255,0.5); }
     .top-title {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: var(--gold);
-      line-height: 1.35;
+      line-height: 1.4;
       letter-spacing: -0.01em;
-      margin-bottom: var(--sp-5);
+      margin-bottom: var(--sp-4);
     }
     .top-summary {
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: rgba(255,255,255,0.85);
-      line-height: 1.9;
+      line-height: 1.85;
       margin-bottom: var(--sp-4);
     }
     .top-foot {
@@ -161,8 +183,10 @@
     .top-foot .star-btn.starred { color: var(--gold); }
     @media (max-width: 600px) {
       .top-card { padding: var(--sp-4); }
-      .top-title { font-size: 1.25rem; }
-      .top-summary { font-size: 0.9rem; line-height: 1.75; }
+      .top-body { flex-direction: column; }
+      .top-thumb { width: 100%; height: 140px; }
+      .top-title { font-size: 1.2rem; }
+      .top-summary { font-size: 0.88rem; line-height: 1.75; }
     }
 
     /* ── 📑 MORE READS ── */
@@ -431,55 +455,49 @@
       .exec-line { font-size: 0.88rem; }
     }
 
-    /* ── MUST-KNOW: インテリジェンスブロック ── */
+    /* ── 重要ニュース: インテリジェンスブロック ── */
     .intel-block {
-      padding: var(--sp-4) var(--sp-5);
-      margin: var(--sp-3) 0;
+      padding: var(--sp-3) var(--sp-5);
+      margin: var(--sp-2) 0;
     }
     .intel-block.impact {
-      background: rgba(0,31,51,0.15);
-      border-left: 4px solid var(--cyan);
+      background: rgba(255,255,255,0.06);
     }
     .intel-block.action {
-      background: rgba(0,31,51,0.15);
-      border-left: 4px solid var(--gold);
+      background: rgba(255,184,28,0.08);
     }
     .intel-label {
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       font-weight: 800;
-      letter-spacing: 0.1em;
-      margin-bottom: 4px;
-      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 3px;
     }
-    .intel-block.impact .intel-label { color: var(--cyan); }
+    .intel-block.impact .intel-label { color: rgba(255,255,255,0.5); }
     .intel-block.action .intel-label { color: var(--gold); }
     .intel-text {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: 600;
       color: var(--white);
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
-    /* ── THIS WEEK: 影響 + アクション行 ── */
+    /* ── 注目ニュース: 影響 + アクション行 ── */
     .brief-card-impact {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--navy);
-      background: rgba(0,31,51,0.05);
-      padding: 8px 12px;
-      margin-bottom: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: 6px 0;
+      margin-bottom: 2px;
       line-height: 1.55;
-      border-left: 3px solid var(--cyan);
     }
     .brief-card-action {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
       color: var(--navy);
-      background: rgba(0,31,51,0.05);
-      padding: 8px 12px;
+      background: rgba(255,184,28,0.08);
+      padding: 6px 10px;
       margin-bottom: var(--sp-3);
       line-height: 1.55;
-      border-left: 3px solid var(--gold);
     }
 
     /* ── MUST-KNOW: タイトルリンク ── */
@@ -604,6 +622,13 @@
     .cmd-btn:hover { border-color: var(--navy); background: var(--surface-alt); }
     .cmd-btn.icon { width: 30px; padding: 5px 0; text-align: center; }
 
+    /* ── 音声再生ボタン ── */
+    .cmd-btn#btn-listen.playing {
+      background: var(--navy);
+      color: var(--gold);
+      border-color: var(--navy);
+    }
+
     /* ── キーボードショートカット モーダル ── */
     .kbd-modal[hidden] { display: none; }
     .kbd-modal {
@@ -698,11 +723,12 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-top: 3px solid var(--navy);
-      padding: var(--sp-5);
+      padding: 0;
       cursor: pointer;
       transition: transform var(--ease), box-shadow var(--ease);
       position: relative;
       display: flex; flex-direction: column;
+      overflow: hidden;
     }
     .brief-card:hover {
       transform: translateY(-2px);
@@ -714,27 +740,47 @@
       content: '✓ 既読';
       position: absolute; top: var(--sp-2); right: var(--sp-3);
       font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em;
-      color: var(--gold); opacity: 0.6;
+      color: var(--gold); opacity: 0.6; z-index: 1;
+    }
+    .brief-card-thumb {
+      width: 100%; height: 140px;
+      background: var(--navy);
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brief-card-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .brief-card-thumb-placeholder {
+      font-size: 0.65rem; font-weight: 700;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+    .brief-card-content {
+      padding: var(--sp-4) var(--sp-5);
+      display: flex; flex-direction: column; flex: 1;
     }
     .brief-card-head {
       display: flex; align-items: center; gap: var(--sp-2);
       margin-bottom: var(--sp-2);
     }
     .brief-card-num {
-      width: 28px; height: 28px;
+      width: 24px; height: 24px;
       background: var(--navy); color: var(--gold);
-      font-size: 0.72rem; font-weight: 800;
+      font-size: 0.65rem; font-weight: 800;
       display: inline-flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
     .brief-card-title {
-      font-size: 1.05rem; font-weight: 800;
+      font-size: 1rem; font-weight: 800;
       color: var(--navy); line-height: 1.4;
-      margin-bottom: var(--sp-3);
+      margin-bottom: var(--sp-2);
     }
     .brief-card-summary {
-      font-size: 0.85rem; color: var(--text-secondary);
-      line-height: 1.75; margin-bottom: var(--sp-3);
+      font-size: 0.82rem; color: var(--text-secondary);
+      line-height: 1.7; margin-bottom: var(--sp-3);
       flex: 1;
     }
     /* (旧 brief-card-why は brief-card-impact / brief-card-action に移行) */
@@ -762,12 +808,11 @@
 
     /* ── FYI: whyItMatters 表示 ── */
     .more-summary {
-      font-size: 0.75rem; color: var(--text-secondary);
-      line-height: 1.55; margin-top: 2px;
+      font-size: 0.73rem; color: var(--text-muted);
+      line-height: 1.5; margin-top: 2px;
       display: -webkit-box; -webkit-line-clamp: 2;
       -webkit-box-orient: vertical; overflow: hidden;
-      font-weight: 600;
-      font-style: italic;
+      font-weight: 500;
     }
     .more-title-wrap { min-width: 0; }
 
@@ -779,7 +824,7 @@
       }
       .more-source { grid-column: 2; }
       .brief-grid { grid-template-columns: 1fr; }
-      .brief-card { padding: var(--sp-3); }
+      .brief-card-thumb { height: 120px; }
       .trend-bar { padding: var(--sp-2) var(--sp-3); }
     }
     @media (max-width: 900px) {
@@ -840,6 +885,7 @@
       </div>
       <div class="cmd-actions">
         <button class="cmd-btn" id="btn-today" style="display:none;">今日に戻る</button>
+        <button class="cmd-btn" id="btn-listen" title="ニュースを音声で聴く" aria-label="音声で聴く">🔊 聴く</button>
         <button class="cmd-btn icon" id="btn-help" title="ショートカット (?)" aria-label="キーボードショートカット">?</button>
       </div>
     </div>
@@ -930,9 +976,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
+        { date: '04/16', text: '記事サムネイル画像追加。「🔊 聴く」ボタンで音声読み上げ対応。カード・色味をシンプルに整理' },
         { date: '04/16', text: 'セクション名を「重要ニュース／注目ニュース／その他のニュース」に刷新。日付ナビで過去記事も閲覧可能に' },
-        { date: '04/16', text: '全UIを日本語化。Xトレンドも日本語投稿・Claude Code中心に変更' },
-        { date: '04/16', text: 'インテリジェンス・ブリーフとして再設計。記事ごとに「マーケへの影響」「推奨アクション」を表示' }
+        { date: '04/16', text: '全UIを日本語化。インテリジェンス・ブリーフとして再設計。記事ごとに「マーケへの影響」「推奨アクション」を表示' }
       ]
     });
   </script>
