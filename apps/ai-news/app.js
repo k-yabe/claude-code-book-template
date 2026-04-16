@@ -31,7 +31,7 @@
       pickerComment: 'GEO（Generative Engine Optimization）はSEOの次の戦場。人材業界では「エンジニア 転職」等のキーワードでAI検索結果に表示されるかが採用数に直結する。早い者勝ちの領域。',
       source: 'Gartner', sourceType: 'media', category: 'marketing',
       url: '',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop',
+      image: null,
       publishedAt: `${Y}T09:10:00+09:00`,
       tags: ['B2B', 'GEO', '購買行動']
     },
@@ -44,7 +44,7 @@
       pickerComment: 'SEO担当者は今すぐ「site:自社ドメイン」でAI Overviewsに引用されているか確認すべき。構造化データのFAQ・HowToマークアップが引用率を高める傾向がある。',
       source: 'Google Search Central', sourceType: 'media', category: 'ai',
       url: '',
-      image: 'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=400&h=250&fit=crop',
+      image: null,
       publishedAt: `${Y}T18:40:00+09:00`,
       tags: ['SEO', 'GEO', 'Google']
     },
@@ -57,7 +57,7 @@
       pickerComment: 'SalesforceのAIエージェント戦略はMarketing Cloud全体に波及する。既存ユーザーは追加費用なしで使える可能性が高いので、営業担当に確認するだけでROIが出る案件。',
       source: 'Salesforce News', sourceType: 'media', category: 'market',
       url: '',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop',
+      image: null,
       publishedAt: `${Y}T14:45:00+09:00`,
       tags: ['SaaS', 'AIエージェント', 'CMO']
     },
@@ -70,7 +70,7 @@
       pickerComment: '200kトークンは文庫本1冊分。競合分析で10社分のIR資料を一括投入して比較表を作れる。レポート業務の「素材集め→構造化」が自動化される。',
       source: 'Anthropic', sourceType: 'media', category: 'ai',
       url: '',
-      image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop',
+      image: null,
       publishedAt: `${Y}T22:00:00+09:00`,
       tags: ['Claude', 'LLM', '要約']
     },
@@ -83,7 +83,7 @@
       pickerComment: 'PMaxはブラックボックスだった部分にようやく透明性が出てきた。特にBtoBはブランドKWの混在でCPAが歪みやすいので、この機能でROAS改善の根拠を示しやすくなる。',
       source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
       url: '',
-      image: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=400&h=250&fit=crop',
+      image: null,
       publishedAt: `${Y}T08:30:00+09:00`,
       tags: ['広告', 'PMax', 'Google']
     },
@@ -96,7 +96,7 @@
       pickerComment: '動画広告の伸びはショート動画が牽引。採用マーケでは30秒以内の「社員の1日」系コンテンツがCPV最安で成果が出ている企業が多い。',
       source: '電通', sourceType: 'media', category: 'market',
       url: '',
-      image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop',
+      image: null,
       publishedAt: `${Y}T10:00:00+09:00`,
       tags: ['広告費', '日本', '統計']
     },
@@ -109,7 +109,7 @@
       pickerComment: 'UID2.0はメールアドレスベースなので、会員登録フローを持つ採用サイトとは相性が良い。自社の1st Partyデータ活用戦略と合わせて検討する価値がある。',
       source: 'AdExchanger', sourceType: 'media', category: 'market',
       url: '',
-      image: 'https://images.unsplash.com/photo-1563986768609-322da13575f2?w=400&h=250&fit=crop',
+      image: null,
       publishedAt: `${Y}T07:50:00+09:00`,
       tags: ['Cookieless', 'AdTech']
     },
@@ -170,52 +170,63 @@
   /* ────────── ② Xハイライト（生成AIトレンド収集） ──────────
      目的: Xで話題の生成AI関連ポストを収集し、マーケ実務に活かせるトレンドを提示する。
      将来的にはX APIで自動収集。現在はシードデータ。
+     ※ シードデータのURLは空（架空のツイートなのでリンクを貼らない）
+     ※ スクレイパーが取得した実データにはツイートURLが付く
   */
   let X_HIGHLIGHTS = [
     {
       id: 'x1', author: '深津貴之', handle: '@fladdict',
+      avatar: 'https://pbs.twimg.com/profile_images/1814947773948469248/QSYjKVbz_normal.jpg',
       text: 'Claude Codeが本当にやばい。プロンプト1行で「設計→実装→テスト→デプロイ」まで全部やる。エンジニアの仕事の定義が変わりつつある。',
-      tag: 'Claude Code', url: 'https://x.com/fladdict'
+      tag: 'Claude Code', url: ''
     },
     {
       id: 'x2', author: '安宅和人', handle: '@klozan',
+      avatar: 'https://pbs.twimg.com/profile_images/619665682/img_ataka_normal.jpg',
       text: '生成AIで「知的生産のコスト」が限りなくゼロに近づく。差別化は「何を作るか」ではなく「何を問うか」に完全シフトした。',
-      tag: 'AI戦略', url: 'https://x.com/klozan'
+      tag: 'AI戦略', url: ''
     },
     {
       id: 'x3', author: '松尾豊', handle: '@ymatsuo',
+      avatar: 'https://pbs.twimg.com/profile_images/1773330029444706304/kWIsh_Al_normal.jpg',
       text: '日本企業のAI導入率がようやく50%を超えた。だが「導入した」と「成果が出ている」の間には巨大なギャップがある。プロンプト教育だけでは不十分で、業務プロセス自体の再設計が必須。',
-      tag: 'AI導入', url: 'https://x.com/ymatsuo'
+      tag: 'AI導入', url: ''
     },
     {
       id: 'x4', author: '落合陽一', handle: '@ochyai',
+      avatar: 'https://pbs.twimg.com/profile_images/1806958443623698433/jW3NYCOC_normal.jpg',
       text: 'マルチモーダルAIの進化で「テキストだけのマーケティング」は確実に価値が下がる。画像・動画・音声を横断的に生成・最適化できるチームが勝つ。',
-      tag: 'マルチモーダルAI', url: 'https://x.com/ochyai'
+      tag: 'マルチモーダルAI', url: ''
     },
     {
-      id: 'x5', author: '成田悠輔', handle: '@naaboron',
+      id: 'x5', author: '成田悠輔', handle: '@narita_yusuke2',
+      avatar: 'https://pbs.twimg.com/profile_images/1661009874728091648/O8n20xAb_normal.jpg',
       text: 'AIが「平均的な仕事」を代替するスピードが想定より速い。採用市場では「AIを使いこなせる人」のプレミアムが月単位で上がっている感覚。',
-      tag: 'AI×採用', url: 'https://x.com/naaboron'
+      tag: 'AI×採用', url: ''
     },
     {
       id: 'x6', author: '梶谷健人', handle: '@kajiken0630',
+      avatar: '',
       text: 'Claude CodeでLP制作を試したら、デザインからコーディングまで30分で完了した。マーケのABテスト用ページ量産に使える。非エンジニアでもここまでできる時代。',
-      tag: 'Claude Code', url: 'https://x.com/kajiken0630'
+      tag: 'Claude Code', url: ''
     },
     {
       id: 'x7', author: '石角友愛', handle: '@TomoePalanoia',
+      avatar: '',
       text: 'GoogleのGemini、OpenAIのGPT、AnthropicのClaude。3社の競争が激しすぎて毎週アップデートがある。企業のAI選定は「今ベストか」より「乗り換えやすいか」が重要になった。',
-      tag: '生成AI比較', url: 'https://x.com/TomoePalanoia'
+      tag: '生成AI比較', url: ''
     },
     {
       id: 'x8', author: '田中邦裕', handle: '@kunihirotanaka',
+      avatar: 'https://pbs.twimg.com/profile_images/1672230977/tanaka_san_normal.jpg',
       text: 'さくらインターネットのGPUクラウド、想定の3倍の申し込みが来ている。日本企業が自社でAIを動かしたい需要がここまで大きいとは。国産クラウドの出番。',
-      tag: 'AI基盤', url: 'https://x.com/kunihirotanaka'
+      tag: 'AI基盤', url: ''
     },
     {
       id: 'x9', author: '緒方憲太郎', handle: '@ogatakentaro',
+      avatar: '',
       text: 'Voicyでも生成AI音声の活用が始まっている。テキストを入れるだけで自然な日本語ナレーションが作れる。ポッドキャスト・動画ナレーションのコストが10分の1になる世界。',
-      tag: 'AI音声', url: 'https://x.com/ogatakentaro'
+      tag: 'AI音声', url: ''
     }
   ];
 
@@ -306,6 +317,16 @@
     if (!url) return;
     window.open(url, '_blank', 'noopener,noreferrer');
   }
+  /** 画像URLが安全かチェック（https のみ許可） */
+  function safeImgUrl(url) {
+    if (!url || typeof url !== 'string') return '';
+    const u = url.trim();
+    if (u.startsWith('https://')) return u;
+    if (u.startsWith('data:image/')) return u;
+    return '';
+  }
+  /** img onerror: 壊れた画像を非表示にする */
+  const IMG_ONERROR = "this.onerror=null;this.parentElement.style.display='none';";
   function toggleRead(id, el) {
     if (state.read.has(id)) {
       state.read.delete(id);
@@ -429,8 +450,9 @@
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
       const hasUrl = !!n.url;
-      const thumbHtml = n.image
-        ? `<div class="top-thumb"><img src="${escapeHtml(n.image)}" alt="" loading="lazy"></div>`
+      const safeImg = safeImgUrl(n.image);
+      const thumbHtml = safeImg
+        ? `<div class="top-thumb"><img src="${escapeHtml(safeImg)}" alt="" loading="lazy" onerror="${IMG_ONERROR}"></div>`
         : `<div class="top-thumb"><span class="top-thumb-placeholder">${escapeHtml(n.source)}</span></div>`;
       const titleHtml = hasUrl
         ? `<a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a>`
@@ -489,8 +511,9 @@
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
       const hasUrl = !!n.url;
-      const briefThumb = n.image
-        ? `<div class="brief-card-thumb"><img src="${escapeHtml(n.image)}" alt="" loading="lazy"></div>`
+      const safeImg = safeImgUrl(n.image);
+      const briefThumb = safeImg
+        ? `<div class="brief-card-thumb"><img src="${escapeHtml(safeImg)}" alt="" loading="lazy" onerror="${IMG_ONERROR}"></div>`
         : `<div class="brief-card-thumb"><span class="brief-card-thumb-placeholder">${escapeHtml(n.source)}</span></div>`;
       return `
         <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
@@ -583,8 +606,9 @@
       const isFav = state.fav.has(n.id);
       const cat = n.category;
       const hasUrl = !!n.url;
-      const imgHtml = n.image
-        ? `<div class="fyi-thumb"><img src="${escapeHtml(n.image)}" alt="" loading="lazy"></div>`
+      const safeImg = safeImgUrl(n.image);
+      const imgHtml = safeImg
+        ? `<div class="fyi-thumb"><img src="${escapeHtml(safeImg)}" alt="" loading="lazy" onerror="${IMG_ONERROR}"></div>`
         : '';
       return `
         <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
@@ -633,19 +657,35 @@
 
   function renderX() {
     const root = document.getElementById('x-grid');
-    root.innerHTML = X_HIGHLIGHTS.map(x => `
-      <a class="x-item" href="${escapeHtml(x.url)}" target="_blank" rel="noopener noreferrer">
+    if (!X_HIGHLIGHTS.length) {
+      root.innerHTML = '<div class="empty" style="grid-column:1/-1;border:none;"><div class="empty-text">Xハイライトはありません</div></div>';
+      return;
+    }
+    root.innerHTML = X_HIGHLIGHTS.map(x => {
+      const hasUrl = !!x.url;
+      const safeAvatar = safeImgUrl(x.avatar);
+      const avatarHtml = safeAvatar
+        ? `<img class="x-avatar" src="${escapeHtml(safeAvatar)}" alt="" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';">
+           <span class="x-avatar-fallback" style="display:none;">${escapeHtml(x.author.charAt(0))}</span>`
+        : `<span class="x-avatar-fallback">${escapeHtml(x.author.charAt(0))}</span>`;
+      const tag = hasUrl ? 'a' : 'div';
+      const linkAttrs = hasUrl ? ` href="${escapeHtml(x.url)}" target="_blank" rel="noopener noreferrer"` : '';
+      return `
+      <${tag} class="x-item"${linkAttrs}>
         <div class="x-head">
-          <span class="x-author">${escapeHtml(x.author)}</span>
-          <span class="x-handle">${escapeHtml(x.handle)}</span>
+          ${avatarHtml}
+          <div class="x-head-info">
+            <span class="x-author">${escapeHtml(x.author)}</span>
+            <span class="x-handle">${escapeHtml(x.handle)}</span>
+          </div>
         </div>
         <div class="x-text">${escapeHtml(x.text)}</div>
         <div class="x-foot">
           <span class="x-foot-tag">${escapeHtml(x.tag)}</span>
-          <span>↗ Xで開く</span>
+          ${hasUrl ? '<span>↗ Xで開く</span>' : '<span class="x-seed-note">シードデータ</span>'}
         </div>
-      </a>
-    `).join('');
+      </${tag}>`;
+    }).join('');
   }
 
   /* ────────── ⑧ 配線 ──────────  */
@@ -716,8 +756,8 @@
           source:     String(it.source || '').trim(),
           sourceType: it.sourceType || 'media',
           category:   ['marketing','market','ai'].includes(it.category) ? it.category : 'marketing',
-          url:        String(it.url || ''),
-          image:      it.image || null,
+          url:        String(it.url || '').startsWith('http') ? String(it.url) : '',
+          image:      safeImgUrl(it.image) || null,
           publishedAt: it.publishedAt || new Date().toISOString(),
           tags: Array.isArray(it.tags) ? it.tags.map(String) : []
         });
@@ -732,6 +772,7 @@
           id: x.id || ('x_' + i),
           author: String(x.author || ''),
           handle: String(x.handle || ''),
+          avatar: String(x.avatar || ''),
           text: String(x.text || ''),
           tag: String(x.tag || ''),
           url: String(x.url || '')
@@ -784,7 +825,13 @@
     loadArchive(target);
   }
 
+  let _archiveLoading = false;
   async function loadArchive(dateStr) {
+    if (_archiveLoading) return;
+    _archiveLoading = true;
+    try { await _loadArchiveInner(dateStr); } finally { _archiveLoading = false; }
+  }
+  async function _loadArchiveInner(dateStr) {
     const today = fmtISODate(new Date());
     const isToday = dateStr >= today;
     const btnToday = document.getElementById('btn-today');

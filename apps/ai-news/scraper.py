@@ -146,6 +146,8 @@ def fetch_all() -> list[dict]:
                 url = (getattr(e, "link", None) or "").strip()
                 if not url or url in seen_urls:
                     continue
+                if not url.startswith(("http://", "https://")):
+                    continue
                 pub = parse_pub(e)
                 if pub is None or pub < cutoff:
                     continue
@@ -170,6 +172,9 @@ def fetch_all() -> list[dict]:
                         if (enc.get("type") or "").startswith("image/"):
                             image = enc.get("href") or enc.get("url")
                             break
+                # 画像URLの安全性検証（https のみ許可）
+                if image and not image.startswith("https://"):
+                    image = None
                 seen_urls.add(url)
                 all_items.append({
                     "id": make_id(url),

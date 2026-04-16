@@ -422,8 +422,36 @@
       display: flex; align-items: center; gap: 8px;
       margin-bottom: 6px;
     }
+    .x-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .x-avatar-fallback {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: var(--gold);
+      font-size: 0.72rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .x-head-info {
+      display: flex; flex-direction: column; gap: 1px; min-width: 0;
+    }
     .x-author { font-size: 0.72rem; font-weight: 700; color: var(--navy); }
     .x-handle { font-size: 0.65rem; color: var(--text-faint); }
+    .x-seed-note {
+      font-size: 0.55rem;
+      color: var(--text-faint);
+      opacity: 0.6;
+    }
+    div.x-item { cursor: default; }
+    div.x-item:hover { border-left-color: var(--navy-20); background: var(--surface-alt); }
     .x-text {
       font-size: 0.75rem;
       color: var(--text-secondary);
@@ -967,7 +995,7 @@
       <div class="more-actions">
         <div class="more-search">
           <span class="more-search-icon">🔍</span>
-          <input type="search" id="search" placeholder="検索" aria-label="キーワード検索">
+          <input type="search" id="search" placeholder="検索" aria-label="キーワード検索" maxlength="100">
         </div>
         <button class="icon-toggle" id="toggle-unread" aria-pressed="false" title="未読のみ表示">未読</button>
         <button class="icon-toggle" id="toggle-fav" aria-pressed="false" title="お気に入りのみ表示">★</button>
@@ -1020,9 +1048,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/16', text: 'AIダイジェスト音声。その他ニュースをカード形式に刷新。クリックで元記事を開くよう改善。リンク安全性を強化' },
-        { date: '04/16', text: '専門家コメント（Picker風）追加。高品質音声読み上げ対応。スワイプで日付移動。閲覧傾向パーソナライズ' },
-        { date: '04/16', text: 'セクション名刷新・日付ナビ・全UI日本語化。インテリジェンス・ブリーフとして全面再設計' }
+        { date: '04/16', text: 'リンク安全性を全面強化。シード偽URL・偽画像を全排除。画像onerrorフォールバック。Xアバター表示対応。日付移動の競合防止' },
+        { date: '04/16', text: 'AIダイジェスト音声。その他ニュースをカード形式に刷新。クリックで元記事を開くよう改善' },
+        { date: '04/16', text: '専門家コメント（Picker風）・高品質音声読み上げ・スワイプ日付移動・閲覧傾向パーソナライズ' }
       ]
     });
   </script>
