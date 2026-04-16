@@ -1067,10 +1067,10 @@
 
   async function generateDigest() {
     try {
-      const res = await fetch('/api/ai-news-digest', {
+      const res = await fetch('/api/ai-news-api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(buildArticlePayload()),
+        body: JSON.stringify({ action: 'digest', ...buildArticlePayload() }),
       });
       if (!res.ok) return null;
       const data = await res.json();
@@ -1087,10 +1087,10 @@
 
   async function tryOpenAITTS(text) {
     try {
-      const res = await fetch('/api/ai-news-tts', {
+      const res = await fetch('/api/ai-news-api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text.slice(0, 4800) }),
+        body: JSON.stringify({ action: 'tts', text: text.slice(0, 4800) }),
       });
       if (!res.ok) return null;
       const blob = await res.blob();

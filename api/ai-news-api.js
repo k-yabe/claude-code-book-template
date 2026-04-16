@@ -1,18 +1,31 @@
 /**
- * AI NEWS — ダイジェスト音声スクリプト生成 API
+ * AI NEWS — 統合API
  *
- * POST /api/ai-news-digest
- * Body: { execSummary: [...], mustKnow: [...], thisWeek: [...] }
- * Response: { script: "..." }
+ * POST /api/ai-news-api
+ * Body: { action: "digest" | "tts", ...params }
  *
- * Claude Haiku でニュース全体を「5分で聴けるダイジェスト」に要約する。
- * ラジオのニュースキャスターが話すような、自然で聴きやすい文体で生成。
+ * action=digest: Claude Haiku でニュースダイジェストスクリプトを生成
+ *   params: { execSummary, mustKnow, thisWeek }
+ *   response: { script: "..." }
+ *
+ * action=tts: OpenAI TTS API で音声生成
+ *   params: { text: "..." }
+ *   response: audio/mpeg (MP3バイナリ)
  */
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
+  const { action } = req.body || {};
+
+  if (action === 'digest') return handleDigest(req, res);
+  if (action === 'tts') return handleTTS(req, res);
+  return res.status(400).json({ error: 'action は "digest" または "tts" を指定してください' });
+}
+
+/* ── ダイジェスト生成（Claude Haiku） ── */
+async function handleDigest(req, res) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return res.status(501).json({ error: 'APIキーが未設定です' });
@@ -23,7 +36,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: '記事データが不足しています' });
   }
 
-  // 入力を構造化テキストに変換
   const articleLines = [];
   if (Array.isArray(execSummary) && execSummary.length) {
     articleLines.push('【今日の全体像】');
@@ -81,7 +93,7 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error('[ai-news-digest] Anthropic error:', response.status, errText);
+      console.error('[ai-news-api:digest] Anthropic error:', response.status, errText);
       return res.status(502).json({ error: 'ダイジェスト生成に失敗しました' });
     }
 
@@ -93,7 +105,52 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ script });
   } catch (err) {
-    console.error('[ai-news-digest] error:', err.message);
+    console.error('[ai-news-api:digest] error:', err.message);
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+/* ── TTS 音声生成（OpenAI） ── */
+async function handleTTS(req, res) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return res.status(501).json({ error: 'TTS APIキーが未設定です' });
+  }
+
+  const { text } = req.body || {};
+  if (!text || typeof text !== 'string' || text.length > 5000) {
+    return res.status(400).json({ error: 'テキストは1〜5000文字で指定してください' });
+  }
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/audio/speech', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'tts-1',
+        voice: 'nova',
+        input: text,
+        response_format: 'mp3',
+        speed: 1.1,
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error('[ai-news-api:tts] OpenAI error:', response.status, errText);
+      return res.status(502).json({ error: 'TTS生成に失敗しました' });
+    }
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Content-Length', buffer.length);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.status(200).send(buffer);
+  } catch (err) {
+    console.error('[ai-news-api:tts] error:', err.message);
     return res.status(500).json({ error: err.message });
   }
 }
