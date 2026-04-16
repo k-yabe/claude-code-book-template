@@ -199,6 +199,17 @@
     if (isNaN(d)) return '—';
     return `${d.getMonth()+1}/${d.getDate()}`;
   }
+  function fmtRelative(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return 'たった今';
+    if (diff < 3600) return `${Math.floor(diff / 60)}分前`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}時間前`;
+    if (diff < 172800) return '昨日';
+    return fmtBriefDate(iso);
+  }
   function totalReadTime(items) {
     return items.reduce((a, n) => a + (n.readMin || 1), 0);
   }
@@ -312,7 +323,7 @@
         <div class="top-meta">
           <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
           <span class="meta-source">${escapeHtml(top.source)}</span>
-          <span class="meta-time">${escapeHtml(fmtDate(top.publishedAt))}</span>
+          <span class="meta-time">${escapeHtml(fmtRelative(top.publishedAt))}</span>
           <span class="meta-read">⏱ 約${top.readMin || 1}分</span>
         </div>
         <h2 class="top-title">${escapeHtml(top.title)}</h2>
@@ -348,16 +359,18 @@
       const isRead = state.read.has(n.id);
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
+      const takeaway = extractTakeaway(n.summary);
       return `
         <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" role="link" aria-label="${escapeHtml(n.title)}">
           <div class="brief-card-head">
             <span class="brief-card-num">${String(i+1).padStart(2,'0')}</span>
             <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
             <span class="meta-source">${escapeHtml(n.source)}</span>
-            <span class="meta-time">${escapeHtml(fmtDate(n.publishedAt))}</span>
+            <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
           </div>
           <div class="brief-card-title">${escapeHtml(n.title)}</div>
           <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
+          <div class="brief-card-why">→ ${escapeHtml(takeaway)}</div>
           <div class="brief-card-foot">
             <div class="brief-card-tags">${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
             <div style="display:flex;align-items:center;gap:8px;">
@@ -653,8 +666,6 @@
         case 'k': e.preventDefault(); moveFocus(-1); break;
         case 'Enter': openFocused(); break;
         case 'f': toggleFavOnFocused(); break;
-        case 'n': e.preventDefault(); jumpToNextUnread(); break;
-        case 'm': e.preventDefault(); markAllRead(); break;
         case '?': e.preventDefault(); showHelp(true); break;
       }
     });
@@ -664,10 +675,6 @@
     if (close) close.addEventListener('click', () => showHelp(false));
     const modal = document.getElementById('kbd-modal');
     if (modal) modal.addEventListener('click', e => { if (e.target === modal) showHelp(false); });
-    const next = document.getElementById('btn-next-unread');
-    if (next) next.addEventListener('click', jumpToNextUnread);
-    const all = document.getElementById('btn-mark-all');
-    if (all) all.addEventListener('click', markAllRead);
   }
 
   /* ────────── ⑫ 起動 ──────────
