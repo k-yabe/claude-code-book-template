@@ -434,6 +434,77 @@
     .empty-icon { font-size: 1.6rem; margin-bottom: 6px; opacity: 0.5; }
     .empty-text { font-size: 0.78rem; }
 
+    /* ── Executive Summary ── */
+    .exec-box {
+      background: var(--navy);
+      border-top: 3px solid var(--gold);
+      padding: var(--sp-5) var(--sp-6);
+      margin-bottom: var(--sp-4);
+    }
+    .exec-line {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.92);
+      line-height: 1.7;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .exec-line:last-child { border-bottom: none; }
+    @media (max-width: 600px) {
+      .exec-box { padding: var(--sp-4); }
+      .exec-line { font-size: 0.85rem; }
+    }
+
+    /* ── MUST-KNOW: インテリジェンスブロック ── */
+    .intel-block {
+      padding: var(--sp-3) var(--sp-4);
+      margin: var(--sp-2) 0;
+    }
+    .intel-block.impact {
+      background: rgba(255,255,255,0.06);
+      border-left: 3px solid var(--cyan);
+    }
+    .intel-block.action {
+      background: rgba(255,184,28,0.12);
+      border-left: 3px solid var(--gold);
+    }
+    .intel-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      margin-bottom: 2px;
+    }
+    .intel-block.impact .intel-label { color: var(--cyan); }
+    .intel-block.action .intel-label { color: var(--gold); }
+    .intel-text {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.55;
+    }
+
+    /* ── THIS WEEK: 影響 + アクション行 ── */
+    .brief-card-impact {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--navy);
+      background: rgba(0,255,255,0.08);
+      padding: 5px 10px;
+      margin-bottom: 4px;
+      line-height: 1.5;
+      border-left: 3px solid var(--cyan);
+    }
+    .brief-card-action {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--navy);
+      background: rgba(255,184,28,0.12);
+      padding: 5px 10px;
+      margin-bottom: var(--sp-3);
+      line-height: 1.5;
+      border-left: 3px solid var(--gold);
+    }
+
     /* ── 注記 ── */
     .data-note {
       margin-top: var(--sp-5);
@@ -615,13 +686,7 @@
       line-height: 1.7; margin-bottom: var(--sp-2);
       flex: 1;
     }
-    .brief-card-why {
-      font-size: 0.78rem; font-weight: 700; color: var(--gold);
-      background: var(--navy);
-      padding: 6px 10px;
-      margin-bottom: var(--sp-3);
-      line-height: 1.5;
-    }
+    /* (旧 brief-card-why は brief-card-impact / brief-card-action に移行) */
     .brief-card-foot {
       display: flex; align-items: center; justify-content: space-between;
       gap: var(--sp-2);
@@ -636,21 +701,7 @@
     }
     .brief-ext-link:hover { color: var(--gold); }
 
-    /* ── TOP STORY ポイントCallout ── */
-    .top-takeaway {
-      background: rgba(255,184,28,0.1);
-      border-left: 3px solid var(--gold);
-      padding: var(--sp-3) var(--sp-4);
-      margin: var(--sp-3) 0;
-    }
-    .top-takeaway-label {
-      font-size: 0.65rem; font-weight: 800; color: var(--gold);
-      letter-spacing: 0.1em; margin-bottom: 2px;
-    }
-    .top-takeaway-text {
-      font-size: 0.92rem; font-weight: 600; color: var(--white);
-      line-height: 1.55;
-    }
+    /* (旧 top-takeaway は intel-block に移行) */
     .top-ext-link {
       display: inline-flex; align-items: center; gap: 4px;
       font-size: 0.72rem; color: rgba(255,255,255,0.5); font-weight: 600;
@@ -718,11 +769,6 @@
       </div>
     </section>
 
-    <!-- トレンドバー -->
-    <div class="trend-bar" id="trend-bar">
-      <span class="trend-label">TRENDS</span>
-    </div>
-
     <!-- アクションバー -->
     <div class="cmd-bar">
       <span class="cmd-updated" id="cmd-updated">更新: —</span>
@@ -731,29 +777,43 @@
       </div>
     </div>
 
-    <!-- 🔥 TOP STORY -->
+    <!-- 📋 今日の要点 (Executive Summary) -->
+    <div class="sec-head">
+      <span class="sec-icon gold">📋</span>
+      <span class="sec-title">今日の要点</span>
+      <span class="sec-sub">3分で全体像をつかむ</span>
+      <span class="sec-line"></span>
+    </div>
+    <div class="exec-box" id="exec-summary"></div>
+
+    <!-- トレンドバー -->
+    <div class="trend-bar" id="trend-bar">
+      <span class="trend-label">TRENDS</span>
+    </div>
+
+    <!-- 🔥 今すぐ押さえる (MUST-KNOW) -->
     <div class="sec-head">
       <span class="sec-icon gold">🔥</span>
-      <span class="sec-title">TOP STORY</span>
-      <span class="sec-sub">今日、これだけは押さえる</span>
+      <span class="sec-title">今すぐ押さえる</span>
+      <span class="sec-sub">今日中に全員が把握すべきニュース</span>
       <span class="sec-line"></span>
     </div>
-    <div id="top-story"></div>
+    <div id="must-know"></div>
 
-    <!-- ⚡ BRIEFING -->
+    <!-- ⚡ 今週チェック (THIS WEEK) -->
     <div class="sec-head">
       <span class="sec-icon cyan">⚡</span>
-      <span class="sec-title">BRIEFING</span>
-      <span class="sec-sub">押さえておくべき5本（各1分）</span>
+      <span class="sec-title">今週チェック</span>
+      <span class="sec-sub">今週中に目を通しておくべき動き</span>
       <span class="sec-line"></span>
     </div>
-    <div class="brief-grid" id="briefing"></div>
+    <div class="brief-grid" id="this-week"></div>
 
-    <!-- 📑 MORE READS -->
+    <!-- 📑 知っておけばOK (FYI) -->
     <div class="sec-head">
       <span class="sec-icon">📑</span>
-      <span class="sec-title">MORE READS</span>
-      <span class="sec-sub">時間があれば</span>
+      <span class="sec-title">知っておけばOK</span>
+      <span class="sec-sub">余裕があれば目を通す</span>
       <span class="sec-line"></span>
     </div>
     <div class="more-toolbar">
@@ -806,17 +866,17 @@
   <script>
     if (window.initOnboarding) initOnboarding({
       appName: 'ai-news',
-      title: 'AI NEWS — 10分で読めるマーケ動向',
-      description: '前日のマーケ業界・市場・AI・X の有益情報を、優先度順に配信',
+      title: 'AI NEWS — マーケティング・インテリジェンス・ブリーフ',
+      description: 'ニュースを届けるのではなく、判断材料を届ける。「何が起きた？」「なぜ重要？」「何をすべき？」まで一気通貫',
       features: [
-        { icon: '🔥', text: 'TOP STORY：今日の最重要1件を大きく表示' },
-        { icon: '⚡', text: 'BRIEFING：押さえる5本を1分ずつ読める形に' },
-        { icon: '⌨️', text: 'キーボードで読み進め可：「/」検索・「j/k」移動・「n」次の未読・「?」ヘルプ' }
+        { icon: '📋', text: '今日の要点：3行で全体像をつかめるExecutive Summary' },
+        { icon: '🔥', text: '今すぐ押さえる：マーケへの影響＋具体的なNext Stepを提示' },
+        { icon: '⚡', text: '今週チェック：影響と推奨アクション付きのカード形式' }
       ],
       updates: [
-        { date: '04/16', text: 'TOP STORYをネイビー背景ヒーロー化、ゴールドタイトルで一目で最重要記事が伝わるように' },
-        { date: '04/16', text: 'BRIEFINGカードに「→ なぜ重要？」行を追加、相対時間表示（3時間前）に変更' },
-        { date: '04/16', text: 'カテゴリ色を大胆に強化（MARKETING=金、MARKET=シアン、AI=金on紺）。トレンドバーで今日のキーワードを可視化' }
+        { date: '04/16', text: 'インテリジェンス・ブリーフ化：「今日の要点」3行サマリー新設、各記事に「マーケへの影響」「Next Step」を追加' },
+        { date: '04/16', text: 'urgencyベース分類に移行：「今すぐ押さえる」「今週チェック」「知っておけばOK」の3段階で判断しやすく' },
+        { date: '04/16', text: 'セクション名を日本語化、RSSリーダーから脱却し実務に直結するブリーフへ' }
       ]
     });
   </script>

@@ -192,12 +192,17 @@ def fallback_summarize(items: list[dict]) -> list[dict]:
         body = it.pop("raw_summary", "")
         it["summary"] = truncate(body, SUMMARY_CHARS) or it["title"]
         it["tags"] = []
+        it["whyItMatters"] = ""
+        it["actionItem"] = ""
         if idx == 0:
             it["importance"] = 1
+            it["urgency"] = "must_know"
         elif idx < 6:
             it["importance"] = 2
+            it["urgency"] = "this_week"
         else:
             it["importance"] = 3
+            it["urgency"] = "fyi"
         it["readMin"] = normalize_read_min(it["importance"])
     return items
 
@@ -226,16 +231,27 @@ def call_anthropic(items: list[dict]) -> list[dict] | None:
     ]
 
     system_prompt = (
-        "あなたはB2Bマーケティング担当者向けのニュースキュレーターです。"
-        "各記事について、日本語で約100〜140字の自然な要約・3〜5個の日本語タグ・"
-        "重要度（importance: 1=最重要1件のみ・本日のTOPストーリー、2=押さえるべき5件、3=その他）"
-        "・推定読了時間（readMin: 1〜3、要約から想定）を作成してください。"
-        "重要度1は最も影響範囲が広い1件のみ。煽りや推測は避け、事実ベースで。"
-        "出力は厳密にJSONのみで、{\"items\":[{\"i\":0,\"summary\":\"...\",\"tags\":[\"...\"],\"importance\":1,\"readMin\":1}, ...]} の形式に従ってください。"
+        "あなたはB2Bマーケティング担当者向けのニュース・インテリジェンス・キュレーターです。"
+        "単なる記事要約ではなく「マーケ担当が明日から何をすべきか」がわかるブリーフを作成します。\n\n"
+        "各記事について以下を日本語で生成してください:\n"
+        "- summary: 何が起きたかの要約（100〜140字、事実ベース）\n"
+        "- whyItMatters: マーケティング担当者にとってなぜ重要か（1文、具体的に。例:「リード獲得チャネルの再設計が必要になる可能性」）\n"
+        "- actionItem: 推奨アクション（1文、具体的に。例:「来週の定例で自社GEO対策の優先度を議題に入れる」）\n"
+        "- urgency: must_know（今日中に全員が把握すべき、最大2件）/ this_week（今週中にチェックすべき、最大5件）/ fyi（知っておけばOK）\n"
+        "- tags: 3〜5個の日本語タグ\n"
+        "- importance: 1=最重要1件のみ、2=押さえるべき5件、3=その他（urgencyと連動: must_know→1or2, this_week→2, fyi→3）\n"
+        "- readMin: 推定読了時間（1〜3分）\n\n"
+        "加えて、全記事を俯瞰した executiveSummary を生成してください。"
+        "これは3項目の箇条書きで、各項目は「トレンド要約 → 推奨アクション」の形式です。"
+        "マーケ部門の朝会で3分で共有できる粒度にしてください。\n\n"
+        "煽りや推測は避け、事実ベースで。\n"
+        "出力は厳密にJSONのみで、以下の形式に従ってください:\n"
+        "{\"executiveSummary\":[\"...\",\"...\",\"...\"],"
+        "\"items\":[{\"i\":0,\"summary\":\"...\",\"whyItMatters\":\"...\",\"actionItem\":\"...\",\"urgency\":\"must_know\",\"tags\":[\"...\"],\"importance\":1,\"readMin\":2}, ...]}"
     )
 
     user_prompt = (
-        "次の記事リストを、上記ルールに従って要約してください。\n"
+        "次の記事リストを、上記ルールに従ってインテリジェンス・ブリーフとして処理してください。\n"
         "入力JSON:\n" + json.dumps(payload, ensure_ascii=False)
     )
 
@@ -257,13 +273,25 @@ def call_anthropic(items: list[dict]) -> list[dict] | None:
         log("anthropic response was not valid JSON")
         return None
 
+    # executiveSummary を抽出
+    exec_summary = parsed.get("executiveSummary") or []
+    if isinstance(exec_summary, list):
+        exec_summary = [str(s).strip() for s in exec_summary if str(s).strip()][:5]
+    else:
+        exec_summary = []
+
     by_index = {int(o["i"]): o for o in parsed["items"] if "i" in o}
     top_assigned = False
+    VALID_URGENCY = {"must_know", "this_week", "fyi"}
     for idx, it in enumerate(target):
         o = by_index.get(idx)
         raw = it.pop("raw_summary", "")
         if o:
             it["summary"] = truncate((o.get("summary") or "").strip(), SUMMARY_CHARS) or truncate(raw, SUMMARY_CHARS)
+            it["whyItMatters"] = truncate((o.get("whyItMatters") or "").strip(), 200)
+            it["actionItem"] = truncate((o.get("actionItem") or "").strip(), 200)
+            urg = (o.get("urgency") or "fyi").strip()
+            it["urgency"] = urg if urg in VALID_URGENCY else "fyi"
             tags = o.get("tags") or []
             if isinstance(tags, list):
                 it["tags"] = [str(t).strip() for t in tags if str(t).strip()][:5]
@@ -284,6 +312,9 @@ def call_anthropic(items: list[dict]) -> list[dict] | None:
             it["readMin"] = normalize_read_min(imp)
         else:
             it["summary"] = truncate(raw, SUMMARY_CHARS) or it["title"]
+            it["whyItMatters"] = ""
+            it["actionItem"] = ""
+            it["urgency"] = "fyi"
             it["tags"] = []
             it["importance"] = 3
             it["readMin"] = normalize_read_min(3)
@@ -295,7 +326,7 @@ def call_anthropic(items: list[dict]) -> list[dict] | None:
         for it in rest:
             it["importance"] = 3
             it["readMin"] = normalize_read_min(3)
-    return items
+    return items, exec_summary
 
 
 def extract_json(text: str) -> dict | None:
@@ -314,13 +345,14 @@ def extract_json(text: str) -> dict | None:
 
 
 # ── 保存 ──────────────────────────────────────────
-def save(items: list[dict]) -> None:
+def save(items: list[dict], executive_summary: list[str] | None = None) -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     ARCH_DIR.mkdir(parents=True, exist_ok=True)
     today_jst = datetime.now(JST).strftime("%Y-%m-%d")
     payload = {
         "updatedAt": datetime.now(UTC).isoformat(),
         "generatedFor": today_jst,
+        "executiveSummary": executive_summary or [],
         "count": len(items),
         "items": items,
     }
@@ -338,12 +370,13 @@ def main() -> int:
     if not items:
         log("no items collected; preserving previous news.json (if exists)")
         return 0
-    summarized = call_anthropic(items)
-    if summarized is None:
+    result = call_anthropic(items)
+    if result is None:
         items = fallback_summarize(items)
+        exec_summary: list[str] = []
     else:
-        items = summarized
-    save(items)
+        items, exec_summary = result
+    save(items, exec_summary)
     log(f"done in {time.time() - started:.1f}s")
     return 0
 
