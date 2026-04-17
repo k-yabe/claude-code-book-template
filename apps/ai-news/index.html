@@ -753,20 +753,28 @@
       margin: 0 var(--sp-5);
       box-shadow: 0 1px 3px rgba(0,31,51,0.06);
     }
-    .tabs { display: flex; flex-wrap: wrap; gap: 2px; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 4px; }
     .tab {
-      padding: 5px 12px; font-size: 0.72rem; font-weight: 700;
+      padding: 6px 14px; font-size: 0.74rem; font-weight: 800;
       letter-spacing: 0.04em; color: var(--text-muted);
-      background: transparent; border: none; cursor: pointer;
-      font-family: var(--font-sans); transition: all var(--ease-base);
-      border-bottom: 2px solid transparent;
+      background: #f5f5f5; border: none; cursor: pointer;
+      font-family: var(--font-sans); transition: all 0.2s ease;
+      display: inline-flex; align-items: center; gap: 6px;
     }
-    .tab:hover { color: var(--navy); }
-    .tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+    .tab:hover { background: #e8e8e8; color: var(--navy); }
+    .tab.active {
+      background: var(--navy); color: var(--gold);
+      box-shadow: 0 2px 6px rgba(0,31,51,0.2);
+    }
     .tab .tab-count {
-      display: inline-block; margin-left: 3px;
-      font-size: 0.58rem; opacity: 0.6;
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; padding: 0 5px;
+      background: rgba(0,0,0,0.1); color: inherit;
+      font-size: 0.6rem; font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      opacity: 1;
     }
+    .tab.active .tab-count { background: rgba(255,184,28,0.2); color: var(--gold); }
     .more-actions { display: flex; gap: 4px; align-items: center; }
     .more-search { position: relative; width: 200px; max-width: 100%; }
     .more-search input {
@@ -1744,9 +1752,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'フッターを「DATA PIPELINE」風に再構成：収集／要約・採点／音声ダイジェスト／フォールバックの4カラム（PC）でデータ経路を明示。技術スタックの可視化でプロフェッショナル感UP' },
-        { date: '04/17', text: '「🔊 聴く」ボタンを常にネイビー＋ゴールドで存在感UP。ready時はシアンドット、playing時は脈動シャドウ' },
-        { date: '04/17', text: '直近3時間以内の記事に赤い脈動ドット。セクション件数バッジのスクロールカウントアップ' }
+        { date: '04/17', text: 'カテゴリタブをピル型に刷新。アクティブはネイビー背景＋ゴールド文字＋ゴールドカウントバッジで選択状態を強調' },
+        { date: '04/17', text: 'フッターを「DATA PIPELINE」4カラム構成に刷新。技術スタック（RSS/Claude/TTS/フォールバック）を可視化' },
+        { date: '04/17', text: '「🔊 聴く」ボタンを常設ハイライト。ready=シアンドット/playing=脈動シャドウで状態を可視化' }
       ]
     });
   </script>
