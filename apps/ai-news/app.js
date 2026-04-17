@@ -166,6 +166,58 @@
       image: null,
       publishedAt: `${TODAY}T15:20:00+09:00`,
       tags: ['CRM', 'セールス']
+    },
+    {
+      id: 'mk4', importance: 3, readMin: 1, urgency: 'fyi',
+      title: 'Meta、Llama 4をオープンソース化。マーケ特化の軽量版も同時公開',
+      summary: 'MetaがLlama 4をオープンソース化。8B/70B/400Bの3サイズに加え、マーケ特化の軽量版（Llama 4 Marketing）も同時公開。自社サーバーでの運用が可能。',
+      whyItMatters: 'APIコストを気にせずAI活用できる選択肢が増える。特にコピー生成・キーワード抽出など定型業務の内製化が現実的になる。',
+      actionItem: '情シスと連携し、Llama 4 Marketingを社内GPUサーバーで試用できるか検討する。',
+      pickerComment: 'オープンソースLLMはコスト削減だけでなく、社内データを外部に出さずAI活用できるのが本質。ガバナンス要件が厳しいBtoBでは特に価値が高い。',
+      source: 'Meta AI', sourceType: 'media', category: 'ai',
+      url: null,
+      image: null,
+      publishedAt: `${TODAY}T06:30:00+09:00`,
+      tags: ['Llama', 'オープンソース', 'LLM']
+    },
+    {
+      id: 'm6', importance: 3, readMin: 1, urgency: 'fyi',
+      title: 'Instagram、Reelsの広告に「自動翻訳＋吹き替え」機能を追加',
+      summary: 'InstagramがReels広告で「自動翻訳＋AI吹き替え」機能を追加。1つの動画で多言語展開が可能に。英語→日本語の吹き替え品質が大幅向上。',
+      whyItMatters: 'グローバル採用動画を1本作れば多言語展開できる。海外エンジニア採用向けのリーチ手段として有効。',
+      actionItem: '海外採用を強化する部署向けに、Reels自動翻訳のPoC企画を提案。',
+      pickerComment: 'AI吹き替えは口の動きと声の同期まで処理される。採用動画で「日本人社員が英語を話す」違和感を減らせるので、海外向け発信のハードルが下がる。',
+      source: 'Meta Business', sourceType: 'media', category: 'marketing',
+      url: null,
+      image: null,
+      publishedAt: `${TODAY}T12:10:00+09:00`,
+      tags: ['SNS', '動画', '多言語']
+    },
+    {
+      id: 'mk5', importance: 3, readMin: 1, urgency: 'fyi',
+      title: 'Gartner「2026年のマーケ予算、AIツールへの配分が平均18%に」',
+      summary: 'Gartner調査。2026年のマーケ予算でAIツール関連の支出が平均18%（前年比+6pt）。特に「コンテンツ生成」「パーソナライズ」「分析自動化」の3領域で増加。',
+      whyItMatters: '予算策定時の「AIツールへの投資は同業他社はどれくらい？」への回答根拠になる。18%を目安にすれば業界水準。',
+      actionItem: '来期予算書で AI ツール関連の支出比率を算出し、18%との差分を明記。',
+      pickerComment: 'AI投資比率は業界で大きく差がつき始めている。採用領域は「マッチング精度」で直接成果が出やすいので、この18%より高めに寄せる判断も妥当。',
+      source: 'Gartner', sourceType: 'media', category: 'market',
+      url: null,
+      image: null,
+      publishedAt: `${TODAY}T09:45:00+09:00`,
+      tags: ['予算', '業界統計', 'AI投資']
+    },
+    {
+      id: 'a4', importance: 3, readMin: 1, urgency: 'fyi',
+      title: 'Perplexity、企業向け「Enterprise Pro」を日本でも提供開始',
+      summary: 'PerplexityがEnterprise Proを日本展開。社内ドキュメントを取り込んで「社内版AI検索」として利用可能。SSO/監査ログ対応。',
+      whyItMatters: '社内の過去資料・議事録・営業マニュアルをAI検索できるようになる。属人化した知識の共有コストが劇的に下がる。',
+      actionItem: '無料トライアルを申請し、直近1年の営業資料をインポートして検索精度を検証。',
+      pickerComment: 'ChatGPT Enterpriseより「社内文書検索」に特化している点が実用的。採用マーケなら「過去の採用資料」「候補者対応テンプレ」を全員が秒で引けるようになる。',
+      source: 'Perplexity AI', sourceType: 'media', category: 'ai',
+      url: null,
+      image: null,
+      publishedAt: `${TODAY}T16:00:00+09:00`,
+      tags: ['AI検索', 'エンタープライズ', 'ナレッジ']
     }
   ];
 
@@ -316,7 +368,8 @@
     return items.reduce((a, n) => a + (n.readMin || 1), 0);
   }
   function openExternal(url) {
-    if (!url) return;
+    if (!url || typeof url !== 'string') return;
+    if (!/^https?:\/\//.test(url)) return;
     window.open(url, '_blank', 'noopener,noreferrer');
   }
   let _toastTimer;
@@ -442,16 +495,29 @@
   }
 
   /**
-   * 記事リンク: 実URLがあればそれ、無ければ Google 検索（タイトル+ソース）にフォールバック。
-   * これでユーザーは必ず関連記事にたどり着ける。
+   * 記事リンク: 実URLがあるときのみ返す。無い場合は null（ボタンを描画しない）。
+   * Google 検索フォールバックは「元記事にたどり着けない」UXのため廃止。
    */
   function articleLink(n) {
-    if (n.url) return n.url;
-    const q = encodeURIComponent(`${n.title} ${n.source || ''}`);
-    return `https://www.google.com/search?q=${q}`;
+    return n && n.url ? n.url : null;
   }
-  function articleLinkLabel(n) {
-    return n.url ? '記事を開く →' : '記事を検索 →';
+  function articleLinkLabel() {
+    return '元記事を読む →';
+  }
+
+  /**
+   * 𝕏 投稿のリンク先を決める。
+   * 1. ツイートURLがあればそれ
+   * 2. 無ければ @handle からプロフィールURL（https://x.com/handle）を自動生成
+   * 3. どちらも無い場合は null
+   */
+  function xLink(x) {
+    if (!x) return null;
+    if (x.url && /^https?:\/\//.test(x.url)) return x.url;
+    const h = String(x.handle || '').trim().replace(/^@+/, '');
+    if (!h) return null;
+    if (!/^[A-Za-z0-9_]{1,15}$/.test(h)) return null;
+    return `https://x.com/${h}`;
   }
 
   /** OGP画像をクライアントサイドで取得し、記事データとDOMを更新 */
@@ -590,7 +656,7 @@
       return new Date(b.publishedAt) - new Date(a.publishedAt);
     });
     const mustKnow  = sorted.filter(n => n.urgency === 'must_know').slice(0, 2);
-    const thisWeek  = sorted.filter(n => n.urgency === 'this_week').slice(0, 6);
+    const thisWeek  = sorted.filter(n => n.urgency === 'this_week').slice(0, 4);
     const usedIds   = new Set([...mustKnow.map(n => n.id), ...thisWeek.map(n => n.id)]);
     const fyi       = sorted.filter(n => !usedIds.has(n.id));
     return { mustKnow, thisWeek, fyi };
@@ -663,7 +729,7 @@
       const favicon = sourceFavicon(n.url) || '';
       const initials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-      <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" aria-label="${escapeHtml(n.title)}">
+      <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${n.url ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" aria-label="${escapeHtml(n.title)}">
         ${imgSrc ? `
         <div class="top-hero">
           <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
@@ -691,27 +757,22 @@
         <div class="top-content">
           <h2 class="top-title">${titleHtml}</h2>
           <p class="top-summary">${escapeHtml(n.summary)}</p>
-          ${hasDetail || (n.tags && n.tags.length) ? `
+          ${hasDetail || (n.tags && n.tags.length) || hasUrl ? `
           <details class="intel-details">
-            <summary class="intel-toggle">▼ 詳しく読む（マーケ担当者向けインテリジェンス）</summary>
+            <summary class="intel-toggle">▼ 詳しく読む</summary>
             <div class="intel-body">
-              ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label">⚡ マーケへの影響</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
-              ${n.actionItem ? `<div class="intel-block action"><div class="intel-label">🎯 推奨アクション（誰が・何を・いつまでに）</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
-              ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💬</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
-              <div class="intel-meta">
-                <div class="intel-meta-row"><span class="intel-meta-label">情報源</span><span class="intel-meta-value">${escapeHtml(n.source)}</span></div>
-                <div class="intel-meta-row"><span class="intel-meta-label">公開日時</span><span class="intel-meta-value">${escapeHtml(fmtDate(n.publishedAt))}</span></div>
-                <div class="intel-meta-row"><span class="intel-meta-label">カテゴリ</span><span class="intel-meta-value">${escapeHtml(CAT_LABEL[n.category] || n.category)}</span></div>
-                <div class="intel-meta-row"><span class="intel-meta-label">読了目安</span><span class="intel-meta-value">${n.readMin || 2}分</span></div>
-              </div>
+              ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label"><span class="intel-step">1</span>なぜ重要か</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
+              ${n.actionItem ? `<div class="intel-block action"><div class="intel-label"><span class="intel-step">2</span>何をすべきか</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
+              ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label"><span class="intel-step light">3</span>専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
               ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+              ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(n.source)}） →</a>` : ''}
             </div>
           </details>` : ''}
           <div class="top-foot">
             <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読' : '✓ 既読'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-            <button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(articleLink(n))}" aria-label="共有">↗ 共有</button>
-            <a class="ext-btn" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(articleLinkLabel(n))}</a>
+            ${hasUrl ? `<button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(n.url)}" aria-label="共有">↗ 共有</button>` : ''}
+            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む →</a>` : ''}
           </div>
         </div>
       </article>`;
@@ -752,7 +813,7 @@
       const bFavicon = sourceFavicon(n.url) || '';
       const bInitials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${n.url ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           ${imgSrc ? `
           <div class="brief-card-thumb">
             <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
@@ -774,26 +835,22 @@
             <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
             ${n.whyItMatters ? `<div class="brief-card-impact">⚡ ${escapeHtml(n.whyItMatters)}</div>` : ''}
             ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
-            ${hasDetail || (n.tags && n.tags.length) ? `
+            ${hasDetail || (n.tags && n.tags.length) || hasUrl ? `
             <details class="intel-details brief">
               <summary class="intel-toggle">▼ 詳しく読む</summary>
               <div class="intel-body">
-                ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label">⚡ マーケへの影響</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
-                ${n.actionItem ? `<div class="intel-block action"><div class="intel-label">🎯 推奨アクション</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
-                ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💬</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
-                <div class="intel-meta">
-                  <div class="intel-meta-row"><span class="intel-meta-label">情報源</span><span class="intel-meta-value">${escapeHtml(n.source)}</span></div>
-                  <div class="intel-meta-row"><span class="intel-meta-label">公開日時</span><span class="intel-meta-value">${escapeHtml(fmtDate(n.publishedAt))}</span></div>
-                  <div class="intel-meta-row"><span class="intel-meta-label">読了目安</span><span class="intel-meta-value">${n.readMin || 1}分</span></div>
-                </div>
+                ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label"><span class="intel-step">1</span>なぜ重要か</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
+                ${n.actionItem ? `<div class="intel-block action"><div class="intel-label"><span class="intel-step">2</span>何をすべきか</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
+                ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label"><span class="intel-step light">3</span>専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
                 ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+                ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(n.source)}） →</a>` : ''}
               </div>
             </details>` : ''}
             <div class="brief-card-foot">
               <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
               <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-              <button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(articleLink(n))}" aria-label="共有">↗</button>
-              <a class="brief-ext-link" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(articleLinkLabel(n))}</a>
+              ${hasUrl ? `<button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(n.url)}" aria-label="共有">↗</button>` : ''}
+              ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
             </div>
           </div>
         </div>`;
@@ -873,7 +930,7 @@
       const fFavicon = sourceFavicon(n.url) || '';
       const fInitials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-        <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+        <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${n.url ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}">${fFavicon ? `<img class="source-logo-xs" src="${fFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-xs">${escapeHtml(fInitials)}</span>`}</div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
@@ -889,7 +946,7 @@
               <div style="display:flex;align-items:center;gap:8px;">
                 <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
                 <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
-                <a class="brief-ext-link" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.url ? '元記事 →' : '検索 →')}</a>
+                ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
               </div>
             </div>
           </div>
@@ -924,16 +981,18 @@
       return;
     }
     root.innerHTML = X_HIGHLIGHTS.map(x => {
-      const hasUrl = !!x.url;
+      const link = xLink(x);
+      const isTweet = !!(x.url && /^https?:\/\//.test(x.url));
       const safeAvatar = safeImgUrl(x.avatar);
       const avatarHtml = safeAvatar
         ? `<img class="x-avatar" src="${escapeHtml(safeAvatar)}" alt="" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';">
            <span class="x-avatar-fallback" style="display:none;">${escapeHtml(x.author.charAt(0))}</span>`
         : `<span class="x-avatar-fallback">${escapeHtml(x.author.charAt(0))}</span>`;
-      const tag = hasUrl ? 'a' : 'div';
-      const linkAttrs = hasUrl ? ` href="${escapeHtml(x.url)}" target="_blank" rel="noopener noreferrer"` : '';
+      const tag = link ? 'a' : 'div';
+      const linkAttrs = link ? ` href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer"` : '';
+      const footLabel = isTweet ? '↗ ポストを開く' : (link ? '↗ プロフィールを開く' : '');
       return `
-      <${tag} class="x-item"${linkAttrs}>
+      <${tag} class="x-item${link ? ' linked' : ''}"${linkAttrs}>
         <div class="x-head">
           ${avatarHtml}
           <div class="x-head-info">
@@ -944,7 +1003,7 @@
         <div class="x-text">${escapeHtml(x.text)}</div>
         <div class="x-foot">
           <span class="x-foot-tag">${escapeHtml(x.tag)}</span>
-          ${hasUrl ? '<span>↗ Xで開く</span>' : ''}
+          ${footLabel ? `<span class="x-foot-link">${escapeHtml(footLabel)}</span>` : ''}
         </div>
       </${tag}>`;
     }).join('');

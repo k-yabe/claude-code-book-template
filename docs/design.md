@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-04-17（S078: AI NEWS 日本語記事全面移行 + auto-merge workflow）
+最終更新: 2026-04-17（S079: AI NEWS 読みやすさ改善 — 元記事リンク明確化・詳しく読む3ステップ化・FYI件数増・Xプロフィールリンク化）
 
 ---
 
@@ -60,7 +60,7 @@
 | Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043, S048, S050, S051, S052, S053, S054, S055, S056, S066, S068, S069, S070 |
 | Cache Checker | `apps/cache-checker/index.html`, `api/fetch-article.js(mode=proxy)` | ✅ 完成 | S037 |
 | Image Converter | `apps/image-converter/index.html` | ✅ 完成 | S047 |
-| AI NEWS | `apps/ai-news/index.html`, `apps/ai-news/app.js`, `apps/ai-news/scraper.py`, `api/ai-news-api.js`, `.github/workflows/ai-news-collect.yml`, `.github/workflows/auto-merge-claude.yml` | ✅ 完成（毎朝8時 JST 日本語RSSのみ自動収集 + Claude Haiku 4.5インテリジェンス・ブリーフ + AIダイジェスト音声(tts-1-hd/shimmer/カタカナ変換) + Picker風専門家コメント + スワイプナビ + パーソナライズ + OGP画像自動抽出 + unavatar.io Xアバター + ラジオ番組風ダイジェスト + NewsPicks/SmartNews風UIリデザイン + 日本語率フィルタ + /merges API auto-merge） | S073, S074, S075, S077, S078 |
+| AI NEWS | `apps/ai-news/index.html`, `apps/ai-news/app.js`, `apps/ai-news/scraper.py`, `api/ai-news-api.js`, `.github/workflows/ai-news-collect.yml`, `.github/workflows/auto-merge-claude.yml` | ✅ 完成（毎朝8時 JST 日本語RSSのみ自動収集 + Claude Haiku 4.5インテリジェンス・ブリーフ + AIダイジェスト音声(tts-1-hd/shimmer/カタカナ変換) + Picker風専門家コメント + スワイプナビ + パーソナライズ + OGP画像自動抽出 + unavatar.io Xアバター + ラジオ番組風ダイジェスト + NewsPicks/SmartNews風UIリデザイン + 日本語率フィルタ + /merges API auto-merge + 「詳しく読む」3ステップ番号UI + Xカード全リンク化） | S073, S074, S075, S077, S078, S079 |
 
 ---
 

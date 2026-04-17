@@ -398,14 +398,39 @@
       background: rgba(255,184,28,0.06);
     }
     .intel-label {
-      font-size: 0.72rem; font-weight: 900; letter-spacing: 0.08em;
+      font-size: 0.78rem; font-weight: 900; letter-spacing: 0.04em;
       margin-bottom: 8px;
+      display: inline-flex; align-items: center; gap: 8px;
     }
     .intel-block.impact .intel-label { color: var(--navy); }
     .intel-block.action .intel-label { color: #7a5500; }
     .intel-text {
       font-size: 0.98rem; font-weight: 600; color: var(--navy); line-height: 1.7;
     }
+    /* 詳しく読む: 読む順番を示す番号バッジ */
+    .intel-step {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px;
+      background: var(--navy); color: var(--gold);
+      font-size: 0.72rem; font-weight: 900;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .intel-block.action .intel-step { background: var(--gold); color: var(--navy); }
+    .intel-step.light {
+      background: var(--gold); color: var(--navy);
+    }
+    /* 詳しく読む末尾の元記事リンク（目立つCTA） */
+    .intel-source-link {
+      display: block;
+      margin-top: var(--sp-4);
+      padding: 12px 16px;
+      background: var(--navy); color: var(--gold);
+      font-size: 0.82rem; font-weight: 800; letter-spacing: 0.02em;
+      text-decoration: none; text-align: center;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .intel-source-link:hover { background: var(--gold); color: var(--navy); }
 
     /* ── Picker コメント ── */
     .picker-comment {
@@ -418,8 +443,9 @@
     .picker-icon { flex-shrink: 0; font-size: 1.3rem; margin-top: 2px; }
     .picker-content { flex: 1; }
     .picker-label {
-      font-size: 0.6rem; font-weight: 900; letter-spacing: 0.15em;
-      color: var(--gold); margin-bottom: 4px; text-transform: uppercase;
+      font-size: 0.78rem; font-weight: 900; letter-spacing: 0.04em;
+      color: var(--gold); margin-bottom: 6px;
+      display: inline-flex; align-items: center; gap: 8px;
     }
     .picker-text {
       font-size: 0.92rem; color: rgba(255,255,255,0.95);
@@ -761,6 +787,11 @@
     .x-foot-tag {
       background: #f0f0f0; padding: 1px 6px; font-weight: 600;
     }
+    .x-foot-link {
+      color: var(--navy); font-weight: 700; opacity: 0.7;
+      transition: opacity 0.15s ease;
+    }
+    .x-item.linked:hover .x-foot-link { opacity: 1; color: var(--gold); }
 
     /* ── 空ステート ── */
     .empty {
@@ -1276,9 +1307,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: '時間帯別あいさつ・記事共有（Web Share+コピー）・カテゴリ別ホバーアクセント・検索クリアボタン・キーボードショートカット n/m' },
-        { date: '04/17', text: 'スクロール進捗バー・既読プログレス・トップへ戻るボタン・画像スケルトンローディング・注目カード影響/アクションプレビュー' },
-        { date: '04/17', text: 'タグ/カテゴリから関連画像を自動選択。音声倍速（1x〜2x）。「詳しく読む」に専門家視点/メタ情報を追加' }
+        { date: '04/17', text: '「詳しく読む」を①なぜ重要か→②何をすべきか→③専門家の視点の3ステップに再構成。末尾に「元記事を読む」CTAを配置' },
+        { date: '04/17', text: '「その他のニュース」の件数を増やし、注目ニュースは最大4件に。元記事URLがない時は検索ボタンを非表示にして混乱を解消' },
+        { date: '04/17', text: '𝕏 生成AIトレンドは全カードをクリック可能に。ツイートURLが無い場合は投稿者プロフィール（x.com/handle）へ遷移' }
       ]
     });
   </script>
