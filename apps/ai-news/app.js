@@ -495,29 +495,45 @@
   }
 
   /**
-   * 記事リンク: 実URLがあるときのみ返す。無い場合は null（ボタンを描画しない）。
-   * Google 検索フォールバックは「元記事にたどり着けない」UXのため廃止。
+   * 記事リンク:
+   * - 実URLがあればそれを返す（「元記事を読む」）
+   * - 無ければ Google ニュース日本語検索 URL を返す（ラベルで明示）
+   * ※ 以前は「記事を検索」という曖昧ラベルだったため、ラベルで挙動を明確化する
    */
-  function articleLink(n) {
-    return n && n.url ? n.url : null;
+  function googleNewsSearchUrl(n) {
+    const q = encodeURIComponent(`${n.title || ''} ${n.source || ''}`.trim());
+    return `https://news.google.com/search?q=${q}&hl=ja&gl=JP&ceid=JP:ja`;
   }
-  function articleLinkLabel() {
-    return '元記事を読む →';
+  function articleLink(n) {
+    if (!n) return null;
+    return n.url || googleNewsSearchUrl(n);
+  }
+  function hasRealUrl(n) { return !!(n && n.url); }
+  function articleLinkLabel(n) {
+    return hasRealUrl(n) ? '元記事を読む →' : '🔎 Google ニュースで探す →';
   }
 
   /**
    * 𝕏 投稿のリンク先を決める。
-   * 1. ツイートURLがあればそれ
-   * 2. 無ければ @handle からプロフィールURL（https://x.com/handle）を自動生成
-   * 3. どちらも無い場合は null
+   * 1. ツイートURLがあればそれ（「ポストを開く」）
+   * 2. 無ければ 投稿本文の冒頭ワードで X 検索 URL を組み立ててポストに直接飛ばす
+   *    （ハンドルが分かる場合は from: 絞り込み）
+   * プロフィール遷移は廃止（「ポストを見たい」という利用意図に合わせる）
    */
   function xLink(x) {
     if (!x) return null;
     if (x.url && /^https?:\/\//.test(x.url)) return x.url;
-    const h = String(x.handle || '').trim().replace(/^@+/, '');
-    if (!h) return null;
-    if (!/^[A-Za-z0-9_]{1,15}$/.test(h)) return null;
-    return `https://x.com/${h}`;
+    const handle = String(x.handle || '').trim().replace(/^@+/, '');
+    const tag = String(x.tag || '').trim();
+    const validHandle = handle && /^[A-Za-z0-9_]{1,15}$/.test(handle);
+    if (!validHandle && !tag) return null;
+    // 検索クエリ: 投稿者の最近のポスト + トピックキーワード（タグ）
+    // ハンドルが有効なら from: 絞り込みを入れて投稿者の直近ポストへ
+    const parts = [];
+    if (validHandle) parts.push(`from:${handle}`);
+    if (tag) parts.push(tag);
+    const q = parts.join(' ');
+    return `https://x.com/search?q=${encodeURIComponent(q)}&src=typed_query&f=live`;
   }
 
   /** OGP画像をクライアントサイドで取得し、記事データとDOMを更新 */
@@ -729,7 +745,7 @@
       const favicon = sourceFavicon(n.url) || '';
       const initials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-      <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${n.url ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" aria-label="${escapeHtml(n.title)}">
+      <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(articleLink(n))}" data-cat="${cat}" tabindex="0" aria-label="${escapeHtml(n.title)}">
         ${imgSrc ? `
         <div class="top-hero">
           <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
@@ -757,7 +773,7 @@
         <div class="top-content">
           <h2 class="top-title">${titleHtml}</h2>
           <p class="top-summary">${escapeHtml(n.summary)}</p>
-          ${hasDetail || (n.tags && n.tags.length) || hasUrl ? `
+          ${hasDetail || (n.tags && n.tags.length) ? `
           <details class="intel-details">
             <summary class="intel-toggle">▼ 詳しく読む</summary>
             <div class="intel-body">
@@ -765,14 +781,14 @@
               ${n.actionItem ? `<div class="intel-block action"><div class="intel-label"><span class="intel-step">2</span>何をすべきか</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
               ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label"><span class="intel-step light">3</span>専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
               ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-              ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(n.source)}） →</a>` : ''}
+              <a class="intel-source-link${hasUrl ? '' : ' search'}" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(hasUrl ? `元記事を読む（${n.source}） →` : `🔎 Google ニュースで「${n.source}」の関連記事を探す →`)}</a>
             </div>
           </details>` : ''}
           <div class="top-foot">
             <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読' : '✓ 既読'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-            ${hasUrl ? `<button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(n.url)}" aria-label="共有">↗ 共有</button>` : ''}
-            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む →</a>` : ''}
+            <button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(articleLink(n))}" aria-label="共有">↗ 共有</button>
+            <a class="ext-btn" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(articleLinkLabel(n))}</a>
           </div>
         </div>
       </article>`;
@@ -813,7 +829,7 @@
       const bFavicon = sourceFavicon(n.url) || '';
       const bInitials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${n.url ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(articleLink(n))}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           ${imgSrc ? `
           <div class="brief-card-thumb">
             <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
@@ -835,7 +851,7 @@
             <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
             ${n.whyItMatters ? `<div class="brief-card-impact">⚡ ${escapeHtml(n.whyItMatters)}</div>` : ''}
             ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
-            ${hasDetail || (n.tags && n.tags.length) || hasUrl ? `
+            ${hasDetail || (n.tags && n.tags.length) ? `
             <details class="intel-details brief">
               <summary class="intel-toggle">▼ 詳しく読む</summary>
               <div class="intel-body">
@@ -843,14 +859,14 @@
                 ${n.actionItem ? `<div class="intel-block action"><div class="intel-label"><span class="intel-step">2</span>何をすべきか</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
                 ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label"><span class="intel-step light">3</span>専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
                 ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-                ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(n.source)}） →</a>` : ''}
+                <a class="intel-source-link${hasUrl ? '' : ' search'}" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(hasUrl ? `元記事を読む（${n.source}） →` : `🔎 Google ニュースで「${n.source}」の関連記事を探す →`)}</a>
               </div>
             </details>` : ''}
             <div class="brief-card-foot">
               <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
               <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-              ${hasUrl ? `<button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(n.url)}" aria-label="共有">↗</button>` : ''}
-              ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
+              <button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(articleLink(n))}" aria-label="共有">↗</button>
+              <a class="brief-ext-link" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(hasUrl ? '元記事 →' : '🔎 ニュース検索 →')}</a>
             </div>
           </div>
         </div>`;
@@ -930,7 +946,7 @@
       const fFavicon = sourceFavicon(n.url) || '';
       const fInitials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-        <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${n.url ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+        <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(articleLink(n))}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}">${fFavicon ? `<img class="source-logo-xs" src="${fFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-xs">${escapeHtml(fInitials)}</span>`}</div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
@@ -946,7 +962,7 @@
               <div style="display:flex;align-items:center;gap:8px;">
                 <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
                 <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
-                ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
+                <a class="brief-ext-link" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(hasUrl ? '元記事 →' : '🔎 検索 →')}</a>
               </div>
             </div>
           </div>
@@ -990,7 +1006,7 @@
         : `<span class="x-avatar-fallback">${escapeHtml(x.author.charAt(0))}</span>`;
       const tag = link ? 'a' : 'div';
       const linkAttrs = link ? ` href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer"` : '';
-      const footLabel = isTweet ? '↗ ポストを開く' : (link ? '↗ プロフィールを開く' : '');
+      const footLabel = isTweet ? '↗ ポストを開く' : (link ? '↗ ポストを探す' : '');
       return `
       <${tag} class="x-item${link ? ' linked' : ''}"${linkAttrs}>
         <div class="x-head">
