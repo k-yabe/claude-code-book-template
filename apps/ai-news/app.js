@@ -587,7 +587,7 @@
     const bar = document.getElementById('trend-bar');
     if (!bar) return;
     const trends = extractTrends();
-    const label = '<span class="trend-label">トレンド</span>';
+    const label = '<span class="trend-label">HOT TOPICS</span>';
     const pills = trends.map(t =>
       `<button class="trend-pill" data-trend="${escapeHtml(t.tag)}">#${escapeHtml(t.tag)}<span class="trend-count">${t.count}</span></button>`
     ).join('');
