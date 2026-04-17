@@ -232,13 +232,6 @@
     .img-fallback {
       background: linear-gradient(135deg, var(--navy) 0%, #002d4d 100%);
     }
-    /* ── サンプルデータバッジ（URLがない架空記事用） ── */
-    .sample-badge {
-      display: inline-block; padding: 4px 10px;
-      font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em;
-      color: var(--text-muted); background: #f0f0f0;
-      margin-left: auto;
-    }
     /* ── 画像なし時のビジュアル（SmartNews/NewsPicks風） ── */
     .top-visual {
       position: relative;
@@ -530,6 +523,7 @@
       color: var(--text); outline: none; box-shadow: none !important;
       font-family: var(--font-sans);
     }
+    .more-search input:hover { border-color: var(--navy-20); }
     .more-search input:focus {
       border-color: var(--gold) !important;
       background: var(--white);
@@ -674,6 +668,12 @@
     }
     .star-btn:hover { transform: scale(1.2); color: var(--gold); }
     .star-btn.starred { color: var(--gold); }
+    @keyframes starPop {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.4); }
+      100% { transform: scale(1); }
+    }
+    .star-btn.pop { animation: starPop 0.3s ease; }
 
     /* ── 𝕏 HIGHLIGHTS ── */
     .x-section {
@@ -688,13 +688,21 @@
       gap: var(--sp-3);
     }
     .x-item {
-      display: block; padding: var(--sp-3);
+      display: block; padding: var(--sp-4);
       background: #fafafa;
       border-left: 3px solid var(--navy-20);
       text-decoration: none; color: inherit;
-      transition: all var(--ease-base);
+      transition: all 0.25s ease;
+      position: relative;
     }
-    .x-item:hover { border-left-color: var(--gold); background: var(--white); }
+    .x-item::before {
+      content: '"';
+      position: absolute; top: 8px; right: 12px;
+      font-size: 2.5rem; font-weight: 900;
+      color: rgba(0,31,51,0.05); line-height: 1;
+      pointer-events: none;
+    }
+    .x-item:hover { border-left-color: var(--gold); background: var(--white); box-shadow: 0 2px 8px rgba(0,31,51,0.08); }
     .x-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
     .x-avatar {
       width: 36px; height: 36px; border-radius: 50%;
@@ -713,8 +721,9 @@
     div.x-item { cursor: default; border-left-color: transparent; }
     div.x-item:hover { background: #fafafa; }
     .x-text {
-      font-size: 0.75rem; color: var(--text-secondary);
-      line-height: 1.6; margin-bottom: 6px;
+      font-size: 0.78rem; color: var(--text-secondary);
+      line-height: 1.7; margin-bottom: 8px;
+      font-style: italic;
     }
     .x-foot {
       display: flex; justify-content: space-between; align-items: center;
@@ -768,13 +777,18 @@
 
     /* ── 注目ニュース: 影響 + アクション行 ── */
     .brief-card-impact {
-      font-size: 0.76rem; font-weight: 600; color: var(--text-secondary);
-      padding: 4px 0; margin-bottom: 2px; line-height: 1.5;
+      font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);
+      padding: 6px 8px; margin-bottom: 4px; line-height: 1.5;
+      border-left: 3px solid var(--navy);
+      background: rgba(0,31,51,0.03);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
     .brief-card-action {
-      font-size: 0.76rem; font-weight: 700; color: var(--navy);
-      background: rgba(255,184,28,0.06); padding: 5px 8px;
+      font-size: 0.72rem; font-weight: 700; color: var(--navy);
+      background: rgba(255,184,28,0.08); padding: 6px 8px;
+      border-left: 3px solid var(--gold);
       margin-bottom: var(--sp-2); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
 
     /* ── 日付ナビゲーション ── */
