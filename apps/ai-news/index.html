@@ -431,6 +431,11 @@
       transition: background 0.2s ease, color 0.2s ease;
     }
     .intel-source-link:hover { background: var(--gold); color: var(--navy); }
+    .intel-source-link.search {
+      background: var(--white); color: var(--navy);
+      border: 1.5px solid var(--navy);
+    }
+    .intel-source-link.search:hover { background: var(--navy); color: var(--gold); }
 
     /* ── Picker コメント ── */
     .picker-comment {
@@ -1307,9 +1312,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: '「詳しく読む」を①なぜ重要か→②何をすべきか→③専門家の視点の3ステップに再構成。末尾に「元記事を読む」CTAを配置' },
-        { date: '04/17', text: '「その他のニュース」の件数を増やし、注目ニュースは最大4件に。元記事URLがない時は検索ボタンを非表示にして混乱を解消' },
-        { date: '04/17', text: '𝕏 生成AIトレンドは全カードをクリック可能に。ツイートURLが無い場合は投稿者プロフィール（x.com/handle）へ遷移' }
+        { date: '04/17', text: '「詳しく読む」を①なぜ重要か→②何をすべきか→③専門家の視点の3ステップに再構成。末尾に「元記事を読む／🔎 Google ニュースで関連記事を探す」CTAを明示ラベルで配置' },
+        { date: '04/17', text: '「その他のニュース」件数増（注目は最大4件・FYIは常時7件以上）。元記事URLがない記事もGoogleニュース検索にフォールバックし「🔎 Google ニュースで探す」と明示' },
+        { date: '04/17', text: '𝕏 生成AIトレンドは「ポストを探す」に変更。投稿者ハンドル × トピックタグで X 検索（from:xxx）に直接遷移するため、プロフィールではなく実際のポスト一覧が開く' }
       ]
     });
   </script>
