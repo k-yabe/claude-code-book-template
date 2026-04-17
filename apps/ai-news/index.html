@@ -908,6 +908,23 @@
     }
     .fyi-tags { display: flex; gap: 3px; flex-wrap: wrap; }
 
+    /* ── 「新着」脈動ドット（直近3時間以内の記事） ── */
+    .fresh-dot {
+      display: inline-block;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #ff3b3b; color: transparent;
+      margin-left: 6px; vertical-align: middle;
+      box-shadow: 0 0 0 0 rgba(255,59,59,0.6);
+      animation: freshPulse 1.6s ease-in-out infinite;
+    }
+    @keyframes freshPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,59,0.6); }
+      50%      { box-shadow: 0 0 0 6px rgba(255,59,59,0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .fresh-dot { animation: none; }
+    }
+
     /* ── カテゴリ色（統一） ── */
     .cat-marketing { background: var(--navy); color: var(--white); font-weight: 800; }
     .cat-market { background: var(--navy); color: var(--gold); font-weight: 800; }
@@ -1651,9 +1668,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'セクション件数バッジがスクロールで初めて見えた瞬間に0からカウントアップ。「詳しく読む」トグルもゴールド縦ラインアクセント＋ホバー時のスライドで動きをつけた' },
-        { date: '04/17', text: 'セクション見出しに件数バッジ（ネイビー背景＋ゴールド文字）を追加。「重要ニュース 2」「注目ニュース 4」「その他のニュース 7」と情報量が一瞥でわかる' },
-        { date: '04/17', text: 'トレンドバーを「🔥 HOT TOPICS」風にリデザイン。先頭タグはゴールド背景で強調' }
+        { date: '04/17', text: '直近3時間以内の記事に赤い脈動ドット（新着インジケーター）を付与。ヒーローの LIVE ドットと呼応して「今入ってきた情報」の視認性UP' },
+        { date: '04/17', text: 'セクション件数バッジがスクロールで初めて見えた瞬間に0からカウントアップ。「詳しく読む」トグルもゴールド縦ライン＋ホバースライドで動きUP' },
+        { date: '04/17', text: 'セクション見出しに件数バッジ（ネイビー背景＋ゴールド文字）を追加' }
       ]
     });
   </script>
