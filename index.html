@@ -706,6 +706,8 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-17(金)', desc: '【ユーザーFB反映 × 3件】①画像を必ず表示：Unsplash失敗時は picsum.photos にシード指定（記事IDをシードにして一意の画像）で2段階フォールバック、navyグラデ placeholder に落ちる機会を大幅削減。②𝕏 生成AIトレンドを 4→9件に拡充。WebSearchで実在を確認した深津貴之×2／安宅和人×2／落合陽一×2／成田悠輔×1／梶谷健人×2、全て現物ポストに直接遷移。③PC余白を削減：ヒーローpadding（sp-8→sp-6）、セクション間マージン（sp-10→sp-7）、sec-title 文字サイズ（1.7rem→1.55rem）、cmd-bar の justify-content を flex-end + date-nav margin-right: auto に変更、progress-bar を PC で 60px→140px に。情報密度UP' },
+      { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-17(金)', desc: '【上下ナビの存在感UP】①「トップに戻る」ボタンを長方形→円形（border-radius 50%）にアップグレード、44px→52px拡大、ゴールドの脈動リング（2.4s ease-out infinite）を外周に追加。ホバーで持ち上がりつつscaleも1.05に。②ナビバーの「📰 AI NEWS」の横に小さな赤い脈動ドットを追加（LIVE感）。ヒーローのLIVEドットと呼応し、ブランドの一貫性UP。prefers-reduced-motion 対応' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-17(金)', desc: '【タブUIをピル型に刷新】「すべて/マーケ/市場/AI」のカテゴリタブを薄グレー背景のピル型に変更。アクティブ時はネイビー背景＋ゴールド文字＋ゴールド数字バッジで強調、ホバーで背景グレー深め。選択状態が一目でわかる' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-17(金)', desc: '【フッターをDATA PIPELINEに再構成】1行の注記文だった `.data-note` を「DATA PIPELINE」見出し＋4カラムグリッド（収集／要約・採点／音声ダイジェスト／フォールバック）に刷新。技術スタック（RSS 8媒体 / Claude Haiku 4.5 / gpt-4o-mini-tts Shimmer / シードフォールバック）を可視化してプロフェッショナル感を強化。SP=1列・タブレット=2列・PC=4列レスポンシブ' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-17(金)', desc: '【聴くボタンを常設ハイライト】「🔊 聴く（約5分）」のネイビー＋ゴールド常時強調表示に変更（これまでは ready/playing 時のみ着色）。ホバーで持ち上がる影＋カラー反転、ready状態ではシアンのプリロード完了ドット、playing時は脈動シャドウで再生中を視覚化。prefers-reduced-motion 対応。AI音声ダイジェストへの導線を強化' },

@@ -233,7 +233,7 @@
       author: '深津 貴之 / THE GUILD',
       handle: '@fladdict',
       avatar: 'https://unavatar.io/x/fladdict',
-      text: 'AI時代の勝負の仕方は、「生成AIで勝負しないことだ」という話をした。たとえば僕は、「生成AIの実装者」としては世界上位1%に入れない。ここは過当競争すぎる。でも僕は「生成AI利活用にメッチャ詳しいサービスデザナ、UXデザイナ」なら世界上位1%に入れる。ブルーオーシャン。',
+      text: 'AI時代の勝負の仕方は、「生成AIで勝負しないことだ」という話をした。「生成AIの実装者」としては世界上位1%に入れないが、「生成AI利活用に詳しいUXデザイナ」なら世界上位1%に入れる。ブルーオーシャン。',
       tag: 'AI戦略',
       url: 'https://x.com/fladdict/status/1894169837339119800'
     },
@@ -251,7 +251,7 @@
       author: 'Kaz Ataka / 安宅和人',
       handle: '@kaz_ataka',
       avatar: 'https://unavatar.io/x/kaz_ataka',
-      text: 'すべてのブラウザはAI化することは確実だと思っていたが、これはなかなかの代物だな。。この設計にもJony Iveは関わっているのだろうか。LLMのヘビーユーザの場合、現時点でもすでにそうだが、Webへのアクセスは多くがAI bot経由になる時代になりそうだ。',
+      text: 'すべてのブラウザはAI化することは確実だと思っていたが、これはなかなかの代物だな。LLMのヘビーユーザの場合、Webへのアクセスは多くがAI bot経由になる時代になりそうだ。',
       tag: 'AIブラウザ',
       url: 'https://x.com/kaz_ataka/status/1980753665540632636'
     },
@@ -263,6 +263,51 @@
       text: '生成AIに向かい合う際に求められるプロ側のスキルと、一人ひとりの心と知覚の育成について。生成AIを使えるかどうかはイシューではない。',
       tag: '生成AIスキル',
       url: 'https://x.com/kaz_ataka/status/1736184101693215195'
+    },
+    {
+      id: 'x5',
+      author: '落合陽一 Yoichi OCHIAI',
+      handle: '@ochyai',
+      avatar: 'https://unavatar.io/x/ochyai',
+      text: 'AIが歌詞を書いて、AIが作曲をして、AIがストーリーボードを作って、AIがPVを作って、AIが過去の単語からアーティスト名を決めて、AIが歌詞からタイトルを決めて…と「人間の関与性」をどんどん減らしていく音楽というのを楽しめるように感覚が変容するのは面白い。',
+      tag: 'AIクリエイティブ',
+      url: 'https://x.com/ochyai/status/1868445856304967827'
+    },
+    {
+      id: 'x6',
+      author: '落合陽一 Yoichi OCHIAI',
+      handle: '@ochyai',
+      avatar: 'https://unavatar.io/x/ochyai',
+      text: 'AI音楽＋AI PVが一日に50万回くらい再生されちゃうし、あとは魅力的な演出がされたAIと人間の中間地点あたりに感情移入できる仕組みの構築、名付け・設定・タイトルかな。',
+      tag: 'AIコンテンツ',
+      url: 'https://x.com/ochyai/status/1868140518653497657'
+    },
+    {
+      id: 'x7',
+      author: '成田 悠輔',
+      handle: '@narita_yusuke',
+      avatar: 'https://unavatar.io/x/narita_yusuke',
+      text: '格闘ゲームでは大昔から人間はゲームAIの足元にも及ばないらしい。けど人間ゲーマーは消えずむしろ金と愛が流れ込んでる。「人がAIに勝つか」で騒ぎがちだけど、大事なのは「AIに惨敗した人間に私達は憧れられるか」だ。',
+      tag: 'AIと人間',
+      url: 'https://x.com/narita_yusuke/status/1239392108751937537'
+    },
+    {
+      id: 'x8',
+      author: 'KAJI | 梶谷健人',
+      handle: '@kajikent',
+      avatar: 'https://unavatar.io/x/kajikent',
+      text: 'AIを使いこなせない人に決定的に欠けてるのは「AI活用力」ではなく「マネジメントスキル」である',
+      tag: 'AIマネジメント',
+      url: 'https://x.com/kajikent/status/2036958690390270431'
+    },
+    {
+      id: 'x9',
+      author: 'KAJI | 梶谷健人',
+      handle: '@kajikent',
+      avatar: 'https://unavatar.io/x/kajikent',
+      text: 'AIの進化によって、仕事において「人の良さ」はベター要件からマスト要件になった',
+      tag: 'AI×人間性',
+      url: 'https://x.com/kajikent/status/2029051141192073288'
     }
   ];
 
@@ -389,7 +434,12 @@
     return '';
   }
   /** img onerror: 壊れた画像を非表示にし、親にフォールバッククラスを付与 */
-  const IMG_ONERROR = "this.onerror=null;this.style.display='none';this.parentElement.classList.add('img-fallback');";
+  /**
+   * 画像読み込み失敗時のリトライ戦略:
+   * 1st failure → picsum.photos のシード画像に切り替え（ほぼ100%ロードできる）
+   * 2nd failure → navy グラデーションのフォールバック背景
+   */
+  const IMG_ONERROR = "if(this.dataset.fbk!=='1'){this.dataset.fbk='1';this.src='https://picsum.photos/seed/'+encodeURIComponent(this.dataset.seed||this.alt||Date.now())+'/800/450';}else{this.onerror=null;this.style.display='none';this.parentElement.classList.add('img-fallback');}";
   const IMG_ONLOAD = "this.classList.add('loaded');";
 
   /**
@@ -726,7 +776,7 @@
         ${isTopStory ? '<div class="top-story-ribbon" aria-hidden="true"><span class="top-story-ribbon-num">#1</span><span class="top-story-ribbon-label">TOP STORY</span></div>' : ''}
         ${imgSrc ? `
         <div class="top-hero">
-          <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
+          <img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
           <div class="top-hero-overlay">
             <span class="hero-chip ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
             <span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
@@ -810,7 +860,7 @@
         <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           ${imgSrc ? `
           <div class="brief-card-thumb">
-            <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
+            <img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
           </div>` : `
           <div class="brief-card-visual ${'cat-' + cat}">
             <div class="brief-visual-bg">${escapeHtml(CAT_LABEL[cat] || cat).toUpperCase()}</div>
@@ -926,7 +976,7 @@
       const fInitials = (n.source || '').substring(0, 2).toUpperCase();
       return `
         <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}">${fFavicon ? `<img class="source-logo-xs" src="${fFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-xs">${escapeHtml(fInitials)}</span>`}</div>`}
+          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}">${fFavicon ? `<img class="source-logo-xs" src="${fFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-xs">${escapeHtml(fInitials)}</span>`}</div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>

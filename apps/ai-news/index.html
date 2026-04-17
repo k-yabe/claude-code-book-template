@@ -38,6 +38,23 @@
       .sn-label { line-height: 1; }
     }
 
+    /* ── ナビバーの微かな LIVE ドット ── */
+    .nav-live-dot {
+      display: inline-block;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #ff3b3b;
+      margin-left: 6px; vertical-align: middle;
+      box-shadow: 0 0 0 0 rgba(255,59,59,0.6);
+      animation: navLiveDot 1.8s ease-in-out infinite;
+    }
+    @keyframes navLiveDot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,59,0.6); }
+      50%      { box-shadow: 0 0 0 5px rgba(255,59,59,0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .nav-live-dot { animation: none; }
+    }
+
     /* ── スクロール進捗バー ── */
     .scroll-progress {
       position: fixed; top: 0; left: 0; z-index: 9999;
@@ -49,24 +66,43 @@
 
     /* ── トップに戻るボタン ── */
     .back-to-top {
-      position: fixed; bottom: 24px; right: 24px; z-index: 999;
-      width: 44px; height: 44px;
+      position: fixed; bottom: 28px; right: 28px; z-index: 999;
+      width: 52px; height: 52px; border-radius: 50%;
       background: var(--navy); color: var(--gold);
       border: none; cursor: pointer;
-      font-size: 1.1rem; font-weight: 900;
+      font-size: 1.2rem; font-weight: 900;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(0,31,51,0.25);
-      opacity: 0; transform: translateY(16px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 8px 24px rgba(0,31,51,0.35), 0 2px 6px rgba(0,31,51,0.20);
+      opacity: 0; transform: translateY(16px) scale(0.85);
+      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(.3,.9,.3,1), background 0.2s ease, color 0.2s ease;
+      pointer-events: none;
+      position: fixed;
+    }
+    /* リングの脈動 */
+    .back-to-top::after {
+      content: ''; position: absolute; inset: -6px; border-radius: 50%;
+      border: 2px solid var(--gold);
+      opacity: 0;
+      animation: backTopRing 2.4s ease-out infinite;
       pointer-events: none;
     }
+    @keyframes backTopRing {
+      0%   { opacity: 0.6; transform: scale(1); }
+      100% { opacity: 0;   transform: scale(1.5); }
+    }
     .back-to-top.visible {
-      opacity: 1; transform: translateY(0);
+      opacity: 1; transform: translateY(0) scale(1);
       pointer-events: auto;
     }
-    .back-to-top:hover { background: var(--gold); color: var(--navy); }
+    .back-to-top:hover {
+      background: var(--gold); color: var(--navy);
+      transform: translateY(-3px) scale(1.05);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .back-to-top::after { animation: none; display: none; }
+    }
     @media (max-width: 600px) {
-      .back-to-top { bottom: 16px; right: 16px; width: 40px; height: 40px; }
+      .back-to-top { bottom: 16px; right: 16px; width: 44px; height: 44px; }
     }
 
     /* ── 画像シマー（スケルトンローディング） ── */
@@ -264,23 +300,24 @@
     }
     /* PC はヒーロー周りをぐっと大きく（ファーストビューで圧） */
     @media (min-width: 1024px) {
-      .hero { padding: var(--sp-8) var(--sp-9) var(--sp-6); }
+      .hero { padding: var(--sp-6) var(--sp-8) var(--sp-5); }
       .hero::before { font-size: 14rem; right: -60px; }
       .hero-title { font-size: 2.25rem; }
-      .hero-eyebrow { font-size: 0.7rem; margin-bottom: var(--sp-3); }
-      .hero-stat-num { font-size: 2.2rem; }
+      .hero-eyebrow { font-size: 0.7rem; margin-bottom: var(--sp-2); }
+      .hero-stat-num { font-size: 2.1rem; }
       .hero-stat-label { font-size: 0.66rem; }
-      .hero-stat { padding: 0 var(--sp-6); }
+      .hero-stat { padding: 0 var(--sp-5); }
+      .hero-left { margin-bottom: var(--sp-4); }
     }
 
     /* ── 共通: セクション見出し ── */
     .sec-head {
       display: flex; align-items: center; gap: 14px;
-      margin: var(--sp-10) var(--sp-5) var(--sp-6);
+      margin: var(--sp-7) var(--sp-5) var(--sp-4);
       padding-bottom: var(--sp-3);
       border-bottom: 3px solid var(--navy);
     }
-    .sec-head:first-child { margin-top: var(--sp-5); }
+    .sec-head:first-child { margin-top: var(--sp-4); }
     .sec-icon {
       width: 44px; height: 44px;
       background: var(--navy); color: var(--gold);
@@ -315,11 +352,12 @@
     @media (min-width: 1024px) {
       .sec-head {
         margin-left: var(--sp-5); margin-right: var(--sp-5);
-        margin-top: var(--sp-10);
+        margin-top: var(--sp-7);
+        margin-bottom: var(--sp-4);
       }
-      .sec-icon { width: 52px; height: 52px; font-size: 1.5rem; }
-      .sec-title { font-size: 1.7rem; }
-      .sec-sub { font-size: 0.78rem; }
+      .sec-icon { width: 48px; height: 48px; font-size: 1.35rem; }
+      .sec-title { font-size: 1.55rem; }
+      .sec-sub { font-size: 0.75rem; }
     }
     /* セクションアイコンにホバー時の微かな動き */
     .sec-icon { transition: transform 0.3s ease, box-shadow 0.3s ease; }
@@ -1186,6 +1224,11 @@
       position: sticky; top: 56px; z-index: 9;
       box-shadow: 0 1px 4px rgba(0,31,51,0.06);
     }
+    /* PC では cmd-bar が両端に広がりすぎるので、中央寄せのコンテンツ幅にする */
+    @media (min-width: 1024px) {
+      .cmd-bar { justify-content: flex-end; gap: var(--sp-4); padding: 8px var(--sp-5); }
+      .cmd-bar .date-nav { margin-right: auto; }
+    }
     @media (max-width: 600px) {
       .cmd-bar { padding: 6px 10px; margin: 0 var(--sp-3) var(--sp-3); }
     }
@@ -1247,6 +1290,9 @@
     .read-progress-bar {
       width: 60px; height: 4px; background: #e8e8e8;
       position: relative; overflow: hidden;
+    }
+    @media (min-width: 1024px) {
+      .read-progress-bar { width: 140px; height: 5px; }
     }
     .read-progress-fill {
       position: absolute; left: 0; top: 0; bottom: 0;
@@ -1556,7 +1602,7 @@
     <div class="navbar-brand">
       <a class="back-btn" href="../../">← アプリ一覧へ</a>
       <div class="navbar-divider"></div>
-      <span class="navbar-title">📰 AI NEWS</span>
+      <span class="navbar-title">📰 AI NEWS <span class="nav-live-dot" aria-hidden="true"></span></span>
     </div>
   </nav>
 
@@ -1752,9 +1798,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'カテゴリタブをピル型に刷新。アクティブはネイビー背景＋ゴールド文字＋ゴールドカウントバッジで選択状態を強調' },
-        { date: '04/17', text: 'フッターを「DATA PIPELINE」4カラム構成に刷新。技術スタック（RSS/Claude/TTS/フォールバック）を可視化' },
-        { date: '04/17', text: '「🔊 聴く」ボタンを常設ハイライト。ready=シアンドット/playing=脈動シャドウで状態を可視化' }
+        { date: '04/17', text: '①画像を必ず表示：Unsplash失敗時は picsum.photos にシード指定フォールバック（記事ごとに一意）。②𝕏 ポストを 4→9件に拡充（落合陽一・成田悠輔・梶谷健人の実ツイート追加）。③PC余白を削減（ヒーローpadding・セクション間マージン・progress barサイズなど調整）' },
+        { date: '04/17', text: 'トップに戻るボタンを円形＋ゴールド脈動リングに。ナビバーに小さな赤い脈動ドット追加' },
+        { date: '04/17', text: 'カテゴリタブをピル型に刷新。フッターをDATA PIPELINE 4カラム構成に' }
       ]
     });
   </script>
