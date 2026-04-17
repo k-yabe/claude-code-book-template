@@ -169,6 +169,31 @@
       margin-right: 10px; vertical-align: middle;
       animation: pulse 1.6s ease-in-out infinite;
     }
+    .hero-live-row {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: var(--sp-3);
+      padding: 4px 12px;
+      background: rgba(255,255,255,0.06);
+      color: var(--white);
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em;
+      backdrop-filter: blur(4px);
+    }
+    .hero-live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #ff3b3b;
+      box-shadow: 0 0 0 0 rgba(255,59,59,0.6);
+      animation: liveDot 1.4s ease-in-out infinite;
+    }
+    @keyframes liveDot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,59,0.6); }
+      50%      { box-shadow: 0 0 0 8px rgba(255,59,59,0); }
+    }
+    .hero-live-label { color: #ff6060; font-weight: 900; letter-spacing: 0.18em; }
+    .hero-live-sep { opacity: 0.4; }
+    .hero-live-updated { opacity: 0.9; font-weight: 700; }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-live-dot { animation: none; }
+    }
     @keyframes pulse {
       0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,184,28,0.6); }
       50% { opacity: 0.6; box-shadow: 0 0 0 8px rgba(255,184,28,0); }
@@ -1395,6 +1420,12 @@
       <div class="hero-left">
         <div class="hero-eyebrow" id="hero-greeting">マーケティング・インテリジェンス・ブリーフ</div>
         <div class="hero-title"><span class="hero-pulse"></span>何が起きた？ なぜ重要？ 何をすべき？</div>
+        <div class="hero-live-row" aria-label="最終更新">
+          <span class="hero-live-dot" aria-hidden="true"></span>
+          <span class="hero-live-label">LIVE</span>
+          <span class="hero-live-sep">·</span>
+          <span class="hero-live-updated" id="hero-live-updated">—</span>
+        </div>
       </div>
       <div class="hero-meta">
         <div class="hero-stat">
@@ -1548,9 +1579,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: '注目ニュースに「01/02/03...」の番号バッジを表示。ホバーでゴールドに切り替わる連動アニメーション付き' },
-        { date: '04/17', text: '「#1 TOP STORY」リボン＋ヒーロースタッツ4カラム化（件数内訳＋既読ゲージ）＋3行サマリーのグラデーション装飾＋カード走査ライトエフェクト。ダッシュボード感を大幅強化' },
-        { date: '04/17', text: '重要ニュースの「なぜ重要か／何をすべきか」を常時インライン表示。注目ニュースと同一レイヤー' }
+        { date: '04/17', text: 'ヒーローに「🔴 LIVE · 最終更新 〇分前」インジケーターを追加。赤い脈動ドット＋LIVEラベル＋相対時刻表示で生放送感UP' },
+        { date: '04/17', text: '注目ニュースに「01/02/03…」番号バッジ。ホバーでゴールドに切り替わる連動アニメーション' },
+        { date: '04/17', text: '「#1 TOP STORY」リボン＋ヒーロースタッツ4カラム化（件数内訳＋既読ゲージ）＋3行サマリーのグラデーション装飾＋カード走査ライトエフェクト' }
       ]
     });
   </script>

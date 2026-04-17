@@ -666,6 +666,12 @@
     if (bd) bd.innerHTML = `<b>${mustCount}</b>重要 · <b>${weekCount}</b>注目 · <b>${fyiCount}</b>その他`;
     const greet = document.getElementById('hero-greeting');
     if (greet) greet.textContent = timeAwareGreeting();
+    // LIVE インジケーター: 最終更新を相対表記で
+    const live = document.getElementById('hero-live-updated');
+    if (live) {
+      const ts = dataMeta.updatedAt || dataMeta.generatedFor || new Date().toISOString();
+      live.textContent = `最終更新 ${fmtRelative(ts)}`;
+    }
   }
 
   /* ── Executive Summary ── */
