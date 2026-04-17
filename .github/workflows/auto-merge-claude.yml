@@ -19,34 +19,41 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fast-forward merge to main
+      - name: Create PR
+        id: pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: ${{ github.ref_name }}
         run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
+          set -x
           echo "Branch: $BRANCH"
-          git fetch origin main "$BRANCH"
-
-          # Create PR via API if not exists
-          PR_NUMBER=$(gh pr list --head "$BRANCH" --base main --json number --jq '.[0].number' || echo "")
-          if [ -z "$PR_NUMBER" ]; then
-            echo "Creating PR..."
-            PR_URL=$(gh pr create \
-              --head "$BRANCH" \
-              --base main \
-              --title "auto: merge $BRANCH to main" \
-              --body "Automated PR from Claude Code session. Branch: \`$BRANCH\`")
-            PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
-            echo "Created PR #$PR_NUMBER"
-          else
-            echo "Found existing PR #$PR_NUMBER"
+          gh --version
+          echo "Checking for existing PR..."
+          EXISTING=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number // ""' 2>&1 || echo "")
+          echo "Existing PR: '$EXISTING'"
+          if [ -n "$EXISTING" ]; then
+            echo "pr_number=$EXISTING" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          URL=$(gh pr create \
+            --head "$BRANCH" \
+            --base main \
+            --title "auto: merge $BRANCH to main" \
+            --body "Automated PR from Claude Code session.")
+          echo "Created: $URL"
+          NUM=$(echo "$URL" | grep -oE '[0-9]+$')
+          echo "pr_number=$NUM" >> "$GITHUB_OUTPUT"
 
-          # Merge the PR (squash)
-          echo "Merging PR #$PR_NUMBER..."
-          gh pr merge "$PR_NUMBER" --squash --delete-branch --admin || \
-            gh pr merge "$PR_NUMBER" --squash --delete-branch
+      - name: Merge PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
+        run: |
+          set -x
+          echo "Merging PR #$PR_NUMBER"
+          gh pr merge "$PR_NUMBER" --squash --delete-branch --admin 2>&1 || \
+            gh pr merge "$PR_NUMBER" --squash --delete-branch 2>&1 || \
+            (echo "Merge failed — may require manual review. PR is open at:" && \
+             gh pr view "$PR_NUMBER" --json url --jq '.url')
