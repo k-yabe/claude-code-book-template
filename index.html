@@ -706,6 +706,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-17(金)', desc: '【聴くボタンを常設ハイライト】「🔊 聴く（約5分）」のネイビー＋ゴールド常時強調表示に変更（これまでは ready/playing 時のみ着色）。ホバーで持ち上がる影＋カラー反転、ready状態ではシアンのプリロード完了ドット、playing時は脈動シャドウで再生中を視覚化。prefers-reduced-motion 対応。AI音声ダイジェストへの導線を強化' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-17(金)', desc: '【新着インジケーター】直近3時間以内の記事の「〇時間前」表記の隣に、赤い脈動ドット（#ff3b3b、keyframes freshPulse）を追加。ヒーローの LIVE ドットと呼応し、「今まさに入ってきた情報」の視認性UP。isFresh(iso) ヘルパーで判定、全カード種別（top-card/brief-card/fyi-card）に横断適用。prefers-reduced-motion で脈動オフ' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-17(金)', desc: '【マイクロインタラクション強化】①セクション件数バッジがスクロールで初めて見えた瞬間に0から目標値までアニメーション・カウントアップ（IntersectionObserver）。②「詳しく読む」トグルにゴールドの縦ラインアクセント、ホバー時に2px右スライド＋縦ライン消失の連動演出' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-17(金)', desc: '【セクション見出しに件数バッジ】「重要ニュース 2」「注目ニュース 4」「その他のニュース 7」のようにネイビー背景＋ゴールド文字の件数バッジを付与。各セクションの情報量が一瞥で判別可能に。fullRender 時に partition 結果から自動設定' },
