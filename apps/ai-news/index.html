@@ -177,6 +177,16 @@
       .hero { padding: var(--sp-4); }
       .hero-title { font-size: 0.95rem; }
     }
+    /* PC はヒーロー周りをぐっと大きく（ファーストビューで圧） */
+    @media (min-width: 1024px) {
+      .hero { padding: var(--sp-8) var(--sp-9) var(--sp-6); }
+      .hero::before { font-size: 14rem; right: -60px; }
+      .hero-title { font-size: 2.25rem; }
+      .hero-eyebrow { font-size: 0.7rem; margin-bottom: var(--sp-3); }
+      .hero-stat-num { font-size: 2.2rem; }
+      .hero-stat-label { font-size: 0.66rem; }
+      .hero-stat { padding: 0 var(--sp-6); }
+    }
 
     /* ── 共通: セクション見出し ── */
     .sec-head {
@@ -203,10 +213,31 @@
       font-weight: 600;
     }
     .sec-line { flex: 1; height: 2px; background: transparent; }
+    /* PC はセクション見出しを少し大きめにして強弱を付ける */
+    @media (min-width: 1024px) {
+      .sec-head {
+        margin-left: var(--sp-5); margin-right: var(--sp-5);
+        margin-top: var(--sp-10);
+      }
+      .sec-icon { width: 52px; height: 52px; font-size: 1.5rem; }
+      .sec-title { font-size: 1.7rem; }
+      .sec-sub { font-size: 0.78rem; }
+    }
 
     /* ── 🔥 MUST-KNOW コンテナ ── */
     #must-know {
       display: flex; flex-direction: column; gap: var(--sp-4);
+    }
+    /* PC は2列で並べる（重要ニュース2件を左右に） */
+    @media (min-width: 1024px) {
+      #must-know {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--sp-5);
+        padding: 0 var(--sp-5);
+      }
+      #must-know .top-card { margin: 0; }
+      #must-know .top-card:only-child { grid-column: 1 / -1; max-width: 900px; margin: 0 auto; }
     }
 
     /* ── 🔥 重要ニュース ヒーローカード（NewsPicks風） ── */
@@ -346,6 +377,11 @@
     @media (max-width: 600px) {
       .top-content { padding: var(--sp-4); border-left-width: 4px; }
       .top-title { font-size: 1.2rem; }
+    }
+    /* PC 2列レイアウトでは少し小さく（読みやすさと密度を両立） */
+    @media (min-width: 1024px) {
+      .top-title { font-size: 1.3rem; }
+      .top-summary { font-size: 0.88rem; }
     }
     .top-summary {
       font-size: 0.9rem; color: var(--text-secondary);
@@ -760,6 +796,10 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: var(--sp-3);
     }
+    /* PC では4列で整列（5列以上だと横長すぎる） */
+    @media (min-width: 1024px) {
+      .x-grid { grid-template-columns: repeat(4, 1fr); }
+    }
     .x-item {
       display: block; padding: var(--sp-4);
       background: #fafafa;
@@ -843,6 +883,22 @@
     }
     .exec-line:last-child { border-bottom: none; }
     .exec-line:first-child { padding-top: var(--sp-3); }
+    /* PC では3行サマリーを横並び（3列グリッド）で一瞥性UP */
+    @media (min-width: 1024px) {
+      .exec-box {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--sp-5);
+        padding: var(--sp-6) var(--sp-7);
+      }
+      .exec-line {
+        border-bottom: none;
+        border-right: 1px solid rgba(255,184,28,0.20);
+        padding: var(--sp-2) var(--sp-4) var(--sp-2) 0;
+      }
+      .exec-line:last-child { border-right: none; padding-right: 0; }
+      .exec-line:first-child { padding-top: var(--sp-2); }
+    }
     .exec-arrow {
       color: var(--gold); font-weight: 900;
       flex-shrink: 0; font-size: 1.5rem; line-height: 1.1;
@@ -1328,8 +1384,8 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'PC幅（≥1024px）レイアウト最適化：シェルを最大1200pxに拡張、注目ニュースを3列、その他のニュースを2列に再配置。余白を活用して一覧性UP' },
-        { date: '04/17', text: '𝕏 生成AIトレンドを実在ツイートのみに差し替え。実URLを踏めば現物が読める本物のポスト（深津貴之・安宅和人）のみをシードに採用。架空ポストは全廃' },
+        { date: '04/17', text: 'PC幅を活かした全面UIリビルド：重要ニュースを2列、3行サマリーを3列、𝕏を4列にグリッド化。ヒーローと見出しもPC用に拡大して視線誘導を強化' },
+        { date: '04/17', text: '𝕏 生成AIトレンドを実在ツイートのみに差し替え（深津貴之・安宅和人）。各カードは現物のポストに直接遷移' },
         { date: '04/17', text: '記事は実URL必須に（検索フォールバック全廃）。サンプル記事には各メディア公式サイトのURLを埋め込み、scraper 実行で個別記事URLに上書き' }
       ]
     });
