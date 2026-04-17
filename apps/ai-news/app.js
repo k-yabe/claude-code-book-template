@@ -10,8 +10,8 @@
   /* ────────── ① シードデータ ──────────
      importance: 1=top, 2=briefing, 3=more
      readMin: 推定読了時間（分）
-     ※ URLはスクレイパーが取得した実データのみ正確。
-       シードデータは架空記事のため url: null（間違ったURLをリンクしない）。
+     ※ シードの記事は架空だが、url はソース公式サイトの news/blog ページを設定（リンク先は必ず実在する）。
+       scraper が実RSSから記事を取得すると、その記事固有のURLで上書きされる。
   */
   const TODAY = '2026-04-17';
   const Y     = '2026-04-17';
@@ -32,7 +32,7 @@
       actionItem: '来週の定例で自社コンテンツのGEO対策（ChatGPT/Perplexityでの自社表示確認）を議題に入れる。',
       pickerComment: 'GEO（Generative Engine Optimization）はSEOの次の戦場。人材業界では「エンジニア 転職」等のキーワードでAI検索結果に表示されるかが採用数に直結する。早い者勝ちの領域。',
       source: 'Gartner', sourceType: 'media', category: 'marketing',
-      url: null,
+      url: 'https://www.gartner.com/en/newsroom',
       image: null,
       publishedAt: `${TODAY}T09:10:00+09:00`,
       tags: ['B2B', 'GEO', '購買行動']
@@ -45,7 +45,7 @@
       actionItem: 'Search Consoleで主要キーワードのCTR変化をモニタリング開始。AI Overviewsに自社が表示されているか確認。',
       pickerComment: 'SEO担当者は今すぐ「site:自社ドメイン」でAI Overviewsに引用されているか確認すべき。構造化データのFAQ・HowToマークアップが引用率を高める傾向がある。',
       source: 'Google Search Central', sourceType: 'media', category: 'ai',
-      url: null,
+      url: 'https://developers.google.com/search/blog',
       image: null,
       publishedAt: `${TODAY}T18:40:00+09:00`,
       tags: ['SEO', 'GEO', 'Google']
@@ -58,7 +58,7 @@
       actionItem: '自社のSalesforce契約でAgentforce利用可否を営業担当に確認する。',
       pickerComment: 'SalesforceのAIエージェント戦略はMarketing Cloud全体に波及する。既存ユーザーは追加費用なしで使える可能性が高いので、営業担当に確認するだけでROIが出る案件。',
       source: 'Salesforce News', sourceType: 'media', category: 'market',
-      url: null,
+      url: 'https://www.salesforce.com/news/',
       image: null,
       publishedAt: `${TODAY}T14:45:00+09:00`,
       tags: ['SaaS', 'AIエージェント', 'CMO']
@@ -71,7 +71,7 @@
       actionItem: '今抱えているレポート業務で試用し、時間短縮効果を検証する。',
       pickerComment: '200kトークンは文庫本1冊分。競合分析で10社分のIR資料を一括投入して比較表を作れる。レポート業務の「素材集め→構造化」が自動化される。',
       source: 'Anthropic', sourceType: 'media', category: 'ai',
-      url: null,
+      url: 'https://www.anthropic.com/news',
       image: null,
       publishedAt: `${TODAY}T22:00:00+09:00`,
       tags: ['Claude', 'LLM', '要約']
@@ -84,7 +84,7 @@
       actionItem: 'Google Ads管理画面でブランド除外レポートを確認し、月次レポートに追加。',
       pickerComment: 'PMaxはブラックボックスだった部分にようやく透明性が出てきた。特にBtoBはブランドKWの混在でCPAが歪みやすいので、この機能でROAS改善の根拠を示しやすくなる。',
       source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
-      url: null,
+      url: 'https://support.google.com/google-ads',
       image: null,
       publishedAt: `${TODAY}T08:30:00+09:00`,
       tags: ['広告', 'PMax', 'Google']
@@ -97,7 +97,7 @@
       actionItem: '次の予算策定で動画広告枠の比率増を提案する際のエビデンスとしてストック。',
       pickerComment: '動画広告の伸びはショート動画が牽引。採用マーケでは30秒以内の「社員の1日」系コンテンツがCPV最安で成果が出ている企業が多い。',
       source: '電通', sourceType: 'media', category: 'market',
-      url: null,
+      url: 'https://www.dentsu.co.jp/news/',
       image: null,
       publishedAt: `${TODAY}T10:00:00+09:00`,
       tags: ['広告費', '日本', '統計']
@@ -110,7 +110,7 @@
       actionItem: '利用中のDSP/SSPがUID2.0対応済みか確認し、未対応なら代替を検討。',
       pickerComment: 'UID2.0はメールアドレスベースなので、会員登録フローを持つ採用サイトとは相性が良い。自社の1st Partyデータ活用戦略と合わせて検討する価値がある。',
       source: 'AdExchanger', sourceType: 'media', category: 'market',
-      url: null,
+      url: 'https://www.adexchanger.com/',
       image: null,
       publishedAt: `${TODAY}T07:50:00+09:00`,
       tags: ['Cookieless', 'AdTech']
@@ -123,7 +123,7 @@
       actionItem: 'Marketo利用中なら設定画面でAI件名最適化をONにして次回配信でテスト。',
       pickerComment: 'MA各社がAI件名最適化を投入中。設定ONだけで効果が出るので、使わない理由がない。ただし日本語の件名最適化精度は英語より低い傾向があるので、最初の数回は結果を注視すべき。',
       source: 'Adobe Marketo Engage', sourceType: 'media', category: 'marketing',
-      url: null,
+      url: 'https://business.adobe.com/products/marketo/adobe-marketo.html',
       image: null,
       publishedAt: `${TODAY}T11:05:00+09:00`,
       tags: ['MA', 'メール', 'AI']
@@ -136,7 +136,7 @@
       actionItem: 'AI活用のコンテンツ制作フローがある場合、β申請を検討。',
       pickerComment: '「ブランドボイス制約」はエンタープライズ向けAI利用の大きなペインポイントを解消する。採用広報でAI生成テキストを使っている企業は導入検討の価値あり。',
       source: 'OpenAI', sourceType: 'media', category: 'ai',
-      url: null,
+      url: 'https://openai.com/news/',
       image: null,
       publishedAt: `${TODAY}T20:15:00+09:00`,
       tags: ['GPT-5', 'API', 'ブランドガバナンス']
@@ -149,7 +149,7 @@
       actionItem: 'ターゲットにZ世代を含む場合、TikTok Search Adsのβ申請を検討。',
       pickerComment: 'TikTok検索は「〇〇 転職」で実際に使われ始めている。新卒採用でTikTokを活用している企業は検索広告も試す価値がある。CPCはまだGoogleより安い。',
       source: 'TikTok for Business', sourceType: 'media', category: 'marketing',
-      url: null,
+      url: 'https://www.tiktok.com/business/',
       image: null,
       publishedAt: `${TODAY}T13:00:00+09:00`,
       tags: ['SNS', '検索広告']
@@ -162,7 +162,7 @@
       actionItem: 'HubSpot利用中ならZoom連携をONにして、商談要約のコンテンツ活用を試す。',
       pickerComment: '商談の文字起こしをそのままコンテンツマーケのネタ帳にする発想が重要。「お客様がよく使うフレーズ」をLP・広告コピーに反映すると、共感率が上がる。',
       source: 'HubSpot', sourceType: 'media', category: 'marketing',
-      url: null,
+      url: 'https://www.hubspot.com/company-news',
       image: null,
       publishedAt: `${TODAY}T15:20:00+09:00`,
       tags: ['CRM', 'セールス']
@@ -175,7 +175,7 @@
       actionItem: '情シスと連携し、Llama 4 Marketingを社内GPUサーバーで試用できるか検討する。',
       pickerComment: 'オープンソースLLMはコスト削減だけでなく、社内データを外部に出さずAI活用できるのが本質。ガバナンス要件が厳しいBtoBでは特に価値が高い。',
       source: 'Meta AI', sourceType: 'media', category: 'ai',
-      url: null,
+      url: 'https://ai.meta.com/blog/',
       image: null,
       publishedAt: `${TODAY}T06:30:00+09:00`,
       tags: ['Llama', 'オープンソース', 'LLM']
@@ -188,7 +188,7 @@
       actionItem: '海外採用を強化する部署向けに、Reels自動翻訳のPoC企画を提案。',
       pickerComment: 'AI吹き替えは口の動きと声の同期まで処理される。採用動画で「日本人社員が英語を話す」違和感を減らせるので、海外向け発信のハードルが下がる。',
       source: 'Meta Business', sourceType: 'media', category: 'marketing',
-      url: null,
+      url: 'https://www.facebook.com/business/news',
       image: null,
       publishedAt: `${TODAY}T12:10:00+09:00`,
       tags: ['SNS', '動画', '多言語']
@@ -201,7 +201,7 @@
       actionItem: '来期予算書で AI ツール関連の支出比率を算出し、18%との差分を明記。',
       pickerComment: 'AI投資比率は業界で大きく差がつき始めている。採用領域は「マッチング精度」で直接成果が出やすいので、この18%より高めに寄せる判断も妥当。',
       source: 'Gartner', sourceType: 'media', category: 'market',
-      url: null,
+      url: 'https://www.gartner.com/en/newsroom',
       image: null,
       publishedAt: `${TODAY}T09:45:00+09:00`,
       tags: ['予算', '業界統計', 'AI投資']
@@ -214,7 +214,7 @@
       actionItem: '無料トライアルを申請し、直近1年の営業資料をインポートして検索精度を検証。',
       pickerComment: 'ChatGPT Enterpriseより「社内文書検索」に特化している点が実用的。採用マーケなら「過去の採用資料」「候補者対応テンプレ」を全員が秒で引けるようになる。',
       source: 'Perplexity AI', sourceType: 'media', category: 'ai',
-      url: null,
+      url: 'https://www.perplexity.ai/hub',
       image: null,
       publishedAt: `${TODAY}T16:00:00+09:00`,
       tags: ['AI検索', 'エンタープライズ', 'ナレッジ']
@@ -495,22 +495,14 @@
   }
 
   /**
-   * 記事リンク:
-   * - 実URLがあればそれを返す（「元記事を読む」）
-   * - 無ければ Google ニュース日本語検索 URL を返す（ラベルで明示）
-   * ※ 以前は「記事を検索」という曖昧ラベルだったため、ラベルで挙動を明確化する
+   * 記事リンク: scraper が RSS から取得した実URL (n.url) を使う。
+   * URLが無い記事は要素自体を描画しない（検索フォールバックは混乱を招くため廃止）。
    */
-  function googleNewsSearchUrl(n) {
-    const q = encodeURIComponent(`${n.title || ''} ${n.source || ''}`.trim());
-    return `https://news.google.com/search?q=${q}&hl=ja&gl=JP&ceid=JP:ja`;
-  }
   function articleLink(n) {
-    if (!n) return null;
-    return n.url || googleNewsSearchUrl(n);
+    return (n && n.url) ? n.url : null;
   }
-  function hasRealUrl(n) { return !!(n && n.url); }
-  function articleLinkLabel(n) {
-    return hasRealUrl(n) ? '元記事を読む →' : '🔎 Google ニュースで探す →';
+  function articleLinkLabel() {
+    return '元記事を読む →';
   }
 
   /**
@@ -520,20 +512,14 @@
    *    （ハンドルが分かる場合は from: 絞り込み）
    * プロフィール遷移は廃止（「ポストを見たい」という利用意図に合わせる）
    */
+  /**
+   * 𝕏 ポストのリンク先: 実際のツイートURLがあればそれを返す。
+   * 無い場合は null（リンクなし = 表示のみ）。
+   * ※ 検索フォールバックは「実ポストに辿り着けない」UXのため廃止。
+   *   scraper が X API 等で実ツイートURLを取得した場合のみリンク化する。
+   */
   function xLink(x) {
-    if (!x) return null;
-    if (x.url && /^https?:\/\//.test(x.url)) return x.url;
-    const handle = String(x.handle || '').trim().replace(/^@+/, '');
-    const tag = String(x.tag || '').trim();
-    const validHandle = handle && /^[A-Za-z0-9_]{1,15}$/.test(handle);
-    if (!validHandle && !tag) return null;
-    // 検索クエリ: 投稿者の最近のポスト + トピックキーワード（タグ）
-    // ハンドルが有効なら from: 絞り込みを入れて投稿者の直近ポストへ
-    const parts = [];
-    if (validHandle) parts.push(`from:${handle}`);
-    if (tag) parts.push(tag);
-    const q = parts.join(' ');
-    return `https://x.com/search?q=${encodeURIComponent(q)}&src=typed_query&f=live`;
+    return (x && x.url && /^https?:\/\//.test(x.url)) ? x.url : null;
   }
 
   /** OGP画像をクライアントサイドで取得し、記事データとDOMを更新 */
@@ -745,7 +731,7 @@
       const favicon = sourceFavicon(n.url) || '';
       const initials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-      <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(articleLink(n))}" data-cat="${cat}" tabindex="0" aria-label="${escapeHtml(n.title)}">
+      <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" aria-label="${escapeHtml(n.title)}">
         ${imgSrc ? `
         <div class="top-hero">
           <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
@@ -781,14 +767,14 @@
               ${n.actionItem ? `<div class="intel-block action"><div class="intel-label"><span class="intel-step">2</span>何をすべきか</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
               ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label"><span class="intel-step light">3</span>専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
               ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-              <a class="intel-source-link${hasUrl ? '' : ' search'}" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(hasUrl ? `元記事を読む（${n.source}） →` : `🔎 Google ニュースで「${n.source}」の関連記事を探す →`)}</a>
+              ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(n.source)}） →</a>` : ''}
             </div>
           </details>` : ''}
           <div class="top-foot">
             <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読' : '✓ 既読'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-            <button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(articleLink(n))}" aria-label="共有">↗ 共有</button>
-            <a class="ext-btn" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(articleLinkLabel(n))}</a>
+            ${hasUrl ? `<button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(n.url)}" aria-label="共有">↗ 共有</button>` : ''}
+            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む →</a>` : ''}
           </div>
         </div>
       </article>`;
@@ -829,7 +815,7 @@
       const bFavicon = sourceFavicon(n.url) || '';
       const bInitials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(articleLink(n))}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           ${imgSrc ? `
           <div class="brief-card-thumb">
             <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
@@ -859,14 +845,14 @@
                 ${n.actionItem ? `<div class="intel-block action"><div class="intel-label"><span class="intel-step">2</span>何をすべきか</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
                 ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label"><span class="intel-step light">3</span>専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
                 ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-                <a class="intel-source-link${hasUrl ? '' : ' search'}" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(hasUrl ? `元記事を読む（${n.source}） →` : `🔎 Google ニュースで「${n.source}」の関連記事を探す →`)}</a>
+                ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(n.source)}） →</a>` : ''}
               </div>
             </details>` : ''}
             <div class="brief-card-foot">
               <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
               <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-              <button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(articleLink(n))}" aria-label="共有">↗</button>
-              <a class="brief-ext-link" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(hasUrl ? '元記事 →' : '🔎 ニュース検索 →')}</a>
+              ${hasUrl ? `<button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(n.url)}" aria-label="共有">↗</button>` : ''}
+              ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
             </div>
           </div>
         </div>`;
@@ -946,7 +932,7 @@
       const fFavicon = sourceFavicon(n.url) || '';
       const fInitials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-        <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(articleLink(n))}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+        <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}">${fFavicon ? `<img class="source-logo-xs" src="${fFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-xs">${escapeHtml(fInitials)}</span>`}</div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
@@ -962,7 +948,7 @@
               <div style="display:flex;align-items:center;gap:8px;">
                 <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
                 <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
-                <a class="brief-ext-link" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(hasUrl ? '元記事 →' : '🔎 検索 →')}</a>
+                ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
               </div>
             </div>
           </div>
@@ -1089,9 +1075,12 @@
         throw new Error('empty payload');
       }
       // 受信データで NEWS_DATA を置換
+      // ※ URLの無い記事は信憑性が保証できないため除外する（scraperは必ずURLを保存する）
       NEWS_DATA.length = 0;
       const VALID_URG = ['must_know', 'this_week', 'fyi'];
       for (const it of json.items) {
+        const safeUrl = String(it.url || '').startsWith('http') ? String(it.url) : '';
+        if (!safeUrl) continue; // URLなしは捨てる（sample/seedの混入を防ぐ）
         const imp = Number(it.importance) || 3;
         const urg = VALID_URG.includes(it.urgency) ? it.urgency
                   : imp === 1 ? 'must_know' : imp === 2 ? 'this_week' : 'fyi';
@@ -1108,12 +1097,13 @@
           source:     String(it.source || '').trim(),
           sourceType: it.sourceType || 'media',
           category:   ['marketing','market','ai'].includes(it.category) ? it.category : 'marketing',
-          url:        String(it.url || '').startsWith('http') ? String(it.url) : '',
+          url:        safeUrl,
           image:      safeImgUrl(it.image) || null,
           publishedAt: it.publishedAt || new Date().toISOString(),
           tags: Array.isArray(it.tags) ? it.tags.map(String) : []
         });
       }
+      if (NEWS_DATA.length === 0) throw new Error('no items with valid URL');
       // Executive Summary を更新
       if (Array.isArray(json.executiveSummary) && json.executiveSummary.length) {
         EXEC_SUMMARY = json.executiveSummary.map(String);
@@ -1214,10 +1204,12 @@
       if (!json || !Array.isArray(json.items) || json.items.length === 0) {
         throw new Error('empty');
       }
-      // NEWS_DATA を置換
+      // NEWS_DATA を置換（URLが無い記事は除外して信憑性を担保）
       NEWS_DATA.length = 0;
       const VALID_URG = ['must_know', 'this_week', 'fyi'];
       for (const it of json.items) {
+        const safeUrl = String(it.url || '').startsWith('http') ? String(it.url) : '';
+        if (!safeUrl) continue;
         const imp = Number(it.importance) || 3;
         const urg = VALID_URG.includes(it.urgency) ? it.urgency
                   : imp === 1 ? 'must_know' : imp === 2 ? 'this_week' : 'fyi';
@@ -1230,11 +1222,12 @@
           pickerComment: String(it.pickerComment || '').trim(), urgency: urg,
           source: String(it.source || '').trim(), sourceType: it.sourceType || 'media',
           category: ['marketing','market','ai'].includes(it.category) ? it.category : 'marketing',
-          url: String(it.url || ''), image: it.image || null,
+          url: safeUrl, image: it.image || null,
           publishedAt: it.publishedAt || new Date().toISOString(),
           tags: Array.isArray(it.tags) ? it.tags.map(String) : []
         });
       }
+      if (NEWS_DATA.length === 0) throw new Error('no items with valid URL');
       if (Array.isArray(json.executiveSummary) && json.executiveSummary.length) {
         EXEC_SUMMARY = json.executiveSummary.map(String);
       }
