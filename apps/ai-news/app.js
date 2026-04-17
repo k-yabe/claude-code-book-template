@@ -1266,6 +1266,8 @@
         case 'k': e.preventDefault(); moveFocus(-1); break;
         case 'Enter': openFocused(); break;
         case 'f': toggleFavOnFocused(); break;
+        case 'n': e.preventDefault(); jumpToNextUnread(); break;
+        case 'm': e.preventDefault(); markAllRead(); showToast('全記事を既読にしました'); break;
         case '?': e.preventDefault(); showHelp(true); break;
       }
     });
@@ -1607,6 +1609,17 @@
     }, { passive: true });
   }
 
+  /* ────────── ⑪e クイックアクションボタン ──────────  */
+  function wireQuickActions() {
+    const btnNext = document.getElementById('btn-next-unread');
+    if (btnNext) btnNext.addEventListener('click', jumpToNextUnread);
+    const btnAll = document.getElementById('btn-all-read');
+    if (btnAll) btnAll.addEventListener('click', () => {
+      markAllRead();
+      showToast('全記事を既読にしました');
+    });
+  }
+
   /* ────────── ⑫ 起動 ──────────
      方針: ファーストペイント最優先。
      1) まずシードデータで即座にrender（fetch完了を待たない）
@@ -1638,6 +1651,7 @@
     wireDateNav();
     wireSpeech();
     wireSwipe();
+    wireQuickActions();
 
     // ── 2. バックグラウンドで実データ取得（最大8秒） ──
     // ローディング表示をセット
