@@ -747,9 +747,30 @@
       root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-text">サマリーはまだ生成されていません</div></div>';
       return;
     }
-    root.innerHTML = lines.map((line, i) =>
-      `<div class="exec-line"><span class="exec-arrow">${String(i + 1).padStart(2, '0')}</span><span>${escapeHtml(line)}</span></div>`
-    ).join('');
+    // 各サマリー行に対応する記事（must-know → this-week の順でフラット化）を推定してソース表記を付ける
+    const { mustKnow, thisWeek } = partition();
+    const refs = [...mustKnow, ...thisWeek];
+    root.innerHTML = lines.map((line, i) => {
+      const n = refs[i];
+      let sourceHtml = '';
+      if (n) {
+        const src = escapeHtml(n.source || '');
+        if (n.url && /^https?:\/\//.test(n.url)) {
+          sourceHtml = `<a class="exec-src" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${src} →</a>`;
+        } else {
+          sourceHtml = `<a class="exec-src" href="#sec-must-know" data-scroll="sec-must-know">${src} →</a>`;
+        }
+      }
+      return `<div class="exec-line"><span class="exec-bullet" aria-hidden="true"></span><div class="exec-line-body"><span class="exec-text">${escapeHtml(line)}</span>${sourceHtml ? `<span class="exec-ref">${sourceHtml}</span>` : ''}</div></div>`;
+    }).join('');
+    // スクロールリンク
+    root.querySelectorAll('.exec-src[data-scroll]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const el = document.getElementById(a.dataset.scroll);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
   }
 
   /* ── MUST-KNOW レンダリング ── */
@@ -801,8 +822,8 @@
         <div class="top-content">
           <h2 class="top-title">${titleHtml}</h2>
           <p class="top-summary">${escapeHtml(n.summary)}</p>
-          ${n.whyItMatters ? `<div class="top-impact"><span class="top-impact-label">⚡ なぜ重要か</span><span class="top-impact-text">${escapeHtml(n.whyItMatters)}</span></div>` : ''}
-          ${n.actionItem ? `<div class="top-action"><span class="top-action-label">🎯 何をすべきか</span><span class="top-action-text">${escapeHtml(n.actionItem)}</span></div>` : ''}
+          ${n.whyItMatters ? `<div class="top-impact"><span class="top-impact-label">⚡ なぜ重要か（マーケ視点）</span><span class="top-impact-text">${escapeHtml(n.whyItMatters)}</span></div>` : ''}
+          ${n.actionItem ? `<div class="top-action"><span class="top-action-label">🎯 マーケとして何をすべきか</span><span class="top-action-text">${escapeHtml(n.actionItem)}</span></div>` : ''}
           ${n.pickerComment || (n.tags && n.tags.length) ? `
           <details class="intel-details">
             <summary class="intel-toggle">▼ 専門家の視点を読む</summary>
@@ -1441,19 +1462,20 @@
 
   /* ────────── ⑪b 音声ダイジェスト（AI要約 → TTS読み上げ） ──────────  */
   const SPEED_OPTIONS = [1, 1.25, 1.5, 1.75, 2];
-  const STORE_KEY_SPEED = 'ai-news:speed:v1';
+  const DEFAULT_SPEED = 1.25;
+  const STORE_KEY_SPEED = 'ai-news:speed:v2';
   function loadSpeed() {
-    const v = parseFloat(localStorage.getItem(STORE_KEY_SPEED) || '1');
-    return SPEED_OPTIONS.includes(v) ? v : 1;
+    const v = parseFloat(localStorage.getItem(STORE_KEY_SPEED) || String(DEFAULT_SPEED));
+    return SPEED_OPTIONS.includes(v) ? v : DEFAULT_SPEED;
   }
   let speechState = { playing: false, audio: null, speed: loadSpeed() };
-  function cycleSpeed() {
-    const cur = SPEED_OPTIONS.indexOf(speechState.speed);
-    speechState.speed = SPEED_OPTIONS[(cur + 1) % SPEED_OPTIONS.length];
-    try { localStorage.setItem(STORE_KEY_SPEED, String(speechState.speed)); } catch {}
-    const btn = document.getElementById('btn-speed');
-    if (btn) btn.textContent = `${speechState.speed}x`;
-    if (speechState.audio) speechState.audio.playbackRate = speechState.speed;
+  function setSpeed(v) {
+    const next = SPEED_OPTIONS.includes(v) ? v : DEFAULT_SPEED;
+    speechState.speed = next;
+    try { localStorage.setItem(STORE_KEY_SPEED, String(next)); } catch {}
+    if (speechState.audio) speechState.audio.playbackRate = next;
+    const sel = document.getElementById('speed-select');
+    if (sel && sel.value !== String(next)) sel.value = String(next);
   }
 
   function buildArticlePayload() {
@@ -1543,7 +1565,35 @@
   function setBtnState(label, playing) {
     const btn = document.getElementById('btn-listen');
     if (!btn) return;
-    btn.textContent = label;
+    // 新しいボタン構造（icon + label + meta）の label/meta を更新。古いテキストボタンとも互換。
+    const iconEl = btn.querySelector('.audio-btn-icon');
+    const labelEl = btn.querySelector('.audio-btn-label');
+    const metaEl = btn.querySelector('.audio-btn-meta');
+    if (iconEl && labelEl && metaEl) {
+      // label のパース: "⏹ 残り 2:34" / "▶ 今日のダイジェスト（約5分 · 準備完了）" / "🔊 聴く（約5分）"
+      if (playing) {
+        iconEl.textContent = '■';
+        labelEl.textContent = '停止';
+        const m = label.match(/残り\s*([0-9:]+)/);
+        metaEl.textContent = m ? `残り ${m[1]}` : label;
+      } else if (/準備完了/.test(label)) {
+        iconEl.textContent = '▶';
+        labelEl.textContent = 'AI音声ダイジェスト';
+        const m = label.match(/約(\d+)分/);
+        metaEl.textContent = m ? `約${m[1]}分 · 準備完了` : '準備完了';
+      } else if (/ダイジェスト生成中|音声変換中/.test(label)) {
+        iconEl.textContent = '…';
+        labelEl.textContent = '準備中';
+        metaEl.textContent = '少々お待ちください';
+      } else {
+        iconEl.textContent = '▶';
+        labelEl.textContent = 'AI音声ダイジェスト';
+        const m = label.match(/約(\d+)分/);
+        metaEl.textContent = m ? `約${m[1]}分` : '約5分';
+      }
+    } else {
+      btn.textContent = label;
+    }
     btn.classList.toggle('playing', playing);
   }
 
@@ -1737,10 +1787,10 @@
       if (speechState.playing) stopSpeech();
       else startSpeech();
     });
-    const speedBtn = document.getElementById('btn-speed');
-    if (speedBtn) {
-      speedBtn.textContent = `${speechState.speed}x`;
-      speedBtn.addEventListener('click', cycleSpeed);
+    const speedSelect = document.getElementById('speed-select');
+    if (speedSelect) {
+      speedSelect.value = String(speechState.speed);
+      speedSelect.addEventListener('change', e => setSpeed(parseFloat(e.target.value)));
     }
     // ミニプレイヤー停止ボタン
     const apStop = document.getElementById('ap-stop');

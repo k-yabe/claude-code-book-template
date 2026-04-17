@@ -4,9 +4,9 @@
   "executiveSummary": [
     "Google AI Overviewの日本本格展開でSEO戦略の大転換が必須に。",
     "パーソルHDがAI採用マッチング基盤を発表、人材業界のAI競争が激化。",
-    "Cookie廃止後はファーストパーティデータ活用が標準、CDP導入が加速。"
+    "Meta Llama 4オープンソース化で社内AI運用が現実的に、コピー生成内製化が加速。"
   ],
-  "count": 14,
+  "count": 9,
   "items": [
     {
       "id": "n_jp001_google_ai",
@@ -53,28 +53,6 @@
       "readMin": 2
     },
     {
-      "id": "n_jp003_cookie_fp",
-      "title": "Cookie廃止後はファーストパーティデータへ、CDP導入率40%増",
-      "url": null,
-      "image": null,
-      "source": "MarkeZine",
-      "sourceType": "media",
-      "category": "marketing",
-      "publishedAt": "2026-04-17T07:00:00+09:00",
-      "summary": "資生堂・トヨタ・楽天など大手10社の事例。自社データ統合活用が加速。",
-      "tags": [
-        "Cookie廃止",
-        "ファーストパーティデータ",
-        "CDP"
-      ],
-      "whyItMatters": "リターゲ広告の効果低下が確実視される中、自社データ基盤が採用マーケの成否を分ける。",
-      "actionItem": "現在のCookie依存度を棚卸しし、移行ロードマップ策定を今週開始。",
-      "pickerComment": "CDPは手段。採用マーケならキャリアイベントやウェビナー参加データが最も価値が高い。",
-      "importance": 2,
-      "urgency": "this_week",
-      "readMin": 1
-    },
-    {
       "id": "n_jp004_claude_code",
       "title": "Claude Code、プロジェクト管理機能を追加しエージェント強化",
       "url": null,
@@ -118,27 +96,6 @@
       "readMin": 1
     },
     {
-      "id": "n_jp006_recruit_dx",
-      "title": "DX人材の需給ギャップ、2026年に過去最大の45万人",
-      "url": null,
-      "image": null,
-      "source": "ITmedia NEWS",
-      "sourceType": "media",
-      "category": "market",
-      "publishedAt": "2026-04-17T05:30:00+09:00",
-      "summary": "リクルート調査。AI・データ領域のエンジニア採用難が深刻、紹介単価15%上昇。",
-      "tags": [
-        "DX人材",
-        "採用市場"
-      ],
-      "whyItMatters": "採用単価の上昇は収益に直結。差別化チャネルの強化が不可欠。",
-      "actionItem": "技術コミュニティ・勉強会スポンサード施策の予算を来期計画に組込み、今月中に企画書提出。",
-      "pickerComment": "構造的問題なので短期解消は困難。ダイレクトリクルーティングとリファラルの比率を高めるのが最善。",
-      "importance": 2,
-      "urgency": "this_week",
-      "readMin": 1
-    },
-    {
       "id": "n_jp007_dentsu_ai",
       "title": "電通、広告制作をAIで自動化する「Creative AI Studio」発表",
       "url": null,
@@ -155,27 +112,6 @@
       "whyItMatters": "代理店のAI活用が加速し、インハウスとの制作コスト差が縮小。",
       "actionItem": "担当営業にデモを依頼、自社キャンペーンでの活用可否を5月中に判断。",
       "pickerComment": "AI生成広告の品質管理はまだ未成熟。段階的導入が吉。",
-      "importance": 3,
-      "urgency": "fyi",
-      "readMin": 1
-    },
-    {
-      "id": "n_jp008_ma_compare",
-      "title": "MA ツール比較2026、HubSpotがAI強化でシェア拡大",
-      "url": null,
-      "image": null,
-      "source": "ferret",
-      "sourceType": "media",
-      "category": "marketing",
-      "publishedAt": "2026-04-17T04:00:00+09:00",
-      "summary": "HubSpot vs Marketo vs Pardot の最新機能比較。AIコンテンツ生成が差別化軸に。",
-      "tags": [
-        "MA",
-        "HubSpot"
-      ],
-      "whyItMatters": "MAツールの選定・乗り換え判断に直結。契約更新時期を再評価すべき。",
-      "actionItem": "現在のMAツール契約更新時期を確認し、乗り換え検討要否を判断。",
-      "pickerComment": "B2B大規模ならMarketo、Salesforce基盤ならPardot。重要なのは運用設計。",
       "importance": 3,
       "urgency": "fyi",
       "readMin": 1
@@ -264,28 +200,6 @@
       "whyItMatters": "属人化した営業資料・議事録を全員が秒で検索できるようになり、知識共有コストが劇的に下がる。",
       "actionItem": "無料トライアルを申請し、直近1年の採用資料で検索精度を検証。",
       "pickerComment": "ChatGPT Enterpriseより社内文書検索に特化している点が実用的。採用マーケでのテンプレ検索に向く。",
-      "importance": 3,
-      "urgency": "fyi",
-      "readMin": 1
-    },
-    {
-      "id": "n_jp013_tiktok_search",
-      "title": "TikTok Search Ads、日本で正式提供開始。Z世代リーチ手段が拡大",
-      "url": null,
-      "image": null,
-      "source": "ASCII.jp",
-      "sourceType": "media",
-      "category": "marketing",
-      "publishedAt": "2026-04-16T23:00:00+09:00",
-      "summary": "検索結果画面に広告枠が新設。CPCはまだGoogle検索広告より安い水準。",
-      "tags": [
-        "SNS",
-        "検索広告",
-        "TikTok"
-      ],
-      "whyItMatters": "新卒・第二新卒向けの採用マーケでリーチ手段が増え、低CPCで試せる。",
-      "actionItem": "Z世代ターゲットのキャンペーンでβ申請を検討。",
-      "pickerComment": "TikTok検索は〇〇 転職で実際に使われ始めている。先行企業の優位性が取れる時期。",
       "importance": 3,
       "urgency": "fyi",
       "readMin": 1
