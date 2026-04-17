@@ -1197,11 +1197,37 @@
     .cmd-btn:hover:not(:disabled) { border-color: var(--navy); background: #f8f8f8; }
     .cmd-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .cmd-btn.icon { width: 28px; padding: 5px 0; text-align: center; }
-    .cmd-btn#btn-listen.playing {
+    /* 聴く ボタンを常に目立たせる（AI音声ダイジェストへの導線） */
+    .cmd-btn#btn-listen {
       background: var(--navy); color: var(--gold); border-color: var(--navy);
+      font-weight: 800; padding: 6px 14px;
+      box-shadow: 0 2px 6px rgba(0,31,51,0.18);
+      transition: all 0.2s ease;
+    }
+    .cmd-btn#btn-listen:hover {
+      background: var(--gold); color: var(--navy); border-color: var(--gold);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(255,184,28,0.35);
+    }
+    .cmd-btn#btn-listen.playing {
+      background: var(--gold); color: var(--navy); border-color: var(--gold);
+      animation: listenPulse 1.6s ease-in-out infinite;
     }
     .cmd-btn#btn-listen.ready {
-      background: rgba(255,184,28,0.08); border-color: var(--gold); color: var(--navy);
+      background: var(--navy); color: var(--gold); border-color: var(--gold);
+      position: relative;
+    }
+    .cmd-btn#btn-listen.ready::after {
+      content: '●'; position: absolute; top: -3px; right: -3px;
+      font-size: 0.55rem; color: #00ffff;
+      text-shadow: 0 0 6px rgba(0,255,255,0.8);
+    }
+    @keyframes listenPulse {
+      0%, 100% { box-shadow: 0 2px 6px rgba(255,184,28,0.35); }
+      50%      { box-shadow: 0 4px 16px rgba(255,184,28,0.6); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cmd-btn#btn-listen.playing { animation: none; }
     }
 
     /* ── 既読プログレスバー ── */
@@ -1668,9 +1694,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: '直近3時間以内の記事に赤い脈動ドット（新着インジケーター）を付与。ヒーローの LIVE ドットと呼応して「今入ってきた情報」の視認性UP' },
-        { date: '04/17', text: 'セクション件数バッジがスクロールで初めて見えた瞬間に0からカウントアップ。「詳しく読む」トグルもゴールド縦ライン＋ホバースライドで動きUP' },
-        { date: '04/17', text: 'セクション見出しに件数バッジ（ネイビー背景＋ゴールド文字）を追加' }
+        { date: '04/17', text: '「🔊 聴く」ボタンを常にネイビー＋ゴールドで存在感UP。ready時はシアンドット、playing時は脈動シャドウで状態を視覚化' },
+        { date: '04/17', text: '直近3時間以内の記事に赤い脈動ドット（新着インジケーター）。LIVE ドットと呼応' },
+        { date: '04/17', text: 'セクション件数バッジがスクロールで見えた瞬間に0からカウントアップ' }
       ]
     });
   </script>
