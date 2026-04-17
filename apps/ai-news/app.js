@@ -13,8 +13,8 @@
      ※ URLはスクレイパーが取得した実データのみ正確。
        シードデータは架空記事のため url: null（間違ったURLをリンクしない）。
   */
-  const TODAY = '2026-04-15';
-  const Y     = '2026-04-14';
+  const TODAY = '2026-04-17';
+  const Y     = '2026-04-17';
 
   /* ── Executive Summary（シードデータ） ── */
   let EXEC_SUMMARY = [
@@ -34,7 +34,7 @@
       source: 'Gartner', sourceType: 'media', category: 'marketing',
       url: null,
       image: null,
-      publishedAt: `${Y}T09:10:00+09:00`,
+      publishedAt: `${TODAY}T09:10:00+09:00`,
       tags: ['B2B', 'GEO', '購買行動']
     },
     {
@@ -47,7 +47,7 @@
       source: 'Google Search Central', sourceType: 'media', category: 'ai',
       url: null,
       image: null,
-      publishedAt: `${Y}T18:40:00+09:00`,
+      publishedAt: `${TODAY}T18:40:00+09:00`,
       tags: ['SEO', 'GEO', 'Google']
     },
     {
@@ -60,7 +60,7 @@
       source: 'Salesforce News', sourceType: 'media', category: 'market',
       url: null,
       image: null,
-      publishedAt: `${Y}T14:45:00+09:00`,
+      publishedAt: `${TODAY}T14:45:00+09:00`,
       tags: ['SaaS', 'AIエージェント', 'CMO']
     },
     {
@@ -73,7 +73,7 @@
       source: 'Anthropic', sourceType: 'media', category: 'ai',
       url: null,
       image: null,
-      publishedAt: `${Y}T22:00:00+09:00`,
+      publishedAt: `${TODAY}T22:00:00+09:00`,
       tags: ['Claude', 'LLM', '要約']
     },
     {
@@ -86,7 +86,7 @@
       source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
       url: null,
       image: null,
-      publishedAt: `${Y}T08:30:00+09:00`,
+      publishedAt: `${TODAY}T08:30:00+09:00`,
       tags: ['広告', 'PMax', 'Google']
     },
     {
@@ -99,7 +99,7 @@
       source: '電通', sourceType: 'media', category: 'market',
       url: null,
       image: null,
-      publishedAt: `${Y}T10:00:00+09:00`,
+      publishedAt: `${TODAY}T10:00:00+09:00`,
       tags: ['広告費', '日本', '統計']
     },
     {
@@ -112,7 +112,7 @@
       source: 'AdExchanger', sourceType: 'media', category: 'market',
       url: null,
       image: null,
-      publishedAt: `${Y}T07:50:00+09:00`,
+      publishedAt: `${TODAY}T07:50:00+09:00`,
       tags: ['Cookieless', 'AdTech']
     },
     {
@@ -125,7 +125,7 @@
       source: 'Adobe Marketo Engage', sourceType: 'media', category: 'marketing',
       url: null,
       image: null,
-      publishedAt: `${Y}T11:05:00+09:00`,
+      publishedAt: `${TODAY}T11:05:00+09:00`,
       tags: ['MA', 'メール', 'AI']
     },
     {
@@ -138,7 +138,7 @@
       source: 'OpenAI', sourceType: 'media', category: 'ai',
       url: null,
       image: null,
-      publishedAt: `${Y}T20:15:00+09:00`,
+      publishedAt: `${TODAY}T20:15:00+09:00`,
       tags: ['GPT-5', 'API', 'ブランドガバナンス']
     },
     {
@@ -151,7 +151,7 @@
       source: 'TikTok for Business', sourceType: 'media', category: 'marketing',
       url: null,
       image: null,
-      publishedAt: `${Y}T13:00:00+09:00`,
+      publishedAt: `${TODAY}T13:00:00+09:00`,
       tags: ['SNS', '検索広告']
     },
     {
@@ -164,7 +164,7 @@
       source: 'HubSpot', sourceType: 'media', category: 'marketing',
       url: null,
       image: null,
-      publishedAt: `${Y}T15:20:00+09:00`,
+      publishedAt: `${TODAY}T15:20:00+09:00`,
       tags: ['CRM', 'セールス']
     }
   ];
@@ -510,6 +510,9 @@
     if (btn) {
       btn.classList.toggle('starred', state.fav.has(id));
       btn.setAttribute('aria-pressed', state.fav.has(id));
+      btn.classList.remove('pop');
+      void btn.offsetWidth;
+      btn.classList.add('pop');
     }
   }
 
