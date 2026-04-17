@@ -330,9 +330,86 @@
   /** img onerror: 壊れた画像を非表示にし、親にフォールバッククラスを付与 */
   const IMG_ONERROR = "this.onerror=null;this.style.display='none';this.parentElement.classList.add('img-fallback');";
 
-  /** 安全画像URLを返す（なければ空文字列） */
+  /**
+   * テーマ別フォールバック画像（Unsplash、固定ID = CORSフリー）。
+   * 記事のタグ・カテゴリから最適な画像を選ぶ。
+   * OGP画像が無い場合にカードが空にならないよう自動マッピング。
+   */
+  const THEMED_IMAGES = {
+    ai: [
+      'photo-1677442136019-21780ecad995',
+      'photo-1620712943543-bcc4688e7485',
+      'photo-1485827404703-89b55fcc595e',
+      'photo-1526374965328-7f61d4dc18c5',
+    ],
+    marketing: [
+      'photo-1460925895917-afdab827c52f',
+      'photo-1551288049-bebda4e38f71',
+      'photo-1552664730-d307ca884978',
+      'photo-1552664688-cf412ec27db2',
+    ],
+    market: [
+      'photo-1553877522-43269d4ea984',
+      'photo-1554224155-6726b3ff858f',
+      'photo-1498050108023-c5249f4df085',
+      'photo-1504384308569-01cfe5e3268d',
+    ],
+  };
+
+  // タグ別の関連画像（タグ優先マッチ）
+  const TAG_IMAGES = {
+    'SEO': 'photo-1573804633927-bfcbcd909acd',
+    'Google': 'photo-1573804633927-bfcbcd909acd',
+    'GEO': 'photo-1562577309-4932fdd64cd1',
+    'メール': 'photo-1596526131083-e8c633c948d2',
+    'MA': 'photo-1596526131083-e8c633c948d2',
+    '動画': 'photo-1611162617213-7d7a39e9b1d7',
+    'Cookie': 'photo-1563986768609-322da13575f2',
+    'Cookieless': 'photo-1563986768609-322da13575f2',
+    'SNS': 'photo-1611605698335-8b1569810432',
+    'TikTok': 'photo-1611605698335-8b1569810432',
+    'Claude': 'photo-1677442136019-21780ecad995',
+    'LLM': 'photo-1620712943543-bcc4688e7485',
+    'GPT-5': 'photo-1620712943543-bcc4688e7485',
+    'CRM': 'photo-1556761175-5973dc0f32e7',
+    'セールス': 'photo-1556761175-5973dc0f32e7',
+    'B2B': 'photo-1556761175-5973dc0f32e7',
+    '広告費': 'photo-1551288049-bebda4e38f71',
+    '広告': 'photo-1551288049-bebda4e38f71',
+    'PMax': 'photo-1551288049-bebda4e38f71',
+    'AdTech': 'photo-1551288049-bebda4e38f71',
+    'Claude Code': 'photo-1517180102446-f3ece451e9d8',
+    'AIエージェント': 'photo-1485827404703-89b55fcc595e',
+    'SaaS': 'photo-1498050108023-c5249f4df085',
+    'ブランドガバナンス': 'photo-1517841905240-472988babdf9',
+  };
+
+  function hashStr(str) {
+    let h = 0;
+    for (let i = 0; i < (str || '').length; i++) {
+      h = ((h << 5) - h) + str.charCodeAt(i);
+      h |= 0;
+    }
+    return Math.abs(h);
+  }
+
+  function themedImageUrl(article) {
+    // 1. タグ優先マッチ
+    for (const tag of (article.tags || [])) {
+      if (TAG_IMAGES[tag]) {
+        return `https://images.unsplash.com/${TAG_IMAGES[tag]}?w=800&h=450&fit=crop&auto=format&q=80`;
+      }
+    }
+    // 2. カテゴリからローテーション選択
+    const cat = article.category || 'ai';
+    const pool = THEMED_IMAGES[cat] || THEMED_IMAGES.ai;
+    const idx = hashStr(article.id || article.title || '') % pool.length;
+    return `https://images.unsplash.com/${pool[idx]}?w=800&h=450&fit=crop&auto=format&q=80`;
+  }
+
+  /** 実画像（OGP）があればそれを返し、無ければテーマ別Unsplash画像を返す */
   function pickImage(article) {
-    return safeImgUrl(article.image);
+    return safeImgUrl(article.image) || themedImageUrl(article);
   }
 
   /** ソースドメインから favicon URL を生成（Google Favicon API は CORS なし） */
@@ -342,6 +419,19 @@
       const u = new URL(url);
       return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(u.hostname)}&sz=${size}`;
     } catch { return null; }
+  }
+
+  /**
+   * 記事リンク: 実URLがあればそれ、無ければ Google 検索（タイトル+ソース）にフォールバック。
+   * これでユーザーは必ず関連記事にたどり着ける。
+   */
+  function articleLink(n) {
+    if (n.url) return n.url;
+    const q = encodeURIComponent(`${n.title} ${n.source || ''}`);
+    return `https://www.google.com/search?q=${q}`;
+  }
+  function articleLinkLabel(n) {
+    return n.url ? '記事を開く →' : '記事を検索 →';
   }
 
   /** OGP画像をクライアントサイドで取得し、記事データとDOMを更新 */
@@ -554,19 +644,26 @@
         <div class="top-content">
           <h2 class="top-title">${titleHtml}</h2>
           <p class="top-summary">${escapeHtml(n.summary)}</p>
-          ${hasDetail ? `
+          ${hasDetail || (n.tags && n.tags.length) ? `
           <details class="intel-details">
-            <summary class="intel-toggle">詳しく見る</summary>
+            <summary class="intel-toggle">▼ 詳しく読む（マーケ担当者向けインテリジェンス）</summary>
             <div class="intel-body">
-              ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label">マーケへの影響</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
-              ${n.actionItem ? `<div class="intel-block action"><div class="intel-label">💡 推奨アクション</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
-              ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💬</span><span class="picker-text">${escapeHtml(n.pickerComment)}</span></div>` : ''}
+              ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label">⚡ マーケへの影響</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
+              ${n.actionItem ? `<div class="intel-block action"><div class="intel-label">🎯 推奨アクション（誰が・何を・いつまでに）</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
+              ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💬</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
+              <div class="intel-meta">
+                <div class="intel-meta-row"><span class="intel-meta-label">情報源</span><span class="intel-meta-value">${escapeHtml(n.source)}</span></div>
+                <div class="intel-meta-row"><span class="intel-meta-label">公開日時</span><span class="intel-meta-value">${escapeHtml(fmtDate(n.publishedAt))}</span></div>
+                <div class="intel-meta-row"><span class="intel-meta-label">カテゴリ</span><span class="intel-meta-value">${escapeHtml(CAT_LABEL[n.category] || n.category)}</span></div>
+                <div class="intel-meta-row"><span class="intel-meta-label">読了目安</span><span class="intel-meta-value">${n.readMin || 2}分</span></div>
+              </div>
+              ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
             </div>
           </details>` : ''}
           <div class="top-foot">
             <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読' : '✓ 既読'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">記事を開く →</a>` : '<span class="sample-badge">サンプルデータ</span>'}
+            <a class="ext-btn" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(articleLinkLabel(n))}</a>
           </div>
         </div>
       </article>`;
@@ -621,19 +718,25 @@
             </div>
             <div class="brief-card-title">${escapeHtml(n.title)}</div>
             <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
-            ${hasDetail ? `
+            ${hasDetail || (n.tags && n.tags.length) ? `
             <details class="intel-details brief">
-              <summary class="intel-toggle">詳しく見る</summary>
+              <summary class="intel-toggle">▼ 詳しく読む</summary>
               <div class="intel-body">
-                ${n.whyItMatters ? `<div class="brief-card-impact">⚡ ${escapeHtml(n.whyItMatters)}</div>` : ''}
-                ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
-                ${n.pickerComment ? `<div class="picker-comment brief"><span class="picker-icon">💬</span><span class="picker-text">${escapeHtml(n.pickerComment)}</span></div>` : ''}
+                ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label">⚡ マーケへの影響</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
+                ${n.actionItem ? `<div class="intel-block action"><div class="intel-label">🎯 推奨アクション</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
+                ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💬</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
+                <div class="intel-meta">
+                  <div class="intel-meta-row"><span class="intel-meta-label">情報源</span><span class="intel-meta-value">${escapeHtml(n.source)}</span></div>
+                  <div class="intel-meta-row"><span class="intel-meta-label">公開日時</span><span class="intel-meta-value">${escapeHtml(fmtDate(n.publishedAt))}</span></div>
+                  <div class="intel-meta-row"><span class="intel-meta-label">読了目安</span><span class="intel-meta-value">${n.readMin || 1}分</span></div>
+                </div>
+                ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
               </div>
             </details>` : ''}
             <div class="brief-card-foot">
               <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
               <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-              ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">記事を開く →</a>` : ''}
+              <a class="brief-ext-link" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(articleLinkLabel(n))}</a>
             </div>
           </div>
         </div>`;
@@ -723,7 +826,7 @@
               <div style="display:flex;align-items:center;gap:8px;">
                 <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
                 <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
-                ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
+                <a class="brief-ext-link" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.url ? '元記事 →' : '検索 →')}</a>
               </div>
             </div>
           </div>
@@ -1122,7 +1225,21 @@
   }
 
   /* ────────── ⑪b 音声ダイジェスト（AI要約 → TTS読み上げ） ──────────  */
-  let speechState = { playing: false, audio: null };
+  const SPEED_OPTIONS = [1, 1.25, 1.5, 1.75, 2];
+  const STORE_KEY_SPEED = 'ai-news:speed:v1';
+  function loadSpeed() {
+    const v = parseFloat(localStorage.getItem(STORE_KEY_SPEED) || '1');
+    return SPEED_OPTIONS.includes(v) ? v : 1;
+  }
+  let speechState = { playing: false, audio: null, speed: loadSpeed() };
+  function cycleSpeed() {
+    const cur = SPEED_OPTIONS.indexOf(speechState.speed);
+    speechState.speed = SPEED_OPTIONS[(cur + 1) % SPEED_OPTIONS.length];
+    try { localStorage.setItem(STORE_KEY_SPEED, String(speechState.speed)); } catch {}
+    const btn = document.getElementById('btn-speed');
+    if (btn) btn.textContent = `${speechState.speed}x`;
+    if (speechState.audio) speechState.audio.playbackRate = speechState.speed;
+  }
 
   function buildArticlePayload() {
     const { mustKnow, thisWeek } = partition();
@@ -1262,13 +1379,15 @@
     if (preloadedAudioUrl) {
       const audio = new Audio(preloadedAudioUrl);
       speechState.audio = audio;
+      audio.playbackRate = speechState.speed;
       setBtnState(`⏹ 再生中`, true);
       audio.ontimeupdate = () => {
         if (!speechState.playing) return;
         const d = audio.duration || 0;
         const c = audio.currentTime || 0;
-        const rem = Math.max(0, Math.ceil((d - c) / 60));
-        const sec = Math.max(0, Math.ceil(d - c) % 60);
+        const remSec = Math.max(0, Math.ceil((d - c) / (audio.playbackRate || 1)));
+        const rem = Math.floor(remSec / 60);
+        const sec = remSec % 60;
         const btn = document.getElementById('btn-listen');
         if (btn) btn.textContent = `⏹ 残り ${rem}:${String(sec).padStart(2,'0')}`;
       };
@@ -1299,13 +1418,15 @@
         preloadedAudioUrl = audioUrl;
         const audio = new Audio(audioUrl);
         speechState.audio = audio;
+        audio.playbackRate = speechState.speed;
         setBtnState(`⏹ 再生中`, true);
         audio.ontimeupdate = () => {
           if (!speechState.playing) return;
           const d = audio.duration || 0;
           const c = audio.currentTime || 0;
-          const rem = Math.max(0, Math.ceil((d - c) / 60));
-          const sec = Math.max(0, Math.ceil(d - c) % 60);
+          const remSec = Math.max(0, Math.ceil((d - c) / (audio.playbackRate || 1)));
+          const rem = Math.floor(remSec / 60);
+          const sec = remSec % 60;
           const btn = document.getElementById('btn-listen');
           if (btn) btn.textContent = `⏹ 残り ${rem}:${String(sec).padStart(2,'0')}`;
         };
@@ -1341,7 +1462,7 @@
       if (idx >= lines.length || !speechState.playing) { stopSpeech(); return; }
       const u = new SpeechSynthesisUtterance(lines[idx++]);
       u.lang = 'ja-JP';
-      u.rate = 0.95;
+      u.rate = 0.95 * (speechState.speed || 1);
       u.pitch = 1.05;
       if (voice) u.voice = voice;
       u.onend = speakNext;
@@ -1369,6 +1490,11 @@
       if (speechState.playing) stopSpeech();
       else startSpeech();
     });
+    const speedBtn = document.getElementById('btn-speed');
+    if (speedBtn) {
+      speedBtn.textContent = `${speechState.speed}x`;
+      speedBtn.addEventListener('click', cycleSpeed);
+    }
     // 起動時にバックグラウンドで音声を事前生成（ネットワーク待機なしで即再生できる）
     // ユーザー操作をブロックしないよう requestIdleCallback / setTimeout で遅延実行
     const kickoff = () => { preloadDigestAudio().catch(() => {}); };
