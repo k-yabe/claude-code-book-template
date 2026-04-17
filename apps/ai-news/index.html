@@ -113,6 +113,18 @@
     .img-fallback {
       background: linear-gradient(135deg, var(--navy) 0%, #002d4d 100%);
     }
+    /* ── 画像なし時のヘッダーバー ── */
+    .top-header-bar {
+      background: var(--navy);
+      padding: var(--sp-4) var(--sp-5);
+      display: flex; align-items: center; gap: var(--sp-3);
+      border-bottom: 3px solid var(--gold);
+    }
+    .top-header-bar .hero-chip { flex-shrink: 0; }
+    .top-header-source {
+      font-size: 0.72rem; font-weight: 600;
+      color: rgba(255,255,255,0.7); letter-spacing: 0.02em;
+    }
     /* ヒーロー画像（大） */
     .top-hero {
       position: relative; width: 100%; aspect-ratio: 16 / 9;
@@ -314,18 +326,13 @@
       overflow: hidden;
     }
     .fyi-thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .fyi-thumb-ph {
+    .fyi-accent {
+      flex-shrink: 0; width: 4px; align-self: stretch;
       background: var(--navy);
-      display: flex; align-items: center; justify-content: center;
     }
-    .fyi-thumb-ph[data-cat="marketing"] { background: linear-gradient(135deg, #001f33 0%, rgba(0,31,51,0.6) 100%); }
-    .fyi-thumb-ph[data-cat="market"] { background: linear-gradient(135deg, #001f33 0%, rgba(0,31,51,0.8) 100%); }
-    .fyi-thumb-ph[data-cat="ai"] { background: linear-gradient(135deg, #001f33 0%, rgba(0,31,51,0.4) 100%); }
-    .fyi-thumb-label {
-      font-size: 0.6rem; font-weight: 800;
-      color: rgba(255,255,255,0.4); letter-spacing: 0.1em;
-      text-align: center; text-transform: uppercase;
-    }
+    .fyi-accent.cat-marketing { background: var(--gold); }
+    .fyi-accent.cat-market { background: var(--navy); }
+    .fyi-accent.cat-ai { background: #00ffff; }
     .fyi-body { flex: 1; min-width: 0; }
     .fyi-meta {
       display: flex; align-items: center; gap: var(--sp-2); margin-bottom: 4px;
@@ -578,6 +585,9 @@
       background: linear-gradient(to top, rgba(0,31,51,0.3), transparent);
       pointer-events: none;
     }
+    .brief-card.no-img { border-left: 4px solid var(--navy); }
+    .brief-card.no-img[data-cat="marketing"] { border-left-color: var(--gold); }
+    .brief-card.no-img[data-cat="ai"] { border-left-color: #00ffff; }
     .brief-card-content {
       padding: var(--sp-4);
       display: flex; flex-direction: column; flex: 1;
@@ -676,10 +686,10 @@
 
     /* ── 小画面 ── */
     @media (max-width: 600px) {
-      .fyi-card { flex-direction: column; padding: var(--sp-3); }
-      .fyi-thumb { width: 100%; height: 100px; }
+      .fyi-card { padding: var(--sp-3); }
+      .fyi-thumb { width: 100px; height: 70px; }
       .brief-grid { grid-template-columns: 1fr; padding: 0 var(--sp-3); }
-      .brief-card-thumb { height: 100px; }
+      .brief-card-thumb { height: 120px; }
       .trend-bar { margin: 0 var(--sp-3) var(--sp-3); }
       .more-toolbar, .more-list { margin: 0 var(--sp-3); }
       .x-section { margin: 0 var(--sp-3); }
