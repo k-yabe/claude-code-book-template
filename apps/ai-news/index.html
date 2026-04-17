@@ -689,6 +689,11 @@
       animation: shimmer 1.4s ease-in-out infinite;
     }
     .fyi-thumb img.loaded { animation: none; background: none; }
+    /* PC（2列）ではサムネイルをより大きく、カードとバランスを取る */
+    @media (min-width: 1024px) {
+      .fyi-thumb { width: 200px; height: 120px; }
+      .fyi-visual { width: 160px; height: 120px; }
+    }
     /* ── FYI: 画像なし時のソースロゴビジュアル ── */
     .fyi-visual {
       flex-shrink: 0; width: 100px; height: 90px;
@@ -796,9 +801,12 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: var(--sp-3);
     }
-    /* PC では4列で整列（5列以上だと横長すぎる） */
+    /* PC では4列で整列（5列以上だと横長すぎる）。カードに余白を追加して密度を調整 */
     @media (min-width: 1024px) {
-      .x-grid { grid-template-columns: repeat(4, 1fr); }
+      .x-grid { grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
+      .x-section { padding: var(--sp-6); }
+      .x-item { padding: var(--sp-5); min-height: 180px; display: flex; flex-direction: column; }
+      .x-text { font-size: 0.82rem; flex: 1; }
     }
     .x-item {
       display: block; padding: var(--sp-4);
@@ -1384,9 +1392,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
+        { date: '04/17', text: 'PC幅の細部ポリッシュ：その他ニュースのサムネイル 140→200px・高さ 90→120px に拡大、Xカードに統一した min-height と padding、情報密度とバランスを微調整' },
         { date: '04/17', text: 'PC幅を活かした全面UIリビルド：重要ニュースを2列、3行サマリーを3列、𝕏を4列にグリッド化。ヒーローと見出しもPC用に拡大して視線誘導を強化' },
-        { date: '04/17', text: '𝕏 生成AIトレンドを実在ツイートのみに差し替え（深津貴之・安宅和人）。各カードは現物のポストに直接遷移' },
-        { date: '04/17', text: '記事は実URL必須に（検索フォールバック全廃）。サンプル記事には各メディア公式サイトのURLを埋め込み、scraper 実行で個別記事URLに上書き' }
+        { date: '04/17', text: '𝕏 生成AIトレンドを実在ツイートのみに差し替え（深津貴之・安宅和人）。各カードは現物のポストに直接遷移' }
       ]
     });
   </script>
