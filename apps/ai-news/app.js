@@ -575,12 +575,26 @@
   }
 
   /* ────────── ⑦ レンダリング ──────────  */
+  function animateCount(el, target, suffix) {
+    if (!el) return;
+    const duration = 600;
+    const start = performance.now();
+    const from = 0;
+    function step(ts) {
+      const p = Math.min((ts - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(from + (target - from) * ease) + (suffix || '');
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
   function renderHero() {
     const total = NEWS_DATA.length;
     const read  = totalReadTime(NEWS_DATA);
-    document.getElementById('stat-date').textContent  = fmtBriefDate(Y);
-    document.getElementById('stat-total').textContent = total;
-    document.getElementById('stat-read').textContent  = `${read}分`;
+    document.getElementById('stat-date').textContent = fmtBriefDate(Y);
+    animateCount(document.getElementById('stat-total'), total, '');
+    animateCount(document.getElementById('stat-read'), read, '分');
   }
 
   /* ── Executive Summary ── */
