@@ -656,9 +656,14 @@
   function renderHero() {
     const total = NEWS_DATA.length;
     const read  = totalReadTime(NEWS_DATA);
+    const mustCount  = NEWS_DATA.filter(n => n.urgency === 'must_know').length;
+    const weekCount  = NEWS_DATA.filter(n => n.urgency === 'this_week').length;
+    const fyiCount   = NEWS_DATA.filter(n => !['must_know','this_week'].includes(n.urgency)).length;
     document.getElementById('stat-date').textContent = fmtBriefDate(Y);
     animateCount(document.getElementById('stat-total'), total, '');
     animateCount(document.getElementById('stat-read'), read, '分');
+    const bd = document.getElementById('stat-breakdown');
+    if (bd) bd.innerHTML = `<b>${mustCount}</b>重要 · <b>${weekCount}</b>注目 · <b>${fyiCount}</b>その他`;
     const greet = document.getElementById('hero-greeting');
     if (greet) greet.textContent = timeAwareGreeting();
   }
@@ -684,11 +689,12 @@
       root.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">重要ニュースはありません</div></div>';
       return;
     }
-    root.innerHTML = items.map(n => {
+    root.innerHTML = items.map((n, idx) => {
       const isRead = state.read.has(n.id);
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
       const hasUrl = !!n.url;
+      const isTopStory = idx === 0;
       const imgSrc = pickImage(n);
       const titleHtml = hasUrl
         ? `<a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a>`
@@ -696,7 +702,8 @@
       const favicon = sourceFavicon(n.url) || '';
       const initials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-      <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" aria-label="${escapeHtml(n.title)}">
+      <article class="top-card${isRead ? ' read' : ''}${isTopStory ? ' top-story' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" aria-label="${escapeHtml(n.title)}">
+        ${isTopStory ? '<div class="top-story-ribbon" aria-hidden="true"><span class="top-story-ribbon-num">#1</span><span class="top-story-ribbon-label">TOP STORY</span></div>' : ''}
         ${imgSrc ? `
         <div class="top-hero">
           <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
@@ -1245,7 +1252,13 @@
     const fill = document.getElementById('progress-fill');
     if (txt) txt.textContent = read;
     if (tot) tot.textContent = total;
-    if (fill) fill.style.width = (total ? (read / total * 100) : 0) + '%';
+    const pct = total ? (read / total * 100) : 0;
+    if (fill) fill.style.width = pct + '%';
+    // ヒーローの既読進捗も同期
+    const heroProg = document.getElementById('stat-read-progress');
+    const heroFill = document.getElementById('hero-progress-fill');
+    if (heroProg) heroProg.textContent = `${read}/${total}`;
+    if (heroFill) heroFill.style.width = pct + '%';
     // 「次の未読」ボタンに残り数を表示
     const btnNext = document.getElementById('btn-next-unread');
     if (btnNext) {

@@ -191,6 +191,23 @@
       letter-spacing: -0.01em;
     }
     .hero-stat-num.accent { color: var(--gold); }
+    .hero-stat-breakdown {
+      font-size: 0.6rem; color: rgba(255,255,255,0.6);
+      font-weight: 600; letter-spacing: 0.02em; line-height: 1.3;
+      margin-top: 4px;
+    }
+    .hero-stat-breakdown b { color: var(--gold); font-weight: 800; }
+    .hero-stat-bar {
+      display: block; margin-top: 6px;
+      width: 100%; max-width: 120px;
+      height: 3px; background: rgba(255,255,255,0.12);
+      overflow: hidden; position: relative;
+    }
+    .hero-stat-bar-fill {
+      display: block; height: 100%; width: 0;
+      background: var(--gold);
+      transition: width 0.6s cubic-bezier(.3,.9,.3,1);
+    }
     .hero-stat-label {
       font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
       color: rgba(255,255,255,0.55); font-weight: 700;
@@ -268,6 +285,34 @@
       #must-know .top-card:only-child { grid-column: 1 / -1; max-width: 900px; margin: 0 auto; }
     }
 
+    /* ── TOP STORY リボン（#1 だけに付く） ── */
+    .top-story { position: relative; }
+    .top-story-ribbon {
+      position: absolute; top: 16px; left: 0; z-index: 3;
+      display: inline-flex; align-items: stretch;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      pointer-events: none;
+      animation: ribbonIn 0.5s ease both 0.15s;
+    }
+    @keyframes ribbonIn {
+      from { opacity: 0; transform: translateX(-12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .top-story-ribbon-num {
+      background: var(--gold); color: var(--navy);
+      padding: 6px 10px; font-weight: 900;
+      font-size: 0.95rem; letter-spacing: 0.02em;
+    }
+    .top-story-ribbon-label {
+      background: var(--navy); color: var(--gold);
+      padding: 6px 12px; font-weight: 900;
+      font-size: 0.68rem; letter-spacing: 0.15em;
+      display: inline-flex; align-items: center;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .top-story-ribbon { animation: none; }
+    }
+
     /* ── 🔥 重要ニュース ヒーローカード（NewsPicks風） ── */
     .top-card {
       background: var(--white);
@@ -280,16 +325,29 @@
       transition: box-shadow 0.25s ease, transform 0.25s ease, opacity 0.3s ease;
     }
     .top-card:hover {
-      box-shadow: 0 16px 48px rgba(0,31,51,0.22), 0 4px 12px rgba(0,31,51,0.12);
-      transform: translateY(-2px);
+      box-shadow: 0 24px 60px rgba(0,31,51,0.28), 0 6px 16px rgba(0,31,51,0.14);
+      transform: translateY(-3px);
+    }
+    /* ゴールドライト走査エフェクト（ホバー時） */
+    .top-card::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,184,28,0.12) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.8s ease;
+      z-index: 1;
+    }
+    .top-card:hover::after { transform: translateX(100%); }
+    @media (prefers-reduced-motion: reduce) {
+      .top-card::after { display: none; }
     }
     .top-card.read { opacity: 0.7; }
-    .top-card.read::after {
+    .top-card.read::before {
       content: '✓ 既読';
       position: absolute; top: var(--sp-3); right: var(--sp-4);
       font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em;
       color: var(--text-muted);
       background: var(--white); padding: 2px 8px;
+      z-index: 2;
     }
     /* ── 画像読み込み失敗時のフォールバック ── */
     .img-fallback {
@@ -897,11 +955,13 @@
 
     /* ── Executive Summary ── */
     .exec-box {
-      background: var(--navy);
+      background: linear-gradient(135deg, var(--navy) 0%, #002d4d 55%, var(--navy) 100%);
       padding: var(--sp-6) var(--sp-7);
       margin: 0 var(--sp-5) var(--sp-5);
       position: relative;
       border-left: 6px solid var(--gold);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,31,51,0.18), 0 2px 6px rgba(0,31,51,0.10);
     }
     .exec-box::before {
       content: 'TODAY\'S BRIEFING';
@@ -909,6 +969,19 @@
       background: var(--gold); color: var(--navy);
       padding: 3px 12px; font-size: 0.6rem; font-weight: 900;
       letter-spacing: 0.15em;
+      z-index: 2;
+    }
+    /* 背景に薄いウォーターマーク数字を重ねて厚みを出す */
+    .exec-box::after {
+      content: '03';
+      position: absolute; right: -20px; bottom: -60px;
+      font-size: 16rem; font-weight: 900;
+      color: rgba(255,184,28,0.05);
+      line-height: 0.8; letter-spacing: -0.05em;
+      pointer-events: none;
+    }
+    @media (max-width: 600px) {
+      .exec-box::after { font-size: 9rem; right: -12px; bottom: -36px; }
     }
     .exec-line {
       display: flex; gap: var(--sp-4); align-items: flex-start;
@@ -937,9 +1010,12 @@
     }
     .exec-arrow {
       color: var(--gold); font-weight: 900;
-      flex-shrink: 0; font-size: 1.5rem; line-height: 1.1;
-      min-width: 28px;
+      flex-shrink: 0; font-size: 1.8rem; line-height: 1;
+      min-width: 32px;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 12px rgba(255,184,28,0.35);
     }
+    .exec-line { position: relative; z-index: 1; }
     @media (max-width: 600px) {
       .exec-box { padding: var(--sp-4); margin: 0 var(--sp-3) var(--sp-3); }
       .exec-line { font-size: 0.85rem; }
@@ -1313,7 +1389,13 @@
         </div>
         <div class="hero-stat">
           <span class="hero-stat-num" id="stat-total">—</span>
-          <span class="hero-stat-label">記事数</span>
+          <span class="hero-stat-label">記事</span>
+          <span class="hero-stat-breakdown" id="stat-breakdown" aria-hidden="true"></span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num" id="stat-read-progress">0/0</span>
+          <span class="hero-stat-label">既読</span>
+          <span class="hero-stat-bar" aria-hidden="true"><span class="hero-stat-bar-fill" id="hero-progress-fill"></span></span>
         </div>
         <div class="hero-stat">
           <span class="hero-stat-num" id="stat-read">—</span>
@@ -1452,9 +1534,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: '重要ニュースの「なぜ重要か／何をすべきか」を常時インライン表示。クリックせずに判断材料が見える設計に（注目ニュースと一貫）。「詳しく読む」は専門家の視点・タグ・元記事リンクに絞る' },
-        { date: '04/17', text: 'PC幅（≥1280px）に「セクションナビ」を追加。右端fixedで重要/注目/その他/𝕏 の4リンク、現在表示中セクションはゴールドハイライト' },
-        { date: '04/17', text: 'PC幅1200pxを活かした全面UIリビルド：重要を2列、3行サマリーを3列、𝕏を4列にグリッド化。サムネサイズや密度もPC用にチューニング' }
+        { date: '04/17', text: '一瞥でインパクト大の「#1 TOP STORY」リボンを重要ニュースの筆頭カードに付与。アニメーション付きで視覚的階層を強化' },
+        { date: '04/17', text: 'ヒーロースタッツを3→4カラムに拡張：記事件数に「重要/注目/その他」の内訳、既読進捗ゲージ（X/Y + プログレスバー）を追加してダッシュボード感UP' },
+        { date: '04/17', text: '3行サマリーをグラデーション＋背景ウォーターマーク＋光るゴールド数字で装飾強化。カード走査ライトエフェクトも追加' }
       ]
     });
   </script>
