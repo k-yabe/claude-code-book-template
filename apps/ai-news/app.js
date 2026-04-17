@@ -31,7 +31,7 @@
       pickerComment: 'GEO（Generative Engine Optimization）はSEOの次の戦場。人材業界では「エンジニア 転職」等のキーワードでAI検索結果に表示されるかが採用数に直結する。早い者勝ちの領域。',
       source: 'Gartner', sourceType: 'media', category: 'marketing',
       url: 'https://webtan.impress.co.jp/e/2026/04/07/52273',
-      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=450&fit=crop&auto=format&q=80',
+      image: null,
       publishedAt: `${Y}T09:10:00+09:00`,
       tags: ['B2B', 'GEO', '購買行動']
     },
@@ -44,7 +44,7 @@
       pickerComment: 'SEO担当者は今すぐ「site:自社ドメイン」でAI Overviewsに引用されているか確認すべき。構造化データのFAQ・HowToマークアップが引用率を高める傾向がある。',
       source: 'Google Search Central', sourceType: 'media', category: 'ai',
       url: 'https://www.itmedia.co.jp/news/articles/2601/28/news069.html',
-      image: 'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=800&h=450&fit=crop&auto=format&q=80',
+      image: null,
       publishedAt: `${Y}T18:40:00+09:00`,
       tags: ['SEO', 'GEO', 'Google']
     },
@@ -57,7 +57,7 @@
       pickerComment: 'SalesforceのAIエージェント戦略はMarketing Cloud全体に波及する。既存ユーザーは追加費用なしで使える可能性が高いので、営業担当に確認するだけでROIが出る案件。',
       source: 'Salesforce News', sourceType: 'media', category: 'market',
       url: 'https://www.itmedia.co.jp/enterprise/articles/2604/11/news014.html',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop&auto=format&q=80',
+      image: null,
       publishedAt: `${Y}T14:45:00+09:00`,
       tags: ['SaaS', 'AIエージェント', 'CMO']
     },
@@ -70,7 +70,7 @@
       pickerComment: '200kトークンは文庫本1冊分。競合分析で10社分のIR資料を一括投入して比較表を作れる。レポート業務の「素材集め→構造化」が自動化される。',
       source: 'Anthropic', sourceType: 'media', category: 'ai',
       url: 'https://www.anthropic.com/news/claude-opus-4-7',
-      image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=450&fit=crop&auto=format&q=80',
+      image: null,
       publishedAt: `${Y}T22:00:00+09:00`,
       tags: ['Claude', 'LLM', '要約']
     },
@@ -83,7 +83,7 @@
       pickerComment: 'PMaxはブラックボックスだった部分にようやく透明性が出てきた。特にBtoBはブランドKWの混在でCPAが歪みやすいので、この機能でROAS改善の根拠を示しやすくなる。',
       source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
       url: 'https://webtan.impress.co.jp/n/2026/03/06/52272',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop&auto=format&q=80',
+      image: null,
       publishedAt: `${Y}T08:30:00+09:00`,
       tags: ['広告', 'PMax', 'Google']
     },
@@ -96,7 +96,7 @@
       pickerComment: '動画広告の伸びはショート動画が牽引。採用マーケでは30秒以内の「社員の1日」系コンテンツがCPV最安で成果が出ている企業が多い。',
       source: '電通', sourceType: 'media', category: 'market',
       url: 'https://www.dentsu.co.jp/news/release/2026/0305-011003.html',
-      image: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&h=450&fit=crop&auto=format&q=80',
+      image: null,
       publishedAt: `${Y}T10:00:00+09:00`,
       tags: ['広告費', '日本', '統計']
     },
@@ -109,7 +109,7 @@
       pickerComment: 'UID2.0はメールアドレスベースなので、会員登録フローを持つ採用サイトとは相性が良い。自社の1st Partyデータ活用戦略と合わせて検討する価値がある。',
       source: 'AdExchanger', sourceType: 'media', category: 'market',
       url: 'https://markezine.jp/article/detail/50061',
-      image: 'https://images.unsplash.com/photo-1563986768609-322da13575f2?w=800&h=450&fit=crop&auto=format&q=80',
+      image: null,
       publishedAt: `${Y}T07:50:00+09:00`,
       tags: ['Cookieless', 'AdTech']
     },
@@ -122,7 +122,7 @@
       pickerComment: 'MA各社がAI件名最適化を投入中。設定ONだけで効果が出るので、使わない理由がない。ただし日本語の件名最適化精度は英語より低い傾向があるので、最初の数回は結果を注視すべき。',
       source: 'Adobe Marketo Engage', sourceType: 'media', category: 'marketing',
       url: 'https://business.adobe.com/jp/blog/the-latest/generative-ai-innovations-in-adobe-marketo-engage-help-scale-marketer-productivity-and-customer-personalization',
-      image: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=800&h=450&fit=crop&auto=format&q=80',
+      image: null,
       publishedAt: `${Y}T11:05:00+09:00`,
       tags: ['MA', 'メール', 'AI']
     },
@@ -135,7 +135,7 @@
       pickerComment: '「ブランドボイス制約」はエンタープライズ向けAI利用の大きなペインポイントを解消する。採用広報でAI生成テキストを使っている企業は導入検討の価値あり。',
       source: 'OpenAI', sourceType: 'media', category: 'ai',
       url: 'https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/',
-      image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&h=450&fit=crop&auto=format&q=80',
+      image: null,
       publishedAt: `${Y}T20:15:00+09:00`,
       tags: ['GPT-5', 'API', 'ブランドガバナンス']
     },
@@ -148,7 +148,7 @@
       pickerComment: 'TikTok検索は「〇〇 転職」で実際に使われ始めている。新卒採用でTikTokを活用している企業は検索広告も試す価値がある。CPCはまだGoogleより安い。',
       source: 'TikTok for Business', sourceType: 'media', category: 'marketing',
       url: 'https://ads.tiktok.com/business/en-US/blog/introducing-search-ads-campaign',
-      image: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?w=800&h=450&fit=crop&auto=format&q=80',
+      image: null,
       publishedAt: `${Y}T13:00:00+09:00`,
       tags: ['SNS', '検索広告']
     },
@@ -161,7 +161,7 @@
       pickerComment: '商談の文字起こしをそのままコンテンツマーケのネタ帳にする発想が重要。「お客様がよく使うフレーズ」をLP・広告コピーに反映すると、共感率が上がる。',
       source: 'HubSpot', sourceType: 'media', category: 'marketing',
       url: 'https://blog.hubspot.com/marketing/ai-email-marketing',
-      image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=450&fit=crop&auto=format&q=80',
+      image: null,
       publishedAt: `${Y}T15:20:00+09:00`,
       tags: ['CRM', 'セールス']
     }
@@ -462,13 +462,18 @@
         : escapeHtml(n.title);
       return `
       <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" aria-label="${escapeHtml(n.title)}">
-        <div class="top-hero${imgSrc ? '' : ' img-fallback'}">
-          ${imgSrc ? `<img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}">` : ''}
+        ${imgSrc ? `
+        <div class="top-hero">
+          <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}">
           <div class="top-hero-overlay">
             <span class="hero-chip ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
             <span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}</span>
           </div>
-        </div>
+        </div>` : `
+        <div class="top-header-bar ${'cat-' + cat}">
+          <span class="hero-chip ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
+          <span class="top-header-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}</span>
+        </div>`}
         <div class="top-content">
           <h2 class="top-title">${titleHtml}</h2>
           <p class="top-summary">${escapeHtml(n.summary)}</p>
@@ -517,10 +522,11 @@
       const imgSrc = pickImage(n);
       const hasDetail = !!(n.whyItMatters || n.actionItem || n.pickerComment);
       return `
-        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          <div class="brief-card-thumb${imgSrc ? '' : ' img-fallback'}">
-            ${imgSrc ? `<img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}">` : ''}
-          </div>
+        <div class="brief-card${isRead ? ' read' : ''}${imgSrc ? '' : ' no-img'}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+          ${imgSrc ? `
+          <div class="brief-card-thumb">
+            <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}">
+          </div>` : ''}
           <div class="brief-card-content">
             <div class="brief-card-head">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
@@ -614,7 +620,7 @@
       const imgSrc = pickImage(n);
       return `
         <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          <div class="fyi-thumb${imgSrc ? '' : ' img-fallback'}">${imgSrc ? `<img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}">` : ''}</div>
+          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-accent ${'cat-' + cat}"></div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
