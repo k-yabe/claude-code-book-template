@@ -1199,12 +1199,21 @@
     // 母数は NEWS_DATA 全件（MORE のフィルタで分母が変動しないように）
     const total = NEWS_DATA.length;
     const read  = NEWS_DATA.filter(n => state.read.has(n.id)).length;
+    const unread = total - read;
     const txt = document.getElementById('progress-read');
     const tot = document.getElementById('progress-total');
     const fill = document.getElementById('progress-fill');
     if (txt) txt.textContent = read;
     if (tot) tot.textContent = total;
     if (fill) fill.style.width = (total ? (read / total * 100) : 0) + '%';
+    // 「次の未読」ボタンに残り数を表示
+    const btnNext = document.getElementById('btn-next-unread');
+    if (btnNext) {
+      btnNext.textContent = unread > 0 ? `↓ 未読 ${unread}` : '✓ 全て読了';
+      btnNext.disabled = unread === 0;
+    }
+    const btnAll = document.getElementById('btn-all-read');
+    if (btnAll) btnAll.disabled = unread === 0;
   }
   function jumpToNextUnread() {
     const items = getNavItems();
