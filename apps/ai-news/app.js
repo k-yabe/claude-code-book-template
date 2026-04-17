@@ -223,11 +223,48 @@
 
   /* ────────── ② Xハイライト（生成AIトレンド収集） ──────────
      目的: Xで話題の生成AI関連ポストを収集し、マーケ実務に活かせるトレンドを提示する。
-     ※ 実ツイートURL が無い投稿は「本物のポスト」として提示できないため、このシードは空配列。
+     ※ シードに入れるのは実在が確認できた本物のポストのみ（URL をクリックして現物が読める状態）。
        scraper が X API 等で実ツイートを取得したら news.json の `xHighlights` に入れ、
        loadRemote() 経由で上書きされる。URL 無しのアイテムは renderX() で除外される。
   */
-  let X_HIGHLIGHTS = [];
+  let X_HIGHLIGHTS = [
+    {
+      id: 'x1',
+      author: '深津 貴之 / THE GUILD',
+      handle: '@fladdict',
+      avatar: 'https://unavatar.io/x/fladdict',
+      text: 'AI時代の勝負の仕方は、「生成AIで勝負しないことだ」という話をした。たとえば僕は、「生成AIの実装者」としては世界上位1%に入れない。ここは過当競争すぎる。でも僕は「生成AI利活用にメッチャ詳しいサービスデザナ、UXデザイナ」なら世界上位1%に入れる。ブルーオーシャン。',
+      tag: 'AI戦略',
+      url: 'https://x.com/fladdict/status/1894169837339119800'
+    },
+    {
+      id: 'x2',
+      author: '深津 貴之 / THE GUILD',
+      handle: '@fladdict',
+      avatar: 'https://unavatar.io/x/fladdict',
+      text: '2025年としては正しい意見なのだけど、2027年ぐらいのAIはそのクソ負債を解決してくれる…と投機運用も一定アリだと考えるす',
+      tag: 'AI技術負債',
+      url: 'https://x.com/fladdict/status/1955257798364635570'
+    },
+    {
+      id: 'x3',
+      author: 'Kaz Ataka / 安宅和人',
+      handle: '@kaz_ataka',
+      avatar: 'https://unavatar.io/x/kaz_ataka',
+      text: 'すべてのブラウザはAI化することは確実だと思っていたが、これはなかなかの代物だな。。この設計にもJony Iveは関わっているのだろうか。LLMのヘビーユーザの場合、現時点でもすでにそうだが、Webへのアクセスは多くがAI bot経由になる時代になりそうだ。',
+      tag: 'AIブラウザ',
+      url: 'https://x.com/kaz_ataka/status/1980753665540632636'
+    },
+    {
+      id: 'x4',
+      author: 'Kaz Ataka / 安宅和人',
+      handle: '@kaz_ataka',
+      avatar: 'https://unavatar.io/x/kaz_ataka',
+      text: '生成AIに向かい合う際に求められるプロ側のスキルと、一人ひとりの心と知覚の育成について。生成AIを使えるかどうかはイシューではない。',
+      tag: '生成AIスキル',
+      url: 'https://x.com/kaz_ataka/status/1736184101693215195'
+    }
+  ];
 
   /* ────────── ③ メタ ──────────  */
   const CATEGORIES = [
