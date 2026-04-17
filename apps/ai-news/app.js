@@ -801,6 +801,7 @@
           </div>`}
           <div class="brief-card-content">
             <div class="brief-card-head">
+              <span class="brief-card-num">${String(i + 1).padStart(2, '0')}</span>
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               <span class="meta-source">${escapeHtml(n.source)}</span>
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
