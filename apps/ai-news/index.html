@@ -10,6 +10,48 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <style>
+    /* ── スクロール進捗バー ── */
+    .scroll-progress {
+      position: fixed; top: 0; left: 0; z-index: 9999;
+      width: 0; height: 3px;
+      background: linear-gradient(90deg, var(--gold), #00ffff);
+      transition: width 0.1s linear;
+      pointer-events: none;
+    }
+
+    /* ── トップに戻るボタン ── */
+    .back-to-top {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      width: 44px; height: 44px;
+      background: var(--navy); color: var(--gold);
+      border: none; cursor: pointer;
+      font-size: 1.1rem; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,31,51,0.25);
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .back-to-top.visible {
+      opacity: 1; transform: translateY(0);
+      pointer-events: auto;
+    }
+    .back-to-top:hover { background: var(--gold); color: var(--navy); }
+    @media (max-width: 600px) {
+      .back-to-top { bottom: 16px; right: 16px; width: 40px; height: 40px; }
+    }
+
+    /* ── 画像シマー（スケルトンローディング） ── */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .img-shimmer {
+      background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 37%, #e8e8e8 63%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+    }
+
     /* ── レイアウト全体 ── */
     body { background: #f5f5f5; }
     .news-shell {
@@ -236,7 +278,13 @@
       position: relative; width: 100%; aspect-ratio: 16 / 9;
       background: var(--navy); overflow: hidden;
     }
-    .top-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .top-hero img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 37%, #e8e8e8 63%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+    }
+    .top-hero img.loaded { animation: none; background: none; }
     .top-hero-overlay {
       position: absolute; left: 0; bottom: 0; right: 0;
       padding: var(--sp-6) var(--sp-5) var(--sp-4);
@@ -495,7 +543,13 @@
       flex-shrink: 0; width: 140px; height: 90px;
       overflow: hidden;
     }
-    .fyi-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .fyi-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+      background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 37%, #e8e8e8 63%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+    }
+    .fyi-thumb img.loaded { animation: none; background: none; }
     /* ── FYI: 画像なし時のソースロゴビジュアル ── */
     .fyi-visual {
       flex-shrink: 0; width: 100px; height: 90px;
@@ -722,6 +776,25 @@
     .cmd-btn#btn-listen.playing {
       background: var(--navy); color: var(--gold); border-color: var(--navy);
     }
+    .cmd-btn#btn-listen.ready {
+      background: rgba(255,184,28,0.08); border-color: var(--gold); color: var(--navy);
+    }
+
+    /* ── 既読プログレスバー ── */
+    .read-progress {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.6rem; font-weight: 700; color: var(--text-muted);
+      letter-spacing: 0.03em;
+    }
+    .read-progress-bar {
+      width: 60px; height: 4px; background: #e8e8e8;
+      position: relative; overflow: hidden;
+    }
+    .read-progress-fill {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: var(--gold); width: 0;
+      transition: width 0.4s ease;
+    }
 
     /* ── トレンドバー ── */
     .trend-bar {
@@ -782,7 +855,13 @@
       background: var(--navy); overflow: hidden;
       position: relative;
     }
-    .brief-card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .brief-card-thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 37%, #e8e8e8 63%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+    }
+    .brief-card-thumb img.loaded { animation: none; background: none; }
     .brief-card-thumb::after {
       content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
       background: linear-gradient(to top, rgba(0,31,51,0.3), transparent);
@@ -948,6 +1027,7 @@
   </style>
 </head>
 <body>
+  <div class="scroll-progress" id="scroll-progress"></div>
   <nav class="navbar">
     <div class="navbar-brand">
       <a class="back-btn" href="../../">← アプリ一覧へ</a>
@@ -997,6 +1077,10 @@
         <button class="cmd-btn icon" id="btn-next-date" title="翌日" aria-label="翌日のブリーフ">▶</button>
       </div>
       <div class="cmd-actions">
+        <div class="read-progress">
+          <span><span id="progress-read">0</span>/<span id="progress-total">0</span></span>
+          <div class="read-progress-bar"><div class="read-progress-fill" id="progress-fill"></div></div>
+        </div>
         <button class="cmd-btn" id="btn-today" style="display:none;">今日に戻る</button>
         <button class="cmd-btn" id="btn-listen" title="ニュースを音声で聴く" aria-label="音声で聴く">🔊 聴く（約5分）</button>
         <button class="cmd-btn speed-btn" id="btn-speed" title="再生速度" aria-label="再生速度">1x</button>
@@ -1077,6 +1161,8 @@
     </div>
   </div>
 
+  <button class="back-to-top" id="back-to-top" aria-label="トップに戻る">↑</button>
+
   <script src="../../assets/onboarding.js"></script>
   <script src="./app.js"></script>
   <script>
@@ -1090,9 +1176,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'タグ/カテゴリから関連画像を自動選択。OGPが無くても記事内容にマッチした画像を必ず表示' },
-        { date: '04/17', text: '音声倍速ボタン（1x〜2x）。TTSをshimmerボイス+人間らしい話し方instructionsに更新。リンクはGoogle検索にフォールバック' },
-        { date: '04/17', text: '「詳しく読む」を大幅拡張：影響/アクション/専門家視点/情報源/公開日時/読了目安/タグを全て表示' }
+        { date: '04/17', text: 'スクロール進捗バー・既読プログレス・トップへ戻るボタン・画像スケルトンローディングを追加' },
+        { date: '04/17', text: '注目ニュースカードに「マーケへの影響」と「推奨アクション」のプレビューを表示。Xハイライトからシードデータ表記を削除' },
+        { date: '04/17', text: 'タグ/カテゴリから関連画像を自動選択。音声倍速（1x〜2x）。「詳しく読む」に専門家視点/メタ情報を追加' }
       ]
     });
   </script>

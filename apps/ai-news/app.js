@@ -329,6 +329,7 @@
   }
   /** img onerror: 壊れた画像を非表示にし、親にフォールバッククラスを付与 */
   const IMG_ONERROR = "this.onerror=null;this.style.display='none';this.parentElement.classList.add('img-fallback');";
+  const IMG_ONLOAD = "this.classList.add('loaded');";
 
   /**
    * テーマ別フォールバック画像（Unsplash、固定ID = CORSフリー）。
@@ -464,21 +465,21 @@
         if (topVisual) {
           const hero = document.createElement('div');
           hero.className = 'top-hero';
-          hero.innerHTML = `<img src="${img}" alt="" loading="lazy" onerror="${IMG_ONERROR}"><div class="top-hero-overlay"><span class="hero-chip cat-${n.category}">${escapeHtml(CAT_LABEL[n.category] || n.category)}</span><span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}</span></div>`;
+          hero.innerHTML = `<img src="${img}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"><div class="top-hero-overlay"><span class="hero-chip cat-${n.category}">${escapeHtml(CAT_LABEL[n.category] || n.category)}</span><span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}</span></div>`;
           topVisual.replaceWith(hero);
         }
         const briefVisual = card.querySelector('.brief-card-visual');
         if (briefVisual) {
           const thumb = document.createElement('div');
           thumb.className = 'brief-card-thumb';
-          thumb.innerHTML = `<img src="${img}" alt="" loading="lazy" onerror="${IMG_ONERROR}">`;
+          thumb.innerHTML = `<img src="${img}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">`;
           briefVisual.replaceWith(thumb);
         }
         const fyiVisual = card.querySelector('.fyi-visual');
         if (fyiVisual) {
           const thumb = document.createElement('div');
           thumb.className = 'fyi-thumb';
-          thumb.innerHTML = `<img src="${img}" alt="" loading="lazy" onerror="${IMG_ONERROR}">`;
+          thumb.innerHTML = `<img src="${img}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">`;
           fyiVisual.replaceWith(thumb);
         }
       });
@@ -619,7 +620,7 @@
       <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" aria-label="${escapeHtml(n.title)}">
         ${imgSrc ? `
         <div class="top-hero">
-          <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}">
+          <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
           <div class="top-hero-overlay">
             <span class="hero-chip ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
             <span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}</span>
@@ -701,7 +702,7 @@
         <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           ${imgSrc ? `
           <div class="brief-card-thumb">
-            <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}">
+            <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
           </div>` : `
           <div class="brief-card-visual ${'cat-' + cat}">
             <div class="brief-visual-bg">${escapeHtml(CAT_LABEL[cat] || cat).toUpperCase()}</div>
@@ -718,6 +719,8 @@
             </div>
             <div class="brief-card-title">${escapeHtml(n.title)}</div>
             <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
+            ${n.whyItMatters ? `<div class="brief-card-impact">⚡ ${escapeHtml(n.whyItMatters)}</div>` : ''}
+            ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
             ${hasDetail || (n.tags && n.tags.length) ? `
             <details class="intel-details brief">
               <summary class="intel-toggle">▼ 詳しく読む</summary>
@@ -811,7 +814,7 @@
       const fInitials = (n.source || '').substring(0, 2).toUpperCase();
       return `
         <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}">${fFavicon ? `<img class="source-logo-xs" src="${fFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-xs">${escapeHtml(fInitials)}</span>`}</div>`}
+          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}">${fFavicon ? `<img class="source-logo-xs" src="${fFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-xs">${escapeHtml(fInitials)}</span>`}</div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
@@ -881,7 +884,7 @@
         <div class="x-text">${escapeHtml(x.text)}</div>
         <div class="x-foot">
           <span class="x-foot-tag">${escapeHtml(x.tag)}</span>
-          ${hasUrl ? '<span>↗ Xで開く</span>' : '<span class="x-seed-note">シードデータ</span>'}
+          ${hasUrl ? '<span>↗ Xで開く</span>' : ''}
         </div>
       </${tag}>`;
     }).join('');
@@ -1000,7 +1003,7 @@
       upd.textContent = fmtBriefDate(dataMeta.generatedFor || dataMeta.updatedAt);
       upd.classList.remove('seed');
     } else {
-      upd.textContent = fmtBriefDate(Y) + '（シードデータ）';
+      upd.textContent = fmtBriefDate(Y) + '（サンプル）';
       upd.classList.add('seed');
     }
   }
@@ -1616,9 +1619,36 @@
     }
     wireUp(_moreRef);
   }
+  /* ────────── ⑬ スクロール進捗 + トップへ戻る ──────────  */
+  function wireScrollUI() {
+    const progressBar = document.getElementById('scroll-progress');
+    const backToTop = document.getElementById('back-to-top');
+    let ticking = false;
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = docHeight > 0 ? Math.min(scrollTop / docHeight * 100, 100) : 0;
+        if (progressBar) progressBar.style.width = pct + '%';
+        if (backToTop) backToTop.classList.toggle('visible', scrollTop > 600);
+        ticking = false;
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    if (backToTop) {
+      backToTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => { init(); wireScrollUI(); });
   } else {
     init();
+    wireScrollUI();
   }
 })();
