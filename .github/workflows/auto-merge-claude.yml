@@ -23,6 +23,11 @@ jobs:
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create or get PR
         id: pr
         env:
@@ -30,8 +35,9 @@ jobs:
           BRANCH: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
         run: |
-          set -e
+          set +e
           OWNER=${REPO%%/*}
+          mkdir -p .debug
           # 既存の open PR を確認
           EXISTING=$(curl -sfL \
             -H "Authorization: Bearer $TOKEN" \
@@ -41,24 +47,40 @@ jobs:
           if [ -n "$EXISTING" ]; then
             echo "Existing PR #$EXISTING"
             echo "pr_number=$EXISTING" >> "$GITHUB_OUTPUT"
+            echo "EXISTING PR #$EXISTING found" > .debug/pr.log
             exit 0
           fi
-          # 新規作成
-          RESP=$(curl -sS -w "\n%{http_code}" -X POST \
+          # 新規作成（詳細ログ付）
+          RESP=$(curl -sS -D .debug/headers.txt -w "\n%{http_code}" -X POST \
             -H "Authorization: Bearer $TOKEN" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${REPO}/pulls" \
             -d "$(jq -n --arg t "auto: merge $BRANCH to main" --arg h "$BRANCH" '{title:$t, head:$h, base:"main", body:"Automated PR from Claude Code session."}')")
           STATUS=$(echo "$RESP" | tail -n1)
           BODY=$(echo "$RESP" | sed '$d')
-          echo "HTTP $STATUS"
-          echo "$BODY" | head -c 500
+          echo "HTTP $STATUS" | tee .debug/pr.log
+          echo "$BODY" | tee -a .debug/pr.log
+          echo "---HEADERS---" >> .debug/pr.log
+          cat .debug/headers.txt >> .debug/pr.log
           if [ "$STATUS" != "201" ]; then
-            echo "::error::PR作成失敗 (HTTP $STATUS). Repo Settings → Actions → Workflow permissions を Read and write に設定してください。"
-            exit 1
+            echo "::error::PR作成失敗 (HTTP $STATUS)"
+            echo "pr_number=FAIL" >> "$GITHUB_OUTPUT"
+          else
+            NUM=$(echo "$BODY" | jq -r '.number')
+            echo "pr_number=$NUM" >> "$GITHUB_OUTPUT"
           fi
-          NUM=$(echo "$BODY" | jq -r '.number')
-          echo "pr_number=$NUM" >> "$GITHUB_OUTPUT"
+
+      - name: Upload debug log on failure
+        if: steps.pr.outputs.pr_number == 'FAIL'
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .debug/
+          git commit -m "debug: auto-merge workflow output [skip ci]" || true
+          git push origin HEAD:${BRANCH} || true
+          exit 1
 
       - name: Merge PR (squash)
         env:
