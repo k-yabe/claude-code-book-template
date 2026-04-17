@@ -268,6 +268,15 @@
       .sec-title { font-size: 1.7rem; }
       .sec-sub { font-size: 0.78rem; }
     }
+    /* セクションアイコンにホバー時の微かな動き */
+    .sec-icon { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .sec-head:hover .sec-icon {
+      transform: scale(1.06) rotate(-3deg);
+      box-shadow: 0 6px 18px rgba(0,31,51,0.2);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sec-head:hover .sec-icon { transform: none; }
+    }
 
     /* ── 🔥 MUST-KNOW コンテナ ── */
     #must-know {
@@ -1263,7 +1272,12 @@
       font-size: 1.08rem; font-weight: 900;
       color: var(--navy); line-height: 1.4; margin-bottom: 8px;
       letter-spacing: -0.01em;
+      transition: color 0.2s ease;
     }
+    .brief-card:hover .brief-card-title { color: #003f66; }
+    /* 番号バッジのホバー連動 */
+    .brief-card .brief-card-num { transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease; }
+    .brief-card:hover .brief-card-num { background: var(--gold); color: var(--navy); transform: scale(1.1); }
     .brief-card-summary {
       font-size: 0.78rem; color: var(--text-secondary);
       line-height: 1.6; margin-bottom: var(--sp-2); flex: 1;
@@ -1534,9 +1548,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: '一瞥でインパクト大の「#1 TOP STORY」リボンを重要ニュースの筆頭カードに付与。アニメーション付きで視覚的階層を強化' },
-        { date: '04/17', text: 'ヒーロースタッツを3→4カラムに拡張：記事件数に「重要/注目/その他」の内訳、既読進捗ゲージ（X/Y + プログレスバー）を追加してダッシュボード感UP' },
-        { date: '04/17', text: '3行サマリーをグラデーション＋背景ウォーターマーク＋光るゴールド数字で装飾強化。カード走査ライトエフェクトも追加' }
+        { date: '04/17', text: '注目ニュースに「01/02/03...」の番号バッジを表示。ホバーでゴールドに切り替わる連動アニメーション付き' },
+        { date: '04/17', text: '「#1 TOP STORY」リボン＋ヒーロースタッツ4カラム化（件数内訳＋既読ゲージ）＋3行サマリーのグラデーション装飾＋カード走査ライトエフェクト。ダッシュボード感を大幅強化' },
+        { date: '04/17', text: '重要ニュースの「なぜ重要か／何をすべきか」を常時インライン表示。注目ニュースと同一レイヤー' }
       ]
     });
   </script>
