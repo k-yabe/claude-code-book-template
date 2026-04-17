@@ -961,6 +961,30 @@
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
 
+    /* ── 重要ニュース: インラインで「なぜ重要か / 何をすべきか」を露出 ── */
+    .top-impact, .top-action {
+      display: flex; flex-direction: column; gap: 4px;
+      padding: 10px 14px; margin-bottom: var(--sp-3);
+      line-height: 1.6;
+    }
+    .top-impact {
+      background: rgba(0,31,51,0.04);
+      border-left: 4px solid var(--navy);
+    }
+    .top-action {
+      background: rgba(255,184,28,0.08);
+      border-left: 4px solid var(--gold);
+    }
+    .top-impact-label, .top-action-label {
+      font-size: 0.72rem; font-weight: 900; letter-spacing: 0.04em;
+    }
+    .top-impact-label { color: var(--navy); }
+    .top-action-label { color: #7a5500; }
+    .top-impact-text, .top-action-text {
+      font-size: 0.88rem; font-weight: 600;
+      color: var(--navy);
+    }
+
     /* ── カテゴリ別ホバーアクセント ── */
     .brief-card[data-cat="ai"]:hover { box-shadow: 0 14px 36px rgba(0,31,51,0.18), inset 3px 0 0 #00ffff; }
     .brief-card[data-cat="marketing"]:hover { box-shadow: 0 14px 36px rgba(0,31,51,0.18), inset 3px 0 0 var(--gold); }
@@ -1428,9 +1452,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'PC幅（≥1280px）に「セクションナビ」を追加。右端fixedで重要/注目/その他/𝕏 の4リンク、現在表示中のセクションはゴールドでハイライト。縦に長い記事一覧での回遊性UP' },
-        { date: '04/17', text: 'PC幅の細部ポリッシュ：その他ニュースのサムネイル 140→200px、Xカードに min-height 180pxでカード整列、情報密度とバランスを微調整' },
-        { date: '04/17', text: 'PC幅1200pxを活かした全面UIリビルド：重要ニュースを2列、3行サマリーを3列、𝕏を4列にグリッド化' }
+        { date: '04/17', text: '重要ニュースの「なぜ重要か／何をすべきか」を常時インライン表示。クリックせずに判断材料が見える設計に（注目ニュースと一貫）。「詳しく読む」は専門家の視点・タグ・元記事リンクに絞る' },
+        { date: '04/17', text: 'PC幅（≥1280px）に「セクションナビ」を追加。右端fixedで重要/注目/その他/𝕏 の4リンク、現在表示中セクションはゴールドハイライト' },
+        { date: '04/17', text: 'PC幅1200pxを活かした全面UIリビルド：重要を2列、3行サマリーを3列、𝕏を4列にグリッド化。サムネサイズや密度もPC用にチューニング' }
       ]
     });
   </script>

@@ -690,7 +690,6 @@
       const cat = n.category;
       const hasUrl = !!n.url;
       const imgSrc = pickImage(n);
-      const hasDetail = !!(n.whyItMatters || n.actionItem || n.pickerComment);
       const titleHtml = hasUrl
         ? `<a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a>`
         : escapeHtml(n.title);
@@ -725,13 +724,13 @@
         <div class="top-content">
           <h2 class="top-title">${titleHtml}</h2>
           <p class="top-summary">${escapeHtml(n.summary)}</p>
-          ${hasDetail || (n.tags && n.tags.length) ? `
+          ${n.whyItMatters ? `<div class="top-impact"><span class="top-impact-label">⚡ なぜ重要か</span><span class="top-impact-text">${escapeHtml(n.whyItMatters)}</span></div>` : ''}
+          ${n.actionItem ? `<div class="top-action"><span class="top-action-label">🎯 何をすべきか</span><span class="top-action-text">${escapeHtml(n.actionItem)}</span></div>` : ''}
+          ${n.pickerComment || (n.tags && n.tags.length) ? `
           <details class="intel-details">
-            <summary class="intel-toggle">▼ 詳しく読む</summary>
+            <summary class="intel-toggle">▼ 専門家の視点を読む</summary>
             <div class="intel-body">
-              ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label"><span class="intel-step">1</span>なぜ重要か</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
-              ${n.actionItem ? `<div class="intel-block action"><div class="intel-label"><span class="intel-step">2</span>何をすべきか</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
-              ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label"><span class="intel-step light">3</span>専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
+              ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
               ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
               ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(n.source)}） →</a>` : ''}
             </div>
