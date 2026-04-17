@@ -327,6 +327,53 @@
   }
   /** img onerror: 壊れた画像を非表示にする */
   const IMG_ONERROR = "this.onerror=null;this.parentElement.style.display='none';";
+
+  /** カテゴリ別のビジュアル（placeholder画像に使用） */
+  const CAT_VISUAL = {
+    marketing: { accent: '#ffb81c', icon: '📊', label: 'MARKETING' },
+    market:    { accent: '#00ffff', icon: '🏢', label: 'INDUSTRY' },
+    ai:        { accent: '#ff6b9d', icon: '🤖', label: 'AI' },
+  };
+
+  /** 記事ごとにユニークで美しい SVG プレースホルダー画像を生成（NewsPicks/SmartNews風） */
+  function placeholderImage(article) {
+    const v = CAT_VISUAL[article.category] || CAT_VISUAL.ai;
+    // 記事IDから決定的な hue を算出
+    let h = 0;
+    const s = (article.id || article.title || 'x');
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    const hue = h % 360;
+    const grad1 = `hsl(${hue}, 55%, 22%)`;
+    const grad2 = `hsl(${(hue + 40) % 360}, 45%, 12%)`;
+    const accent = v.accent;
+    // 決定的な位置で装飾要素を配置
+    const cx1 = 30 + (h % 40);
+    const cy1 = 30 + ((h >> 3) % 30);
+    const r1 = 120 + ((h >> 5) % 60);
+    const cx2 = 280 + ((h >> 7) % 60);
+    const cy2 = 140 + ((h >> 9) % 40);
+    const r2 = 80 + ((h >> 11) % 40);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="g${h}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${grad1}"/>
+          <stop offset="100%" stop-color="${grad2}"/>
+        </linearGradient>
+      </defs>
+      <rect width="400" height="225" fill="url(#g${h})"/>
+      <circle cx="${cx1}" cy="${cy1}" r="${r1}" fill="${accent}" opacity="0.12"/>
+      <circle cx="${cx2}" cy="${cy2}" r="${r2}" fill="${accent}" opacity="0.08"/>
+      <text x="24" y="200" font-family="-apple-system, system-ui, sans-serif" font-size="11" font-weight="700" fill="${accent}" letter-spacing="2">${v.label}</text>
+      <text x="370" y="200" text-anchor="end" font-family="-apple-system, system-ui, sans-serif" font-size="10" fill="rgba(255,255,255,0.5)">${String(article.source || '').slice(0, 20)}</text>
+    </svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+
+  /** 安全画像があればそれを、なければ SVG プレースホルダーを返す */
+  function pickImage(article) {
+    const safe = safeImgUrl(article.image);
+    return safe || placeholderImage(article);
+  }
   function toggleRead(id, el) {
     if (state.read.has(id)) {
       state.read.delete(id);
@@ -450,38 +497,40 @@
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
       const hasUrl = !!n.url;
-      const safeImg = safeImgUrl(n.image);
-      const thumbHtml = safeImg
-        ? `<div class="top-thumb"><img src="${escapeHtml(safeImg)}" alt="" loading="lazy" onerror="${IMG_ONERROR}"></div>`
-        : `<div class="top-thumb"><span class="top-thumb-placeholder">${escapeHtml(n.source)}</span></div>`;
+      const imgSrc = pickImage(n);
+      const hasDetail = !!(n.whyItMatters || n.actionItem || n.pickerComment);
       const titleHtml = hasUrl
         ? `<a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a>`
         : escapeHtml(n.title);
       return `
       <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" aria-label="${escapeHtml(n.title)}">
-        <div class="top-meta">
-          <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-          <span class="meta-source">${escapeHtml(n.source)}</span>
-          <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
-        </div>
-        <div class="top-body">
-          <div class="top-body-text">
-            <h2 class="top-title">${titleHtml}</h2>
-            <p class="top-summary">${escapeHtml(n.summary)}</p>
+        <div class="top-hero">
+          <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}">
+          <div class="top-hero-overlay">
+            <span class="hero-chip ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
           </div>
-          ${thumbHtml}
         </div>
-        ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label">マーケへの影響</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
-        ${n.actionItem ? `<div class="intel-block action"><div class="intel-label">💡 推奨アクション</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
-        ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💬</span><span class="picker-text">${escapeHtml(n.pickerComment)}</span></div>` : ''}
-        <div class="top-foot">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            ${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ')}
+        <div class="top-content">
+          <div class="top-meta">
+            <span class="meta-source">${escapeHtml(n.source)}</span>
+            <span class="meta-dot">·</span>
+            <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読に戻す' : '✓ 既読にする'}</button>
+          <h2 class="top-title">${titleHtml}</h2>
+          <p class="top-summary">${escapeHtml(n.summary)}</p>
+          ${hasDetail ? `
+          <details class="intel-details">
+            <summary class="intel-toggle">詳しく見る</summary>
+            <div class="intel-body">
+              ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label">マーケへの影響</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
+              ${n.actionItem ? `<div class="intel-block action"><div class="intel-label">💡 推奨アクション</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
+              ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💬</span><span class="picker-text">${escapeHtml(n.pickerComment)}</span></div>` : ''}
+            </div>
+          </details>` : ''}
+          <div class="top-foot">
+            <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読' : '✓ 既読'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む →</a>` : ''}
+            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">記事を開く →</a>` : ''}
           </div>
         </div>
       </article>`;
@@ -511,32 +560,34 @@
       const isFav  = state.fav.has(n.id);
       const cat = n.category;
       const hasUrl = !!n.url;
-      const safeImg = safeImgUrl(n.image);
-      const briefThumb = safeImg
-        ? `<div class="brief-card-thumb"><img src="${escapeHtml(safeImg)}" alt="" loading="lazy" onerror="${IMG_ONERROR}"></div>`
-        : `<div class="brief-card-thumb"><span class="brief-card-thumb-placeholder">${escapeHtml(n.source)}</span></div>`;
+      const imgSrc = pickImage(n);
+      const hasDetail = !!(n.whyItMatters || n.actionItem || n.pickerComment);
       return `
         <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          ${briefThumb}
+          <div class="brief-card-thumb">
+            <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}">
+          </div>
           <div class="brief-card-content">
             <div class="brief-card-head">
-              <span class="brief-card-num">${String(i+1).padStart(2,'0')}</span>
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               <span class="meta-source">${escapeHtml(n.source)}</span>
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
             </div>
             <div class="brief-card-title">${escapeHtml(n.title)}</div>
             <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
-            ${n.whyItMatters ? `<div class="brief-card-impact">⚡ ${escapeHtml(n.whyItMatters)}</div>` : ''}
-            ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
-            ${n.pickerComment ? `<div class="picker-comment brief"><span class="picker-icon">💬</span><span class="picker-text">${escapeHtml(n.pickerComment)}</span></div>` : ''}
-            <div class="brief-card-foot">
-              <div class="brief-card-tags">${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
-                <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-                ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
+            ${hasDetail ? `
+            <details class="intel-details brief">
+              <summary class="intel-toggle">詳しく見る</summary>
+              <div class="intel-body">
+                ${n.whyItMatters ? `<div class="brief-card-impact">⚡ ${escapeHtml(n.whyItMatters)}</div>` : ''}
+                ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
+                ${n.pickerComment ? `<div class="picker-comment brief"><span class="picker-icon">💬</span><span class="picker-text">${escapeHtml(n.pickerComment)}</span></div>` : ''}
               </div>
+            </details>` : ''}
+            <div class="brief-card-foot">
+              <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
+              <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
+              ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">記事を開く →</a>` : ''}
             </div>
           </div>
         </div>`;
@@ -606,13 +657,10 @@
       const isFav = state.fav.has(n.id);
       const cat = n.category;
       const hasUrl = !!n.url;
-      const safeImg = safeImgUrl(n.image);
-      const imgHtml = safeImg
-        ? `<div class="fyi-thumb"><img src="${escapeHtml(safeImg)}" alt="" loading="lazy" onerror="${IMG_ONERROR}"></div>`
-        : `<div class="fyi-thumb fyi-thumb-ph" data-cat="${cat}"><span class="fyi-thumb-label">${escapeHtml(n.source)}</span></div>`;
+      const imgSrc = pickImage(n);
       return `
         <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          ${imgHtml}
+          <div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}"></div>
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
@@ -1132,22 +1180,67 @@
     } catch { return null; }
   }
 
+  // ── 事前生成（バックグラウンドプリロード）──
+  // アプリ起動時に自動的にダイジェスト＋音声を生成しておき、ユーザーがクリックしたら即再生
+  let preloadPromise = null;
+  let preloadedAudioUrl = null;
+  let preloadedDigest = null;
+
+  async function preloadDigestAudio() {
+    if (preloadPromise) return preloadPromise;
+    preloadPromise = (async () => {
+      const digest = await generateDigest();
+      if (!digest) return null;
+      preloadedDigest = digest;
+      const audioUrl = await tryOpenAITTS(digest);
+      if (audioUrl) {
+        preloadedAudioUrl = audioUrl;
+        // 準備完了バッジを表示
+        const btn = document.getElementById('btn-listen');
+        if (btn && !speechState.playing) {
+          btn.textContent = '▶ 今日のダイジェスト（準備完了）';
+          btn.classList.add('ready');
+        }
+      }
+      return audioUrl;
+    })();
+    return preloadPromise;
+  }
+
   async function startSpeech() {
     stopSpeech();
     speechState.playing = true;
-    setBtnState('⏳ ダイジェスト生成中…', true);
 
-    // Step 1: Claude でダイジェスト生成
-    const digest = await generateDigest();
+    // 事前生成済みなら即再生
+    if (preloadedAudioUrl) {
+      const audio = new Audio(preloadedAudioUrl);
+      speechState.audio = audio;
+      setBtnState('⏹ 停止', true);
+      audio.onended = () => stopSpeech();
+      audio.onerror = () => { fallbackWebSpeech((preloadedDigest || '').split(/[。\n]+/).filter(Boolean)); };
+      audio.play().catch(() => { fallbackWebSpeech((preloadedDigest || '').split(/[。\n]+/).filter(Boolean)); });
+      return;
+    }
+
+    setBtnState('⏳ ダイジェスト生成中…', true);
+    // プリロード進行中ならそれを待つ
+    if (preloadPromise) {
+      await preloadPromise;
+      if (!speechState.playing) return;
+      if (preloadedAudioUrl) return startSpeech();  // もう一度呼ぶと即再生ルートに入る
+    }
+
+    // まだ開始してない場合は即生成
+    const digest = preloadedDigest || await generateDigest();
     if (!speechState.playing) return;
 
     if (digest) {
-      // Step 2: OpenAI TTS で高品質音声化
       setBtnState('⏳ 音声変換中…', true);
       const audioUrl = await tryOpenAITTS(digest);
       if (!speechState.playing) return;
 
       if (audioUrl) {
+        preloadedAudioUrl = audioUrl;
         const audio = new Audio(audioUrl);
         speechState.audio = audio;
         setBtnState('⏹ 停止', true);
@@ -1156,10 +1249,8 @@
         audio.play().catch(() => { fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean)); });
         return;
       }
-      // TTS API 不可 → ダイジェストテキストをブラウザ読み上げ
       fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean));
     } else {
-      // ダイジェスト生成不可 → フォールバックスクリプトをブラウザ読み上げ
       fallbackWebSpeech(buildFallbackScript());
     }
   }
@@ -1197,6 +1288,14 @@
       if (speechState.playing) stopSpeech();
       else startSpeech();
     });
+    // 起動時にバックグラウンドで音声を事前生成（ネットワーク待機なしで即再生できる）
+    // ユーザー操作をブロックしないよう requestIdleCallback / setTimeout で遅延実行
+    const kickoff = () => { preloadDigestAudio().catch(() => {}); };
+    if (typeof requestIdleCallback === 'function') {
+      requestIdleCallback(kickoff, { timeout: 3000 });
+    } else {
+      setTimeout(kickoff, 1500);
+    }
   }
 
   /* ────────── ⑪c パーソナライズ（閲覧傾向ベース） ──────────  */

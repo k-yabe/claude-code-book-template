@@ -154,9 +154,11 @@ async function handleTTS(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'tts-1-hd',
-        voice: 'shimmer',
+        // より自然な日本語読み上げに gpt-4o-mini-tts を使用（instructions で話し方制御）
+        model: 'gpt-4o-mini-tts',
+        voice: 'sage',
         input: text,
+        instructions: '落ち着いたトーンで、朝の社内ラジオ番組のパーソナリティのように自然に日本語で読み上げてください。機械的にならず、適度な抑揚と間を入れて人間らしく話してください。句読点で自然にポーズを取り、英単語もカタカナ発音で違和感なく読んでください。',
         response_format: 'mp3',
         speed: 1.0,
       }),
