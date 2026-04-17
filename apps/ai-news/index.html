@@ -297,6 +297,19 @@
       font-size: 0.72rem; color: var(--text-muted); margin-left: 6px;
       font-weight: 600;
     }
+    /* セクション見出しの件数バッジ */
+    .sec-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 24px; height: 24px;
+      padding: 0 8px; margin-left: 8px;
+      background: var(--navy); color: var(--gold);
+      font-size: 0.78rem; font-weight: 900;
+      vertical-align: middle;
+      font-variant-numeric: tabular-nums;
+    }
+    @media (min-width: 1024px) {
+      .sec-count { min-width: 30px; height: 28px; font-size: 0.9rem; margin-left: 12px; }
+    }
     .sec-line { flex: 1; height: 2px; background: transparent; }
     /* PC はセクション見出しを少し大きめにして強弱を付ける */
     @media (min-width: 1024px) {
@@ -1530,7 +1543,7 @@
     <!-- 🔥 今すぐ押さえる (MUST-KNOW) -->
     <div class="sec-head" id="sec-must-know">
       <span class="sec-icon gold">🔥</span>
-      <span class="sec-title">重要ニュース</span>
+      <span class="sec-title">重要ニュース <span class="sec-count" id="count-must-know">0</span></span>
       <span class="sec-sub">必ず目を通すべきニュース</span>
       <span class="sec-line"></span>
     </div>
@@ -1539,7 +1552,7 @@
     <!-- ⚡ 今週チェック (THIS WEEK) -->
     <div class="sec-head" id="sec-this-week">
       <span class="sec-icon cyan">⚡</span>
-      <span class="sec-title">注目ニュース</span>
+      <span class="sec-title">注目ニュース <span class="sec-count" id="count-this-week">0</span></span>
       <span class="sec-sub">チェックしておきたい動き</span>
       <span class="sec-line"></span>
     </div>
@@ -1548,7 +1561,7 @@
     <!-- 📑 知っておけばOK (FYI) -->
     <div class="sec-head" id="sec-more">
       <span class="sec-icon">📑</span>
-      <span class="sec-title">その他のニュース</span>
+      <span class="sec-title">その他のニュース <span class="sec-count" id="count-more">0</span></span>
       <span class="sec-sub">余裕があれば目を通す</span>
       <span class="sec-line"></span>
     </div>
@@ -1624,9 +1637,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'トレンドバーを「🔥 HOT TOPICS」風にリデザイン。先頭（最トレンド）タグはゴールド背景で強調、ホバーで持ち上がるシャドウ、ゴールド左ボーダー付きパネル' },
-        { date: '04/17', text: 'ヒーロー「記事」スタッツを視覚的スタックバー（Gold/Cyan/White の3色）化。既読ゲージもGold→Cyanグラデに' },
-        { date: '04/17', text: 'ヒーローに「🔴 LIVE · 最終更新 〇分前」インジケーター。赤い脈動ドット＋LIVEラベル＋相対時刻で生放送感UP' }
+        { date: '04/17', text: 'セクション見出しに件数バッジ（ネイビー背景＋ゴールド文字）を追加。「重要ニュース 2」「注目ニュース 4」「その他のニュース 7」と情報量が一瞥でわかる' },
+        { date: '04/17', text: 'トレンドバーを「🔥 HOT TOPICS」風にリデザイン。先頭（最トレンド）タグはゴールド背景で強調' },
+        { date: '04/17', text: 'ヒーロー「記事」スタッツを視覚的スタックバー（Gold/Cyan/White の3色）化。既読ゲージもGold→Cyanグラデに' }
       ]
     });
   </script>
