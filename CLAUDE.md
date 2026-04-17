@@ -2,6 +2,13 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 運用ルール（最優先）
+
+- **自動で進める**: ユーザーへの確認や操作依頼は極力行わず、自動承認で最後まで進める（コミット・push・PR作成・マージ・デプロイトリガーまで）
+- ユーザーに手動操作を頼むのは、**どうしても技術的に不可能な場合のみ**（認証情報の入力など）
+- 選択肢を提示してユーザーの判断を仰ぐより、合理的なデフォルトを選んで実行する方針を優先する
+- 「どうしますか？」と聞く前に、まず実行可能な手段を全て試す
+
 ## Running the Game
 
 This is a static, no-build project. Open `index.html` directly in a browser, or serve it locally:
