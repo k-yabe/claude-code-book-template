@@ -1739,6 +1739,13 @@
     renderTabs(fyi);
     renderMore(fyi);
     updateProgress();
+    // 各セクション見出しに件数バッジを設定
+    const cMust = document.getElementById('count-must-know');
+    const cWeek = document.getElementById('count-this-week');
+    const cMore = document.getElementById('count-more');
+    if (cMust) cMust.textContent = mustKnow.length;
+    if (cWeek) cWeek.textContent = thisWeek.length;
+    if (cMore) cMore.textContent = fyi.length;
   }
 
   async function init() {
