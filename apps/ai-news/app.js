@@ -346,6 +346,13 @@
     if (diff < 172800) return `昨日(${wd})`;
     return `${d.getMonth()+1}/${d.getDate()}(${wd})`;
   }
+  /** 直近 FRESH_HOURS 時間以内なら true（「新着」表示に使う） */
+  const FRESH_HOURS = 3;
+  function isFresh(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return false;
+    return (Date.now() - d.getTime()) < FRESH_HOURS * 3600 * 1000;
+  }
   function totalReadTime(items) {
     return items.reduce((a, n) => a + (n.readMin || 1), 0);
   }
@@ -518,7 +525,7 @@
         if (topVisual) {
           const hero = document.createElement('div');
           hero.className = 'top-hero';
-          hero.innerHTML = `<img src="${img}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"><div class="top-hero-overlay"><span class="hero-chip cat-${n.category}">${escapeHtml(CAT_LABEL[n.category] || n.category)}</span><span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}</span></div>`;
+          hero.innerHTML = `<img src="${img}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"><div class="top-hero-overlay"><span class="hero-chip cat-${n.category}">${escapeHtml(CAT_LABEL[n.category] || n.category)}</span><span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span></div>`;
           topVisual.replaceWith(hero);
         }
         const briefVisual = card.querySelector('.brief-card-visual');
@@ -722,7 +729,7 @@
           <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
           <div class="top-hero-overlay">
             <span class="hero-chip ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-            <span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}</span>
+            <span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
           </div>
         </div>` : `
         <div class="top-visual ${'cat-' + cat}">
@@ -736,7 +743,7 @@
               ${favicon ? `<img class="source-logo" src="${favicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials">${escapeHtml(initials)}</span>`}
               <div class="top-visual-source-text">
                 <div class="top-visual-source-name">${escapeHtml(n.source)}</div>
-                <div class="top-visual-source-time">${escapeHtml(fmtRelative(n.publishedAt))}</div>
+                <div class="top-visual-source-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</div>
               </div>
             </div>
           </div>
@@ -817,7 +824,7 @@
               <span class="brief-card-num">${String(i + 1).padStart(2, '0')}</span>
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               <span class="meta-source">${escapeHtml(n.source)}</span>
-              <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
+              <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
             </div>
             <div class="brief-card-title">${escapeHtml(n.title)}</div>
             <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
@@ -924,7 +931,7 @@
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               <span class="meta-source">${escapeHtml(n.source)}</span>
-              <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}</span>
+              <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
             </div>
             <div class="fyi-title">${escapeHtml(n.title)}</div>
             ${n.whyItMatters ? `<div class="fyi-why">${escapeHtml(n.whyItMatters)}</div>` : (n.summary ? `<div class="fyi-why">${escapeHtml(n.summary)}</div>` : '')}
