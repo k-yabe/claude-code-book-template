@@ -21,42 +21,75 @@
       .news-shell { padding: 0 0 var(--sp-7); }
     }
 
-    /* ── ヒーロー ── */
+    /* ── ヒーロー（NewsPicks風マストヘッド） ── */
     .hero {
       background: var(--navy);
       color: var(--white);
-      padding: var(--sp-5) var(--sp-6);
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: var(--sp-4);
-      border-bottom: 3px solid var(--gold);
+      padding: var(--sp-7) var(--sp-6) var(--sp-5);
+      position: relative;
+      overflow: hidden;
+      border-bottom: 4px solid var(--gold);
     }
-    .hero-left { display: flex; align-items: center; gap: var(--sp-4); }
+    .hero::before {
+      content: 'AI NEWS';
+      position: absolute; top: 50%; right: -30px;
+      transform: translateY(-50%);
+      font-size: 8rem; font-weight: 900; letter-spacing: -0.05em;
+      color: rgba(255,184,28,0.06);
+      line-height: 0.85; pointer-events: none;
+    }
+    .hero-left { position: relative; z-index: 2; margin-bottom: var(--sp-5); }
     .hero-eyebrow {
-      font-size: 0.55rem; font-weight: 800;
-      letter-spacing: 0.25em; color: var(--gold);
-      margin-bottom: 2px; text-transform: uppercase;
+      font-size: 0.62rem; font-weight: 900;
+      letter-spacing: 0.3em; color: var(--gold);
+      margin-bottom: var(--sp-2); text-transform: uppercase;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: inline-block;
+      width: 32px; height: 2px; background: var(--gold);
     }
     .hero-title {
-      font-size: 1.1rem; font-weight: 800;
-      letter-spacing: -0.01em; line-height: 1.3;
+      font-size: 1.65rem; font-weight: 900;
+      letter-spacing: -0.01em; line-height: 1.25;
     }
     .hero-pulse {
-      display: inline-block; width: 8px; height: 8px;
+      display: inline-block; width: 10px; height: 10px;
       background: var(--gold); border-radius: 50%;
-      margin-right: 8px; vertical-align: middle;
+      margin-right: 10px; vertical-align: middle;
       animation: pulse 1.6s ease-in-out infinite;
     }
     @keyframes pulse {
       0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,184,28,0.6); }
-      50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(255,184,28,0); }
+      50% { opacity: 0.6; box-shadow: 0 0 0 8px rgba(255,184,28,0); }
     }
-    .hero-meta { display: flex; gap: var(--sp-5); flex-wrap: wrap; }
-    .hero-stat { display: flex; flex-direction: column; gap: 1px; min-width: 50px; }
-    .hero-stat-num { font-size: 1rem; font-weight: 800; color: var(--white); line-height: 1; }
+    .hero-meta {
+      display: flex; gap: 0; position: relative; z-index: 2;
+      padding-top: var(--sp-4);
+      border-top: 1px solid rgba(255,184,28,0.2);
+    }
+    .hero-stat {
+      display: flex; flex-direction: column; gap: 4px;
+      flex: 1; padding: 0 var(--sp-5);
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    .hero-stat:first-child { padding-left: 0; }
+    .hero-stat:last-child { border-right: none; }
+    .hero-stat-num {
+      font-size: 1.65rem; font-weight: 900;
+      color: var(--white); line-height: 1;
+      letter-spacing: -0.01em;
+    }
     .hero-stat-num.accent { color: var(--gold); }
     .hero-stat-label {
-      font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase;
-      color: rgba(255,255,255,0.5);
+      font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.55); font-weight: 700;
+    }
+    @media (max-width: 600px) {
+      .hero::before { font-size: 5rem; }
+      .hero-title { font-size: 1.25rem; }
+      .hero-stat-num { font-size: 1.3rem; }
+      .hero-stat { padding: 0 var(--sp-3); }
     }
     @media (max-width: 600px) {
       .hero { padding: var(--sp-4); }
@@ -128,17 +161,75 @@
       color: var(--text-muted); background: #f0f0f0;
       margin-left: auto;
     }
-    /* ── 画像なし時のヘッダーバー ── */
-    .top-header-bar {
-      background: var(--navy);
-      padding: var(--sp-4) var(--sp-5);
-      display: flex; align-items: center; gap: var(--sp-3);
-      border-bottom: 3px solid var(--gold);
+    /* ── 画像なし時のビジュアル（SmartNews/NewsPicks風） ── */
+    .top-visual {
+      position: relative;
+      width: 100%; aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, var(--navy) 0%, #00314f 60%, #004a78 100%);
+      padding: var(--sp-5);
+      display: flex; flex-direction: column; justify-content: space-between;
+      overflow: hidden;
     }
-    .top-header-bar .hero-chip { flex-shrink: 0; }
-    .top-header-source {
-      font-size: 0.72rem; font-weight: 600;
-      color: rgba(255,255,255,0.7); letter-spacing: 0.02em;
+    .top-visual.cat-ai {
+      background: linear-gradient(135deg, #000a14 0%, var(--navy) 40%, #00526b 100%);
+    }
+    .top-visual.cat-market {
+      background: linear-gradient(135deg, var(--navy) 0%, #1a2540 50%, #33342a 100%);
+    }
+    .top-visual.cat-marketing {
+      background: linear-gradient(135deg, var(--navy) 0%, #1e2e4a 50%, #4a3a14 100%);
+    }
+    .top-visual-bg {
+      position: absolute; right: -20px; bottom: -40px;
+      font-size: 11rem; font-weight: 900; letter-spacing: -0.05em;
+      color: rgba(255,184,28,0.08);
+      line-height: 0.85; pointer-events: none;
+      text-transform: uppercase;
+    }
+    .top-visual.cat-ai .top-visual-bg { color: rgba(0,255,255,0.08); }
+    .top-visual-top {
+      display: flex; align-items: center; gap: var(--sp-3);
+      position: relative; z-index: 2;
+    }
+    .top-visual-breaking {
+      font-size: 0.65rem; font-weight: 900; letter-spacing: 0.15em;
+      color: var(--gold);
+      padding: 3px 0;
+      border-top: 2px solid var(--gold);
+      border-bottom: 2px solid var(--gold);
+      padding-left: 8px; padding-right: 8px;
+    }
+    .top-visual.cat-ai .top-visual-breaking {
+      color: #00ffff;
+      border-color: #00ffff;
+    }
+    .top-visual-bottom {
+      position: relative; z-index: 2;
+    }
+    .top-visual-source {
+      display: flex; align-items: center; gap: var(--sp-3);
+    }
+    .source-logo {
+      width: 40px; height: 40px;
+      background: var(--white); padding: 4px;
+      object-fit: contain;
+    }
+    .source-initials {
+      width: 40px; height: 40px;
+      background: var(--gold); color: var(--navy);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 900; letter-spacing: 0.05em;
+    }
+    .top-visual-source-text {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .top-visual-source-name {
+      font-size: 0.85rem; font-weight: 800;
+      color: var(--white); letter-spacing: 0.01em;
+    }
+    .top-visual-source-time {
+      font-size: 0.68rem; font-weight: 500;
+      color: rgba(255,255,255,0.65);
     }
     /* ヒーロー画像（大） */
     .top-hero {
@@ -165,11 +256,15 @@
       color: rgba(255,255,255,0.75); letter-spacing: 0.02em;
     }
     /* コンテンツ */
-    .top-content { padding: var(--sp-5) var(--sp-5) var(--sp-4); border-left: 4px solid var(--gold); }
+    .top-content { padding: var(--sp-6) var(--sp-6) var(--sp-5); border-left: 6px solid var(--gold); }
     .top-title {
-      font-size: 1.35rem; font-weight: 800; color: var(--navy);
-      line-height: 1.45; letter-spacing: -0.01em;
-      margin-bottom: var(--sp-2);
+      font-size: 1.55rem; font-weight: 900; color: var(--navy);
+      line-height: 1.35; letter-spacing: -0.015em;
+      margin-bottom: var(--sp-3);
+    }
+    @media (max-width: 600px) {
+      .top-content { padding: var(--sp-4); border-left-width: 4px; }
+      .top-title { font-size: 1.2rem; }
     }
     .top-summary {
       font-size: 0.9rem; color: var(--text-secondary);
@@ -345,20 +440,41 @@
       overflow: hidden;
     }
     .fyi-thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .fyi-accent {
-      flex-shrink: 0; width: 4px; align-self: stretch;
+    /* ── FYI: 画像なし時のソースロゴビジュアル ── */
+    .fyi-visual {
+      flex-shrink: 0; width: 100px; height: 90px;
       background: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
     }
-    .fyi-accent.cat-marketing { background: var(--gold); }
-    .fyi-accent.cat-market { background: var(--navy); }
-    .fyi-accent.cat-ai { background: #00ffff; }
+    .fyi-visual::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent 40%, rgba(255,184,28,0.15) 100%);
+    }
+    .fyi-visual.cat-ai { background: linear-gradient(135deg, #000a14 0%, var(--navy) 100%); }
+    .fyi-visual.cat-ai::before { background: linear-gradient(135deg, transparent 40%, rgba(0,255,255,0.18) 100%); }
+    .fyi-visual.cat-market { background: linear-gradient(135deg, var(--navy) 0%, #2a3550 100%); }
+    .fyi-visual.cat-marketing { background: linear-gradient(135deg, var(--navy) 0%, #3a2a14 100%); }
+    .source-logo-xs {
+      width: 40px; height: 40px;
+      background: var(--white); padding: 4px;
+      object-fit: contain; position: relative; z-index: 1;
+    }
+    .source-initials-xs {
+      width: 40px; height: 40px;
+      background: var(--gold); color: var(--navy);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 900;
+      position: relative; z-index: 1;
+    }
     .fyi-body { flex: 1; min-width: 0; }
     .fyi-meta {
       display: flex; align-items: center; gap: var(--sp-2); margin-bottom: 4px;
     }
     .fyi-title {
-      font-size: 0.92rem; font-weight: 800;
-      color: var(--navy); line-height: 1.4; margin-bottom: 4px;
+      font-size: 1.02rem; font-weight: 800;
+      color: var(--navy); line-height: 1.4; margin-bottom: 6px;
+      letter-spacing: -0.005em;
     }
     .fyi-why {
       font-size: 0.78rem; color: var(--text-secondary);
@@ -616,9 +732,50 @@
       background: linear-gradient(to top, rgba(0,31,51,0.3), transparent);
       pointer-events: none;
     }
-    .brief-card.no-img { border-left: 4px solid var(--navy); }
-    .brief-card.no-img[data-cat="marketing"] { border-left-color: var(--gold); }
-    .brief-card.no-img[data-cat="ai"] { border-left-color: #00ffff; }
+    /* ── ブリーフカード: 画像なし時のビジュアル ── */
+    .brief-card-visual {
+      position: relative;
+      width: 100%; aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, var(--navy) 0%, #00314f 100%);
+      padding: var(--sp-4);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      overflow: hidden;
+    }
+    .brief-card-visual.cat-ai {
+      background: linear-gradient(135deg, #000a14 0%, #004a5e 100%);
+    }
+    .brief-card-visual.cat-market {
+      background: linear-gradient(135deg, var(--navy) 0%, #2a3550 100%);
+    }
+    .brief-card-visual.cat-marketing {
+      background: linear-gradient(135deg, var(--navy) 0%, #3a2a14 100%);
+    }
+    .brief-visual-bg {
+      position: absolute; right: -10px; bottom: -20px;
+      font-size: 5.5rem; font-weight: 900; letter-spacing: -0.05em;
+      color: rgba(255,184,28,0.1);
+      line-height: 0.85; pointer-events: none;
+    }
+    .brief-card-visual.cat-ai .brief-visual-bg { color: rgba(0,255,255,0.1); }
+    .brief-visual-source {
+      display: flex; align-items: center; gap: var(--sp-2);
+      position: relative; z-index: 2;
+    }
+    .source-logo-sm {
+      width: 28px; height: 28px;
+      background: var(--white); padding: 3px;
+      object-fit: contain;
+    }
+    .source-initials-sm {
+      width: 28px; height: 28px;
+      background: var(--gold); color: var(--navy);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 900;
+    }
+    .brief-visual-source-name {
+      font-size: 0.75rem; font-weight: 800;
+      color: var(--white); letter-spacing: 0.01em;
+    }
     .brief-card-content {
       padding: var(--sp-4);
       display: flex; flex-direction: column; flex: 1;
@@ -634,8 +791,9 @@
       flex-shrink: 0;
     }
     .brief-card-title {
-      font-size: 0.95rem; font-weight: 800;
-      color: var(--navy); line-height: 1.45; margin-bottom: 8px;
+      font-size: 1.08rem; font-weight: 900;
+      color: var(--navy); line-height: 1.4; margin-bottom: 8px;
+      letter-spacing: -0.01em;
     }
     .brief-card-summary {
       font-size: 0.78rem; color: var(--text-secondary);
@@ -747,10 +905,8 @@
     <!-- ヒーロー -->
     <section class="hero">
       <div class="hero-left">
-        <div>
-          <div class="hero-eyebrow">マーケティング・インテリジェンス・ブリーフ</div>
-          <div class="hero-title"><span class="hero-pulse"></span>何が起きた？ なぜ重要？ 何をすべき？</div>
-        </div>
+        <div class="hero-eyebrow">マーケティング・インテリジェンス・ブリーフ</div>
+        <div class="hero-title"><span class="hero-pulse"></span>何が起きた？ なぜ重要？ 何をすべき？</div>
       </div>
       <div class="hero-meta">
         <div class="hero-stat">
@@ -877,9 +1033,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'URL信頼性修正：シードデータの偽URLを全削除し、スクレイパー取得データのみ正確なURLをリンク。OGP画像をクライアントサイドで自動取得' },
-        { date: '04/17', text: '音声をcoral（温かみ系）に変更、ラジオパーソナリティ風のinstructions追加。聴取時間＋再生中のカウントダウンを表示' },
-        { date: '04/17', text: 'Exec Summaryに「TODAY\'S BRIEFING」ラベル＋番号付きリスト。セクション見出しを大型化、カードホバー効果を強化' }
+        { date: '04/17', text: 'NewsPicks/SmartNews風UI全面刷新。画像なし時も大型ビジュアルカード＋ソースロゴ＋BREAKINGラベルでマガジン感を演出' },
+        { date: '04/17', text: 'ヒーロー大型化、「AI NEWS」ウォーターマーク、統計を3カラム罫線区切りに。タイトル周りの視覚階層を強化' },
+        { date: '04/17', text: 'URL信頼性修正・OGP自動取得・TTS coral voiceによる温かい音声・再生中カウントダウン表示' }
       ]
     });
   </script>

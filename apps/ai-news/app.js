@@ -370,26 +370,26 @@
       if (!img) return;
       n.image = img;
       document.querySelectorAll(`[data-id="${n.id}"]`).forEach(card => {
-        const heroEl = card.querySelector('.top-header-bar');
-        if (heroEl) {
+        const topVisual = card.querySelector('.top-visual');
+        if (topVisual) {
           const hero = document.createElement('div');
           hero.className = 'top-hero';
           hero.innerHTML = `<img src="${img}" alt="" loading="lazy" onerror="${IMG_ONERROR}"><div class="top-hero-overlay"><span class="hero-chip cat-${n.category}">${escapeHtml(CAT_LABEL[n.category] || n.category)}</span><span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}</span></div>`;
-          heroEl.replaceWith(hero);
+          topVisual.replaceWith(hero);
         }
-        const accent = card.querySelector('.fyi-accent');
-        if (accent) {
+        const briefVisual = card.querySelector('.brief-card-visual');
+        if (briefVisual) {
+          const thumb = document.createElement('div');
+          thumb.className = 'brief-card-thumb';
+          thumb.innerHTML = `<img src="${img}" alt="" loading="lazy" onerror="${IMG_ONERROR}">`;
+          briefVisual.replaceWith(thumb);
+        }
+        const fyiVisual = card.querySelector('.fyi-visual');
+        if (fyiVisual) {
           const thumb = document.createElement('div');
           thumb.className = 'fyi-thumb';
           thumb.innerHTML = `<img src="${img}" alt="" loading="lazy" onerror="${IMG_ONERROR}">`;
-          accent.replaceWith(thumb);
-        }
-        if (card.classList.contains('no-img')) {
-          const thumbDiv = document.createElement('div');
-          thumbDiv.className = 'brief-card-thumb';
-          thumbDiv.innerHTML = `<img src="${img}" alt="" loading="lazy" onerror="${IMG_ONERROR}">`;
-          card.insertBefore(thumbDiv, card.firstChild);
-          card.classList.remove('no-img');
+          fyiVisual.replaceWith(thumb);
         }
       });
     });
@@ -523,6 +523,8 @@
       const titleHtml = hasUrl
         ? `<a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a>`
         : escapeHtml(n.title);
+      const favicon = sourceFavicon(n.url) || '';
+      const initials = (n.source || '').substring(0, 2).toUpperCase();
       return `
       <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" aria-label="${escapeHtml(n.title)}">
         ${imgSrc ? `
@@ -533,9 +535,21 @@
             <span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}</span>
           </div>
         </div>` : `
-        <div class="top-header-bar ${'cat-' + cat}">
-          <span class="hero-chip ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-          <span class="top-header-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}</span>
+        <div class="top-visual ${'cat-' + cat}">
+          <div class="top-visual-bg">${escapeHtml(CAT_LABEL[cat] || cat).toUpperCase()}</div>
+          <div class="top-visual-top">
+            <span class="hero-chip ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
+            <span class="top-visual-breaking">BREAKING</span>
+          </div>
+          <div class="top-visual-bottom">
+            <div class="top-visual-source">
+              ${favicon ? `<img class="source-logo" src="${favicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials">${escapeHtml(initials)}</span>`}
+              <div class="top-visual-source-text">
+                <div class="top-visual-source-name">${escapeHtml(n.source)}</div>
+                <div class="top-visual-source-time">${escapeHtml(fmtRelative(n.publishedAt))}</div>
+              </div>
+            </div>
+          </div>
         </div>`}
         <div class="top-content">
           <h2 class="top-title">${titleHtml}</h2>
@@ -584,12 +598,21 @@
       const hasUrl = !!n.url;
       const imgSrc = pickImage(n);
       const hasDetail = !!(n.whyItMatters || n.actionItem || n.pickerComment);
+      const bFavicon = sourceFavicon(n.url) || '';
+      const bInitials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-        <div class="brief-card${isRead ? ' read' : ''}${imgSrc ? '' : ' no-img'}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
           ${imgSrc ? `
           <div class="brief-card-thumb">
             <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}">
-          </div>` : ''}
+          </div>` : `
+          <div class="brief-card-visual ${'cat-' + cat}">
+            <div class="brief-visual-bg">${escapeHtml(CAT_LABEL[cat] || cat).toUpperCase()}</div>
+            <div class="brief-visual-source">
+              ${bFavicon ? `<img class="source-logo-sm" src="${bFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-sm">${escapeHtml(bInitials)}</span>`}
+              <span class="brief-visual-source-name">${escapeHtml(n.source)}</span>
+            </div>
+          </div>`}
           <div class="brief-card-content">
             <div class="brief-card-head">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
@@ -681,9 +704,11 @@
       const cat = n.category;
       const hasUrl = !!n.url;
       const imgSrc = pickImage(n);
+      const fFavicon = sourceFavicon(n.url) || '';
+      const fInitials = (n.source || '').substring(0, 2).toUpperCase();
       return `
         <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-accent ${'cat-' + cat}"></div>`}
+          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}">${fFavicon ? `<img class="source-logo-xs" src="${fFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-xs">${escapeHtml(fInitials)}</span>`}</div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
