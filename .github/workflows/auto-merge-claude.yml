@@ -1,5 +1,9 @@
 name: Auto-merge Claude branches
 
+# REQUIREMENT: Repo Settings → Actions → General → Workflow permissions
+#   must be set to "Read and write permissions".
+# 権限不足時は 403 (x-accepted-github-permissions: pull_requests=write) で失敗する。
+
 on:
   push:
     branches:
@@ -9,47 +13,82 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: auto-merge-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   auto-merge:
+    # [skip ci] コミットはスキップ
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create or merge PR (debug artifact)
+      - name: Create or get PR
+        id: pr
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
         run: |
-          set +e
-          {
-            echo "=== DEBUG $(date -u) ==="
-            echo "Branch: $BRANCH  Repo: $REPO"
-            echo
-            echo "=== Check existing PR ==="
-            curl -sv \
-              -H "Authorization: Bearer $TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${REPO}/pulls?head=${REPO%%/*}:${BRANCH}&state=open" 2>&1 | head -60
-            echo
-            echo "=== Try create PR ==="
-            curl -sv -X POST \
-              -H "Authorization: Bearer $TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${REPO}/pulls" \
-              -d "{\"title\":\"auto: merge $BRANCH to main\",\"head\":\"$BRANCH\",\"base\":\"main\",\"body\":\"Automated PR\"}" 2>&1 | head -80
-          } > /tmp/debug.log 2>&1
-          cp /tmp/debug.log debug-auto-merge.log
+          set -e
+          OWNER=${REPO%%/*}
+          # 既存の open PR を確認
+          EXISTING=$(curl -sfL \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/pulls?head=${OWNER}:${BRANCH}&state=open" \
+            | jq -r '.[0].number // ""')
+          if [ -n "$EXISTING" ]; then
+            echo "Existing PR #$EXISTING"
+            echo "pr_number=$EXISTING" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # 新規作成
+          RESP=$(curl -sS -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/pulls" \
+            -d "$(jq -n --arg t "auto: merge $BRANCH to main" --arg h "$BRANCH" '{title:$t, head:$h, base:"main", body:"Automated PR from Claude Code session."}')")
+          STATUS=$(echo "$RESP" | tail -n1)
+          BODY=$(echo "$RESP" | sed '$d')
+          echo "HTTP $STATUS"
+          echo "$BODY" | head -c 500
+          if [ "$STATUS" != "201" ]; then
+            echo "::error::PR作成失敗 (HTTP $STATUS). Repo Settings → Actions → Workflow permissions を Read and write に設定してください。"
+            exit 1
+          fi
+          NUM=$(echo "$BODY" | jq -r '.number')
+          echo "pr_number=$NUM" >> "$GITHUB_OUTPUT"
 
-      - name: Commit debug log back
-        if: always()
+      - name: Merge PR (squash)
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add debug-auto-merge.log
-          git commit -m "debug: auto-merge output [skip ci]" || exit 0
-          git push origin "${{ github.ref_name }}" || exit 0
+          set -e
+          RESP=$(curl -sS -w "\n%{http_code}" -X PUT \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/pulls/${PR_NUMBER}/merge" \
+            -d '{"merge_method":"squash"}')
+          STATUS=$(echo "$RESP" | tail -n1)
+          BODY=$(echo "$RESP" | sed '$d')
+          echo "HTTP $STATUS"
+          echo "$BODY" | head -c 500
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::マージ失敗 (HTTP $STATUS). ブランチ保護がレビュー必須になっている可能性があります。"
+            exit 0
+          fi
+
+      - name: Delete branch
+        if: success()
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          curl -sS -X DELETE \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/git/refs/heads/${BRANCH}" || true
