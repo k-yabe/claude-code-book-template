@@ -32,7 +32,7 @@ async function handleDigest(req, res) {
   }
 
   const { execSummary, mustKnow, thisWeek } = req.body || {};
-  if (!Array.isArray(execSummary) && !Array.isArray(mustKnow)) {
+  if ((!Array.isArray(execSummary) || !execSummary.length) && (!Array.isArray(mustKnow) || !mustKnow.length)) {
     return res.status(400).json({ error: '記事データが不足しています' });
   }
 
