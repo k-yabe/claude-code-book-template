@@ -32,7 +32,7 @@
       actionItem: '来週の定例で自社コンテンツのGEO対策（ChatGPT/Perplexityでの自社表示確認）を議題に入れる。',
       pickerComment: 'GEO（Generative Engine Optimization）はSEOの次の戦場。人材業界では「エンジニア 転職」等のキーワードでAI検索結果に表示されるかが採用数に直結する。早い者勝ちの領域。',
       source: 'Gartner', sourceType: 'media', category: 'marketing',
-      url: 'https://www.gartner.com/en/newsroom',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T09:10:00+09:00`,
       tags: ['B2B', 'GEO', '購買行動']
@@ -45,7 +45,7 @@
       actionItem: 'Search Consoleで主要キーワードのCTR変化をモニタリング開始。AI Overviewsに自社が表示されているか確認。',
       pickerComment: 'SEO担当者は今すぐ「site:自社ドメイン」でAI Overviewsに引用されているか確認すべき。構造化データのFAQ・HowToマークアップが引用率を高める傾向がある。',
       source: 'Google Search Central', sourceType: 'media', category: 'ai',
-      url: 'https://developers.google.com/search/blog',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T18:40:00+09:00`,
       tags: ['SEO', 'GEO', 'Google']
@@ -58,7 +58,7 @@
       actionItem: '自社のSalesforce契約でAgentforce利用可否を営業担当に確認する。',
       pickerComment: 'SalesforceのAIエージェント戦略はMarketing Cloud全体に波及する。既存ユーザーは追加費用なしで使える可能性が高いので、営業担当に確認するだけでROIが出る案件。',
       source: 'Salesforce News', sourceType: 'media', category: 'market',
-      url: 'https://www.salesforce.com/news/',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T14:45:00+09:00`,
       tags: ['SaaS', 'AIエージェント', 'CMO']
@@ -71,7 +71,7 @@
       actionItem: '今抱えているレポート業務で試用し、時間短縮効果を検証する。',
       pickerComment: '200kトークンは文庫本1冊分。競合分析で10社分のIR資料を一括投入して比較表を作れる。レポート業務の「素材集め→構造化」が自動化される。',
       source: 'Anthropic', sourceType: 'media', category: 'ai',
-      url: 'https://www.anthropic.com/news',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T22:00:00+09:00`,
       tags: ['Claude', 'LLM', '要約']
@@ -84,7 +84,7 @@
       actionItem: 'Google Ads管理画面でブランド除外レポートを確認し、月次レポートに追加。',
       pickerComment: 'PMaxはブラックボックスだった部分にようやく透明性が出てきた。特にBtoBはブランドKWの混在でCPAが歪みやすいので、この機能でROAS改善の根拠を示しやすくなる。',
       source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
-      url: 'https://support.google.com/google-ads',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T08:30:00+09:00`,
       tags: ['広告', 'PMax', 'Google']
@@ -97,7 +97,7 @@
       actionItem: '次の予算策定で動画広告枠の比率増を提案する際のエビデンスとしてストック。',
       pickerComment: '動画広告の伸びはショート動画が牽引。採用マーケでは30秒以内の「社員の1日」系コンテンツがCPV最安で成果が出ている企業が多い。',
       source: '電通', sourceType: 'media', category: 'market',
-      url: 'https://www.dentsu.co.jp/news/',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T10:00:00+09:00`,
       tags: ['広告費', '日本', '統計']
@@ -110,7 +110,7 @@
       actionItem: '利用中のDSP/SSPがUID2.0対応済みか確認し、未対応なら代替を検討。',
       pickerComment: 'UID2.0はメールアドレスベースなので、会員登録フローを持つ採用サイトとは相性が良い。自社の1st Partyデータ活用戦略と合わせて検討する価値がある。',
       source: 'AdExchanger', sourceType: 'media', category: 'market',
-      url: 'https://www.adexchanger.com/',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T07:50:00+09:00`,
       tags: ['Cookieless', 'AdTech']
@@ -123,7 +123,7 @@
       actionItem: 'Marketo利用中なら設定画面でAI件名最適化をONにして次回配信でテスト。',
       pickerComment: 'MA各社がAI件名最適化を投入中。設定ONだけで効果が出るので、使わない理由がない。ただし日本語の件名最適化精度は英語より低い傾向があるので、最初の数回は結果を注視すべき。',
       source: 'Adobe Marketo Engage', sourceType: 'media', category: 'marketing',
-      url: 'https://business.adobe.com/products/marketo/adobe-marketo.html',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T11:05:00+09:00`,
       tags: ['MA', 'メール', 'AI']
@@ -136,7 +136,7 @@
       actionItem: 'AI活用のコンテンツ制作フローがある場合、β申請を検討。',
       pickerComment: '「ブランドボイス制約」はエンタープライズ向けAI利用の大きなペインポイントを解消する。採用広報でAI生成テキストを使っている企業は導入検討の価値あり。',
       source: 'OpenAI', sourceType: 'media', category: 'ai',
-      url: 'https://openai.com/news/',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T20:15:00+09:00`,
       tags: ['GPT-5', 'API', 'ブランドガバナンス']
@@ -149,7 +149,7 @@
       actionItem: 'ターゲットにZ世代を含む場合、TikTok Search Adsのβ申請を検討。',
       pickerComment: 'TikTok検索は「〇〇 転職」で実際に使われ始めている。新卒採用でTikTokを活用している企業は検索広告も試す価値がある。CPCはまだGoogleより安い。',
       source: 'TikTok for Business', sourceType: 'media', category: 'marketing',
-      url: 'https://www.tiktok.com/business/',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T13:00:00+09:00`,
       tags: ['SNS', '検索広告']
@@ -162,7 +162,7 @@
       actionItem: 'HubSpot利用中ならZoom連携をONにして、商談要約のコンテンツ活用を試す。',
       pickerComment: '商談の文字起こしをそのままコンテンツマーケのネタ帳にする発想が重要。「お客様がよく使うフレーズ」をLP・広告コピーに反映すると、共感率が上がる。',
       source: 'HubSpot', sourceType: 'media', category: 'marketing',
-      url: 'https://www.hubspot.com/company-news',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T15:20:00+09:00`,
       tags: ['CRM', 'セールス']
@@ -175,7 +175,7 @@
       actionItem: '情シスと連携し、Llama 4 Marketingを社内GPUサーバーで試用できるか検討する。',
       pickerComment: 'オープンソースLLMはコスト削減だけでなく、社内データを外部に出さずAI活用できるのが本質。ガバナンス要件が厳しいBtoBでは特に価値が高い。',
       source: 'Meta AI', sourceType: 'media', category: 'ai',
-      url: 'https://ai.meta.com/blog/',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T06:30:00+09:00`,
       tags: ['Llama', 'オープンソース', 'LLM']
@@ -188,7 +188,7 @@
       actionItem: '海外採用を強化する部署向けに、Reels自動翻訳のPoC企画を提案。',
       pickerComment: 'AI吹き替えは口の動きと声の同期まで処理される。採用動画で「日本人社員が英語を話す」違和感を減らせるので、海外向け発信のハードルが下がる。',
       source: 'Meta Business', sourceType: 'media', category: 'marketing',
-      url: 'https://www.facebook.com/business/news',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T12:10:00+09:00`,
       tags: ['SNS', '動画', '多言語']
@@ -201,7 +201,7 @@
       actionItem: '来期予算書で AI ツール関連の支出比率を算出し、18%との差分を明記。',
       pickerComment: 'AI投資比率は業界で大きく差がつき始めている。採用領域は「マッチング精度」で直接成果が出やすいので、この18%より高めに寄せる判断も妥当。',
       source: 'Gartner', sourceType: 'media', category: 'market',
-      url: 'https://www.gartner.com/en/newsroom',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T09:45:00+09:00`,
       tags: ['予算', '業界統計', 'AI投資']
@@ -214,7 +214,7 @@
       actionItem: '無料トライアルを申請し、直近1年の営業資料をインポートして検索精度を検証。',
       pickerComment: 'ChatGPT Enterpriseより「社内文書検索」に特化している点が実用的。採用マーケなら「過去の採用資料」「候補者対応テンプレ」を全員が秒で引けるようになる。',
       source: 'Perplexity AI', sourceType: 'media', category: 'ai',
-      url: 'https://www.perplexity.ai/hub',
+      url: null,
       image: null,
       publishedAt: `${TODAY}T16:00:00+09:00`,
       tags: ['AI検索', 'エンタープライズ', 'ナレッジ']
@@ -646,7 +646,7 @@
     const trends = extractTrends();
     const label = '<span class="trend-label">HOT TOPICS</span>';
     const pills = trends.map(t =>
-      `<button class="trend-pill" data-trend="${escapeHtml(t.tag)}">#${escapeHtml(t.tag)}<span class="trend-count">${t.count}</span></button>`
+      `<button class="trend-pill" data-trend="${escapeHtml(t.tag)}">#${escapeHtml(t.tag)}</button>`
     ).join('');
     bar.innerHTML = label + pills;
     bar.querySelectorAll('.trend-pill').forEach(btn => {
@@ -871,7 +871,6 @@
           </div>`}
           <div class="brief-card-content">
             <div class="brief-card-head">
-              <span class="brief-card-num">${String(i + 1).padStart(2, '0')}</span>
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               <span class="meta-source">${escapeHtml(n.source)}</span>
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
@@ -1125,12 +1124,11 @@
         throw new Error('empty payload');
       }
       // 受信データで NEWS_DATA を置換
-      // ※ URLの無い記事は信憑性が保証できないため除外する（scraperは必ずURLを保存する）
+      // URL が無い記事も表示するが、UI 側で元記事ボタンは非表示にする（サンプル混入時の誤遷移を避ける）
       NEWS_DATA.length = 0;
       const VALID_URG = ['must_know', 'this_week', 'fyi'];
       for (const it of json.items) {
         const safeUrl = String(it.url || '').startsWith('http') ? String(it.url) : '';
-        if (!safeUrl) continue; // URLなしは捨てる（sample/seedの混入を防ぐ）
         const imp = Number(it.importance) || 3;
         const urg = VALID_URG.includes(it.urgency) ? it.urgency
                   : imp === 1 ? 'must_know' : imp === 2 ? 'this_week' : 'fyi';
@@ -1189,11 +1187,15 @@
     // 日付表示（cmd-bar内）
     const upd = document.getElementById('cmd-updated');
     if (!upd) return;
-    if (isRemote && dataMeta.updatedAt) {
+    // URL が埋まっている記事の割合を計算（半分未満なら「サンプル」と表示）
+    const withUrl = NEWS_DATA.filter(n => n.url && /^https?:\/\//.test(n.url)).length;
+    const total = NEWS_DATA.length || 1;
+    const isSample = (withUrl / total) < 0.5;
+    if (isRemote && dataMeta.updatedAt && !isSample) {
       upd.textContent = fmtBriefDate(dataMeta.generatedFor || dataMeta.updatedAt);
       upd.classList.remove('seed');
     } else {
-      upd.textContent = fmtBriefDate(Y) + '（サンプル）';
+      upd.textContent = fmtBriefDate(dataMeta.generatedFor || Y) + '（サンプル）';
       upd.classList.add('seed');
     }
   }
@@ -1545,6 +1547,37 @@
     btn.classList.toggle('playing', playing);
   }
 
+  /** ミニプレイヤーの表示/更新 */
+  function fmtMMSS(sec) {
+    if (!Number.isFinite(sec) || sec < 0) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${String(s).padStart(2, '0')}`;
+  }
+  function showAudioPlayer() {
+    const ap = document.getElementById('audio-player');
+    if (ap) ap.removeAttribute('hidden');
+  }
+  function hideAudioPlayer() {
+    const ap = document.getElementById('audio-player');
+    if (ap) ap.setAttribute('hidden', '');
+  }
+  function updateAudioPlayer(audio) {
+    if (!audio) return;
+    const rate = audio.playbackRate || 1;
+    const d = (audio.duration || 0) / rate;
+    const c = (audio.currentTime || 0) / rate;
+    const rem = Math.max(0, d - c);
+    const elapsed = document.getElementById('ap-elapsed');
+    const total = document.getElementById('ap-total');
+    const remain = document.getElementById('ap-remain');
+    const fill = document.getElementById('ap-progress-fill');
+    if (elapsed) elapsed.textContent = fmtMMSS(c);
+    if (total) total.textContent = fmtMMSS(d);
+    if (remain) remain.textContent = fmtMMSS(rem);
+    if (fill) fill.style.width = d > 0 ? (c / d * 100) + '%' : '0%';
+  }
+
   async function tryOpenAITTS(text) {
     try {
       const res = await fetch('/api/ai-news-api', {
@@ -1594,15 +1627,15 @@
       speechState.audio = audio;
       audio.playbackRate = speechState.speed;
       setBtnState(`⏹ 再生中`, true);
+      showAudioPlayer();
       audio.ontimeupdate = () => {
         if (!speechState.playing) return;
+        updateAudioPlayer(audio);
         const d = audio.duration || 0;
         const c = audio.currentTime || 0;
         const remSec = Math.max(0, Math.ceil((d - c) / (audio.playbackRate || 1)));
-        const rem = Math.floor(remSec / 60);
-        const sec = remSec % 60;
         const btn = document.getElementById('btn-listen');
-        if (btn) btn.textContent = `⏹ 残り ${rem}:${String(sec).padStart(2,'0')}`;
+        if (btn) btn.textContent = `⏹ 残り ${fmtMMSS(remSec)}`;
       };
       audio.onended = () => stopSpeech();
       audio.onerror = () => { fallbackWebSpeech((preloadedDigest || '').split(/[。\n]+/).filter(Boolean)); };
@@ -1633,15 +1666,15 @@
         speechState.audio = audio;
         audio.playbackRate = speechState.speed;
         setBtnState(`⏹ 再生中`, true);
+        showAudioPlayer();
         audio.ontimeupdate = () => {
           if (!speechState.playing) return;
+          updateAudioPlayer(audio);
           const d = audio.duration || 0;
           const c = audio.currentTime || 0;
           const remSec = Math.max(0, Math.ceil((d - c) / (audio.playbackRate || 1)));
-          const rem = Math.floor(remSec / 60);
-          const sec = remSec % 60;
           const btn = document.getElementById('btn-listen');
-          if (btn) btn.textContent = `⏹ 残り ${rem}:${String(sec).padStart(2,'0')}`;
+          if (btn) btn.textContent = `⏹ 残り ${fmtMMSS(remSec)}`;
         };
         audio.onended = () => stopSpeech();
         audio.onerror = () => { fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean)); };
@@ -1692,6 +1725,7 @@
       speechState.audio = null;
     }
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    hideAudioPlayer();
     const estMin = preloadedDigest ? Math.ceil(preloadedDigest.length / 300) : 5;
     setBtnState(`🔊 聴く（約${estMin}分）`, false);
   }
@@ -1708,6 +1742,9 @@
       speedBtn.textContent = `${speechState.speed}x`;
       speedBtn.addEventListener('click', cycleSpeed);
     }
+    // ミニプレイヤー停止ボタン
+    const apStop = document.getElementById('ap-stop');
+    if (apStop) apStop.addEventListener('click', () => stopSpeech());
     // 起動時にバックグラウンドで音声を事前生成（ネットワーク待機なしで即再生できる）
     // ユーザー操作をブロックしないよう requestIdleCallback / setTimeout で遅延実行
     const kickoff = () => { preloadDigestAudio().catch(() => {}); };

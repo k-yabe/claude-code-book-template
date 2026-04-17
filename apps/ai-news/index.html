@@ -55,6 +55,76 @@
       .nav-live-dot { animation: none; }
     }
 
+    /* ── 音声再生ミニプレイヤー（再生中のみ） ── */
+    .audio-player[hidden] { display: none; }
+    .audio-player {
+      position: fixed; left: 50%; bottom: 24px;
+      transform: translateX(-50%);
+      display: flex; align-items: center; gap: 14px;
+      min-width: 320px; max-width: 560px;
+      padding: 10px 16px 12px;
+      background: var(--navy); color: var(--white);
+      box-shadow: 0 12px 32px rgba(0,31,51,0.40), 0 4px 12px rgba(0,31,51,0.25);
+      z-index: 998;
+      animation: apSlideUp 0.3s cubic-bezier(.3,.9,.3,1) both;
+    }
+    @keyframes apSlideUp {
+      from { opacity: 0; transform: translate(-50%, 12px); }
+      to   { opacity: 1; transform: translate(-50%, 0); }
+    }
+    .ap-stop {
+      width: 40px; height: 40px; flex-shrink: 0;
+      background: var(--gold); color: var(--navy);
+      border: none; cursor: pointer;
+      font-size: 1rem; font-weight: 900;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .ap-stop:hover { background: var(--white); }
+    .ap-info { flex: 1; min-width: 0; }
+    .ap-title {
+      font-size: 0.78rem; font-weight: 800;
+      display: flex; align-items: center; gap: 8px;
+      letter-spacing: 0.02em;
+    }
+    .ap-wave {
+      color: #ff3b3b; font-size: 0.6rem;
+      animation: apPulse 1.4s ease-in-out infinite;
+    }
+    @keyframes apPulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.4; }
+    }
+    .ap-meta {
+      font-size: 0.7rem; color: rgba(255,255,255,0.72);
+      margin-top: 2px; font-variant-numeric: tabular-nums;
+      letter-spacing: 0.03em;
+    }
+    .ap-sep { opacity: 0.35; margin: 0 4px; }
+    .ap-progress {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 3px; background: rgba(255,255,255,0.08);
+    }
+    .ap-progress-fill {
+      height: 100%; width: 0;
+      background: linear-gradient(90deg, var(--gold) 0%, #00ffff 100%);
+      transition: width 0.3s linear;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .audio-player { animation: none; }
+      .ap-wave { animation: none; }
+    }
+    @media (max-width: 600px) {
+      .audio-player {
+        left: 12px; right: 12px; transform: none;
+        max-width: none; min-width: 0;
+      }
+      @keyframes apSlideUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+    }
+
     /* ── スクロール進捗バー ── */
     .scroll-progress {
       position: fixed; top: 0; left: 0; z-index: 9999;
@@ -74,21 +144,8 @@
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 8px 24px rgba(0,31,51,0.35), 0 2px 6px rgba(0,31,51,0.20);
       opacity: 0; transform: translateY(16px) scale(0.85);
-      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(.3,.9,.3,1), background 0.2s ease, color 0.2s ease;
+      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(.3,.9,.3,1), background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
       pointer-events: none;
-      position: fixed;
-    }
-    /* リングの脈動 */
-    .back-to-top::after {
-      content: ''; position: absolute; inset: -6px; border-radius: 50%;
-      border: 2px solid var(--gold);
-      opacity: 0;
-      animation: backTopRing 2.4s ease-out infinite;
-      pointer-events: none;
-    }
-    @keyframes backTopRing {
-      0%   { opacity: 0.6; transform: scale(1); }
-      100% { opacity: 0;   transform: scale(1.5); }
     }
     .back-to-top.visible {
       opacity: 1; transform: translateY(0) scale(1);
@@ -97,9 +154,7 @@
     .back-to-top:hover {
       background: var(--gold); color: var(--navy);
       transform: translateY(-3px) scale(1.05);
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .back-to-top::after { animation: none; display: none; }
+      box-shadow: 0 12px 32px rgba(255,184,28,0.4), 0 2px 6px rgba(0,31,51,0.20);
     }
     @media (max-width: 600px) {
       .back-to-top { bottom: 16px; right: 16px; width: 44px; height: 44px; }
@@ -671,11 +726,6 @@
       transition: background 0.2s ease, color 0.2s ease;
     }
     .intel-source-link:hover { background: var(--gold); color: var(--navy); }
-    .intel-source-link.search {
-      background: var(--white); color: var(--navy);
-      border: 1.5px solid var(--navy);
-    }
-    .intel-source-link.search:hover { background: var(--navy); color: var(--gold); }
 
     /* ── Picker コメント ── */
     .picker-comment {
@@ -1782,6 +1832,16 @@
     <a class="sn-item" href="#sec-x" data-target="sec-x"><span class="sn-dot"></span><span class="sn-label">𝕏</span></a>
   </nav>
 
+  <!-- 音声再生ミニプレイヤー（再生中のみ表示） -->
+  <div class="audio-player" id="audio-player" hidden aria-live="polite">
+    <button class="ap-stop" id="ap-stop" aria-label="停止">⏸</button>
+    <div class="ap-info">
+      <div class="ap-title"><span class="ap-wave" aria-hidden="true">●</span> AI音声ダイジェスト再生中</div>
+      <div class="ap-meta"><span id="ap-elapsed">0:00</span> <span class="ap-sep">/</span> <span id="ap-total">0:00</span> <span class="ap-sep">·</span> 残り <span id="ap-remain">0:00</span></div>
+    </div>
+    <div class="ap-progress"><div class="ap-progress-fill" id="ap-progress-fill"></div></div>
+  </div>
+
   <button class="back-to-top" id="back-to-top" aria-label="トップに戻る">↑</button>
   <div class="toast" id="toast"></div>
 
@@ -1798,9 +1858,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: '①画像を必ず表示：Unsplash失敗時は picsum.photos にシード指定フォールバック（記事ごとに一意）。②𝕏 ポストを 4→9件に拡充（落合陽一・成田悠輔・梶谷健人の実ツイート追加）。③PC余白を削減（ヒーローpadding・セクション間マージン・progress barサイズなど調整）' },
-        { date: '04/17', text: 'トップに戻るボタンを円形＋ゴールド脈動リングに。ナビバーに小さな赤い脈動ドット追加' },
-        { date: '04/17', text: 'カテゴリタブをピル型に刷新。フッターをDATA PIPELINE 4カラム構成に' }
+        { date: '04/17', text: '音声再生中にミニプレイヤー表示（elapsed/total/残り時間＋進捗バー）。TTSをnovaボイス＋アナウンサー級の日本語指示に強化' },
+        { date: '04/17', text: 'デザイン違反修正（back-to-topのゴールドリング、intel-source-linkの枠線削除）。意味不明な数字（トレンドチップのカウント、brief-card番号）を削除' },
+        { date: '04/17', text: 'サンプルデータ時に「（サンプル）」表示。関係ないURLへのリンクを廃止し、実URLのみリンク化（scraperが明朝8時に実URLを反映）' }
       ]
     });
   </script>
