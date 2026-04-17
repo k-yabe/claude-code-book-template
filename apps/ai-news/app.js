@@ -611,12 +611,22 @@
     requestAnimationFrame(step);
   }
 
+  function timeAwareGreeting() {
+    const h = new Date().getHours();
+    if (h >= 4 && h < 11) return 'おはようございます ☕ 今朝のマーケ動向です';
+    if (h >= 11 && h < 17) return 'こんにちは ☀️ 昼休みにキャッチアップ';
+    if (h >= 17 && h < 22) return 'お疲れさまです 🌙 今日のニュースまとめ';
+    return 'こんばんは ✨ 明日に向けた情報ブリーフ';
+  }
+
   function renderHero() {
     const total = NEWS_DATA.length;
     const read  = totalReadTime(NEWS_DATA);
     document.getElementById('stat-date').textContent = fmtBriefDate(Y);
     animateCount(document.getElementById('stat-total'), total, '');
     animateCount(document.getElementById('stat-read'), read, '分');
+    const greet = document.getElementById('hero-greeting');
+    if (greet) greet.textContent = timeAwareGreeting();
   }
 
   /* ── Executive Summary ── */
@@ -653,7 +663,7 @@
       const favicon = sourceFavicon(n.url) || '';
       const initials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-      <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" tabindex="0" aria-label="${escapeHtml(n.title)}">
+      <article class="top-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${escapeHtml(n.url)}" data-cat="${cat}" tabindex="0" aria-label="${escapeHtml(n.title)}">
         ${imgSrc ? `
         <div class="top-hero">
           <img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
@@ -943,11 +953,26 @@
   /* ────────── ⑧ 配線 ──────────  */
   function wireUp(more) {
     const search = document.getElementById('search');
+    const clearBtn = document.getElementById('search-clear');
     let t;
+    function updateClearBtn() {
+      if (clearBtn) clearBtn.hidden = !search.value;
+    }
+    updateClearBtn();
     search.addEventListener('input', () => {
       clearTimeout(t);
+      updateClearBtn();
       t = setTimeout(() => { state.keyword = search.value; renderMore(more); }, 120);
     });
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        search.value = '';
+        state.keyword = '';
+        updateClearBtn();
+        renderMore(more);
+        search.focus();
+      });
+    }
     const fav = document.getElementById('toggle-fav');
     if (fav) {
       // 永続化されたactive状態を復元

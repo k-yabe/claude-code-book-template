@@ -537,7 +537,7 @@
     .more-actions { display: flex; gap: 4px; align-items: center; }
     .more-search { position: relative; width: 200px; max-width: 100%; }
     .more-search input {
-      width: 100%; padding: 6px 12px 6px 28px !important;
+      width: 100%; padding: 6px 32px 6px 28px !important;
       min-height: 28px !important; font-size: 0.72rem !important;
       border: 1px solid var(--border); background: #f8f8f8;
       color: var(--text); outline: none; box-shadow: none !important;
@@ -553,6 +553,15 @@
       position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
       color: var(--text-faint); font-size: 0.75rem; pointer-events: none;
     }
+    .search-clear {
+      position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+      width: 22px; height: 22px; background: var(--navy); color: var(--white);
+      border: none; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; line-height: 1;
+      padding: 0;
+    }
+    .search-clear:hover { background: var(--gold); color: var(--navy); }
+    .more-search input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
     .icon-toggle {
       padding: 4px 8px; font-size: 0.65rem; font-weight: 700;
       letter-spacing: 0.04em; color: var(--text-muted);
@@ -810,6 +819,17 @@
       margin-bottom: var(--sp-2); line-height: 1.5;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
+
+    /* ── カテゴリ別ホバーアクセント ── */
+    .brief-card[data-cat="ai"]:hover { box-shadow: 0 14px 36px rgba(0,31,51,0.18), inset 3px 0 0 #00ffff; }
+    .brief-card[data-cat="marketing"]:hover { box-shadow: 0 14px 36px rgba(0,31,51,0.18), inset 3px 0 0 var(--gold); }
+    .brief-card[data-cat="market"]:hover { box-shadow: 0 14px 36px rgba(0,31,51,0.18), inset 3px 0 0 var(--navy); }
+    .fyi-card[data-cat="ai"]:hover { box-shadow: inset 3px 0 0 #00ffff; }
+    .fyi-card[data-cat="marketing"]:hover { box-shadow: inset 3px 0 0 var(--gold); }
+    .fyi-card[data-cat="market"]:hover { box-shadow: inset 3px 0 0 var(--navy); }
+    .top-card[data-cat="ai"]:hover { box-shadow: 0 16px 48px rgba(0,31,51,0.22), inset 4px 0 0 #00ffff; }
+    .top-card[data-cat="marketing"]:hover { box-shadow: 0 16px 48px rgba(0,31,51,0.22), inset 4px 0 0 var(--gold); }
+    .top-card[data-cat="market"]:hover { box-shadow: 0 16px 48px rgba(0,31,51,0.22), inset 4px 0 0 var(--navy); }
 
     /* ── 日付ナビゲーション ── */
     .date-nav { display: flex; align-items: center; gap: 6px; }
@@ -1114,7 +1134,7 @@
     <!-- ヒーロー -->
     <section class="hero">
       <div class="hero-left">
-        <div class="hero-eyebrow">マーケティング・インテリジェンス・ブリーフ</div>
+        <div class="hero-eyebrow" id="hero-greeting">マーケティング・インテリジェンス・ブリーフ</div>
         <div class="hero-title"><span class="hero-pulse"></span>何が起きた？ なぜ重要？ 何をすべき？</div>
       </div>
       <div class="hero-meta">
@@ -1197,6 +1217,7 @@
         <div class="more-search">
           <span class="more-search-icon">🔍</span>
           <input type="search" id="search" placeholder="検索" aria-label="キーワード検索" maxlength="100">
+          <button class="search-clear" id="search-clear" title="検索をクリア" aria-label="検索をクリア" hidden>×</button>
         </div>
         <button class="icon-toggle" id="toggle-unread" aria-pressed="false" title="未読のみ表示">未読</button>
         <button class="icon-toggle" id="toggle-fav" aria-pressed="false" title="お気に入りのみ表示">★</button>
@@ -1254,8 +1275,8 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'スクロール進捗バー・既読プログレス・トップへ戻るボタン・画像スケルトンローディングを追加' },
-        { date: '04/17', text: '注目ニュースカードに「マーケへの影響」と「推奨アクション」のプレビューを表示。Xハイライトからシードデータ表記を削除' },
+        { date: '04/17', text: '時間帯別あいさつ・記事共有（Web Share+コピー）・カテゴリ別ホバーアクセント・検索クリアボタン・キーボードショートカット n/m' },
+        { date: '04/17', text: 'スクロール進捗バー・既読プログレス・トップへ戻るボタン・画像スケルトンローディング・注目カード影響/アクションプレビュー' },
         { date: '04/17', text: 'タグ/カテゴリから関連画像を自動選択。音声倍速（1x〜2x）。「詳しく読む」に専門家視点/メタ情報を追加' }
       ]
     });
