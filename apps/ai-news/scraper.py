@@ -294,8 +294,8 @@ def fallback_summarize(items: list[dict]) -> list[dict]:
     return items
 
 
-def call_anthropic(items: list[dict]) -> list[dict] | None:
-    """Claude Haikuで一括要約。成功時は items に summary/tags を埋めて返す。失敗時 None"""
+def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
+    """Claude Haikuで一括要約。成功時は (items, executiveSummary) を返す。失敗時 None"""
     try:
         import anthropic  # type: ignore
     except ImportError:
