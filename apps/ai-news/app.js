@@ -319,6 +319,25 @@
     if (!url) return;
     window.open(url, '_blank', 'noopener,noreferrer');
   }
+  let _toastTimer;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    clearTimeout(_toastTimer);
+    el.textContent = msg;
+    el.classList.add('show');
+    _toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+  }
+  async function shareArticle(title, url) {
+    const text = `${title}\n${url}`;
+    if (navigator.share) {
+      try { await navigator.share({ title, url }); return; } catch {}
+    }
+    if (navigator.clipboard) {
+      try { await navigator.clipboard.writeText(text); showToast('リンクをコピーしました'); return; } catch {}
+    }
+    showToast('共有に失敗しました');
+  }
   /** 画像URLが安全かチェック（https のみ許可） */
   function safeImgUrl(url) {
     if (!url || typeof url !== 'string') return '';
@@ -681,6 +700,7 @@
           <div class="top-foot">
             <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読' : '✓ 既読'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
+            <button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(articleLink(n))}" aria-label="共有">↗ 共有</button>
             <a class="ext-btn" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(articleLinkLabel(n))}</a>
           </div>
         </div>
@@ -697,6 +717,12 @@
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
       btn.addEventListener('click', e => { e.stopPropagation(); toggleFav(btn.dataset.fav, btn); });
+    });
+    root.querySelectorAll('.share-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        shareArticle(btn.dataset.shareTitle, btn.dataset.shareUrl);
+      });
     });
   }
 
@@ -756,6 +782,7 @@
             <div class="brief-card-foot">
               <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
               <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
+              <button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(articleLink(n))}" aria-label="共有">↗</button>
               <a class="brief-ext-link" href="${escapeHtml(articleLink(n))}" target="_blank" rel="noopener noreferrer">${escapeHtml(articleLinkLabel(n))}</a>
             </div>
           </div>
@@ -780,6 +807,12 @@
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
       btn.addEventListener('click', e => { e.stopPropagation(); toggleFav(btn.dataset.fav, btn); });
+    });
+    root.querySelectorAll('.share-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        shareArticle(btn.dataset.shareTitle, btn.dataset.shareUrl);
+      });
     });
   }
 
