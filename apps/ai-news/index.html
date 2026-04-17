@@ -552,16 +552,30 @@
     /* ── 折りたたみ詳細（詳しく見る）── */
     .intel-details { margin: var(--sp-4) 0; }
     .intel-details > summary.intel-toggle {
-      display: inline-block; cursor: pointer; list-style: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      cursor: pointer; list-style: none;
       font-size: 0.8rem; font-weight: 800; letter-spacing: 0.03em;
       color: var(--white); padding: 10px 18px;
       background: var(--navy);
       user-select: none;
-      transition: background 0.2s ease;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    /* 左端にゴールドの縦ライン（アクセント） */
+    .intel-details > summary.intel-toggle::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+      background: var(--gold);
+      transition: width 0.2s ease;
     }
     .intel-details > summary.intel-toggle::-webkit-details-marker { display: none; }
     .intel-details[open] > summary.intel-toggle { background: var(--gold); color: var(--navy); }
-    .intel-details > summary.intel-toggle:hover { background: var(--gold); color: var(--navy); }
+    .intel-details[open] > summary.intel-toggle::before { background: var(--navy); width: 4px; }
+    .intel-details > summary.intel-toggle:hover {
+      background: var(--gold); color: var(--navy);
+      transform: translateX(2px);
+    }
+    .intel-details > summary.intel-toggle:hover::before { width: 0; }
     .intel-body {
       margin-top: var(--sp-4);
       padding: var(--sp-5);
@@ -1637,9 +1651,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
+        { date: '04/17', text: 'セクション件数バッジがスクロールで初めて見えた瞬間に0からカウントアップ。「詳しく読む」トグルもゴールド縦ラインアクセント＋ホバー時のスライドで動きをつけた' },
         { date: '04/17', text: 'セクション見出しに件数バッジ（ネイビー背景＋ゴールド文字）を追加。「重要ニュース 2」「注目ニュース 4」「その他のニュース 7」と情報量が一瞥でわかる' },
-        { date: '04/17', text: 'トレンドバーを「🔥 HOT TOPICS」風にリデザイン。先頭（最トレンド）タグはゴールド背景で強調' },
-        { date: '04/17', text: 'ヒーロー「記事」スタッツを視覚的スタックバー（Gold/Cyan/White の3色）化。既読ゲージもGold→Cyanグラデに' }
+        { date: '04/17', text: 'トレンドバーを「🔥 HOT TOPICS」風にリデザイン。先頭タグはゴールド背景で強調' }
       ]
     });
   </script>

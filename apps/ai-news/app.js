@@ -1739,13 +1739,40 @@
     renderTabs(fyi);
     renderMore(fyi);
     updateProgress();
-    // 各セクション見出しに件数バッジを設定
-    const cMust = document.getElementById('count-must-know');
-    const cWeek = document.getElementById('count-this-week');
-    const cMore = document.getElementById('count-more');
-    if (cMust) cMust.textContent = mustKnow.length;
-    if (cWeek) cWeek.textContent = thisWeek.length;
-    if (cMore) cMore.textContent = fyi.length;
+    // 各セクション見出しに件数バッジを設定（初期は 0、初めて見えた時にカウントアップ）
+    setCountTarget('count-must-know', mustKnow.length);
+    setCountTarget('count-this-week', thisWeek.length);
+    setCountTarget('count-more', fyi.length);
+  }
+
+  // セクションが見えたらカウントアップする
+  const _countState = new Map(); // id → { target, animated }
+  let _countObserver = null;
+  function setCountTarget(id, target) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const prev = _countState.get(id);
+    if (prev && prev.target === target) return;
+    _countState.set(id, { target, animated: false });
+    el.textContent = '0';
+    if (!('IntersectionObserver' in window)) { el.textContent = target; return; }
+    if (!_countObserver) {
+      _countObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const head = entry.target;
+          const countEl = head.querySelector('.sec-count');
+          if (!countEl) return;
+          const state = _countState.get(countEl.id);
+          if (!state || state.animated) return;
+          state.animated = true;
+          animateCount(countEl, state.target, '');
+          _countObserver.unobserve(head);
+        });
+      }, { threshold: 0.4 });
+    }
+    const head = el.closest('.sec-head');
+    if (head) _countObserver.observe(head);
   }
 
   async function init() {
