@@ -490,6 +490,26 @@
       letter-spacing: 0.04em; transition: opacity var(--ease-base);
     }
     .ext-btn:hover { opacity: 0.85; }
+    .share-btn {
+      background: none; border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 0.65rem; font-weight: 700;
+      padding: 4px 10px; cursor: pointer; font-family: var(--font-sans);
+      letter-spacing: 0.04em; transition: all var(--ease-base);
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .share-btn:hover { border-color: var(--gold); color: var(--navy); }
+
+    /* ── トースト通知 ── */
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--navy); color: var(--gold);
+      padding: 10px 20px; font-size: 0.78rem; font-weight: 700;
+      box-shadow: 0 4px 16px rgba(0,31,51,0.3);
+      opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none; z-index: 9999;
+      letter-spacing: 0.03em;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* ── 📑 MORE READS ── */
     .more-toolbar {
@@ -1215,6 +1235,7 @@
   </div>
 
   <button class="back-to-top" id="back-to-top" aria-label="トップに戻る">↑</button>
+  <div class="toast" id="toast"></div>
 
   <script src="../../assets/onboarding.js"></script>
   <script src="./app.js"></script>
