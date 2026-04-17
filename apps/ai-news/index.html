@@ -285,51 +285,107 @@
     }
 
     /* ── 折りたたみ詳細（詳しく見る）── */
-    .intel-details { margin: var(--sp-3) 0; }
+    .intel-details { margin: var(--sp-4) 0; }
     .intel-details > summary.intel-toggle {
       display: inline-block; cursor: pointer; list-style: none;
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
-      color: var(--navy); padding: 6px 12px;
-      background: var(--border-light);
+      font-size: 0.8rem; font-weight: 800; letter-spacing: 0.03em;
+      color: var(--white); padding: 10px 18px;
+      background: var(--navy);
       user-select: none;
+      transition: background 0.2s ease;
     }
     .intel-details > summary.intel-toggle::-webkit-details-marker { display: none; }
-    .intel-details > summary.intel-toggle::before { content: '▶ '; font-size: 0.6rem; }
-    .intel-details[open] > summary.intel-toggle::before { content: '▼ '; }
-    .intel-details > summary.intel-toggle:hover { background: var(--navy); color: var(--white); }
-    .intel-body { margin-top: var(--sp-2); }
+    .intel-details[open] > summary.intel-toggle { background: var(--gold); color: var(--navy); }
+    .intel-details > summary.intel-toggle:hover { background: var(--gold); color: var(--navy); }
+    .intel-body {
+      margin-top: var(--sp-4);
+      padding: var(--sp-5);
+      background: rgba(0,31,51,0.025);
+      border-left: 4px solid var(--navy);
+    }
+    .intel-details.brief .intel-body {
+      padding: var(--sp-4);
+    }
 
     /* ── 重要ニュース: インテリジェンスブロック ── */
-    .intel-block { padding: var(--sp-3) 0; margin: var(--sp-2) 0; }
-    .intel-block.impact { background: rgba(0,31,51,0.03); padding: var(--sp-3) var(--sp-4); }
-    .intel-block.action { background: rgba(255,184,28,0.06); padding: var(--sp-3) var(--sp-4); }
-    .intel-label {
-      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em; margin-bottom: 3px;
+    .intel-block {
+      padding: var(--sp-4) var(--sp-4);
+      margin: var(--sp-3) 0;
+      background: var(--white);
     }
-    .intel-block.impact .intel-label { color: var(--text-muted); }
-    .intel-block.action .intel-label { color: var(--gold); }
+    .intel-block.impact {
+      border-left: 4px solid var(--navy);
+    }
+    .intel-block.action {
+      border-left: 4px solid var(--gold);
+      background: rgba(255,184,28,0.06);
+    }
+    .intel-label {
+      font-size: 0.72rem; font-weight: 900; letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .intel-block.impact .intel-label { color: var(--navy); }
+    .intel-block.action .intel-label { color: #7a5500; }
     .intel-text {
-      font-size: 0.88rem; font-weight: 600; color: var(--navy); line-height: 1.65;
+      font-size: 0.98rem; font-weight: 600; color: var(--navy); line-height: 1.7;
     }
 
     /* ── Picker コメント ── */
     .picker-comment {
-      display: flex; gap: 8px;
-      padding: var(--sp-3) var(--sp-4); margin: var(--sp-2) 0;
-      background: rgba(0,31,51,0.03);
-      border-left: 2px solid var(--navy-20);
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: var(--sp-4);
+      margin: var(--sp-3) 0;
+      background: var(--navy);
+      color: var(--white);
     }
-    .picker-comment.brief {
-      background: rgba(0,31,51,0.02);
-      border-left: 2px solid var(--navy-20);
-      padding: 6px 10px; margin-bottom: var(--sp-2);
+    .picker-icon { flex-shrink: 0; font-size: 1.3rem; margin-top: 2px; }
+    .picker-content { flex: 1; }
+    .picker-label {
+      font-size: 0.6rem; font-weight: 900; letter-spacing: 0.15em;
+      color: var(--gold); margin-bottom: 4px; text-transform: uppercase;
     }
-    .picker-icon { flex-shrink: 0; font-size: 0.8rem; margin-top: 1px; }
     .picker-text {
-      font-size: 0.78rem; color: var(--text-muted);
-      line-height: 1.55; font-style: italic;
+      font-size: 0.92rem; color: rgba(255,255,255,0.95);
+      line-height: 1.6; font-weight: 500;
     }
-    .picker-comment.brief .picker-text { color: var(--text-muted); font-size: 0.75rem; }
+
+    /* ── インテリジェンス・メタ情報 ── */
+    .intel-meta {
+      margin-top: var(--sp-4);
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--white);
+      border-top: 2px solid var(--border-light);
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px 16px;
+    }
+    .intel-meta-row {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.75rem;
+    }
+    .intel-meta-label {
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em;
+      color: var(--text-muted); min-width: 70px; text-transform: uppercase;
+    }
+    .intel-meta-value {
+      font-weight: 700; color: var(--navy);
+    }
+    .intel-tags {
+      margin-top: var(--sp-3); padding: 0 var(--sp-4);
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .intel-tags .tag {
+      font-size: 0.7rem; padding: 3px 8px;
+      background: var(--navy); color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* ── 音声再生速度ボタン ── */
+    .speed-btn {
+      min-width: 42px;
+      font-weight: 800; letter-spacing: 0.02em;
+      font-variant-numeric: tabular-nums;
+    }
 
     /* ── MUST-KNOW: タイトルリンク ── */
     .top-title-link {
@@ -943,6 +999,7 @@
       <div class="cmd-actions">
         <button class="cmd-btn" id="btn-today" style="display:none;">今日に戻る</button>
         <button class="cmd-btn" id="btn-listen" title="ニュースを音声で聴く" aria-label="音声で聴く">🔊 聴く（約5分）</button>
+        <button class="cmd-btn speed-btn" id="btn-speed" title="再生速度" aria-label="再生速度">1x</button>
         <button class="cmd-btn icon" id="btn-help" title="ショートカット (?)" aria-label="キーボードショートカット">?</button>
       </div>
     </div>
@@ -1033,9 +1090,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'NewsPicks/SmartNews風UI全面刷新。画像なし時も大型ビジュアルカード＋ソースロゴ＋BREAKINGラベルでマガジン感を演出' },
-        { date: '04/17', text: 'ヒーロー大型化、「AI NEWS」ウォーターマーク、統計を3カラム罫線区切りに。タイトル周りの視覚階層を強化' },
-        { date: '04/17', text: 'URL信頼性修正・OGP自動取得・TTS coral voiceによる温かい音声・再生中カウントダウン表示' }
+        { date: '04/17', text: 'タグ/カテゴリから関連画像を自動選択。OGPが無くても記事内容にマッチした画像を必ず表示' },
+        { date: '04/17', text: '音声倍速ボタン（1x〜2x）。TTSをshimmerボイス+人間らしい話し方instructionsに更新。リンクはGoogle検索にフォールバック' },
+        { date: '04/17', text: '「詳しく読む」を大幅拡張：影響/アクション/専門家視点/情報源/公開日時/読了目安/タグを全て表示' }
       ]
     });
   </script>
