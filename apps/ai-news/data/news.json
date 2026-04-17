@@ -11,7 +11,7 @@
     {
       "id": "n_jp001_google_ai",
       "title": "Google AI Overviewが日本で本格展開、検索結果の常時表示へ",
-      "url": "https://www.itmedia.co.jp/news/articles/2601/28/news069.html",
+      "url": null,
       "image": null,
       "source": "ITmedia AI+",
       "sourceType": "media",
@@ -29,7 +29,7 @@
     {
       "id": "n_jp002_persol_ai",
       "title": "パーソルHD、AI採用マッチング基盤を夏から本格稼働",
-      "url": "https://www.itmedia.co.jp/enterprise/articles/2604/11/news014.html",
+      "url": null,
       "image": null,
       "source": "ITmedia NEWS",
       "sourceType": "media",
@@ -47,7 +47,7 @@
     {
       "id": "n_jp003_cookie_fp",
       "title": "Cookie廃止後はファーストパーティデータへ、CDP導入率40%増",
-      "url": "https://markezine.jp/article/detail/50061",
+      "url": null,
       "image": null,
       "source": "MarkeZine",
       "sourceType": "media",
@@ -65,7 +65,7 @@
     {
       "id": "n_jp004_claude_code",
       "title": "Claude Code、プロジェクト管理機能を追加しエージェント強化",
-      "url": "https://www.anthropic.com/news/claude-opus-4-7",
+      "url": null,
       "image": null,
       "source": "ASCII.jp",
       "sourceType": "media",
@@ -83,7 +83,7 @@
     {
       "id": "n_jp005_line_ad",
       "title": "LINE広告のAIクリエイティブ自動生成、CTR平均25%改善",
-      "url": "https://webtan.impress.co.jp/e/2026/04/07/52273",
+      "url": null,
       "image": null,
       "source": "Web担当者Forum",
       "sourceType": "media",
@@ -101,7 +101,7 @@
     {
       "id": "n_jp006_recruit_dx",
       "title": "DX人材の需給ギャップ、2026年に過去最大の45万人",
-      "url": "https://www.dentsu.co.jp/news/release/2026/0305-011003.html",
+      "url": null,
       "image": null,
       "source": "ITmedia NEWS",
       "sourceType": "media",
@@ -119,7 +119,7 @@
     {
       "id": "n_jp007_dentsu_ai",
       "title": "電通、広告制作をAIで自動化する「Creative AI Studio」発表",
-      "url": "https://markezine.jp/article/detail/50399",
+      "url": null,
       "image": null,
       "source": "電通報",
       "sourceType": "media",
@@ -137,7 +137,7 @@
     {
       "id": "n_jp008_ma_compare",
       "title": "MA ツール比較2026、HubSpotがAI強化でシェア拡大",
-      "url": "https://blog.hubspot.com/marketing/ai-email-marketing",
+      "url": null,
       "image": null,
       "source": "ferret",
       "sourceType": "media",

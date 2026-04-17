@@ -10,6 +10,8 @@
   /* ────────── ① シードデータ ──────────
      importance: 1=top, 2=briefing, 3=more
      readMin: 推定読了時間（分）
+     ※ URLはスクレイパーが取得した実データのみ正確。
+       シードデータは架空記事のため url: null（間違ったURLをリンクしない）。
   */
   const TODAY = '2026-04-15';
   const Y     = '2026-04-14';
@@ -30,7 +32,7 @@
       actionItem: '来週の定例で自社コンテンツのGEO対策（ChatGPT/Perplexityでの自社表示確認）を議題に入れる。',
       pickerComment: 'GEO（Generative Engine Optimization）はSEOの次の戦場。人材業界では「エンジニア 転職」等のキーワードでAI検索結果に表示されるかが採用数に直結する。早い者勝ちの領域。',
       source: 'Gartner', sourceType: 'media', category: 'marketing',
-      url: 'https://webtan.impress.co.jp/e/2026/04/07/52273',
+      url: null,
       image: null,
       publishedAt: `${Y}T09:10:00+09:00`,
       tags: ['B2B', 'GEO', '購買行動']
@@ -43,7 +45,7 @@
       actionItem: 'Search Consoleで主要キーワードのCTR変化をモニタリング開始。AI Overviewsに自社が表示されているか確認。',
       pickerComment: 'SEO担当者は今すぐ「site:自社ドメイン」でAI Overviewsに引用されているか確認すべき。構造化データのFAQ・HowToマークアップが引用率を高める傾向がある。',
       source: 'Google Search Central', sourceType: 'media', category: 'ai',
-      url: 'https://www.itmedia.co.jp/news/articles/2601/28/news069.html',
+      url: null,
       image: null,
       publishedAt: `${Y}T18:40:00+09:00`,
       tags: ['SEO', 'GEO', 'Google']
@@ -56,7 +58,7 @@
       actionItem: '自社のSalesforce契約でAgentforce利用可否を営業担当に確認する。',
       pickerComment: 'SalesforceのAIエージェント戦略はMarketing Cloud全体に波及する。既存ユーザーは追加費用なしで使える可能性が高いので、営業担当に確認するだけでROIが出る案件。',
       source: 'Salesforce News', sourceType: 'media', category: 'market',
-      url: 'https://www.itmedia.co.jp/enterprise/articles/2604/11/news014.html',
+      url: null,
       image: null,
       publishedAt: `${Y}T14:45:00+09:00`,
       tags: ['SaaS', 'AIエージェント', 'CMO']
@@ -69,7 +71,7 @@
       actionItem: '今抱えているレポート業務で試用し、時間短縮効果を検証する。',
       pickerComment: '200kトークンは文庫本1冊分。競合分析で10社分のIR資料を一括投入して比較表を作れる。レポート業務の「素材集め→構造化」が自動化される。',
       source: 'Anthropic', sourceType: 'media', category: 'ai',
-      url: 'https://www.anthropic.com/news/claude-opus-4-7',
+      url: null,
       image: null,
       publishedAt: `${Y}T22:00:00+09:00`,
       tags: ['Claude', 'LLM', '要約']
@@ -82,7 +84,7 @@
       actionItem: 'Google Ads管理画面でブランド除外レポートを確認し、月次レポートに追加。',
       pickerComment: 'PMaxはブラックボックスだった部分にようやく透明性が出てきた。特にBtoBはブランドKWの混在でCPAが歪みやすいので、この機能でROAS改善の根拠を示しやすくなる。',
       source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
-      url: 'https://webtan.impress.co.jp/n/2026/03/06/52272',
+      url: null,
       image: null,
       publishedAt: `${Y}T08:30:00+09:00`,
       tags: ['広告', 'PMax', 'Google']
@@ -95,7 +97,7 @@
       actionItem: '次の予算策定で動画広告枠の比率増を提案する際のエビデンスとしてストック。',
       pickerComment: '動画広告の伸びはショート動画が牽引。採用マーケでは30秒以内の「社員の1日」系コンテンツがCPV最安で成果が出ている企業が多い。',
       source: '電通', sourceType: 'media', category: 'market',
-      url: 'https://www.dentsu.co.jp/news/release/2026/0305-011003.html',
+      url: null,
       image: null,
       publishedAt: `${Y}T10:00:00+09:00`,
       tags: ['広告費', '日本', '統計']
@@ -108,7 +110,7 @@
       actionItem: '利用中のDSP/SSPがUID2.0対応済みか確認し、未対応なら代替を検討。',
       pickerComment: 'UID2.0はメールアドレスベースなので、会員登録フローを持つ採用サイトとは相性が良い。自社の1st Partyデータ活用戦略と合わせて検討する価値がある。',
       source: 'AdExchanger', sourceType: 'media', category: 'market',
-      url: 'https://markezine.jp/article/detail/50061',
+      url: null,
       image: null,
       publishedAt: `${Y}T07:50:00+09:00`,
       tags: ['Cookieless', 'AdTech']
@@ -121,7 +123,7 @@
       actionItem: 'Marketo利用中なら設定画面でAI件名最適化をONにして次回配信でテスト。',
       pickerComment: 'MA各社がAI件名最適化を投入中。設定ONだけで効果が出るので、使わない理由がない。ただし日本語の件名最適化精度は英語より低い傾向があるので、最初の数回は結果を注視すべき。',
       source: 'Adobe Marketo Engage', sourceType: 'media', category: 'marketing',
-      url: 'https://business.adobe.com/jp/blog/the-latest/generative-ai-innovations-in-adobe-marketo-engage-help-scale-marketer-productivity-and-customer-personalization',
+      url: null,
       image: null,
       publishedAt: `${Y}T11:05:00+09:00`,
       tags: ['MA', 'メール', 'AI']
@@ -134,7 +136,7 @@
       actionItem: 'AI活用のコンテンツ制作フローがある場合、β申請を検討。',
       pickerComment: '「ブランドボイス制約」はエンタープライズ向けAI利用の大きなペインポイントを解消する。採用広報でAI生成テキストを使っている企業は導入検討の価値あり。',
       source: 'OpenAI', sourceType: 'media', category: 'ai',
-      url: 'https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/',
+      url: null,
       image: null,
       publishedAt: `${Y}T20:15:00+09:00`,
       tags: ['GPT-5', 'API', 'ブランドガバナンス']
@@ -147,7 +149,7 @@
       actionItem: 'ターゲットにZ世代を含む場合、TikTok Search Adsのβ申請を検討。',
       pickerComment: 'TikTok検索は「〇〇 転職」で実際に使われ始めている。新卒採用でTikTokを活用している企業は検索広告も試す価値がある。CPCはまだGoogleより安い。',
       source: 'TikTok for Business', sourceType: 'media', category: 'marketing',
-      url: 'https://ads.tiktok.com/business/en-US/blog/introducing-search-ads-campaign',
+      url: null,
       image: null,
       publishedAt: `${Y}T13:00:00+09:00`,
       tags: ['SNS', '検索広告']
@@ -160,7 +162,7 @@
       actionItem: 'HubSpot利用中ならZoom連携をONにして、商談要約のコンテンツ活用を試す。',
       pickerComment: '商談の文字起こしをそのままコンテンツマーケのネタ帳にする発想が重要。「お客様がよく使うフレーズ」をLP・広告コピーに反映すると、共感率が上がる。',
       source: 'HubSpot', sourceType: 'media', category: 'marketing',
-      url: 'https://blog.hubspot.com/marketing/ai-email-marketing',
+      url: null,
       image: null,
       publishedAt: `${Y}T15:20:00+09:00`,
       tags: ['CRM', 'セールス']
@@ -170,7 +172,7 @@
   /* ────────── ② Xハイライト（生成AIトレンド収集） ──────────
      目的: Xで話題の生成AI関連ポストを収集し、マーケ実務に活かせるトレンドを提示する。
      将来的にはX APIで自動収集。現在はシードデータ。
-     ※ シードデータのURLは空（架空のツイートなのでリンクを貼らない）
+     ※ シードデータのURLはnull（架空のツイートなのでリンクを貼らない）
      ※ スクレイパーが取得した実データにはツイートURLが付く
   */
   let X_HIGHLIGHTS = [
@@ -178,55 +180,55 @@
       id: 'x1', author: '深津貴之', handle: '@fladdict',
       avatar: 'https://unavatar.io/x/fladdict',
       text: 'Claude Codeが本当にやばい。プロンプト1行で「設計→実装→テスト→デプロイ」まで全部やる。エンジニアの仕事の定義が変わりつつある。',
-      tag: 'Claude Code', url: 'https://x.com/fladdict'
+      tag: 'Claude Code', url: null
     },
     {
       id: 'x2', author: '安宅和人', handle: '@kaz_ataka',
       avatar: 'https://unavatar.io/x/kaz_ataka',
       text: '生成AIで「知的生産のコスト」が限りなくゼロに近づく。差別化は「何を作るか」ではなく「何を問うか」に完全シフトした。',
-      tag: 'AI戦略', url: 'https://x.com/kaz_ataka'
+      tag: 'AI戦略', url: null
     },
     {
       id: 'x3', author: '松尾豊', handle: '@ymatsuo',
       avatar: 'https://unavatar.io/x/ymatsuo',
       text: '日本企業のAI導入率がようやく50%を超えた。だが「導入した」と「成果が出ている」の間には巨大なギャップがある。プロンプト教育だけでは不十分で、業務プロセス自体の再設計が必須。',
-      tag: 'AI導入', url: 'https://x.com/ymatsuo'
+      tag: 'AI導入', url: null
     },
     {
       id: 'x4', author: '落合陽一', handle: '@ochyai',
       avatar: 'https://unavatar.io/x/ochyai',
       text: 'マルチモーダルAIの進化で「テキストだけのマーケティング」は確実に価値が下がる。画像・動画・音声を横断的に生成・最適化できるチームが勝つ。',
-      tag: 'マルチモーダルAI', url: 'https://x.com/ochyai'
+      tag: 'マルチモーダルAI', url: null
     },
     {
       id: 'x5', author: '成田悠輔', handle: '@narita_yusuke',
       avatar: 'https://unavatar.io/x/narita_yusuke',
       text: 'AIが「平均的な仕事」を代替するスピードが想定より速い。採用市場では「AIを使いこなせる人」のプレミアムが月単位で上がっている感覚。',
-      tag: 'AI×採用', url: 'https://x.com/narita_yusuke'
+      tag: 'AI×採用', url: null
     },
     {
       id: 'x6', author: '梶谷健人', handle: '@kajiken0630',
       avatar: 'https://unavatar.io/x/kajiken0630',
       text: 'Claude CodeでLP制作を試したら、デザインからコーディングまで30分で完了した。マーケのABテスト用ページ量産に使える。非エンジニアでもここまでできる時代。',
-      tag: 'Claude Code', url: 'https://x.com/kajiken0630'
+      tag: 'Claude Code', url: null
     },
     {
       id: 'x7', author: '石角友愛', handle: '@TomoePalonia',
       avatar: 'https://unavatar.io/x/TomoePalonia',
       text: 'GoogleのGemini、OpenAIのGPT、AnthropicのClaude。3社の競争が激しすぎて毎週アップデートがある。企業のAI選定は「今ベストか」より「乗り換えやすいか」が重要になった。',
-      tag: '生成AI比較', url: 'https://x.com/TomoePalonia'
+      tag: '生成AI比較', url: null
     },
     {
       id: 'x8', author: '田中邦裕', handle: '@kunihirotanaka',
       avatar: 'https://unavatar.io/x/kunihirotanaka',
       text: 'さくらインターネットのGPUクラウド、想定の3倍の申し込みが来ている。日本企業が自社でAIを動かしたい需要がここまで大きいとは。国産クラウドの出番。',
-      tag: 'AI基盤', url: 'https://x.com/kunihirotanaka'
+      tag: 'AI基盤', url: null
     },
     {
       id: 'x9', author: '緒方憲太郎', handle: '@ogatakentaro',
       avatar: 'https://unavatar.io/x/ogatakentaro',
       text: 'Voicyでも生成AI音声の活用が始まっている。テキストを入れるだけで自然な日本語ナレーションが作れる。ポッドキャスト・動画ナレーションのコストが10分の1になる世界。',
-      tag: 'AI音声', url: 'https://x.com/ogatakentaro'
+      tag: 'AI音声', url: null
     }
   ];
 
@@ -331,6 +333,58 @@
   /** 安全画像URLを返す（なければ空文字列） */
   function pickImage(article) {
     return safeImgUrl(article.image);
+  }
+
+  /** OGP画像をクライアントサイドで取得し、記事データとDOMを更新 */
+  const ogpCache = {};
+  async function fetchOgpImage(url) {
+    if (!url || ogpCache[url] !== undefined) return ogpCache[url] || null;
+    ogpCache[url] = null;
+    try {
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+      const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(5000) });
+      if (!resp.ok) return null;
+      const html = await resp.text();
+      const m = html.match(/<meta[^>]+(?:property|name)\s*=\s*["'](?:og:image|twitter:image(?::src)?)["'][^>]*content\s*=\s*["']([^"']+)["']/i)
+        || html.match(/<meta[^>]+content\s*=\s*["']([^"']+)["'][^>]*(?:property|name)\s*=\s*["'](?:og:image|twitter:image(?::src)?)["']/i);
+      if (!m) return null;
+      const imgUrl = m[1].trim();
+      if (!imgUrl.startsWith('https://')) return null;
+      ogpCache[url] = imgUrl;
+      return imgUrl;
+    } catch { return null; }
+  }
+
+  async function enrichOgpImages() {
+    const tasks = NEWS_DATA.filter(n => n.url && !n.image).map(async (n) => {
+      const img = await fetchOgpImage(n.url);
+      if (!img) return;
+      n.image = img;
+      document.querySelectorAll(`[data-id="${n.id}"]`).forEach(card => {
+        const heroEl = card.querySelector('.top-header-bar');
+        if (heroEl) {
+          const hero = document.createElement('div');
+          hero.className = 'top-hero';
+          hero.innerHTML = `<img src="${img}" alt="" loading="lazy" onerror="${IMG_ONERROR}"><div class="top-hero-overlay"><span class="hero-chip cat-${n.category}">${escapeHtml(CAT_LABEL[n.category] || n.category)}</span><span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}</span></div>`;
+          heroEl.replaceWith(hero);
+        }
+        const accent = card.querySelector('.fyi-accent');
+        if (accent) {
+          const thumb = document.createElement('div');
+          thumb.className = 'fyi-thumb';
+          thumb.innerHTML = `<img src="${img}" alt="" loading="lazy" onerror="${IMG_ONERROR}">`;
+          accent.replaceWith(thumb);
+        }
+        if (card.classList.contains('no-img')) {
+          const thumbDiv = document.createElement('div');
+          thumbDiv.className = 'brief-card-thumb';
+          thumbDiv.innerHTML = `<img src="${img}" alt="" loading="lazy" onerror="${IMG_ONERROR}">`;
+          card.insertBefore(thumbDiv, card.firstChild);
+          card.classList.remove('no-img');
+        }
+      });
+    });
+    await Promise.allSettled(tasks);
   }
   function toggleRead(id, el) {
     if (state.read.has(id)) {
@@ -1155,10 +1209,10 @@
       const audioUrl = await tryOpenAITTS(digest);
       if (audioUrl) {
         preloadedAudioUrl = audioUrl;
-        // 準備完了バッジを表示
         const btn = document.getElementById('btn-listen');
         if (btn && !speechState.playing) {
-          btn.textContent = '▶ 今日のダイジェスト（準備完了）';
+          const estMin = Math.ceil((preloadedDigest || '').length / 300);
+          btn.textContent = `▶ 今日のダイジェスト（約${estMin}分 · 準備完了）`;
           btn.classList.add('ready');
         }
       }
@@ -1171,11 +1225,11 @@
     stopSpeech();
     speechState.playing = true;
 
-    // 事前生成済みなら即再生
     if (preloadedAudioUrl) {
       const audio = new Audio(preloadedAudioUrl);
       speechState.audio = audio;
-      setBtnState('⏹ 停止', true);
+      const estMin = Math.ceil((preloadedDigest || '').length / 300);
+      setBtnState(`⏹ 再生中（約${estMin}分）`, true);
       audio.onended = () => stopSpeech();
       audio.onerror = () => { fallbackWebSpeech((preloadedDigest || '').split(/[。\n]+/).filter(Boolean)); };
       audio.play().catch(() => { fallbackWebSpeech((preloadedDigest || '').split(/[。\n]+/).filter(Boolean)); });
@@ -1215,15 +1269,30 @@
     }
   }
 
+  function findBestJapaneseVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    const jaVoices = voices.filter(v => v.lang.startsWith('ja'));
+    const preferred = ['Google 日本語', 'Microsoft Nanami', 'Kyoko', 'O-Ren', 'Hattori'];
+    for (const name of preferred) {
+      const v = jaVoices.find(jv => jv.name.includes(name));
+      if (v) return v;
+    }
+    return jaVoices[0] || null;
+  }
+
   function fallbackWebSpeech(lines) {
     if (!('speechSynthesis' in window) || !speechState.playing) { stopSpeech(); return; }
-    setBtnState('⏹ 停止', true);
+    const estMin = Math.ceil(lines.join('').length / 300);
+    setBtnState(`⏹ 停止（約${estMin}分）`, true);
     let idx = 0;
+    const voice = findBestJapaneseVoice();
     function speakNext() {
       if (idx >= lines.length || !speechState.playing) { stopSpeech(); return; }
       const u = new SpeechSynthesisUtterance(lines[idx++]);
       u.lang = 'ja-JP';
-      u.rate = 1.1;
+      u.rate = 0.95;
+      u.pitch = 1.05;
+      if (voice) u.voice = voice;
       u.onend = speakNext;
       u.onerror = speakNext;
       window.speechSynthesis.speak(u);
@@ -1238,7 +1307,8 @@
       speechState.audio = null;
     }
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    setBtnState('🔊 聴く', false);
+    const estMin = preloadedDigest ? Math.ceil(preloadedDigest.length / 300) : 5;
+    setBtnState(`🔊 聴く（約${estMin}分）`, false);
   }
 
   function wireSpeech() {
@@ -1345,14 +1415,14 @@
     // ローディング表示は出さない（バックグラウンドで取得）
     const isRemote = await loadRemote();
     if (isRemote) {
-      // ── 3. ヒーローの Brief 日付・Items・Read time を再計算 + リスト差し替え ──
       renderHero();
       applyMeta(true);
       fullRender();
       renderX();
-      // wireUp が掴んでた more 参照を新しい _moreRef に置き換える
       rewireMore();
     }
+    // OGP画像をバックグラウンドで取得（URLがある記事のみ）
+    enrichOgpImages().catch(() => {});
   }
   function rewireMore() {
     // wireUp 内で more を closure キャプチャしているため、検索/★絞り込みも最新リストで再評価できるよう
