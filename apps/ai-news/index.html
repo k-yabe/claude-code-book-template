@@ -10,6 +10,34 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <style>
+    /* ── PC セクションナビゲーション（≥1280px で表示） ── */
+    .section-nav { display: none; }
+    @media (min-width: 1280px) {
+      .section-nav[hidden] { display: none; }
+      .section-nav:not([hidden]) {
+        display: flex; flex-direction: column; gap: 6px;
+        position: fixed; right: 16px; top: 50%;
+        transform: translateY(-50%); z-index: 50;
+      }
+      .sn-item {
+        display: flex; align-items: center; gap: 8px;
+        padding: 6px 10px;
+        background: rgba(255,255,255,0.94);
+        color: var(--navy-60, #667d8d);
+        text-decoration: none;
+        font-size: 0.68rem; font-weight: 800; letter-spacing: 0.04em;
+        box-shadow: 0 2px 10px rgba(0,31,51,0.08);
+        transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+      }
+      .sn-item:hover { background: var(--navy); color: var(--gold); transform: translateX(-2px); }
+      .sn-item.active { background: var(--navy); color: var(--gold); }
+      .sn-dot {
+        width: 8px; height: 8px; background: currentColor; border-radius: 50%;
+        flex-shrink: 0; opacity: 0.9;
+      }
+      .sn-label { line-height: 1; }
+    }
+
     /* ── スクロール進捗バー ── */
     .scroll-progress {
       position: fixed; top: 0; left: 0; z-index: 9999;
@@ -1304,7 +1332,7 @@
     </div>
 
     <!-- 🔥 今すぐ押さえる (MUST-KNOW) -->
-    <div class="sec-head">
+    <div class="sec-head" id="sec-must-know">
       <span class="sec-icon gold">🔥</span>
       <span class="sec-title">重要ニュース</span>
       <span class="sec-sub">必ず目を通すべきニュース</span>
@@ -1313,7 +1341,7 @@
     <div id="must-know"></div>
 
     <!-- ⚡ 今週チェック (THIS WEEK) -->
-    <div class="sec-head">
+    <div class="sec-head" id="sec-this-week">
       <span class="sec-icon cyan">⚡</span>
       <span class="sec-title">注目ニュース</span>
       <span class="sec-sub">チェックしておきたい動き</span>
@@ -1322,7 +1350,7 @@
     <div class="brief-grid" id="this-week"></div>
 
     <!-- 📑 知っておけばOK (FYI) -->
-    <div class="sec-head">
+    <div class="sec-head" id="sec-more">
       <span class="sec-icon">📑</span>
       <span class="sec-title">その他のニュース</span>
       <span class="sec-sub">余裕があれば目を通す</span>
@@ -1343,7 +1371,7 @@
     <div class="more-list" id="more-list" aria-live="polite"></div>
 
     <!-- 𝕏 HIGHLIGHTS -->
-    <div class="sec-head">
+    <div class="sec-head" id="sec-x">
       <span class="sec-icon">𝕏</span>
       <span class="sec-title">𝕏 生成AIトレンド</span>
       <span class="sec-sub">Xで話題の生成AI関連ポスト</span>
@@ -1376,6 +1404,14 @@
     </div>
   </div>
 
+  <!-- PC（≥1280px）セクションナビ。右端にfixedで表示 -->
+  <nav class="section-nav" id="section-nav" aria-label="セクションナビゲーション" hidden>
+    <a class="sn-item" href="#sec-must-know" data-target="sec-must-know"><span class="sn-dot"></span><span class="sn-label">重要</span></a>
+    <a class="sn-item" href="#sec-this-week" data-target="sec-this-week"><span class="sn-dot"></span><span class="sn-label">注目</span></a>
+    <a class="sn-item" href="#sec-more" data-target="sec-more"><span class="sn-dot"></span><span class="sn-label">その他</span></a>
+    <a class="sn-item" href="#sec-x" data-target="sec-x"><span class="sn-dot"></span><span class="sn-label">𝕏</span></a>
+  </nav>
+
   <button class="back-to-top" id="back-to-top" aria-label="トップに戻る">↑</button>
   <div class="toast" id="toast"></div>
 
@@ -1392,9 +1428,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'PC幅の細部ポリッシュ：その他ニュースのサムネイル 140→200px・高さ 90→120px に拡大、Xカードに統一した min-height と padding、情報密度とバランスを微調整' },
-        { date: '04/17', text: 'PC幅を活かした全面UIリビルド：重要ニュースを2列、3行サマリーを3列、𝕏を4列にグリッド化。ヒーローと見出しもPC用に拡大して視線誘導を強化' },
-        { date: '04/17', text: '𝕏 生成AIトレンドを実在ツイートのみに差し替え（深津貴之・安宅和人）。各カードは現物のポストに直接遷移' }
+        { date: '04/17', text: 'PC幅（≥1280px）に「セクションナビ」を追加。右端fixedで重要/注目/その他/𝕏 の4リンク、現在表示中のセクションはゴールドでハイライト。縦に長い記事一覧での回遊性UP' },
+        { date: '04/17', text: 'PC幅の細部ポリッシュ：その他ニュースのサムネイル 140→200px、Xカードに min-height 180pxでカード整列、情報密度とバランスを微調整' },
+        { date: '04/17', text: 'PC幅1200pxを活かした全面UIリビルド：重要ニュースを2列、3行サマリーを3列、𝕏を4列にグリッド化' }
       ]
     });
   </script>

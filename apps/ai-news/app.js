@@ -1758,6 +1758,46 @@
     }
     wireUp(_moreRef);
   }
+  /* ────────── ⑫b セクションナビ（PC ≥1280px） ──────────  */
+  function wireSectionNav() {
+    const nav = document.getElementById('section-nav');
+    if (!nav) return;
+    const mql = window.matchMedia('(min-width: 1280px)');
+    function updateVisibility() {
+      if (mql.matches) nav.removeAttribute('hidden');
+      else nav.setAttribute('hidden', '');
+    }
+    updateVisibility();
+    mql.addEventListener?.('change', updateVisibility);
+
+    const items = nav.querySelectorAll('.sn-item');
+    // スムーススクロール（視差効果オフの環境は瞬間スクロール）
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    items.forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const id = a.dataset.target;
+        const el = document.getElementById(id);
+        if (!el) return;
+        const y = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: y, behavior: prefersReduced ? 'auto' : 'smooth' });
+      });
+    });
+
+    // IntersectionObserver で active なセクションをハイライト
+    const targets = Array.from(items).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+    if ('IntersectionObserver' in window && targets.length) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const id = entry.target.id;
+          items.forEach(a => a.classList.toggle('active', a.dataset.target === id));
+        });
+      }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+      targets.forEach(t => io.observe(t));
+    }
+  }
+
   /* ────────── ⑬ スクロール進捗 + トップへ戻る ──────────  */
   function wireScrollUI() {
     const progressBar = document.getElementById('scroll-progress');
@@ -1785,9 +1825,10 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => { init(); wireScrollUI(); });
+    document.addEventListener('DOMContentLoaded', () => { init(); wireScrollUI(); wireSectionNav(); });
   } else {
     init();
     wireScrollUI();
+    wireSectionNav();
   }
 })();
