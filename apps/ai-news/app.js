@@ -664,6 +664,13 @@
     animateCount(document.getElementById('stat-read'), read, '分');
     const bd = document.getElementById('stat-breakdown');
     if (bd) bd.innerHTML = `<b>${mustCount}</b>重要 · <b>${weekCount}</b>注目 · <b>${fyiCount}</b>その他`;
+    // スタックバーの各セグメントに flex 比を割り当てて可視化
+    const hsbMust = document.getElementById('hsb-must');
+    const hsbWeek = document.getElementById('hsb-week');
+    const hsbFyi  = document.getElementById('hsb-fyi');
+    if (hsbMust) hsbMust.style.flex = String(mustCount || 0);
+    if (hsbWeek) hsbWeek.style.flex = String(weekCount || 0);
+    if (hsbFyi)  hsbFyi.style.flex  = String(fyiCount  || 0);
     const greet = document.getElementById('hero-greeting');
     if (greet) greet.textContent = timeAwareGreeting();
     // LIVE インジケーター: 最終更新を相対表記で
