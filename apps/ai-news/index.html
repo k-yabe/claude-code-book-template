@@ -1445,14 +1445,43 @@
     }
     .brief-read-toggle:hover { border-color: var(--gold); color: var(--navy); }
 
-    /* ── 注記 ── */
+    /* ── 注記（データパイプライン情報） ── */
     .data-note {
-      margin: var(--sp-5) var(--sp-5) 0;
-      padding: var(--sp-3) var(--sp-4);
+      margin: var(--sp-6) var(--sp-5) 0;
+      padding: var(--sp-4) var(--sp-5);
       background: var(--white); border-left: 3px solid var(--gold);
-      font-size: 0.68rem; color: var(--text-muted); line-height: 1.6;
+      font-size: 0.7rem; color: var(--text-muted); line-height: 1.6;
     }
     .data-note strong { color: var(--navy); }
+    .data-note-head {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: var(--sp-3);
+      padding-bottom: var(--sp-2);
+      border-bottom: 1px solid rgba(0,31,51,0.08);
+    }
+    .data-note-icon { font-size: 0.9rem; }
+    .data-note-title {
+      font-size: 0.6rem; font-weight: 900; color: var(--navy);
+      letter-spacing: 0.16em;
+    }
+    .data-note-grid {
+      display: grid; gap: var(--sp-2) var(--sp-4);
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (min-width: 1024px) {
+      .data-note-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .data-note-grid { grid-template-columns: 1fr; }
+    }
+    .dn-item { display: flex; flex-direction: column; gap: 2px; }
+    .dn-label {
+      font-size: 0.56rem; font-weight: 800; color: var(--text-muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .dn-value {
+      font-size: 0.75rem; color: var(--navy); font-weight: 700;
+    }
 
     /* ── キーボードショートカット モーダル ── */
     .kbd-modal[hidden] { display: none; }
@@ -1648,7 +1677,28 @@
     </section>
 
     <div class="data-note" id="data-note">
-      <strong>📌 自動更新：</strong>毎朝8:00 JSTにRSS横断＋AI要約で自動更新（取得失敗時はシードデータにフォールバック）。重要度はAIが自動採点します。
+      <div class="data-note-head">
+        <span class="data-note-icon">⚙️</span>
+        <span class="data-note-title">DATA PIPELINE</span>
+      </div>
+      <div class="data-note-grid">
+        <div class="dn-item">
+          <div class="dn-label">収集</div>
+          <div class="dn-value">毎朝 8:00 JST / RSS 8媒体横断</div>
+        </div>
+        <div class="dn-item">
+          <div class="dn-label">要約・採点</div>
+          <div class="dn-value">Claude Haiku 4.5（マーケ視点）</div>
+        </div>
+        <div class="dn-item">
+          <div class="dn-label">音声ダイジェスト</div>
+          <div class="dn-value">gpt-4o-mini-tts / Shimmer</div>
+        </div>
+        <div class="dn-item">
+          <div class="dn-label">フォールバック</div>
+          <div class="dn-value">シードデータ（手動キュレーション）</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1694,9 +1744,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: '「🔊 聴く」ボタンを常にネイビー＋ゴールドで存在感UP。ready時はシアンドット、playing時は脈動シャドウで状態を視覚化' },
-        { date: '04/17', text: '直近3時間以内の記事に赤い脈動ドット（新着インジケーター）。LIVE ドットと呼応' },
-        { date: '04/17', text: 'セクション件数バッジがスクロールで見えた瞬間に0からカウントアップ' }
+        { date: '04/17', text: 'フッターを「DATA PIPELINE」風に再構成：収集／要約・採点／音声ダイジェスト／フォールバックの4カラム（PC）でデータ経路を明示。技術スタックの可視化でプロフェッショナル感UP' },
+        { date: '04/17', text: '「🔊 聴く」ボタンを常にネイビー＋ゴールドで存在感UP。ready時はシアンドット、playing時は脈動シャドウ' },
+        { date: '04/17', text: '直近3時間以内の記事に赤い脈動ドット。セクション件数バッジのスクロールカウントアップ' }
       ]
     });
   </script>
