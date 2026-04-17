@@ -223,66 +223,11 @@
 
   /* ────────── ② Xハイライト（生成AIトレンド収集） ──────────
      目的: Xで話題の生成AI関連ポストを収集し、マーケ実務に活かせるトレンドを提示する。
-     将来的にはX APIで自動収集。現在はシードデータ。
-     ※ シードデータのURLはnull（架空のツイートなのでリンクを貼らない）
-     ※ スクレイパーが取得した実データにはツイートURLが付く
+     ※ 実ツイートURL が無い投稿は「本物のポスト」として提示できないため、このシードは空配列。
+       scraper が X API 等で実ツイートを取得したら news.json の `xHighlights` に入れ、
+       loadRemote() 経由で上書きされる。URL 無しのアイテムは renderX() で除外される。
   */
-  let X_HIGHLIGHTS = [
-    {
-      id: 'x1', author: '深津貴之', handle: '@fladdict',
-      avatar: 'https://unavatar.io/x/fladdict',
-      text: 'Claude Codeが本当にやばい。プロンプト1行で「設計→実装→テスト→デプロイ」まで全部やる。エンジニアの仕事の定義が変わりつつある。',
-      tag: 'Claude Code', url: null
-    },
-    {
-      id: 'x2', author: '安宅和人', handle: '@kaz_ataka',
-      avatar: 'https://unavatar.io/x/kaz_ataka',
-      text: '生成AIで「知的生産のコスト」が限りなくゼロに近づく。差別化は「何を作るか」ではなく「何を問うか」に完全シフトした。',
-      tag: 'AI戦略', url: null
-    },
-    {
-      id: 'x3', author: '松尾豊', handle: '@ymatsuo',
-      avatar: 'https://unavatar.io/x/ymatsuo',
-      text: '日本企業のAI導入率がようやく50%を超えた。だが「導入した」と「成果が出ている」の間には巨大なギャップがある。プロンプト教育だけでは不十分で、業務プロセス自体の再設計が必須。',
-      tag: 'AI導入', url: null
-    },
-    {
-      id: 'x4', author: '落合陽一', handle: '@ochyai',
-      avatar: 'https://unavatar.io/x/ochyai',
-      text: 'マルチモーダルAIの進化で「テキストだけのマーケティング」は確実に価値が下がる。画像・動画・音声を横断的に生成・最適化できるチームが勝つ。',
-      tag: 'マルチモーダルAI', url: null
-    },
-    {
-      id: 'x5', author: '成田悠輔', handle: '@narita_yusuke',
-      avatar: 'https://unavatar.io/x/narita_yusuke',
-      text: 'AIが「平均的な仕事」を代替するスピードが想定より速い。採用市場では「AIを使いこなせる人」のプレミアムが月単位で上がっている感覚。',
-      tag: 'AI×採用', url: null
-    },
-    {
-      id: 'x6', author: '梶谷健人', handle: '@kajiken0630',
-      avatar: 'https://unavatar.io/x/kajiken0630',
-      text: 'Claude CodeでLP制作を試したら、デザインからコーディングまで30分で完了した。マーケのABテスト用ページ量産に使える。非エンジニアでもここまでできる時代。',
-      tag: 'Claude Code', url: null
-    },
-    {
-      id: 'x7', author: '石角友愛', handle: '@TomoePalonia',
-      avatar: 'https://unavatar.io/x/TomoePalonia',
-      text: 'GoogleのGemini、OpenAIのGPT、AnthropicのClaude。3社の競争が激しすぎて毎週アップデートがある。企業のAI選定は「今ベストか」より「乗り換えやすいか」が重要になった。',
-      tag: '生成AI比較', url: null
-    },
-    {
-      id: 'x8', author: '田中邦裕', handle: '@kunihirotanaka',
-      avatar: 'https://unavatar.io/x/kunihirotanaka',
-      text: 'さくらインターネットのGPUクラウド、想定の3倍の申し込みが来ている。日本企業が自社でAIを動かしたい需要がここまで大きいとは。国産クラウドの出番。',
-      tag: 'AI基盤', url: null
-    },
-    {
-      id: 'x9', author: '緒方憲太郎', handle: '@ogatakentaro',
-      avatar: 'https://unavatar.io/x/ogatakentaro',
-      text: 'Voicyでも生成AI音声の活用が始まっている。テキストを入れるだけで自然な日本語ナレーションが作れる。ポッドキャスト・動画ナレーションのコストが10分の1になる世界。',
-      tag: 'AI音声', url: null
-    }
-  ];
+  let X_HIGHLIGHTS = [];
 
   /* ────────── ③ メタ ──────────  */
   const CATEGORIES = [
@@ -505,22 +450,6 @@
     return '元記事を読む →';
   }
 
-  /**
-   * 𝕏 投稿のリンク先を決める。
-   * 1. ツイートURLがあればそれ（「ポストを開く」）
-   * 2. 無ければ 投稿本文の冒頭ワードで X 検索 URL を組み立ててポストに直接飛ばす
-   *    （ハンドルが分かる場合は from: 絞り込み）
-   * プロフィール遷移は廃止（「ポストを見たい」という利用意図に合わせる）
-   */
-  /**
-   * 𝕏 ポストのリンク先: 実際のツイートURLがあればそれを返す。
-   * 無い場合は null（リンクなし = 表示のみ）。
-   * ※ 検索フォールバックは「実ポストに辿り着けない」UXのため廃止。
-   *   scraper が X API 等で実ツイートURLを取得した場合のみリンク化する。
-   */
-  function xLink(x) {
-    return (x && x.url && /^https?:\/\//.test(x.url)) ? x.url : null;
-  }
 
   /** OGP画像をクライアントサイドで取得し、記事データとDOMを更新 */
   const ogpCache = {};
@@ -977,24 +906,31 @@
   }
 
   function renderX() {
+    const section = document.querySelector('.x-section');
+    const sectionHead = section ? section.previousElementSibling : null; // sec-head
     const root = document.getElementById('x-grid');
-    if (!X_HIGHLIGHTS.length) {
-      root.innerHTML = '<div class="empty" style="grid-column:1/-1;border:none;"><div class="empty-text">Xハイライトはありません</div></div>';
+    // 実ツイートURL がある投稿のみ表示（URL 無し = 本物のポストとして扱えない）
+    const validItems = X_HIGHLIGHTS.filter(x => x && x.url && /^https?:\/\//.test(x.url));
+    if (!validItems.length) {
+      // Xハイライトが空なら section 自体を非表示（偽情報を出さない）
+      if (section) section.style.display = 'none';
+      if (sectionHead && sectionHead.classList && sectionHead.classList.contains('sec-head')) {
+        sectionHead.style.display = 'none';
+      }
       return;
     }
-    root.innerHTML = X_HIGHLIGHTS.map(x => {
-      const link = xLink(x);
-      const isTweet = !!(x.url && /^https?:\/\//.test(x.url));
+    if (section) section.style.display = '';
+    if (sectionHead && sectionHead.classList && sectionHead.classList.contains('sec-head')) {
+      sectionHead.style.display = '';
+    }
+    root.innerHTML = validItems.map(x => {
       const safeAvatar = safeImgUrl(x.avatar);
       const avatarHtml = safeAvatar
         ? `<img class="x-avatar" src="${escapeHtml(safeAvatar)}" alt="" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';">
            <span class="x-avatar-fallback" style="display:none;">${escapeHtml(x.author.charAt(0))}</span>`
         : `<span class="x-avatar-fallback">${escapeHtml(x.author.charAt(0))}</span>`;
-      const tag = link ? 'a' : 'div';
-      const linkAttrs = link ? ` href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer"` : '';
-      const footLabel = isTweet ? '↗ ポストを開く' : (link ? '↗ ポストを探す' : '');
       return `
-      <${tag} class="x-item${link ? ' linked' : ''}"${linkAttrs}>
+      <a class="x-item linked" href="${escapeHtml(x.url)}" target="_blank" rel="noopener noreferrer">
         <div class="x-head">
           ${avatarHtml}
           <div class="x-head-info">
@@ -1005,9 +941,9 @@
         <div class="x-text">${escapeHtml(x.text)}</div>
         <div class="x-foot">
           <span class="x-foot-tag">${escapeHtml(x.tag)}</span>
-          ${footLabel ? `<span class="x-foot-link">${escapeHtml(footLabel)}</span>` : ''}
+          <span class="x-foot-link">↗ ポストを開く</span>
         </div>
-      </${tag}>`;
+      </a>`;
     }).join('');
   }
 

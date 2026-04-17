@@ -86,6 +86,10 @@
       margin: 0 auto;
       padding: 0 0 var(--sp-10);
     }
+    /* ── PC（≥1024px）は余白を活用して一覧性を上げる ── */
+    @media (min-width: 1024px) {
+      .news-shell { max-width: 1200px; }
+    }
     @media (max-width: 600px) {
       .news-shell { padding: 0 0 var(--sp-7); }
     }
@@ -609,6 +613,15 @@
       margin: 0 var(--sp-5);
       box-shadow: 0 1px 3px rgba(0,31,51,0.06);
     }
+    /* PC では「その他のニュース」も2列に（縦スクロールを減らして一覧性UP） */
+    @media (min-width: 1024px) {
+      .more-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .more-list .fyi-card:nth-last-child(-n+2) { border-bottom: none; }
+      .more-list .fyi-card:nth-child(odd) { border-right: 1px solid #eee; }
+    }
 
     /* ── FYI カードデザイン ── */
     .fyi-card {
@@ -952,10 +965,13 @@
     }
     .trend-pill.active .trend-count { background: rgba(255,255,255,0.15); color: var(--gold); }
 
-    /* ── BRIEFING カードグリッド ── */
+    /* ── BRIEFING カードグリッド（PC: 3列 / タブ: 2列 / SP: 1列）── */
     .brief-grid {
       display: grid; grid-template-columns: repeat(2, 1fr);
       gap: var(--sp-4); padding: 0 var(--sp-5);
+    }
+    @media (min-width: 1024px) {
+      .brief-grid { grid-template-columns: repeat(3, 1fr); }
     }
     .brief-card {
       background: var(--white);
@@ -1312,9 +1328,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: '信頼性優先のリンク設計に統一：検索フォールバック（Google ニュース／X search）を全廃し、実URLを持つ記事・ポストのみをリンク化（scraper が URL を必ず取得する仕様に整合）' },
-        { date: '04/17', text: 'サンプル記事にも実ソースURL（各メディア公式サイト）を埋め込み、常に本物のリンクが存在する状態に。毎朝8時の scraper 実行で個別記事URLに上書きされる' },
-        { date: '04/17', text: '「詳しく読む」を①なぜ重要か→②何をすべきか→③専門家の視点の3ステップに再構成。末尾に「元記事を読む（ソース名）」CTAを配置' }
+        { date: '04/17', text: 'PC幅（≥1024px）レイアウト最適化：シェルを最大1200pxに拡張、注目ニュースを3列、その他のニュースを2列に再配置。余白を活用して一覧性UP' },
+        { date: '04/17', text: '𝕏 生成AIトレンドを誠実化：実ツイートURLが無い投稿は表示しない（＝セクション自体を非表示に）。架空ポストのシードを廃止し、scraper が X API で収集した実URLを持つポストのみ表示' },
+        { date: '04/17', text: '記事は実URL必須に（検索フォールバック全廃）。サンプル記事には各メディア公式サイトのURLを埋め込み、scraper 実行で個別記事URLに上書き' }
       ]
     });
   </script>
