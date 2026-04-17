@@ -52,6 +52,33 @@
       animation: shimmer 1.4s ease-in-out infinite;
     }
 
+    /* ── カード登場アニメーション ── */
+    @keyframes cardFadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .top-card, .brief-card, .fyi-card, .exec-box, .x-item {
+      animation: cardFadeIn 0.4s ease both;
+    }
+    .top-card:nth-child(2) { animation-delay: 0.08s; }
+    .brief-card:nth-child(2) { animation-delay: 0.06s; }
+    .brief-card:nth-child(3) { animation-delay: 0.12s; }
+    .brief-card:nth-child(4) { animation-delay: 0.18s; }
+    .brief-card:nth-child(5) { animation-delay: 0.24s; }
+    .brief-card:nth-child(6) { animation-delay: 0.30s; }
+    .fyi-card:nth-child(2) { animation-delay: 0.04s; }
+    .fyi-card:nth-child(3) { animation-delay: 0.08s; }
+    .fyi-card:nth-child(4) { animation-delay: 0.12s; }
+    .fyi-card:nth-child(5) { animation-delay: 0.16s; }
+    .x-item:nth-child(2) { animation-delay: 0.04s; }
+    .x-item:nth-child(3) { animation-delay: 0.08s; }
+    .x-item:nth-child(4) { animation-delay: 0.12s; }
+    @media (prefers-reduced-motion: reduce) {
+      .top-card, .brief-card, .fyi-card, .exec-box, .x-item {
+        animation: none;
+      }
+    }
+
     /* ── レイアウト全体 ── */
     body { background: #f5f5f5; }
     .news-shell {
@@ -65,12 +92,21 @@
 
     /* ── ヒーロー（NewsPicks風マストヘッド） ── */
     .hero {
-      background: var(--navy);
+      background: linear-gradient(135deg, var(--navy) 0%, #001a2e 40%, #002a45 70%, var(--navy) 100%);
+      background-size: 200% 200%;
+      animation: heroGradient 8s ease infinite;
       color: var(--white);
       padding: var(--sp-7) var(--sp-6) var(--sp-5);
       position: relative;
       overflow: hidden;
       border-bottom: 4px solid var(--gold);
+    }
+    @keyframes heroGradient {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero { animation: none; background: var(--navy); }
     }
     .hero::before {
       content: 'AI NEWS';
@@ -674,7 +710,6 @@
     .x-head-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .x-author { font-size: 0.72rem; font-weight: 700; color: var(--navy); }
     .x-handle { font-size: 0.62rem; color: var(--text-faint); }
-    .x-seed-note { font-size: 0.52rem; color: var(--text-faint); opacity: 0.5; }
     div.x-item { cursor: default; border-left-color: transparent; }
     div.x-item:hover { background: #fafafa; }
     .x-text {
@@ -1020,6 +1055,10 @@
       .data-note { margin: var(--sp-4) var(--sp-3) 0; }
       .sec-head { margin-left: var(--sp-3); margin-right: var(--sp-3); }
       .exec-box { margin: 0 var(--sp-3) var(--sp-3); }
+      .cmd-bar { flex-wrap: wrap; }
+      .cmd-actions { flex-wrap: wrap; gap: 4px; }
+      .read-progress { order: -1; width: 100%; margin-bottom: 2px; }
+      .read-progress-bar { flex: 1; }
     }
     @media (max-width: 900px) {
       .brief-grid { grid-template-columns: 1fr; }
