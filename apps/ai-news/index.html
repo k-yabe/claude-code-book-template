@@ -66,29 +66,29 @@
     /* ── 共通: セクション見出し ── */
     .sec-head {
       display: flex; align-items: center; gap: 10px;
-      margin: var(--sp-7) var(--sp-5) var(--sp-4);
+      margin: var(--sp-8) var(--sp-5) var(--sp-5);
     }
     .sec-head:first-child { margin-top: var(--sp-5); }
     .sec-icon {
-      width: 28px; height: 28px;
+      width: 32px; height: 32px;
       background: var(--navy); color: var(--gold);
       display: inline-flex; align-items: center; justify-content: center;
-      font-size: 0.85rem; flex-shrink: 0;
+      font-size: 1rem; flex-shrink: 0;
     }
     .sec-icon.gold { background: var(--gold); color: var(--navy); }
     .sec-icon.cyan { background: var(--navy); color: #00ffff; }
     .sec-title {
-      font-size: 1rem; font-weight: 800;
+      font-size: 1.1rem; font-weight: 800;
       color: var(--navy); letter-spacing: 0.02em;
     }
     .sec-sub {
       font-size: 0.68rem; color: var(--text-muted); margin-left: 4px;
     }
-    .sec-line { flex: 1; height: 1px; background: var(--border); }
+    .sec-line { flex: 1; height: 2px; background: var(--border); }
 
     /* ── 🔥 MUST-KNOW コンテナ ── */
     #must-know {
-      display: flex; flex-direction: column; gap: 0;
+      display: flex; flex-direction: column; gap: var(--sp-4);
     }
 
     /* ── 🔥 重要ニュース ヒーローカード（NewsPicks風） ── */
@@ -97,8 +97,8 @@
       color: var(--navy);
       cursor: default;
       position: relative;
-      box-shadow: 0 2px 8px rgba(0,31,51,0.08);
-      margin: 0 var(--sp-5) var(--sp-4);
+      box-shadow: 0 4px 20px rgba(0,31,51,0.12);
+      margin: 0 var(--sp-5) var(--sp-5);
       overflow: hidden;
     }
     .top-card.read { opacity: 0.7; }
@@ -109,6 +109,10 @@
       color: var(--text-muted);
       background: var(--white); padding: 2px 8px;
     }
+    /* ── 画像読み込み失敗時のフォールバック ── */
+    .img-fallback {
+      background: linear-gradient(135deg, var(--navy) 0%, #002d4d 100%);
+    }
     /* ヒーロー画像（大） */
     .top-hero {
       position: relative; width: 100%; aspect-ratio: 16 / 9;
@@ -116,22 +120,25 @@
     }
     .top-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .top-hero-overlay {
-      position: absolute; left: var(--sp-4); top: var(--sp-4);
-      display: flex; gap: var(--sp-2); flex-wrap: wrap;
+      position: absolute; left: 0; bottom: 0; right: 0;
+      padding: var(--sp-6) var(--sp-5) var(--sp-4);
+      background: linear-gradient(to top, rgba(0,31,51,0.85) 0%, rgba(0,31,51,0.4) 50%, transparent 100%);
+      display: flex; flex-direction: column; justify-content: flex-end; gap: var(--sp-2);
     }
     .hero-chip {
       padding: 4px 10px; font-size: 0.62rem; font-weight: 800;
-      letter-spacing: 0.08em; background: var(--white); color: var(--navy);
+      letter-spacing: 0.08em; background: var(--gold); color: var(--navy);
+      align-self: flex-start;
+    }
+    .hero-chip.cat-ai { background: #00ffff; color: var(--navy); }
+    .hero-chip.cat-market { background: var(--gold); color: var(--navy); }
+    .hero-chip.cat-marketing { background: var(--white); color: var(--navy); }
+    .hero-source {
+      font-size: 0.68rem; font-weight: 600;
+      color: rgba(255,255,255,0.75); letter-spacing: 0.02em;
     }
     /* コンテンツ */
-    .top-content { padding: var(--sp-4) var(--sp-5); border-left: 4px solid var(--gold); }
-    .top-meta {
-      display: flex; align-items: center; gap: var(--sp-2);
-      margin-bottom: var(--sp-2); font-size: 0.7rem;
-    }
-    .top-meta .meta-source { color: var(--navy); font-weight: 700; }
-    .top-meta .meta-time { color: var(--text-muted); }
-    .top-meta .meta-dot { color: var(--text-faint); }
+    .top-content { padding: var(--sp-5) var(--sp-5) var(--sp-4); border-left: 4px solid var(--gold); }
     .top-title {
       font-size: 1.35rem; font-weight: 800; color: var(--navy);
       line-height: 1.45; letter-spacing: -0.01em;
@@ -290,20 +297,20 @@
     /* ── FYI カードデザイン ── */
     .fyi-card {
       display: flex; gap: var(--sp-4);
-      padding: var(--sp-4) var(--sp-5);
-      border-bottom: 1px solid #f0f0f0;
-      cursor: pointer; transition: background var(--ease-base);
+      padding: var(--sp-5);
+      border-bottom: 1px solid #eee;
+      cursor: pointer; transition: background 0.15s ease;
       position: relative;
     }
     .fyi-card:last-child { border-bottom: none; }
-    .fyi-card:hover { background: #fafafa; }
+    .fyi-card:hover { background: rgba(255,184,28,0.03); }
     .fyi-card.read { opacity: 0.65; }
     .fyi-card.read::after {
       content: '✓'; position: absolute; top: var(--sp-2); right: var(--sp-3);
       font-size: 0.6rem; font-weight: 700; color: var(--gold); opacity: 0.5;
     }
     .fyi-thumb {
-      flex-shrink: 0; width: 120px; height: 80px;
+      flex-shrink: 0; width: 140px; height: 90px;
       overflow: hidden;
     }
     .fyi-thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -540,19 +547,19 @@
     /* ── BRIEFING カードグリッド ── */
     .brief-grid {
       display: grid; grid-template-columns: repeat(2, 1fr);
-      gap: var(--sp-3); padding: 0 var(--sp-5);
+      gap: var(--sp-4); padding: 0 var(--sp-5);
     }
     .brief-card {
       background: var(--white);
-      box-shadow: 0 1px 3px rgba(0,31,51,0.08);
+      box-shadow: 0 2px 8px rgba(0,31,51,0.08);
       padding: 0; cursor: pointer;
-      transition: transform var(--ease), box-shadow var(--ease);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
       position: relative;
       display: flex; flex-direction: column; overflow: hidden;
     }
     .brief-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,31,51,0.12);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,31,51,0.15);
     }
     .brief-card.read { opacity: 0.7; }
     .brief-card.read::after {
@@ -563,14 +570,20 @@
     .brief-card-thumb {
       width: 100%; aspect-ratio: 16 / 9;
       background: var(--navy); overflow: hidden;
+      position: relative;
     }
     .brief-card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .brief-card-thumb::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
+      background: linear-gradient(to top, rgba(0,31,51,0.3), transparent);
+      pointer-events: none;
+    }
     .brief-card-content {
-      padding: var(--sp-3) var(--sp-4);
+      padding: var(--sp-4);
       display: flex; flex-direction: column; flex: 1;
     }
     .brief-card-head {
-      display: flex; align-items: center; gap: var(--sp-2); margin-bottom: 6px;
+      display: flex; align-items: center; gap: var(--sp-2); margin-bottom: 8px;
     }
     .brief-card-num {
       width: 20px; height: 20px;
@@ -580,8 +593,8 @@
       flex-shrink: 0;
     }
     .brief-card-title {
-      font-size: 0.9rem; font-weight: 800;
-      color: var(--navy); line-height: 1.4; margin-bottom: 6px;
+      font-size: 0.95rem; font-weight: 800;
+      color: var(--navy); line-height: 1.45; margin-bottom: 8px;
     }
     .brief-card-summary {
       font-size: 0.78rem; color: var(--text-secondary);
@@ -823,9 +836,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'NewsPicks/SmartNews風に全面刷新。16:9ヒーロー画像を記事ごとに自動生成。詳細は「詳しく見る」で折りたたみ。壊れたリンクを非表示化。8記事・10分に最適化' },
-        { date: '04/17', text: '音声を gpt-4o-mini-tts の sage 声に変更、人間らしい自然な読み上げに。アプリ起動時にバックグラウンド事前生成、クリック即再生' },
-        { date: '04/17', text: '日本語記事のみに統一。og:image抽出で記事サムネ必須化。Xアバターを unavatar.io 経由で実プロフィール画像に' }
+        { date: '04/17', text: 'SVGプレースホルダー廃止。各記事にUnsplash高品質写真を配置。画像失敗時はブランドカラーのグラデーションフォールバック' },
+        { date: '04/17', text: 'news.jsonに実記事URLと画像を追加。NewsPicks風マガジンUIをさらに洗練' },
+        { date: '04/17', text: '音声を gpt-4o-mini-tts の sage 声に変更。アプリ起動時にバックグラウンド事前生成し即再生' }
       ]
     });
   </script>
