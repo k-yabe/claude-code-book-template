@@ -26,6 +26,8 @@ from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, Iterable
+from urllib.parse import urljoin
+from urllib.request import Request, urlopen
 
 import feedparser
 
@@ -35,24 +37,17 @@ UTC = timezone.utc
 # ── 監視対象 RSS フィード ──────────────────────────────────────────
 # category: marketing | market | ai
 SOURCES: list[dict[str, str]] = [
-    # マーケティング系
+    # マーケティング系（日本語のみ）
     {"name": "MarkeZine",                "url": "https://markezine.jp/rt/new.rdf",                            "category": "marketing"},
     {"name": "Web担当者Forum",            "url": "https://webtan.impress.co.jp/rss/all",                       "category": "marketing"},
-    {"name": "MarTech",                  "url": "https://martech.org/feed/",                                  "category": "marketing"},
-    {"name": "Marketing Brew",           "url": "https://www.marketingbrew.com/feed",                          "category": "marketing"},
-    {"name": "HubSpot Marketing Blog",   "url": "https://blog.hubspot.com/marketing/rss.xml",                 "category": "marketing"},
-    {"name": "Search Engine Land",       "url": "https://searchengineland.com/feed",                          "category": "marketing"},
-    {"name": "Search Engine Journal",    "url": "https://www.searchenginejournal.com/feed/",                  "category": "marketing"},
-    # 市場・業界
-    {"name": "AdExchanger",              "url": "https://www.adexchanger.com/feed/",                          "category": "market"},
-    {"name": "Adweek",                   "url": "https://www.adweek.com/feed/",                               "category": "market"},
+    {"name": "ferret",                   "url": "https://ferret-plus.com/feed",                               "category": "marketing"},
+    # 市場・業界（日本語のみ）
     {"name": "電通報",                    "url": "https://dentsu-ho.com/articles.atom",                         "category": "market"},
-    # AI
-    {"name": "TechCrunch AI",            "url": "https://techcrunch.com/category/artificial-intelligence/feed/", "category": "ai"},
-    {"name": "The Verge AI",             "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", "category": "ai"},
-    {"name": "VentureBeat AI",           "url": "https://venturebeat.com/category/ai/feed/",                  "category": "ai"},
-    {"name": "OpenAI Blog",              "url": "https://openai.com/blog/rss.xml",                            "category": "ai"},
-    {"name": "Google Research Blog",     "url": "https://research.google/blog/rss/",                          "category": "ai"},
+    {"name": "ITmedia マーケティング",    "url": "https://rss.itmedia.co.jp/rss/2.0/marketing.xml",            "category": "market"},
+    # AI（日本語のみ）
+    {"name": "ITmedia AI+",              "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",               "category": "ai"},
+    {"name": "ITmedia NEWS",             "url": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",          "category": "ai"},
+    {"name": "ASCII.jp",                 "url": "https://ascii.jp/rss.xml",                                    "category": "ai"},
 ]
 
 # 取得上限・要約上限
@@ -95,6 +90,69 @@ def truncate(text: str, n: int) -> str:
 
 def make_id(url: str) -> str:
     return "n_" + hashlib.sha1(url.encode("utf-8", errors="ignore")).hexdigest()[:12]
+
+
+OGP_IMAGE_RE = re.compile(
+    r'<meta[^>]+(?:property|name)\s*=\s*["\'](?:og:image|twitter:image(?::src)?)["\'][^>]*content\s*=\s*["\']([^"\']+)["\']',
+    re.IGNORECASE,
+)
+OGP_IMAGE_RE_REV = re.compile(
+    r'<meta[^>]+content\s*=\s*["\']([^"\']+)["\'][^>]*(?:property|name)\s*=\s*["\'](?:og:image|twitter:image(?::src)?)["\']',
+    re.IGNORECASE,
+)
+
+
+def fetch_ogp_image(url: str, timeout: int = 5) -> str | None:
+    """記事ページの HTML から og:image / twitter:image を抽出する。失敗時は None"""
+    try:
+        req = Request(url, headers={
+            "User-Agent": "Mozilla/5.0 (compatible; AI-NEWS-Bot/1.0; +https://kunito-yabe.vercel.app/apps/ai-news/)",
+            "Accept": "text/html,application/xhtml+xml",
+        })
+        with urlopen(req, timeout=timeout) as resp:
+            raw = resp.read(262144)  # 先頭256KBだけ
+        charset = "utf-8"
+        ct = resp.headers.get("Content-Type", "")
+        m = re.search(r"charset=([\w-]+)", ct, re.IGNORECASE)
+        if m:
+            charset = m.group(1)
+        html_text = raw.decode(charset, errors="ignore")
+        # <head> 内だけに絞る
+        head_end = html_text.lower().find("</head>")
+        if head_end > 0:
+            html_text = html_text[:head_end]
+        m = OGP_IMAGE_RE.search(html_text) or OGP_IMAGE_RE_REV.search(html_text)
+        if not m:
+            return None
+        img_url = html.unescape(m.group(1)).strip()
+        if not img_url:
+            return None
+        # 相対URLを絶対URLに解決
+        img_url = urljoin(url, img_url)
+        if not img_url.startswith("https://"):
+            return None
+        return img_url
+    except Exception:
+        return None
+
+
+def is_japanese_text(s: str) -> bool:
+    """タイトル等が日本語記事かを判定。ひらがな/カタカナ/漢字の比率が低すぎる場合は英語記事と見なす"""
+    if not s:
+        return False
+    jp = 0
+    total = 0
+    for ch in s:
+        if ch.isspace():
+            continue
+        total += 1
+        code = ord(ch)
+        # ひらがな U+3040–U+309F / カタカナ U+30A0–U+30FF / CJK統合漢字 U+4E00–U+9FFF
+        if 0x3040 <= code <= 0x309F or 0x30A0 <= code <= 0x30FF or 0x4E00 <= code <= 0x9FFF:
+            jp += 1
+    if total == 0:
+        return False
+    return (jp / total) >= 0.25
 
 
 def parse_pub(entry: Any) -> datetime | None:
@@ -154,6 +212,8 @@ def fetch_all() -> list[dict]:
                 title = strip_html(getattr(e, "title", "") or "").strip()
                 if not title:
                     continue
+                if not is_japanese_text(title):
+                    continue
                 raw_summary = strip_html(getattr(e, "summary", "") or getattr(e, "description", "") or "")
                 # 画像抽出（media:content / enclosure / media:thumbnail）
                 image = None
@@ -175,6 +235,9 @@ def fetch_all() -> list[dict]:
                 # 画像URLの安全性検証（https のみ許可）
                 if image and not image.startswith("https://"):
                     image = None
+                # RSSに画像がなければOGP画像を取得（記事URL → og:image）
+                if not image:
+                    image = fetch_ogp_image(url)
                 seen_urls.add(url)
                 all_items.append({
                     "id": make_id(url),
