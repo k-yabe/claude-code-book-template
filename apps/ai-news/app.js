@@ -176,57 +176,57 @@
   let X_HIGHLIGHTS = [
     {
       id: 'x1', author: '深津貴之', handle: '@fladdict',
-      avatar: '',
+      avatar: 'https://unavatar.io/x/fladdict',
       text: 'Claude Codeが本当にやばい。プロンプト1行で「設計→実装→テスト→デプロイ」まで全部やる。エンジニアの仕事の定義が変わりつつある。',
-      tag: 'Claude Code', url: ''
+      tag: 'Claude Code', url: 'https://x.com/fladdict'
     },
     {
-      id: 'x2', author: '安宅和人', handle: '@klozan',
-      avatar: '',
+      id: 'x2', author: '安宅和人', handle: '@kaz_ataka',
+      avatar: 'https://unavatar.io/x/kaz_ataka',
       text: '生成AIで「知的生産のコスト」が限りなくゼロに近づく。差別化は「何を作るか」ではなく「何を問うか」に完全シフトした。',
-      tag: 'AI戦略', url: ''
+      tag: 'AI戦略', url: 'https://x.com/kaz_ataka'
     },
     {
       id: 'x3', author: '松尾豊', handle: '@ymatsuo',
-      avatar: '',
+      avatar: 'https://unavatar.io/x/ymatsuo',
       text: '日本企業のAI導入率がようやく50%を超えた。だが「導入した」と「成果が出ている」の間には巨大なギャップがある。プロンプト教育だけでは不十分で、業務プロセス自体の再設計が必須。',
-      tag: 'AI導入', url: ''
+      tag: 'AI導入', url: 'https://x.com/ymatsuo'
     },
     {
       id: 'x4', author: '落合陽一', handle: '@ochyai',
-      avatar: '',
+      avatar: 'https://unavatar.io/x/ochyai',
       text: 'マルチモーダルAIの進化で「テキストだけのマーケティング」は確実に価値が下がる。画像・動画・音声を横断的に生成・最適化できるチームが勝つ。',
-      tag: 'マルチモーダルAI', url: ''
+      tag: 'マルチモーダルAI', url: 'https://x.com/ochyai'
     },
     {
-      id: 'x5', author: '成田悠輔', handle: '@narita_yusuke2',
-      avatar: '',
+      id: 'x5', author: '成田悠輔', handle: '@narita_yusuke',
+      avatar: 'https://unavatar.io/x/narita_yusuke',
       text: 'AIが「平均的な仕事」を代替するスピードが想定より速い。採用市場では「AIを使いこなせる人」のプレミアムが月単位で上がっている感覚。',
-      tag: 'AI×採用', url: ''
+      tag: 'AI×採用', url: 'https://x.com/narita_yusuke'
     },
     {
       id: 'x6', author: '梶谷健人', handle: '@kajiken0630',
-      avatar: '',
+      avatar: 'https://unavatar.io/x/kajiken0630',
       text: 'Claude CodeでLP制作を試したら、デザインからコーディングまで30分で完了した。マーケのABテスト用ページ量産に使える。非エンジニアでもここまでできる時代。',
-      tag: 'Claude Code', url: ''
+      tag: 'Claude Code', url: 'https://x.com/kajiken0630'
     },
     {
-      id: 'x7', author: '石角友愛', handle: '@TomoePalanoia',
-      avatar: '',
+      id: 'x7', author: '石角友愛', handle: '@TomoePalonia',
+      avatar: 'https://unavatar.io/x/TomoePalonia',
       text: 'GoogleのGemini、OpenAIのGPT、AnthropicのClaude。3社の競争が激しすぎて毎週アップデートがある。企業のAI選定は「今ベストか」より「乗り換えやすいか」が重要になった。',
-      tag: '生成AI比較', url: ''
+      tag: '生成AI比較', url: 'https://x.com/TomoePalonia'
     },
     {
       id: 'x8', author: '田中邦裕', handle: '@kunihirotanaka',
-      avatar: '',
+      avatar: 'https://unavatar.io/x/kunihirotanaka',
       text: 'さくらインターネットのGPUクラウド、想定の3倍の申し込みが来ている。日本企業が自社でAIを動かしたい需要がここまで大きいとは。国産クラウドの出番。',
-      tag: 'AI基盤', url: ''
+      tag: 'AI基盤', url: 'https://x.com/kunihirotanaka'
     },
     {
       id: 'x9', author: '緒方憲太郎', handle: '@ogatakentaro',
-      avatar: '',
+      avatar: 'https://unavatar.io/x/ogatakentaro',
       text: 'Voicyでも生成AI音声の活用が始まっている。テキストを入れるだけで自然な日本語ナレーションが作れる。ポッドキャスト・動画ナレーションのコストが10分の1になる世界。',
-      tag: 'AI音声', url: ''
+      tag: 'AI音声', url: 'https://x.com/ogatakentaro'
     }
   ];
 

@@ -1,0 +1,80 @@
+name: Auto-merge Claude branches
+
+# REQUIREMENT: Repo Settings → Actions → General → Workflow permissions
+#   must be set to "Read and write permissions".
+# 権限不足時は 403 (x-accepted-github-permissions: pull_requests=write) で失敗する。
+
+on:
+  push:
+    branches:
+      - "claude/**"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: auto-merge-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  auto-merge:
+    # [skip ci] コミットはスキップ
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Direct merge to main via /merges API
+        id: merge
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          set +e
+          mkdir -p .debug
+          RESP=$(curl -sS -D .debug/merge-headers.txt -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/merges" \
+            -d "$(jq -n --arg base "main" --arg head "$BRANCH" --arg msg "auto: merge $BRANCH to main" '{base:$base, head:$head, commit_message:$msg}')")
+          STATUS=$(echo "$RESP" | tail -n1)
+          BODY=$(echo "$RESP" | sed '$d')
+          echo "HTTP $STATUS" | tee .debug/merge.log
+          echo "$BODY" | tee -a .debug/merge.log
+          echo "---HEADERS---" >> .debug/merge.log
+          cat .debug/merge-headers.txt >> .debug/merge.log
+          # 201=merged, 204=nothing to merge, 409=conflict
+          if [ "$STATUS" = "201" ] || [ "$STATUS" = "204" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload debug log on failure
+        if: steps.merge.outputs.ok == 'false'
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .debug/
+          git commit -m "debug: auto-merge workflow output [skip ci]" || true
+          git push origin HEAD:${BRANCH} || true
+          exit 1
+
+      - name: Delete branch on success
+        if: steps.merge.outputs.ok == 'true'
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          curl -sS -X DELETE \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/git/refs/heads/${BRANCH}" || true
