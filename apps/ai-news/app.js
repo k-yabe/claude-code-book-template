@@ -335,6 +335,15 @@
     return safeImgUrl(article.image);
   }
 
+  /** ソースドメインから favicon URL を生成（Google Favicon API は CORS なし） */
+  function sourceFavicon(url, size = 64) {
+    if (!url) return null;
+    try {
+      const u = new URL(url);
+      return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(u.hostname)}&sz=${size}`;
+    } catch { return null; }
+  }
+
   /** OGP画像をクライアントサイドで取得し、記事データとDOMを更新 */
   const ogpCache = {};
   async function fetchOgpImage(url) {
@@ -492,8 +501,8 @@
       root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-text">サマリーはまだ生成されていません</div></div>';
       return;
     }
-    root.innerHTML = lines.map(line =>
-      `<div class="exec-line"><span class="exec-arrow">▸</span><span>${escapeHtml(line)}</span></div>`
+    root.innerHTML = lines.map((line, i) =>
+      `<div class="exec-line"><span class="exec-arrow">${String(i + 1).padStart(2, '0')}</span><span>${escapeHtml(line)}</span></div>`
     ).join('');
   }
 
@@ -543,7 +552,7 @@
           <div class="top-foot">
             <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読' : '✓ 既読'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">記事を開く →</a>` : ''}
+            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">記事を開く →</a>` : '<span class="sample-badge">サンプルデータ</span>'}
           </div>
         </div>
       </article>`;
@@ -1228,8 +1237,16 @@
     if (preloadedAudioUrl) {
       const audio = new Audio(preloadedAudioUrl);
       speechState.audio = audio;
-      const estMin = Math.ceil((preloadedDigest || '').length / 300);
-      setBtnState(`⏹ 再生中（約${estMin}分）`, true);
+      setBtnState(`⏹ 再生中`, true);
+      audio.ontimeupdate = () => {
+        if (!speechState.playing) return;
+        const d = audio.duration || 0;
+        const c = audio.currentTime || 0;
+        const rem = Math.max(0, Math.ceil((d - c) / 60));
+        const sec = Math.max(0, Math.ceil(d - c) % 60);
+        const btn = document.getElementById('btn-listen');
+        if (btn) btn.textContent = `⏹ 残り ${rem}:${String(sec).padStart(2,'0')}`;
+      };
       audio.onended = () => stopSpeech();
       audio.onerror = () => { fallbackWebSpeech((preloadedDigest || '').split(/[。\n]+/).filter(Boolean)); };
       audio.play().catch(() => { fallbackWebSpeech((preloadedDigest || '').split(/[。\n]+/).filter(Boolean)); });
@@ -1257,7 +1274,16 @@
         preloadedAudioUrl = audioUrl;
         const audio = new Audio(audioUrl);
         speechState.audio = audio;
-        setBtnState('⏹ 停止', true);
+        setBtnState(`⏹ 再生中`, true);
+        audio.ontimeupdate = () => {
+          if (!speechState.playing) return;
+          const d = audio.duration || 0;
+          const c = audio.currentTime || 0;
+          const rem = Math.max(0, Math.ceil((d - c) / 60));
+          const sec = Math.max(0, Math.ceil(d - c) % 60);
+          const btn = document.getElementById('btn-listen');
+          if (btn) btn.textContent = `⏹ 残り ${rem}:${String(sec).padStart(2,'0')}`;
+        };
         audio.onended = () => stopSpeech();
         audio.onerror = () => { fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean)); };
         audio.play().catch(() => { fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean)); });

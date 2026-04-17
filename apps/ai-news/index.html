@@ -65,26 +65,29 @@
 
     /* ── 共通: セクション見出し ── */
     .sec-head {
-      display: flex; align-items: center; gap: 10px;
-      margin: var(--sp-8) var(--sp-5) var(--sp-5);
+      display: flex; align-items: center; gap: 14px;
+      margin: var(--sp-10) var(--sp-5) var(--sp-6);
+      padding-bottom: var(--sp-3);
+      border-bottom: 3px solid var(--navy);
     }
     .sec-head:first-child { margin-top: var(--sp-5); }
     .sec-icon {
-      width: 32px; height: 32px;
+      width: 44px; height: 44px;
       background: var(--navy); color: var(--gold);
       display: inline-flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0;
+      font-size: 1.25rem; flex-shrink: 0;
     }
     .sec-icon.gold { background: var(--gold); color: var(--navy); }
     .sec-icon.cyan { background: var(--navy); color: #00ffff; }
     .sec-title {
-      font-size: 1.1rem; font-weight: 800;
-      color: var(--navy); letter-spacing: 0.02em;
+      font-size: 1.45rem; font-weight: 900;
+      color: var(--navy); letter-spacing: 0.01em;
     }
     .sec-sub {
-      font-size: 0.68rem; color: var(--text-muted); margin-left: 4px;
+      font-size: 0.72rem; color: var(--text-muted); margin-left: 6px;
+      font-weight: 600;
     }
-    .sec-line { flex: 1; height: 2px; background: var(--border); }
+    .sec-line { flex: 1; height: 2px; background: transparent; }
 
     /* ── 🔥 MUST-KNOW コンテナ ── */
     #must-know {
@@ -97,9 +100,14 @@
       color: var(--navy);
       cursor: default;
       position: relative;
-      box-shadow: 0 4px 20px rgba(0,31,51,0.12);
-      margin: 0 var(--sp-5) var(--sp-5);
+      box-shadow: 0 8px 32px rgba(0,31,51,0.15), 0 2px 6px rgba(0,31,51,0.08);
+      margin: 0 var(--sp-5) var(--sp-6);
       overflow: hidden;
+      transition: box-shadow 0.25s ease, transform 0.25s ease;
+    }
+    .top-card:hover {
+      box-shadow: 0 16px 48px rgba(0,31,51,0.22), 0 4px 12px rgba(0,31,51,0.12);
+      transform: translateY(-2px);
     }
     .top-card.read { opacity: 0.7; }
     .top-card.read::after {
@@ -112,6 +120,13 @@
     /* ── 画像読み込み失敗時のフォールバック ── */
     .img-fallback {
       background: linear-gradient(135deg, var(--navy) 0%, #002d4d 100%);
+    }
+    /* ── サンプルデータバッジ（URLがない架空記事用） ── */
+    .sample-badge {
+      display: inline-block; padding: 4px 10px;
+      font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em;
+      color: var(--text-muted); background: #f0f0f0;
+      margin-left: auto;
     }
     /* ── 画像なし時のヘッダーバー ── */
     .top-header-bar {
@@ -311,11 +326,15 @@
       display: flex; gap: var(--sp-4);
       padding: var(--sp-5);
       border-bottom: 1px solid #eee;
-      cursor: pointer; transition: background 0.15s ease;
+      cursor: pointer;
+      transition: background 0.2s ease, padding-left 0.2s ease;
       position: relative;
     }
     .fyi-card:last-child { border-bottom: none; }
-    .fyi-card:hover { background: rgba(255,184,28,0.03); }
+    .fyi-card:hover {
+      background: rgba(255,184,28,0.05);
+      padding-left: calc(var(--sp-5) + 4px);
+    }
     .fyi-card.read { opacity: 0.65; }
     .fyi-card.read::after {
       content: '✓'; position: absolute; top: var(--sp-2); right: var(--sp-3);
@@ -455,20 +474,31 @@
     /* ── Executive Summary ── */
     .exec-box {
       background: var(--navy);
-      padding: var(--sp-5) var(--sp-6);
-      margin: 0 var(--sp-5) var(--sp-4);
+      padding: var(--sp-6) var(--sp-7);
+      margin: 0 var(--sp-5) var(--sp-5);
+      position: relative;
+      border-left: 6px solid var(--gold);
+    }
+    .exec-box::before {
+      content: 'TODAY\'S BRIEFING';
+      position: absolute; top: -10px; left: var(--sp-5);
+      background: var(--gold); color: var(--navy);
+      padding: 3px 12px; font-size: 0.6rem; font-weight: 900;
+      letter-spacing: 0.15em;
     }
     .exec-line {
-      display: flex; gap: var(--sp-3);
-      font-size: 0.95rem; font-weight: 600;
-      color: rgba(255,255,255,0.92); line-height: 1.65;
-      padding: var(--sp-3) 0;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; gap: var(--sp-4); align-items: flex-start;
+      font-size: 1.02rem; font-weight: 600;
+      color: rgba(255,255,255,0.95); line-height: 1.7;
+      padding: var(--sp-4) 0;
+      border-bottom: 1px solid rgba(255,184,28,0.15);
     }
     .exec-line:last-child { border-bottom: none; }
+    .exec-line:first-child { padding-top: var(--sp-3); }
     .exec-arrow {
-      color: var(--gold); font-weight: 800;
-      flex-shrink: 0; font-size: 1rem; margin-top: 1px;
+      color: var(--gold); font-weight: 900;
+      flex-shrink: 0; font-size: 1.5rem; line-height: 1.1;
+      min-width: 28px;
     }
     @media (max-width: 600px) {
       .exec-box { padding: var(--sp-4); margin: 0 var(--sp-3) var(--sp-3); }
@@ -558,16 +588,17 @@
     }
     .brief-card {
       background: var(--white);
-      box-shadow: 0 2px 8px rgba(0,31,51,0.08);
+      box-shadow: 0 4px 14px rgba(0,31,51,0.10);
       padding: 0; cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.22s cubic-bezier(0.2,0.9,0.3,1), box-shadow 0.22s ease;
       position: relative;
       display: flex; flex-direction: column; overflow: hidden;
     }
     .brief-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0,31,51,0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 14px 36px rgba(0,31,51,0.18);
     }
+    .brief-card:active { transform: translateY(-1px); }
     .brief-card.read { opacity: 0.7; }
     .brief-card.read::after {
       content: '✓'; position: absolute; top: 8px; right: 10px;
@@ -846,9 +877,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: 'SVGプレースホルダー廃止。各記事にUnsplash高品質写真を配置。画像失敗時はブランドカラーのグラデーションフォールバック' },
-        { date: '04/17', text: 'news.jsonに実記事URLと画像を追加。NewsPicks風マガジンUIをさらに洗練' },
-        { date: '04/17', text: '音声を gpt-4o-mini-tts の sage 声に変更。アプリ起動時にバックグラウンド事前生成し即再生' }
+        { date: '04/17', text: 'URL信頼性修正：シードデータの偽URLを全削除し、スクレイパー取得データのみ正確なURLをリンク。OGP画像をクライアントサイドで自動取得' },
+        { date: '04/17', text: '音声をcoral（温かみ系）に変更、ラジオパーソナリティ風のinstructions追加。聴取時間＋再生中のカウントダウンを表示' },
+        { date: '04/17', text: 'Exec Summaryに「TODAY\'S BRIEFING」ラベル＋番号付きリスト。セクション見出しを大型化、カードホバー効果を強化' }
       ]
     });
   </script>
