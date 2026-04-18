@@ -1337,6 +1337,7 @@
               <div style="display:flex;align-items:center;gap:8px;">
                 <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
                 <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
+                ${hasUrl ? `<button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(n.url)}" aria-label="共有" title="共有/URLコピー">↗</button>` : ''}
                 ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
               </div>
             </div>
@@ -1362,6 +1363,12 @@
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
       btn.addEventListener('click', e => { e.stopPropagation(); toggleFav(btn.dataset.fav, btn); });
+    });
+    root.querySelectorAll('.share-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        shareArticle(btn.dataset.shareTitle, btn.dataset.shareUrl);
+      });
     });
     // タグクリックで検索に #tag をセットして絞り込み
     root.querySelectorAll('.tag-btn[data-tag-filter]').forEach(btn => {

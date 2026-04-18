@@ -11,6 +11,16 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AI NEWS">
+  <!-- OGP / Twitter Card（社内シェア時のプレビュー用） -->
+  <meta property="og:title" content="AI NEWS — マーケティング・インテリジェンス・ブリーフ">
+  <meta property="og:description" content="毎朝の AI × マーケ最重要ニュースを「何が起きた？なぜ重要？何をすべき？」まで5分で把握。音声ダイジェスト対応。">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AKKODiS マーケティングアプリ">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI NEWS — マーケティング・インテリジェンス・ブリーフ">
+  <meta name="twitter:description" content="AI × マーケ最重要ニュースを毎朝 5分で。音声ダイジェスト対応。">
+  <meta name="description" content="AI × マーケの最重要ニュースを毎朝 5分で把握。「何が起きた？なぜ重要？何をすべき？」で意思決定を加速。音声ダイジェスト対応。">
   <link rel="stylesheet" href="../../assets/app-styles.css">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
@@ -1893,6 +1903,33 @@
     @media (max-width: 900px) {
       .brief-grid { grid-template-columns: 1fr; }
     }
+    /* ── 印刷用 stylesheet（ニュースレター印刷・PDF保存用） ── */
+    @media print {
+      /* 非表示: ナビ/コマンドバー/フッター/音声/フィルタ/お気に入りボタン等のインタラクティブ要素 */
+      .nav, .cmd-bar, .more-toolbar, .audio-player, .audio-cluster,
+      .back-to-top, .section-nav, #onboarding, .ob-overlay,
+      .star-btn, .share-btn, .brief-read-toggle, .read-toggle,
+      .hero-live-row, .hero-pulse, .data-note,
+      .x-section, .sec-head.x, .celebration-banner {
+        display: none !important;
+      }
+      /* ページ背景を白に戻してインクを節約 */
+      body, body.night-mode, .news-shell {
+        background: #fff !important; color: #000 !important;
+      }
+      .exec-box, .top-card, .brief-card, .fyi-card {
+        background: #fff !important; color: #000 !important;
+        box-shadow: none !important;
+        break-inside: avoid; page-break-inside: avoid;
+      }
+      .top-visual, .top-hero, .brief-card-visual, .fyi-thumb, .fyi-visual { display: none !important; }
+      .exec-box::before, .exec-box::after { display: none !important; }
+      a { color: #000 !important; text-decoration: underline; }
+      .tag, .meta-pill, .meta-tool-badge, .meta-multi {
+        background: transparent !important; color: #000 !important;
+        border: 1px solid #ccc !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2136,11 +2173,18 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/18', text: '実機スクショ検証 → fallback改善：画像なしの主要ニュースカードをコンパクト banner に、FYI 画像失敗時にソース名を gold で overlay、モバイル 3行サマリーを詰めて読みやすく。Playwright 14/14 pass' },
-        { date: '04/18', text: 'Playwright UI 自動テスト 14 件を追加：TODAY\'S BRIEFING ラベル見切れ防止、sticky toolbar、読了時間、夜間モード、boilerplate プレフィクス非存在、UGC が must_know 禁止、jk キーナビを CI で担保' },
+        { date: '04/18', text: 'PWA + SEO + 共有拡張：OGP/Twitter Card/meta description で社内シェア時に正しいプレビュー。Service Worker でオフライン閲覧＆再訪高速化。全 FYI カードに共有ボタン追加。印刷用 stylesheet（ニュースレター印刷/PDF保存）。Playwright 18/18 pass' },
+        { date: '04/18', text: '実機スクショ検証 → fallback改善：画像なしの主要ニュースカードをコンパクト banner に、FYI 画像失敗時にソース名を gold で overlay、モバイル 3行サマリーを詰めて読みやすく' },
         { date: '04/18', text: '音声ダイジェストを完全事前生成：毎朝 GitHub Actions が Claude Haiku で台本 → OpenAI TTS (voice=nova) で MP3 を生成してリポにコミット。クリック即再生（待ち時間ゼロ）' }
       ]
     });
+
+    // Service Worker 登録（オフライン閲覧 + 高速再訪）
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
+      });
+    }
   </script>
 </body>
 </html>
