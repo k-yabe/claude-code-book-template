@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-18T03:51:18.908027+00:00",
+  "updatedAt": "2026-04-18T05:08:34.883184+00:00",
   "generatedFor": "2026-04-18",
   "executiveSummary": [],
   "count": 10,
@@ -18,9 +18,9 @@
       "whyItMatters": "AIエージェントを使って記事作りを自動化した結果……。",
       "actionItem": "",
       "pickerComment": "",
-      "importance": 2,
-      "urgency": "this_week",
-      "readMin": 1
+      "importance": 1,
+      "urgency": "must_know",
+      "readMin": 2
     },
     {
       "id": "n_6817b4e2bc27",
@@ -108,8 +108,8 @@
       "whyItMatters": "Salesforceは同社サービスをAIエージェントを介して操作できるようにした「Salesforce Headless 360」を発表した。発表同日から複数機能を利用できる。",
       "actionItem": "",
       "pickerComment": "",
-      "importance": 3,
-      "urgency": "fyi",
+      "importance": 2,
+      "urgency": "this_week",
       "readMin": 1
     },
     {
