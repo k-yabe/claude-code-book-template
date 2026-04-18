@@ -1,27 +1,9 @@
 {
-  "updatedAt": "2026-04-18T03:51:18.908027+00:00",
+  "updatedAt": "2026-04-18T05:08:34.883184+00:00",
   "generatedFor": "2026-04-18",
   "executiveSummary": [],
-  "count": 11,
+  "count": 10,
   "items": [
-    {
-      "id": "n_61cc3f55f9ee",
-      "title": "4400円でNintendo Switch 2を外傷から守る、しかも持ちやすくなるハードカバーケースがよかった",
-      "url": "https://ascii.jp/elem/000/004/395/4395978/?rss",
-      "image": "https://ascii.jp/img/2026/04/17/4453762/xl/a01324726f9972d2.png?20200122",
-      "source": "ASCII.jp",
-      "sourceType": "media",
-      "category": "ai",
-      "publishedAt": "2026-04-18T03:00:00+00:00",
-      "summary": "韓国発のゲーミングアクセサリーブランド「LEPIC GAMING」のブランド第1弾となるNintendo Swtich 2向けハードカバーケース「PITA FULL COVER GRIP CASE」と、イヤーピースを開発・製造してきたALZAから登場したアナログスティックカバー…",
-      "tags": [],
-      "whyItMatters": "韓国発のゲーミングアクセサリーブランド「LEPIC GAMING」のブランド第1弾となるNintendo Swtich 2向けハードカバーケース「PITA FULL COVER GRIP CASE」と、イヤーピースを開発・製造してきたALZAから登場したアナログスティックカバー「",
-      "actionItem": "",
-      "pickerComment": "",
-      "importance": 1,
-      "urgency": "must_know",
-      "readMin": 2
-    },
     {
       "id": "n_1e5abdeb9663",
       "title": "果たしてどうなる？ 恐るべき『コンテンツ制作のゼロ化』の未来は？",
@@ -36,9 +18,9 @@
       "whyItMatters": "AIエージェントを使って記事作りを自動化した結果……。",
       "actionItem": "",
       "pickerComment": "",
-      "importance": 2,
-      "urgency": "this_week",
-      "readMin": 1
+      "importance": 1,
+      "urgency": "must_know",
+      "readMin": 2
     },
     {
       "id": "n_6817b4e2bc27",
@@ -126,8 +108,8 @@
       "whyItMatters": "Salesforceは同社サービスをAIエージェントを介して操作できるようにした「Salesforce Headless 360」を発表した。発表同日から複数機能を利用できる。",
       "actionItem": "",
       "pickerComment": "",
-      "importance": 3,
-      "urgency": "fyi",
+      "importance": 2,
+      "urgency": "this_week",
       "readMin": 1
     },
     {
