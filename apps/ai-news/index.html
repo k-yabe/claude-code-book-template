@@ -1413,6 +1413,16 @@
     }
     .cmd-btn:hover:not(:disabled) { border-color: var(--navy); background: #f8f8f8; }
     .cmd-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    /* 「チームへ共有」ボタンを目立たせる（毎日使ってほしい動線） */
+    .share-brief-btn {
+      background: var(--gold); color: var(--navy); border-color: var(--gold);
+      font-weight: 800;
+      box-shadow: 0 2px 6px rgba(255,184,28,0.35);
+    }
+    .share-brief-btn:hover:not(:disabled) {
+      background: var(--navy); color: var(--gold); border-color: var(--navy);
+      box-shadow: 0 4px 10px rgba(0,31,51,0.28);
+    }
     .cmd-btn.icon { width: 28px; padding: 5px 0; text-align: center; }
     /* ── 音声ダイジェストのコントロール群（プレイボタン + スピード選択） ── */
     .audio-cluster {
@@ -1891,7 +1901,7 @@
         <button class="cmd-btn" id="btn-today" style="display:none;">今日に戻る</button>
         <button class="cmd-btn" id="btn-next-unread" title="次の未読記事へジャンプ">↓ 次の未読</button>
         <button class="cmd-btn" id="btn-all-read" title="全記事を既読にする">✓ 全部既読</button>
-        <button class="cmd-btn" id="btn-share-brief" title="今日のブリーフィングをSlack/メール形式でコピー">📤 シェア</button>
+        <button class="cmd-btn share-brief-btn" id="btn-share-brief" title="今日のブリーフィングをSlack/メール形式でコピー">📤 チームへ共有</button>
         <div class="audio-cluster" role="group" aria-label="音声ダイジェスト">
           <button class="audio-btn" id="btn-listen" title="AI音声ダイジェストを再生" aria-label="AI音声ダイジェストを再生">
             <span class="audio-btn-icon" aria-hidden="true">▶</span>
