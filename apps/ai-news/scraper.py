@@ -102,6 +102,29 @@ OGP_IMAGE_RE_REV = re.compile(
 )
 
 
+def validate_url(url: str, timeout: int = 4) -> bool:
+    """URL が到達可能か HEAD (fallback GET) で確認。200-399 のみ有効とする。
+    失敗した URL は記事ごと除外して「リンク間違いが絶対に無い」状態を担保する。
+    """
+    if not url or not url.startswith(("http://", "https://")):
+        return False
+    for method in ("HEAD", "GET"):
+        try:
+            req = Request(url, method=method, headers={
+                "User-Agent": "AKKODiSAINewsBot/1.0 (+https://kunito-yabe.vercel.app/)",
+                "Accept": "text/html,application/xhtml+xml",
+            })
+            with urlopen(req, timeout=timeout) as resp:
+                status = resp.status
+                if 200 <= status < 400:
+                    return True
+                # 3xx はリダイレクト先まで到達できれば OK（urlopen 自動追跡）
+                return False
+        except Exception:
+            continue
+    return False
+
+
 def fetch_ogp_image(url: str, timeout: int = 5) -> str | None:
     """記事ページの HTML から og:image / twitter:image を抽出する。失敗時は None"""
     try:
@@ -182,18 +205,58 @@ AI_KEYWORDS_CONTAIN = [
     "自然言語処理",
     "ディープフェイク",
 ]
+# マーケティング関連キーワード（AI と並んで受け入れる対象）
+MARKETING_KEYWORDS_WORD = [
+    "SEO", "SEM", "CVR", "CTR", "CPA", "CPC", "CPM", "ROAS", "LTV",
+    "CRM", "CDP", "MA", "DMP", "SFA", "BI",
+    "SaaS", "MarTech", "AdTech", "HRTech",
+]
+MARKETING_KEYWORDS_CONTAIN = [
+    # B2B/B2C 一般マーケ
+    "マーケティング", "マーケ", "広告", "プロモーション", "キャンペーン",
+    "ブランディング", "ブランド", "コンテンツマーケ",
+    "リード", "顧客", "コンバージョン",
+    "SNS", "ソーシャル", "インフルエンサー",
+    "パーソナライズ", "クリエイティブ",
+    "配信", "ターゲティング", "リターゲ", "リタゲ",
+    "メルマガ", "ニュースレター",
+    "電通", "博報堂", "サイバーエージェント",
+    "アフィリエイト", "動画広告",
+    # Candidate marketing（人材・採用）— AKKODiS のコア
+    "採用", "採用広告", "採用マーケ", "リクルート広告",
+    "求人", "人材", "転職", "新卒", "中途", "HR",
+    "エンジニア採用", "人事", "パーソル", "リクルート",
+    "マイナビ", "エン・ジャパン", "indeed", "Indeed",
+    "ATS", "タレントマネジメント", "スカウト",
+    "候補者体験", "候補者", "オファー", "内定",
+]
 _AI_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in AI_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
+_MKT_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in MARKETING_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
 
 
 def is_ai_related(title: str, summary: str) -> bool:
-    """タイトル + 要約に AI 関連キーワードが含まれているかを判定。
-    「AI NEWS」アプリ専用のため、AIに関係ない記事を除外する。
-    短い ASCII 略語は単語境界判定で、"PLAION" のような誤検知を避ける。
+    """タイトル + 要約に AI or マーケティング キーワードが含まれているかを判定。
+    「AI NEWS」は AI + マーケ視点でマーケ担当者が毎朝読むメディアなので、
+    両方のトピックを受け入れる。純粋なエンタメ/ガジェット/スポーツは除外。
     """
     hay = (title or "") + " " + (summary or "")
     if _AI_WORD_RE.search(hay):
         return True
-    return any(kw in hay for kw in AI_KEYWORDS_CONTAIN)
+    if any(kw in hay for kw in AI_KEYWORDS_CONTAIN):
+        return True
+    if _MKT_WORD_RE.search(hay):
+        return True
+    if any(kw in hay for kw in MARKETING_KEYWORDS_CONTAIN):
+        return True
+    return False
+
+
+def relevance_score(title: str, summary: str) -> int:
+    """AI + マーケ両方マッチなら優先（score=2）、片方なら score=1、なしは 0。並び替え用。"""
+    hay = (title or "") + " " + (summary or "")
+    ai = bool(_AI_WORD_RE.search(hay)) or any(kw in hay for kw in AI_KEYWORDS_CONTAIN)
+    mkt = bool(_MKT_WORD_RE.search(hay)) or any(kw in hay for kw in MARKETING_KEYWORDS_CONTAIN)
+    return (1 if ai else 0) + (1 if mkt else 0)
 
 
 def parse_pub(entry: Any) -> datetime | None:
@@ -256,8 +319,12 @@ def fetch_all() -> list[dict]:
                 if not is_japanese_text(title):
                     continue
                 raw_summary = strip_html(getattr(e, "summary", "") or getattr(e, "description", "") or "")
-                # AI 関連でない記事を除外（「AI NEWS」アプリのためAIトピックに限定）
+                # AI or マーケティング関連でない記事を除外（AI NEWS は AI + マーケ視点）
                 if not is_ai_related(title, raw_summary):
+                    continue
+                # URL 到達性チェック（404 / dead link を事前に除外して「リンク間違い」を根絶）
+                if not validate_url(url):
+                    log(f"  skip (unreachable): {url}")
                     continue
                 # 画像抽出（media:content / enclosure / media:thumbnail）
                 image = None
