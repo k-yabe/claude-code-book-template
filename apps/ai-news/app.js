@@ -1199,7 +1199,7 @@
         </div>
         <div class="x-text">${escapeHtml(x.text)}</div>
         <div class="x-foot">
-          <span class="x-foot-link">↗ Xで開く（いいね・リポスト数はXで確認）</span>
+          <span class="x-foot-link">↗ Xで開く</span>
         </div>
       </a>`;
     }).join('');
