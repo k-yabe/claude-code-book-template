@@ -1,1 +1,1 @@
-Trigger: 2026-04-18T6 - TTS pre-generation + buzz threshold tightened + voice=nova
+Trigger: 2026-04-18T7 - verify MP3 pre-generation with new buzz threshold + nova voice
