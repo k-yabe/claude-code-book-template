@@ -155,7 +155,7 @@ async function handleTTS(req, res) {
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini-tts',
-        voice: 'alloy',
+        voice: 'nova',
         input: text,
         instructions: `You are a professional Japanese TV news anchor reading the morning business news on NHK or TV Tokyo's morning business program. Your audience is Japanese marketing professionals.
 
