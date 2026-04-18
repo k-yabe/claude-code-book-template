@@ -320,11 +320,23 @@
   /* ────────── ③ メタ ──────────  */
   const CATEGORIES = [
     { key: 'all',       label: 'すべて' },
+    { key: 'tool',      label: '🛠 ツール活用' },
+    { key: 'ai',        label: 'AI' },
     { key: 'marketing', label: 'マーケ' },
-    { key: 'market',    label: '市場' },
-    { key: 'ai',        label: 'AI' }
+    { key: 'market',    label: '市場' }
   ];
   const CAT_LABEL = { marketing: 'マーケ', market: '市場', ai: 'AI' };
+  /** AI ツール活用記事の判定（Claude Code / Copilot / Cursor 等の使い方・Tips） */
+  const TOOL_KEYWORDS = [
+    'Claude Code', 'GitHub Copilot', 'Copilot', 'Cursor', 'Devin',
+    'バイブコーディング', 'AIコーディング', 'AIペアプログラミング',
+    'AIエディタ', 'AI補完', 'Windsurf', 'Cline',
+    'プロンプト', 'プロンプトエンジニアリング',
+  ];
+  function matchesTool(n) {
+    const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '') + ' ' + (n.tags || []).join(' ');
+    return TOOL_KEYWORDS.some(k => hay.includes(k));
+  }
 
   const STORE_KEY_FAV    = 'ai-news:fav:v1';
   const STORE_KEY_READ   = 'ai-news:read:v1';
@@ -411,7 +423,7 @@
   /* ────────── ④ 状態 ──────────  */
   const _prefs = loadPrefs();
   const state = {
-    activeCat: ['all','marketing','market','ai'].includes(_prefs.activeCat) ? _prefs.activeCat : 'all',
+    activeCat: ['all','tool','marketing','market','ai'].includes(_prefs.activeCat) ? _prefs.activeCat : 'all',
     favOnly: !!_prefs.favOnly,
     unreadOnly: !!_prefs.unreadOnly,
     keyword: '',
@@ -1071,7 +1083,10 @@
   function renderTabs(fyi) {
     const root = document.getElementById('tabs');
     root.innerHTML = CATEGORIES.map(c => {
-      const count = c.key === 'all' ? fyi.length : fyi.filter(n => n.category === c.key).length;
+      let count;
+      if (c.key === 'all') count = fyi.length;
+      else if (c.key === 'tool') count = fyi.filter(matchesTool).length;
+      else count = fyi.filter(n => n.category === c.key).length;
       const active = c.key === state.activeCat ? ' active' : '';
       return `<button class="tab${active}" role="tab" data-cat="${c.key}" aria-selected="${c.key === state.activeCat}">
         ${escapeHtml(c.label)}<span class="tab-count">${count}</span>
@@ -1091,7 +1106,9 @@
     const root = document.getElementById('more-list');
     const kw = state.keyword.trim().toLowerCase();
     const items = allMore.filter(n => {
-      if (state.activeCat !== 'all' && n.category !== state.activeCat) return false;
+      if (state.activeCat === 'tool') {
+        if (!matchesTool(n)) return false;
+      } else if (state.activeCat !== 'all' && n.category !== state.activeCat) return false;
       if (state.favOnly && !state.fav.has(n.id)) return false;
       if (state.unreadOnly && state.read.has(n.id)) return false;
       if (kw) {
