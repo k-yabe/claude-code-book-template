@@ -44,10 +44,23 @@ SOURCES: list[dict[str, str]] = [
     # 市場・業界（日本語のみ）
     {"name": "電通報",                    "url": "https://dentsu-ho.com/articles.atom",                         "category": "market"},
     {"name": "ITmedia マーケティング",    "url": "https://rss.itmedia.co.jp/rss/2.0/marketing.xml",            "category": "market"},
-    # AI（日本語のみ）
+    # AI 総合
     {"name": "ITmedia AI+",              "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",               "category": "ai"},
     {"name": "ITmedia NEWS",             "url": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",          "category": "ai"},
     {"name": "ASCII.jp",                 "url": "https://ascii.jp/rss.xml",                                    "category": "ai"},
+    # AI 専門メディア・研究情報
+    {"name": "Ledge.ai",                 "url": "https://ledge.ai/feed",                                       "category": "ai"},
+    {"name": "AI-SCHOLAR",               "url": "https://ai-scholar.tech/feed",                                "category": "ai"},
+    # 開発者コミュニティ（Claude Code / Copilot / Cursor 系ツールの実務活用情報）
+    {"name": "Zenn (生成AI)",             "url": "https://zenn.dev/topics/生成ai/feed",                         "category": "ai"},
+    {"name": "Zenn (ChatGPT)",           "url": "https://zenn.dev/topics/chatgpt/feed",                        "category": "ai"},
+    {"name": "Zenn (Claude)",            "url": "https://zenn.dev/topics/claude/feed",                         "category": "ai"},
+    {"name": "Qiita (AI)",               "url": "https://qiita.com/tags/ai/feed",                              "category": "ai"},
+    {"name": "Qiita (ChatGPT)",          "url": "https://qiita.com/tags/chatgpt/feed",                         "category": "ai"},
+    {"name": "note (AI)",                "url": "https://note.com/hashtag/AI/rss",                             "category": "ai"},
+    # テック総合
+    {"name": "Publickey",                "url": "https://www.publickey1.jp/atom.xml",                          "category": "ai"},
+    {"name": "gihyo.jp",                 "url": "https://gihyo.jp/feed/rss2",                                  "category": "ai"},
 ]
 
 # 取得上限・要約上限
@@ -204,6 +217,10 @@ AI_KEYWORDS_CONTAIN = [
     "Stable Diffusion",
     "自然言語処理",
     "ディープフェイク",
+    # AI ツール活用（Claude Code / Copilot / Cursor 等の実務Tips）
+    "Claude Code", "GitHub Copilot",
+    "バイブコーディング", "AIコーディング", "AIペアプログラミング",
+    "AIエディタ", "AI補完",
 ]
 # マーケティング関連キーワード（AI と並んで受け入れる対象）
 MARKETING_KEYWORDS_WORD = [
