@@ -36,31 +36,33 @@ UTC = timezone.utc
 
 # ── 監視対象 RSS フィード ──────────────────────────────────────────
 # category: marketing | market | ai
-SOURCES: list[dict[str, str]] = [
-    # マーケティング系（日本語のみ）
-    {"name": "MarkeZine",                "url": "https://markezine.jp/rt/new.rdf",                            "category": "marketing"},
-    {"name": "Web担当者Forum",            "url": "https://webtan.impress.co.jp/rss/all",                       "category": "marketing"},
-    {"name": "ferret",                   "url": "https://ferret-plus.com/feed",                               "category": "marketing"},
-    # 市場・業界（日本語のみ）
-    {"name": "電通報",                    "url": "https://dentsu-ho.com/articles.atom",                         "category": "market"},
-    {"name": "ITmedia マーケティング",    "url": "https://rss.itmedia.co.jp/rss/2.0/marketing.xml",            "category": "market"},
-    # AI 総合
-    {"name": "ITmedia AI+",              "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",               "category": "ai"},
-    {"name": "ITmedia NEWS",             "url": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",          "category": "ai"},
-    {"name": "ASCII.jp",                 "url": "https://ascii.jp/rss.xml",                                    "category": "ai"},
-    # AI 専門メディア・研究情報
-    {"name": "Ledge.ai",                 "url": "https://ledge.ai/feed",                                       "category": "ai"},
-    {"name": "AI-SCHOLAR",               "url": "https://ai-scholar.tech/feed",                                "category": "ai"},
-    # 開発者コミュニティ（Claude Code / Copilot / Cursor 系ツールの実務活用情報）
-    {"name": "Zenn (生成AI)",             "url": "https://zenn.dev/topics/生成ai/feed",                         "category": "ai"},
-    {"name": "Zenn (ChatGPT)",           "url": "https://zenn.dev/topics/chatgpt/feed",                        "category": "ai"},
-    {"name": "Zenn (Claude)",            "url": "https://zenn.dev/topics/claude/feed",                         "category": "ai"},
-    {"name": "Qiita (AI)",               "url": "https://qiita.com/tags/ai/feed",                              "category": "ai"},
-    {"name": "Qiita (ChatGPT)",          "url": "https://qiita.com/tags/chatgpt/feed",                         "category": "ai"},
-    {"name": "note (AI)",                "url": "https://note.com/hashtag/AI/rss",                             "category": "ai"},
-    # テック総合
-    {"name": "Publickey",                "url": "https://www.publickey1.jp/atom.xml",                          "category": "ai"},
-    {"name": "gihyo.jp",                 "url": "https://gihyo.jp/feed/rss2",                                  "category": "ai"},
+SOURCES: list[dict[str, object]] = [
+    # マーケティング系（正統派ニュースメディア優先）
+    {"name": "MarkeZine",                "url": "https://markezine.jp/rt/new.rdf",                            "category": "marketing", "tier": "media", "max": 8},
+    {"name": "Web担当者Forum",            "url": "https://webtan.impress.co.jp/rss/all",                       "category": "marketing", "tier": "media", "max": 8},
+    {"name": "ferret",                   "url": "https://ferret-plus.com/feed",                               "category": "marketing", "tier": "media", "max": 6},
+    {"name": "AdverTimes",               "url": "https://www.advertimes.com/feed/",                            "category": "marketing", "tier": "media", "max": 6},
+    {"name": "DIGIDAY[日本版]",           "url": "https://digiday.jp/feed/",                                    "category": "marketing", "tier": "media", "max": 6},
+    {"name": "AdTech Tokyo (Web担)",      "url": "https://webtan.impress.co.jp/rss/category/37",                "category": "marketing", "tier": "media", "max": 4},
+    # 市場・業界（正統派ニュースメディア）
+    {"name": "電通報",                    "url": "https://dentsu-ho.com/articles.atom",                         "category": "market",    "tier": "media", "max": 6},
+    {"name": "ITmedia マーケティング",    "url": "https://rss.itmedia.co.jp/rss/2.0/marketing.xml",            "category": "market",    "tier": "media", "max": 6},
+    # AI 総合（正統派ニュースメディア）
+    {"name": "ITmedia AI+",              "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",               "category": "ai",        "tier": "media", "max": 8},
+    {"name": "ITmedia NEWS",             "url": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",          "category": "ai",        "tier": "media", "max": 6},
+    {"name": "ASCII.jp",                 "url": "https://ascii.jp/rss.xml",                                    "category": "ai",        "tier": "media", "max": 5},
+    {"name": "Ledge.ai",                 "url": "https://ledge.ai/feed",                                       "category": "ai",        "tier": "media", "max": 6},
+    {"name": "AI-SCHOLAR",               "url": "https://ai-scholar.tech/feed",                                "category": "ai",        "tier": "media", "max": 4},
+    {"name": "日経クロステック AI",        "url": "https://xtech.nikkei.com/rss/xtech-it.rdf",                    "category": "ai",        "tier": "media", "max": 5},
+    {"name": "TECH+ AI",                 "url": "https://news.mynavi.jp/techplus/rss/ai/",                     "category": "ai",        "tier": "media", "max": 4},
+    # テック総合メディア
+    {"name": "Publickey",                "url": "https://www.publickey1.jp/atom.xml",                          "category": "ai",        "tier": "media", "max": 4},
+    {"name": "gihyo.jp",                 "url": "https://gihyo.jp/feed/rss2",                                  "category": "ai",        "tier": "media", "max": 3},
+    # コミュニティ（各1〜2件のみ採用 → ニュースメディアを圧倒しないように）
+    {"name": "Zenn (生成AI)",             "url": "https://zenn.dev/topics/生成ai/feed",                         "category": "ai",        "tier": "ugc",   "max": 2},
+    {"name": "Zenn (Claude)",            "url": "https://zenn.dev/topics/claude/feed",                         "category": "ai",        "tier": "ugc",   "max": 2},
+    {"name": "Qiita (AI)",               "url": "https://qiita.com/tags/ai/feed",                              "category": "ai",        "tier": "ugc",   "max": 1},
+    {"name": "note (AI)",                "url": "https://note.com/hashtag/AI/rss",                             "category": "ai",        "tier": "ugc",   "max": 1},
 ]
 
 # 取得上限・要約上限
@@ -320,7 +322,9 @@ def fetch_all() -> list[dict]:
                 log(f"  -> bozo & no entries: {d.bozo_exception}")
                 continue
             count = 0
-            for e in d.entries[:PER_SOURCE_MAX]:
+            per_src_max = int(src.get("max", PER_SOURCE_MAX))
+            src_tier = src.get("tier", "media")
+            for e in d.entries[:per_src_max]:
                 url = (getattr(e, "link", None) or "").strip()
                 if not url or url in seen_urls:
                     continue
@@ -373,7 +377,7 @@ def fetch_all() -> list[dict]:
                     "image": image,
                     "raw_summary": raw_summary,
                     "source": src["name"],
-                    "sourceType": "media",
+                    "sourceType": src_tier,
                     "category": src["category"],
                     "publishedAt": pub.isoformat(),
                 })
@@ -399,10 +403,35 @@ def normalize_read_min(importance: int) -> int:
     return READ_MIN_BY_IMPORTANCE.get(importance, 1)
 
 
+_BOILERPLATE_HEADS = [
+    "はじめに", "概要", "要約", "目次", "背景", "序論", "序章",
+    "前書き", "まえがき", "導入", "この記事について", "本記事について",
+    "TL;DR", "TLDR", "tl;dr", "tldr",
+]
+_BOILERPLATE_RE = re.compile(
+    r"^(?:" + "|".join(re.escape(h) for h in _BOILERPLATE_HEADS) + r")[\s:：。、\-―ー]*",
+    re.IGNORECASE,
+)
+
+
+def strip_boilerplate(s: str) -> str:
+    """Qiita/Zenn/note 等で本文冒頭にくる見出し語（『はじめに』等）を剥がす。"""
+    if not s:
+        return s
+    t = s.strip()
+    for _ in range(3):
+        new = _BOILERPLATE_RE.sub("", t).strip()
+        if new == t:
+            break
+        t = new
+    return t
+
+
 def _first_sentence(s: str, max_len: int = 120) -> str:
     """要約の先頭1〜2文を切り出す（whyItMatters の簡易フォールバック用）。"""
     if not s:
         return ""
+    s = strip_boilerplate(s)
     # 句点で切る
     m = re.match(r"^[^。]{4,}。[^。]{0,40}。?", s)
     chunk = m.group(0) if m else s[:max_len]
@@ -413,15 +442,20 @@ def fallback_summarize(items: list[dict]) -> list[dict]:
     """API無し / 失敗時の素朴フォールバック。先頭1件をTOP、次5件をBRIEFINGとする。
     whyItMatters は要約の冒頭を使って最低限「何が重要か」を示す。
     """
+    # メディア記事 → UGC の順に並べ替え、メディアから TOP/BRIEFING を埋める
+    def _is_ugc(it: dict) -> bool:
+        return it.get("sourceType") == "ugc"
+    items.sort(key=lambda x: (1 if _is_ugc(x) else 0))
     for idx, it in enumerate(items):
-        body = it.pop("raw_summary", "") or ""
+        body = strip_boilerplate(it.pop("raw_summary", "") or "")
         it["summary"] = truncate(body, SUMMARY_CHARS) or it["title"]
         it["tags"] = []
         # 簡易 whyItMatters: 要約冒頭の1文。空なら空のまま。
         it["whyItMatters"] = _first_sentence(body or it["summary"], 140)
         it["actionItem"] = ""
         it["pickerComment"] = ""
-        if idx == 0:
+        # UGC は TOP (must_know) に昇格させない。個人発信は最低でも this_week 扱い。
+        if idx == 0 and not _is_ugc(it):
             it["importance"] = 1
             it["urgency"] = "must_know"
         elif idx < 6:
