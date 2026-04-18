@@ -140,6 +140,23 @@ def validate_url(url: str, timeout: int = 4) -> bool:
     return False
 
 
+def fetch_hatena_count(url: str, timeout: int = 4) -> int:
+    """はてなブックマーク数を取得（記事の人気度シグナル）。失敗時・未登録は 0。
+    エンドポイント: https://bookmark.hatenaapis.com/count/entry?url=<url>
+    プレーンテキストで数字1個を返す無料API。
+    """
+    if not url:
+        return 0
+    try:
+        api = f"https://bookmark.hatenaapis.com/count/entry?url={url}"
+        req = Request(api, headers={"User-Agent": "Mozilla/5.0 (AKKODiSAINewsBot/1.0)"})
+        with urlopen(req, timeout=timeout) as resp:
+            text = resp.read().decode("utf-8", errors="ignore").strip()
+            return int(text) if text.isdigit() else 0
+    except Exception:
+        return 0
+
+
 def fetch_ogp_image(url: str, timeout: int = 5) -> str | None:
     """記事ページの HTML から og:image / twitter:image を抽出する。失敗時は None"""
     try:
@@ -370,6 +387,8 @@ def fetch_all() -> list[dict]:
                 if not image:
                     image = fetch_ogp_image(url)
                 seen_urls.add(url)
+                # 人気度シグナル: はてなブックマーク数（無い/0 は低人気扱い）
+                hatena = fetch_hatena_count(url)
                 all_items.append({
                     "id": make_id(url),
                     "title": truncate(title, 200),
@@ -380,14 +399,27 @@ def fetch_all() -> list[dict]:
                     "sourceType": src_tier,
                     "category": src["category"],
                     "publishedAt": pub.isoformat(),
+                    "hatenaCount": hatena,
                 })
                 count += 1
             log(f"  -> {count} new")
         except Exception as ex:
             log(f"  ! error {src['name']}: {ex}")
 
-    all_items.sort(key=lambda x: x["publishedAt"], reverse=True)
-    log(f"total collected: {len(all_items)}")
+    # 人気度フィルタ: UGC (Qiita/Zenn/note) は はてブ >=3 のみ採用（無名記事の氾濫防止）
+    before = len(all_items)
+    all_items = [
+        it for it in all_items
+        if it.get("sourceType") != "ugc" or (it.get("hatenaCount") or 0) >= 3
+    ]
+    log(f"filtered UGC low-engagement: {before} -> {len(all_items)}")
+    # 並び順: メディア優先 × 人気度(はてブ数)降順 × 新着降順
+    all_items.sort(key=lambda x: (
+        1 if x.get("sourceType") == "ugc" else 0,        # メディア先行
+        -int(x.get("hatenaCount") or 0),                  # 人気記事先行
+        -int(datetime.fromisoformat(x["publishedAt"].replace("Z","+00:00")).timestamp()),  # 新着先行
+    ))
+    log(f"total collected (after filter): {len(all_items)}")
     return all_items
 
 

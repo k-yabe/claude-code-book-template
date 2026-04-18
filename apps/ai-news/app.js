@@ -827,18 +827,31 @@
     });
   }
 
-  /* ────────── ⑥ 仕分け（urgency ベース） ──────────  */
+  /* ────────── ⑥ 仕分け（urgency + 人気度 ベース） ──────────  */
   const URG_ORDER = { must_know: 0, this_week: 1, fyi: 2 };
   /** 個人発信プラットフォーム（TOP STORY には昇格させない）。正統派ニュースメディア優先の方針。 */
   const UGC_SOURCE_RE = /(Qiita|Zenn|note|はてなブログ|Medium)/i;
   function isUgc(n) { return UGC_SOURCE_RE.test(n.source || '') || n.sourceType === 'ugc'; }
+  /** 人気度スコア: はてブ数 + メディア加点 + 新着加点 + Tools 加点。閾値下は「その他」にも載せない。 */
+  function popularityScore(n) {
+    const hatena = Number(n.hatenaCount) || 0;
+    const media = isUgc(n) ? 0 : 10;
+    const tool = matchesTool(n) ? 5 : 0;
+    const ageH = Math.max(0, (Date.now() - new Date(n.publishedAt || 0)) / 3.6e6);
+    const fresh = ageH < 12 ? 4 : ageH < 24 ? 2 : 0;
+    return hatena + media + tool + fresh;
+  }
+  /** fyi (その他のニュース) 採用の最低スコア。メディア(+10)は自動通過、
+   *  UGC はツールTips (+5) または十分なブクマ数を持つもののみ通す。 */
+  const FYI_MIN_SCORE = 5;
   function partition() {
-    // メディア記事は +0、UGC記事は +1 の疑似urgency で格下げ（TOP STORY に個人ブログが上がらない）
-    const rank = n => (URG_ORDER[n.urgency] ?? 2) + (isUgc(n) ? 1 : 0);
+    // 全記事を「urgency → 人気度」で並べ替え
     const sorted = [...NEWS_DATA].sort((a, b) => {
-      const ra = rank(a), rb = rank(b);
-      if (ra !== rb) return ra - rb;
-      if (a.importance !== b.importance) return a.importance - b.importance;
+      const ua = (URG_ORDER[a.urgency] ?? 2) + (isUgc(a) ? 1 : 0);
+      const ub = (URG_ORDER[b.urgency] ?? 2) + (isUgc(b) ? 1 : 0);
+      if (ua !== ub) return ua - ub;
+      const sa = popularityScore(a), sb = popularityScore(b);
+      if (sa !== sb) return sb - sa;
       return new Date(b.publishedAt) - new Date(a.publishedAt);
     });
     // 重要ニュースは「メディアの must_know」に限定。UGC は混ぜない。
@@ -860,7 +873,9 @@
       thisWeek = [...thisWeek, ...promoted];
     }
     const usedIds = new Set([...mustKnow.map(n => n.id), ...thisWeek.map(n => n.id)]);
-    const fyi = sorted.filter(n => !usedIds.has(n.id));
+    // その他のニュース: 人気度スコア FYI_MIN_SCORE 以上のみ採用。
+    // 媒体記事（+10点）は自動で通過、UGC は はてブ数などで FYI_MIN_SCORE 以上が必要。
+    const fyi = sorted.filter(n => !usedIds.has(n.id) && popularityScore(n) >= FYI_MIN_SCORE);
     return { mustKnow, thisWeek, fyi };
   }
 
@@ -1410,7 +1425,8 @@
           url:        safeUrl,
           image:      safeImgUrl(it.image) || null,
           publishedAt: it.publishedAt || new Date().toISOString(),
-          tags: Array.isArray(it.tags) ? it.tags.map(String) : []
+          tags: Array.isArray(it.tags) ? it.tags.map(String) : [],
+          hatenaCount: Number(it.hatenaCount) || 0
         });
       }
       if (NEWS_DATA.length === 0) throw new Error('no items with valid URL');
@@ -1537,7 +1553,8 @@
           category: ['marketing','market','ai'].includes(it.category) ? it.category : 'marketing',
           url: safeUrl, image: it.image || null,
           publishedAt: it.publishedAt || new Date().toISOString(),
-          tags: Array.isArray(it.tags) ? it.tags.map(String) : []
+          tags: Array.isArray(it.tags) ? it.tags.map(String) : [],
+          hatenaCount: Number(it.hatenaCount) || 0
         });
       }
       if (NEWS_DATA.length === 0) throw new Error('no items with valid URL');
