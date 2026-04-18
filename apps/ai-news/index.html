@@ -253,6 +253,27 @@
       }
     }
 
+    /* ── 夜間読書モード（目に優しい sepia 調） ── */
+    body.night-mode { background: #fff5e6; }
+    body.night-mode .more-toolbar,
+    body.night-mode .cmd-bar,
+    body.night-mode .more-list,
+    body.night-mode .x-section,
+    body.night-mode .top-card,
+    body.night-mode .brief-card,
+    body.night-mode .trend-bar,
+    body.night-mode .data-note {
+      background: #fff8e8;
+    }
+    body.night-mode .fyi-card:hover { background: rgba(255,184,28,0.08); }
+    body.night-mode .x-item { background: #fffaed; }
+    body.night-mode .cmd-btn { background: #fffaed; }
+    body.night-mode .audio-cluster { background: var(--navy); }
+    body.night-mode .top-summary,
+    body.night-mode .brief-card-summary,
+    body.night-mode .fyi-why,
+    body.night-mode .x-text { color: #3a2b10; }
+
     /* ── レイアウト全体 ── */
     body { background: #f5f5f5; }
     .news-shell {
@@ -365,6 +386,26 @@
     }
     .hero-stat:first-child { padding-left: 0; }
     .hero-stat:last-child { border-right: none; }
+    /* ★お気に入り stat はボタンとしてクリック可能 */
+    button.hero-stat {
+      background: transparent; color: inherit; cursor: pointer;
+      text-align: left; font-family: var(--font-sans);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+    button.hero-stat:hover { opacity: 0.85; transform: translateY(-1px); }
+    .hero-stat-fav[hidden] { display: none; }
+    .hero-stat-week[hidden] { display: none; }
+    /* 7日分のミニバー（色付き図形に枠線なし・長方形に border-radius なし） */
+    .week-bars {
+      display: flex; align-items: flex-end; gap: 2px;
+      height: 14px; margin-top: 4px;
+    }
+    .week-bars .wb {
+      width: 5px; background: var(--gold); opacity: 0.45;
+      transition: height 0.5s ease, opacity 0.3s ease;
+    }
+    .week-bars .wb.today { background: var(--cyan); opacity: 1; }
+    .week-bars .wb.zero { background: rgba(255,255,255,0.18); height: 2px; }
     .hero-stat-num {
       font-size: 1.65rem; font-weight: 900;
       color: var(--white); line-height: 1;
@@ -997,6 +1038,11 @@
       background: rgba(255,184,28,0.05);
       padding-left: calc(var(--sp-5) + 4px);
     }
+    /* ホバー時に whyItMatters を全文表示（line-clamp を解除） */
+    .fyi-card:hover .fyi-why {
+      -webkit-line-clamp: unset;
+      display: block;
+    }
     .fyi-card.read { opacity: 0.65; }
     .fyi-card.read::after {
       content: '✓'; position: absolute; top: var(--sp-2); right: var(--sp-3);
@@ -1096,6 +1142,14 @@
       display: inline-flex; align-items: center; gap: 4px;
       font-size: 0.58rem; font-weight: 800;
       padding: 2px 6px; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    /* ツール活用バッジ (Claude Code/Copilot 系Tips) */
+    .meta-tool-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px;
+      background: var(--gold); color: var(--navy);
+      font-size: 0.7rem;
+      line-height: 1;
     }
     .meta-source {
       font-size: 0.62rem; font-weight: 700;
@@ -1868,6 +1922,15 @@
           <span class="hero-stat-num" id="stat-read">—</span>
           <span class="hero-stat-label">読了目安</span>
         </div>
+        <button class="hero-stat hero-stat-fav" id="hero-stat-fav" hidden title="お気に入り一覧を開く">
+          <span class="hero-stat-num accent">★ <span id="stat-fav-count">0</span></span>
+          <span class="hero-stat-label">お気に入り</span>
+        </button>
+        <div class="hero-stat hero-stat-week" id="hero-stat-week" hidden title="直近7日間の読了数">
+          <span class="hero-stat-num" id="stat-week-total">0</span>
+          <span class="hero-stat-label">週間読了</span>
+          <span class="week-bars" id="week-bars" aria-hidden="true"></span>
+        </div>
       </div>
     </section>
 
@@ -1895,6 +1958,8 @@
         <button class="cmd-btn" id="btn-today" style="display:none;">今日に戻る</button>
         <button class="cmd-btn" id="btn-next-unread" title="次の未読記事へジャンプ">↓ 次の未読</button>
         <button class="cmd-btn" id="btn-all-read" title="全記事を既読にする">✓ 全部既読</button>
+        <button class="cmd-btn icon" id="btn-share-brief" title="今日のブリーフィングをSlack/メール形式でコピー" aria-label="今日のブリーフィングを共有">📤</button>
+        <button class="cmd-btn icon" id="btn-night-mode" title="読書モード切替（目に優しい配色）" aria-label="読書モード">🌙</button>
         <div class="audio-cluster" role="group" aria-label="音声ダイジェスト">
           <button class="audio-btn" id="btn-listen" title="AI音声ダイジェストを再生" aria-label="AI音声ダイジェストを再生">
             <span class="audio-btn-icon" aria-hidden="true">▶</span>
@@ -2046,9 +2111,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: '音声コントロール刷新：再生ボタン＋スピードセレクタを1つのクラスタにまとめ、デフォルト1.25x、プルダウン選択に。「マーケ視点でなぜ重要か」のラベル復活' },
-        { date: '04/17', text: '3行サマリーの「01/02/03」ゴールドボックスを消しミニマルなブレットに。セクション件数バッジを「(N件)」テキスト表記に刷新。各サマリー行に元記事のソース名リンクを追加' },
-        { date: '04/17', text: 'AI関係ない記事（Cookie/DX/MA/TikTok Search）をシードから除去。scraper.pyにAIキーワードフィルタを追加、今後は AI NEWS 名に相応しい記事のみ自動収集' }
+        { date: '04/18', text: '★お気に入りが1件以上あるとヒーローに「★N お気に入り」stat が出現。クリックで即フィルタ絞り込み。🛠 ツール活用バッジが Claude Code/Copilot/Cursor 系記事に自動付与。🌙 夜間読書モード（目に優しい sepia 調）と📤ワンタップ共有を cmd-bar に追加' },
+        { date: '04/18', text: '週間読書統計：直近7日の既読数を日次で localStorage に記録し、ヒーローに7本ミニバー＋合計で可視化（今日の棒はシアン、過去はゴールド薄）。FYI カードはホバーで whyItMatters を全文表示' },
+        { date: '04/17', text: '音声コントロール刷新：再生ボタン＋スピードセレクタを1つのクラスタにまとめ、デフォルト1.25x、プルダウン選択に。「マーケ視点でなぜ重要か」のラベル復活' }
       ]
     });
   </script>
