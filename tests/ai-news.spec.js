@@ -141,6 +141,40 @@ test.describe('AI NEWS — データ構造', () => {
   });
 });
 
+test.describe('AI NEWS — SEO / シェア', () => {
+  test('OGP meta タグが設定されている', async ({ page }) => {
+    await page.goto(APP_URL);
+    const ogTitle = await page.locator('meta[property="og:title"]').getAttribute('content');
+    const ogDesc = await page.locator('meta[property="og:description"]').getAttribute('content');
+    const twitterCard = await page.locator('meta[name="twitter:card"]').getAttribute('content');
+    expect(ogTitle).toMatch(/AI NEWS/);
+    expect(ogDesc).toBeTruthy();
+    expect(twitterCard).toBe('summary_large_image');
+  });
+
+  test('meta description が設定されている', async ({ page }) => {
+    await page.goto(APP_URL);
+    const desc = await page.locator('meta[name="description"]').getAttribute('content');
+    expect(desc).toMatch(/AI.*マーケ/);
+  });
+});
+
+test.describe('AI NEWS — PWA', () => {
+  test('Service Worker ファイル (sw.js) が配信される', async ({ request }) => {
+    const res = await request.get(`${BASE_URL}/apps/ai-news/sw.js`);
+    expect(res.ok()).toBeTruthy();
+    const text = await res.text();
+    expect(text).toContain('CACHE_VERSION');
+  });
+
+  test('manifest.json が存在して start_url が正しい', async ({ request }) => {
+    const res = await request.get(`${BASE_URL}/apps/ai-news/manifest.json`);
+    const json = await res.json();
+    expect(json.start_url).toContain('/apps/ai-news/');
+    expect(json.theme_color).toBe('#001f33');
+  });
+});
+
 test.describe('AI NEWS — アクセシビリティ', () => {
   test('ヒーローに aria 属性と見出しタグが適切', async ({ page }) => {
     await page.goto(APP_URL);
