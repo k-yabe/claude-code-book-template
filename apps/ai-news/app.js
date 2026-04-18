@@ -488,18 +488,19 @@
     }
     showToast('共有に失敗しました');
   }
-  /** whyItMatters が空なら summary の先頭1文をフォールバックとして返す。
-   *  scraper の fallback_summarize と同等の役割をクライアント側でも担保する。 */
-  function whyItMattersOrFallback(n) {
-    if (n && n.whyItMatters && String(n.whyItMatters).trim()) {
-      return String(n.whyItMatters).trim();
-    }
-    const s = String(n && n.summary || '').trim();
-    if (!s) return '';
-    // 先頭1〜2文を切り出し
-    const m = s.match(/^[^。]{4,}。[^。]{0,40}。?/);
-    const chunk = (m ? m[0] : s).slice(0, 140);
-    return chunk;
+  /** whyItMatters が summary と重複していれば空扱い（重複表示を防ぐ）。
+   *  scraper フォールバックが「要約冒頭を whyItMatters に流用」するケースに対応。 */
+  function meaningfulWhyItMatters(n) {
+    const why = String(n && n.whyItMatters || '').trim();
+    if (!why) return '';
+    const sum = String(n && n.summary || '').trim();
+    if (!sum) return why;
+    // 完全一致、または 80%以上の prefix 重複は「意味のある別情報」ではないので空扱い
+    if (why === sum) return '';
+    const shorter = why.length < sum.length ? why : sum;
+    const longer = why.length < sum.length ? sum : why;
+    if (shorter.length >= 20 && longer.startsWith(shorter.slice(0, Math.floor(shorter.length * 0.8)))) return '';
+    return why;
   }
 
   /** 画像URLが安全かチェック（https のみ許可） */
@@ -943,7 +944,7 @@
         <div class="top-content">
           <h2 class="top-title">${titleHtml}</h2>
           <p class="top-summary">${escapeHtml(n.summary)}</p>
-          ${n.whyItMatters ? `<div class="top-impact"><span class="top-impact-label">⚡ なぜ重要か（マーケ視点）</span><span class="top-impact-text">${escapeHtml(n.whyItMatters)}</span></div>` : ''}
+          ${(() => { const w = meaningfulWhyItMatters(n); return w ? `<div class="top-impact"><span class="top-impact-label">⚡ なぜ重要か（マーケ視点）</span><span class="top-impact-text">${escapeHtml(w)}</span></div>` : ''; })()}
           ${n.actionItem ? `<div class="top-action"><span class="top-action-label">🎯 マーケとして何をすべきか</span><span class="top-action-text">${escapeHtml(n.actionItem)}</span></div>` : ''}
           ${n.pickerComment || (n.tags && n.tags.length) ? `
           <details class="intel-details">
@@ -1019,13 +1020,13 @@
             </div>
             <div class="brief-card-title">${escapeHtml(n.title)}</div>
             <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
-            ${n.whyItMatters ? `<div class="brief-card-impact">⚡ ${escapeHtml(n.whyItMatters)}</div>` : ''}
+            ${(() => { const w = meaningfulWhyItMatters(n); return w ? `<div class="brief-card-impact">⚡ ${escapeHtml(w)}</div>` : ''; })()}
             ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
             ${hasDetail || (n.tags && n.tags.length) ? `
             <details class="intel-details brief">
               <summary class="intel-toggle">▼ 詳しく読む</summary>
               <div class="intel-body">
-                ${n.whyItMatters ? `<div class="intel-block impact"><div class="intel-label"><span class="intel-step">1</span>なぜ重要か</div><div class="intel-text">${escapeHtml(n.whyItMatters)}</div></div>` : ''}
+                ${(() => { const w = meaningfulWhyItMatters(n); return w ? `<div class="intel-block impact"><div class="intel-label"><span class="intel-step">1</span>なぜ重要か</div><div class="intel-text">${escapeHtml(w)}</div></div>` : ''; })()}
                 ${n.actionItem ? `<div class="intel-block action"><div class="intel-label"><span class="intel-step">2</span>何をすべきか</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
                 ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label"><span class="intel-step light">3</span>専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
                 ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
@@ -1125,7 +1126,7 @@
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
             </div>
             <div class="fyi-title">${escapeHtml(n.title)}</div>
-            ${n.whyItMatters ? `<div class="fyi-why">${escapeHtml(n.whyItMatters)}</div>` : (n.summary ? `<div class="fyi-why">${escapeHtml(n.summary)}</div>` : '')}
+            ${(() => { const w = meaningfulWhyItMatters(n); if (w) return `<div class="fyi-why">${escapeHtml(w)}</div>`; if (n.summary) return `<div class="fyi-why">${escapeHtml(n.summary)}</div>`; return ''; })()}
             ${n.actionItem ? `<div class="fyi-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
             <div class="fyi-foot">
               <div class="fyi-tags">${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
@@ -1178,28 +1179,16 @@
     if (sectionHead && sectionHead.classList && sectionHead.classList.contains('sec-head')) {
       sectionHead.style.display = '';
     }
-    // エンゲージメント（likes + RT）が多い順にソート。NHK / Bloomberg 風の「注目順」。
-    const sorted = [...validItems].sort((a, b) => {
-      const sa = (a.likes || 0) + (a.retweets || 0) * 3;
-      const sb = (b.likes || 0) + (b.retweets || 0) * 3;
-      return sb - sa;
-    });
-    const fmtNum = (n) => {
-      if (!n && n !== 0) return '';
-      if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, '') + '万';
-      if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
-      return String(n);
-    };
-    root.innerHTML = sorted.map((x, i) => {
+    // 実データの engagement（likes/retweets）がある場合のみ正確な順に並べる。
+    // 推定値は信頼性に欠けるため、エンゲージメント表示は X API 連携後に復活予定。
+    root.innerHTML = validItems.map((x, i) => {
       const safeAvatar = safeImgUrl(x.avatar);
       const avatarHtml = safeAvatar
         ? `<img class="x-avatar" src="${escapeHtml(safeAvatar)}" alt="" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';">
            <span class="x-avatar-fallback" style="display:none;">${escapeHtml(x.author.charAt(0))}</span>`
         : `<span class="x-avatar-fallback">${escapeHtml(x.author.charAt(0))}</span>`;
-      const isTop = i === 0 && (x.likes || 0) > 1000;
       return `
-      <a class="x-item linked${isTop ? ' x-item-featured' : ''}" href="${escapeHtml(x.url)}" target="_blank" rel="noopener noreferrer">
-        ${isTop ? '<span class="x-featured-badge">🔥 注目</span>' : ''}
+      <a class="x-item linked" href="${escapeHtml(x.url)}" target="_blank" rel="noopener noreferrer">
         <div class="x-head">
           ${avatarHtml}
           <div class="x-head-info">
@@ -1210,9 +1199,7 @@
         </div>
         <div class="x-text">${escapeHtml(x.text)}</div>
         <div class="x-foot">
-          <span class="x-metric" title="いいね"><span class="x-metric-icon">♥</span>${fmtNum(x.likes)}</span>
-          <span class="x-metric" title="リポスト"><span class="x-metric-icon">↻</span>${fmtNum(x.retweets)}</span>
-          <span class="x-foot-link">↗ ポスト</span>
+          <span class="x-foot-link">↗ Xで開く（いいね・リポスト数はXで確認）</span>
         </div>
       </a>`;
     }).join('');
@@ -2000,6 +1987,47 @@
       markAllRead();
       showToast('全記事を既読にしました');
     });
+    const btnShare = document.getElementById('btn-share-brief');
+    if (btnShare) btnShare.addEventListener('click', shareDailyBrief);
+  }
+
+  /** 「今日のブリーフィング」を Slack/メール向けのテキストにして共有（Web Share API → clipboard） */
+  async function shareDailyBrief() {
+    const { mustKnow, thisWeek } = partition();
+    const d = new Date();
+    const header = `📰 AI NEWS — ${d.getMonth()+1}/${d.getDate()}(${WEEKDAYS[d.getDay()]}) 重要トピック`;
+    const lines = [header, ''];
+    if (EXEC_SUMMARY && EXEC_SUMMARY.length) {
+      lines.push('【今日のポイント】');
+      EXEC_SUMMARY.slice(0, 3).forEach((s, i) => lines.push(`${i + 1}. ${s}`));
+      lines.push('');
+    }
+    const top = [...mustKnow, ...thisWeek].slice(0, 5);
+    if (top.length) {
+      lines.push('【注目記事】');
+      top.forEach((n, i) => {
+        lines.push(`${i + 1}. ${n.title}`);
+        if (n.url) lines.push(`   ${n.url}`);
+        if (n.whyItMatters) lines.push(`   → ${n.whyItMatters.slice(0, 80)}`);
+      });
+      lines.push('');
+    }
+    lines.push('— 詳しくは AI NEWS アプリで');
+    const text = lines.join('\n');
+
+    // Web Share API を優先、失敗時は clipboard
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: header, text });
+        return;
+      }
+    } catch {}
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('ブリーフィングをコピーしました。Slack/メールに貼り付けて共有できます');
+    } catch {
+      showToast('クリップボードへのコピーに失敗しました');
+    }
   }
 
   /* ────────── ⑫ 起動 ──────────

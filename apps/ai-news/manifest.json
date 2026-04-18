@@ -1,0 +1,25 @@
+{
+  "name": "AI NEWS - マーケ・インテリジェンス・ブリーフ",
+  "short_name": "AI NEWS",
+  "description": "毎朝のAIニュースをインテリジェンス形式で。マーケ視点での「なぜ重要か」「何をすべきか」まで。",
+  "start_url": "/apps/ai-news/",
+  "scope": "/apps/ai-news/",
+  "display": "standalone",
+  "background_color": "#001f33",
+  "theme_color": "#001f33",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
