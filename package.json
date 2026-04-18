@@ -2,7 +2,15 @@
   "name": "marketing-apps",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:ai-news": "playwright test tests/ai-news.spec.js",
+    "serve": "npx -y serve . -p 3000"
+  },
   "dependencies": {
     "@vercel/kv": "^2.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
   }
 }

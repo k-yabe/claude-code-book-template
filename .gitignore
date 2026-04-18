@@ -15,3 +15,5 @@ secrets.json
 service-account*.json
 *_secret*
 *_private*
+test-results/
+node_modules/
