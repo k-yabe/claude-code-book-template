@@ -1306,9 +1306,11 @@
     .empty-text { font-size: 0.78rem; }
 
     /* ── Executive Summary ── */
+    /* 「TODAY'S BRIEFING」ラベルは box 内側の上端に配置し、overflow:hidden でも
+        見切れないようにする。ウォーターマーク数字のはみ出しは overflow:hidden で抑える。 */
     .exec-box {
       background: linear-gradient(135deg, var(--navy) 0%, #002d4d 55%, var(--navy) 100%);
-      padding: var(--sp-6) var(--sp-7);
+      padding: calc(var(--sp-6) + 12px) var(--sp-7) var(--sp-6);
       margin: 0 var(--sp-5) var(--sp-5);
       position: relative;
       border-left: 6px solid var(--gold);
@@ -1317,10 +1319,11 @@
     }
     .exec-box::before {
       content: 'TODAY\'S BRIEFING';
-      position: absolute; top: -10px; left: var(--sp-5);
+      position: absolute; top: 0; left: 0;
       background: var(--gold); color: var(--navy);
-      padding: 3px 12px; font-size: 0.6rem; font-weight: 900;
+      padding: 4px 12px; font-size: 0.6rem; font-weight: 900;
       letter-spacing: 0.15em;
+      line-height: 1;
       z-index: 2;
     }
     /* 背景に薄いウォーターマーク数字を重ねて厚みを出す */
@@ -1350,7 +1353,7 @@
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: var(--sp-5);
-        padding: var(--sp-6) var(--sp-7);
+        padding: calc(var(--sp-6) + 12px) var(--sp-7) var(--sp-6);
       }
       .exec-line {
         border-bottom: none;
@@ -1380,7 +1383,7 @@
     }
     .exec-src:hover { opacity: 1; color: var(--white); }
     @media (max-width: 600px) {
-      .exec-box { padding: var(--sp-4); margin: 0 var(--sp-3) var(--sp-3); }
+      .exec-box { padding: calc(var(--sp-4) + 12px) var(--sp-4) var(--sp-4); margin: 0 var(--sp-3) var(--sp-3); }
       .exec-line { font-size: 0.85rem; }
     }
 
