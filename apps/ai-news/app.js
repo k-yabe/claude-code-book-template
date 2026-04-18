@@ -326,8 +326,65 @@
   ];
   const CAT_LABEL = { marketing: 'マーケ', market: '市場', ai: 'AI' };
 
-  const STORE_KEY_FAV   = 'ai-news:fav:v1';
-  const STORE_KEY_READ  = 'ai-news:read:v1';
+  const STORE_KEY_FAV    = 'ai-news:fav:v1';
+  const STORE_KEY_READ   = 'ai-news:read:v1';
+  const STORE_KEY_STREAK = 'ai-news:streak:v1';
+
+  /** 連読ストリークを更新して現在値を返す（日単位）。
+   *  today が前回と同じ → 維持、1日後 → +1、2日以上空く → 1 にリセット。 */
+  function updateStreak() {
+    const todayKey = new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD（ロケール非依存）
+    let state = { last: '', count: 0, best: 0 };
+    try {
+      const raw = localStorage.getItem(STORE_KEY_STREAK);
+      if (raw) state = { ...state, ...JSON.parse(raw) };
+    } catch {}
+    if (state.last === todayKey) return state;
+    // 前日（1日前）かどうか判定
+    const prev = new Date(state.last + 'T00:00:00');
+    const today = new Date(todayKey + 'T00:00:00');
+    const diffDays = state.last ? Math.round((today - prev) / 86400000) : null;
+    if (diffDays === 1) state.count = (state.count || 0) + 1;
+    else state.count = 1;
+    state.last = todayKey;
+    state.best = Math.max(state.best || 0, state.count);
+    try { localStorage.setItem(STORE_KEY_STREAK, JSON.stringify(state)); } catch {}
+    return state;
+  }
+  function loadStreak() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY_STREAK) || '{}') || {}; }
+    catch { return {}; }
+  }
+
+  /** 完読セレブレーション（全記事既読時に 1日 1回表示） */
+  const STORE_KEY_CELEBRATED = 'ai-news:celebrated:v1';
+  function showCompletionCelebration() {
+    const todayKey = new Date().toLocaleDateString('sv-SE');
+    try {
+      if (localStorage.getItem(STORE_KEY_CELEBRATED) === todayKey) return; // 当日既に表示済
+    } catch {}
+    // 既に DOM に存在するなら何もしない
+    if (document.getElementById('celebration-banner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'celebration-banner';
+    banner.className = 'celebration-banner';
+    banner.innerHTML = `
+      <div class="celebration-content">
+        <div class="celebration-icon">🎉</div>
+        <div class="celebration-main">
+          <div class="celebration-title">今日のブリーフィング完了！</div>
+          <div class="celebration-sub">全記事を読み終えました。明日もお待ちしています。</div>
+        </div>
+        <button class="celebration-close" aria-label="閉じる">×</button>
+      </div>
+    `;
+    document.body.appendChild(banner);
+    try { localStorage.setItem(STORE_KEY_CELEBRATED, todayKey); } catch {}
+    // Auto-dismiss after 7s
+    const dismiss = () => { banner.classList.add('dismissing'); setTimeout(() => banner.remove(), 400); };
+    banner.querySelector('.celebration-close').addEventListener('click', dismiss);
+    setTimeout(dismiss, 7000);
+  }
   const STORE_KEY_PREFS = 'ai-news:prefs:v1';
 
   function loadSet(k) {
@@ -776,6 +833,16 @@
     if (live) {
       const ts = dataMeta.updatedAt || dataMeta.generatedFor || new Date().toISOString();
       live.textContent = `最終更新 ${fmtRelative(ts)}`;
+    }
+    // 連読ストリーク（2日以上で表示）
+    const streakState = updateStreak();
+    const streakEl = document.getElementById('hero-streak');
+    const streakLabel = document.getElementById('hero-streak-label');
+    if (streakEl && streakLabel && (streakState.count || 0) >= 2) {
+      streakLabel.textContent = `${streakState.count}日連続`;
+      streakEl.removeAttribute('hidden');
+    } else if (streakEl) {
+      streakEl.setAttribute('hidden', '');
     }
   }
 
@@ -1422,6 +1489,10 @@
     const heroFill = document.getElementById('hero-progress-fill');
     if (heroProg) heroProg.textContent = `${read}/${total}`;
     if (heroFill) heroFill.style.width = pct + '%';
+    // 全件既読で完読セレブレーション（1日1回だけ表示）
+    if (total > 0 && read === total) {
+      showCompletionCelebration();
+    }
     // 「次の未読」ボタンに残り数を表示
     const btnNext = document.getElementById('btn-next-unread');
     if (btnNext) {

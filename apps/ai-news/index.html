@@ -125,6 +125,56 @@
       }
     }
 
+    /* ── 完読セレブレーションバナー（全件既読時に 1日1回） ── */
+    .celebration-banner {
+      position: fixed; left: 50%; top: 76px; transform: translateX(-50%);
+      z-index: 9998;
+      animation: celebrationIn 0.5s cubic-bezier(.3,.9,.3,1) both;
+    }
+    .celebration-banner.dismissing {
+      animation: celebrationOut 0.4s ease both;
+    }
+    @keyframes celebrationIn {
+      from { opacity: 0; transform: translate(-50%, -12px) scale(0.95); }
+      to   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    }
+    @keyframes celebrationOut {
+      to { opacity: 0; transform: translate(-50%, -12px) scale(0.95); }
+    }
+    .celebration-content {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, var(--gold) 0%, #ffd25c 100%);
+      color: var(--navy);
+      box-shadow: 0 12px 32px rgba(255,184,28,0.45), 0 4px 12px rgba(0,31,51,0.20);
+      max-width: 440px;
+      min-width: 280px;
+    }
+    .celebration-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .celebration-main { flex: 1; min-width: 0; }
+    .celebration-title { font-size: 0.9rem; font-weight: 900; letter-spacing: 0.01em; }
+    .celebration-sub { font-size: 0.72rem; font-weight: 600; opacity: 0.85; margin-top: 2px; }
+    .celebration-close {
+      background: transparent; border: none; cursor: pointer;
+      color: var(--navy); font-size: 1.3rem; font-weight: 900;
+      padding: 0 4px; line-height: 1;
+      opacity: 0.6; transition: opacity 0.15s ease;
+    }
+    .celebration-close:hover { opacity: 1; }
+    @media (prefers-reduced-motion: reduce) {
+      .celebration-banner { animation: none; }
+    }
+    @media (max-width: 600px) {
+      .celebration-banner { left: 12px; right: 12px; transform: none; }
+      @keyframes celebrationIn {
+        from { opacity: 0; transform: translateY(-12px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes celebrationOut {
+        to { opacity: 0; transform: translateY(-12px); }
+      }
+    }
+
     /* ── スクロール進捗バー ── */
     .scroll-progress {
       position: fixed; top: 0; left: 0; z-index: 9999;
@@ -282,6 +332,15 @@
     .hero-live-label { color: #ff6060; font-weight: 900; letter-spacing: 0.18em; }
     .hero-live-sep { opacity: 0.4; }
     .hero-live-updated { opacity: 0.9; font-weight: 700; }
+    .hero-streak[hidden] { display: none; }
+    .hero-streak {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-left: 10px; padding: 2px 10px;
+      background: rgba(255,184,28,0.18);
+      color: var(--gold);
+      font-weight: 900; font-size: 0.72rem; letter-spacing: 0.04em;
+    }
+    .hero-streak-icon { font-size: 0.8rem; line-height: 1; }
     @media (prefers-reduced-motion: reduce) {
       .hero-live-dot { animation: none; }
     }
@@ -1770,6 +1829,10 @@
           <span class="hero-live-label">LIVE</span>
           <span class="hero-live-sep">·</span>
           <span class="hero-live-updated" id="hero-live-updated">—</span>
+          <span class="hero-streak" id="hero-streak" hidden>
+            <span class="hero-streak-icon" aria-hidden="true">🔥</span>
+            <span class="hero-streak-label" id="hero-streak-label">—</span>
+          </span>
         </div>
       </div>
       <div class="hero-meta">
