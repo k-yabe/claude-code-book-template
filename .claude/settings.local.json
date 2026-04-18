@@ -66,7 +66,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "printf '\\a'; (command -v terminal-notifier >/dev/null && terminal-notifier -title 'Claude Code' -message '次の指示をどうぞ' -sound Glass -activate com.apple.Terminal 2>/dev/null) || (osascript -e 'display notification \"次の指示をどうぞ\" with title \"Claude Code\" sound name \"Glass\"' 2>/dev/null) || true"
+            "command": "echo \"[$(date +%T)] Stop hook fired\" >> /tmp/claude-hook.log; printf '\\a'; (command -v terminal-notifier >/dev/null && terminal-notifier -title 'Claude Code' -message '次の指示をどうぞ' -sound Glass -sender com.anthropic.claudefordesktop 2>>/tmp/claude-hook.log) || (osascript -e 'display notification \"次の指示をどうぞ\" with title \"Claude Code\" sound name \"Glass\"' 2>>/tmp/claude-hook.log) || echo 'all methods failed' >> /tmp/claude-hook.log"
           }
         ]
       }
