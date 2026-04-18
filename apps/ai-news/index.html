@@ -389,19 +389,17 @@
       font-size: 0.72rem; color: var(--text-muted); margin-left: 6px;
       font-weight: 600;
     }
-    /* セクション見出しの件数バッジ */
+    /* セクション見出しの件数（テキスト表記） */
     .sec-count {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-width: 24px; height: 24px;
-      padding: 0 8px; margin-left: 8px;
-      background: var(--navy); color: var(--gold);
-      font-size: 0.78rem; font-weight: 900;
-      vertical-align: middle;
+      display: inline-block;
+      margin-left: 10px;
+      font-size: 0.78rem; font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
       font-variant-numeric: tabular-nums;
     }
-    @media (min-width: 1024px) {
-      .sec-count { min-width: 30px; height: 28px; font-size: 0.9rem; margin-left: 12px; }
-    }
+    .sec-count::before { content: '('; margin-right: 1px; }
+    .sec-count::after  { content: '件)'; }
     .sec-line { flex: 1; height: 2px; background: transparent; }
     /* PC はセクション見出しを少し大きめにして強弱を付ける */
     @media (min-width: 1024px) {
@@ -1197,14 +1195,25 @@
       .exec-line:last-child { border-right: none; padding-right: 0; }
       .exec-line:first-child { padding-top: var(--sp-2); }
     }
-    .exec-arrow {
-      color: var(--gold); font-weight: 900;
-      flex-shrink: 0; font-size: 1.8rem; line-height: 1;
-      min-width: 32px;
-      font-variant-numeric: tabular-nums;
-      text-shadow: 0 0 12px rgba(255,184,28,0.35);
+    /* 3行サマリー: 番号の代わりにミニマルなゴールド・ブレット */
+    .exec-bullet {
+      flex-shrink: 0;
+      width: 6px; height: 6px;
+      background: var(--gold);
+      margin-top: 10px;
+      box-shadow: 0 0 8px rgba(255,184,28,0.5);
     }
     .exec-line { position: relative; z-index: 1; }
+    .exec-line-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .exec-ref {
+      display: block; font-size: 0.7rem;
+    }
+    .exec-src {
+      color: var(--gold); text-decoration: none;
+      font-weight: 700; letter-spacing: 0.02em; opacity: 0.85;
+      transition: opacity 0.18s ease, color 0.18s ease;
+    }
+    .exec-src:hover { opacity: 1; color: var(--white); }
     @media (max-width: 600px) {
       .exec-box { padding: var(--sp-4); margin: 0 var(--sp-3) var(--sp-3); }
       .exec-line { font-size: 0.85rem; }
@@ -1298,38 +1307,88 @@
     .cmd-btn:hover:not(:disabled) { border-color: var(--navy); background: #f8f8f8; }
     .cmd-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .cmd-btn.icon { width: 28px; padding: 5px 0; text-align: center; }
-    /* 聴く ボタンを常に目立たせる（AI音声ダイジェストへの導線） */
-    .cmd-btn#btn-listen {
-      background: var(--navy); color: var(--gold); border-color: var(--navy);
-      font-weight: 800; padding: 6px 14px;
-      box-shadow: 0 2px 6px rgba(0,31,51,0.18);
-      transition: all 0.2s ease;
+    /* ── 音声ダイジェストのコントロール群（プレイボタン + スピード選択） ── */
+    .audio-cluster {
+      display: inline-flex; align-items: stretch;
+      background: var(--navy);
+      box-shadow: 0 2px 8px rgba(0,31,51,0.22);
+      overflow: hidden;
     }
-    .cmd-btn#btn-listen:hover {
-      background: var(--gold); color: var(--navy); border-color: var(--gold);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 10px rgba(255,184,28,0.35);
-    }
-    .cmd-btn#btn-listen.playing {
-      background: var(--gold); color: var(--navy); border-color: var(--gold);
-      animation: listenPulse 1.6s ease-in-out infinite;
-    }
-    .cmd-btn#btn-listen.ready {
-      background: var(--navy); color: var(--gold); border-color: var(--gold);
+    .audio-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: var(--gold);
+      padding: 7px 14px; border: none;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: background 0.18s ease, color 0.18s ease;
       position: relative;
     }
-    .cmd-btn#btn-listen.ready::after {
-      content: '●'; position: absolute; top: -3px; right: -3px;
-      font-size: 0.55rem; color: #00ffff;
-      text-shadow: 0 0 6px rgba(0,255,255,0.8);
+    .audio-btn:hover { background: rgba(255,184,28,0.12); }
+    .audio-btn:active { background: rgba(255,184,28,0.2); }
+    .audio-btn-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--gold); color: var(--navy);
+      font-size: 0.62rem; font-weight: 900;
+      flex-shrink: 0;
     }
-    @keyframes listenPulse {
-      0%, 100% { box-shadow: 0 2px 6px rgba(255,184,28,0.35); }
-      50%      { box-shadow: 0 4px 16px rgba(255,184,28,0.6); }
+    .audio-btn-label {
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.02em;
+    }
+    .audio-btn-meta {
+      font-size: 0.62rem; color: rgba(255,184,28,0.7);
+      font-weight: 700; letter-spacing: 0.04em;
+    }
+    .audio-btn.playing {
+      color: var(--navy); background: var(--gold);
+      animation: audioPlayingPulse 1.6s ease-in-out infinite;
+    }
+    .audio-btn.playing .audio-btn-icon {
+      background: var(--navy); color: var(--gold);
+    }
+    .audio-btn.playing .audio-btn-meta { color: rgba(0,31,51,0.65); }
+    .audio-btn.ready::after {
+      content: ''; position: absolute; top: 6px; right: 6px;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #00ffff;
+      box-shadow: 0 0 6px rgba(0,255,255,0.9);
+    }
+    @keyframes audioPlayingPulse {
+      0%, 100% { box-shadow: inset 0 0 0 0 rgba(255,184,28,0); }
+      50%      { box-shadow: inset 0 0 16px 2px rgba(255,184,28,0.25); }
     }
     @media (prefers-reduced-motion: reduce) {
-      .cmd-btn#btn-listen.playing { animation: none; }
+      .audio-btn.playing { animation: none; }
     }
+    /* スピードセレクタ（<select> をブランド配色に） */
+    .speed-select-wrap {
+      display: inline-flex; align-items: center;
+      background: rgba(255,255,255,0.06);
+    }
+    .speed-select {
+      background: transparent; color: var(--gold);
+      border: none; outline: none; cursor: pointer;
+      padding: 0 22px 0 12px;
+      min-height: 34px;
+      font-family: var(--font-sans);
+      font-size: 0.7rem; font-weight: 800;
+      letter-spacing: 0.03em;
+      -webkit-appearance: none; appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 46%, var(--gold) 46%, var(--gold) 54%, transparent 54%),
+        linear-gradient(135deg, transparent 46%, var(--gold) 46%, var(--gold) 54%, transparent 54%);
+      background-repeat: no-repeat;
+      background-position: right 10px center, right 5px center;
+      background-size: 5px 5px, 5px 5px;
+    }
+    .speed-select:hover { color: var(--white); background-image:
+        linear-gradient(45deg, transparent 46%, var(--white) 46%, var(--white) 54%, transparent 54%),
+        linear-gradient(135deg, transparent 46%, var(--white) 46%, var(--white) 54%, transparent 54%);
+      background-repeat: no-repeat;
+      background-position: right 10px center, right 5px center;
+      background-size: 5px 5px, 5px 5px;
+    }
+    .speed-select option { background: var(--navy); color: var(--gold); }
 
     /* ── 既読プログレスバー ── */
     .read-progress {
@@ -1721,8 +1780,22 @@
         <button class="cmd-btn" id="btn-today" style="display:none;">今日に戻る</button>
         <button class="cmd-btn" id="btn-next-unread" title="次の未読記事へジャンプ">↓ 次の未読</button>
         <button class="cmd-btn" id="btn-all-read" title="全記事を既読にする">✓ 全部既読</button>
-        <button class="cmd-btn" id="btn-listen" title="ニュースを音声で聴く" aria-label="音声で聴く">🔊 聴く（約5分）</button>
-        <button class="cmd-btn speed-btn" id="btn-speed" title="再生速度" aria-label="再生速度">1x</button>
+        <div class="audio-cluster" role="group" aria-label="音声ダイジェスト">
+          <button class="audio-btn" id="btn-listen" title="AI音声ダイジェストを再生" aria-label="AI音声ダイジェストを再生">
+            <span class="audio-btn-icon" aria-hidden="true">▶</span>
+            <span class="audio-btn-label">AI音声ダイジェスト</span>
+            <span class="audio-btn-meta">約5分</span>
+          </button>
+          <label class="speed-select-wrap" title="再生速度">
+            <select class="speed-select" id="speed-select" aria-label="再生速度">
+              <option value="1">1.0x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="1.75">1.75x</option>
+              <option value="2">2.0x</option>
+            </select>
+          </label>
+        </div>
         <button class="cmd-btn icon" id="btn-help" title="ショートカット (?)" aria-label="キーボードショートカット">?</button>
       </div>
     </div>
@@ -1858,9 +1931,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/17', text: '音声再生中にミニプレイヤー表示（elapsed/total/残り時間＋進捗バー）。TTSをnovaボイス＋アナウンサー級の日本語指示に強化' },
-        { date: '04/17', text: 'デザイン違反修正（back-to-topのゴールドリング、intel-source-linkの枠線削除）。意味不明な数字（トレンドチップのカウント、brief-card番号）を削除' },
-        { date: '04/17', text: 'サンプルデータ時に「（サンプル）」表示。関係ないURLへのリンクを廃止し、実URLのみリンク化（scraperが明朝8時に実URLを反映）' }
+        { date: '04/17', text: '音声コントロール刷新：再生ボタン＋スピードセレクタを1つのクラスタにまとめ、デフォルト1.25x、プルダウン選択に。「マーケ視点でなぜ重要か」のラベル復活' },
+        { date: '04/17', text: '3行サマリーの「01/02/03」ゴールドボックスを消しミニマルなブレットに。セクション件数バッジを「(N件)」テキスト表記に刷新。各サマリー行に元記事のソース名リンクを追加' },
+        { date: '04/17', text: 'AI関係ない記事（Cookie/DX/MA/TikTok Search）をシードから除去。scraper.pyにAIキーワードフィルタを追加、今後は AI NEWS 名に相応しい記事のみ自動収集' }
       ]
     });
   </script>
