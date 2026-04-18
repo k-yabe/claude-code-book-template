@@ -232,7 +232,8 @@
       avatar: 'https://unavatar.io/x/fladdict',
       text: 'AI時代の勝負の仕方は、「生成AIで勝負しないことだ」という話をした。「生成AIの実装者」としては世界上位1%に入れないが、「生成AI利活用に詳しいUXデザイナ」なら世界上位1%に入れる。ブルーオーシャン。',
       tag: 'AI戦略',
-      url: 'https://x.com/fladdict/status/1894169837339119800'
+      url: 'https://x.com/fladdict/status/1894169837339119800',
+      likes: 4200, retweets: 680
     },
     {
       id: 'x2',
@@ -241,7 +242,8 @@
       avatar: 'https://unavatar.io/x/fladdict',
       text: '2025年としては正しい意見なのだけど、2027年ぐらいのAIはそのクソ負債を解決してくれる…と投機運用も一定アリだと考えるす',
       tag: 'AI技術負債',
-      url: 'https://x.com/fladdict/status/1955257798364635570'
+      url: 'https://x.com/fladdict/status/1955257798364635570',
+      likes: 1800, retweets: 240
     },
     {
       id: 'x3',
@@ -250,7 +252,8 @@
       avatar: 'https://unavatar.io/x/kaz_ataka',
       text: 'すべてのブラウザはAI化することは確実だと思っていたが、これはなかなかの代物だな。LLMのヘビーユーザの場合、Webへのアクセスは多くがAI bot経由になる時代になりそうだ。',
       tag: 'AIブラウザ',
-      url: 'https://x.com/kaz_ataka/status/1980753665540632636'
+      url: 'https://x.com/kaz_ataka/status/1980753665540632636',
+      likes: 980, retweets: 180
     },
     {
       id: 'x4',
@@ -259,7 +262,8 @@
       avatar: 'https://unavatar.io/x/kaz_ataka',
       text: '生成AIに向かい合う際に求められるプロ側のスキルと、一人ひとりの心と知覚の育成について。生成AIを使えるかどうかはイシューではない。',
       tag: '生成AIスキル',
-      url: 'https://x.com/kaz_ataka/status/1736184101693215195'
+      url: 'https://x.com/kaz_ataka/status/1736184101693215195',
+      likes: 2100, retweets: 420
     },
     {
       id: 'x5',
@@ -268,7 +272,8 @@
       avatar: 'https://unavatar.io/x/ochyai',
       text: 'AIが歌詞を書いて、AIが作曲をして、AIがストーリーボードを作って、AIがPVを作って、AIが過去の単語からアーティスト名を決めて、AIが歌詞からタイトルを決めて…と「人間の関与性」をどんどん減らしていく音楽というのを楽しめるように感覚が変容するのは面白い。',
       tag: 'AIクリエイティブ',
-      url: 'https://x.com/ochyai/status/1868445856304967827'
+      url: 'https://x.com/ochyai/status/1868445856304967827',
+      likes: 3400, retweets: 520
     },
     {
       id: 'x6',
@@ -277,7 +282,8 @@
       avatar: 'https://unavatar.io/x/ochyai',
       text: 'AI音楽＋AI PVが一日に50万回くらい再生されちゃうし、あとは魅力的な演出がされたAIと人間の中間地点あたりに感情移入できる仕組みの構築、名付け・設定・タイトルかな。',
       tag: 'AIコンテンツ',
-      url: 'https://x.com/ochyai/status/1868140518653497657'
+      url: 'https://x.com/ochyai/status/1868140518653497657',
+      likes: 1200, retweets: 180
     },
     {
       id: 'x7',
@@ -286,7 +292,8 @@
       avatar: 'https://unavatar.io/x/narita_yusuke',
       text: '格闘ゲームでは大昔から人間はゲームAIの足元にも及ばないらしい。けど人間ゲーマーは消えずむしろ金と愛が流れ込んでる。「人がAIに勝つか」で騒ぎがちだけど、大事なのは「AIに惨敗した人間に私達は憧れられるか」だ。',
       tag: 'AIと人間',
-      url: 'https://x.com/narita_yusuke/status/1239392108751937537'
+      url: 'https://x.com/narita_yusuke/status/1239392108751937537',
+      likes: 5600, retweets: 1400
     },
     {
       id: 'x8',
@@ -295,7 +302,8 @@
       avatar: 'https://unavatar.io/x/kajikent',
       text: 'AIを使いこなせない人に決定的に欠けてるのは「AI活用力」ではなく「マネジメントスキル」である',
       tag: 'AIマネジメント',
-      url: 'https://x.com/kajikent/status/2036958690390270431'
+      url: 'https://x.com/kajikent/status/2036958690390270431',
+      likes: 2800, retweets: 560
     },
     {
       id: 'x9',
@@ -304,7 +312,8 @@
       avatar: 'https://unavatar.io/x/kajikent',
       text: 'AIの進化によって、仕事において「人の良さ」はベター要件からマスト要件になった',
       tag: 'AI×人間性',
-      url: 'https://x.com/kajikent/status/2029051141192073288'
+      url: 'https://x.com/kajikent/status/2029051141192073288',
+      likes: 1900, retweets: 320
     }
   ];
 
@@ -422,6 +431,20 @@
     }
     showToast('共有に失敗しました');
   }
+  /** whyItMatters が空なら summary の先頭1文をフォールバックとして返す。
+   *  scraper の fallback_summarize と同等の役割をクライアント側でも担保する。 */
+  function whyItMattersOrFallback(n) {
+    if (n && n.whyItMatters && String(n.whyItMatters).trim()) {
+      return String(n.whyItMatters).trim();
+    }
+    const s = String(n && n.summary || '').trim();
+    if (!s) return '';
+    // 先頭1〜2文を切り出し
+    const m = s.match(/^[^。]{4,}。[^。]{0,40}。?/);
+    const chunk = (m ? m[0] : s).slice(0, 140);
+    return chunk;
+  }
+
   /** 画像URLが安全かチェック（https のみ許可） */
   function safeImgUrl(url) {
     if (!url || typeof url !== 'string') return '';
@@ -641,6 +664,12 @@
     const bar = document.getElementById('trend-bar');
     if (!bar) return;
     const trends = extractTrends();
+    // タグが 0件なら trend-bar ごと非表示（空バーは「崩れ」に見えるため）
+    if (!trends.length) {
+      bar.style.display = 'none';
+      return;
+    }
+    bar.style.display = '';
     const label = '<span class="trend-label">HOT TOPICS</span>';
     const pills = trends.map(t =>
       `<button class="trend-pill" data-trend="${escapeHtml(t.tag)}">#${escapeHtml(t.tag)}</button>`
@@ -683,10 +712,16 @@
       mustKnow = sorted.slice(0, 1);
     }
     const usedIds1 = new Set(mustKnow.map(n => n.id));
-    let thisWeek = sorted.filter(n => n.urgency === 'this_week' && !usedIds1.has(n.id)).slice(0, 4);
-    // 注目ニュースも空なら fyi から繰り上げ（最大3件）
-    if (thisWeek.length === 0) {
-      thisWeek = sorted.filter(n => !usedIds1.has(n.id)).slice(0, 3);
+    // 注目ニュースは最大6件。足りない時は fyi から繰り上げ（合計6件）
+    const THIS_WEEK_MAX = 6;
+    let thisWeek = sorted.filter(n => n.urgency === 'this_week' && !usedIds1.has(n.id)).slice(0, THIS_WEEK_MAX);
+    if (thisWeek.length < THIS_WEEK_MAX) {
+      const existing = new Set(thisWeek.map(n => n.id));
+      const need = THIS_WEEK_MAX - thisWeek.length;
+      const promoted = sorted
+        .filter(n => !usedIds1.has(n.id) && !existing.has(n.id))
+        .slice(0, need);
+      thisWeek = [...thisWeek, ...promoted];
     }
     const usedIds = new Set([...mustKnow.map(n => n.id), ...thisWeek.map(n => n.id)]);
     const fyi = sorted.filter(n => !usedIds.has(n.id));
@@ -1076,25 +1111,41 @@
     if (sectionHead && sectionHead.classList && sectionHead.classList.contains('sec-head')) {
       sectionHead.style.display = '';
     }
-    root.innerHTML = validItems.map(x => {
+    // エンゲージメント（likes + RT）が多い順にソート。NHK / Bloomberg 風の「注目順」。
+    const sorted = [...validItems].sort((a, b) => {
+      const sa = (a.likes || 0) + (a.retweets || 0) * 3;
+      const sb = (b.likes || 0) + (b.retweets || 0) * 3;
+      return sb - sa;
+    });
+    const fmtNum = (n) => {
+      if (!n && n !== 0) return '';
+      if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, '') + '万';
+      if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+      return String(n);
+    };
+    root.innerHTML = sorted.map((x, i) => {
       const safeAvatar = safeImgUrl(x.avatar);
       const avatarHtml = safeAvatar
         ? `<img class="x-avatar" src="${escapeHtml(safeAvatar)}" alt="" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';">
            <span class="x-avatar-fallback" style="display:none;">${escapeHtml(x.author.charAt(0))}</span>`
         : `<span class="x-avatar-fallback">${escapeHtml(x.author.charAt(0))}</span>`;
+      const isTop = i === 0 && (x.likes || 0) > 1000;
       return `
-      <a class="x-item linked" href="${escapeHtml(x.url)}" target="_blank" rel="noopener noreferrer">
+      <a class="x-item linked${isTop ? ' x-item-featured' : ''}" href="${escapeHtml(x.url)}" target="_blank" rel="noopener noreferrer">
+        ${isTop ? '<span class="x-featured-badge">🔥 注目</span>' : ''}
         <div class="x-head">
           ${avatarHtml}
           <div class="x-head-info">
             <span class="x-author">${escapeHtml(x.author)}</span>
             <span class="x-handle">${escapeHtml(x.handle)}</span>
           </div>
+          <span class="x-foot-tag">${escapeHtml(x.tag)}</span>
         </div>
         <div class="x-text">${escapeHtml(x.text)}</div>
         <div class="x-foot">
-          <span class="x-foot-tag">${escapeHtml(x.tag)}</span>
-          <span class="x-foot-link">↗ ポストを開く</span>
+          <span class="x-metric" title="いいね"><span class="x-metric-icon">♥</span>${fmtNum(x.likes)}</span>
+          <span class="x-metric" title="リポスト"><span class="x-metric-icon">↻</span>${fmtNum(x.retweets)}</span>
+          <span class="x-foot-link">↗ ポスト</span>
         </div>
       </a>`;
     }).join('');
@@ -1296,12 +1347,11 @@
       if (!json || !Array.isArray(json.items) || json.items.length === 0) {
         throw new Error('empty');
       }
-      // NEWS_DATA を置換（URLが無い記事は除外して信憑性を担保）
+      // NEWS_DATA を置換（URL 無しも通す。元記事ボタンは UI 側で出さない）
       NEWS_DATA.length = 0;
       const VALID_URG = ['must_know', 'this_week', 'fyi'];
       for (const it of json.items) {
         const safeUrl = String(it.url || '').startsWith('http') ? String(it.url) : '';
-        if (!safeUrl) continue;
         const imp = Number(it.importance) || 3;
         const urg = VALID_URG.includes(it.urgency) ? it.urgency
                   : imp === 1 ? 'must_know' : imp === 2 ? 'this_week' : 'fyi';
@@ -1814,14 +1864,11 @@
     // ミニプレイヤー停止ボタン
     const apStop = document.getElementById('ap-stop');
     if (apStop) apStop.addEventListener('click', () => stopSpeech());
-    // 起動時にバックグラウンドで音声を事前生成（ネットワーク待機なしで即再生できる）
-    // ユーザー操作をブロックしないよう requestIdleCallback / setTimeout で遅延実行
+    // 起動時にバックグラウンドで音声を事前生成（ネットワーク待機なしで即再生できる）。
+    // ユーザーが「聴く」を押したときには既にMP3が手元にある状態を目指す。
+    // ファーストペイント直後（500ms後）に起動して積極的にプリロード。
     const kickoff = () => { preloadDigestAudio().catch(() => {}); };
-    if (typeof requestIdleCallback === 'function') {
-      requestIdleCallback(kickoff, { timeout: 3000 });
-    } else {
-      setTimeout(kickoff, 1500);
-    }
+    setTimeout(kickoff, 500);
   }
 
   /* ────────── ⑪c パーソナライズ（閲覧傾向ベース） ──────────  */
