@@ -1022,13 +1022,11 @@
             <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
             ${(() => { const w = meaningfulWhyItMatters(n); return w ? `<div class="brief-card-impact">⚡ ${escapeHtml(w)}</div>` : ''; })()}
             ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
-            ${hasDetail || (n.tags && n.tags.length) ? `
+            ${(n.pickerComment || (n.tags && n.tags.length)) ? `
             <details class="intel-details brief">
               <summary class="intel-toggle">▼ 詳しく読む</summary>
               <div class="intel-body">
-                ${(() => { const w = meaningfulWhyItMatters(n); return w ? `<div class="intel-block impact"><div class="intel-label"><span class="intel-step">1</span>なぜ重要か</div><div class="intel-text">${escapeHtml(w)}</div></div>` : ''; })()}
-                ${n.actionItem ? `<div class="intel-block action"><div class="intel-label"><span class="intel-step">2</span>何をすべきか</div><div class="intel-text">${escapeHtml(n.actionItem)}</div></div>` : ''}
-                ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label"><span class="intel-step light">3</span>専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
+                ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
                 ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
                 ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(n.source)}） →</a>` : ''}
               </div>
