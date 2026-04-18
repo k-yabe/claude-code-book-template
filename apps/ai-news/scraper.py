@@ -155,34 +155,45 @@ def is_japanese_text(s: str) -> bool:
     return (jp / total) >= 0.25
 
 
-# AI 関連を示すキーワード（タイトル or 要約に含まれていれば採用）
-AI_KEYWORDS = [
-    "AI", "エーアイ", "人工知能",
-    "生成AI", "Generative", "ジェネラティブ",
-    "LLM", "大規模言語モデル", "言語モデル",
+# AI 関連を示すキーワード。短いASCIIキーワードは単語境界で、それ以外は部分一致で判定する。
+AI_KEYWORDS_WORD = [
+    # 短い ASCII 略語・製品名: 他の単語内に埋め込まれる誤検知を防ぐため単語境界で判定
+    "AI", "GPT", "LLM", "AGI", "NLP", "RAG", "ML",
+    "ChatGPT", "Claude", "Gemini", "Llama", "Bard",
+    "OpenAI", "Anthropic", "DeepMind", "Perplexity",
+    "Copilot", "Devin", "Cursor",
+    "Sora", "Midjourney",
+    "Transformer",
+]
+AI_KEYWORDS_CONTAIN = [
+    # 日本語語彙や長い固有名詞は部分一致でOK
+    "エーアイ", "人工知能",
+    "生成AI", "ジェネラティブ",
+    "大規模言語モデル", "言語モデル",
     "機械学習", "ディープラーニング", "深層学習",
     "ニューラルネット", "ニューラルネットワーク",
-    "ChatGPT", "チャットGPT", "GPT", "Claude", "クロード",
-    "Gemini", "ジェミニ", "Llama", "ラマ",
-    "OpenAI", "オープンAI", "Anthropic", "アンソロピック",
-    "DeepMind", "Hugging Face", "ハギングフェイス",
-    "Transformer", "RAG", "プロンプト", "エージェント",
-    "Copilot", "コパイロット", "Bard", "AGI",
-    "画像生成", "動画生成", "音声生成", "音声合成",
-    "Stable Diffusion", "Midjourney", "Sora",
-    "AIアシスタント", "AIエージェント", "AI活用",
-    "Perplexity", "パープレキシティ",
-    "NLP", "自然言語処理",
-    "Copilot", "Devin", "Cursor",
+    "チャットGPT", "クロード", "ジェミニ", "ラマ",
+    "オープンAI", "アンソロピック",
+    "Hugging Face", "ハギングフェイス",
+    "プロンプト", "AIエージェント", "AIアシスタント", "AI活用",
+    "コパイロット", "パープレキシティ",
+    "画像生成AI", "動画生成AI", "音声生成", "音声合成",
+    "Stable Diffusion",
+    "自然言語処理",
+    "ディープフェイク",
 ]
+_AI_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in AI_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
 
 
 def is_ai_related(title: str, summary: str) -> bool:
     """タイトル + 要約に AI 関連キーワードが含まれているかを判定。
-    「AI NEWS」アプリ専用のため、AIに関係ない記事（広告/人事制度/一般マーケなど）を除外する。
+    「AI NEWS」アプリ専用のため、AIに関係ない記事を除外する。
+    短い ASCII 略語は単語境界判定で、"PLAION" のような誤検知を避ける。
     """
     hay = (title or "") + " " + (summary or "")
-    return any(kw in hay for kw in AI_KEYWORDS)
+    if _AI_WORD_RE.search(hay):
+        return True
+    return any(kw in hay for kw in AI_KEYWORDS_CONTAIN)
 
 
 def parse_pub(entry: Any) -> datetime | None:
