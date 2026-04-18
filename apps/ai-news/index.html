@@ -614,10 +614,11 @@
     /* ── 画像なし時のビジュアル（SmartNews/NewsPicks風） ── */
     .top-visual {
       position: relative;
-      width: 100%; aspect-ratio: 16 / 9;
+      width: 100%;
+      /* 画像なし版は aspect-ratio を撤廃 → コンパクトな banner スタイル（空っぽ navy の印象を解消） */
       background: linear-gradient(135deg, var(--navy) 0%, #00314f 60%, #004a78 100%);
-      padding: var(--sp-5);
-      display: flex; flex-direction: column; justify-content: space-between;
+      padding: var(--sp-5) var(--sp-6);
+      display: flex; flex-direction: column; gap: var(--sp-3);
       overflow: hidden;
     }
     .top-visual.cat-ai {
@@ -1095,6 +1096,17 @@
       font-size: 0.78rem; font-weight: 900;
       position: relative; z-index: 1;
     }
+    /* FYI 画像なし時のソース名を大きめに表示（空っぽ navy を減らす） */
+    .fyi-visual-source {
+      position: relative; z-index: 1;
+      margin-top: 6px;
+      font-size: 0.6rem; font-weight: 800;
+      color: var(--gold); letter-spacing: 0.04em;
+      text-align: center;
+      max-width: 90%;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .fyi-visual { flex-direction: column; }
     .fyi-body { flex: 1; min-width: 0; }
     .fyi-meta {
       display: flex; align-items: center; gap: var(--sp-2); margin-bottom: 4px;
@@ -1391,7 +1403,10 @@
     .exec-src:hover { opacity: 1; color: var(--white); }
     @media (max-width: 600px) {
       .exec-box { padding: calc(var(--sp-4) + 12px) var(--sp-4) var(--sp-4); margin: 0 var(--sp-3) var(--sp-3); }
-      .exec-line { font-size: 0.85rem; }
+      /* モバイルでは line-height と padding を詰めて縦の長さを抑える */
+      .exec-line { font-size: 0.85rem; line-height: 1.55; padding: var(--sp-3) 0; gap: var(--sp-3); }
+      .exec-bullet { margin-top: 8px; }
+      .exec-ref { font-size: 0.68rem; }
     }
 
     /* ── 注目ニュース: 影響 + アクション行 ── */
@@ -2121,9 +2136,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/18', text: 'スキャン性強化：①記事末尾の #タグをクリックで即絞り込み、②FYIフィルタツールバーを sticky 化（スクロールしてもフィルタ常時表示）、③カードに「⏱ N分」読了時間を全カード表示、④「📰 N媒体報道」バッジで話題の重要性を可視化' },
-        { date: '04/18', text: '音声ダイジェストを完全事前生成：毎朝 GitHub Actions が Claude Haiku で台本 → OpenAI TTS (voice=nova) で MP3 を生成してリポにコミット。クリック即再生（待ち時間ゼロ）' },
-        { date: '04/18', text: 'バズ基準を強化：はてブ0 の記事は全セクションから排除（超新着のみ>=1、通常>=3、本日の主要>=10）。無名記事・いいね0 の微妙な記事が混ざらない仕様に' }
+        { date: '04/18', text: '実機スクショ検証 → fallback改善：画像なしの主要ニュースカードをコンパクト banner に、FYI 画像失敗時にソース名を gold で overlay、モバイル 3行サマリーを詰めて読みやすく。Playwright 14/14 pass' },
+        { date: '04/18', text: 'Playwright UI 自動テスト 14 件を追加：TODAY\'S BRIEFING ラベル見切れ防止、sticky toolbar、読了時間、夜間モード、boilerplate プレフィクス非存在、UGC が must_know 禁止、jk キーナビを CI で担保' },
+        { date: '04/18', text: '音声ダイジェストを完全事前生成：毎朝 GitHub Actions が Claude Haiku で台本 → OpenAI TTS (voice=nova) で MP3 を生成してリポにコミット。クリック即再生（待ち時間ゼロ）' }
       ]
     });
   </script>
