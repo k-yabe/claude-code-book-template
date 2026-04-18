@@ -341,6 +341,19 @@
   const STORE_KEY_FAV    = 'ai-news:fav:v1';
   const STORE_KEY_READ   = 'ai-news:read:v1';
   const STORE_KEY_STREAK = 'ai-news:streak:v1';
+  const STORE_KEY_NIGHT  = 'ai-news:night:v1';
+
+  function applyNightMode() {
+    const on = localStorage.getItem(STORE_KEY_NIGHT) === '1';
+    document.body.classList.toggle('night-mode', on);
+    const btn = document.getElementById('btn-night-mode');
+    if (btn) btn.textContent = on ? '☀️' : '🌙';
+  }
+  function toggleNightMode() {
+    const cur = localStorage.getItem(STORE_KEY_NIGHT) === '1';
+    try { localStorage.setItem(STORE_KEY_NIGHT, cur ? '0' : '1'); } catch {}
+    applyNightMode();
+  }
 
   /** 連読ストリークを更新して現在値を返す（日単位）。
    *  today が前回と同じ → 維持、1日後 → +1、2日以上空く → 1 にリセット。 */
@@ -700,8 +713,35 @@
   function markRead(id, el) {
     state.read.add(id);
     saveSet(STORE_KEY_READ, state.read);
+    recordReadForStats();
     if (el) el.classList.add('read');
     updateProgress();
+  }
+
+  /** 日別既読数の統計（過去7日分を localStorage に保持） */
+  const STORE_KEY_DAILY_READ = 'ai-news:daily-read:v1';
+  function recordReadForStats() {
+    const today = new Date().toLocaleDateString('sv-SE');
+    let hist = {};
+    try { hist = JSON.parse(localStorage.getItem(STORE_KEY_DAILY_READ) || '{}') || {}; } catch {}
+    hist[today] = (hist[today] || 0) + 1;
+    // 7日を超える古いエントリを削除
+    const cutoff = new Date(Date.now() - 8 * 86400000);
+    Object.keys(hist).forEach(k => {
+      if (new Date(k + 'T00:00:00') < cutoff) delete hist[k];
+    });
+    try { localStorage.setItem(STORE_KEY_DAILY_READ, JSON.stringify(hist)); } catch {}
+  }
+  function loadWeeklyStats() {
+    let hist = {};
+    try { hist = JSON.parse(localStorage.getItem(STORE_KEY_DAILY_READ) || '{}') || {}; } catch {}
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400000);
+      const key = d.toLocaleDateString('sv-SE');
+      days.push({ date: key, label: `${d.getMonth()+1}/${d.getDate()}`, count: hist[key] || 0 });
+    }
+    return days;
   }
   function toggleFav(id, btn) {
     if (state.fav.has(id)) state.fav.delete(id);
@@ -857,6 +897,40 @@
     } else if (streakEl) {
       streakEl.setAttribute('hidden', '');
     }
+    // お気に入り数（1件以上で表示）
+    const favCount = state.fav.size;
+    const favEl = document.getElementById('hero-stat-fav');
+    const favNum = document.getElementById('stat-fav-count');
+    if (favEl && favNum) {
+      if (favCount > 0) {
+        favNum.textContent = favCount;
+        favEl.removeAttribute('hidden');
+      } else {
+        favEl.setAttribute('hidden', '');
+      }
+    }
+    // 週間読書統計（直近7日に既読があれば表示）
+    renderWeeklyStats();
+  }
+
+  /** ヒーローに直近7日のミニバーを描画。既読ゼロなら非表示。 */
+  function renderWeeklyStats() {
+    const wrap = document.getElementById('hero-stat-week');
+    const bars = document.getElementById('week-bars');
+    const total = document.getElementById('stat-week-total');
+    if (!wrap || !bars || !total) return;
+    const days = loadWeeklyStats();
+    const sum = days.reduce((a, d) => a + d.count, 0);
+    if (sum <= 0) { wrap.setAttribute('hidden', ''); return; }
+    wrap.removeAttribute('hidden');
+    total.textContent = sum;
+    const max = Math.max(...days.map(d => d.count), 1);
+    const todayKey = new Date().toLocaleDateString('sv-SE');
+    bars.innerHTML = days.map(d => {
+      const h = d.count === 0 ? 2 : Math.round((d.count / max) * 14);
+      const cls = d.count === 0 ? 'wb zero' : (d.date === todayKey ? 'wb today' : 'wb');
+      return `<span class="${cls}" style="height:${h}px" title="${d.label}: ${d.count}本"></span>`;
+    }).join('');
   }
 
   /* ── Executive Summary ── */
@@ -1027,6 +1101,7 @@
           <div class="brief-card-content">
             <div class="brief-card-head">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
+              ${matchesTool(n) ? '<span class="meta-tool-badge" title="ツール活用Tips">🛠</span>' : ''}
               <span class="meta-source">${escapeHtml(n.source)}</span>
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
             </div>
@@ -1137,6 +1212,7 @@
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
+              ${matchesTool(n) ? '<span class="meta-tool-badge" title="ツール活用Tips">🛠</span>' : ''}
               <span class="meta-source">${escapeHtml(n.source)}</span>
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
             </div>
@@ -2004,6 +2080,25 @@
     });
     const btnShare = document.getElementById('btn-share-brief');
     if (btnShare) btnShare.addEventListener('click', shareDailyBrief);
+    const btnNight = document.getElementById('btn-night-mode');
+    if (btnNight) btnNight.addEventListener('click', toggleNightMode);
+    applyNightMode();
+    // hero の★stat クリックで favOnly フィルタを ON にして more-list にスクロール
+    const heroFavBtn = document.getElementById('hero-stat-fav');
+    if (heroFavBtn) {
+      heroFavBtn.addEventListener('click', () => {
+        state.favOnly = true;
+        savePrefs();
+        const favToggle = document.getElementById('toggle-fav');
+        if (favToggle) {
+          favToggle.classList.add('active');
+          favToggle.setAttribute('aria-pressed', 'true');
+        }
+        renderMore(_moreRef);
+        const more = document.getElementById('sec-more') || document.getElementById('more-list');
+        if (more) more.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
   }
 
   /** 「今日のブリーフィング」を Slack/メール向けのテキストにして共有（Web Share API → clipboard） */
