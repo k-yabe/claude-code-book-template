@@ -316,13 +316,26 @@ def normalize_read_min(importance: int) -> int:
     return READ_MIN_BY_IMPORTANCE.get(importance, 1)
 
 
+def _first_sentence(s: str, max_len: int = 120) -> str:
+    """要約の先頭1〜2文を切り出す（whyItMatters の簡易フォールバック用）。"""
+    if not s:
+        return ""
+    # 句点で切る
+    m = re.match(r"^[^。]{4,}。[^。]{0,40}。?", s)
+    chunk = m.group(0) if m else s[:max_len]
+    return truncate(chunk, max_len)
+
+
 def fallback_summarize(items: list[dict]) -> list[dict]:
-    """API無し / 失敗時の素朴フォールバック。先頭1件をTOP、次5件をBRIEFINGとする。"""
+    """API無し / 失敗時の素朴フォールバック。先頭1件をTOP、次5件をBRIEFINGとする。
+    whyItMatters は要約の冒頭を使って最低限「何が重要か」を示す。
+    """
     for idx, it in enumerate(items):
-        body = it.pop("raw_summary", "")
+        body = it.pop("raw_summary", "") or ""
         it["summary"] = truncate(body, SUMMARY_CHARS) or it["title"]
         it["tags"] = []
-        it["whyItMatters"] = ""
+        # 簡易 whyItMatters: 要約冒頭の1文。空なら空のまま。
+        it["whyItMatters"] = _first_sentence(body or it["summary"], 140)
         it["actionItem"] = ""
         it["pickerComment"] = ""
         if idx == 0:
