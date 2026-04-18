@@ -947,7 +947,11 @@
       background: var(--white);
       margin: 0 var(--sp-5);
       box-shadow: 0 1px 3px rgba(0,31,51,0.06);
+      /* スクロール時もフィルタが常に使えるよう sticky 化 */
+      position: sticky; top: 0; z-index: 30;
+      border-bottom: 1px solid rgba(0,31,51,0.08);
     }
+    .more-toolbar.stuck { box-shadow: 0 6px 18px rgba(0,31,51,0.14); }
     .tabs { display: flex; flex-wrap: wrap; gap: 4px; }
     .tab {
       padding: 6px 14px; font-size: 0.74rem; font-weight: 800;
@@ -1162,11 +1166,24 @@
       font-size: 0.6rem; color: var(--text-faint); font-weight: 600;
       display: inline-flex; align-items: center; gap: 3px;
     }
+    /* 複数メディア報道バッジ（話題の重要性シグナル） */
+    .meta-multi {
+      font-size: 0.58rem; font-weight: 800; letter-spacing: 0.02em;
+      color: var(--navy); background: var(--gold);
+      padding: 1px 6px;
+      display: inline-flex; align-items: center; gap: 2px;
+    }
     .tag {
       display: inline-block; font-size: 0.55rem; font-weight: 600;
       color: var(--text-muted); background: #f0f0f0;
       padding: 1px 6px; letter-spacing: 0.02em;
     }
+    /* クリック可能なタグ: button として挙動、ホバーで navy 背景に反転 */
+    button.tag-btn {
+      border: none; font-family: var(--font-sans); cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    button.tag-btn:hover { background: var(--navy); color: var(--gold); }
 
     /* ── ★ ボタン ── */
     .star-btn {
@@ -2114,9 +2131,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/18', text: '音声ダイジェストを完全事前生成：毎朝 GitHub Actions が Claude Haiku で台本 → OpenAI TTS (voice=nova) で MP3 を生成してリポにコミット。クリック即再生（待ち時間ゼロ）。NHK アナウンサー風の自然な抑揚で日本語読み上げをパーフェクトレベルに' },
-        { date: '04/18', text: 'バズ基準を強化：はてブ0 の記事は全セクションから排除（超新着のみ>=1、通常>=3、本日の主要>=10）。無名記事・いいね0 の微妙な記事が混ざらない仕様に' },
-        { date: '04/18', text: '人気度フィルタ導入：はてなブックマーク数を全記事に付与、「その他のニュース」もバズ基準でフィルタ。並び順も「urgency→人気度→新着」に刷新' }
+        { date: '04/18', text: 'スキャン性強化：①記事末尾の #タグをクリックで即絞り込み、②FYIフィルタツールバーを sticky 化（スクロールしてもフィルタ常時表示）、③カードに「⏱ N分」読了時間を全カード表示、④「📰 N媒体報道」バッジで話題の重要性を可視化' },
+        { date: '04/18', text: '音声ダイジェストを完全事前生成：毎朝 GitHub Actions が Claude Haiku で台本 → OpenAI TTS (voice=nova) で MP3 を生成してリポにコミット。クリック即再生（待ち時間ゼロ）' },
+        { date: '04/18', text: 'バズ基準を強化：はてブ0 の記事は全セクションから排除（超新着のみ>=1、通常>=3、本日の主要>=10）。無名記事・いいね0 の微妙な記事が混ざらない仕様に' }
       ]
     });
   </script>

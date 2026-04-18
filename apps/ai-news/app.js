@@ -833,6 +833,55 @@
   const UGC_SOURCE_RE = /(Qiita|Zenn|note|はてなブログ|Medium)/i;
   function isUgc(n) { return UGC_SOURCE_RE.test(n.source || '') || n.sourceType === 'ugc'; }
 
+  /** タイトル正規化（類似記事クラスタリング用）。記号・空白・媒体名プレフィクスを削って比較する。 */
+  function normalizeTitle(s) {
+    return String(s || '')
+      .toLowerCase()
+      .replace(/[【】「」『』\[\]（）()〈〉《》・,.、。!！?？:：;；"“”'’\s　]/g, '')
+      .replace(/[-—ー─–]/g, '');
+  }
+  /** 2記事のタイトルが「同じ話題」と判定できるか（共通部分が 10文字以上）。
+   *  正規化後、連続する 10文字以上のサブストリングが一致していれば同話題と見なす。 */
+  function sameStory(a, b) {
+    const na = normalizeTitle(a), nb = normalizeTitle(b);
+    if (!na || !nb) return false;
+    if (na.length < 10 || nb.length < 10) return false;
+    const min = Math.min(na.length, nb.length);
+    // 10文字のウィンドウでスライドして一致を探す
+    for (let i = 0; i <= na.length - 10; i++) {
+      const sub = na.slice(i, i + 10);
+      if (nb.includes(sub)) return true;
+    }
+    return false;
+  }
+  /** 全記事を走査して story クラスタを構築。
+   *  返り値: Map<articleId, {count, sources[]}>（自分を含む同話題の媒体数） */
+  let _storyClusters = new Map();
+  function buildStoryClusters() {
+    _storyClusters = new Map();
+    const items = NEWS_DATA;
+    const used = new Set();
+    for (let i = 0; i < items.length; i++) {
+      if (used.has(i)) continue;
+      const group = [i];
+      used.add(i);
+      for (let j = i + 1; j < items.length; j++) {
+        if (used.has(j)) continue;
+        if (sameStory(items[i].title, items[j].title)) {
+          group.push(j);
+          used.add(j);
+        }
+      }
+      if (group.length >= 2) {
+        const sources = [...new Set(group.map(k => items[k].source))];
+        group.forEach(k => {
+          _storyClusters.set(items[k].id, { count: sources.length, sources });
+        });
+      }
+    }
+  }
+  function getStoryCluster(id) { return _storyClusters.get(id); }
+
   /** はてブ最低閾値（バズの線引き）。
    *  - main: 本日の主要ニュース枠に入るには最低これだけ必要
    *  - default: 注目/その他に入るには最低これだけ必要
@@ -1163,7 +1212,9 @@
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               ${matchesTool(n) ? '<span class="meta-tool-badge" title="ツール活用Tips">🛠</span>' : ''}
               <span class="meta-source">${escapeHtml(n.source)}</span>
+              ${(() => { const c = getStoryCluster(n.id); return c ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体報道</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
+              <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
             </div>
             <div class="brief-card-title">${escapeHtml(n.title)}</div>
             <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
@@ -1239,7 +1290,7 @@
 
   function renderMore(allMore) {
     const root = document.getElementById('more-list');
-    const kw = state.keyword.trim().toLowerCase();
+    const kw = state.keyword.trim().toLowerCase().replace(/^#+/, '');
     const items = allMore.filter(n => {
       if (state.activeCat === 'tool') {
         if (!matchesTool(n)) return false;
@@ -1274,13 +1325,15 @@
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               ${matchesTool(n) ? '<span class="meta-tool-badge" title="ツール活用Tips">🛠</span>' : ''}
               <span class="meta-source">${escapeHtml(n.source)}</span>
+              ${(() => { const c = getStoryCluster(n.id); return c ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
+              <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
             </div>
             <div class="fyi-title">${escapeHtml(n.title)}</div>
             ${(() => { const w = meaningfulWhyItMatters(n); if (w) return `<div class="fyi-why">${escapeHtml(w)}</div>`; if (n.summary) return `<div class="fyi-why">${escapeHtml(n.summary)}</div>`; return ''; })()}
             ${n.actionItem ? `<div class="fyi-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
             <div class="fyi-foot">
-              <div class="fyi-tags">${(n.tags||[]).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
+              <div class="fyi-tags">${(n.tags||[]).map(t => `<button class="tag tag-btn" type="button" data-tag-filter="${escapeHtml(t)}" title="#${escapeHtml(t)} で絞り込み">#${escapeHtml(t)}</button>`).join('')}</div>
               <div style="display:flex;align-items:center;gap:8px;">
                 <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
                 <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
@@ -1309,6 +1362,22 @@
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
       btn.addEventListener('click', e => { e.stopPropagation(); toggleFav(btn.dataset.fav, btn); });
+    });
+    // タグクリックで検索に #tag をセットして絞り込み
+    root.querySelectorAll('.tag-btn[data-tag-filter]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const tag = btn.dataset.tagFilter;
+        const input = document.getElementById('search');
+        if (input) {
+          input.value = '#' + tag;
+          state.keyword = '#' + tag;
+          savePrefs();
+          renderMore(_moreRef);
+          const sec = document.getElementById('sec-more') || document.getElementById('more-list');
+          if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
     });
   }
 
@@ -2253,6 +2322,7 @@
   let _moreRef = []; // wireUp が掴む fyi 配列の最新参照（再renderで差し替える）
 
   function fullRender() {
+    buildStoryClusters();
     const { mustKnow, thisWeek, fyi } = partition();
     _moreRef = fyi;
     renderExecSummary();
