@@ -450,6 +450,27 @@
       '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
     })[c]);
   }
+
+  /** Qiita/note/Zenn 等の記事本文先頭によくある見出し語（「はじめに」「概要」等）を剥がす。 */
+  const BOILERPLATE_HEADS = [
+    'はじめに', '概要', '要約', '目次', '背景', '序論', '序章',
+    '前書き', 'まえがき', '導入', 'この記事について', '本記事について',
+    'tl;dr', 'TL;DR', 'TLDR',
+  ];
+  function stripBoilerplate(s) {
+    let t = String(s || '').trim();
+    if (!t) return t;
+    // 先頭の見出し語を剥がす（繰り返し）。続く「:：。、 \n」や空文字を許容。
+    for (let i = 0; i < 3; i++) {
+      let changed = false;
+      for (const h of BOILERPLATE_HEADS) {
+        const re = new RegExp('^' + h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s:：。、\\-―ー]*', 'i');
+        if (re.test(t)) { t = t.replace(re, '').trim(); changed = true; }
+      }
+      if (!changed) break;
+    }
+    return t;
+  }
   const WEEKDAYS = ['日','月','火','水','木','金','土'];
   function fmtDate(iso) {
     const d = new Date(iso);
@@ -808,15 +829,20 @@
 
   /* ────────── ⑥ 仕分け（urgency ベース） ──────────  */
   const URG_ORDER = { must_know: 0, this_week: 1, fyi: 2 };
+  /** 個人発信プラットフォーム（TOP STORY には昇格させない）。正統派ニュースメディア優先の方針。 */
+  const UGC_SOURCE_RE = /(Qiita|Zenn|note|はてなブログ|Medium)/i;
+  function isUgc(n) { return UGC_SOURCE_RE.test(n.source || '') || n.sourceType === 'ugc'; }
   function partition() {
+    // メディア記事は +0、UGC記事は +1 の疑似urgency で格下げ（TOP STORY に個人ブログが上がらない）
+    const rank = n => (URG_ORDER[n.urgency] ?? 2) + (isUgc(n) ? 1 : 0);
     const sorted = [...NEWS_DATA].sort((a, b) => {
-      const ua = URG_ORDER[a.urgency] ?? 2, ub = URG_ORDER[b.urgency] ?? 2;
-      if (ua !== ub) return ua - ub;
-      // 同urgency内: importance昇順 → 新しい順
+      const ra = rank(a), rb = rank(b);
+      if (ra !== rb) return ra - rb;
       if (a.importance !== b.importance) return a.importance - b.importance;
       return new Date(b.publishedAt) - new Date(a.publishedAt);
     });
-    let mustKnow = sorted.filter(n => n.urgency === 'must_know').slice(0, 2);
+    // 重要ニュースは「メディアの must_know」に限定。UGC は混ぜない。
+    let mustKnow = sorted.filter(n => n.urgency === 'must_know' && !isUgc(n)).slice(0, 2);
     // 重要ニュースが空の場合、次点（this_week → fyi）から1件繰り上げる
     if (mustKnow.length === 0 && sorted.length > 0) {
       mustKnow = sorted.slice(0, 1);
@@ -1002,7 +1028,7 @@
       const initials = (n.source || '').substring(0, 2).toUpperCase();
       return `
       <article class="top-card${isRead ? ' read' : ''}${isTopStory ? ' top-story' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" aria-label="${escapeHtml(n.title)}">
-        ${isTopStory ? '<div class="top-story-ribbon" aria-hidden="true"><span class="top-story-ribbon-num">#1</span><span class="top-story-ribbon-label">TOP STORY</span></div>' : ''}
+        ${isTopStory ? '<div class="top-story-ribbon" aria-hidden="true" title="大手ニュースメディアの最重要 AI×マーケ速報"><span class="top-story-ribbon-num">#1</span><span class="top-story-ribbon-label">本日の主要ニュース</span></div>' : ''}
         ${imgSrc ? `
         <div class="top-hero">
           <img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
@@ -1373,8 +1399,8 @@
           importance: imp,
           readMin:    Number(it.readMin) || 1,
           title:      String(it.title || '').trim(),
-          summary:    String(it.summary || '').trim(),
-          whyItMatters: String(it.whyItMatters || '').trim(),
+          summary:    stripBoilerplate(it.summary),
+          whyItMatters: stripBoilerplate(it.whyItMatters),
           actionItem:   String(it.actionItem || '').trim(),
           pickerComment: String(it.pickerComment || '').trim(),
           urgency:    urg,
@@ -1503,8 +1529,8 @@
         NEWS_DATA.push({
           id: it.id || ('n_' + Math.random().toString(36).slice(2, 10)),
           importance: imp, readMin: Number(it.readMin) || 1,
-          title: String(it.title || '').trim(), summary: String(it.summary || '').trim(),
-          whyItMatters: String(it.whyItMatters || '').trim(),
+          title: String(it.title || '').trim(), summary: stripBoilerplate(it.summary),
+          whyItMatters: stripBoilerplate(it.whyItMatters),
           actionItem: String(it.actionItem || '').trim(),
           pickerComment: String(it.pickerComment || '').trim(), urgency: urg,
           source: String(it.source || '').trim(), sourceType: it.sourceType || 'media',

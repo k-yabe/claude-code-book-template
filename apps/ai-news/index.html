@@ -1986,8 +1986,8 @@
     <!-- 🔥 今すぐ押さえる (MUST-KNOW) -->
     <div class="sec-head" id="sec-must-know">
       <span class="sec-icon gold">🔥</span>
-      <span class="sec-title">重要ニュース <span class="sec-count" id="count-must-know">0</span></span>
-      <span class="sec-sub">必ず目を通すべきニュース</span>
+      <span class="sec-title">本日の主要ニュース <span class="sec-count" id="count-must-know">0</span></span>
+      <span class="sec-sub">大手メディアが報じた AI × マーケ最重要トピック（個人ブログは除外）</span>
       <span class="sec-line"></span>
     </div>
     <div id="must-know"></div>
@@ -2111,9 +2111,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/18', text: '★お気に入りが1件以上あるとヒーローに「★N お気に入り」stat が出現。クリックで即フィルタ絞り込み。🛠 ツール活用バッジが Claude Code/Copilot/Cursor 系記事に自動付与。🌙 夜間読書モード（目に優しい sepia 調）と📤ワンタップ共有を cmd-bar に追加' },
-        { date: '04/18', text: '週間読書統計：直近7日の既読数を日次で localStorage に記録し、ヒーローに7本ミニバー＋合計で可視化（今日の棒はシアン、過去はゴールド薄）。FYI カードはホバーで whyItMatters を全文表示' },
-        { date: '04/17', text: '音声コントロール刷新：再生ボタン＋スピードセレクタを1つのクラスタにまとめ、デフォルト1.25x、プルダウン選択に。「マーケ視点でなぜ重要か」のラベル復活' }
+        { date: '04/18', text: '本日の主要ニュース枠を大手メディア限定に：MarkeZine/DIGIDAY/AdverTimes/日経クロステック/ITmedia など正統派ニュースメディアを優先し、Qiita/Zenn/note 等の個人ブログは TOP 枠に上がらないよう仕様化。各UGCソースは最大1〜2件までキャップ。個人発信の存在感が強すぎた問題を解消' },
+        { date: '04/18', text: '記事冒頭の「はじめに」「概要」「TL;DR」などの見出し語を自動除去（Qiita/Zenn 系の本文セクション見出しが要約に混入する問題を解消）。3行サマリーも読みやすく' },
+        { date: '04/18', text: '★お気に入りが1件以上あるとヒーローに「★N お気に入り」stat が出現。クリックで即フィルタ絞り込み。🛠 ツール活用バッジ、🌙 夜間読書モード、📤ワンタップ共有、週間読書統計ミニバー7本も追加' }
       ]
     });
   </script>
