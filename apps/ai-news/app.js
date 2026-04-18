@@ -832,20 +832,39 @@
   /** 個人発信プラットフォーム（TOP STORY には昇格させない）。正統派ニュースメディア優先の方針。 */
   const UGC_SOURCE_RE = /(Qiita|Zenn|note|はてなブログ|Medium)/i;
   function isUgc(n) { return UGC_SOURCE_RE.test(n.source || '') || n.sourceType === 'ugc'; }
-  /** 人気度スコア: はてブ数 + メディア加点 + 新着加点 + Tools 加点。閾値下は「その他」にも載せない。 */
+
+  /** はてブ最低閾値（バズの線引き）。
+   *  - main: 本日の主要ニュース枠に入るには最低これだけ必要
+   *  - default: 注目/その他に入るには最低これだけ必要
+   *  - breaking: 超新着(< 6h)のみ適用される緩めの閾値 */
+  const BUZZ_MIN = { main: 10, default: 3, breaking: 1 };
+
+  function ageHours(n) {
+    return Math.max(0, (Date.now() - new Date(n.publishedAt || 0)) / 3.6e6);
+  }
+  function minBuzzFor(n, kind) {
+    const h = ageHours(n);
+    if (h < 6) return BUZZ_MIN.breaking;  // 超新着は緩く
+    return kind === 'main' ? BUZZ_MIN.main : BUZZ_MIN.default;
+  }
+  /** 人気度スコア（並び順用）: はてブ数そのもの + ツールTips +5 + 新着加点 */
   function popularityScore(n) {
     const hatena = Number(n.hatenaCount) || 0;
-    const media = isUgc(n) ? 0 : 10;
     const tool = matchesTool(n) ? 5 : 0;
-    const ageH = Math.max(0, (Date.now() - new Date(n.publishedAt || 0)) / 3.6e6);
-    const fresh = ageH < 12 ? 4 : ageH < 24 ? 2 : 0;
-    return hatena + media + tool + fresh;
+    const h = ageHours(n);
+    const fresh = h < 6 ? 6 : h < 12 ? 3 : 0;
+    return hatena + tool + fresh;
   }
-  /** fyi (その他のニュース) 採用の最低スコア。メディア(+10)は自動通過、
-   *  UGC はツールTips (+5) または十分なブクマ数を持つもののみ通す。 */
-  const FYI_MIN_SCORE = 5;
+  /** データセット全体に有意なブクマ数があるか（= scraper が人気度を取得済みか）。
+   *  全記事 hatena=0 なら scraper 未実行の可能性があるのでフィルタは無効化（可用性を担保）。 */
+  function hasBuzzData() {
+    return NEWS_DATA.some(n => (Number(n.hatenaCount) || 0) > 0);
+  }
+
   function partition() {
-    // 全記事を「urgency → 人気度」で並べ替え
+    const buzzActive = hasBuzzData();
+    const passes = (n, kind) => !buzzActive || (Number(n.hatenaCount) || 0) >= minBuzzFor(n, kind) || matchesTool(n);
+
     const sorted = [...NEWS_DATA].sort((a, b) => {
       const ua = (URG_ORDER[a.urgency] ?? 2) + (isUgc(a) ? 1 : 0);
       const ub = (URG_ORDER[b.urgency] ?? 2) + (isUgc(b) ? 1 : 0);
@@ -854,28 +873,28 @@
       if (sa !== sb) return sb - sa;
       return new Date(b.publishedAt) - new Date(a.publishedAt);
     });
-    // 重要ニュースは「メディアの must_know」に限定。UGC は混ぜない。
-    let mustKnow = sorted.filter(n => n.urgency === 'must_know' && !isUgc(n)).slice(0, 2);
-    // 重要ニュースが空の場合、次点（this_week → fyi）から1件繰り上げる
-    if (mustKnow.length === 0 && sorted.length > 0) {
-      mustKnow = sorted.slice(0, 1);
+    // 本日の主要ニュース: メディア & urgency=must_know & バズ閾値クリア のみ、上位2件
+    let mustKnow = sorted.filter(n => n.urgency === 'must_know' && !isUgc(n) && passes(n, 'main')).slice(0, 2);
+    // 閾値緩和（main の閾値で0件なら default 閾値で再選）
+    if (!mustKnow.length) {
+      mustKnow = sorted.filter(n => !isUgc(n) && passes(n, 'default')).slice(0, 2);
     }
+    if (!mustKnow.length && sorted.length > 0) mustKnow = sorted.slice(0, 1);
     const usedIds1 = new Set(mustKnow.map(n => n.id));
-    // 注目ニュースは最大6件。足りない時は fyi から繰り上げ（合計6件）
+    // 注目ニュース: バズ閾値クリアのみ、最大6件
     const THIS_WEEK_MAX = 6;
-    let thisWeek = sorted.filter(n => n.urgency === 'this_week' && !usedIds1.has(n.id)).slice(0, THIS_WEEK_MAX);
+    let thisWeek = sorted.filter(n => n.urgency === 'this_week' && !usedIds1.has(n.id) && passes(n, 'default')).slice(0, THIS_WEEK_MAX);
     if (thisWeek.length < THIS_WEEK_MAX) {
       const existing = new Set(thisWeek.map(n => n.id));
       const need = THIS_WEEK_MAX - thisWeek.length;
       const promoted = sorted
-        .filter(n => !usedIds1.has(n.id) && !existing.has(n.id))
+        .filter(n => !usedIds1.has(n.id) && !existing.has(n.id) && passes(n, 'default'))
         .slice(0, need);
       thisWeek = [...thisWeek, ...promoted];
     }
     const usedIds = new Set([...mustKnow.map(n => n.id), ...thisWeek.map(n => n.id)]);
-    // その他のニュース: 人気度スコア FYI_MIN_SCORE 以上のみ採用。
-    // 媒体記事（+10点）は自動で通過、UGC は はてブ数などで FYI_MIN_SCORE 以上が必要。
-    const fyi = sorted.filter(n => !usedIds.has(n.id) && popularityScore(n) >= FYI_MIN_SCORE);
+    // その他のニュース: バズ閾値クリアのみ
+    const fyi = sorted.filter(n => !usedIds.has(n.id) && passes(n, 'default'));
     return { mustKnow, thisWeek, fyi };
   }
 
@@ -1903,14 +1922,56 @@
   }
 
   // ── 事前生成（バックグラウンドプリロード）──
-  // アプリ起動時に自動的にダイジェスト＋音声を生成しておき、ユーザーがクリックしたら即再生
+  // 優先順位: ① GitHub Actions が毎朝生成した静的 MP3（即再生）
+  //          ② Vercel API で Claude digest → OpenAI TTS をオンデマンド生成
+  //          ③ フォールバックで Web Speech API
   let preloadPromise = null;
   let preloadedAudioUrl = null;
   let preloadedDigest = null;
 
+  /** 静的 MP3（apps/ai-news/data/audio/<YYYY-MM-DD>.mp3 または latest.mp3）を優先取得。 */
+  async function tryStaticAudio() {
+    const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+    const ymd = today.toISOString().slice(0, 10);
+    // same-origin で試行（ページが /apps/ai-news/ から配信されている前提）
+    const candidates = [
+      `data/audio/${ymd}.mp3`,
+      `data/audio/latest.mp3`,
+    ];
+    for (const path of candidates) {
+      try {
+        const r = await fetch(path, { method: 'GET', cache: 'force-cache' });
+        if (!r.ok) continue;
+        const blob = await r.blob();
+        if (blob.size < 1000) continue;
+        // 台本（txt）も取得を試みる（停止時の表示用、必須ではない）
+        try {
+          const txtPath = path.replace('.mp3', '.txt');
+          const t = await fetch(txtPath, { cache: 'force-cache' });
+          if (t.ok) preloadedDigest = (await t.text()).trim();
+        } catch {}
+        return URL.createObjectURL(blob);
+      } catch {}
+    }
+    return null;
+  }
+
   async function preloadDigestAudio() {
     if (preloadPromise) return preloadPromise;
     preloadPromise = (async () => {
+      // ① 静的 MP3 が存在すれば最速ルート
+      const staticUrl = await tryStaticAudio();
+      if (staticUrl) {
+        preloadedAudioUrl = staticUrl;
+        const btn = document.getElementById('btn-listen');
+        if (btn && !speechState.playing) {
+          const estMin = Math.max(3, Math.ceil((preloadedDigest || '').length / 320) || 5);
+          btn.textContent = `▶ 今日のダイジェスト（約${estMin}分 · 準備完了）`;
+          btn.classList.add('ready');
+        }
+        return staticUrl;
+      }
+      // ② 静的 MP3 がなければ Vercel API でオンデマンド生成
       const digest = await generateDigest();
       if (!digest) return null;
       preloadedDigest = digest;
@@ -1919,7 +1980,7 @@
         preloadedAudioUrl = audioUrl;
         const btn = document.getElementById('btn-listen');
         if (btn && !speechState.playing) {
-          const estMin = Math.ceil((preloadedDigest || '').length / 300);
+          const estMin = Math.ceil((preloadedDigest || '').length / 320);
           btn.textContent = `▶ 今日のダイジェスト（約${estMin}分 · 準備完了）`;
           btn.classList.add('ready');
         }

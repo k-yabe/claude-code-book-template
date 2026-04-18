@@ -406,13 +406,29 @@ def fetch_all() -> list[dict]:
         except Exception as ex:
             log(f"  ! error {src['name']}: {ex}")
 
-    # 人気度フィルタ: UGC (Qiita/Zenn/note) は はてブ >=3 のみ採用（無名記事の氾濫防止）
+    # 人気度フィルタ: 「バズ」基準を導入。
+    #  - 6時間以内の速報記事は hatena>=1 で救済（新着は反応が遅いため）
+    #  - それ以外は hatena>=3 必須
+    #  - UGC も同じ基準だが、ツール系キーワード（Claude Code/Copilot等）記事は救済
+    TOOL_RE = re.compile(
+        r"Claude\s*Code|GitHub\s*Copilot|Copilot|Cursor|Devin|Windsurf|Cline|"
+        r"バイブコーディング|AIコーディング|AIペアプロ|AIエディタ|AI補完|プロンプト",
+        re.IGNORECASE,
+    )
+    def _is_tool(it: dict) -> bool:
+        hay = (it.get("title", "") or "") + " " + (it.get("raw_summary", "") or "")
+        return bool(TOOL_RE.search(hay))
+    def _buzz_pass(it: dict) -> bool:
+        h = (it.get("hatenaCount") or 0)
+        age_h = (datetime.now(UTC) - datetime.fromisoformat(it["publishedAt"].replace("Z","+00:00"))).total_seconds() / 3600
+        if _is_tool(it):
+            return h >= 0  # ツール系は閾値ゼロで救済
+        if age_h < 6:
+            return h >= 1  # 超新着はブクマ1以上
+        return h >= 3
     before = len(all_items)
-    all_items = [
-        it for it in all_items
-        if it.get("sourceType") != "ugc" or (it.get("hatenaCount") or 0) >= 3
-    ]
-    log(f"filtered UGC low-engagement: {before} -> {len(all_items)}")
+    all_items = [it for it in all_items if _buzz_pass(it)]
+    log(f"filtered by buzz threshold: {before} -> {len(all_items)}")
     # 並び順: メディア優先 × 人気度(はてブ数)降順 × 新着降順
     all_items.sort(key=lambda x: (
         1 if x.get("sourceType") == "ugc" else 0,        # メディア先行
@@ -672,6 +688,180 @@ def save(items: list[dict], executive_summary: list[str] | None = None) -> None:
     log(f"wrote {latest.relative_to(ROOT.parent.parent)} and {archive.relative_to(ROOT.parent.parent)} ({len(items)} items)")
 
 
+# ── 音声ダイジェスト事前生成（OpenAI TTS） ──────────────────────────────────────────
+DIGEST_MODEL = "claude-haiku-4-5-20251001"
+
+TTS_INSTRUCTIONS = """You are a top-tier professional Japanese news anchor delivering an NHK-quality morning business briefing to Japanese marketing professionals.
+
+VOICE CHARACTER:
+- Warm, authoritative, trustworthy — like an NHK おはよう日本 or テレビ東京 WBS anchor
+- Natural Japanese pitch accent (高低アクセント), never flat or monotonic
+- Calm, composed, with subtle warmth — professional composure
+
+PACE & RHYTHM:
+- Baseline pace: calm and measured (~320 Japanese characters per minute)
+- Slow down on key numbers, proper nouns, and the first mention of each topic
+- Clear 0.5-0.7s pause at sentence end (「。」), 0.2s at clauses (「、」)
+- Longer breath (1.0s) between topic transitions
+
+INTONATION (CRITICAL):
+- Natural Japanese sentence-end falling cadence (下降調で終わる)
+- Rising tone at clause boundaries to maintain listener engagement
+- Emphasize subjects and action verbs with slight pitch rise
+- Subtle emotional color — concerned for risks, measured for stats, uplifting at closing
+
+PRONUNCIATION:
+- All katakana loanwords: pure Japanese phonetics (NOT English accent)
+  - ChatGPT = 「チャットジーピーティー」, Google = 「グーグル」, Claude = 「クロード」
+  - AI = 「エーアイ」, GPT = 「ジーピーティー」, LLM = 「エルエルエム」
+- Numbers: natural Japanese reading (25% = 「にじゅうごパーセント」)
+- Proper nouns: crisp, slightly slower delivery
+
+DELIVERY ARC:
+- Opening greeting: warm, clear, inviting — makes the listener feel welcomed
+- News body: measured authority, emphasize the 3W (what / why it matters / what to do)
+- Transitions (「続いて」「一方で」): clear pause, slight tonal shift to signal topic change
+- Closing (「今日も一日…」): composed, encouraging, subtle smile in voice
+
+AVOID:
+- English-accented Japanese
+- Robotic, uniform, flat TTS tone
+- Overly cheerful radio DJ style
+- Rushing through numbers or proper nouns
+- Excessive softness or whispering
+
+TARGET: The listener should feel they are receiving a trusted, professional morning briefing from a senior Japanese business news anchor — the kind of voice they'd expect on NHK or TV Tokyo's morning business program."""
+
+
+def generate_digest_script(exec_summary: list[str], mustknow: list[dict], thisweek: list[dict]) -> str | None:
+    """Claude Haiku で5分ダイジェスト台本を生成。失敗時は None。"""
+    if not ANTHROPIC_API_KEY:
+        return None
+    today_jst = datetime.now(JST)
+    date_label = f"{today_jst.month}月{today_jst.day}日"
+
+    lines = []
+    if exec_summary:
+        lines.append("【今日の全体像】")
+        for s in exec_summary:
+            lines.append(f"・{s}")
+    if mustknow:
+        lines.append("\n【本日の主要ニュース】")
+        for n in mustknow:
+            lines.append(f"■ {n.get('title','')}")
+            if n.get("summary"): lines.append(f"  {n['summary']}")
+            if n.get("whyItMatters"): lines.append(f"  影響: {n['whyItMatters']}")
+            if n.get("actionItem"): lines.append(f"  アクション: {n['actionItem']}")
+    if thisweek:
+        lines.append("\n【注目ニュース】")
+        for n in thisweek:
+            lines.append(f"■ {n.get('title','')}")
+            if n.get("summary"): lines.append(f"  {n['summary']}")
+
+    system_prompt = f"""あなたはマーケティングチーム向けの朝の社内ラジオのパーソナリティです。毎朝5分で、最新ニュースをわかりやすくダイジェストで伝えます。
+
+## 絶対ルール
+- 日本語のみ。英単語は原則使わない。避けられない固有名詞はカタカナ表記（ChatGPT→チャットジーピーティー、Claude→クロード、Google→グーグル、AI→エーアイ、GPT→ジーピーティー、LLM→エルエルエム、SNS→エスエヌエス、LP→ランディングページ）
+- 日付は「{date_label}」と書く
+- 数字は読みやすく（50%→半分以上、3つ→みっつ）
+- 記号は「」のみ使用。マークダウン・箇条書き・見出しは使わない
+
+## 3幕構成
+### 第1幕（冒頭30秒）
+- 「おはようございます。{date_label}のマーケティング・ニュースダイジェストです。」
+- 「今日のポイントは3つあります。」と予告
+
+### 第2幕（本編3〜4分）
+- 重要ニュースから順に解説
+- 記事間のつながり（「この流れを受けて」「一方で」）
+- 各トピックで「なぜ自分たちに関係あるか」を必ず説明
+- 「あなたのチームがやるべきことは」で具体アクション
+
+### 第3幕（30秒）
+- 「最後にまとめです。」で3つ振り返り
+- 「今日も一日頑張っていきましょう。」で締め
+
+## スタイル
+- 話し言葉。「〜ですね」「〜なんですが」の口語体
+- 1000〜1500字（約4〜5分）
+- 通勤中のマーケ担当者が聴く想定
+
+出力は本文のみ。英単語は一切使わない。"""
+
+    user_prompt = f"以下は本日（{date_label}）のニュースです。5分ダイジェスト台本を日本語のみで作成してください。英単語はすべてカタカナに。\n\n" + "\n".join(lines)
+
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            method="POST",
+            headers={
+                "Content-Type": "application/json",
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01",
+            },
+            data=json.dumps({
+                "model": DIGEST_MODEL,
+                "max_tokens": 3000,
+                "system": system_prompt,
+                "messages": [{"role": "user", "content": user_prompt}],
+            }).encode("utf-8"),
+        )
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = json.loads(resp.read())
+        parts = [b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"]
+        return "".join(parts).strip() or None
+    except Exception as e:
+        log(f"digest script error: {e}")
+        return None
+
+
+def generate_tts_mp3(text: str) -> bytes | None:
+    """OpenAI TTS (gpt-4o-mini-tts / voice=nova) で日本語 MP3 を生成。失敗時 None。"""
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key or not text:
+        return None
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            "https://api.openai.com/v1/audio/speech",
+            method="POST",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            data=json.dumps({
+                "model": "gpt-4o-mini-tts",
+                "voice": "nova",
+                "input": text[:4800],
+                "instructions": TTS_INSTRUCTIONS,
+                "response_format": "mp3",
+                "speed": 1.0,
+            }).encode("utf-8"),
+        )
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            return resp.read()
+    except Exception as e:
+        log(f"tts error: {e}")
+        return None
+
+
+def save_audio(mp3: bytes, script: str) -> None:
+    """MP3 と台本を apps/ai-news/data/audio/ に保存。"""
+    audio_dir = DATA_DIR / "audio"
+    audio_dir.mkdir(parents=True, exist_ok=True)
+    today_jst = datetime.now(JST).strftime("%Y-%m-%d")
+    mp3_path = audio_dir / f"{today_jst}.mp3"
+    script_path = audio_dir / f"{today_jst}.txt"
+    latest_mp3 = audio_dir / "latest.mp3"
+    latest_script = audio_dir / "latest.txt"
+    mp3_path.write_bytes(mp3)
+    latest_mp3.write_bytes(mp3)
+    script_path.write_text(script, encoding="utf-8")
+    latest_script.write_text(script, encoding="utf-8")
+    log(f"wrote audio: {mp3_path.relative_to(ROOT.parent.parent)} ({len(mp3)/1024:.0f} KB)")
+
+
 # ── エントリーポイント ──────────────────────────────────────────
 def main() -> int:
     started = time.time()
@@ -686,6 +876,24 @@ def main() -> int:
     else:
         items, exec_summary = result
     save(items, exec_summary)
+
+    # ── 音声ダイジェストを事前生成（GitHub Actions 実行時のみ） ──
+    if os.environ.get("SKIP_AUDIO", "").strip() != "1":
+        mustknow = [x for x in items if x.get("urgency") == "must_know"][:2]
+        thisweek = [x for x in items if x.get("urgency") == "this_week"][:6]
+        log("generating digest script...")
+        script = generate_digest_script(exec_summary, mustknow, thisweek)
+        if script:
+            log(f"digest script: {len(script)} chars")
+            log("generating TTS MP3 (OpenAI nova)...")
+            mp3 = generate_tts_mp3(script)
+            if mp3:
+                save_audio(mp3, script)
+            else:
+                log("tts generation failed; static audio not saved")
+        else:
+            log("digest script generation failed; skipping audio")
+
     log(f"done in {time.time() - started:.1f}s")
     return 0
 
