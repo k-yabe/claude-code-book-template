@@ -1306,9 +1306,11 @@
     .empty-text { font-size: 0.78rem; }
 
     /* ── Executive Summary ── */
+    /* 「TODAY'S BRIEFING」ラベルは box 内側の上端に配置し、overflow:hidden でも
+        見切れないようにする。ウォーターマーク数字のはみ出しは overflow:hidden で抑える。 */
     .exec-box {
       background: linear-gradient(135deg, var(--navy) 0%, #002d4d 55%, var(--navy) 100%);
-      padding: var(--sp-6) var(--sp-7);
+      padding: calc(var(--sp-6) + 12px) var(--sp-7) var(--sp-6);
       margin: 0 var(--sp-5) var(--sp-5);
       position: relative;
       border-left: 6px solid var(--gold);
@@ -1317,10 +1319,11 @@
     }
     .exec-box::before {
       content: 'TODAY\'S BRIEFING';
-      position: absolute; top: -10px; left: var(--sp-5);
+      position: absolute; top: 0; left: 0;
       background: var(--gold); color: var(--navy);
-      padding: 3px 12px; font-size: 0.6rem; font-weight: 900;
+      padding: 4px 12px; font-size: 0.6rem; font-weight: 900;
       letter-spacing: 0.15em;
+      line-height: 1;
       z-index: 2;
     }
     /* 背景に薄いウォーターマーク数字を重ねて厚みを出す */
@@ -1350,7 +1353,7 @@
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: var(--sp-5);
-        padding: var(--sp-6) var(--sp-7);
+        padding: calc(var(--sp-6) + 12px) var(--sp-7) var(--sp-6);
       }
       .exec-line {
         border-bottom: none;
@@ -1380,7 +1383,7 @@
     }
     .exec-src:hover { opacity: 1; color: var(--white); }
     @media (max-width: 600px) {
-      .exec-box { padding: var(--sp-4); margin: 0 var(--sp-3) var(--sp-3); }
+      .exec-box { padding: calc(var(--sp-4) + 12px) var(--sp-4) var(--sp-4); margin: 0 var(--sp-3) var(--sp-3); }
       .exec-line { font-size: 0.85rem; }
     }
 
@@ -2111,9 +2114,9 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
-        { date: '04/18', text: '全体調査して違和感を潰し：「重要→主要」のラベル統一（ナビ/ヒーロー/空状態/TTS）、ブランド規定外色を navy に統一、DATA PIPELINE フッターを実態に合わせて更新' },
-        { date: '04/18', text: '本日の主要ニュース枠を大手メディア限定に：MarkeZine/DIGIDAY/AdverTimes/日経クロステック/ITmedia など正統派ニュースメディアを優先し、Qiita/Zenn/note 等の個人ブログは TOP 枠に上がらないよう仕様化。各UGCソースは最大1〜2件までキャップ。個人発信の存在感が強すぎた問題を解消' },
-        { date: '04/18', text: '記事冒頭の「はじめに」「概要」「TL;DR」などの見出し語を自動除去（Qiita/Zenn 系の本文セクション見出しが要約に混入する問題を解消）。3行サマリーも読みやすく' }
+        { date: '04/18', text: '人気度フィルタ導入：はてなブックマーク数を取得し、無名のUGC記事（ブクマ0）は「その他のニュース」からも除外。ツールTips記事は +5点加点で救済。並び順も「urgency→人気度→新着」に刷新' },
+        { date: '04/18', text: '3行サマリー「TODAY\'S BRIEFING」ラベルの上半分が欠ける不具合を修正。ラベルを box 内側上端に配置し、ゴールドの border-left と繋がるコーナー要素として綺麗に表示' },
+        { date: '04/18', text: '本日の主要ニュース枠を大手メディア限定に：MarkeZine/DIGIDAY/AdverTimes/日経クロステック/ITmedia など正統派ニュースメディアを優先し、Qiita/Zenn/note 等の個人ブログは TOP 枠に上がらないよう仕様化' }
       ]
     });
   </script>
