@@ -16,12 +16,9 @@
   const TODAY = '2026-04-17';
   const Y     = '2026-04-17';
 
-  /* ── Executive Summary（シードデータ） ── */
-  let EXEC_SUMMARY = [
-    '企業の比較検討にChatGPTを使う人が7割超え → 自社サイトがAI検索で表示されるか確認が必要',
-    '日本のネット広告費が初の4兆円超え。特に動画広告の伸びが大きく、予算配分を見直す材料に',
-    'Salesforce等が「AIが自動で提案する」機能を続々発表 → 今使っているツールのAI機能をチェック'
-  ];
+  /* ── Executive Summary（シードデータ） ──
+     実データが提供されない場合は deriveSummaryLines() が記事タイトルから自動生成する。 */
+  let EXEC_SUMMARY = [];
 
   const NEWS_DATA = [
     {
@@ -680,10 +677,19 @@
       if (a.importance !== b.importance) return a.importance - b.importance;
       return new Date(b.publishedAt) - new Date(a.publishedAt);
     });
-    const mustKnow  = sorted.filter(n => n.urgency === 'must_know').slice(0, 2);
-    const thisWeek  = sorted.filter(n => n.urgency === 'this_week').slice(0, 4);
-    const usedIds   = new Set([...mustKnow.map(n => n.id), ...thisWeek.map(n => n.id)]);
-    const fyi       = sorted.filter(n => !usedIds.has(n.id));
+    let mustKnow = sorted.filter(n => n.urgency === 'must_know').slice(0, 2);
+    // 重要ニュースが空の場合、次点（this_week → fyi）から1件繰り上げる
+    if (mustKnow.length === 0 && sorted.length > 0) {
+      mustKnow = sorted.slice(0, 1);
+    }
+    const usedIds1 = new Set(mustKnow.map(n => n.id));
+    let thisWeek = sorted.filter(n => n.urgency === 'this_week' && !usedIds1.has(n.id)).slice(0, 4);
+    // 注目ニュースも空なら fyi から繰り上げ（最大3件）
+    if (thisWeek.length === 0) {
+      thisWeek = sorted.filter(n => !usedIds1.has(n.id)).slice(0, 3);
+    }
+    const usedIds = new Set([...mustKnow.map(n => n.id), ...thisWeek.map(n => n.id)]);
+    const fyi = sorted.filter(n => !usedIds.has(n.id));
     return { mustKnow, thisWeek, fyi };
   }
 
@@ -739,10 +745,23 @@
   }
 
   /* ── Executive Summary ── */
+  /** 実データで EXEC_SUMMARY が空の時、top記事 3件のタイトル+影響でサマリーを生成 */
+  function deriveSummaryLines() {
+    const { mustKnow, thisWeek, fyi } = partition();
+    const pick = [...mustKnow, ...thisWeek, ...fyi].slice(0, 3);
+    return pick.map(n => {
+      const base = n.whyItMatters && n.whyItMatters.length > 8 ? n.whyItMatters : n.summary;
+      if (base && base.length > 10) return base.length > 80 ? base.slice(0, 78) + '…' : base;
+      return n.title;
+    });
+  }
   function renderExecSummary() {
     const root = document.getElementById('exec-summary');
     if (!root) return;
-    const lines = EXEC_SUMMARY;
+    let lines = EXEC_SUMMARY;
+    if (!lines || !lines.length || lines.every(l => !String(l || '').trim())) {
+      lines = deriveSummaryLines();
+    }
     if (!lines || !lines.length) {
       root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-text">サマリーはまだ生成されていません</div></div>';
       return;
