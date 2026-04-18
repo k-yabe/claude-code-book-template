@@ -805,7 +805,7 @@
       display: inline-flex; align-items: center; gap: 8px;
     }
     .intel-block.impact .intel-label { color: var(--navy); }
-    .intel-block.action .intel-label { color: #7a5500; }
+    .intel-block.action .intel-label { color: var(--navy); }
     .intel-text {
       font-size: 0.98rem; font-weight: 600; color: var(--navy); line-height: 1.7;
     }
@@ -1418,7 +1418,7 @@
       font-size: 0.72rem; font-weight: 900; letter-spacing: 0.04em;
     }
     .top-impact-label { color: var(--navy); }
-    .top-action-label { color: #7a5500; }
+    .top-action-label { color: var(--navy); }
     .top-impact-text, .top-action-text {
       font-size: 0.88rem; font-weight: 600;
       color: var(--navy);
@@ -2041,7 +2041,7 @@
       <div class="data-note-grid">
         <div class="dn-item">
           <div class="dn-label">収集</div>
-          <div class="dn-value">毎朝 8:00 JST / RSS 8媒体横断</div>
+          <div class="dn-value">毎朝 8:00 JST / 大手ニュースメディア20+媒体横断</div>
         </div>
         <div class="dn-item">
           <div class="dn-label">要約・採点</div>
@@ -2049,7 +2049,7 @@
         </div>
         <div class="dn-item">
           <div class="dn-label">音声ダイジェスト</div>
-          <div class="dn-value">gpt-4o-mini-tts / Shimmer</div>
+          <div class="dn-value">ブラウザ内蔵 SpeechSynthesis（日本語）</div>
         </div>
         <div class="dn-item">
           <div class="dn-label">フォールバック</div>
@@ -2079,7 +2079,7 @@
 
   <!-- PC（≥1280px）セクションナビ。右端にfixedで表示 -->
   <nav class="section-nav" id="section-nav" aria-label="セクションナビゲーション" hidden>
-    <a class="sn-item" href="#sec-must-know" data-target="sec-must-know"><span class="sn-dot"></span><span class="sn-label">重要</span></a>
+    <a class="sn-item" href="#sec-must-know" data-target="sec-must-know"><span class="sn-dot"></span><span class="sn-label">主要</span></a>
     <a class="sn-item" href="#sec-this-week" data-target="sec-this-week"><span class="sn-dot"></span><span class="sn-label">注目</span></a>
     <a class="sn-item" href="#sec-more" data-target="sec-more"><span class="sn-dot"></span><span class="sn-label">その他</span></a>
     <a class="sn-item" href="#sec-x" data-target="sec-x"><span class="sn-dot"></span><span class="sn-label">𝕏</span></a>
@@ -2107,13 +2107,13 @@
       description: 'ニュースを届けるのではなく、判断材料を届ける。「何が起きた？」「なぜ重要？」「何をすべき？」まで一気通貫',
       features: [
         { icon: '📋', text: '今日の3行サマリー：毎朝3行で全体像をつかめる' },
-        { icon: '🔥', text: '重要ニュース：マーケへの影響＋推奨アクションを提示' },
+        { icon: '🔥', text: '本日の主要ニュース：大手メディア発の AI×マーケ最重要トピックをマーケ視点の影響＋推奨アクションと共に提示' },
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
+        { date: '04/18', text: '全体調査して違和感を潰し：「重要→主要」のラベル統一（ナビ/ヒーロー/空状態/TTS）、ブランド規定外色を navy に統一、DATA PIPELINE フッターを実態に合わせて更新' },
         { date: '04/18', text: '本日の主要ニュース枠を大手メディア限定に：MarkeZine/DIGIDAY/AdverTimes/日経クロステック/ITmedia など正統派ニュースメディアを優先し、Qiita/Zenn/note 等の個人ブログは TOP 枠に上がらないよう仕様化。各UGCソースは最大1〜2件までキャップ。個人発信の存在感が強すぎた問題を解消' },
-        { date: '04/18', text: '記事冒頭の「はじめに」「概要」「TL;DR」などの見出し語を自動除去（Qiita/Zenn 系の本文セクション見出しが要約に混入する問題を解消）。3行サマリーも読みやすく' },
-        { date: '04/18', text: '★お気に入りが1件以上あるとヒーローに「★N お気に入り」stat が出現。クリックで即フィルタ絞り込み。🛠 ツール活用バッジ、🌙 夜間読書モード、📤ワンタップ共有、週間読書統計ミニバー7本も追加' }
+        { date: '04/18', text: '記事冒頭の「はじめに」「概要」「TL;DR」などの見出し語を自動除去（Qiita/Zenn 系の本文セクション見出しが要約に混入する問題を解消）。3行サマリーも読みやすく' }
       ]
     });
   </script>

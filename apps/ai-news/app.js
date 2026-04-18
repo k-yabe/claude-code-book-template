@@ -897,7 +897,7 @@
     animateCount(document.getElementById('stat-total'), total, '');
     animateCount(document.getElementById('stat-read'), read, '分');
     const bd = document.getElementById('stat-breakdown');
-    if (bd) bd.innerHTML = `<b>${mustCount}</b>重要 · <b>${weekCount}</b>注目 · <b>${fyiCount}</b>その他`;
+    if (bd) bd.innerHTML = `<b>${mustCount}</b>主要 · <b>${weekCount}</b>注目 · <b>${fyiCount}</b>その他`;
     // スタックバーの各セグメントに flex 比を割り当てて可視化
     const hsbMust = document.getElementById('hsb-must');
     const hsbWeek = document.getElementById('hsb-week');
@@ -1011,7 +1011,7 @@
   function renderMustKnow(items) {
     const root = document.getElementById('must-know');
     if (!items.length) {
-      root.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">重要ニュースはありません</div></div>';
+      root.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">本日の主要ニュースはまだ入ってきていません</div></div>';
       return;
     }
     root.innerHTML = items.map((n, idx) => {
@@ -1757,10 +1757,10 @@
 
     lines.push('では、詳しく見ていきましょう。');
 
-    // 本編：重要ニュース
+    // 本編：本日の主要ニュース
     const { mustKnow, thisWeek } = partition();
     if (mustKnow.length) {
-      lines.push('まず最も重要なニュースです。');
+      lines.push('まず本日の主要ニュースです。');
       mustKnow.forEach((n, i) => {
         if (i > 0) lines.push('続いて。');
         lines.push(`${n.title}。`);
@@ -2131,7 +2131,7 @@
   async function shareDailyBrief() {
     const { mustKnow, thisWeek } = partition();
     const d = new Date();
-    const header = `📰 AI NEWS — ${d.getMonth()+1}/${d.getDate()}(${WEEKDAYS[d.getDay()]}) 重要トピック`;
+    const header = `📰 AI NEWS — ${d.getMonth()+1}/${d.getDate()}(${WEEKDAYS[d.getDay()]}) 主要トピック`;
     const lines = [header, ''];
     if (EXEC_SUMMARY && EXEC_SUMMARY.length) {
       lines.push('【今日のポイント】');
