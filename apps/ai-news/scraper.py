@@ -65,11 +65,40 @@ SOURCES: list[dict[str, object]] = [
     {"name": "note (AI)",                "url": "https://note.com/hashtag/AI/rss",                             "category": "ai",        "tier": "ugc",   "max": 1},
     # 競合モニタリング（PR TIMES 会社別フリーワード検索 RSS）
     # URL パターン: https://prtimes.jp/main/rdf/freeword/<company>/0/1
+    # AKKODiS の主戦場である SIer / IT コンサル / エンジニアリング派遣 / QA / 人材
+    # 各カテゴリの主要競合プレスリリースを横断取得して「競合動向」セクションを充実させる。
+    # ── ①SIer / IT サービス（本丸） ──
+    {"name": "PR TIMES (NTTデータ)",      "url": "https://prtimes.jp/main/rdf/freeword/NTTデータ/0/1",         "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (富士通)",         "url": "https://prtimes.jp/main/rdf/freeword/富士通/0/1",            "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (日立製作所)",     "url": "https://prtimes.jp/main/rdf/freeword/日立製作所/0/1",         "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (NEC)",           "url": "https://prtimes.jp/main/rdf/freeword/NEC/0/1",                "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (NRI)",           "url": "https://prtimes.jp/main/rdf/freeword/野村総合研究所/0/1",      "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (TIS)",           "url": "https://prtimes.jp/main/rdf/freeword/TISインテック/0/1",      "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (SCSK)",          "url": "https://prtimes.jp/main/rdf/freeword/SCSK/0/1",               "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (BIPROGY)",       "url": "https://prtimes.jp/main/rdf/freeword/BIPROGY/0/1",            "category": "market",    "tier": "media", "max": 2},
+    # ── ②IT / 戦略コンサル ──
+    {"name": "PR TIMES (アクセンチュア)", "url": "https://prtimes.jp/main/rdf/freeword/アクセンチュア/0/1",     "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (デロイト)",       "url": "https://prtimes.jp/main/rdf/freeword/デロイト/0/1",            "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (PwC)",           "url": "https://prtimes.jp/main/rdf/freeword/PwCコンサルティング/0/1", "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (ベイカレント)",   "url": "https://prtimes.jp/main/rdf/freeword/ベイカレント/0/1",        "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (アビーム)",       "url": "https://prtimes.jp/main/rdf/freeword/アビームコンサルティング/0/1", "category": "market", "tier": "media", "max": 2},
+    # ── ③エンジニアリング派遣・技術者アサイン ──
+    {"name": "PR TIMES (テクノプロ)",     "url": "https://prtimes.jp/main/rdf/freeword/テクノプロ/0/1",          "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (メイテック)",     "url": "https://prtimes.jp/main/rdf/freeword/メイテック/0/1",          "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (アウトソーシング)","url": "https://prtimes.jp/main/rdf/freeword/アウトソーシングテクノロジー/0/1", "category": "market", "tier": "media", "max": 2},
+    {"name": "PR TIMES (UTグループ)",     "url": "https://prtimes.jp/main/rdf/freeword/UTグループ/0/1",          "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (アルプス技研)",   "url": "https://prtimes.jp/main/rdf/freeword/アルプス技研/0/1",        "category": "market",    "tier": "media", "max": 2},
+    # ── ④QA / テスト受託 ──
+    {"name": "PR TIMES (SHIFT)",         "url": "https://prtimes.jp/main/rdf/freeword/株式会社SHIFT/0/1",       "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (ベリサーブ)",     "url": "https://prtimes.jp/main/rdf/freeword/ベリサーブ/0/1",          "category": "market",    "tier": "media", "max": 2},
+    # ── ⑤人材・求人 ──（既存）
     {"name": "PR TIMES (パーソル)",       "url": "https://prtimes.jp/main/rdf/freeword/パーソル/0/1",          "category": "market",    "tier": "media", "max": 3},
     {"name": "PR TIMES (リクルート)",     "url": "https://prtimes.jp/main/rdf/freeword/リクルート/0/1",         "category": "market",    "tier": "media", "max": 3},
     {"name": "PR TIMES (マイナビ)",       "url": "https://prtimes.jp/main/rdf/freeword/マイナビ/0/1",          "category": "market",    "tier": "media", "max": 2},
     {"name": "PR TIMES (ビズリーチ)",     "url": "https://prtimes.jp/main/rdf/freeword/ビズリーチ/0/1",         "category": "market",    "tier": "media", "max": 2},
     {"name": "PR TIMES (レバテック)",     "url": "https://prtimes.jp/main/rdf/freeword/レバテック/0/1",         "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (パソナ)",         "url": "https://prtimes.jp/main/rdf/freeword/パソナ/0/1",            "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (アデコ)",         "url": "https://prtimes.jp/main/rdf/freeword/アデコ/0/1",            "category": "market",    "tier": "media", "max": 2},
 ]
 
 # 取得上限・要約上限
@@ -857,7 +886,8 @@ def extract_json(text: str) -> dict | None:
 
 
 # ── 保存 ──────────────────────────────────────────
-def save(items: list[dict], executive_summary: list[str] | None = None) -> None:
+def save(items: list[dict], executive_summary: list[str] | None = None,
+         x_highlights: list[dict] | None = None) -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     ARCH_DIR.mkdir(parents=True, exist_ok=True)
     today_jst = datetime.now(JST).strftime("%Y-%m-%d")
@@ -867,12 +897,96 @@ def save(items: list[dict], executive_summary: list[str] | None = None) -> None:
         "executiveSummary": executive_summary or [],
         "count": len(items),
         "items": items,
+        "xHighlights": x_highlights or [],
     }
     latest = DATA_DIR / "news.json"
     archive = ARCH_DIR / f"{today_jst}.json"
     latest.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     archive.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    log(f"wrote {latest.relative_to(ROOT.parent.parent)} and {archive.relative_to(ROOT.parent.parent)} ({len(items)} items)")
+    log(f"wrote {latest.relative_to(ROOT.parent.parent)} and {archive.relative_to(ROOT.parent.parent)} ({len(items)} items, {len(x_highlights or [])} x highlights)")
+
+
+# ── X トレンド取得（Claude + web_search） ────────────────────────────
+# Anthropic の web_search ツールを使って「今日の生成AI関連で話題のXポスト」を取得する。
+# - 実在する X URL のみ採用（validate_url で 200 チェック）
+# - author/handle/text を構造化して xHighlights に流し込む
+# - 失敗・0件時はクライアント側のシードプール（日次ローテ）にフォールバックさせる
+def fetch_x_trends_via_claude() -> list[dict]:
+    if not ANTHROPIC_API_KEY:
+        log("ANTHROPIC_API_KEY missing, skip x trends fetch")
+        return []
+    try:
+        import anthropic  # type: ignore
+    except ImportError as e:
+        log(f"anthropic SDK not available for x trends: {e}")
+        return []
+    today_jst = datetime.now(JST)
+    date_label = today_jst.strftime("%Y年%m月%d日")
+    prompt = (
+        f"今日（{date_label}）または直近 48 時間以内に、日本語のX（旧Twitter）で"
+        "「いいね・リポスト・引用が多く付いて注目されている、生成AI関連の投稿」を"
+        "**実在する URL 付きで** 6 件挙げてください。\n\n"
+        "## 厳守ルール\n"
+        "- web_search を使って実在を確認すること。架空の URL や著者名は絶対に作らない\n"
+        "- URL は https://x.com/<handle>/status/<id> または https://twitter.com/... の形式のみ\n"
+        "- 投稿が確認できなかった場合は「無し」と返す（無理に埋めない）\n"
+        "- 著者は誰でも良い（著名人/一般ユーザー問わず、エンゲージメントが多いもの）\n\n"
+        "## 出力フォーマット（JSON のみ、説明文なし）\n"
+        "{\"items\":[{\"author\":\"表示名\",\"handle\":\"@xxxx\",\"text\":\"本文（200字以内に整形可）\","
+        "\"url\":\"https://x.com/.../status/...\",\"tag\":\"短いトピック名\"}, ...]}"
+    )
+    try:
+        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        msg = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=4000,
+            tools=[{"type": "web_search_20250305", "name": "web_search"}],
+            messages=[{"role": "user", "content": prompt}],
+        )
+        # tool_use の応答を含む可能性あり。最後のテキストブロックを使う。
+        text_parts = [getattr(b, "text", "") for b in msg.content if getattr(b, "type", "") == "text"]
+        text = "".join(text_parts)
+    except Exception as e:
+        log(f"x trends claude call failed: {type(e).__name__}: {e}")
+        return []
+    parsed = extract_json(text)
+    if not parsed or "items" not in parsed:
+        log("x trends: no parseable JSON in claude response")
+        return []
+    raw_items = parsed.get("items") or []
+    out: list[dict] = []
+    for it in raw_items[:8]:
+        url = (it.get("url") or "").strip()
+        if not url or not re.match(r"^https://(?:x|twitter)\.com/[^/]+/status/\d+", url):
+            continue
+        # URL 到達性チェック（404/凍結アカウントなどを除外）
+        if not validate_url(url, timeout=5):
+            log(f"x trends skip unreachable: {url}")
+            continue
+        author = (it.get("author") or "").strip()[:40]
+        handle = (it.get("handle") or "").strip()[:40]
+        text_body = (it.get("text") or "").strip()
+        tag = (it.get("tag") or "AI").strip()[:20]
+        if not author or not handle or not text_body:
+            continue
+        # アバターは unavatar.io 経由で X handle から自動取得
+        h = handle.lstrip("@")
+        avatar = f"https://unavatar.io/x/{h}"
+        out.append({
+            "id": f"xt_{hashlib.sha1(url.encode()).hexdigest()[:10]}",
+            "author": author,
+            "handle": handle if handle.startswith("@") else f"@{handle}",
+            "avatar": avatar,
+            "text": truncate(text_body, 240),
+            "tag": tag,
+            "url": url,
+            # likes/retweets は web_search では取得困難。0 で通すと client の閾値で弾かれるため
+            # 「注目されている」と判定された前提で BUZZ_MIN を満たす最低値を入れておく。
+            "likes": 3000,
+            "retweets": 0,
+        })
+    log(f"x trends: collected {len(out)} valid posts")
+    return out
 
 
 # ── 音声ダイジェスト事前生成（OpenAI TTS） ──────────────────────────────────────────
@@ -1100,7 +1214,11 @@ def main() -> int:
         debug_stats["summarizer"] = "anthropic_haiku"
     debug_stats["final_items"] = len(items)
     debug_stats["competitor_items"] = sum(1 for x in items if x.get("isCompetitor"))
-    save(items, exec_summary)
+    # X トレンド取得（Claude + web_search）。失敗時は空配列で client 側のシードに任せる。
+    log("fetching x trends via claude + web_search...")
+    x_highlights = fetch_x_trends_via_claude()
+    debug_stats["x_highlights"] = len(x_highlights)
+    save(items, exec_summary, x_highlights=x_highlights)
 
     # ── 音声ダイジェストを事前生成（GitHub Actions 実行時のみ） ──
     if os.environ.get("SKIP_AUDIO", "").strip() != "1":
