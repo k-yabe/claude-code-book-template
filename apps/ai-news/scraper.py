@@ -353,9 +353,21 @@ COMPETITOR_KEYWORDS = [
 ]
 _COMPETITOR_RE = re.compile("|".join(re.escape(k) for k in COMPETITOR_KEYWORDS), re.IGNORECASE)
 
+# 競合名が登場していても「競合動向」ではない記事を除外するためのノイズ語。
+# 例: 「富士通 WEB MART」のPC通販セール、「NEC Direct」の値下げ等。
+_COMPETITOR_NOISE_WORDS = [
+    "WEB MART", "Web MART", "Direct Shop", "アウトレット",
+    "お買い得", "キャンセル品", "セール品", "値下げ", "値引き", "特価",
+    "クーポン", "通販", "ECサイト", "オンラインショップ",
+    "予約受付", "新発売", "発売日", "開封レビュー",
+]
+
 def is_competitor_mention(title: str, summary: str) -> bool:
-    """記事タイトル or 要約が AKKODiS 競合企業に言及しているか判定。"""
+    """記事タイトル or 要約が AKKODiS 競合企業に言及しているか判定。
+    ただし製品販売・値下げ等の「競合動向ではない」文脈は除外する。"""
     hay = (title or "") + " " + (summary or "")
+    if any(w in hay for w in _COMPETITOR_NOISE_WORDS):
+        return False
     return bool(_COMPETITOR_RE.search(hay))
 
 
@@ -671,8 +683,8 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         "- readMin: 推定読了時間（1〜3分）\n\n"
         "## executiveSummary\n"
         "全記事を俯瞰した3行サマリー。各行は「何が起きて、なぜ注目か」を平易な日本語で1文にまとめる。\n"
-        "専門用語は避け、マーケ部門の誰が読んでもすぐわかる表現にすること。\n"
-        "期限指示（「今日中に〜」等）は入れない。事実と影響のみ。\n\n"
+        "**各行は必ず60字以内の短い1文**。専門用語は避け、マーケ部門の誰が読んでもすぐわかる表現にすること。\n"
+        "期限指示（「今日中に〜」等）は入れない。事実と影響のみ。説明や補足は書かない。\n\n"
         "煽りや推測は避け、事実ベースで。\n"
         "出力は厳密にJSONのみで、以下の形式に従ってください:\n"
         "{\"executiveSummary\":[\"...\",\"...\",\"...\"],"
@@ -707,10 +719,10 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         log(f"anthropic response was not valid JSON: {_LAST_ANTHROPIC_ERROR}")
         return None
 
-    # executiveSummary を抽出
+    # executiveSummary を抽出（各行60字に強制カット：LLMが冗長な1文を返しても短く整える）
     exec_summary = parsed.get("executiveSummary") or []
     if isinstance(exec_summary, list):
-        exec_summary = [str(s).strip() for s in exec_summary if str(s).strip()][:5]
+        exec_summary = [truncate(str(s).strip(), 60) for s in exec_summary if str(s).strip()][:5]
     else:
         exec_summary = []
 
