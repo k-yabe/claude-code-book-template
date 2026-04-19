@@ -439,11 +439,40 @@ def parse_pub(entry: Any) -> datetime | None:
     return None
 
 
+# 過去アーカイブの URL を読み込む参照日数。直近 N 日間のアーカイブに含まれる
+# 記事 URL は「既出」として今日の収集からは除外する（前日との重複表示を防ぐ）。
+ARCHIVE_DEDUP_DAYS = 2
+
+
+def load_recent_archive_urls(days: int = ARCHIVE_DEDUP_DAYS) -> set[str]:
+    """直近 N 日のアーカイブ JSON から URL を集める。存在しないファイルは黙ってスキップ。
+    今日のファイルも含める（scraper 再実行時の自己重複防止）。"""
+    urls: set[str] = set()
+    today_jst = datetime.now(JST).date()
+    for i in range(days + 1):
+        day = today_jst - timedelta(days=i)
+        path = ARCH_DIR / f"{day.strftime('%Y-%m-%d')}.json"
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            for it in data.get("items", []) or []:
+                u = (it.get("url") or "").strip()
+                if u:
+                    urls.add(u)
+        except Exception as e:
+            log(f"archive read error ({path.name}): {e}")
+    return urls
+
+
 # ── 収集 ──────────────────────────────────────────
 def fetch_all() -> list[dict]:
     cutoff = datetime.now(UTC) - timedelta(hours=RECENT_HOURS)
     all_items: list[dict] = []
     seen_urls: set[str] = set()
+    # 前日以前に既出の URL は除外（毎朝同じニュースが並ぶのを防ぐ）
+    prev_urls = load_recent_archive_urls()
+    log(f"loaded {len(prev_urls)} URLs from last {ARCHIVE_DEDUP_DAYS} day archives for dedup")
 
     import socket
     socket.setdefaulttimeout(TIMEOUT_SEC)
@@ -463,6 +492,9 @@ def fetch_all() -> list[dict]:
             for e in d.entries[:per_src_max]:
                 url = (getattr(e, "link", None) or "").strip()
                 if not url or url in seen_urls:
+                    continue
+                if url in prev_urls:
+                    # 前日以前に既出の URL はスキップ（毎朝同じ記事が並ぶのを防ぐ）
                     continue
                 if not url.startswith(("http://", "https://")):
                     continue
