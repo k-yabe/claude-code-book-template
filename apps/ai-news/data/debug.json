@@ -1,12 +1,13 @@
 {
-  "ranAt": "2026-04-19T09:05:24.383758+00:00",
+  "ranAt": "2026-04-19T09:14:14.572899+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": false,
   "sources": 26,
   "phase": "start",
   "fetched_items": 10,
   "summarizer": "fallback",
+  "anthropicError": "invalid JSON response (len=5588, preview='```json\\n{\\n  \"executiveSummary\": [\\n    \"AnthropicがClaude Opus 4.7ベースのAIデザインツール「Claude Design」を発表し、テキストやコードからプロトタイプを自動生成でき')",
   "final_items": 10,
-  "competitor_items": 2,
-  "durationSec": 77.6
+  "competitor_items": 1,
+  "durationSec": 89.2
 }
