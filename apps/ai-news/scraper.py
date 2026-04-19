@@ -688,7 +688,7 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
         msg = client.messages.create(
             model=HAIKU_MODEL,
-            max_tokens=4000,
+            max_tokens=8000,  # 4000 だと JSON が truncate されて parse error 発生
             system=system_prompt,
             messages=[{"role": "user", "content": user_prompt}],
         )
@@ -779,11 +779,17 @@ def extract_json(text: str) -> dict | None:
     if s == -1 or e == -1:
         _LAST_JSON_PARSE_ERROR = f"no braces found (len={len(text)})"
         return None
+    body = text[s : e + 1]
     try:
-        return json.loads(text[s : e + 1])
+        return json.loads(body)
     except Exception as ex:
-        _LAST_JSON_PARSE_ERROR = f"{type(ex).__name__}: {ex}"
-        return None
+        # よくある Claude のミス: trailing comma / 改行内の制御文字を修復して再試行
+        try:
+            fixed = re.sub(r",\s*([}\]])", r"\1", body)  # trailing comma 除去
+            return json.loads(fixed)
+        except Exception as ex2:
+            _LAST_JSON_PARSE_ERROR = f"{type(ex).__name__}: {ex}"
+            return None
 
 
 # ── 保存 ──────────────────────────────────────────
