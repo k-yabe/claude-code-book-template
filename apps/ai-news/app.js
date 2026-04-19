@@ -344,19 +344,38 @@
   }
 
   /** AKKODiS 競合企業の言及判定。scraper が isCompetitor を付けるが、
-   *  旧データ互換のためクライアント側でもキーワード fallback する。 */
+   *  旧データ互換のためクライアント側でもキーワード fallback する。
+   *  優先度順: SIer / IT コンサル → エンジニアリング派遣 → 人材・プラットフォーム */
   const COMPETITOR_KEYWORDS = [
-    'パーソル', 'パーソルキャリア', 'パーソルテクノロジー', 'doda', 'DODA', 'dodaX',
-    'リクルート', 'マイナビ', 'エン・ジャパン', 'エンジャパン', 'エン転職',
+    // SIer / IT サービス（本丸）
+    'NTTデータ', 'NTT DATA', '富士通', 'Fujitsu', '日立ソリューションズ', '日立製作所',
+    'NEC', '日本電気', '日本IBM', 'IBM Japan', 'NRI', '野村総合研究所',
+    '伊藤忠テクノソリューションズ', 'CTC', 'TIS', 'SCSK', 'BIPROGY', '日本ユニシス',
+    '日鉄ソリューションズ', 'NSSOL', '大塚商会', 'オービック', 'フューチャー',
+    'クラスメソッド', '電通総研', 'JBCC',
+    // IT / 戦略コンサル
+    'アクセンチュア', 'Accenture', 'キャップジェミニ', 'Capgemini',
+    'デロイト', 'Deloitte', 'PwC', 'EY Japan', 'KPMG',
+    'ベイカレント', 'アビームコンサルティング', 'マッキンゼー', 'McKinsey',
+    'ボストン コンサルティング', 'BCG', 'ガートナー', 'Gartner',
+    // エンジニアリング派遣
+    'テクノプロ', 'TechnoPro', 'メイテック', 'Meitec',
+    'アウトソーシング', 'OTS', 'UTグループ', 'UTエイム', 'UTホールディングス',
+    'アルプス技研', 'WDB', 'フォーラムエンジニアリング', 'パソナテック',
+    'ヒューマンクリエイション', 'ワールドインテック', '夢真', 'ビーネックス',
+    // QA / テスト受託
+    'SHIFT', 'ベリサーブ', 'Veriserve', 'デジタルハーツ', 'バルテス',
+    // 人材総合
+    'パーソル', 'doda', 'DODA', 'リクルート', 'マイナビ', 'エン・ジャパン', 'エン転職',
     'ビズリーチ', 'BizReach', 'Visional', 'ビジョナル',
-    'JAC リクルートメント', 'JACリクルートメント',
+    'JACリクルートメント', 'JAC リクルートメント',
     'パソナ', 'アデコ', 'Adecco', 'ランスタッド', 'Randstad',
     'ヒューマンリソシア',
-    'アクセンチュア', 'Accenture', 'キャップジェミニ', 'Capgemini',
-    'デロイト', 'Deloitte', 'PwC', 'ベイカレント',
-    'フォースタートアップス', 'レバレジーズ', 'レバテック',
-    'ギークス', 'geechs', 'Midworks',
-    'Green', 'Wantedly', 'Findy', 'LAPRAS', 'paiza', 'Indeed',
+    // エンジニア紹介 / フリーランス
+    'レバレジーズ', 'レバテック', 'ギークス', 'geechs', 'Midworks', 'ミッドワークス',
+    'ITプロパートナーズ',
+    // プラットフォーム
+    'Green', 'Wantedly', 'Findy', 'LAPRAS', 'paiza', 'Indeed', 'Forkwell',
   ];
   function matchesCompetitor(n) {
     if (n.isCompetitor) return true;
