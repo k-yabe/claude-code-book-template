@@ -1193,7 +1193,7 @@
         const id = btn.dataset.readId;
         const card = btn.closest('.top-card');
         toggleRead(id, card);
-        btn.textContent = state.read.has(id) ? '↩ 未読に戻す' : '✓ 既読にする';
+        btn.textContent = state.read.has(id) ? '↩ 未読' : '✓ 既読';
       });
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
@@ -1759,11 +1759,21 @@
       renderX();
       rewireMore();
     } catch (e) {
-      // アーカイブが見つからない場合
+      // アーカイブが見つからない場合: ラベルだけでなく記事一覧も空にしてユーザーが
+      //「古いデータが残ってる」と誤認しないようにする。
       const upd = document.getElementById('cmd-updated');
       if (upd) {
         upd.textContent = `${fmtBriefDate(dateStr)} — データなし`;
         upd.classList.add('seed');
+      }
+      NEWS_DATA.length = 0;
+      EXEC_SUMMARY = [];
+      dataMeta = { updatedAt: null, generatedFor: dateStr };
+      renderHero();
+      fullRender();
+      // Toast で明示的にユーザーへ通知
+      if (typeof showToast === 'function') {
+        showToast(`${fmtBriefDate(dateStr)} のアーカイブはありません`);
       }
     }
   }
