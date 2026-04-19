@@ -1,1 +1,1 @@
-Trigger: 2026-04-19T17:30 - bypass is_ai_related for competitor mentions + capture anthropic error
+Trigger: 2026-04-19T17:35 - capture anthropic error via module global
