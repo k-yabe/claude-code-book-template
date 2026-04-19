@@ -497,10 +497,14 @@ def fetch_all() -> list[dict]:
         except Exception as ex:
             log(f"  ! error {src['name']}: {ex}")
 
-    # 人気度フィルタ: 「バズ」基準を導入。
-    #  - 6時間以内の速報記事は hatena>=1 で救済（新着は反応が遅いため）
-    #  - それ以外は hatena>=3 必須
-    #  - UGC も同じ基準だが、ツール系キーワード（Claude Code/Copilot等）記事は救済
+    # 人気度フィルタ: 「バズ」基準（緩め）。
+    # はてなブックマークのインデックスは遅く、新着記事に反映されるまで
+    # 最大 1〜2日かかる。厳しくすると記事がゼロになるので、フィルタは
+    # 「確実に無価値な古い記事だけ落とす」発想に変更:
+    #  - 24時間以内は全件通過（ブクマ数に関係なく）
+    #  - 24〜72時間: hatena>=1 で通過
+    #  - 72時間以降: hatena>=3 必須
+    #  - ツール系キーワード（Claude Code/Copilot 等）は常に救済
     TOOL_RE = re.compile(
         r"Claude\s*Code|GitHub\s*Copilot|Copilot|Cursor|Devin|Windsurf|Cline|"
         r"バイブコーディング|AIコーディング|AIペアプロ|AIエディタ|AI補完|プロンプト",
@@ -510,13 +514,15 @@ def fetch_all() -> list[dict]:
         hay = (it.get("title", "") or "") + " " + (it.get("raw_summary", "") or "")
         return bool(TOOL_RE.search(hay))
     def _buzz_pass(it: dict) -> bool:
+        if _is_tool(it):
+            return True  # ツール系は常に救済
         h = (it.get("hatenaCount") or 0)
         age_h = (datetime.now(UTC) - datetime.fromisoformat(it["publishedAt"].replace("Z","+00:00"))).total_seconds() / 3600
-        if _is_tool(it):
-            return h >= 0  # ツール系は閾値ゼロで救済
-        if age_h < 6:
-            return h >= 1  # 超新着はブクマ1以上
-        return h >= 3
+        if age_h < 24:
+            return True      # 24h 以内は無条件通過（はてブのインデックスが追いつかないため）
+        if age_h < 72:
+            return h >= 1    # 1〜3日経過: ブクマ1以上
+        return h >= 3        # 3日以降: ブクマ3以上
     before = len(all_items)
     all_items = [it for it in all_items if _buzz_pass(it)]
     log(f"filtered by buzz threshold: {before} -> {len(all_items)}")
