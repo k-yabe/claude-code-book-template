@@ -440,6 +440,47 @@
       letter-spacing: -0.01em;
     }
     .hero-stat-num.accent { color: var(--gold); }
+    /* ── ソース多様性バッジ（信頼シグナル）── */
+    .hero-diversity {
+      margin-top: var(--sp-3);
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      color: rgba(255, 255, 255, 0.85);
+      font-weight: 600;
+    }
+    .hero-diversity b { color: var(--gold); font-weight: 800; }
+    /* ── 今週のトピック chips（hero 内クイック絞り込み）── */
+    .hero-trend-chips {
+      margin-top: var(--sp-3);
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    }
+    .hero-trend-chips .trend-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      color: rgba(255, 255, 255, 0.65);
+      font-weight: 700;
+      margin-right: 4px;
+      text-transform: uppercase;
+    }
+    .hero-trend-chips .trend-chip {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--gold);
+      background: rgba(255, 184, 28, 0.12);
+      border: 1px solid rgba(255, 184, 28, 0.4);
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    }
+    .hero-trend-chips .trend-chip:hover {
+      background: var(--gold); color: var(--navy); transform: translateY(-1px);
+    }
+    .hero-trend-chips .trend-chip:active { transform: translateY(0); }
+    @media (max-width: 480px) {
+      .hero-diversity { font-size: 0.72rem; }
+      .hero-trend-chips .trend-chip { font-size: 0.72rem; padding: 3px 8px; }
+    }
+
     .hero-stat-breakdown {
       font-size: 0.58rem; color: rgba(255,255,255,0.7);
       font-weight: 700; letter-spacing: 0.02em; line-height: 1.3;
@@ -2043,6 +2084,9 @@
             <span class="hero-streak-label" id="hero-streak-label">—</span>
           </span>
         </div>
+        <!-- ソース多様性バッジ（信頼シグナル）と今週のトピック chips（探索動線） -->
+        <div class="hero-diversity" id="hero-diversity" style="display:none"></div>
+        <div class="hero-trend-chips" id="hero-trend-chips" style="display:none"></div>
       </div>
       <div class="hero-meta">
         <div class="hero-stat">
