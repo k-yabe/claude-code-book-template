@@ -615,6 +615,10 @@ def fallback_summarize(items: list[dict]) -> list[dict]:
     return items
 
 
+# Claude Haiku 呼び出し失敗時のエラーメッセージを main() から取り出せるよう保持
+_LAST_ANTHROPIC_ERROR: str | None = None
+
+
 def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
     """Claude Haikuで一括要約。成功時は (items, executiveSummary) を返す。失敗時 None"""
     try:
@@ -693,9 +697,6 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         global _LAST_ANTHROPIC_ERROR
         _LAST_ANTHROPIC_ERROR = err
         return None
-
-
-_LAST_ANTHROPIC_ERROR: str | None = None
 
     parsed = extract_json(text)
     if not parsed or "items" not in parsed:
