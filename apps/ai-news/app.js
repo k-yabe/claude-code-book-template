@@ -357,7 +357,8 @@
     'アクセンチュア', 'Accenture', 'キャップジェミニ', 'Capgemini',
     'デロイト', 'Deloitte', 'PwC', 'EY Japan', 'KPMG',
     'ベイカレント', 'アビームコンサルティング', 'マッキンゼー', 'McKinsey',
-    'ボストン コンサルティング', 'BCG', 'ガートナー', 'Gartner',
+    'ボストン コンサルティング', 'BCG',
+    // ※リサーチ会社（Gartner/Forrester/IDC 等）は「競合」ではなく「引用元」なので除外
     // エンジニアリング派遣
     'テクノプロ', 'TechnoPro', 'メイテック', 'Meitec',
     'アウトソーシング', 'OTS', 'UTグループ', 'UTエイム', 'UTホールディングス',
@@ -2521,6 +2522,15 @@
       .slice()
       .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
     if (!items.length) {
+      list.innerHTML = '';  // 以前の render 結果が残らないように明示的にクリア
+      list.setAttribute('hidden', '');
+      head.style.display = 'none';
+      return 0;
+    }
+    // 元記事リンクがない記事は表示しない（ニュースアプリとしてリンク必須）
+    const withUrl = items.filter(n => n.url && /^https?:\/\//.test(n.url));
+    if (!withUrl.length) {
+      list.innerHTML = '';
       list.setAttribute('hidden', '');
       head.style.display = 'none';
       return 0;
@@ -2528,7 +2538,7 @@
     list.removeAttribute('hidden');
     head.style.display = '';
     // FYI カードの DOM 構造を流用するため、renderMore と同じ HTML を生成
-    list.innerHTML = items.map(n => {
+    list.innerHTML = withUrl.map(n => {
       const isRead = state.read.has(n.id);
       const isFav = state.fav.has(n.id);
       const cat = n.category;
@@ -2566,7 +2576,7 @@
         openExternal(el.dataset.url);
       });
     });
-    return items.length;
+    return withUrl.length;
   }
 
   // セクションが見えたらカウントアップする
