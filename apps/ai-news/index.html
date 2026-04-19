@@ -1078,11 +1078,12 @@
       transition: background 0.15s ease, color 0.15s ease;
     }
     .more-expand-btn:hover { background: var(--navy); color: var(--gold); }
-    /* タブレット以上では「その他のニュース」も2列に（縦スクロールを減らして一覧性UP） */
+    /* タブレット以上では「その他のニュース」も2列に（縦スクロールを減らして一覧性UP）。
+       ただし項目数が 2 件未満の日は固定 2 列で右側が空くため、auto-fit で適応させる。 */
     @media (min-width: 768px) {
       .more-list {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
       }
       .more-list .fyi-card:nth-last-child(-n+2) { border-bottom: none; }
       .more-list .fyi-card:nth-child(odd) { border-right: 1px solid #eee; }
@@ -1729,13 +1730,16 @@
     }
     .trend-pill.active .trend-count { background: rgba(255,184,28,0.2); color: var(--gold); }
 
-    /* ── BRIEFING カードグリッド（PC: 3列 / タブ: 2列 / SP: 1列）── */
+    /* ── BRIEFING カードグリッド（auto-fit で項目数に応じて 1〜3 列を自動調整）──
+       固定列数だと項目数が少ない日に右側が空白になり「崩れ」と見えるため、
+       1 項目 = 1 列、2 項目 = 2 列、3 項目以上 = 3 列まで広がる minmax レイアウトに変更。 */
     .brief-grid {
-      display: grid; grid-template-columns: repeat(2, 1fr);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: var(--sp-4); padding: 0 var(--sp-5);
     }
     @media (min-width: 1024px) {
-      .brief-grid { grid-template-columns: repeat(3, 1fr); }
+      .brief-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
     }
     .brief-card {
       background: var(--white);
@@ -2279,9 +2283,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '04/19', text: '🔄 追加3点修正：①その他ニュースに UGC 個人ブログが混ざる問題を修正（hatena>=1 か ツール記事のみ採択に強化）。②X 生成AIトレンドが毎日同じ問題を解消（Claude+web_search で実投稿を自動取得＋シードプールを日付シードでシャッフル）。③loadRemote で xHighlights の likes/retweets を保持' },
+        { date: '04/19', text: '🏛 競合 IR・業績ニュースを大幅追加：Google News 17 フィード追加（決算/業績/M&A/業務提携等を各社別に取得）／注目ニュースの低質UGC除外を強化／その他ニュースに AI ブランド名救済を追加／グリッドを auto-fit にしてデザイン崩れを修正' },
         { date: '04/19', text: '📡 競合プレスリリース取得を 5社→22社に拡充：SIer 8社／IT・戦略コンサル 5社／エンジニアリング派遣 5社／QA 2社／人材 7社の PR TIMES を購読' },
-        { date: '04/19', text: '🔬 さらなる精度改善：3行サマリー文字数カット撤廃／注目ニュース品質強化／競合動向フォールバック／前日重複除外' }
+        { date: '04/19', text: '🔄 X 生成AIトレンド日次更新：Claude+web_search で実投稿自動取得＋日付シードでシャッフル' }
       ]
     });
 

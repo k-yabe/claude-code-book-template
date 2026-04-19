@@ -358,6 +358,17 @@
     const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '') + ' ' + (n.tags || []).join(' ');
     return TOOL_KEYWORDS.some(k => hay.includes(k));
   }
+  /** AI 関連の主要ブランド・モデル名。UGC 記事を fyi に通すか判定するための補助シグナル。
+   *  hatena 数や TOOL_KEYWORDS では拾えない「Claude を実際に使った技術記事」等を救済。 */
+  const AI_BRAND_KEYWORDS = [
+    'Claude', 'ChatGPT', 'GPT-4', 'GPT-5', 'GPT-o', 'LLM', 'Anthropic', 'OpenAI',
+    'Sora', 'Midjourney', 'Llama', 'Gemini', 'DeepSeek', 'Mistral',
+    'Stable Diffusion', 'Cursor', 'Copilot', 'Devin', 'Windsurf',
+  ];
+  function matchesAIBrand(n) {
+    const hay = (n.title || '') + ' ' + (n.summary || '');
+    return AI_BRAND_KEYWORDS.some(k => hay.includes(k));
+  }
 
   /** AKKODiS 競合企業の言及判定。scraper が isCompetitor を付けるが、
    *  旧データ互換のためクライアント側でもキーワード fallback する。
@@ -1060,15 +1071,18 @@
     if (!mustKnow.length && sorted.length > 0) mustKnow = sorted.slice(0, 1);
     const usedIds1 = new Set(mustKnow.map(n => n.id));
     // 注目ニュース:
-    //  ①LLM が urgency=this_week と判定した記事を拾う（メディア/UGC 問わず、LLM の判定を尊重）
-    //  ②件数不足なら fyi から「非UGCメディア かつ 人気度シグナルあり」の記事のみ昇格
-    //     （UGC 個人ブログ・低人気 fyi 記事を無理に載せると「注目されてないニュース」と化するため）
+    //  ①LLM が urgency=this_week と判定した記事を拾う。ただし UGC（個人ブログ）の場合は
+    //     hatena>=1 か matchesTool/matchesAIBrand を必須にする。LLM タグだけで「注目」扱いにすると
+    //     「全く注目されてない個人ブログ」が紛れ込む。
+    //  ②件数不足なら fyi から「非UGCメディア かつ 人気度シグナルあり」の記事のみ昇格。
     //  主要ニュースと同じ話題の記事もここでは除外して重複表示を防ぐ。
     const THIS_WEEK_MAX = 6;
     const dedupAgainst = (candidate, existing) => existing.some(p => sameStory(p.title, candidate.title));
+    const ugcHasSignal = (n) => (Number(n.hatenaCount) || 0) >= 1 || matchesTool(n) || matchesAIBrand(n);
     let thisWeek = [];
     for (const n of sorted.filter(n => n.urgency === 'this_week' && !usedIds1.has(n.id))) {
       if (thisWeek.length >= THIS_WEEK_MAX) break;
+      if (isUgc(n) && !ugcHasSignal(n)) continue; // 注目度シグナルゼロの UGC は this_week から除外
       if (dedupAgainst(n, mustKnow)) continue;
       if (dedupAgainst(n, thisWeek)) continue;
       thisWeek.push(n);
@@ -1101,7 +1115,8 @@
       const hatena = Number(n.hatenaCount) || 0;
       if (hatena >= 1) return true;
       if (matchesTool(n)) return true;
-      return false; // UGC で hatena=0 かつツール記事でもない = 「全く注目されてない」と判定して drop
+      if (matchesAIBrand(n)) return true; // Claude/GPT/LLM 等の主要ブランド名を含む記事は救済
+      return false; // 上記いずれも該当しない UGC = 「全く注目されてない」と判定して drop
     };
     let fyi = allRest.filter(hasSignal);
     if (!fyi.length) fyi = allRest; // セーフティ: 1件も残らなければ閾値を捨てて全件
