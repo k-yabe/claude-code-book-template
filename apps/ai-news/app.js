@@ -224,6 +224,11 @@
        scraper が X API 等で実ツイートを取得したら news.json の `xHighlights` に入れ、
        loadRemote() 経由で上書きされる。URL 無しのアイテムは renderX() で除外される。
   */
+  /** 𝕏 (Twitter) の話題ポスト: シードデータ。
+   *  将来 X API 連携時には scraper が json.xHighlights にバズ投稿を流し込む想定。
+   *  フィルタ（renderX 内）は likes + retweets×3 >= X_BUZZ_MIN の engagement のみで判定し、
+   *  著者の知名度は問わない。一般ユーザーのバズ投稿も同条件で通過する。
+   *  現シードはたまたま著名人中心だが、仕様上は誰でも OK。 */
   let X_HIGHLIGHTS = [
     {
       id: 'x1',
