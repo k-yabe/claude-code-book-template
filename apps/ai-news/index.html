@@ -440,6 +440,27 @@
       letter-spacing: -0.01em;
     }
     .hero-stat-num.accent { color: var(--gold); }
+    /* ── ソースタイプバッジ（PR / 大手メディア / 業界報道 / コミュニティ）──
+       一目で記事の性質が分かるよう、色とアイコンで視覚的に区別。 */
+    .src-type {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 2px 6px;
+      border-radius: 0;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .src-type-media     { background: rgba(0, 31, 51, 0.06);  color: var(--navy); }
+    .src-type-pr        { background: rgba(255, 184, 28, 0.18); color: var(--navy); }
+    .src-type-industry  { background: rgba(0, 255, 255, 0.12); color: var(--navy); }
+    .src-type-community { background: rgba(0, 31, 51, 0.04);  color: var(--text-muted); font-weight: 600; }
+    body.night-mode .src-type-media     { background: rgba(255, 255, 255, 0.06); color: var(--white); }
+    body.night-mode .src-type-pr        { background: rgba(255, 184, 28, 0.22); color: var(--gold); }
+    body.night-mode .src-type-industry  { background: rgba(0, 255, 255, 0.18); color: var(--cyan, #00ffff); }
+    body.night-mode .src-type-community { background: rgba(255, 255, 255, 0.04); color: rgba(255,255,255,0.6); }
+
     /* ── ソース多様性バッジ（信頼シグナル）── */
     .hero-diversity {
       margin-top: var(--sp-3);

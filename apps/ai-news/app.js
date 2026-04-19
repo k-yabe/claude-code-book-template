@@ -946,6 +946,30 @@
   /** 個人発信プラットフォーム（TOP STORY には昇格させない）。正統派ニュースメディア優先の方針。 */
   const UGC_SOURCE_RE = /(Qiita|Zenn|note|はてなブログ|Medium)/i;
   function isUgc(n) { return UGC_SOURCE_RE.test(n.source || '') || n.sourceType === 'ugc'; }
+  /** ソース種別を分類してカード上にバッジ表示する。
+   *  - 'pr'        : PR TIMES（自社発のプレスリリース）
+   *  - 'industry'  : Google News（業界報道・第三者）
+   *  - 'community' : Qiita / Zenn / note / Medium 等（個人発信）
+   *  - 'media'     : 上記以外（ITmedia / ASCII / 日経 等の大手媒体） */
+  function classifySourceType(n) {
+    const src = String(n.source || '');
+    if (/^PR TIMES/i.test(src)) return 'pr';
+    if (/^Google News/i.test(src)) return 'industry';
+    if (UGC_SOURCE_RE.test(src) || n.sourceType === 'ugc') return 'community';
+    return 'media';
+  }
+  const SOURCE_TYPE_LABEL = {
+    pr:        { icon: '📡', label: 'PR' },
+    industry:  { icon: '🔍', label: '業界報道' },
+    community: { icon: '💬', label: 'コミュニティ' },
+    media:     { icon: '📰', label: '大手メディア' },
+  };
+  function sourceTypeBadge(n) {
+    const t = classifySourceType(n);
+    const meta = SOURCE_TYPE_LABEL[t];
+    if (!meta) return '';
+    return `<span class="src-type src-type-${t}" title="${escapeHtml(meta.label)}">${meta.icon} ${escapeHtml(meta.label)}</span>`;
+  }
 
   /** タイトル正規化（類似記事クラスタリング用）。記号・空白・媒体名プレフィクスを削って比較する。 */
   function normalizeTitle(s) {
@@ -1504,7 +1528,7 @@
             <div class="brief-card-head">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               ${matchesTool(n) ? '<span class="meta-tool-badge" title="ツール活用Tips">🛠</span>' : ''}
-              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>
+              ${sourceTypeBadge(n)}<button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>
               ${(() => { const c = getStoryCluster(n.id); return c ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体報道</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
@@ -1626,7 +1650,7 @@
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               ${matchesTool(n) ? '<span class="meta-tool-badge" title="ツール活用Tips">🛠</span>' : ''}
-              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>
+              ${sourceTypeBadge(n)}<button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>
               ${(() => { const c = getStoryCluster(n.id); return c ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
@@ -2789,7 +2813,7 @@
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-              <span class="meta-source">${escapeHtml(n.source)}</span>
+              ${sourceTypeBadge(n)}<span class="meta-source">${escapeHtml(n.source)}</span>
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
             </div>
