@@ -6,6 +6,16 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Banner Resizer</title>
+  <!-- OGP / Twitter Card（社内シェア時のプレビュー用） -->
+  <meta property="og:title" content="Banner Resizer — AKKODiS マーケティングアプリ">
+  <meta property="og:description" content="画像を各種サイズ（MV / OGP / 一覧サムネ等）に一括リサイズ・クロップ・最適化">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AKKODiS マーケティングアプリ">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Banner Resizer">
+  <meta name="twitter:description" content="画像を各種サイズ（MV / OGP / 一覧サムネ等）に一括リサイズ・クロップ・最適化">
+  <meta name="description" content="画像を各種サイズ（MV / OGP / 一覧サムネ等）に一括リサイズ・クロップ・最適化">
   <link rel="stylesheet" href="../../assets/app-styles.css">
   <style>
     /* ── App-specific: Banner Resizer ── */
@@ -191,9 +201,8 @@
 <script>
   if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
 
-  // Verify UPNG.js loaded
-  if (typeof UPNG === 'undefined') console.warn('⚠ UPNG.js not loaded — PNG8 optimization disabled');
-  else console.log('✓ UPNG.js loaded');
+  // Verify UPNG.js loaded (warn on failure only — success は無音)
+  if (typeof UPNG === 'undefined') console.warn('UPNG.js not loaded — PNG8 optimization disabled');
 
   // Group definitions: which sizes belong to which upload
   const GROUPS = [
