@@ -980,8 +980,18 @@ def main() -> int:
         "anthropicKeySet": bool(ANTHROPIC_API_KEY),
         "openaiKeySet": bool(os.environ.get("OPENAI_API_KEY", "").strip()),
         "sources": len(SOURCES),
+        "phase": "start",
     }
-    items = fetch_all()
+    # 最初に必ず debug.json を書く（以降のどこで失敗しても記録が残る）
+    _write_debug_stats(debug_stats)
+    try:
+        items = fetch_all()
+    except Exception as e:
+        debug_stats["phase"] = "fetch_all_crashed"
+        debug_stats["error"] = f"{type(e).__name__}: {e}"
+        _write_debug_stats(debug_stats)
+        log(f"fetch_all crashed: {e}")
+        raise
     debug_stats["fetched_items"] = len(items)
     if not items:
         log("no items collected; preserving previous news.json (if exists)")
