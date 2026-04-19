@@ -388,6 +388,20 @@
     'クーポン', '通販', 'ECサイト', 'オンラインショップ',
     '予約受付', '新発売', '発売日', '開封レビュー',
   ];
+  /** 「ニュース・インテリジェンスに不要」な消費者向け商品記事の判定。
+   *  PC/ガジェット販売、値下げセール、通販キャンペーン記事は B2B マーケ担当者には
+   *  不要なので、全セクション（主要/注目/その他/競合）から除外する。 */
+  const CONSUMER_NOISE_WORDS = [
+    'お買い得', 'キャンセル品', 'セール品', '値下げ', '値引き', '特価',
+    'クーポン配布', 'クーポン配信', '通販サイト', '通販限定',
+    '予約受付中', '予約開始', '新発売', '発売日決定', '開封レビュー',
+    'WEB MART', 'Direct Shop', 'アウトレット',
+    '円引き', '円OFF', '割引セール', '期間限定セール',
+  ];
+  function isConsumerNoise(n) {
+    const hay = (n.title || '') + ' ' + (n.summary || '');
+    return CONSUMER_NOISE_WORDS.some(w => hay.includes(w));
+  }
   function matchesCompetitor(n) {
     const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '');
     if (COMPETITOR_NOISE.some(w => hay.includes(w))) return false;
@@ -973,11 +987,30 @@
     return (withBuzz / NEWS_DATA.length) >= 0.3;
   }
 
+  /** 主要ニュース候補を抽出。同じ話題（sameStory）の記事は 1 件だけ残して
+   *  重複を排除する（例: 同じ発表を複数媒体が報じた場合、最も人気度が高い
+   *  メディア版を採択し他は注目ニュース以降に回す）。 */
+  function pickTopUnique(candidates, max) {
+    const picked = [];
+    for (const c of candidates) {
+      if (picked.length >= max) break;
+      if (picked.some(p => sameStory(p.title, c.title))) continue;
+      picked.push(c);
+    }
+    return picked;
+  }
+
   function partition() {
-    const buzzActive = hasBuzzData();
+    // 消費者向け商品記事（PCセール・通販等）は B2B マーケ視点で不要なので全体から除外
+    const base = NEWS_DATA.filter(n => !isConsumerNoise(n));
+    const buzzActive = (() => {
+      if (!base.length) return false;
+      const withBuzz = base.filter(n => (Number(n.hatenaCount) || 0) > 0).length;
+      return (withBuzz / base.length) >= 0.3;
+    })();
     const passes = (n, kind) => !buzzActive || (Number(n.hatenaCount) || 0) >= minBuzzFor(n, kind) || matchesTool(n);
 
-    const sorted = [...NEWS_DATA].sort((a, b) => {
+    const sorted = [...base].sort((a, b) => {
       const ua = (URG_ORDER[a.urgency] ?? 2) + (isUgc(a) ? 1 : 0);
       const ub = (URG_ORDER[b.urgency] ?? 2) + (isUgc(b) ? 1 : 0);
       if (ua !== ub) return ua - ub;
@@ -986,23 +1019,37 @@
       return new Date(b.publishedAt) - new Date(a.publishedAt);
     });
     // 本日の主要ニュース: メディア & urgency=must_know & バズ閾値クリア のみ、上位2件
-    let mustKnow = sorted.filter(n => n.urgency === 'must_know' && !isUgc(n) && passes(n, 'main')).slice(0, 2);
-    // 閾値緩和（main の閾値で0件なら default 閾値で再選）
+    // 同じ話題の記事は 1 件のみに絞って重複を防ぐ
+    let mustKnow = pickTopUnique(
+      sorted.filter(n => n.urgency === 'must_know' && !isUgc(n) && passes(n, 'main')),
+      2,
+    );
     if (!mustKnow.length) {
-      mustKnow = sorted.filter(n => !isUgc(n) && passes(n, 'default')).slice(0, 2);
+      mustKnow = pickTopUnique(sorted.filter(n => !isUgc(n) && passes(n, 'default')), 2);
     }
     if (!mustKnow.length && sorted.length > 0) mustKnow = sorted.slice(0, 1);
     const usedIds1 = new Set(mustKnow.map(n => n.id));
-    // 注目ニュース: バズ閾値クリアのみ、最大6件
+    // 注目ニュース: バズ閾値は外す（this_week は人気度問わず拾う）。最大6件。
+    // 主要ニュースと同じ話題の記事もここでは除外して重複表示を防ぐ。
     const THIS_WEEK_MAX = 6;
-    let thisWeek = sorted.filter(n => n.urgency === 'this_week' && !usedIds1.has(n.id) && passes(n, 'default')).slice(0, THIS_WEEK_MAX);
+    const dedupAgainst = (candidate, existing) => existing.some(p => sameStory(p.title, candidate.title));
+    let thisWeek = [];
+    for (const n of sorted.filter(n => n.urgency === 'this_week' && !usedIds1.has(n.id))) {
+      if (thisWeek.length >= THIS_WEEK_MAX) break;
+      if (dedupAgainst(n, mustKnow)) continue;
+      if (dedupAgainst(n, thisWeek)) continue;
+      thisWeek.push(n);
+    }
     if (thisWeek.length < THIS_WEEK_MAX) {
       const existing = new Set(thisWeek.map(n => n.id));
-      const need = THIS_WEEK_MAX - thisWeek.length;
-      const promoted = sorted
-        .filter(n => !usedIds1.has(n.id) && !existing.has(n.id) && passes(n, 'default'))
-        .slice(0, need);
-      thisWeek = [...thisWeek, ...promoted];
+      for (const n of sorted) {
+        if (thisWeek.length >= THIS_WEEK_MAX) break;
+        if (usedIds1.has(n.id) || existing.has(n.id)) continue;
+        if (dedupAgainst(n, mustKnow)) continue;
+        if (dedupAgainst(n, thisWeek)) continue;
+        thisWeek.push(n);
+        existing.add(n.id);
+      }
     }
     const usedIds = new Set([...mustKnow.map(n => n.id), ...thisWeek.map(n => n.id)]);
     // その他のニュース: 残り全件（バズ閾値は適用しない。主要/注目に入らなかった記事は
@@ -1140,16 +1187,32 @@
     });
   }
   /** 3行サマリーの各行を短く整える（LLM出力が冗長なときの保険）。
-   *  - 末尾の「。」直前で文を区切り、1文だけ残す
-   *  - 長すぎる場合は 60 字でカットして末尾「…」 */
+   *  - まず句点で1文に分割して先頭文だけ残す
+   *  - それでも長ければ、自然な境界（、／──／等）で切り詰めて「…」
+   *  - 最終手段として文字数で hard-cut（単語途中で切れにくい位置を優先） */
   function tightenSummaryLine(s) {
     const raw = String(s || '').trim();
     if (!raw) return '';
-    const firstSentence = raw.split(/(?<=[。！？])/)[0] || raw;
-    const one = firstSentence.trim();
-    const MAX = 60;
-    if (one.length <= MAX) return one;
-    return one.slice(0, MAX - 1) + '…';
+    // 句点で最初の 1 文を取り出す（末尾の「。」は保持）
+    const firstSentence = (raw.split(/(?<=[。！？])/)[0] || raw).trim();
+    const SOFT = 80;   // 80字以内ならそのまま表示（読点を含む自然な1文）
+    const HARD = 110;  // 上限。これを超えたら必ず切り詰める
+    if (firstSentence.length <= SOFT) return firstSentence;
+    // SOFT 超 HARD 以下: 自然な境界（読点/ダッシュ）で切り詰められるなら優先
+    if (firstSentence.length <= HARD) {
+      const cutAt = Math.max(
+        firstSentence.lastIndexOf('、', SOFT),
+        firstSentence.lastIndexOf('──', SOFT),
+        firstSentence.lastIndexOf('──', SOFT),
+        firstSentence.lastIndexOf('——', SOFT),
+      );
+      if (cutAt >= 40) return firstSentence.slice(0, cutAt) + '…';
+      return firstSentence; // 境界が見つからなければフル1文を出す
+    }
+    // HARD 超: 境界優先で切る
+    const cutAt = firstSentence.lastIndexOf('、', HARD - 1);
+    if (cutAt >= 60) return firstSentence.slice(0, cutAt) + '…';
+    return firstSentence.slice(0, HARD - 1) + '…';
   }
   function renderExecSummary() {
     const root = document.getElementById('exec-summary');
@@ -2536,28 +2599,26 @@
     setCountTarget('count-competitor', competitorCount);
   }
 
-  /** 🏢 競合動向セクションを描画。0件なら section ごと非表示。件数を返す。 */
+  /** 🏢 競合動向セクションを描画。0件でもセクション自体は見せて
+   *  「本日該当する競合動向なし」の空状態メッセージを出す（「消えた」誤解防止）。
+   *  件数を返す。 */
   function renderCompetitor() {
     const list = document.getElementById('competitor-list');
     const head = document.getElementById('sec-competitor');
     if (!list || !head) return 0;
     // NEWS_DATA から matchesCompetitor() に該当するものを収集、重複除く、新しい順
+    // 消費者向け商品記事はここでも除外（partition と同じポリシー）
     const items = NEWS_DATA
-      .filter(n => matchesCompetitor(n))
+      .filter(n => !isConsumerNoise(n) && matchesCompetitor(n))
       .slice()
       .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
-    if (!items.length) {
-      list.innerHTML = '';  // 以前の render 結果が残らないように明示的にクリア
-      list.setAttribute('hidden', '');
-      head.style.display = 'none';
-      return 0;
-    }
     // 元記事リンクがない記事は表示しない（ニュースアプリとしてリンク必須）
     const withUrl = items.filter(n => n.url && /^https?:\/\//.test(n.url));
     if (!withUrl.length) {
-      list.innerHTML = '';
-      list.setAttribute('hidden', '');
-      head.style.display = 'none';
+      // セクションを消すのではなく、空状態メッセージを見せる
+      list.removeAttribute('hidden');
+      head.style.display = '';
+      list.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">🏢</div><div class="empty-text">本日は該当する競合動向のニュースはありません。<br>明朝 8:00 JST の定期更新までお待ちください。</div></div>';
       return 0;
     }
     list.removeAttribute('hidden');

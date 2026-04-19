@@ -362,6 +362,23 @@ _COMPETITOR_NOISE_WORDS = [
     "予約受付", "新発売", "発売日", "開封レビュー",
 ]
 
+# B2B マーケ担当者のインテリジェンス・ブリーフには不要な消費者向け商品記事を
+# 全体からハード除外するためのワード。scrape 段階でフィードから落とす。
+_CONSUMER_NOISE_WORDS = [
+    "お買い得", "キャンセル品", "セール品", "値下げ", "値引き", "特価",
+    "クーポン配布", "クーポン配信", "通販サイト", "通販限定",
+    "予約受付中", "予約開始", "新発売", "発売日決定", "開封レビュー",
+    "WEB MART", "Direct Shop", "アウトレット",
+    "円引き", "円OFF", "割引セール", "期間限定セール",
+]
+
+
+def is_consumer_noise(title: str, summary: str) -> bool:
+    """消費者向け商品セール記事かどうか判定（B2B マーケ担当者には不要）。"""
+    hay = (title or "") + " " + (summary or "")
+    return any(w in hay for w in _CONSUMER_NOISE_WORDS)
+
+
 def is_competitor_mention(title: str, summary: str) -> bool:
     """記事タイトル or 要約が AKKODiS 競合企業に言及しているか判定。
     ただし製品販売・値下げ等の「競合動向ではない」文脈は除外する。"""
@@ -458,6 +475,9 @@ def fetch_all() -> list[dict]:
                 if not is_japanese_text(title):
                     continue
                 raw_summary = strip_html(getattr(e, "summary", "") or getattr(e, "description", "") or "")
+                # 消費者向け商品セール記事（PC販売・通販値下げ等）は B2B マーケ視点で不要 → ハード除外
+                if is_consumer_noise(title, raw_summary):
+                    continue
                 # AI or マーケティング関連でない記事を除外（AI NEWS は AI + マーケ視点）
                 # AI/マーケ関連 or 競合企業言及のいずれか満たせば採用
                 # （競合プレスリリースは AI キーワード含まないケースが多いので救済）
