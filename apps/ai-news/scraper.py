@@ -703,7 +703,7 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
 
     parsed = extract_json(text)
     if not parsed or "items" not in parsed:
-        _LAST_ANTHROPIC_ERROR = f"invalid JSON response (len={len(text or '')}, preview={repr((text or '')[:120])})"
+        _LAST_ANTHROPIC_ERROR = f"JSON parse failed: {_LAST_JSON_PARSE_ERROR} (raw len={len(text or '')})"
         log(f"anthropic response was not valid JSON: {_LAST_ANTHROPIC_ERROR}")
         return None
 
@@ -765,7 +765,11 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
     return items, exec_summary
 
 
+_LAST_JSON_PARSE_ERROR: str | None = None
+
+
 def extract_json(text: str) -> dict | None:
+    global _LAST_JSON_PARSE_ERROR
     text = text.strip()
     # コードフェンス除去
     text = re.sub(r"^```(?:json)?\s*", "", text)
@@ -773,10 +777,12 @@ def extract_json(text: str) -> dict | None:
     # 最初の { 〜 最後の }
     s, e = text.find("{"), text.rfind("}")
     if s == -1 or e == -1:
+        _LAST_JSON_PARSE_ERROR = f"no braces found (len={len(text)})"
         return None
     try:
         return json.loads(text[s : e + 1])
-    except Exception:
+    except Exception as ex:
+        _LAST_JSON_PARSE_ERROR = f"{type(ex).__name__}: {ex}"
         return None
 
 
