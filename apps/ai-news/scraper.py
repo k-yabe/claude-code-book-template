@@ -703,7 +703,8 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
 
     parsed = extract_json(text)
     if not parsed or "items" not in parsed:
-        log("anthropic response was not valid JSON")
+        _LAST_ANTHROPIC_ERROR = f"invalid JSON response (len={len(text or '')}, preview={repr((text or '')[:120])})"
+        log(f"anthropic response was not valid JSON: {_LAST_ANTHROPIC_ERROR}")
         return None
 
     # executiveSummary を抽出
