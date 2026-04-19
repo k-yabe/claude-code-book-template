@@ -1,5 +1,5 @@
 {
-  "ranAt": "2026-04-19T08:48:53.108053+00:00",
+  "ranAt": "2026-04-19T09:05:24.383758+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": false,
   "sources": 26,
@@ -7,6 +7,6 @@
   "fetched_items": 10,
   "summarizer": "fallback",
   "final_items": 10,
-  "competitor_items": 1,
-  "durationSec": 80.8
+  "competitor_items": 2,
+  "durationSec": 77.6
 }
