@@ -343,6 +343,28 @@
     return TOOL_KEYWORDS.some(k => hay.includes(k));
   }
 
+  /** AKKODiS 競合企業の言及判定。scraper が isCompetitor を付けるが、
+   *  旧データ互換のためクライアント側でもキーワード fallback する。 */
+  const COMPETITOR_KEYWORDS = [
+    'パーソル', 'パーソルキャリア', 'パーソルテクノロジー', 'doda', 'DODA', 'dodaX',
+    'リクルート', 'マイナビ', 'エン・ジャパン', 'エンジャパン', 'エン転職',
+    'ビズリーチ', 'BizReach', 'Visional', 'ビジョナル',
+    'JAC リクルートメント', 'JACリクルートメント',
+    'パソナ', 'アデコ', 'Adecco', 'ランスタッド', 'Randstad',
+    'ヒューマンリソシア',
+    'アクセンチュア', 'Accenture', 'キャップジェミニ', 'Capgemini',
+    'デロイト', 'Deloitte', 'PwC', 'ベイカレント',
+    'フォースタートアップス', 'レバレジーズ', 'レバテック',
+    'ギークス', 'geechs', 'Midworks',
+    'Green', 'Wantedly', 'Findy', 'LAPRAS', 'paiza', 'Indeed',
+  ];
+  function matchesCompetitor(n) {
+    if (n.isCompetitor) return true;
+    const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '');
+    const lower = hay.toLowerCase();
+    return COMPETITOR_KEYWORDS.some(k => lower.includes(k.toLowerCase()));
+  }
+
   const STORE_KEY_FAV    = 'ai-news:fav:v1';
   const STORE_KEY_READ   = 'ai-news:read:v1';
   const STORE_KEY_STREAK = 'ai-news:streak:v1';
@@ -1611,7 +1633,8 @@
           image:      safeImgUrl(it.image) || null,
           publishedAt: it.publishedAt || new Date().toISOString(),
           tags: Array.isArray(it.tags) ? it.tags.map(String) : [],
-          hatenaCount: Number(it.hatenaCount) || 0
+          hatenaCount: Number(it.hatenaCount) || 0,
+          isCompetitor: !!it.isCompetitor
         });
       }
       if (NEWS_DATA.length === 0) throw new Error('no items with valid URL');
@@ -1745,7 +1768,8 @@
           url: safeUrl, image: it.image || null,
           publishedAt: it.publishedAt || new Date().toISOString(),
           tags: Array.isArray(it.tags) ? it.tags.map(String) : [],
-          hatenaCount: Number(it.hatenaCount) || 0
+          hatenaCount: Number(it.hatenaCount) || 0,
+          isCompetitor: !!it.isCompetitor
         });
       }
       if (NEWS_DATA.length === 0) throw new Error('no items with valid URL');
@@ -2454,11 +2478,72 @@
     renderThisWeek(thisWeek);
     renderTabs(fyi);
     renderMore(fyi);
+    const competitorCount = renderCompetitor();
     updateProgress();
     // 各セクション見出しに件数バッジを設定（初期は 0、初めて見えた時にカウントアップ）
     setCountTarget('count-must-know', mustKnow.length);
     setCountTarget('count-this-week', thisWeek.length);
     setCountTarget('count-more', fyi.length);
+    setCountTarget('count-competitor', competitorCount);
+  }
+
+  /** 🏢 競合動向セクションを描画。0件なら section ごと非表示。件数を返す。 */
+  function renderCompetitor() {
+    const list = document.getElementById('competitor-list');
+    const head = document.getElementById('sec-competitor');
+    if (!list || !head) return 0;
+    // NEWS_DATA から matchesCompetitor() に該当するものを収集、重複除く、新しい順
+    const items = NEWS_DATA
+      .filter(n => matchesCompetitor(n))
+      .slice()
+      .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+    if (!items.length) {
+      list.setAttribute('hidden', '');
+      head.style.display = 'none';
+      return 0;
+    }
+    list.removeAttribute('hidden');
+    head.style.display = '';
+    // FYI カードの DOM 構造を流用するため、renderMore と同じ HTML を生成
+    list.innerHTML = items.map(n => {
+      const isRead = state.read.has(n.id);
+      const isFav = state.fav.has(n.id);
+      const cat = n.category;
+      const hasUrl = !!n.url;
+      const imgSrc = pickImage(n);
+      const fFavicon = sourceFavicon(n.url) || '';
+      const fInitials = (n.source || '').substring(0, 2).toUpperCase();
+      return `
+        <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}">${fFavicon ? `<img class="source-logo-xs" src="${fFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-xs">${escapeHtml(fInitials)}</span>`}<span class="fyi-visual-source">${escapeHtml(n.source)}</span></div>`}
+          <div class="fyi-body">
+            <div class="fyi-meta">
+              <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
+              <span class="meta-source">${escapeHtml(n.source)}</span>
+              <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
+              <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
+            </div>
+            <div class="fyi-title">${escapeHtml(n.title)}</div>
+            ${(() => { const w = meaningfulWhyItMatters(n); if (w) return `<div class="fyi-why">${escapeHtml(w)}</div>`; if (n.summary) return `<div class="fyi-why">${escapeHtml(n.summary)}</div>`; return ''; })()}
+            <div class="fyi-foot">
+              <div class="fyi-tags"></div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
+              </div>
+            </div>
+          </div>
+        </article>`;
+    }).join('');
+    // カードクリックで記事を開く
+    list.querySelectorAll('.fyi-card').forEach(el => {
+      el.addEventListener('click', e => {
+        if (e.target.closest('.brief-ext-link')) return;
+        markRead(el.dataset.id, el);
+        if (el.dataset.cat) recordClick(el.dataset.cat);
+        openExternal(el.dataset.url);
+      });
+    });
+    return items.length;
   }
 
   // セクションが見えたらカウントアップする

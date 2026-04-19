@@ -1053,11 +1053,17 @@
     .icon-toggle.active {
       background: var(--navy); color: var(--gold); border-color: var(--navy);
     }
-    .more-list {
+    .more-list,
+    .competitor-list {
       background: var(--white);
       margin: 0 var(--sp-5);
       box-shadow: 0 1px 3px rgba(0,31,51,0.06);
     }
+    /* 競合動向セクションはゴールドの左ラインアクセント */
+    .competitor-list .fyi-card {
+      border-left: 3px solid var(--gold);
+    }
+    .competitor-list[hidden] { display: none; }
     /* 「もっと見る」ボタン: 初期は 10件、クリックで全件展開 */
     .more-expand-btn[hidden] { display: none; }
     .more-expand-btn {
@@ -2163,6 +2169,15 @@
     <div class="more-list" id="more-list" aria-live="polite"></div>
     <button class="more-expand-btn" id="more-expand-btn" hidden type="button">▼ もっと見る</button>
 
+    <!-- 🏢 競合動向（AKKODiS の主要競合企業に言及した記事） -->
+    <div class="sec-head" id="sec-competitor">
+      <span class="sec-icon">🏢</span>
+      <span class="sec-title">競合動向 <span class="sec-count" id="count-competitor">0</span></span>
+      <span class="sec-sub">AKKODiS 主要競合（パーソル / リクルート / マイナビ / ビズリーチ / アクセンチュア 等）に言及された記事</span>
+      <span class="sec-line"></span>
+    </div>
+    <div class="competitor-list" id="competitor-list" aria-live="polite"></div>
+
     <!-- 𝕏 HIGHLIGHTS -->
     <div class="sec-head" id="sec-x">
       <span class="sec-icon">𝕏</span>
@@ -2231,6 +2246,7 @@
     <a class="sn-item" href="#sec-must-know" data-target="sec-must-know"><span class="sn-dot"></span><span class="sn-label">主要</span></a>
     <a class="sn-item" href="#sec-this-week" data-target="sec-this-week"><span class="sn-dot"></span><span class="sn-label">注目</span></a>
     <a class="sn-item" href="#sec-more" data-target="sec-more"><span class="sn-dot"></span><span class="sn-label">その他</span></a>
+    <a class="sn-item" href="#sec-competitor" data-target="sec-competitor"><span class="sn-dot"></span><span class="sn-label">競合</span></a>
     <a class="sn-item" href="#sec-x" data-target="sec-x"><span class="sn-dot"></span><span class="sn-label">𝕏</span></a>
   </nav>
 
@@ -2259,12 +2275,13 @@
       features: [
         { icon: '📋', text: '今日の3行サマリー：毎朝3行で全体像をつかめる' },
         { icon: '🔥', text: '本日の主要ニュース：大手メディア発の AI×マーケ最重要トピックをマーケ視点の影響＋推奨アクションと共に提示' },
-        { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
+        { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' },
+        { icon: '🏢', text: '競合動向：AKKODiS 主要競合（パーソル/リクルート/マイナビ/ビズリーチ/アクセンチュア等）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
+        { date: '04/19', text: '🏢 競合動向セクション新設：AKKODiS 主要競合 30+社（パーソル/リクルート/マイナビ/ビズリーチ/アクセンチュア/レバテック等）に言及された記事を自動抽出。PR TIMES で各社プレスリリース RSS も購読' },
         { date: '04/18', text: 'チーム公開前プロ仕上げ：hero eyebrow のカジュアル絵文字を整理、LIVE バッジは 12h 以上経過時に自動非表示、X トレンドをバズ閾値でフィルタ' },
-        { date: '04/18', text: '「その他のニュース」を初期10件 + 「▼ もっと見る」で展開する形式に。検索や絞り込み中は全件表示' },
-        { date: '04/18', text: 'PWA + SEO + 共有拡張：OGP/Twitter Card/meta description、Service Worker でオフライン閲覧、全カードに共有ボタン、印刷用 stylesheet、Playwright 18/18 pass' }
+        { date: '04/18', text: '「その他のニュース」を初期10件 + 「▼ もっと見る」で展開する形式に。検索や絞り込み中は全件表示' }
       ]
     });
 
