@@ -697,7 +697,7 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         err = f"{type(ex).__name__}: {ex}"
         log(f"anthropic call failed: {err}")
         # main() の debug_stats に後から取り出せるよう module global に保存
-        global _LAST_ANTHROPIC_ERROR
+        # （global 宣言は関数冒頭で済ませている）
         _LAST_ANTHROPIC_ERROR = err
         return None
 
