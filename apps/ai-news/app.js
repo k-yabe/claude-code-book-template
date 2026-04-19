@@ -1512,8 +1512,18 @@
     if (expandBtn && !expandBtn.dataset.wired) {
       expandBtn.dataset.wired = '1';
       expandBtn.addEventListener('click', () => {
+        // 展開前の最後のカードを記憶 → 展開後にその次のカードへスクロール
+        const list = document.getElementById('more-list');
+        const before = list ? list.querySelectorAll('.fyi-card').length : 0;
         _moreExpanded = true;
         renderMore(_moreRef);
+        // 新しく見えたカードへ smooth scroll
+        requestAnimationFrame(() => {
+          if (!list) return;
+          const cards = list.querySelectorAll('.fyi-card');
+          const target = cards[before];
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
       });
     }
     let t;
