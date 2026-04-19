@@ -378,9 +378,20 @@
     // プラットフォーム
     'Green', 'Wantedly', 'Findy', 'LAPRAS', 'paiza', 'Indeed', 'Forkwell',
   ];
+  /** 競合キーワードに誤マッチしやすい「ノイズ文脈」の除外語。
+   *  例: 「富士通 WEB MART」のPC通販セール、「NEC Direct」の値下げ、
+   *      「IBM Consulting」とは無関係な個人PCレビュー等。
+   *  これらのワードが題目/要約に含まれていたら、競合として扱わない。 */
+  const COMPETITOR_NOISE = [
+    'WEB MART', 'Web MART', 'Direct Shop', 'Outlet',
+    'お買い得', 'キャンセル品', 'セール品', '値下げ', '値引き', '特価',
+    'クーポン', '通販', 'ECサイト', 'オンラインショップ',
+    '予約受付', '新発売', '発売日', '開封レビュー',
+  ];
   function matchesCompetitor(n) {
-    if (n.isCompetitor) return true;
     const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '');
+    if (COMPETITOR_NOISE.some(w => hay.includes(w))) return false;
+    if (n.isCompetitor) return true;
     const lower = hay.toLowerCase();
     return COMPETITOR_KEYWORDS.some(k => lower.includes(k.toLowerCase()));
   }
@@ -994,8 +1005,9 @@
       thisWeek = [...thisWeek, ...promoted];
     }
     const usedIds = new Set([...mustKnow.map(n => n.id), ...thisWeek.map(n => n.id)]);
-    // その他のニュース: バズ閾値クリアのみ
-    const fyi = sorted.filter(n => !usedIds.has(n.id) && passes(n, 'default'));
+    // その他のニュース: 残り全件（バズ閾値は適用しない。主要/注目に入らなかった記事は
+    // ここで必ず拾う。「その他ニュース 0件」になる回帰を防ぐため）
+    const fyi = sorted.filter(n => !usedIds.has(n.id));
     return { mustKnow, thisWeek, fyi };
   }
 
@@ -1127,6 +1139,18 @@
       return n.title;
     });
   }
+  /** 3行サマリーの各行を短く整える（LLM出力が冗長なときの保険）。
+   *  - 末尾の「。」直前で文を区切り、1文だけ残す
+   *  - 長すぎる場合は 60 字でカットして末尾「…」 */
+  function tightenSummaryLine(s) {
+    const raw = String(s || '').trim();
+    if (!raw) return '';
+    const firstSentence = raw.split(/(?<=[。！？])/)[0] || raw;
+    const one = firstSentence.trim();
+    const MAX = 60;
+    if (one.length <= MAX) return one;
+    return one.slice(0, MAX - 1) + '…';
+  }
   function renderExecSummary() {
     const root = document.getElementById('exec-summary');
     if (!root) return;
@@ -1134,6 +1158,7 @@
     if (!lines || !lines.length || lines.every(l => !String(l || '').trim())) {
       lines = deriveSummaryLines();
     }
+    lines = (lines || []).map(tightenSummaryLine).filter(Boolean);
     if (!lines || !lines.length) {
       root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">📋</div><div class="empty-text">本日のサマリーは準備中です。<br>明朝 8:00 JST の定期更新までお待ちください。</div></div>';
       return;
