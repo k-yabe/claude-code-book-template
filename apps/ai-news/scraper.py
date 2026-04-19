@@ -63,6 +63,13 @@ SOURCES: list[dict[str, object]] = [
     {"name": "Zenn (Claude)",            "url": "https://zenn.dev/topics/claude/feed",                         "category": "ai",        "tier": "ugc",   "max": 2},
     {"name": "Qiita (AI)",               "url": "https://qiita.com/tags/ai/feed",                              "category": "ai",        "tier": "ugc",   "max": 1},
     {"name": "note (AI)",                "url": "https://note.com/hashtag/AI/rss",                             "category": "ai",        "tier": "ugc",   "max": 1},
+    # 競合モニタリング（PR TIMES 会社別フリーワード検索 RSS）
+    # URL パターン: https://prtimes.jp/main/rdf/freeword/<company>/0/1
+    {"name": "PR TIMES (パーソル)",       "url": "https://prtimes.jp/main/rdf/freeword/パーソル/0/1",          "category": "market",    "tier": "media", "max": 3},
+    {"name": "PR TIMES (リクルート)",     "url": "https://prtimes.jp/main/rdf/freeword/リクルート/0/1",         "category": "market",    "tier": "media", "max": 3},
+    {"name": "PR TIMES (マイナビ)",       "url": "https://prtimes.jp/main/rdf/freeword/マイナビ/0/1",          "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (ビズリーチ)",     "url": "https://prtimes.jp/main/rdf/freeword/ビズリーチ/0/1",         "category": "market",    "tier": "media", "max": 2},
+    {"name": "PR TIMES (レバテック)",     "url": "https://prtimes.jp/main/rdf/freeword/レバテック/0/1",         "category": "market",    "tier": "media", "max": 2},
 ]
 
 # 取得上限・要約上限
@@ -268,6 +275,42 @@ MARKETING_KEYWORDS_CONTAIN = [
 _AI_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in AI_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
 _MKT_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in MARKETING_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
 
+# ── AKKODiS 競合モニタリング ──────────────────────────────────────
+# 主要競合（人材・IT コンサル / エンジニアリング派遣・紹介）
+# 記事タイトル or 要約に以下のいずれかが含まれていれば isCompetitor=True
+# 過不足あればここを編集するだけで追加/除外できる
+COMPETITOR_KEYWORDS = [
+    # 人材大手
+    "パーソル", "パーソルキャリア", "パーソルテクノロジースタッフ", "doda", "DODA", "dodaX",
+    "リクルート", "リクルートキャリア", "リクルートスタッフィング",
+    "マイナビ", "マイナビ転職", "マイナビエージェント",
+    "エン・ジャパン", "エンジャパン", "エン転職",
+    "ビズリーチ", "BizReach", "Visional", "ビジョナル",
+    "JAC リクルートメント", "JACリクルートメント",
+    "パソナ", "Pasona",
+    "アデコ", "Adecco",  # AKKODiS 親会社グループの兄弟ブランドだが業界構造上は競合側にも
+    "ランスタッド", "Randstad",
+    "ヒューマンリソシア",
+    # IT コンサル・エンジニア紹介
+    "アクセンチュア", "Accenture",
+    "キャップジェミニ", "Capgemini",
+    "デロイト", "Deloitte",
+    "PwC", "プライスウォーターハウスクーパース",
+    "ベイカレント",
+    "フォースタートアップス",
+    "レバレジーズ", "レバテック",
+    "ギークス", "geechs",
+    "Midworks",
+    # エンジニア向けプラットフォーム
+    "Green", "Wantedly", "Findy", "LAPRAS", "paiza", "Indeed",
+]
+_COMPETITOR_RE = re.compile("|".join(re.escape(k) for k in COMPETITOR_KEYWORDS), re.IGNORECASE)
+
+def is_competitor_mention(title: str, summary: str) -> bool:
+    """記事タイトル or 要約が AKKODiS 競合企業に言及しているか判定。"""
+    hay = (title or "") + " " + (summary or "")
+    return bool(_COMPETITOR_RE.search(hay))
+
 
 def is_ai_related(title: str, summary: str) -> bool:
     """タイトル + 要約に AI or マーケティング キーワードが含まれているかを判定。
@@ -400,6 +443,7 @@ def fetch_all() -> list[dict]:
                     "category": src["category"],
                     "publishedAt": pub.isoformat(),
                     "hatenaCount": hatena,
+                    "isCompetitor": is_competitor_mention(title, raw_summary),
                 })
                 count += 1
             log(f"  -> {count} new")
