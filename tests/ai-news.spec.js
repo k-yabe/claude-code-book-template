@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => {
     localStorage.setItem('auth', '1');
     // オンボーディングを「既読」にしてオーバーレイを出さない
-    localStorage.setItem('ai-news_onboarded_v3', '1');
+    localStorage.setItem('ai-news_onboarded_v4', '1');
   });
 });
 

@@ -26,7 +26,7 @@
  */
 
 /* eslint-disable no-unused-vars */
-var OB_VERSION = 3; // この数字を上げると全員に再表示される
+var OB_VERSION = 4; // この数字を上げると全員に再表示される（v4: 全アプリ大幅アップデート通知）
 function initOnboarding(config) {
   const key = config.appName + '_onboarded_v' + OB_VERSION;
   if (localStorage.getItem(key) === '1') return;
