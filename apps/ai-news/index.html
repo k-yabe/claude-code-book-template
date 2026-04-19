@@ -1072,8 +1072,8 @@
       transition: background 0.15s ease, color 0.15s ease;
     }
     .more-expand-btn:hover { background: var(--navy); color: var(--gold); }
-    /* PC では「その他のニュース」も2列に（縦スクロールを減らして一覧性UP） */
-    @media (min-width: 1024px) {
+    /* タブレット以上では「その他のニュース」も2列に（縦スクロールを減らして一覧性UP） */
+    @media (min-width: 768px) {
       .more-list {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -1555,6 +1555,7 @@
       outline: 2px solid var(--gold);
       outline-offset: 2px;
     }
+    @media print { .scroll-progress, .back-to-top { display: none !important; } }
     .cmd-btn {
       padding: 5px 10px; font-size: 0.65rem; font-weight: 700;
       letter-spacing: 0.04em; color: var(--navy);
