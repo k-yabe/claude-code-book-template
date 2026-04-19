@@ -706,6 +706,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-18(土)', desc: '【チーム公開前プロ仕上げ 7件】①Hero eyebrow greeting のカジュアル絵文字（☕/☀️/🌙/✨）を撤去し「本日のサマリー — 翌朝 8:00 JST 更新」等の B2B プロ表現に刷新。②LIVE バッジを 12h 経過で自動非表示（誤認防止）。③完読セレブレーションの🎉を ✓ に、「全て読了」を「全記事 読了完了」に格上げ。④キーボードフォーカスリング（:focus-visible に gold outline 2px）をグローバル追加。⑤動的コンテナ（exec-summary/must-know/this-week）に aria-live。⑥DATA PIPELINE フッターに信頼性シグナル「Powered by Anthropic Claude × OpenAI TTS · 最終更新 · AKKODiS AI NEWS v1.0」。⑦外部 picsum.photos fallback を撤去し、ブランド navy gradient + 透過「AI NEWS」ウォーターマークに統一' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-18(土)', desc: '【X 生成AIトレンドをバズのみに厳選】X_BUZZ_MIN=3000 の閾値を導入（score = likes + retweets×3）。閾値未満のポストは「トレンド」と呼べないので除外し、通過したポストをスコア降順で表示（件数上限なし）。engagement が無い投稿は自動除外' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-18(土)', desc: '【その他のニュースを「もっと見る」で省スペース化】縦に長すぎた「その他のニュース」セクションを初期 10 件表示に制限し、「▼ もっと見る（残り N 件）」ボタンで全件展開する方式に変更。検索・絞り込み（タグ/カテゴリ/★/未読）適用時は全件表示（結果を隠さない）。hover で navy 背景＋ゴールド文字にフラッシュ' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-18(土)', desc: '【使い勝手拡張 3件】①ヒーローに「● N 新着」stat を追加。FRESH_HOURS(3h)以内の記事数を脈動ゴールドドット付きで常時表示。0件なら非表示。②音声ダイジェストに ±10秒スキップボタン（「« 10」「10 »」）を追加。再生位置を HTMLAudioElement.currentTime で直接操作。③メタ行のソース名をクリック可能な button 化：クリックでその媒体の記事に絞り込み（検索欄に媒体名をセット）。カードクリックとの競合を避けるため meta-source-btn / tag-btn / share-btn は stopPropagation' },

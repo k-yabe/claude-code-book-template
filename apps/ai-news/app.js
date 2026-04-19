@@ -395,10 +395,10 @@
     banner.className = 'celebration-banner';
     banner.innerHTML = `
       <div class="celebration-content">
-        <div class="celebration-icon">🎉</div>
+        <div class="celebration-icon" aria-hidden="true">✓</div>
         <div class="celebration-main">
-          <div class="celebration-title">今日のブリーフィング完了！</div>
-          <div class="celebration-sub">全記事を読み終えました。明日もお待ちしています。</div>
+          <div class="celebration-title">本日のブリーフィング 読了完了</div>
+          <div class="celebration-sub">全記事を読み終えました。明朝 8:00 JST に次のブリーフが入ります。</div>
         </div>
         <button class="celebration-close" aria-label="閉じる">×</button>
       </div>
@@ -563,7 +563,8 @@
    * 1st failure → picsum.photos のシード画像に切り替え（ほぼ100%ロードできる）
    * 2nd failure → navy グラデーションのフォールバック背景
    */
-  const IMG_ONERROR = "if(this.dataset.fbk!=='1'){this.dataset.fbk='1';this.src='https://picsum.photos/seed/'+encodeURIComponent(this.dataset.seed||this.alt||Date.now())+'/800/450';}else{this.onerror=null;this.style.display='none';this.parentElement.classList.add('img-fallback');}";
+  // 画像取得失敗時: 外部 picsum は使わずブランド navy グラデの .img-fallback に差し替え（ブランド統一）
+  const IMG_ONERROR = "this.onerror=null;this.style.display='none';this.parentElement.classList.add('img-fallback');";
   const IMG_ONLOAD = "this.classList.add('loaded');";
 
   /**
@@ -962,12 +963,14 @@
     requestAnimationFrame(step);
   }
 
+  /** 時刻依存の hero eyebrow。B2B プロフェッショナル向けに絵文字を減らし、
+   *  「何のダッシュボードか」を常に明示する（シェア時に文脈が伝わるよう）。 */
   function timeAwareGreeting() {
     const h = new Date().getHours();
-    if (h >= 4 && h < 11) return 'おはようございます ☕ 今朝のマーケ動向です';
-    if (h >= 11 && h < 17) return 'こんにちは ☀️ 昼休みにキャッチアップ';
-    if (h >= 17 && h < 22) return 'お疲れさまです 🌙 今日のニュースまとめ';
-    return 'こんばんは ✨ 明日に向けた情報ブリーフ';
+    if (h >= 4 && h < 11) return '今朝のマーケティング・インテリジェンス';
+    if (h >= 11 && h < 17) return '本日のマーケティング・インテリジェンス';
+    if (h >= 17 && h < 22) return '本日のサマリー — マーケティング・インテリジェンス';
+    return '本日のサマリー — 翌朝 8:00 JST 更新';
   }
 
   function renderHero() {
@@ -990,11 +993,19 @@
     if (hsbFyi)  hsbFyi.style.flex  = String(fyiCount  || 0);
     const greet = document.getElementById('hero-greeting');
     if (greet) greet.textContent = timeAwareGreeting();
-    // LIVE インジケーター: 最終更新を相対表記で
+    // LIVE インジケーター: 最終更新を相対表記で。12h 以上経過したら LIVE バッジは外す（誤認防止）
     const live = document.getElementById('hero-live-updated');
+    const liveLabel = document.querySelector('.hero-live-label');
+    const liveDot = document.querySelector('.hero-live-dot');
+    const liveSep = document.querySelector('.hero-live-sep');
     if (live) {
       const ts = dataMeta.updatedAt || dataMeta.generatedFor || new Date().toISOString();
-      live.textContent = `最終更新 ${fmtRelative(ts)}`;
+      const ageH = Math.max(0, (Date.now() - new Date(ts).getTime()) / 3.6e6);
+      const isStale = ageH > 12;
+      live.textContent = isStale ? `更新 ${fmtRelative(ts)}` : `最終更新 ${fmtRelative(ts)}`;
+      if (liveLabel) liveLabel.style.display = isStale ? 'none' : '';
+      if (liveDot) liveDot.style.display = isStale ? 'none' : '';
+      if (liveSep) liveSep.style.display = isStale ? 'none' : '';
     }
     // 連読ストリーク（2日以上で表示）
     const streakState = updateStreak();
@@ -1073,7 +1084,7 @@
       lines = deriveSummaryLines();
     }
     if (!lines || !lines.length) {
-      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-text">サマリーはまだ生成されていません</div></div>';
+      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">📋</div><div class="empty-text">本日のサマリーは準備中です。<br>明朝 8:00 JST の定期更新までお待ちください。</div></div>';
       return;
     }
     // 各サマリー行に対応する記事（must-know → this-week の順でフラット化）を推定してソース表記を付ける
@@ -1635,6 +1646,12 @@
       upd.textContent = fmtBriefDate(dataMeta.generatedFor || Y) + '（サンプル）';
       upd.classList.add('seed');
     }
+    // フッターの「最終更新」表示を更新（Powered by 行）
+    const footUpd = document.getElementById('foot-updated');
+    if (footUpd) {
+      const ts = dataMeta.updatedAt || dataMeta.generatedFor;
+      footUpd.textContent = ts ? fmtDate(ts) : '—';
+    }
   }
 
   /* ────────── ⑨b 日付ナビゲーション ──────────  */
@@ -1790,7 +1807,7 @@
       const upd = document.getElementById('cmd-updated');
       if (upd) {
         const orig = upd.textContent;
-        upd.textContent = '🎉 全て読了';
+        upd.textContent = '✓ 全記事 読了完了';
         setTimeout(() => { upd.textContent = orig; }, 1800);
       }
       return;
