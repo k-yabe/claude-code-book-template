@@ -447,7 +447,9 @@ def fetch_all() -> list[dict]:
                     continue
                 raw_summary = strip_html(getattr(e, "summary", "") or getattr(e, "description", "") or "")
                 # AI or マーケティング関連でない記事を除外（AI NEWS は AI + マーケ視点）
-                if not is_ai_related(title, raw_summary):
+                # AI/マーケ関連 or 競合企業言及のいずれか満たせば採用
+                # （競合プレスリリースは AI キーワード含まないケースが多いので救済）
+                if not is_ai_related(title, raw_summary) and not is_competitor_mention(title, raw_summary):
                     continue
                 # URL 到達性チェック（404 / dead link を事前に除外して「リンク間違い」を根絶）
                 if not validate_url(url):
@@ -685,7 +687,16 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         )
         text = "".join(getattr(b, "text", "") for b in msg.content)
     except Exception as ex:
-        log(f"anthropic call failed: {ex}")
+        log(f"anthropic call failed: {type(ex).__name__}: {ex}")
+        # デバッグ用に debug.json にもエラーを追記（再実行時も維持されるよう read-modify-write）
+        try:
+            dp = DATA_DIR / "debug.json"
+            if dp.exists():
+                existing = json.loads(dp.read_text(encoding="utf-8"))
+                existing["anthropicError"] = f"{type(ex).__name__}: {ex}"
+                dp.write_text(json.dumps(existing, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        except Exception:
+            pass
         return None
 
     parsed = extract_json(text)

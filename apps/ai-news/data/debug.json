@@ -1,0 +1,12 @@
+{
+  "ranAt": "2026-04-19T08:33:35.753371+00:00",
+  "anthropicKeySet": true,
+  "openaiKeySet": false,
+  "sources": 26,
+  "phase": "start",
+  "fetched_items": 10,
+  "summarizer": "fallback",
+  "final_items": 10,
+  "competitor_items": 0,
+  "durationSec": 87.0
+}
