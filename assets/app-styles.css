@@ -789,3 +789,32 @@ a:hover {
     padding: var(--sp-3) var(--sp-4);
   }
 }
+
+/* ────────────────────────────────────────
+   印刷用（全アプリ共通）
+   - ナビ / コマンド類を非表示、白背景・黒文字に変換
+   - カードは page-break 回避、アクセント色は文字色のみ残す
+   ──────────────────────────────────────── */
+@media print {
+  .nav, .navbar, .cmd-bar, .back-to-top, .section-nav,
+  .ob-overlay, #onboarding,
+  button, .share-btn, .star-btn, .read-toggle,
+  .audio-player, .audio-cluster,
+  .hero-live-row, .hero-pulse, .data-note,
+  .scroll-progress, .read-progress {
+    display: none !important;
+  }
+  html, body, body.night-mode {
+    background: #fff !important; color: #000 !important;
+  }
+  .card, .top-card, .brief-card, .fyi-card, .exec-box, .x-item, .app-card {
+    background: #fff !important; color: #000 !important;
+    box-shadow: none !important;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  a { color: #000 !important; text-decoration: underline; }
+  .tag, .meta-pill, .meta-multi, .meta-tool-badge {
+    background: transparent !important; color: #000 !important;
+    border: 1px solid #ccc !important;
+  }
+}
