@@ -43,12 +43,35 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: python apps/ai-news/scraper.py
+        run: |
+          echo "::group::Python scraper output"
+          python -u apps/ai-news/scraper.py
+          EXIT_CODE=$?
+          echo "::endgroup::"
+          echo "Python exit code: $EXIT_CODE"
+          echo "::group::Files in data/ after scraper"
+          ls -la apps/ai-news/data/ || echo "data/ missing"
+          echo "=== debug.json ==="
+          cat apps/ai-news/data/debug.json 2>/dev/null || echo "(no debug.json)"
+          echo "::endgroup::"
+          exit $EXIT_CODE
 
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add apps/ai-news/data/news.json apps/ai-news/data/archives/ apps/ai-news/data/audio/ apps/ai-news/data/debug.json || true
-          git diff --cached --quiet || git commit -m "chore: update ai-news data [skip ci]"
-          git push || true
+          # 存在するファイルだけ add する（missing は silent skip）
+          for f in apps/ai-news/data/news.json apps/ai-news/data/debug.json; do
+            [ -f "$f" ] && git add "$f" && echo "added: $f"
+          done
+          [ -d apps/ai-news/data/archives ] && git add apps/ai-news/data/archives/
+          [ -d apps/ai-news/data/audio ] && git add apps/ai-news/data/audio/
+          echo "--- staged files ---"
+          git diff --cached --name-only
+          if git diff --cached --quiet; then
+            echo "no changes to commit"
+          else
+            git commit -m "chore: update ai-news data [skip ci]"
+            git push
+            echo "pushed"
+          fi
