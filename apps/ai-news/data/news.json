@@ -1,9 +1,81 @@
 {
-  "updatedAt": "2026-04-18T06:03:00.794821+00:00",
+  "updatedAt": "2026-04-19T07:49:04.622244+00:00",
   "generatedFor": "2026-04-18",
   "executiveSummary": [],
-  "count": 26,
+  "count": 25,
   "items": [
+    {
+      "id": "n_comp_sample_1",
+      "title": "パーソル、生成AI活用の営業支援プラットフォーム「Visionary AI」を提供開始",
+      "source": "PR TIMES (パーソル) ※サンプル",
+      "sourceType": "media",
+      "category": "market",
+      "url": "https://prtimes.jp/main/html/searchrlp/company_id/0",
+      "image": null,
+      "summary": "パーソルホールディングスは、営業担当者の業務を生成AIで支援するプラットフォーム「Visionary AI」を発表。案件サマリー自動生成、顧客対応履歴の要約、提案書ドラフト作成まで一気通貫。",
+      "whyItMatters": "大手人材会社が営業領域に生成AIを本格投入。AKKODiS も営業支援ツール戦略の再検討が必要。",
+      "actionItem": "自社の営業業務で生成AI活用余地がある領域を棚卸し、PoC 候補を特定する。",
+      "pickerComment": "",
+      "tags": [
+        "生成AI",
+        "営業支援",
+        "競合"
+      ],
+      "urgency": "this_week",
+      "importance": 2,
+      "readMin": 1,
+      "publishedAt": "2026-04-19T07:49:04.622244+00:00",
+      "hatenaCount": 12,
+      "isCompetitor": true
+    },
+    {
+      "id": "n_comp_sample_2",
+      "title": "ビズリーチ、ハイクラス向けAIマッチング機能を大幅刷新。候補者体験を重視",
+      "source": "PR TIMES (ビズリーチ) ※サンプル",
+      "sourceType": "media",
+      "category": "market",
+      "url": "https://prtimes.jp/main/html/searchrlp/company_id/0",
+      "image": null,
+      "summary": "ビズリーチは、AIによる求人推薦アルゴリズムを刷新し、候補者の希望条件だけでなくキャリアコンテクストを考慮したマッチングを強化。スカウト応諾率が平均で 1.6 倍に改善。",
+      "whyItMatters": "候補者マーケティングの競争軸が「スカウト量」から「体験品質」へ移行。候補者体験 (CX) 観点での差別化が急務。",
+      "actionItem": "自社採用 LP・スカウト文面のレビュー観点に候補者体験スコアを加える。",
+      "pickerComment": "",
+      "tags": [
+        "採用マーケ",
+        "CX",
+        "競合"
+      ],
+      "urgency": "this_week",
+      "importance": 2,
+      "readMin": 1,
+      "publishedAt": "2026-04-19T07:49:04.622244+00:00",
+      "hatenaCount": 8,
+      "isCompetitor": true
+    },
+    {
+      "id": "n_comp_sample_3",
+      "title": "アクセンチュア、生成AIコンサル売上が前年比2.3倍。日本市場でも加速",
+      "source": "PR TIMES (アクセンチュア) ※サンプル",
+      "sourceType": "media",
+      "category": "market",
+      "url": "https://prtimes.jp/main/html/searchrlp/company_id/0",
+      "image": null,
+      "summary": "アクセンチュアは 2026 Q1 決算で、生成AI関連コンサル売上が前年同期比 2.3 倍の 320 億円に達したと発表。日本市場でも金融・製造業向け案件が急拡大。",
+      "whyItMatters": "IT コンサル領域で競合が生成AI案件シェアを急速に獲得中。AKKODiS もサービスポートフォリオ見直しが急務。",
+      "actionItem": "エンジニアリングサービスに生成AI活用ユースケースをパッケージ化し、提案書テンプレを作成する。",
+      "pickerComment": "",
+      "tags": [
+        "生成AI",
+        "コンサル",
+        "競合"
+      ],
+      "urgency": "this_week",
+      "importance": 2,
+      "readMin": 2,
+      "publishedAt": "2026-04-19T07:49:04.622244+00:00",
+      "hatenaCount": 24,
+      "isCompetitor": true
+    },
     {
       "id": "n_6817b4e2bc27",
       "title": "Anthropic、「Opus 4.7」ベースのAIデザインツール「Claude Design」発表 Canvaとの連携も可能",
