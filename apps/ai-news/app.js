@@ -1020,6 +1020,18 @@
     }
     // 週間読書統計（直近7日に既読があれば表示）
     renderWeeklyStats();
+    // 新着 N件（< 3h）
+    const freshCount = NEWS_DATA.filter(n => isFresh(n.publishedAt)).length;
+    const freshEl = document.getElementById('hero-stat-fresh');
+    const freshNum = document.getElementById('stat-fresh-count');
+    if (freshEl && freshNum) {
+      if (freshCount > 0) {
+        freshNum.textContent = freshCount;
+        freshEl.removeAttribute('hidden');
+      } else {
+        freshEl.setAttribute('hidden', '');
+      }
+    }
   }
 
   /** ヒーローに直近7日のミニバーを描画。既読ゼロなら非表示。 */
@@ -1211,7 +1223,7 @@
             <div class="brief-card-head">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               ${matchesTool(n) ? '<span class="meta-tool-badge" title="ツール活用Tips">🛠</span>' : ''}
-              <span class="meta-source">${escapeHtml(n.source)}</span>
+              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>
               ${(() => { const c = getStoryCluster(n.id); return c ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体報道</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
@@ -1240,7 +1252,7 @@
     }).join('');
     root.querySelectorAll('.brief-card').forEach(el => {
       el.addEventListener('click', e => {
-        if (e.target.closest('.star-btn') || e.target.closest('.brief-ext-link') || e.target.closest('.brief-read-toggle')) return;
+        if (e.target.closest('.star-btn') || e.target.closest('.brief-ext-link') || e.target.closest('.brief-read-toggle') || e.target.closest('.share-btn') || e.target.closest('.meta-source-btn') || e.target.closest('.tag-btn')) return;
         markRead(el.dataset.id, el);
         if (el.dataset.cat) recordClick(el.dataset.cat);
         openExternal(el.dataset.url);
@@ -1324,7 +1336,7 @@
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               ${matchesTool(n) ? '<span class="meta-tool-badge" title="ツール活用Tips">🛠</span>' : ''}
-              <span class="meta-source">${escapeHtml(n.source)}</span>
+              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>
               ${(() => { const c = getStoryCluster(n.id); return c ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
@@ -1346,7 +1358,7 @@
     }).join('');
     root.querySelectorAll('.fyi-card').forEach(el => {
       el.addEventListener('click', e => {
-        if (e.target.closest('.star-btn') || e.target.closest('.brief-read-toggle') || e.target.closest('.brief-ext-link')) return;
+        if (e.target.closest('.star-btn') || e.target.closest('.brief-read-toggle') || e.target.closest('.brief-ext-link') || e.target.closest('.share-btn') || e.target.closest('.meta-source-btn') || e.target.closest('.tag-btn')) return;
         markRead(el.dataset.id, el);
         if (el.dataset.cat) recordClick(el.dataset.cat);
         openExternal(el.dataset.url);
@@ -1379,6 +1391,22 @@
         if (input) {
           input.value = '#' + tag;
           state.keyword = '#' + tag;
+          savePrefs();
+          renderMore(_moreRef);
+          const sec = document.getElementById('sec-more') || document.getElementById('more-list');
+          if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+    // ソース名クリックで、その媒体の記事に絞り込み
+    root.querySelectorAll('.meta-source-btn[data-source-filter]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const src = btn.dataset.sourceFilter;
+        const input = document.getElementById('search');
+        if (input) {
+          input.value = src;
+          state.keyword = src;
           savePrefs();
           renderMore(_moreRef);
           const sec = document.getElementById('sec-more') || document.getElementById('more-list');
@@ -2193,6 +2221,16 @@
     // ミニプレイヤー停止ボタン
     const apStop = document.getElementById('ap-stop');
     if (apStop) apStop.addEventListener('click', () => stopSpeech());
+    // ±10秒スキップ（静的 MP3 / オンデマンド MP3 どちらでも動作。Web Speech fallback 時は no-op）
+    const apSkipBack = document.getElementById('ap-skip-back');
+    const apSkipFwd = document.getElementById('ap-skip-fwd');
+    function skip(delta) {
+      const a = speechState.audio;
+      if (!a || typeof a.currentTime !== 'number') return;
+      a.currentTime = Math.max(0, Math.min((a.duration || 0) - 0.1, a.currentTime + delta));
+    }
+    if (apSkipBack) apSkipBack.addEventListener('click', () => skip(-10));
+    if (apSkipFwd) apSkipFwd.addEventListener('click', () => skip(10));
     // 起動時にバックグラウンドで音声を事前生成（ネットワーク待機なしで即再生できる）。
     // ユーザーが「聴く」を押したときには既にMP3が手元にある状態を目指す。
     // ファーストペイント直後（500ms後）に起動して積極的にプリロード。

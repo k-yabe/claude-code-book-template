@@ -96,6 +96,19 @@
       transition: background 0.2s ease, color 0.2s ease;
     }
     .ap-stop:hover { background: var(--white); }
+    /* ±10秒スキップボタン */
+    .ap-skip {
+      height: 40px; flex-shrink: 0;
+      padding: 0 10px;
+      background: transparent; color: var(--gold);
+      border: none; cursor: pointer;
+      font-size: 0.68rem; font-weight: 800;
+      font-family: var(--font-sans);
+      letter-spacing: 0.04em;
+      transition: color 0.15s ease, transform 0.15s ease;
+    }
+    .ap-skip:hover { color: var(--white); transform: scale(1.08); }
+    .ap-skip:active { transform: scale(0.95); }
     .ap-info { flex: 1; min-width: 0; }
     .ap-title {
       font-size: 0.78rem; font-weight: 800;
@@ -404,6 +417,11 @@
     }
     button.hero-stat:hover { opacity: 0.85; transform: translateY(-1px); }
     .hero-stat-fav[hidden] { display: none; }
+    .hero-stat-fresh[hidden] { display: none; }
+    .hero-stat-fresh .fresh-dot {
+      width: 8px; height: 8px;
+      margin: 0; vertical-align: baseline;
+    }
     .hero-stat-week[hidden] { display: none; }
     /* 7日分のミニバー（色付き図形に枠線なし・長方形に border-radius なし） */
     .week-bars {
@@ -1181,6 +1199,13 @@
       font-size: 0.62rem; font-weight: 700;
       color: var(--text-muted); letter-spacing: 0.02em;
     }
+    /* クリックでその媒体の記事に絞り込むボタン */
+    button.meta-source-btn {
+      background: transparent; border: none; padding: 0;
+      font-family: var(--font-sans); cursor: pointer;
+      transition: color 0.15s ease;
+    }
+    button.meta-source-btn:hover { color: var(--navy); text-decoration: underline; }
     .meta-time {
       font-size: 0.62rem; color: var(--text-faint); font-weight: 600;
     }
@@ -1988,6 +2013,10 @@
           <span class="hero-stat-num accent">★ <span id="stat-fav-count">0</span></span>
           <span class="hero-stat-label">お気に入り</span>
         </button>
+        <div class="hero-stat hero-stat-fresh" id="hero-stat-fresh" hidden title="直近3時間以内に配信された記事数">
+          <span class="hero-stat-num accent"><span class="fresh-dot" aria-hidden="true">●</span> <span id="stat-fresh-count">0</span></span>
+          <span class="hero-stat-label">新着</span>
+        </div>
         <div class="hero-stat hero-stat-week" id="hero-stat-week" hidden title="直近7日間の読了数">
           <span class="hero-stat-num" id="stat-week-total">0</span>
           <span class="hero-stat-label">週間読了</span>
@@ -2150,6 +2179,8 @@
   <!-- 音声再生ミニプレイヤー（再生中のみ表示） -->
   <div class="audio-player" id="audio-player" hidden aria-live="polite">
     <button class="ap-stop" id="ap-stop" aria-label="停止">⏸</button>
+    <button class="ap-skip" id="ap-skip-back" aria-label="10秒戻す" title="10秒戻す">« 10</button>
+    <button class="ap-skip" id="ap-skip-fwd" aria-label="10秒進める" title="10秒進める">10 »</button>
     <div class="ap-info">
       <div class="ap-title"><span class="ap-wave" aria-hidden="true">●</span> AI音声ダイジェスト再生中</div>
       <div class="ap-meta"><span id="ap-elapsed">0:00</span> <span class="ap-sep">/</span> <span id="ap-total">0:00</span> <span class="ap-sep">·</span> 残り <span id="ap-remain">0:00</span></div>
@@ -2173,6 +2204,7 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
+        { date: '04/18', text: '使い勝手拡張：ヒーローに「● N 新着」（3時間以内）stat、音声ダイジェストに ±10秒スキップボタン、ソース名クリックで媒体絞り込み（MarkeZine をクリックすれば MarkeZine の記事のみ表示）' },
         { date: '04/18', text: 'PWA + SEO + 共有拡張：OGP/Twitter Card/meta description で社内シェア時に正しいプレビュー。Service Worker でオフライン閲覧＆再訪高速化。全 FYI カードに共有ボタン追加。印刷用 stylesheet（ニュースレター印刷/PDF保存）。Playwright 18/18 pass' },
         { date: '04/18', text: '実機スクショ検証 → fallback改善：画像なしの主要ニュースカードをコンパクト banner に、FYI 画像失敗時にソース名を gold で overlay、モバイル 3行サマリーを詰めて読みやすく' },
         { date: '04/18', text: '音声ダイジェストを完全事前生成：毎朝 GitHub Actions が Claude Haiku で台本 → OpenAI TTS (voice=nova) で MP3 を生成してリポにコミット。クリック即再生（待ち時間ゼロ）' }
