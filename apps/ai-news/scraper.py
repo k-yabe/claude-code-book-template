@@ -99,6 +99,28 @@ SOURCES: list[dict[str, object]] = [
     {"name": "PR TIMES (レバテック)",     "url": "https://prtimes.jp/main/rdf/freeword/レバテック/0/1",         "category": "market",    "tier": "media", "max": 2},
     {"name": "PR TIMES (パソナ)",         "url": "https://prtimes.jp/main/rdf/freeword/パソナ/0/1",            "category": "market",    "tier": "media", "max": 2},
     {"name": "PR TIMES (アデコ)",         "url": "https://prtimes.jp/main/rdf/freeword/アデコ/0/1",            "category": "market",    "tier": "media", "max": 2},
+    # ── Google News 競合別検索（IR・決算・業績・新サービス・業務提携を幅広く拾う） ──
+    # PR TIMES だけでは「自社プレスのみ」なので、第三者報道（決算記事・業界分析・M&A報道等）も
+    # Google News RSS で補完。AI/IT 業界キーワードを add すると検索精度が上がる。
+    # URL パターン: https://news.google.com/rss/search?q=<query>&hl=ja&gl=JP&ceid=JP:ja
+    {"name": "Google News (NTTデータ)",   "url": "https://news.google.com/rss/search?q=NTTデータ+(AI+OR+決算+OR+業績+OR+M%26A+OR+新サービス)&hl=ja&gl=JP&ceid=JP:ja", "category": "market", "tier": "media", "max": 3},
+    {"name": "Google News (富士通)",      "url": "https://news.google.com/rss/search?q=富士通+(AI+OR+決算+OR+業績+OR+M%26A+OR+新サービス)&hl=ja&gl=JP&ceid=JP:ja",     "category": "market", "tier": "media", "max": 3},
+    {"name": "Google News (日立)",        "url": "https://news.google.com/rss/search?q=日立製作所+(AI+OR+決算+OR+業績+OR+デジタル)&hl=ja&gl=JP&ceid=JP:ja",            "category": "market", "tier": "media", "max": 3},
+    {"name": "Google News (NEC)",        "url": "https://news.google.com/rss/search?q=NEC+(AI+OR+決算+OR+業績+OR+セキュリティ+OR+DX)&hl=ja&gl=JP&ceid=JP:ja",          "category": "market", "tier": "media", "max": 3},
+    {"name": "Google News (NRI)",        "url": "https://news.google.com/rss/search?q=野村総合研究所+(AI+OR+決算+OR+業績+OR+コンサル)&hl=ja&gl=JP&ceid=JP:ja",          "category": "market", "tier": "media", "max": 3},
+    {"name": "Google News (アクセンチュア)","url": "https://news.google.com/rss/search?q=アクセンチュア+(AI+OR+決算+OR+業績+OR+業務提携)&hl=ja&gl=JP&ceid=JP:ja",          "category": "market", "tier": "media", "max": 3},
+    {"name": "Google News (デロイト)",    "url": "https://news.google.com/rss/search?q=デロイト+トーマツ+(AI+OR+決算+OR+業績+OR+調査)&hl=ja&gl=JP&ceid=JP:ja",            "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (テクノプロ)",   "url": "https://news.google.com/rss/search?q=テクノプロ+(AI+OR+決算+OR+業績+OR+エンジニア)&hl=ja&gl=JP&ceid=JP:ja",           "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (メイテック)",   "url": "https://news.google.com/rss/search?q=メイテック+(AI+OR+決算+OR+業績+OR+技術者)&hl=ja&gl=JP&ceid=JP:ja",               "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (SHIFT)",      "url": "https://news.google.com/rss/search?q=株式会社SHIFT+(AI+OR+決算+OR+業績+OR+品質保証)&hl=ja&gl=JP&ceid=JP:ja",            "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (パーソル)",    "url": "https://news.google.com/rss/search?q=パーソル+(AI+OR+決算+OR+業績+OR+人材+OR+転職)&hl=ja&gl=JP&ceid=JP:ja",             "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (リクルート)",  "url": "https://news.google.com/rss/search?q=リクルート+ホールディングス+(AI+OR+決算+OR+業績+OR+新サービス)&hl=ja&gl=JP&ceid=JP:ja", "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (ビズリーチ)",  "url": "https://news.google.com/rss/search?q=ビズリーチ+(AI+OR+決算+OR+業績+OR+新サービス)&hl=ja&gl=JP&ceid=JP:ja",             "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (レバテック)",  "url": "https://news.google.com/rss/search?q=レバテック+(AI+OR+決算+OR+業績+OR+エンジニア)&hl=ja&gl=JP&ceid=JP:ja",              "category": "market", "tier": "media", "max": 2},
+    # ── 業界全体のマクロ動向（IR/業績マーケット） ──
+    {"name": "Google News (SIer業界)",    "url": "https://news.google.com/rss/search?q=SIer+業界+(AI+OR+M%26A+OR+業務提携)&hl=ja&gl=JP&ceid=JP:ja",                   "category": "market", "tier": "media", "max": 3},
+    {"name": "Google News (エンジニア派遣)","url": "https://news.google.com/rss/search?q=エンジニア派遣+OR+技術者派遣+(業界+OR+市場+OR+トレンド)&hl=ja&gl=JP&ceid=JP:ja",   "category": "market", "tier": "media", "max": 3},
+    {"name": "Google News (IT人材市場)",  "url": "https://news.google.com/rss/search?q=IT人材+(不足+OR+採用市場+OR+リスキリング)&hl=ja&gl=JP&ceid=JP:ja",                "category": "market", "tier": "media", "max": 3},
 ]
 
 # 取得上限・要約上限
