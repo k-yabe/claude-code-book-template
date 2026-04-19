@@ -1138,14 +1138,67 @@
     requestAnimationFrame(step);
   }
 
-  /** 時刻依存の hero eyebrow。B2B プロフェッショナル向けに絵文字を減らし、
-   *  「何のダッシュボードか」を常に明示する（シェア時に文脈が伝わるよう）。 */
+  /** 時刻＋曜日に応じた substantive greeting。
+   *  「今日読むべき理由」を一言添えることで、毎日開く動機を作る。
+   *  例: 月曜朝 → 「今週のスタートに押さえておきたい AI×マーケ動向」
+   *      金曜夕方 → 「週末入り前に。今週の重要トピック総括」 */
   function timeAwareGreeting() {
-    const h = new Date().getHours();
-    if (h >= 4 && h < 11) return '今朝のマーケティング・インテリジェンス';
-    if (h >= 11 && h < 17) return '本日のマーケティング・インテリジェンス';
-    if (h >= 17 && h < 22) return '本日のサマリー — マーケティング・インテリジェンス';
+    const now = new Date();
+    const h = now.getHours();
+    const dow = now.getDay(); // 0=Sun, 1=Mon, ... 6=Sat
+    const isMorning = h >= 4 && h < 11;
+    const isMidday  = h >= 11 && h < 17;
+    const isEvening = h >= 17 && h < 22;
+    // 曜日アクセント
+    if (dow === 1 && isMorning) return '今週のスタートに押さえておきたい AI×マーケ動向';
+    if (dow === 5 && isEvening) return '週末入り前に。今週の重要トピックを総括';
+    if ((dow === 0 || dow === 6) && isMorning) return '週末の朝に。今週の AI×マーケ振り返り';
+    if (dow === 5 && isMidday) return '金曜の昼休みに。今週末までの動向まとめ';
+    // 時間帯ベース（汎用）
+    if (isMorning) return '今朝の AI×マーケ・インテリジェンス・ブリーフ';
+    if (isMidday)  return '本日のキュレーション。スキマ時間で 5 分';
+    if (isEvening) return '夕方のまとめ。明日の意思決定に';
     return '本日のサマリー — 翌朝 8:00 JST 更新';
+  }
+
+  /** 直近 N 日のアーカイブを読み込み「ユニーク媒体数」と「直近頻出タグ」を集計。
+   *  「N 媒体・XX記事から精選」「今週のトピック: ...」のような信頼シグナルに使う。
+   *  失敗・無いものは黙ってスキップ。 */
+  let _heroAggCache = null;
+  async function aggregateHeroSignals() {
+    if (_heroAggCache) return _heroAggCache;
+    const sources = new Set();
+    const tagCount = new Map();
+    NEWS_DATA.forEach(n => {
+      if (n.source) sources.add(n.source);
+      (n.tags || []).forEach(t => tagCount.set(t, (tagCount.get(t) || 0) + 1));
+    });
+    // 直近 7 日のアーカイブも軽く参照してタグ集計を安定化
+    const today = new Date();
+    const promises = [];
+    for (let i = 1; i <= 6; i++) {
+      const d = new Date(today.getTime() - i * 86400000);
+      const ds = d.toLocaleDateString('sv-SE');
+      promises.push(
+        fetch(`./data/archives/${ds}.json`, { cache: 'no-cache' })
+          .then(r => r.ok ? r.json() : null)
+          .catch(() => null)
+      );
+    }
+    const archives = await Promise.all(promises);
+    archives.forEach(a => {
+      if (!a || !a.items) return;
+      a.items.forEach(n => {
+        if (n.source) sources.add(n.source);
+        (n.tags || []).forEach(t => tagCount.set(t, (tagCount.get(t) || 0) + 1));
+      });
+    });
+    const topTags = [...tagCount.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([t]) => t);
+    _heroAggCache = { sourceCount: sources.size, topTags };
+    return _heroAggCache;
   }
 
   function renderHero() {
@@ -1159,6 +1212,34 @@
     animateCount(document.getElementById('stat-read'), read, '分');
     const bd = document.getElementById('stat-breakdown');
     if (bd) bd.innerHTML = `<b>${mustCount}</b>主要 · <b>${weekCount}</b>注目 · <b>${fyiCount}</b>その他`;
+    // ── ソース多様性バッジ + 今週のトピック chips（毎日違う見え方を作る信頼シグナル） ──
+    aggregateHeroSignals().then(({ sourceCount, topTags }) => {
+      const diversity = document.getElementById('hero-diversity');
+      if (diversity) {
+        if (sourceCount > 0) {
+          diversity.style.display = '';
+          diversity.innerHTML = `📡 <b>${sourceCount}</b> 媒体・<b>${total}</b> 記事から精選（直近 7 日）`;
+        }
+      }
+      const trend = document.getElementById('hero-trend-chips');
+      if (trend && topTags.length) {
+        trend.style.display = '';
+        trend.innerHTML = '<span class="trend-label">今週のトピック</span>' +
+          topTags.map(t => `<button class="trend-chip" type="button" data-tag-filter="${escapeHtml(t)}" title="#${escapeHtml(t)} で絞り込み">#${escapeHtml(t)}</button>`).join('');
+        // クリックで検索欄に投入して絞り込み
+        trend.querySelectorAll('.trend-chip').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const tag = btn.dataset.tagFilter;
+            const search = document.getElementById('search-input');
+            if (search) {
+              search.value = '#' + tag;
+              search.dispatchEvent(new Event('input', { bubbles: true }));
+              search.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          });
+        });
+      }
+    });
     // スタックバーの各セグメントに flex 比を割り当てて可視化
     const hsbMust = document.getElementById('hsb-must');
     const hsbWeek = document.getElementById('hsb-week');
