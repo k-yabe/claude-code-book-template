@@ -19,7 +19,8 @@ concurrency:
 
 jobs:
   auto-merge:
-    # auto-merge は [skip ci] 判定しない
+    # scraper の [skip ci] commit も main に取り込みたいので skip 判定しない
+    # （auto-merge 自体は別 workflow なので無限ループにならない）
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
