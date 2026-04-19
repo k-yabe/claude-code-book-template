@@ -455,6 +455,26 @@
   const STORE_KEY_READ   = 'ai-news:read:v1';
   const STORE_KEY_STREAK = 'ai-news:streak:v1';
   const STORE_KEY_NIGHT  = 'ai-news:night:v1';
+  const STORE_KEY_LAST_VISIT = 'ai-news:lastVisit:v1';
+
+  /** 前回訪問のタイムスタンプ（unix ms）を取得して、今回の訪問時刻で上書き。
+   *  「前回以降に追加された記事」をハイライトするために使う。 */
+  function getAndUpdateLastVisit() {
+    let prev = 0;
+    try {
+      const raw = localStorage.getItem(STORE_KEY_LAST_VISIT);
+      prev = Number(raw) || 0;
+    } catch {}
+    try { localStorage.setItem(STORE_KEY_LAST_VISIT, String(Date.now())); } catch {}
+    return prev;
+  }
+  // 初回レンダー時に一度だけキャプチャして以降のチェックに使う（同一セッション内で値が変わらない）
+  const LAST_VISIT_AT = getAndUpdateLastVisit();
+  function isNewSinceLastVisit(n) {
+    if (!LAST_VISIT_AT) return false; // 初回訪問は全件 NEW にしない（チラつき防止）
+    const t = new Date(n.publishedAt || 0).getTime();
+    return t > LAST_VISIT_AT;
+  }
 
   function applyNightMode() {
     const on = localStorage.getItem(STORE_KEY_NIGHT) === '1';
@@ -1528,7 +1548,7 @@
             <div class="brief-card-head">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               ${matchesTool(n) ? '<span class="meta-tool-badge" title="ツール活用Tips">🛠</span>' : ''}
-              ${sourceTypeBadge(n)}<button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>
+              ${sourceTypeBadge(n)}<button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
               ${(() => { const c = getStoryCluster(n.id); return c ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体報道</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
@@ -1650,7 +1670,7 @@
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
               ${matchesTool(n) ? '<span class="meta-tool-badge" title="ツール活用Tips">🛠</span>' : ''}
-              ${sourceTypeBadge(n)}<button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>
+              ${sourceTypeBadge(n)}<button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
               ${(() => { const c = getStoryCluster(n.id); return c ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
@@ -2816,6 +2836,7 @@
               ${sourceTypeBadge(n)}<span class="meta-source">${escapeHtml(n.source)}</span>
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
+              ${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
             </div>
             <div class="fyi-title">${escapeHtml(n.title)}</div>
             ${(() => { const w = meaningfulWhyItMatters(n); if (w) return `<div class="fyi-why">${escapeHtml(w)}</div>`; if (n.summary) return `<div class="fyi-why">${escapeHtml(n.summary)}</div>`; return ''; })()}
