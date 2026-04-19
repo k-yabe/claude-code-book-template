@@ -1047,6 +1047,20 @@
       margin: 0 var(--sp-5);
       box-shadow: 0 1px 3px rgba(0,31,51,0.06);
     }
+    /* 「もっと見る」ボタン: 初期は 10件、クリックで全件展開 */
+    .more-expand-btn[hidden] { display: none; }
+    .more-expand-btn {
+      display: block; width: calc(100% - var(--sp-5) * 2);
+      margin: var(--sp-3) var(--sp-5) 0;
+      padding: var(--sp-4);
+      background: var(--white); border: none; cursor: pointer;
+      font-family: var(--font-sans);
+      font-size: 0.78rem; font-weight: 800;
+      color: var(--navy); letter-spacing: 0.06em;
+      box-shadow: 0 1px 3px rgba(0,31,51,0.06);
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .more-expand-btn:hover { background: var(--navy); color: var(--gold); }
     /* PC では「その他のニュース」も2列に（縦スクロールを減らして一覧性UP） */
     @media (min-width: 1024px) {
       .more-list {
@@ -2112,6 +2126,7 @@
       </div>
     </div>
     <div class="more-list" id="more-list" aria-live="polite"></div>
+    <button class="more-expand-btn" id="more-expand-btn" hidden type="button">▼ もっと見る</button>
 
     <!-- 𝕏 HIGHLIGHTS -->
     <div class="sec-head" id="sec-x">
@@ -2204,6 +2219,7 @@
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' }
       ],
       updates: [
+        { date: '04/18', text: '「その他のニュース」を初期10件 + 「▼ もっと見る」で展開する形式に（縦に長すぎ問題を解消）。検索や絞り込み中は全件表示' },
         { date: '04/18', text: '使い勝手拡張：ヒーローに「● N 新着」（3時間以内）stat、音声ダイジェストに ±10秒スキップボタン、ソース名クリックで媒体絞り込み（MarkeZine をクリックすれば MarkeZine の記事のみ表示）' },
         { date: '04/18', text: 'PWA + SEO + 共有拡張：OGP/Twitter Card/meta description で社内シェア時に正しいプレビュー。Service Worker でオフライン閲覧＆再訪高速化。全 FYI カードに共有ボタン追加。印刷用 stylesheet（ニュースレター印刷/PDF保存）。Playwright 18/18 pass' },
         { date: '04/18', text: '実機スクショ検証 → fallback改善：画像なしの主要ニュースカードをコンパクト banner に、FYI 画像失敗時にソース名を gold で overlay、モバイル 3行サマリーを詰めて読みやすく' },

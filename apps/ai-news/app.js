@@ -1300,6 +1300,9 @@
     });
   }
 
+  /** 「その他のニュース」初期表示件数（クリックで全件展開） */
+  const MORE_INITIAL_COUNT = 10;
+  let _moreExpanded = false;
   function renderMore(allMore) {
     const root = document.getElementById('more-list');
     const kw = state.keyword.trim().toLowerCase().replace(/^#+/, '');
@@ -1316,11 +1319,17 @@
       return true;
     });
     // パーソナライズ: カテゴリフィルタがallの場合、閲覧傾向で並び替え
-    const sorted = state.activeCat === 'all' ? getPersonalizedOrder(items) : items;
-    if (!sorted.length) {
+    const sortedAll = state.activeCat === 'all' ? getPersonalizedOrder(items) : items;
+    if (!sortedAll.length) {
       root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">📭</div><div class="empty-text">条件に一致するニュースがありません</div></div>';
+      const mb = document.getElementById('more-expand-btn');
+      if (mb) mb.setAttribute('hidden', '');
       return;
     }
+    // フィルタ/検索が効いている時は全件表示（検索結果を隠さない）。それ以外は MORE_INITIAL_COUNT まで。
+    const filterActive = kw || state.favOnly || state.unreadOnly || state.activeCat !== 'all';
+    const showAll = filterActive || _moreExpanded;
+    const sorted = showAll ? sortedAll : sortedAll.slice(0, MORE_INITIAL_COUNT);
     root.innerHTML = sorted.map(n => {
       const isRead = state.read.has(n.id);
       const isFav = state.fav.has(n.id);
@@ -1414,6 +1423,18 @@
         }
       });
     });
+    // 「もっと見る」ボタンの表示切り替え
+    const expandBtn = document.getElementById('more-expand-btn');
+    if (expandBtn) {
+      const filterActive = kw || state.favOnly || state.unreadOnly || state.activeCat !== 'all';
+      const hiddenCount = sortedAll.length - sorted.length;
+      if (!filterActive && !_moreExpanded && hiddenCount > 0) {
+        expandBtn.removeAttribute('hidden');
+        expandBtn.textContent = `▼ もっと見る（残り ${hiddenCount} 件）`;
+      } else {
+        expandBtn.setAttribute('hidden', '');
+      }
+    }
   }
 
   function renderX() {
@@ -1464,6 +1485,15 @@
   function wireUp(more) {
     const search = document.getElementById('search');
     const clearBtn = document.getElementById('search-clear');
+    // 「もっと見る」ボタン
+    const expandBtn = document.getElementById('more-expand-btn');
+    if (expandBtn && !expandBtn.dataset.wired) {
+      expandBtn.dataset.wired = '1';
+      expandBtn.addEventListener('click', () => {
+        _moreExpanded = true;
+        renderMore(_moreRef);
+      });
+    }
     let t;
     function updateClearBtn() {
       if (clearBtn) clearBtn.hidden = !search.value;
