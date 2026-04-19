@@ -201,13 +201,13 @@
       id: 'mv',
       sizes: [
         { id: 'banner', label: 'バナー（MV）', w: 1920, h: 1080, dlName: 'img-mv', maxBytes: 1 * 1024 * 1024, color: '#ffb81c', crop: true },
-        { id: 'ogp',    label: 'OGP',         w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 500 * 1024, crop: true, color: '#1C304B' },
+        { id: 'ogp',    label: 'OGP',         w: 1200, h: 630, forcePng: true, aiUpscale: true, dlName: 'img-ogp', maxBytes: 500 * 1024, crop: true, color: '#001f33' },
       ],
     },
     {
       id: 'thumb',
       sizes: [
-        { id: 'index', label: '一覧サムネイル（index）', w: 1920, h: 1080, dlName: 'img-index', maxBytes: 1 * 1024 * 1024, color: '#636e72', crop: true, thumbTrim: { top: 24, bottom: 24, left: 100, right: 100 } },
+        { id: 'index', label: '一覧サムネイル（index）', w: 1920, h: 1080, dlName: 'img-index', maxBytes: 1 * 1024 * 1024, color: '#001f33', crop: true, thumbTrim: { top: 24, bottom: 24, left: 100, right: 100 } },
       ],
     },
   ];
@@ -645,7 +645,7 @@
     ctx.fillRect(0, sz.top, sz.left, h - sz.top - sz.bottom);
     ctx.fillRect(w - sz.right, sz.top, sz.right, h - sz.top - sz.bottom);
     ctx.setLineDash([8, 5]);
-    ctx.strokeStyle = '#00e676';
+    ctx.strokeStyle = '#ffb81c';
     ctx.lineWidth = 2;
     ctx.strokeRect(sz.left, sz.top, w - sz.left - sz.right, h - sz.top - sz.bottom);
     ctx.setLineDash([]);

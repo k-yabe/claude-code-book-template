@@ -6462,7 +6462,7 @@ async function executePublishLP() {
       if (urlDiv) {
         urlDiv.style.display = 'block';
         const safeUrl = /^https?:\/\//.test(data.url) ? escHtml(data.url) : '#';
-        urlDiv.innerHTML = `✅ 公開完了！<br><a href="${safeUrl}" target="_blank" style="color:#166534;font-weight:600">${safeUrl}</a>`;
+        urlDiv.innerHTML = `✅ 公開完了！<br><a href="${safeUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--navy);font-weight:700">${safeUrl}</a>`;
       }
       showToast('LP公開完了！');
     } else {

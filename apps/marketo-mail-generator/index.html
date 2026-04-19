@@ -406,7 +406,7 @@
         const params = buildParams(`${currentCampaign}${num}`);
         const fullUrl = appendParams(item.editedUrl, params);
         const displayUrl = stripParams(item.editedUrl);
-        return `<a href="${fullUrl}" target="_blank">${displayUrl}</a>`;
+        return `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer">${displayUrl}</a>`;
       });
       const htmlResult = linkedHtml.replace(/\n/g, '<br>\n');
 
