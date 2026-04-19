@@ -621,12 +621,15 @@ _LAST_ANTHROPIC_ERROR: str | None = None
 
 def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
     """Claude Haikuで一括要約。成功時は (items, executiveSummary) を返す。失敗時 None"""
+    global _LAST_ANTHROPIC_ERROR
     try:
         import anthropic  # type: ignore
-    except ImportError:
-        log("anthropic SDK not available, skipping AI summary")
+    except ImportError as e:
+        _LAST_ANTHROPIC_ERROR = f"ImportError: {e}"
+        log(f"anthropic SDK not available: {e}")
         return None
     if not ANTHROPIC_API_KEY:
+        _LAST_ANTHROPIC_ERROR = "ANTHROPIC_API_KEY missing"
         log("ANTHROPIC_API_KEY missing, skipping AI summary")
         return None
 
