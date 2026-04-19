@@ -402,6 +402,20 @@
     const hay = (n.title || '') + ' ' + (n.summary || '');
     return CONSUMER_NOISE_WORDS.some(w => hay.includes(w));
   }
+  /** 業界動向（AKKODiS の事業領域）を示すキーワード。特定の競合企業名が出てこなくても、
+   *  SIer / IT人材 / エンジニア派遣 / 採用市場 等の「業界マクロ動向」記事をここで拾う。
+   *  競合企業名での直接マッチが 0 件でもフォールバックとして業界動向を表示できるようにする。 */
+  const INDUSTRY_KEYWORDS = [
+    'SIer', 'ITサービス', 'システムインテグレ', 'IT受託',
+    'エンジニア派遣', '技術者派遣', 'エンジニアリング派遣', 'SES',
+    'IT人材', 'AI人材', 'デジタル人材', 'エンジニア採用', 'エンジニア不足', '人材不足',
+    '採用市場', '転職市場', '人材紹介', '求人市場',
+    'DX人材', 'リスキリング', '学び直し',
+  ];
+  function matchesIndustry(n) {
+    const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '');
+    return INDUSTRY_KEYWORDS.some(k => hay.includes(k));
+  }
   function matchesCompetitor(n) {
     const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '');
     if (COMPETITOR_NOISE.some(w => hay.includes(w))) return false;
@@ -1029,8 +1043,11 @@
     }
     if (!mustKnow.length && sorted.length > 0) mustKnow = sorted.slice(0, 1);
     const usedIds1 = new Set(mustKnow.map(n => n.id));
-    // 注目ニュース: バズ閾値は外す（this_week は人気度問わず拾う）。最大6件。
-    // 主要ニュースと同じ話題の記事もここでは除外して重複表示を防ぐ。
+    // 注目ニュース:
+    //  ①LLM が urgency=this_week と判定した記事を拾う（メディア/UGC 問わず、LLM の判定を尊重）
+    //  ②件数不足なら fyi から「非UGCメディア かつ 人気度シグナルあり」の記事のみ昇格
+    //     （UGC 個人ブログ・低人気 fyi 記事を無理に載せると「注目されてないニュース」と化するため）
+    //  主要ニュースと同じ話題の記事もここでは除外して重複表示を防ぐ。
     const THIS_WEEK_MAX = 6;
     const dedupAgainst = (candidate, existing) => existing.some(p => sameStory(p.title, candidate.title));
     let thisWeek = [];
@@ -1045,6 +1062,10 @@
       for (const n of sorted) {
         if (thisWeek.length >= THIS_WEEK_MAX) break;
         if (usedIds1.has(n.id) || existing.has(n.id)) continue;
+        if (isUgc(n)) continue; // UGC 個人ブログは昇格させない（注目ニュース品質を保つ）
+        const hatena = Number(n.hatenaCount) || 0;
+        const fresh = ageHours(n) < 12; // 12h 以内の超新着は人気度が低くても拾う
+        if (hatena < 1 && !fresh && !matchesTool(n)) continue;
         if (dedupAgainst(n, mustKnow)) continue;
         if (dedupAgainst(n, thisWeek)) continue;
         thisWeek.push(n);
@@ -1186,33 +1207,18 @@
       return n.title;
     });
   }
-  /** 3行サマリーの各行を短く整える（LLM出力が冗長なときの保険）。
-   *  - まず句点で1文に分割して先頭文だけ残す
-   *  - それでも長ければ、自然な境界（、／──／等）で切り詰めて「…」
-   *  - 最終手段として文字数で hard-cut（単語途中で切れにくい位置を優先） */
+  /** 3行サマリーの各行を整える。
+   *  方針: 日本語の 1 文（「。」「！」「？」で終わる）なら **文字数に関わらず全文を表示する**。
+   *  読点「、」で切り詰めると連用形（〜し、〜で、等）で終わって「文章途中で切れてる」と
+   *  見えるため、中途半端な truncation はしない。長さ制御は CSS（折り返し）に任せる。
+   *  複数文に分かれている場合だけ、最初の 1 文に絞る（冗長な補足を避けるため）。 */
   function tightenSummaryLine(s) {
     const raw = String(s || '').trim();
     if (!raw) return '';
-    // 句点で最初の 1 文を取り出す（末尾の「。」は保持）
-    const firstSentence = (raw.split(/(?<=[。！？])/)[0] || raw).trim();
-    const SOFT = 80;   // 80字以内ならそのまま表示（読点を含む自然な1文）
-    const HARD = 110;  // 上限。これを超えたら必ず切り詰める
-    if (firstSentence.length <= SOFT) return firstSentence;
-    // SOFT 超 HARD 以下: 自然な境界（読点/ダッシュ）で切り詰められるなら優先
-    if (firstSentence.length <= HARD) {
-      const cutAt = Math.max(
-        firstSentence.lastIndexOf('、', SOFT),
-        firstSentence.lastIndexOf('──', SOFT),
-        firstSentence.lastIndexOf('──', SOFT),
-        firstSentence.lastIndexOf('——', SOFT),
-      );
-      if (cutAt >= 40) return firstSentence.slice(0, cutAt) + '…';
-      return firstSentence; // 境界が見つからなければフル1文を出す
-    }
-    // HARD 超: 境界優先で切る
-    const cutAt = firstSentence.lastIndexOf('、', HARD - 1);
-    if (cutAt >= 60) return firstSentence.slice(0, cutAt) + '…';
-    return firstSentence.slice(0, HARD - 1) + '…';
+    // 「。」「！」「？」で切り出した先頭文を返す（末尾の句点は保持）。
+    // 句点がなければそのまま全文を返す（無闇に …で切らない）。
+    const sentences = raw.split(/(?<=[。！？])/).map(s => s.trim()).filter(Boolean);
+    return sentences[0] || raw;
   }
   function renderExecSummary() {
     const root = document.getElementById('exec-summary');
@@ -2599,26 +2605,29 @@
     setCountTarget('count-competitor', competitorCount);
   }
 
-  /** 🏢 競合動向セクションを描画。0件でもセクション自体は見せて
-   *  「本日該当する競合動向なし」の空状態メッセージを出す（「消えた」誤解防止）。
+  /** 🏢 競合動向セクションを描画。
+   *  - 第1優先: matchesCompetitor() — AKKODiS 主要競合 50+社への直接言及
+   *  - 第2優先（フォールバック）: matchesIndustry() — SIer / IT人材 / エンジニア派遣 等の業界動向
+   *  - 両方 0件なら、「業界動向」扱いで最新の market カテゴリ記事を出す
+   *  - それでも 0件なら空状態メッセージ（「消えた」誤解防止）
    *  件数を返す。 */
   function renderCompetitor() {
     const list = document.getElementById('competitor-list');
     const head = document.getElementById('sec-competitor');
     if (!list || !head) return 0;
-    // NEWS_DATA から matchesCompetitor() に該当するものを収集、重複除く、新しい順
     // 消費者向け商品記事はここでも除外（partition と同じポリシー）
-    const items = NEWS_DATA
-      .filter(n => !isConsumerNoise(n) && matchesCompetitor(n))
-      .slice()
-      .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+    const base = NEWS_DATA.filter(n => !isConsumerNoise(n));
+    const byRecent = (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt);
+    let items = base.filter(matchesCompetitor).slice().sort(byRecent);
+    if (!items.length) items = base.filter(matchesIndustry).slice().sort(byRecent);
+    if (!items.length) items = base.filter(n => n.category === 'market').slice().sort(byRecent).slice(0, 3);
     // 元記事リンクがない記事は表示しない（ニュースアプリとしてリンク必須）
     const withUrl = items.filter(n => n.url && /^https?:\/\//.test(n.url));
     if (!withUrl.length) {
       // セクションを消すのではなく、空状態メッセージを見せる
       list.removeAttribute('hidden');
       head.style.display = '';
-      list.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">🏢</div><div class="empty-text">本日は該当する競合動向のニュースはありません。<br>明朝 8:00 JST の定期更新までお待ちください。</div></div>';
+      list.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">🏢</div><div class="empty-text">本日は該当する競合・業界動向のニュースはありません。<br>AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT/パーソル等）を<br>毎朝 8:00 JST に監視中。明朝の更新をお待ちください。</div></div>';
       return 0;
     }
     list.removeAttribute('hidden');
