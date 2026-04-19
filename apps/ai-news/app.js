@@ -933,9 +933,13 @@
     return hatena + tool + fresh;
   }
   /** データセット全体に有意なブクマ数があるか（= scraper が人気度を取得済みか）。
-   *  全記事 hatena=0 なら scraper 未実行の可能性があるのでフィルタは無効化（可用性を担保）。 */
+   *  30% 以上の記事に hatena>0 が設定されていればフィルタ有効、
+   *  それ未満ならデータ信頼性が低いとみなしフィルタ無効化。
+   *  （少数の競合サンプル等が混ざってもメインの一覧が空にならないようにする） */
   function hasBuzzData() {
-    return NEWS_DATA.some(n => (Number(n.hatenaCount) || 0) > 0);
+    if (!NEWS_DATA.length) return false;
+    const withBuzz = NEWS_DATA.filter(n => (Number(n.hatenaCount) || 0) > 0).length;
+    return (withBuzz / NEWS_DATA.length) >= 0.3;
   }
 
   function partition() {
