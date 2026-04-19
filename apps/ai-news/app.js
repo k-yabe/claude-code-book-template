@@ -1441,8 +1441,15 @@
     const section = document.querySelector('.x-section');
     const sectionHead = section ? section.previousElementSibling : null; // sec-head
     const root = document.getElementById('x-grid');
-    // 実ツイートURL がある投稿のみ表示（URL 無し = 本物のポストとして扱えない）
-    const validItems = X_HIGHLIGHTS.filter(x => x && x.url && /^https?:\/\//.test(x.url));
+    // 実ツイートURL があり、かつ「バズっている」ものだけ表示。
+    // バズ閾値: likes + retweets × 3 >= 3000（引用・共有が多い = 実際に話題）。
+    // engagement データが無い / 閾値未満のポストは「トレンド」と呼べないので除外。
+    const X_BUZZ_MIN = 3000;
+    const score = x => (Number(x.likes) || 0) + (Number(x.retweets) || 0) * 3;
+    const validItems = X_HIGHLIGHTS
+      .filter(x => x && x.url && /^https?:\/\//.test(x.url) && score(x) >= X_BUZZ_MIN)
+      .sort((a, b) => score(b) - score(a))
+      .slice(0, 6);
     if (!validItems.length) {
       // Xハイライトが空なら section 自体を非表示（偽情報を出さない）
       if (section) section.style.display = 'none';
