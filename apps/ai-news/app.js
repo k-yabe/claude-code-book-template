@@ -221,15 +221,15 @@
   /* ────────── ② Xハイライト（生成AIトレンド収集） ──────────
      目的: Xで話題の生成AI関連ポストを収集し、マーケ実務に活かせるトレンドを提示する。
      ※ シードに入れるのは実在が確認できた本物のポストのみ（URL をクリックして現物が読める状態）。
-       scraper が X API 等で実ツイートを取得したら news.json の `xHighlights` に入れ、
+       scraper が X API / web_search 等で実ツイートを取得したら news.json の `xHighlights` に入れ、
        loadRemote() 経由で上書きされる。URL 無しのアイテムは renderX() で除外される。
+
+     日次ローテーション: 実 API による fresh データが来るまでの間、シードプール（実在ポスト）から
+     date-seeded shuffle で日次に異なる組み合わせを表示する（毎日同じ並びにならないように）。
   */
-  /** 𝕏 (Twitter) の話題ポスト: シードデータ。
-   *  将来 X API 連携時には scraper が json.xHighlights にバズ投稿を流し込む想定。
-   *  フィルタ（renderX 内）は likes + retweets×3 >= X_BUZZ_MIN の engagement のみで判定し、
-   *  著者の知名度は問わない。一般ユーザーのバズ投稿も同条件で通過する。
-   *  現シードはたまたま著名人中心だが、仕様上は誰でも OK。 */
-  let X_HIGHLIGHTS = [
+  /** 𝕏 (Twitter) シードプール: 実在が確認できた AI 関連バズポスト。
+   *  scraper が実データを流し込んだ場合は loadRemote() で上書きされる。 */
+  const X_HIGHLIGHTS_SEED = [
     {
       id: 'x1',
       author: '深津 貴之 / THE GUILD',
@@ -321,6 +321,22 @@
       likes: 1900, retweets: 320
     }
   ];
+
+  /** 日付シードで決定論的にシャッフルした X_HIGHLIGHTS を返す。
+   *  目的: 実 API による取得が来るまでの間も「毎日違う組み合わせ」が表示されるようにする。
+   *  同じ日に何度開いても同じ並びになるため安定（ただし日付が変わると並びが変わる）。 */
+  function dailyShuffleX(pool) {
+    const today = new Date();
+    let seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    const arr = [...pool];
+    for (let i = arr.length - 1; i > 0; i--) {
+      seed = (seed * 9301 + 49297) % 233280;
+      const j = Math.floor((seed / 233280) * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+  let X_HIGHLIGHTS = dailyShuffleX(X_HIGHLIGHTS_SEED);
 
   /* ────────── ③ メタ ──────────  */
   const CATEGORIES = [
@@ -1073,9 +1089,22 @@
       }
     }
     const usedIds = new Set([...mustKnow.map(n => n.id), ...thisWeek.map(n => n.id)]);
-    // その他のニュース: 残り全件（バズ閾値は適用しない。主要/注目に入らなかった記事は
-    // ここで必ず拾う。「その他ニュース 0件」になる回帰を防ぐため）
-    const fyi = sorted.filter(n => !usedIds.has(n.id));
+    // その他のニュース:
+    //   主要/注目に入らなかった記事のうち「最低限の注目度シグナル」があるものだけ残す。
+    //   - メディア記事: LLM が一定の判断を下しているのでそのまま採択
+    //   - UGC（Qiita/Zenn/note 等の個人ブログ）: hatena>=1 か matchesTool キーワードがある場合のみ採択
+    //     → 注目度ゼロの個人ブログ記事が「その他のニュース」に紛れ込むのを防ぐ。
+    //   ただし全件 drop で 0 件になるのも避けたいので、結果が 0 件なら閾値を緩めて全件採択にフォールバック。
+    const allRest = sorted.filter(n => !usedIds.has(n.id));
+    const hasSignal = (n) => {
+      if (!isUgc(n)) return true; // メディア記事は LLM の判断を尊重
+      const hatena = Number(n.hatenaCount) || 0;
+      if (hatena >= 1) return true;
+      if (matchesTool(n)) return true;
+      return false; // UGC で hatena=0 かつツール記事でもない = 「全く注目されてない」と判定して drop
+    };
+    let fyi = allRest.filter(hasSignal);
+    if (!fyi.length) fyi = allRest; // セーフティ: 1件も残らなければ閾値を捨てて全件
     return { mustKnow, thisWeek, fyi };
   }
 
@@ -1760,7 +1789,8 @@
       if (Array.isArray(json.executiveSummary) && json.executiveSummary.length) {
         EXEC_SUMMARY = json.executiveSummary.map(String);
       }
-      // X Highlights を更新（将来 scraper が収集した場合）
+      // X Highlights を更新（scraper が収集した実データで上書き）
+      // likes/retweets は renderX のバズ閾値判定で必要（無いと弾かれる）
       if (Array.isArray(json.xHighlights) && json.xHighlights.length) {
         X_HIGHLIGHTS = json.xHighlights.map((x, i) => ({
           id: x.id || ('x_' + i),
@@ -1769,7 +1799,9 @@
           avatar: String(x.avatar || ''),
           text: String(x.text || ''),
           tag: String(x.tag || ''),
-          url: String(x.url || '')
+          url: String(x.url || ''),
+          likes: Number(x.likes) || 0,
+          retweets: Number(x.retweets) || 0,
         }));
       }
       dataMeta = { updatedAt: json.updatedAt || null, generatedFor: json.generatedFor || null };
@@ -1893,6 +1925,20 @@
       if (NEWS_DATA.length === 0) throw new Error('no items with valid URL');
       if (Array.isArray(json.executiveSummary) && json.executiveSummary.length) {
         EXEC_SUMMARY = json.executiveSummary.map(String);
+      }
+      // アーカイブ表示時にも当日の X Highlights を反映する
+      if (Array.isArray(json.xHighlights) && json.xHighlights.length) {
+        X_HIGHLIGHTS = json.xHighlights.map((x, i) => ({
+          id: x.id || ('x_' + i),
+          author: String(x.author || ''),
+          handle: String(x.handle || ''),
+          avatar: String(x.avatar || ''),
+          text: String(x.text || ''),
+          tag: String(x.tag || ''),
+          url: String(x.url || ''),
+          likes: Number(x.likes) || 0,
+          retweets: Number(x.retweets) || 0,
+        }));
       }
       dataMeta = { updatedAt: json.updatedAt || null, generatedFor: json.generatedFor || dateStr };
       renderHero();

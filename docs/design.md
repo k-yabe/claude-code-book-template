@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-04-19（AI NEWS さらなる精度改善: サマリー文字数カット撤廃・注目ニュースUGC昇格禁止・競合動向のINDUSTRY_KEYWORDSフォールバック・scraper前日重複URL除外）
+最終更新: 2026-04-19（AI NEWS 競合PR拡充22社・fyi質フィルタ強化・Xトレンド日次更新 (Claude+web_search) ＋シードプール日付シャッフル）
 
 ---
 
@@ -329,3 +329,4 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 | 2026-04-19 | AI NEWS 表示品質修正 | ①競合動向セクションで「富士通 WEB MART」のPCセール記事など「競合ではない文脈」の誤検出を除去：お買い得/キャンセル品/セール品/値下げ/通販/新発売 等のノイズ語を含む記事は isCompetitor=true でも除外（scraper / client 両側で対応）。②「その他のニュース 0件」問題を修正：partition() の fyi にバズ閾値 (passes) を適用していたため、hatena=0 の記事が全滅していた → fyi は残り全件を拾うように変更。③Executive Summary の冗長出力を抑制：scraper プロンプトで「各行60字以内」を強制し、クライアント側 tightenSummaryLine() でも 60 字で末尾「…」カット。 |
 | 2026-04-19 | AI NEWS キュレーション精度強化 | ①消費者向け商品記事（PC通販／値引き／クーポン／アウトレット／新発売／開封レビュー等）を scrape 段階でハード除外（is_consumer_noise）し client 側にも同じ CONSUMER_NOISE_WORDS フィルタを追加 → 全セクションから B2B 無関係記事が消える。②主要ニュース（must-know）の同話題重複を排除：pickTopUnique() で sameStory() 判定し、同じ話題は人気度最高の1件のみ採択。注目ニュース（this-week）でも主要ニュースと同話題は除外。③注目ニュース件数不足を修正：this_week に passes() バズ閾値がかかっていた回帰を解消 → hatena=0 の記事も拾う。④TODAY'S BRIEFING の機械的60字カットを廃止し sentence-aware トリミングへ：80字以内は全文、超過時は「、」「──」等の自然な境界で切る（SOFT 80 / HARD 110）。⑤競合動向 0 件時の renderCompetitor() をセクション非表示ではなく空状態メッセージ表示に変更（「消えた」誤解を防止）。 |
 | 2026-04-19 | AI NEWS さらなる精度改善 | ①3行サマリーの文字数カットを完全撤廃：tightenSummaryLine() を「1文（「。」「！」「？」まで）を必ず全文表示」に変更 — 連用形「〜し、」で切れて「途中で切れてる」誤認を根絶（長さは CSS 折り返しに委ねる）。②注目ニュース品質改善：fyi から this_week への昇格条件を「非UGC & (hatena>=1 or ageHours<12 or matchesTool)」に厳格化 — Qiita/Zenn/note 個人ブログや低人気記事が「注目ニュース」に紛れ込む問題を解消。LLM 直接タグ付けの this_week 記事は UGC も含めて尊重。③競合動向フォールバック導入：INDUSTRY_KEYWORDS（SIer/エンジニア派遣/IT人材/採用市場/DX人材 等）で業界動向をサブマッチ、それも 0 件なら market カテゴリ直近 3 件を表示、すべて 0 件の場合は監視対象（主要競合 50+社）を明示した空状態メッセージ。④scraper 前日重複除外：load_recent_archive_urls() で直近 N 日（既定 2 日）分のアーカイブから URL 集合を構築し、fetch_all 内で skip → 毎朝同じ記事が並ぶ問題を解消。 |
+| 2026-04-19 | AI NEWS 競合PR拡充 + その他ニュース品質 + Xトレンド日次更新 | ①競合プレスリリース取得を 5 社（パーソル/リクルート/マイナビ/ビズリーチ/レバテック）→ 22 社に拡張。SIer 8社（NTTデータ/富士通/日立/NEC/NRI/TIS/SCSK/BIPROGY）、コンサル 5社（アクセンチュア/デロイト/PwC/ベイカレント/アビーム）、派遣 5社（テクノプロ/メイテック/アウトソーシングテクノロジー/UT/アルプス技研）、QA 2社（SHIFT/ベリサーブ）、人材 +2社（パソナ/アデコ）。②その他ニュースの fyi 質フィルタを強化：「メディア記事はそのまま、UGC は hatena>=1 か matchesTool のみ採択」 → 0 hatena の個人ブログが混ざらない（0件時は安全弁で全件採択）。③X 生成AIトレンド日次更新：(a) scraper.fetch_x_trends_via_claude() を追加。Anthropic Claude + web_search ツールで「今日の話題のAIに関するXポスト」を取得、X URL 形式チェック + validate_url で実在保証 → news.json の xHighlights に保存。(b) クライアント側に dailyShuffleX() を導入：scraper 未取得時のフォールバックとしてシードプールを日付シードで決定論的シャッフル → 毎日違う組み合わせが表示される。④loadRemote() の xHighlights マッピングで likes/retweets を保持（renderX のバズ閾値判定が機能するように）。 |
