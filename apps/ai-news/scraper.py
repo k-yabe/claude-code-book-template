@@ -687,17 +687,15 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         )
         text = "".join(getattr(b, "text", "") for b in msg.content)
     except Exception as ex:
-        log(f"anthropic call failed: {type(ex).__name__}: {ex}")
-        # デバッグ用に debug.json にもエラーを追記（再実行時も維持されるよう read-modify-write）
-        try:
-            dp = DATA_DIR / "debug.json"
-            if dp.exists():
-                existing = json.loads(dp.read_text(encoding="utf-8"))
-                existing["anthropicError"] = f"{type(ex).__name__}: {ex}"
-                dp.write_text(json.dumps(existing, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        except Exception:
-            pass
+        err = f"{type(ex).__name__}: {ex}"
+        log(f"anthropic call failed: {err}")
+        # main() の debug_stats に後から取り出せるよう module global に保存
+        global _LAST_ANTHROPIC_ERROR
+        _LAST_ANTHROPIC_ERROR = err
         return None
+
+
+_LAST_ANTHROPIC_ERROR: str | None = None
 
     parsed = extract_json(text)
     if not parsed or "items" not in parsed:
@@ -1014,6 +1012,8 @@ def main() -> int:
         items = fallback_summarize(items)
         exec_summary: list[str] = []
         debug_stats["summarizer"] = "fallback"
+        if _LAST_ANTHROPIC_ERROR:
+            debug_stats["anthropicError"] = _LAST_ANTHROPIC_ERROR
     else:
         items, exec_summary = result
         debug_stats["summarizer"] = "anthropic_haiku"
