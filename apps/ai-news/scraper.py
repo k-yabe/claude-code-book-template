@@ -960,18 +960,44 @@ def save_audio(mp3: bytes, script: str) -> None:
 
 
 # ── エントリーポイント ──────────────────────────────────────────
+def _write_debug_stats(stats: dict) -> None:
+    """scraper 動作の統計を毎回 data/debug.json に書き込む（workflow の commit 対象）。
+    ログが見られない環境でも、commit diff から動作が分かるようにする。"""
+    try:
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        (DATA_DIR / "debug.json").write_text(
+            json.dumps(stats, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+    except Exception as e:
+        log(f"failed to write debug.json: {e}")
+
+
 def main() -> int:
     started = time.time()
+    debug_stats: dict = {
+        "ranAt": datetime.now(UTC).isoformat(),
+        "anthropicKeySet": bool(ANTHROPIC_API_KEY),
+        "openaiKeySet": bool(os.environ.get("OPENAI_API_KEY", "").strip()),
+        "sources": len(SOURCES),
+    }
     items = fetch_all()
+    debug_stats["fetched_items"] = len(items)
     if not items:
         log("no items collected; preserving previous news.json (if exists)")
+        debug_stats["exitedEarly"] = "no_items_after_filters"
+        _write_debug_stats(debug_stats)
         return 0
     result = call_anthropic(items)
     if result is None:
         items = fallback_summarize(items)
         exec_summary: list[str] = []
+        debug_stats["summarizer"] = "fallback"
     else:
         items, exec_summary = result
+        debug_stats["summarizer"] = "anthropic_haiku"
+    debug_stats["final_items"] = len(items)
+    debug_stats["competitor_items"] = sum(1 for x in items if x.get("isCompetitor"))
     save(items, exec_summary)
 
     # ── 音声ダイジェストを事前生成（GitHub Actions 実行時のみ） ──
@@ -991,6 +1017,8 @@ def main() -> int:
         else:
             log("digest script generation failed; skipping audio")
 
+    debug_stats["durationSec"] = round(time.time() - started, 1)
+    _write_debug_stats(debug_stats)
     log(f"done in {time.time() - started:.1f}s")
     return 0
 
