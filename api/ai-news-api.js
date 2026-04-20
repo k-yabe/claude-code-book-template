@@ -2,7 +2,7 @@
  * AI NEWS — 統合API
  *
  * POST /api/ai-news-api
- * Body: { action: "digest" | "tts", ...params }
+ * Body: { action: "digest" | "tts" | "xtrends", ...params }
  *
  * action=digest: Claude Haiku でニュースダイジェストスクリプトを生成
  *   params: { execSummary, mustKnow, thisWeek }
@@ -11,17 +11,28 @@
  * action=tts: OpenAI TTS API で音声生成
  *   params: { text: "..." }
  *   response: audio/mpeg (MP3バイナリ)
+ *
+ * action=xtrends: Claude + web_search で「今日の注目 X 投稿」をオンデマンド取得
+ *   params: {}
+ *   response: { items: [{ author, handle, text, url, tag, likes, retweets }, ...] }
+ *
+ * GET /api/ai-news-api?action=xtrends にも対応（GET キャッシュで 1 時間）
  */
 export default async function handler(req, res) {
+  // xtrends は GET/POST 両方受ける（GET なら CDN キャッシュが効きやすい）
+  if (req.method === 'GET' && (req.query && req.query.action === 'xtrends')) {
+    return handleXTrends(req, res);
+  }
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   const { action } = req.body || {};
 
-  if (action === 'digest') return handleDigest(req, res);
-  if (action === 'tts') return handleTTS(req, res);
-  return res.status(400).json({ error: 'action は "digest" または "tts" を指定してください' });
+  if (action === 'digest')  return handleDigest(req, res);
+  if (action === 'tts')     return handleTTS(req, res);
+  if (action === 'xtrends') return handleXTrends(req, res);
+  return res.status(400).json({ error: 'action は "digest" | "tts" | "xtrends" を指定してください' });
 }
 
 /* ── ダイジェスト生成（Claude Haiku） ── */
@@ -132,6 +143,105 @@ async function handleDigest(req, res) {
     console.error('[ai-news-api:digest] error:', err.message);
     return res.status(500).json({ error: err.message });
   }
+}
+
+/* ── X トレンド on-demand 取得（Claude + web_search） ──
+   scraper の日次バッチだけでなく、クライアントが初回ロード時に直接呼び出して
+   当日最新の X 話題ポストを取得できるようにする。取得結果は CDN で 1 時間キャッシュ。
+   URL は https://x.com/<handle>/status/<id> 形式のみ許容。実在確認は Claude の
+   web_search に任せ、こちら側でも正規表現でフィルタリング。 */
+async function handleXTrends(_req, res) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return res.status(501).json({ error: 'APIキーが未設定です', items: [] });
+  }
+  const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+  const dateLabel = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+  const prompt = `今日（${dateLabel}）または直近 48 時間以内に、日本語の X（旧 Twitter）で` +
+    `「いいね・リポスト・引用が多く付いて注目されている、生成AI関連の投稿」を` +
+    `**実在する URL 付きで** 6 件挙げてください。\n\n` +
+    `## 厳守ルール\n` +
+    `- web_search を使って実在を確認すること。架空の URL や著者名は絶対に作らない\n` +
+    `- URL は https://x.com/<handle>/status/<id> または https://twitter.com/... の形式のみ\n` +
+    `- 投稿が確認できなかった場合は "items": [] を返す（無理に埋めない）\n` +
+    `- 著者は誰でも良い（著名人/一般ユーザー問わず、エンゲージメントが多いもの）\n\n` +
+    `## 出力フォーマット（JSON のみ、説明文なし）\n` +
+    `{"items":[{"author":"表示名","handle":"@xxxx","text":"本文（200字以内に整形可）",` +
+    `"url":"https://x.com/.../status/...","tag":"短いトピック名"}, ...]}`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error('[ai-news-api:xtrends] Anthropic error:', response.status, errText);
+      return res.status(502).json({ error: 'X トレンド取得に失敗しました', items: [] });
+    }
+    const data = await response.json();
+    const text = (data.content || [])
+      .filter(b => b.type === 'text')
+      .map(b => b.text)
+      .join('');
+    // JSON 抽出（Claude はコードフェンス付きで返すことがある）
+    let parsed = null;
+    try {
+      const s = text.indexOf('{'), e = text.lastIndexOf('}');
+      if (s >= 0 && e > s) parsed = JSON.parse(text.slice(s, e + 1));
+    } catch {
+      // trailing comma 救済
+      try {
+        const s = text.indexOf('{'), e = text.lastIndexOf('}');
+        parsed = JSON.parse(text.slice(s, e + 1).replace(/,\s*([}\]])/g, '$1'));
+      } catch {}
+    }
+    const rawItems = (parsed && Array.isArray(parsed.items)) ? parsed.items : [];
+    const URL_RE = /^https:\/\/(?:x|twitter)\.com\/[^\/\s]+\/status\/\d+/;
+    const items = [];
+    for (const it of rawItems.slice(0, 8)) {
+      const url = String(it.url || '').trim();
+      if (!URL_RE.test(url)) continue;
+      const handle = String(it.handle || '').trim();
+      const author = String(it.author || '').trim();
+      const body = String(it.text || '').trim();
+      if (!author || !handle || !body) continue;
+      const h = handle.replace(/^@/, '');
+      items.push({
+        id: 'xt_' + simpleHash(url),
+        author: author.slice(0, 40),
+        handle: handle.startsWith('@') ? handle.slice(0, 40) : ('@' + h).slice(0, 40),
+        avatar: `https://unavatar.io/x/${h}`,
+        text: body.length > 240 ? body.slice(0, 239) + '…' : body,
+        tag: String(it.tag || 'AI').slice(0, 20),
+        url,
+        likes: 3000,   // 「注目されている」と判定済みの前提で client 閾値を通す最低値
+        retweets: 0,
+      });
+    }
+    // CDN / Vercel Edge で 1 時間キャッシュ、stale-while-revalidate で 4 時間
+    res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=14400');
+    return res.status(200).json({ items, count: items.length, generatedAt: new Date().toISOString() });
+  } catch (err) {
+    console.error('[ai-news-api:xtrends] error:', err.message);
+    return res.status(500).json({ error: err.message, items: [] });
+  }
+}
+
+function simpleHash(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
+  return Math.abs(h).toString(16).slice(0, 10);
 }
 
 /* ── TTS 音声生成（OpenAI） ── */

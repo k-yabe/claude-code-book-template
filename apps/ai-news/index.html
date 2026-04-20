@@ -1164,15 +1164,14 @@
       transition: background 0.15s ease, color 0.15s ease;
     }
     .more-expand-btn:hover { background: var(--navy); color: var(--gold); }
-    /* タブレット以上では「その他のニュース」も2列に（縦スクロールを減らして一覧性UP）。
-       ただし項目数が 2 件未満の日は固定 2 列で右側が空くため、auto-fit で適応させる。 */
+    /* タブレット以上では「その他のニュース」も複数列に（縦スクロールを減らして一覧性UP）。
+       auto-fit にしたので nth-child(odd) 等の「2列前提」border 描画はやめて、
+       grid gap と各カードの border-bottom だけで視覚的な仕切りを作る。 */
     @media (min-width: 768px) {
       .more-list {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
       }
-      .more-list .fyi-card:nth-last-child(-n+2) { border-bottom: none; }
-      .more-list .fyi-card:nth-child(odd) { border-right: 1px solid #eee; }
     }
 
     /* ── FYI カードデザイン ── */
@@ -2372,9 +2371,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '04/19', text: '🚀 「毎日使いたくなる」UX 大幅改善：曜日×時間帯greeting／📡ソース多様性バッジ／今週のトピックchips／全カードにソースタイプバッジ（大手メディア/PR/業界報道/コミュニティ）／⭕NEW バッジで再訪発見性UP' },
-        { date: '04/19', text: '🏛 競合 IR・業績ニュースを大幅追加：Google News 17 フィード追加（決算/業績/M&A/業務提携等を各社別に取得）／注目ニュースの低質UGC除外を強化／その他ニュースに AI ブランド名救済を追加／グリッドを auto-fit にしてデザイン崩れを修正' },
-        { date: '04/19', text: '📡 競合プレスリリース取得を 5社→22社に拡充：SIer 8社／IT・戦略コンサル 5社／エンジニアリング派遣 5社／QA 2社／人材 7社の PR TIMES を購読' }
+        { date: '04/19', text: '🐦 X トレンド on-demand 取得：Vercel Serverless + Claude + web_search で開いた瞬間に最新の X 話題投稿が表示（4hキャッシュ）。その他ニュース UI 崩れも修正' },
+        { date: '04/19', text: '🚀 「毎日使いたくなる」UX 大幅改善：曜日×時間帯greeting／📡ソース多様性バッジ／今週のトピックchips／全カードにソースタイプバッジ／⭕NEW バッジで再訪発見性UP' },
+        { date: '04/19', text: '🏛 競合 IR・業績ニュース大幅追加：Google News 17 フィード追加／PR TIMES 5社→22社／注目ニュース品質強化／デザイン崩れ修正' }
       ]
     });
 

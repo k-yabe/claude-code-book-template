@@ -1884,6 +1884,56 @@
   /* ────────── ⑨ データ取得（自動更新JSON → 失敗時シード） ──────────  */
   let dataMeta = { updatedAt: null, generatedFor: null };
 
+  /** 初回ロード時にサーバ側 API（Claude + web_search）から最新 X トレンドを取る。
+   *  返り値: true なら X_HIGHLIGHTS を更新した（renderX を呼び直すべき）。 */
+  const X_TRENDS_CACHE_KEY = 'ai-news:xtrends:v1';
+  const X_TRENDS_TTL_MS = 4 * 60 * 60 * 1000; // 4 時間
+  async function loadFreshXTrends() {
+    // session 内キャッシュ：4時間以内の取得結果があれば再利用（API 呼び出し節約）
+    try {
+      const raw = sessionStorage.getItem(X_TRENDS_CACHE_KEY);
+      if (raw) {
+        const cached = JSON.parse(raw);
+        if (cached && Array.isArray(cached.items) && cached.items.length &&
+            Date.now() - (cached.at || 0) < X_TRENDS_TTL_MS) {
+          X_HIGHLIGHTS = cached.items;
+          return true;
+        }
+      }
+    } catch {}
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 20000);
+      const res = await fetch('/api/ai-news-api?action=xtrends', {
+        method: 'GET',
+        signal: ctrl.signal,
+      });
+      clearTimeout(timer);
+      if (!res.ok) return false;
+      const json = await res.json();
+      const items = Array.isArray(json && json.items) ? json.items : [];
+      if (!items.length) return false;
+      X_HIGHLIGHTS = items.map((x, i) => ({
+        id: x.id || ('x_' + i),
+        author: String(x.author || ''),
+        handle: String(x.handle || ''),
+        avatar: String(x.avatar || ''),
+        text: String(x.text || ''),
+        tag: String(x.tag || ''),
+        url: String(x.url || ''),
+        likes: Number(x.likes) || 3000,
+        retweets: Number(x.retweets) || 0,
+      }));
+      try {
+        sessionStorage.setItem(X_TRENDS_CACHE_KEY, JSON.stringify({ items: X_HIGHLIGHTS, at: Date.now() }));
+      } catch {}
+      return true;
+    } catch (e) {
+      console.info('[ai-news] fresh x trends fetch failed, keeping seed:', e.message);
+      return false;
+    }
+  }
+
   async function loadRemote() {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 8000);
@@ -2024,6 +2074,9 @@
       fullRender();
       renderX();
       rewireMore();
+      // ── バックグラウンドで最新の X トレンドを fetch（Vercel Function 経由で Claude+web_search） ──
+      // ページ初期表示をブロックせず、取得できたら X セクションだけ再レンダーする。
+      loadFreshXTrends().then(updated => { if (updated) renderX(); });
       return;
     }
 
