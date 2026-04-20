@@ -1180,6 +1180,12 @@
       padding: var(--sp-3) var(--sp-4);
       gap: var(--sp-3);
       align-items: flex-start;
+      transition: background 0.15s ease, padding-left 0.15s ease;
+    }
+    /* ホバー時に軽くゴールドバーを左から差し込む（クリック可能性を強調） */
+    .more-list > .fyi-card:hover {
+      padding-left: calc(var(--sp-4) + 3px);
+      box-shadow: inset 3px 0 0 var(--gold);
     }
     .more-list > .fyi-card .fyi-thumb,
     .more-list > .fyi-card .fyi-visual {
@@ -2443,9 +2449,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '04/20', text: '🔍 X トレンドの透明性向上：データソース可視化（API取得 vs シード）／API プロンプトを 24 件全力収集に拡張・複数クエリ実行・48h 期間／著者偏り無視のトレンド優先' },
-        { date: '04/20', text: '🎤 AI音声ダイジェストを業界最高品質に：ElevenLabs 対応／40+の英字頭字語をカタカナ読みに自動置換（NEC→エヌイーシー 等の誤読を解消）' },
-        { date: '04/20', text: '🎙 OpenAI TTS voice を shimmer に変更／speed 0.97 / instructions を「人間と分からないレベル」目標で全面書き換え' }
+        { date: '04/20', text: '💼 Slack シェアテンプレ強化：太字見出し・絵文字セクション（🎯今日のポイント / 🔥注目の5記事）・各記事の「→なぜ重要か」要約 + URL・区切り線で構造化／ヘッドラインカードにホバー時ゴールド左バー' },
+        { date: '04/20', text: '🔍 X トレンドの透明性向上：データソース可視化（API取得 vs シード）／API プロンプトを 24 件全力収集に拡張' },
+        { date: '04/20', text: '🎤 AI音声ダイジェストを業界最高品質に：ElevenLabs 対応／40+の英字頭字語をカタカナ読みに自動置換（NEC→エヌイーシー 等の誤読を解消）' }
       ]
     });
 
