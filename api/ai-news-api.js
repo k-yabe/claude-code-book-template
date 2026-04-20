@@ -276,7 +276,8 @@ async function handleXTrends(_req, res) {
     `- 古い投稿（7日以上前）は除外。当日〜前日の投稿を最優先。\n` +
     `- 「2024年」「2023年」「去年」等、鮮度が低いポストは除外。\n` +
     `- 投稿内容が確認できなかったら "items": [] を返す。無理に埋めない。\n` +
-    `- 著者は誰でも良い（著名人/一般ユーザー問わず、当日エンゲージメントが高いもの）。\n\n` +
+    `- **著者は必ず多様にすること**：同じ handle の投稿は 1 件まで。12 人の異なる発信者から選ぶ。\n` +
+    `- 著名人だけでなく、一般エンジニア・PM・マーケター・経営者など多様な立場から拾う。\n\n` +
     `## 検索クエリの例\n` +
     `- "ChatGPT site:x.com" "Claude site:x.com" "生成AI site:x.com"\n` +
     `- 鮮度のために「${dateLabel}」や直近の AI ニュース名（モデル名・機能名）を合わせて検索\n\n` +
@@ -324,6 +325,7 @@ async function handleXTrends(_req, res) {
     const rawItems = (parsed && Array.isArray(parsed.items)) ? parsed.items : [];
     const URL_RE = /^https:\/\/(?:x|twitter)\.com\/[^\/\s]+\/status\/\d+/;
     const items = [];
+    const seenHandles = new Set(); // 著者重複を排除（同じ人ばかり並ぶ問題対策）
     for (const it of rawItems.slice(0, 16)) {
       const url = String(it.url || '').trim();
       if (!URL_RE.test(url)) continue;
@@ -331,7 +333,9 @@ async function handleXTrends(_req, res) {
       const author = String(it.author || '').trim();
       const body = String(it.text || '').trim();
       if (!author || !handle || !body) continue;
-      const h = handle.replace(/^@/, '');
+      const h = handle.replace(/^@/, '').toLowerCase();
+      if (seenHandles.has(h)) continue; // 同一著者の 2 投稿目以降はスキップ
+      seenHandles.add(h);
       items.push({
         id: 'xt_' + simpleHash(url),
         author: author.slice(0, 40),
