@@ -39,7 +39,8 @@ export default async function handler(req, res) {
 /* ── OGP 画像の on-demand 取得（バッチ） ──
    scraper がスクレイプ時に OGP を拾えなかった記事（Google News 系など）に対して、
    クライアントが当該 URL のリストを送ると、各 URL の og:image / twitter:image を返す。
-   結果は URL → 画像URL or null のマップで、CDN で 1h + stale-while-revalidate 24h キャッシュ。 */
+   結果は URL → 画像URL or null のマップで、CDN で 1h + stale-while-revalidate 24h キャッシュ。
+   Google News のリダイレクター URL は実記事 URL に解決してから OGP を取得する。 */
 async function handleResolveOgp(req, res) {
   const { urls } = req.body || {};
   if (!Array.isArray(urls) || urls.length === 0) {
@@ -49,11 +50,53 @@ async function handleResolveOgp(req, res) {
   const OGP_RE_1 = /<meta[^>]+(?:property|name)\s*=\s*["'](?:og:image|twitter:image(?::src)?)["'][^>]*content\s*=\s*["']([^"']+)["']/i;
   const OGP_RE_2 = /<meta[^>]+content\s*=\s*["']([^"']+)["'][^>]*(?:property|name)\s*=\s*["'](?:og:image|twitter:image(?::src)?)["']/i;
 
-  async function fetchOgp(targetUrl) {
+  /** Google News リダイレクター URL を実記事 URL に解決する。
+   *  ① fetch follow-redirect で resp.url が news.google.com 以外になればそれを採用
+   *  ② HTML body 内の anchor / meta refresh から実 URL を抽出 */
+  async function resolveGoogleNews(gnewsUrl) {
     try {
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 6000);
-      const resp = await fetch(targetUrl, {
+      const resp = await fetch(gnewsUrl, {
+        method: 'GET',
+        redirect: 'follow',
+        signal: ctrl.signal,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; AI-NEWS-Bot/1.0; +https://kunito-yabe.vercel.app/)',
+          'Accept': 'text/html,application/xhtml+xml',
+          'Accept-Language': 'ja,en;q=0.8',
+        },
+      });
+      clearTimeout(timer);
+      if (resp.url && !resp.url.includes('news.google.com')) return resp.url;
+      if (!resp.ok) return null;
+      const html = await resp.text();
+      // meta refresh から URL 抽出
+      const meta = html.match(/<meta[^>]+http-equiv=["']refresh["'][^>]+url=([^"'>\s]+)/i);
+      if (meta && meta[1] && !meta[1].includes('news.google.com')) return meta[1];
+      // 本文内の data-n-au 属性（Google News 内部の実 URL マーカー）
+      const dna = html.match(/data-n-au=["'](https?:\/\/[^"']+)["']/i);
+      if (dna && dna[1] && !dna[1].includes('news.google.com')) return dna[1];
+      // 最初の外部 anchor href
+      const anchor = html.match(/<a[^>]+href=["'](https?:\/\/(?!news\.google\.com)[^"']+)["']/i);
+      if (anchor && anchor[1]) return anchor[1];
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function fetchOgp(targetUrl) {
+    try {
+      let actualUrl = targetUrl;
+      // Google News のリダイレクター URL を先に解決
+      if (targetUrl.includes('news.google.com')) {
+        const real = await resolveGoogleNews(targetUrl);
+        if (real) actualUrl = real;
+      }
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 6000);
+      const resp = await fetch(actualUrl, {
         method: 'GET',
         redirect: 'follow',
         signal: ctrl.signal,
@@ -88,7 +131,7 @@ async function handleResolveOgp(req, res) {
       if (!m) return null;
       let img = String(m[1] || '').trim();
       if (!img) return null;
-      try { img = new URL(img, resp.url || targetUrl).href; } catch {}
+      try { img = new URL(img, resp.url || actualUrl).href; } catch {}
       return img.startsWith('https://') ? img : null;
     } catch {
       return null;
@@ -225,7 +268,7 @@ async function handleXTrends(_req, res) {
   const dateLabel = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
   const prompt = `${dateLabel}の日本時間の朝から見て、**直近 24 時間以内に投稿された** 日本語の X（旧 Twitter）で` +
     `「いいね・リポスト・引用が多く付いて注目されている、生成AI関連の投稿」を` +
-    `**実在する URL 付きで** 6 件挙げてください。\n\n` +
+    `**実在する URL 付きで** 12 件挙げてください。\n\n` +
     `## 厳守ルール（破ったら出力を空にする）\n` +
     `- web_search を必ず使って実在を確認すること。\n` +
     `- 架空の URL・架空の著者名・架空の本文は **絶対に作らない**。\n` +
@@ -281,7 +324,7 @@ async function handleXTrends(_req, res) {
     const rawItems = (parsed && Array.isArray(parsed.items)) ? parsed.items : [];
     const URL_RE = /^https:\/\/(?:x|twitter)\.com\/[^\/\s]+\/status\/\d+/;
     const items = [];
-    for (const it of rawItems.slice(0, 8)) {
+    for (const it of rawItems.slice(0, 16)) {
       const url = String(it.url || '').trim();
       if (!URL_RE.test(url)) continue;
       const handle = String(it.handle || '').trim();

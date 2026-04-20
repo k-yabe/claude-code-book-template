@@ -1097,10 +1097,13 @@
   function partition() {
     // ①消費者向け商品記事（PCセール・通販等）は B2B マーケ視点で不要
     // ②再掲／再配信記事は情報価値が低い
-    // ※画像の有無: thisWeek は strict（必須）、fyi はゆるめ（ソースロゴ fallback で十分）
+    // ③【絶対NG】画像のない記事は全セクションで非表示
+    //    画像は scraper の OGP + hydrateMissingImages() で可能な限り補完済み
+    //    補完できなかった記事は表示候補から外す
     const base = NEWS_DATA.filter(n => {
       if (isConsumerNoise(n)) return false;
       if (isReprint(n)) return false;
+      if (!n.image || !/^https?:\/\//.test(n.image)) return false;
       return true;
     });
     const hasImage = (n) => !!(n.image && /^https?:\/\//.test(n.image));
@@ -1834,7 +1837,8 @@
     // 実ツイートURL があり、かつ「バズっている」ものだけ表示。
     // バズ閾値: likes + retweets × 3 >= 3000（引用・共有が多い = 実際に話題）。
     // engagement データが無い / 閾値未満のポストは「トレンド」と呼べないので除外。件数上限はなし。
-    const X_BUZZ_MIN = 3000;
+    // バズ閾値: likes + retweets×3 >= 1500（数を倍に増やしたいので少し緩和）。
+    const X_BUZZ_MIN = 1500;
     const score = x => (Number(x.likes) || 0) + (Number(x.retweets) || 0) * 3;
     const validItems = X_HIGHLIGHTS
       .filter(x => x && x.url && /^https?:\/\//.test(x.url) && score(x) >= X_BUZZ_MIN)
@@ -3013,10 +3017,11 @@
     const list = document.getElementById('competitor-list');
     const head = document.getElementById('sec-competitor');
     if (!list || !head) return 0;
-    // 同じポリシー: 商品ノイズ除外／再掲除外（画像はソースロゴ fallback で十分なので不要）
+    // 同じポリシー: 商品ノイズ除外／再掲除外／画像必須（hydrate API で補完できなかったものは表示しない）
     const base = NEWS_DATA.filter(n => {
       if (isConsumerNoise(n)) return false;
       if (isReprint(n)) return false;
+      if (!n.image || !/^https?:\/\//.test(n.image)) return false;
       return true;
     });
     const byRecent = (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt);
