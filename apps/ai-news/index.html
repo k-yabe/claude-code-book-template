@@ -1164,24 +1164,51 @@
       transition: background 0.15s ease, color 0.15s ease;
     }
     .more-expand-btn:hover { background: var(--navy); color: var(--gold); }
-    /* タブレット以上では「その他のニュース」を複数列に。
-       auto-fit で可変列数 → nth-child(odd) 等の「2列前提」border 描画は使えないため、
-       純粋に grid のセル仕切りだけで見せる。グリッドセル間は 1px の区切り線を疑似的に作る。
-       min カラム幅: 420px（thumb 140px + 本文 280px が読める）で 2 列化、
-       wide では 3 列まで開く（480px 下限）。 */
+    /* ── ヘッドライン（fyi）コンパクト表示 ──
+       「注目ニュース」との差別化のため、fyi カードは題目中心の軽量表示にする:
+         - サムネイル: 小さめ（正方形に近い 72×72）
+         - 本文: タイトル + メタ行のみ（なぜ重要か・アクション等の分析は hover で展開）
+         - padding: 詰める（縦方向にどんどん並ぶ）
+       これで注目ニュース（分析付き大きめカード）とヘッドライン（タイトル一覧）が
+       ひと目で区別できる。 */
+    .more-list > .fyi-card {
+      padding: var(--sp-3) var(--sp-4);
+      gap: var(--sp-3);
+      align-items: flex-start;
+    }
+    .more-list > .fyi-card .fyi-thumb {
+      width: 72px; height: 72px;
+    }
+    .more-list > .fyi-card .fyi-visual {
+      width: 72px; height: 72px;
+    }
+    .more-list > .fyi-card .fyi-title {
+      font-size: 0.94rem; line-height: 1.4;
+    }
+    /* なぜ重要か／アクション／タグ／フッター内オプションは初期は隠して
+       ホバー or キーボードフォーカス時だけ展開する（クリック先で全部読める） */
+    .more-list > .fyi-card .fyi-why,
+    .more-list > .fyi-card .fyi-action,
+    .more-list > .fyi-card .fyi-tags {
+      display: none;
+    }
+    .more-list > .fyi-card:hover .fyi-why,
+    .more-list > .fyi-card:focus-within .fyi-why {
+      display: -webkit-box;
+      margin-top: 4px;
+    }
+    /* タブレット以上では複数列 + コンパクト高さ */
     @media (min-width: 768px) {
       .more-list {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
       }
-      /* グリッドだと last-child は DOM 最終カードのみ border を消すが、
-         視覚的な最下段は「各列で一番下のカード」。全カード border-bottom 維持に統一。 */
       .more-list > .fyi-card { border-bottom: 1px solid #eee; }
       .more-list > .fyi-card:last-child { border-bottom: 1px solid #eee; }
     }
     @media (min-width: 1200px) {
       .more-list {
-        grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
       }
     }
 
@@ -2249,7 +2276,7 @@
     <div class="sec-head" id="sec-must-know">
       <span class="sec-icon gold">🔥</span>
       <span class="sec-title">本日の主要ニュース <span class="sec-count" id="count-must-know">0</span></span>
-      <span class="sec-sub">大手メディアが報じた AI × マーケ最重要トピック（個人ブログは除外）</span>
+      <span class="sec-sub">今日最も重要な 1〜2 件。じっくり読む価値あり</span>
       <span class="sec-line"></span>
     </div>
     <div id="must-know" aria-live="polite"></div>
@@ -2258,16 +2285,16 @@
     <div class="sec-head" id="sec-this-week">
       <span class="sec-icon cyan">⚡</span>
       <span class="sec-title">注目ニュース <span class="sec-count" id="count-this-week">0</span></span>
-      <span class="sec-sub">チェックしておきたい動き</span>
+      <span class="sec-sub">分析・アクション付きでチェックしたい動き（3〜6 件）</span>
       <span class="sec-line"></span>
     </div>
     <div class="brief-grid" id="this-week" aria-live="polite"></div>
 
-    <!-- 📑 知っておけばOK (FYI) -->
+    <!-- 📑 ヘッドライン（FYI / コンパクト表示） -->
     <div class="sec-head" id="sec-more">
       <span class="sec-icon">📑</span>
-      <span class="sec-title">その他のニュース <span class="sec-count" id="count-more">0</span></span>
-      <span class="sec-sub">余裕があれば目を通す</span>
+      <span class="sec-title">ヘッドライン <span class="sec-count" id="count-more">0</span></span>
+      <span class="sec-sub">タイトル一覧でざっと確認（クリックで詳細）</span>
       <span class="sec-line"></span>
     </div>
     <div class="more-toolbar">
@@ -2361,7 +2388,7 @@
   <nav class="section-nav" id="section-nav" aria-label="セクションナビゲーション" hidden>
     <a class="sn-item" href="#sec-must-know" data-target="sec-must-know"><span class="sn-dot"></span><span class="sn-label">主要</span></a>
     <a class="sn-item" href="#sec-this-week" data-target="sec-this-week"><span class="sn-dot"></span><span class="sn-label">注目</span></a>
-    <a class="sn-item" href="#sec-more" data-target="sec-more"><span class="sn-dot"></span><span class="sn-label">その他</span></a>
+    <a class="sn-item" href="#sec-more" data-target="sec-more"><span class="sn-dot"></span><span class="sn-label">ヘッドライン</span></a>
     <a class="sn-item" href="#sec-competitor" data-target="sec-competitor"><span class="sn-dot"></span><span class="sn-label">競合</span></a>
     <a class="sn-item" href="#sec-x" data-target="sec-x"><span class="sn-dot"></span><span class="sn-label">𝕏</span></a>
   </nav>
@@ -2395,9 +2422,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '04/20', text: '📰 その他ニュースはメディア記事のみに：Zenn/Qiita/note の個人ブログを除外（hatena>=10 の例外のみ救済）。ITmedia/ASCII/日経/Publickey/DIGIDAY 等の正統派メディアだけが並ぶ' },
-        { date: '04/20', text: '🎯 品質ポリシー強化：画像なし記事は全セクションで非表示（on-demand OGP fetch で補完）／再掲記事を除外／X トレンドを日付バケット化して日が変わったら必ず再取得' },
-        { date: '04/20', text: '🖼 画像表示・UI 改善：Google News リダイレクター URL を実記事 URL に解決／注目ニュースを画像あり優先に／その他ニュース grid 幅拡張・thumb 縮小' }
+        { date: '04/20', text: '🧭 セクション役割を明確化：「その他ニュース」→「ヘッドライン」（コンパクト表示）／注目ニュースと見た目で区別／3行サマリー途中切れ修正／競合動向に業界動向マッチも合算' },
+        { date: '04/20', text: '📰 ヘッドラインはメディア記事のみに：Zenn/Qiita/note の個人ブログを除外（hatena>=10 の例外のみ救済）' },
+        { date: '04/20', text: '🎯 品質ポリシー強化：画像なし記事は全セクションで非表示（on-demand OGP fetch で補完）／再掲記事を除外／X トレンドを日付バケット化' }
       ]
     });
 

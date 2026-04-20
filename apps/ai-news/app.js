@@ -1393,13 +1393,19 @@
   }
 
   /* ── Executive Summary ── */
-  /** 実データで EXEC_SUMMARY が空の時、top記事 3件のタイトル+影響でサマリーを生成 */
+  /** 実データで EXEC_SUMMARY が空の時、top記事 3件から 1 文で簡易サマリーを生成。
+   *  ハード 78字カットは廃止 — 連用形で切れて「文章途中で切れてる」と誤解されるため。
+   *  各記事の whyItMatters / summary の **先頭 1 文** をそのまま返す。長さ制御は CSS 折返しに任せる。 */
   function deriveSummaryLines() {
     const { mustKnow, thisWeek, fyi } = partition();
     const pick = [...mustKnow, ...thisWeek, ...fyi].slice(0, 3);
     return pick.map(n => {
-      const base = n.whyItMatters && n.whyItMatters.length > 8 ? n.whyItMatters : n.summary;
-      if (base && base.length > 10) return base.length > 80 ? base.slice(0, 78) + '…' : base;
+      const base = (n.whyItMatters && n.whyItMatters.length > 8) ? n.whyItMatters : n.summary;
+      if (base && base.length > 10) {
+        // 先頭 1 文（「。」「！」「？」まで）を抽出、無ければ全文を返す
+        const firstSent = (String(base).split(/(?<=[。！？])/)[0] || base).trim();
+        return firstSent;
+      }
       return n.title;
     });
   }
@@ -2983,9 +2989,14 @@
       return true;
     });
     const byRecent = (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt);
-    let items = base.filter(matchesCompetitor).slice().sort(byRecent);
-    if (!items.length) items = base.filter(matchesIndustry).slice().sort(byRecent);
-    if (!items.length) items = base.filter(n => n.category === 'market').slice().sort(byRecent).slice(0, 3);
+    // 「競合動向」と「業界動向」を合算して表示（以前はフォールバックだったので少なすぎた）
+    // 主要競合 50+社への直接言及 + SIer/IT人材/エンジニア派遣 等の業界マクロ動向キーワードをまとめて採択
+    let items = base
+      .filter(n => matchesCompetitor(n) || matchesIndustry(n))
+      .slice()
+      .sort(byRecent);
+    // それでも 0 件なら market カテゴリ（PR TIMES 等）から直近 5 件を救済
+    if (!items.length) items = base.filter(n => n.category === 'market').slice().sort(byRecent).slice(0, 5);
     // 元記事リンクがない記事は表示しない（ニュースアプリとしてリンク必須）
     const withUrl = items.filter(n => n.url && /^https?:\/\//.test(n.url));
     if (!withUrl.length) {
