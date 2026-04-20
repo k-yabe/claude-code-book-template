@@ -29,10 +29,76 @@ export default async function handler(req, res) {
 
   const { action } = req.body || {};
 
-  if (action === 'digest')  return handleDigest(req, res);
-  if (action === 'tts')     return handleTTS(req, res);
-  if (action === 'xtrends') return handleXTrends(req, res);
-  return res.status(400).json({ error: 'action は "digest" | "tts" | "xtrends" を指定してください' });
+  if (action === 'digest')      return handleDigest(req, res);
+  if (action === 'tts')         return handleTTS(req, res);
+  if (action === 'xtrends')     return handleXTrends(req, res);
+  if (action === 'resolve-ogp') return handleResolveOgp(req, res);
+  return res.status(400).json({ error: 'action は "digest" | "tts" | "xtrends" | "resolve-ogp" を指定してください' });
+}
+
+/* ── OGP 画像の on-demand 取得（バッチ） ──
+   scraper がスクレイプ時に OGP を拾えなかった記事（Google News 系など）に対して、
+   クライアントが当該 URL のリストを送ると、各 URL の og:image / twitter:image を返す。
+   結果は URL → 画像URL or null のマップで、CDN で 1h + stale-while-revalidate 24h キャッシュ。 */
+async function handleResolveOgp(req, res) {
+  const { urls } = req.body || {};
+  if (!Array.isArray(urls) || urls.length === 0) {
+    return res.status(400).json({ error: 'urls は 1〜20 件の配列で指定してください' });
+  }
+  const uniq = [...new Set(urls.filter(u => typeof u === 'string' && u.startsWith('http')))].slice(0, 20);
+  const OGP_RE_1 = /<meta[^>]+(?:property|name)\s*=\s*["'](?:og:image|twitter:image(?::src)?)["'][^>]*content\s*=\s*["']([^"']+)["']/i;
+  const OGP_RE_2 = /<meta[^>]+content\s*=\s*["']([^"']+)["'][^>]*(?:property|name)\s*=\s*["'](?:og:image|twitter:image(?::src)?)["']/i;
+
+  async function fetchOgp(targetUrl) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 6000);
+      const resp = await fetch(targetUrl, {
+        method: 'GET',
+        redirect: 'follow',
+        signal: ctrl.signal,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; AI-NEWS-Bot/1.0; +https://kunito-yabe.vercel.app/apps/ai-news/)',
+          'Accept': 'text/html,application/xhtml+xml',
+          'Accept-Language': 'ja,en;q=0.8',
+        },
+      });
+      clearTimeout(timer);
+      if (!resp.ok) return null;
+      const reader = resp.body && resp.body.getReader ? resp.body.getReader() : null;
+      let html = '';
+      if (reader) {
+        const decoder = new TextDecoder('utf-8', { fatal: false });
+        let bytes = 0;
+        while (bytes < 262144) { // 256KB 上限
+          const { done, value } = await reader.read();
+          if (done) break;
+          bytes += value.length;
+          html += decoder.decode(value, { stream: true });
+          if (html.toLowerCase().includes('</head>')) break;
+        }
+        try { reader.cancel(); } catch {}
+      } else {
+        html = await resp.text();
+        if (html.length > 262144) html = html.slice(0, 262144);
+      }
+      const headEnd = html.toLowerCase().indexOf('</head>');
+      const head = headEnd > 0 ? html.slice(0, headEnd) : html;
+      const m = head.match(OGP_RE_1) || head.match(OGP_RE_2);
+      if (!m) return null;
+      let img = String(m[1] || '').trim();
+      if (!img) return null;
+      try { img = new URL(img, resp.url || targetUrl).href; } catch {}
+      return img.startsWith('https://') ? img : null;
+    } catch {
+      return null;
+    }
+  }
+
+  const entries = await Promise.all(uniq.map(async (u) => [u, await fetchOgp(u)]));
+  const images = Object.fromEntries(entries);
+  res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+  return res.status(200).json({ images, count: entries.length });
 }
 
 /* ── ダイジェスト生成（Claude Haiku） ── */
@@ -157,17 +223,23 @@ async function handleXTrends(_req, res) {
   }
   const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
   const dateLabel = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
-  const prompt = `今日（${dateLabel}）または直近 48 時間以内に、日本語の X（旧 Twitter）で` +
+  const prompt = `${dateLabel}の日本時間の朝から見て、**直近 24 時間以内に投稿された** 日本語の X（旧 Twitter）で` +
     `「いいね・リポスト・引用が多く付いて注目されている、生成AI関連の投稿」を` +
     `**実在する URL 付きで** 6 件挙げてください。\n\n` +
-    `## 厳守ルール\n` +
-    `- web_search を使って実在を確認すること。架空の URL や著者名は絶対に作らない\n` +
-    `- URL は https://x.com/<handle>/status/<id> または https://twitter.com/... の形式のみ\n` +
-    `- 投稿が確認できなかった場合は "items": [] を返す（無理に埋めない）\n` +
-    `- 著者は誰でも良い（著名人/一般ユーザー問わず、エンゲージメントが多いもの）\n\n` +
-    `## 出力フォーマット（JSON のみ、説明文なし）\n` +
+    `## 厳守ルール（破ったら出力を空にする）\n` +
+    `- web_search を必ず使って実在を確認すること。\n` +
+    `- 架空の URL・架空の著者名・架空の本文は **絶対に作らない**。\n` +
+    `- URL は https://x.com/<handle>/status/<id> または https://twitter.com/<handle>/status/<id> の形式のみ。\n` +
+    `- 古い投稿（7日以上前）は除外。当日〜前日の投稿を最優先。\n` +
+    `- 「2024年」「2023年」「去年」等、鮮度が低いポストは除外。\n` +
+    `- 投稿内容が確認できなかったら "items": [] を返す。無理に埋めない。\n` +
+    `- 著者は誰でも良い（著名人/一般ユーザー問わず、当日エンゲージメントが高いもの）。\n\n` +
+    `## 検索クエリの例\n` +
+    `- "ChatGPT site:x.com" "Claude site:x.com" "生成AI site:x.com"\n` +
+    `- 鮮度のために「${dateLabel}」や直近の AI ニュース名（モデル名・機能名）を合わせて検索\n\n` +
+    `## 出力フォーマット（JSON のみ、説明文なし、コードフェンス無し）\n` +
     `{"items":[{"author":"表示名","handle":"@xxxx","text":"本文（200字以内に整形可）",` +
-    `"url":"https://x.com/.../status/...","tag":"短いトピック名"}, ...]}`;
+    `"url":"https://x.com/<handle>/status/<id>","tag":"短いトピック名"}, ...]}`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
