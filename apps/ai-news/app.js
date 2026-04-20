@@ -2727,36 +2727,88 @@
 
   async function preloadDigestAudio() {
     if (preloadPromise) return preloadPromise;
+    // 「準備中」UI を即座に出す（ユーザーが訪問した瞬間から「ダイジェスト準備中」と見える）
+    updatePreloadUI('preparing');
     preloadPromise = (async () => {
       // ① 静的 MP3 が存在すれば最速ルート
       const staticUrl = await tryStaticAudio();
       if (staticUrl) {
         preloadedAudioUrl = staticUrl;
-        const btn = document.getElementById('btn-listen');
-        if (btn && !speechState.playing) {
-          const estMin = Math.max(3, Math.ceil((preloadedDigest || '').length / 320) || 5);
-          btn.textContent = `▶ 今日のダイジェスト（約${estMin}分 · 準備完了）`;
-          btn.classList.add('ready');
-        }
+        // MP3 を実際にデコードして即再生できるようにする（Audio preload='auto'）
+        await prewarmAudio(staticUrl).catch(() => {});
+        updatePreloadUI('ready');
         return staticUrl;
       }
       // ② 静的 MP3 がなければ Vercel API でオンデマンド生成
+      updatePreloadUI('generating-script');
       const digest = await generateDigest();
-      if (!digest) return null;
+      if (!digest) { updatePreloadUI('failed'); return null; }
       preloadedDigest = digest;
+      updatePreloadUI('generating-audio');
       const audioUrl = await tryOpenAITTS(digest);
       if (audioUrl) {
         preloadedAudioUrl = audioUrl;
-        const btn = document.getElementById('btn-listen');
-        if (btn && !speechState.playing) {
-          const estMin = Math.ceil((preloadedDigest || '').length / 320);
-          btn.textContent = `▶ 今日のダイジェスト（約${estMin}分 · 準備完了）`;
-          btn.classList.add('ready');
-        }
+        await prewarmAudio(audioUrl).catch(() => {});
+        updatePreloadUI('ready');
+      } else {
+        updatePreloadUI('failed');
       }
       return audioUrl;
     })();
     return preloadPromise;
+  }
+
+  /** 音声バイトをブラウザ側にプリバッファリング（ユーザーのクリックで即再生できるように）。
+   *  Audio オブジェクトに preload='auto' を付けて canplaythrough を待つ。
+   *  6 秒でタイムアウトしても致命的ではない（click 時に通常 fetch）。 */
+  function prewarmAudio(url) {
+    return new Promise((resolve) => {
+      try {
+        const a = new Audio();
+        a.preload = 'auto';
+        a.src = url;
+        const done = () => { a.removeEventListener('canplaythrough', done); resolve(); };
+        a.addEventListener('canplaythrough', done, { once: true });
+        a.addEventListener('error', () => resolve(), { once: true });
+        setTimeout(resolve, 6000);
+        // Preloaded audio への参照を保持（GC されて再 fetch になるのを防ぐ）
+        _prewarmedAudio = a;
+      } catch { resolve(); }
+    });
+  }
+  let _prewarmedAudio = null;
+
+  /** 音声プリロードの UI 状態を btn-listen に反映する。 */
+  function updatePreloadUI(state) {
+    const btn = document.getElementById('btn-listen');
+    if (!btn) return;
+    const iconEl = btn.querySelector('.audio-btn-icon');
+    const labelEl = btn.querySelector('.audio-btn-label');
+    const metaEl = btn.querySelector('.audio-btn-meta');
+    if (speechState.playing) return; // 再生中は上書きしない
+    if (state === 'preparing') {
+      if (iconEl) iconEl.textContent = '⏳';
+      if (labelEl) labelEl.textContent = 'ダイジェスト準備中';
+      if (metaEl) metaEl.textContent = '音声を取得中…';
+      btn.classList.remove('ready');
+      btn.classList.add('preparing');
+    } else if (state === 'generating-script') {
+      if (metaEl) metaEl.textContent = 'AI が台本を執筆中…';
+    } else if (state === 'generating-audio') {
+      if (metaEl) metaEl.textContent = 'ナレーション生成中…';
+    } else if (state === 'ready') {
+      if (iconEl) iconEl.textContent = '▶';
+      if (labelEl) labelEl.textContent = 'AI音声ダイジェスト';
+      const estMin = Math.max(3, Math.ceil((preloadedDigest || '').length / 320) || 5);
+      if (metaEl) metaEl.textContent = `約${estMin}分 · 準備完了`;
+      btn.classList.remove('preparing');
+      btn.classList.add('ready');
+    } else if (state === 'failed') {
+      if (iconEl) iconEl.textContent = '▶';
+      if (labelEl) labelEl.textContent = 'AI音声ダイジェスト';
+      if (metaEl) metaEl.textContent = '押して生成';
+      btn.classList.remove('preparing', 'ready');
+    }
   }
 
   async function startSpeech() {
@@ -2897,10 +2949,15 @@
     if (apSkipBack) apSkipBack.addEventListener('click', () => skip(-10));
     if (apSkipFwd) apSkipFwd.addEventListener('click', () => skip(10));
     // 起動時にバックグラウンドで音声を事前生成（ネットワーク待機なしで即再生できる）。
-    // ユーザーが「聴く」を押したときには既にMP3が手元にある状態を目指す。
-    // ファーストペイント直後（500ms後）に起動して積極的にプリロード。
-    const kickoff = () => { preloadDigestAudio().catch(() => {}); };
-    setTimeout(kickoff, 500);
+    // 待ち時間を最小化するため、500ms 遅延をやめて即座にプリロード開始。
+    // MP3 バイトも prewarmAudio でブラウザキャッシュに乗せるので、click → play がほぼ遅延ゼロに。
+    // IIFE トップでも先行キックしているので、ここでは UI の state 同期を主目的にする。
+    preloadDigestAudio().then(() => {
+      // プリロードが DOM 構築前に先に完了していたケース用に UI を再同期
+      if (preloadedAudioUrl) updatePreloadUI('ready');
+    }).catch(() => {});
+    // 画面に btn が現れた直後に「準備中」表示を出す（先行キックで既に動いている前提）
+    if (!preloadedAudioUrl) updatePreloadUI('preparing');
   }
 
   /* ────────── ⑪c パーソナライズ（閲覧傾向ベース） ──────────  */
@@ -3230,6 +3287,10 @@
       });
     }
   }
+
+  // 音声プリロードは init() を待たずに即時キック（静的 MP3 の fetch を最速で並列実行）。
+  // ダイジェストが重い日でも、ユーザーが「再生」ボタンを押す時点で ready になっている確率が上がる。
+  try { preloadDigestAudio(); } catch {}
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => { init(); wireScrollUI(); wireSectionNav(); });
