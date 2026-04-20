@@ -430,14 +430,23 @@
     return CONSUMER_NOISE_WORDS.some(w => hay.includes(w));
   }
   /** 業界動向（AKKODiS の事業領域）を示すキーワード。特定の競合企業名が出てこなくても、
-   *  SIer / IT人材 / エンジニア派遣 / 採用市場 等の「業界マクロ動向」記事をここで拾う。
-   *  競合企業名での直接マッチが 0 件でもフォールバックとして業界動向を表示できるようにする。 */
+   *  SIer / IT サービス / エンジニア派遣 等の「業界マクロ動向」記事をここで拾う。
+   *  ※ 単体の「IT人材」「AI人材」だけだと個別企業の導入事例にも誤マッチするので、
+   *     「市場」「業界」「不足」等のマクロ性を示す文脈キーワードを組み合わせて判定する。 */
   const INDUSTRY_KEYWORDS = [
-    'SIer', 'ITサービス', 'システムインテグレ', 'IT受託',
-    'エンジニア派遣', '技術者派遣', 'エンジニアリング派遣', 'SES',
-    'IT人材', 'AI人材', 'デジタル人材', 'エンジニア採用', 'エンジニア不足', '人材不足',
-    '採用市場', '転職市場', '人材紹介', '求人市場',
-    'DX人材', 'リスキリング', '学び直し',
+    // SIer / IT サービス業界そのものへの言及
+    'SIer業界', 'IT サービス業界', 'ITサービス業界',
+    'システムインテグレーター', 'システムインテグレータ', 'IT受託開発',
+    // エンジニア派遣／技術者派遣 業界への言及
+    'エンジニア派遣', '技術者派遣', 'エンジニアリング派遣', 'SES業界',
+    // 人材市場のマクロ動向（単体の「IT人材」だけでは弱いので「市場」「不足」等と組み合わせた語）
+    'IT人材市場', 'IT人材不足', 'AI人材市場', 'AI人材不足',
+    'エンジニア不足', 'デジタル人材不足',
+    'エンジニア採用市場', 'エンジニア転職市場',
+    '採用市場動向', '転職市場動向', '求人市場動向',
+    '人材紹介業界', '人材派遣業界',
+    // DX・リスキリング等のマクロ社会動向
+    'DX人材不足', 'リスキリング', '学び直し',
   ];
   function matchesIndustry(n) {
     const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '');
@@ -3011,14 +3020,17 @@
       return true;
     });
     const byRecent = (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt);
-    // 「競合動向」と「業界動向」を合算して表示（以前はフォールバックだったので少なすぎた）
-    // 主要競合 50+社への直接言及 + SIer/IT人材/エンジニア派遣 等の業界マクロ動向キーワードをまとめて採択
+    // 競合動向セクションは AKKODiS の直接競合（50+社）への言及記事に絞る。
+    // 「IT人材不足」等の業界一般キーワードで拾うと無関係な企業（例: みずほ証券の Devin 導入）
+    // までマッチしてしまうため、INDUSTRY_KEYWORDS は競合動向には含めない。
     let items = base
-      .filter(n => matchesCompetitor(n) || matchesIndustry(n))
+      .filter(n => matchesCompetitor(n))
       .slice()
       .sort(byRecent);
-    // それでも 0 件なら market カテゴリ（PR TIMES 等）から直近 5 件を救済
-    if (!items.length) items = base.filter(n => n.category === 'market').slice().sort(byRecent).slice(0, 5);
+    // 0 件時のみ INDUSTRY_KEYWORDS（業界マクロ動向）でフォールバック救済
+    if (!items.length) {
+      items = base.filter(n => matchesIndustry(n)).slice().sort(byRecent);
+    }
     // 元記事リンクがない記事は表示しない（ニュースアプリとしてリンク必須）
     const withUrl = items.filter(n => n.url && /^https?:\/\//.test(n.url));
     if (!withUrl.length) {
