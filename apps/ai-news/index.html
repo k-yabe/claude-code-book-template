@@ -494,6 +494,8 @@
       font-weight: 600;
     }
     .hero-diversity b { color: var(--gold); font-weight: 800; }
+    .hero-newsince { color: var(--gold); font-weight: 700; margin-left: 4px; }
+    .hero-newsince b { color: var(--white); }
     /* ── 今週のトピック chips（hero 内クイック絞り込み）── */
     .hero-trend-chips {
       margin-top: var(--sp-3);
@@ -1187,15 +1189,19 @@
     .more-list > .fyi-card .fyi-title {
       font-size: 0.94rem; line-height: 1.4;
     }
-    /* コンパクトカード内で二次的な meta は隠してタイトル + ソース + 時刻に絞る */
+    /* コンパクトカード内では二次的な meta（src-type / multi / tool）は隠して、
+       タイトル + ソース + 時刻 + NEW（前回以降の発見性は残したい）に絞る */
     .more-list > .fyi-card .src-type,
-    .more-list > .fyi-card .meta-new-since,
     .more-list > .fyi-card .meta-multi,
     .more-list > .fyi-card .meta-tool-badge,
     .more-list > .fyi-card .fyi-why,
     .more-list > .fyi-card .fyi-action,
     .more-list > .fyi-card .fyi-tags {
       display: none;
+    }
+    /* NEW バッジはコンパクトでも残す（再訪時の「新規発見」が大事） */
+    .more-list > .fyi-card .meta-new-since {
+      font-size: 0.6rem; padding: 1px 4px;
     }
     .more-list > .fyi-card:hover .fyi-why,
     .more-list > .fyi-card:focus-within .fyi-why {
@@ -2437,9 +2443,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '04/20', text: '🚫 画像なし記事を全セクションで非表示に復帰／Google News リダイレクター URL を実記事 URL に解決して OGP 取得を強化／X トレンド件数を倍増（API 12件・閾値緩和）' },
-        { date: '04/20', text: '🏢 競合動向の誤マッチ修正：みずほ証券等の個別企業事例が「IT人材不足」で競合扱いされていた問題を修正。主要競合 50+社への直接言及に絞る' },
-        { date: '04/20', text: '📊 ヘッドライン・競合動向の件数：main 系 2 セクションは画像必須、外側セクションも画像必須に統一（次回のスクレイプで Google News に画像が付く）' }
+        { date: '04/20', text: '✨ 自律改善：各セクションの空状態メッセージを親切に／hero に「前回以降 N 件追加」表示／コンパクト fyi にも NEW バッジ／記事数カウント正確化' },
+        { date: '04/20', text: '🚫 画像なし記事を全セクションで非表示／Google News リダイレクター URL 解決を強化／X トレンド件数を倍増（API 12件・閾値緩和）' },
+        { date: '04/20', text: '🏢 競合動向の誤マッチ修正：みずほ証券等の個別企業事例が「IT人材不足」で競合扱いされていた問題を修正。主要競合 50+社への直接言及に絞る' }
       ]
     });
 
