@@ -524,6 +524,8 @@
     @media (max-width: 480px) {
       .hero-diversity { font-size: 0.72rem; }
       .hero-trend-chips .trend-chip { font-size: 0.72rem; padding: 3px 8px; }
+      /* モバイル狭幅では chip 数を 3 個に制限（overflow を防ぐ） */
+      .hero-trend-chips .trend-chip:nth-child(n+5) { display: none; }
     }
 
     .hero-stat-breakdown {
@@ -1169,6 +1171,7 @@
          - サムネイル: 小さめ（正方形に近い 72×72）
          - 本文: タイトル + メタ行のみ（なぜ重要か・アクション等の分析は hover で展開）
          - padding: 詰める（縦方向にどんどん並ぶ）
+         - 二次情報（source-type バッジ / NEW バッジ）は隠して視覚ノイズ削減
        これで注目ニュース（分析付き大きめカード）とヘッドライン（タイトル一覧）が
        ひと目で区別できる。 */
     .more-list > .fyi-card {
@@ -1176,17 +1179,19 @@
       gap: var(--sp-3);
       align-items: flex-start;
     }
-    .more-list > .fyi-card .fyi-thumb {
-      width: 72px; height: 72px;
-    }
+    .more-list > .fyi-card .fyi-thumb,
     .more-list > .fyi-card .fyi-visual {
       width: 72px; height: 72px;
+      flex-shrink: 0;
     }
     .more-list > .fyi-card .fyi-title {
       font-size: 0.94rem; line-height: 1.4;
     }
-    /* なぜ重要か／アクション／タグ／フッター内オプションは初期は隠して
-       ホバー or キーボードフォーカス時だけ展開する（クリック先で全部読める） */
+    /* コンパクトカード内で二次的な meta は隠してタイトル + ソース + 時刻に絞る */
+    .more-list > .fyi-card .src-type,
+    .more-list > .fyi-card .meta-new-since,
+    .more-list > .fyi-card .meta-multi,
+    .more-list > .fyi-card .meta-tool-badge,
     .more-list > .fyi-card .fyi-why,
     .more-list > .fyi-card .fyi-action,
     .more-list > .fyi-card .fyi-tags {
@@ -1196,6 +1201,12 @@
     .more-list > .fyi-card:focus-within .fyi-why {
       display: -webkit-box;
       margin-top: 4px;
+    }
+    .more-list > .fyi-card .fyi-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      gap: 8px;
+      margin-bottom: 3px;
     }
     /* タブレット以上では複数列 + コンパクト高さ */
     @media (min-width: 768px) {
@@ -1884,7 +1895,11 @@
       transition: transform 0.22s cubic-bezier(0.2,0.9,0.3,1), box-shadow 0.22s ease, opacity 0.3s ease;
       position: relative;
       display: flex; flex-direction: column; overflow: hidden;
+      /* グリッド内で高さを揃える（content の長短で段差が出ないように） */
+      height: 100%;
     }
+    /* brief-card 内の本文ブロックは下に伸びてカード高さを揃える */
+    .brief-card-content { flex: 1; display: flex; flex-direction: column; }
     .brief-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 14px 36px rgba(0,31,51,0.18);
@@ -2422,9 +2437,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '04/20', text: '🧭 セクション役割を明確化：「その他ニュース」→「ヘッドライン」（コンパクト表示）／注目ニュースと見た目で区別／3行サマリー途中切れ修正／競合動向に業界動向マッチも合算' },
-        { date: '04/20', text: '📰 ヘッドラインはメディア記事のみに：Zenn/Qiita/note の個人ブログを除外（hatena>=10 の例外のみ救済）' },
-        { date: '04/20', text: '🎯 品質ポリシー強化：画像なし記事は全セクションで非表示（on-demand OGP fetch で補完）／再掲記事を除外／X トレンドを日付バケット化' }
+        { date: '04/20', text: '✂ 3行サマリーの空欄・途中切れを根本対策：truncated 文（末尾「…」）は棄却して次のソース（summary → title）を試す／空行は deriveSummaryLines で補填／全体のデザイン崩れ対策（compact fyi のバッジ整理、カード高さ揃え、モバイル chip 制限）' },
+        { date: '04/20', text: '🧭 セクション役割を明確化：「その他ニュース」→「ヘッドライン」（コンパクト表示）／注目ニュースと見た目で区別／競合動向に業界動向マッチも合算' },
+        { date: '04/20', text: '📰 ヘッドラインはメディア記事のみに：Zenn/Qiita/note の個人ブログを除外（hatena>=10 の例外のみ救済）' }
       ]
     });
 
