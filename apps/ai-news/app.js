@@ -1852,9 +1852,19 @@
     // バズ閾値: likes + retweets×3 >= 1500（数を倍に増やしたいので少し緩和）。
     const X_BUZZ_MIN = 1500;
     const score = x => (Number(x.likes) || 0) + (Number(x.retweets) || 0) * 3;
-    const validItems = X_HIGHLIGHTS
+    // 著者ごとに 1 件のみ表示（同じ人ばかり並ぶのを防ぐ）。スコア降順で sort してから dedup。
+    const sortedByScore = X_HIGHLIGHTS
       .filter(x => x && x.url && /^https?:\/\//.test(x.url) && score(x) >= X_BUZZ_MIN)
       .sort((a, b) => score(b) - score(a));
+    const seenHandles = new Set();
+    const validItems = [];
+    for (const x of sortedByScore) {
+      const h = String(x.handle || x.author || '').toLowerCase().replace(/^@/, '');
+      if (!h) { validItems.push(x); continue; }
+      if (seenHandles.has(h)) continue; // 同一著者の 2 投稿目以降はスキップ
+      seenHandles.add(h);
+      validItems.push(x);
+    }
     if (!validItems.length) {
       // Xハイライトが空なら section 自体を非表示（偽情報を出さない）
       if (section) section.style.display = 'none';
