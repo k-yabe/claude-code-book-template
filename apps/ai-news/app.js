@@ -1852,9 +1852,10 @@
     // バズ閾値: likes + retweets×3 >= 1500（数を倍に増やしたいので少し緩和）。
     const X_BUZZ_MIN = 1500;
     const score = x => (Number(x.likes) || 0) + (Number(x.retweets) || 0) * 3;
-    // 著者ごとに最大 2 件まで表示（同じ人が独占するのは防ぐが、件数も確保する）。
-    // スコア降順で sort してから handle ごとにカウント。
-    const X_MAX_PER_AUTHOR = 2;
+    // 「人で絞る」のではなく「トレンドが高い記事」を素直にスコア順で並べる方針。
+    // 同じ著者が複数本トレンドに入っていれば、それは実際にバズっているので表示してよい。
+    // ただし 1 人だけが画面を独占する極端なケースを避けるため、ソフトキャップ（最大 3 件/著者）を入れる。
+    const X_SOFT_CAP_PER_AUTHOR = 3;
     const sortedByScore = X_HIGHLIGHTS
       .filter(x => x && x.url && /^https?:\/\//.test(x.url) && score(x) >= X_BUZZ_MIN)
       .sort((a, b) => score(b) - score(a));
@@ -1862,10 +1863,11 @@
     const validItems = [];
     for (const x of sortedByScore) {
       const h = String(x.handle || x.author || '').toLowerCase().replace(/^@/, '');
-      if (!h) { validItems.push(x); continue; }
-      const c = handleCount.get(h) || 0;
-      if (c >= X_MAX_PER_AUTHOR) continue;
-      handleCount.set(h, c + 1);
+      if (h) {
+        const c = handleCount.get(h) || 0;
+        if (c >= X_SOFT_CAP_PER_AUTHOR) continue; // 1 人で 3 件超は流石に独占すぎる
+        handleCount.set(h, c + 1);
+      }
       validItems.push(x);
     }
     if (!validItems.length) {
