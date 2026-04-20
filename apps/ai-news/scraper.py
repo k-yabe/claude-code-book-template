@@ -490,6 +490,25 @@ def parse_pub(entry: Any) -> datetime | None:
     return None
 
 
+# Google News RSS は news.google.com/rss/articles/... のリダイレクター URL を link に入れる。
+# description の中に実際の記事 URL が <a href="..."> で含まれているので抽出する。
+# こうすることで: ①OGP 画像取得が実 URL で実行できる、②ユーザーが記事を直接開ける。
+_GNEWS_REAL_URL_RE = re.compile(r'<a[^>]+href=["\'](https?://[^"\']+)["\']', re.IGNORECASE)
+
+def resolve_article_url(link: str, description: str | None) -> str:
+    """Google News 等のリダイレクター URL を実記事 URL に解決。解決できなければ元の link を返す。"""
+    if not link:
+        return link
+    if "news.google.com/" in link:
+        m = _GNEWS_REAL_URL_RE.search(description or "")
+        if m:
+            real = m.group(1)
+            # Google News 内部リンクは除外（cluster ページ等）
+            if "news.google.com" not in real:
+                return real
+    return link
+
+
 # 過去アーカイブの URL を読み込む参照日数。直近 N 日間のアーカイブに含まれる
 # 記事 URL は「既出」として今日の収集からは除外する（前日との重複表示を防ぐ）。
 ARCHIVE_DEDUP_DAYS = 2
@@ -541,7 +560,10 @@ def fetch_all() -> list[dict]:
             per_src_max = int(src.get("max", PER_SOURCE_MAX))
             src_tier = src.get("tier", "media")
             for e in d.entries[:per_src_max]:
-                url = (getattr(e, "link", None) or "").strip()
+                raw_link = (getattr(e, "link", None) or "").strip()
+                raw_desc = (getattr(e, "summary", "") or getattr(e, "description", "") or "")
+                # Google News 等のリダイレクター URL を実記事 URL に解決
+                url = resolve_article_url(raw_link, raw_desc).strip()
                 if not url or url in seen_urls:
                     continue
                 if url in prev_urls:
