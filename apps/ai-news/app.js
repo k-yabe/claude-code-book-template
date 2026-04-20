@@ -1172,22 +1172,25 @@
     }
     const usedIds = new Set([...mustKnow.map(n => n.id), ...thisWeek.map(n => n.id)]);
     // その他のニュース:
-    //   主要/注目に入らなかった記事のうち「最低限の注目度シグナル」があるものだけ残す。
-    //   - メディア記事: LLM が一定の判断を下しているのでそのまま採択
-    //   - UGC（Qiita/Zenn/note 等の個人ブログ）: hatena>=1 か matchesTool キーワードがある場合のみ採択
-    //     → 注目度ゼロの個人ブログ記事が「その他のニュース」に紛れ込むのを防ぐ。
-    //   ただし全件 drop で 0 件になるのも避けたいので、結果が 0 件なら閾値を緩めて全件採択にフォールバック。
+    //   方針: 「一般的に生成AI・マーケで話題になっているメディア記事」を載せる。
+    //   UGC（Qiita/Zenn/note 等の個人ブログ）は fyi には基本的に載せない。
+    //   ユーザーは「大手メディア発の記事」と「業界プレス／PR」を期待している。
+    //   - 通常: メディア記事のみ採択
+    //   - 例外: UGC でも hatena>=10 の高人気投稿は救済
+    //   - セーフティ: 全部 drop で 0 件になる日はゆるめて matchesTool UGC も採択
     const allRest = sorted.filter(n => !usedIds.has(n.id));
+    const STRICT_UGC_HATENA = 10; // UGC が fyi に入るための人気度閾値
     const hasSignal = (n) => {
-      if (!isUgc(n)) return true; // メディア記事は LLM の判断を尊重
+      if (!isUgc(n)) return true; // メディア記事は LLM の判断を尊重して基本採択
       const hatena = Number(n.hatenaCount) || 0;
-      if (hatena >= 1) return true;
-      if (matchesTool(n)) return true;
-      if (matchesAIBrand(n)) return true; // Claude/GPT/LLM 等の主要ブランド名を含む記事は救済
-      return false; // 上記いずれも該当しない UGC = 「全く注目されてない」と判定して drop
+      return hatena >= STRICT_UGC_HATENA; // UGC は高人気のみ救済
     };
     let fyi = allRest.filter(hasSignal);
-    if (!fyi.length) fyi = allRest; // セーフティ: 1件も残らなければ閾値を捨てて全件
+    // フォールバック: メディア記事が 0 件の日はゆるめる（matchesTool UGC を許可）
+    if (!fyi.length) {
+      fyi = allRest.filter(n => !isUgc(n) || matchesTool(n) || (Number(n.hatenaCount) || 0) >= 1);
+    }
+    if (!fyi.length) fyi = allRest; // 最終セーフティ
     return { mustKnow, thisWeek, fyi };
   }
 
