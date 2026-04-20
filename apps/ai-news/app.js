@@ -2961,8 +2961,6 @@
       markAllRead();
       showToast('全記事を既読にしました');
     });
-    const btnShare = document.getElementById('btn-share-brief');
-    if (btnShare) btnShare.addEventListener('click', shareDailyBrief);
     const btnNight = document.getElementById('btn-night-mode');
     if (btnNight) btnNight.addEventListener('click', toggleNightMode);
     applyNightMode();
@@ -2981,58 +2979,6 @@
         const more = document.getElementById('sec-more') || document.getElementById('more-list');
         if (more) more.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
-    }
-  }
-
-  /** 「今日のブリーフィング」を Slack/メール向けのテキストにして共有（Web Share API → clipboard）。
-   *  Slack に貼り付けるとそのまま読みやすくなるよう、絵文字付き見出し・空行・URL を含めた構造化テンプレ。 */
-  async function shareDailyBrief() {
-    const { mustKnow, thisWeek } = partition();
-    const d = new Date();
-    const dateStr = `${d.getMonth()+1}/${d.getDate()}(${WEEKDAYS[d.getDay()]})`;
-    const header = `📰 *AI NEWS — ${dateStr} 朝のブリーフ*`;
-    const lines = [header, ''];
-    // 3 行サマリー
-    if (EXEC_SUMMARY && EXEC_SUMMARY.length) {
-      lines.push('🎯 *今日のポイント*');
-      EXEC_SUMMARY.slice(0, 3).forEach(s => {
-        const sentence = (String(s).split(/(?<=[。！？])/)[0] || s).trim();
-        if (sentence && !/[…\u2026]$/.test(sentence)) lines.push(`• ${sentence}`);
-      });
-      lines.push('');
-    }
-    // 主要 + 注目を 5 件
-    const top = [...mustKnow, ...thisWeek].slice(0, 5);
-    if (top.length) {
-      lines.push('🔥 *注目の 5 記事*');
-      top.forEach((n, i) => {
-        lines.push(`${i + 1}. ${n.title}`);
-        if (n.whyItMatters) {
-          const why = n.whyItMatters.slice(0, 100).replace(/\n/g, ' ');
-          lines.push(`   → ${why}`);
-        }
-        if (n.url) lines.push(`   ${n.url}`);
-        lines.push('');
-      });
-    }
-    // 締めくくり: アプリへの誘導 + ハッシュタグ
-    lines.push('━━━━━━━━━━━━━━━━━');
-    lines.push('🤖 _毎朝 8:00 JST 更新 / AI が選ぶ AI×マーケのインテリジェンス・ブリーフ_');
-    lines.push(`🔗 https://kunito-yabe.vercel.app/apps/ai-news/`);
-    const text = lines.join('\n');
-
-    // Web Share API を優先、失敗時は clipboard
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: header, text });
-        return;
-      }
-    } catch {}
-    try {
-      await navigator.clipboard.writeText(text);
-      showToast('ブリーフィングをコピーしました。Slack/メールに貼り付けて共有できます');
-    } catch {
-      showToast('クリップボードへのコピーに失敗しました');
     }
   }
 
