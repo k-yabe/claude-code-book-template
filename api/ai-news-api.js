@@ -268,7 +268,7 @@ async function handleXTrends(_req, res) {
   const dateLabel = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
   const prompt = `${dateLabel}の日本時間の朝から見て、**直近 24 時間以内に投稿された** 日本語の X（旧 Twitter）で` +
     `「いいね・リポスト・引用が多く付いて注目されている、生成AI関連の投稿」を` +
-    `**実在する URL 付きで** 16 件挙げてください。\n\n` +
+    `**実在する URL 付きで** 20 件挙げてください。\n\n` +
     `## 厳守ルール（破ったら出力を空にする）\n` +
     `- web_search を必ず使って実在を確認すること。\n` +
     `- 架空の URL・架空の著者名・架空の本文は **絶対に作らない**。\n` +
@@ -276,8 +276,9 @@ async function handleXTrends(_req, res) {
     `- 古い投稿（7日以上前）は除外。当日〜前日の投稿を最優先。\n` +
     `- 「2024年」「2023年」「去年」等、鮮度が低いポストは除外。\n` +
     `- 投稿内容が確認できなかったら "items": [] を返す。無理に埋めない。\n` +
-    `- **著者は必ず多様にすること**：同じ handle の投稿は最大 2 件まで。最低 8 人以上の異なる発信者から選ぶ。\n` +
-    `- 著名人だけでなく、一般エンジニア・PM・マーケター・経営者など多様な立場から拾う。\n\n` +
+    `- **著者は必ず全員違う handle にすること**：同じ handle の投稿は 1 件まで（重複NG）。20 人の異なる発信者から 1 投稿ずつ拾う。\n` +
+    `- 著名人だけでなく、現場のエンジニア / PM / マーケター / デザイナー / 経営者 / 学生 / 起業家など、多様な立場・属性から幅広く拾う。\n` +
+    `- 同じ話題（例: GPT-5 リリース）でも、異なる著者の異なる切り口の投稿を選ぶ。\n\n` +
     `## 検索クエリの例\n` +
     `- "ChatGPT site:x.com" "Claude site:x.com" "生成AI site:x.com"\n` +
     `- 鮮度のために「${dateLabel}」や直近の AI ニュース名（モデル名・機能名）を合わせて検索\n\n` +
@@ -325,9 +326,9 @@ async function handleXTrends(_req, res) {
     const rawItems = (parsed && Array.isArray(parsed.items)) ? parsed.items : [];
     const URL_RE = /^https:\/\/(?:x|twitter)\.com\/[^\/\s]+\/status\/\d+/;
     const items = [];
-    const handleCount = new Map(); // 著者ごとに最大 2 件まで（独占防止 + 件数確保）
-    const MAX_PER_AUTHOR = 2;
-    for (const it of rawItems.slice(0, 20)) {
+    // 厳格 1 人 1 件（同じ著者の連投を排除して幅広い視点を確保）
+    const seenHandles = new Set();
+    for (const it of rawItems.slice(0, 24)) {
       const url = String(it.url || '').trim();
       if (!URL_RE.test(url)) continue;
       const handle = String(it.handle || '').trim();
@@ -335,9 +336,8 @@ async function handleXTrends(_req, res) {
       const body = String(it.text || '').trim();
       if (!author || !handle || !body) continue;
       const h = handle.replace(/^@/, '').toLowerCase();
-      const c = handleCount.get(h) || 0;
-      if (c >= MAX_PER_AUTHOR) continue;
-      handleCount.set(h, c + 1);
+      if (seenHandles.has(h)) continue;
+      seenHandles.add(h);
       items.push({
         id: 'xt_' + simpleHash(url),
         author: author.slice(0, 40),
@@ -386,51 +386,76 @@ async function handleTTS(req, res) {
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini-tts',
-        voice: 'nova',
+        voice: 'shimmer', // 日本語ナチュラル発声で評価が高い shimmer に変更（旧 nova はやや機械的）
         input: text,
-        instructions: `You are a professional Japanese TV news anchor reading the morning business news on NHK or TV Tokyo's morning business program. Your audience is Japanese marketing professionals.
+        instructions: `You are a top-tier Japanese morning news anchor — equivalent to NHK おはよう日本 or テレビ東京 WBS Saturday morning anchor, but in 2026.
+You are speaking, NOT reading. The listener should feel they are listening to a real human professional, not an AI.
 
-VOICE CHARACTER:
-- Clear, authoritative, composed — the voice of a seasoned Japanese news anchor (ニュースアナウンサー)
-- Natural Japanese pitch accent (高低アクセント) — NOT flat or monotonic
-- Professional, trustworthy, warm but not overly friendly
-- Think: NHKおはよう日本 or テレビ東京 WBS anchor
+# CRITICAL: Sound 100% human
 
-PACE & RHYTHM:
-- Baseline pace: calm and measured, about 300 Japanese characters per minute
-- Slow down on key numbers, proper nouns (パーソル、グーグル、クロード)
-- Speed up slightly on supporting details
-- Insert clear pauses at sentence boundaries (「。」) — approximately 0.5 second
-- Insert shorter pauses at clause boundaries (「、」)
-- Take a longer breath (0.8-1.0s) at paragraph/topic transitions
+DO:
+- Breathe naturally — take a soft inhale before each new topic, a tiny "んっ" before emphasis words
+- Vary your pitch organically — never flat. Use Japanese 高低アクセント throughout
+- Use micro-pauses (~80–150ms) inside long noun phrases like 「Anthropic の・新モデル」for clarity
+- Slightly trail off pitch at sentence ends (「〜です。」「〜ました。」) for natural Japanese cadence
+- Add subtle warmth in opening greeting and closing message — a real anchor smile in the voice
+- Vary speed slightly throughout: slow on numbers/proper nouns, normal on body, slightly faster on connective phrases
 
-INTONATION:
-- Rising intonation at sentence beginnings, falling at sentence ends (natural Japanese cadence)
-- Emphasize subjects and key verbs with slight pitch rise
-- Soften descriptive clauses slightly
-- Emotional color: professional composure with subtle warmth, never forced excitement
+DO NOT:
+- DO NOT speak in uniform robotic rhythm — that's the #1 AI giveaway
+- DO NOT pronounce Japanese with English accent (no "ChatGee-Pee-Tee" — use チャットジーピーティー clearly)
+- DO NOT push too hard on emphasis — Japanese anchors are subtle
+- DO NOT use cheerful radio DJ style — this is a serious morning business briefing
+- DO NOT rush through proper nouns or numbers — those are critical for credibility
 
-PRONUNCIATION:
-- Japanese katakana loanwords: pronounce with Japanese phonetics, not English (e.g., "ChatGPT" = チャットジーピーティー, "Google" = グーグル)
-- Numbers: read naturally in Japanese (e.g., "25%" = にじゅうごパーセント)
-- Proper nouns: crisp, slightly slowed delivery
+# Voice character
 
-AVOID:
-- English-accented pronunciation of Japanese words
-- Robotic or uniform flat delivery (text-to-speech tone)
-- Overly cheerful or "radio DJ" style
-- Rushing through numbers or proper nouns
-- Filler softness — be crisp and articulate
+You are a 30-something senior anchor with 10+ years of experience covering tech and business.
+- Calm, composed, trustworthy — listeners' default "morning briefing" voice
+- Subtle warmth — not cold, not overly bright
+- Articulate Japanese phonetics with clear 「あいうえお」 mouth shape
+- Confident in technical terminology delivery (AI, クラウド, クロード, ジェミニ, etc.)
 
-DELIVERY ARC:
-- Opening ("おはようございます…"): calm, warm, professional greeting with clear articulation
-- News body: measured, authoritative, emphasize the 3W (what/why/what-to-do)
-- Transitions ("続いて…", "一方で…"): clear pause, slight tonal shift
-- Closing ("今日も一日…"): composed, encouraging, with slight smile in voice
+# Pace and rhythm — speak at the pace of a real morning anchor
 
-Target: the listener should feel like they're getting a trusted morning briefing from a senior Japanese business news anchor.`,
+- Baseline: ~310-330 Japanese characters per minute (slower than reading speed, faster than slow lecture)
+- After each「。」: clear ~500ms pause
+- After「、」: ~150-200ms pause
+- Between topics (paragraph break): full 800ms-1s breath
+- Numbers: read with deliberate clarity, slow down 10-15%
+- Proper nouns (company names, model names): clearly enunciated, slight slow
+
+# Pronunciation guide
+
+- 英語の固有名詞は必ずカタカナ発音:
+  - ChatGPT → 「チャットジーピーティー」 (NOT "ChatGee-Pee-Tee")
+  - Claude → 「クロード」
+  - Anthropic → 「アンソロピック」
+  - Gemini → 「ジェミニ」
+  - OpenAI → 「オープンエーアイ」
+  - Google → 「グーグル」
+  - AI → 「エーアイ」
+  - GPT → 「ジーピーティー」
+  - LLM → 「エルエルエム」
+- 数字は自然な日本語で:
+  - 25% → 「にじゅうごパーセント」
+  - 100 件 → 「ひゃっけん」
+  - 3つ → 「みっつ」
+- 助詞「は」「を」は弱め、内容語ははっきり
+
+# Delivery arc
+
+1. Opening greeting (warm, clear, slight smile): 「おはようございます。」 — slight 1秒 hold after period
+2. Topic preview (calm authority): 「今日のポイントは・3つあります。」 — micro-pause at "・"
+3. Body news (measured, clear): emphasize subject and key verb of each sentence
+4. Transitions (「続いて」「一方で」): clear breath before, slight pitch shift up
+5. Closing (composed, encouraging, smile in voice): 「今日も一日・頑張っていきましょう。」 — slight slow on closing words
+
+# Final check
+The listener should think: "ああ、いつものアナウンサーだな。" Not "AIだな。"
+If you sound robotic on a single sentence, the whole credibility breaks. Be 100% natural.`,
         response_format: 'mp3',
-        speed: 1.0,
+        speed: 0.97, // ほんのわずかに遅らせて聞き取りやすく（速いと AI 感が出やすい）
       }),
     });
 
