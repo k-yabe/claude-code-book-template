@@ -1882,6 +1882,20 @@
     if (sectionHead && sectionHead.classList && sectionHead.classList.contains('sec-head')) {
       sectionHead.style.display = '';
     }
+    // セクション件数バッジを更新
+    const xCountEl = document.getElementById('count-x');
+    if (xCountEl) xCountEl.textContent = String(validItems.length);
+    // データソース表示（API取得 vs シードフォールバック）— トレンドが本当に取れているか可視化
+    const xSrcLabel = document.getElementById('x-source-label');
+    if (xSrcLabel) {
+      const src = (window.__xTrendSource || 'seed');
+      const uniqueAuthors = new Set(validItems.map(x => String(x.handle || '').toLowerCase())).size;
+      if (src === 'api' || src === 'api-cached') {
+        xSrcLabel.innerHTML = `📡 Claude + web_search で当日の話題ポストを取得 · ${validItems.length} 投稿 / ${uniqueAuthors} 著者`;
+      } else {
+        xSrcLabel.innerHTML = `📌 シードプール表示中（API 未取得 or 失敗） · ${validItems.length} 投稿 / ${uniqueAuthors} 著者`;
+      }
+    }
     // 実データの engagement（likes/retweets）がある場合のみ正確な順に並べる。
     // 推定値は信頼性に欠けるため、エンゲージメント表示は X API 連携後に復活予定。
     root.innerHTML = validItems.map((x, i) => {
@@ -2083,6 +2097,7 @@
             Array.isArray(cached.items) && cached.items.length &&
             Date.now() - (cached.at || 0) < X_TRENDS_TTL_MS) {
           X_HIGHLIGHTS = cached.items;
+          window.__xTrendSource = 'api-cached'; // データソース表示用
           return true;
         }
       }
@@ -2099,6 +2114,7 @@
       const json = await res.json();
       const items = Array.isArray(json && json.items) ? json.items : [];
       if (!items.length) return false;
+      window.__xTrendSource = 'api'; // データソース表示用
       X_HIGHLIGHTS = items.map((x, i) => ({
         id: x.id || ('x_' + i),
         author: String(x.author || ''),

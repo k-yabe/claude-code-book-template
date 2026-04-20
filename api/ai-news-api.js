@@ -266,22 +266,23 @@ async function handleXTrends(_req, res) {
   }
   const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
   const dateLabel = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
-  const prompt = `${dateLabel}の日本時間の朝から見て、**直近 24 時間以内に投稿された** 日本語の X（旧 Twitter）で` +
-    `「いいね・リポスト・引用が多く付いて注目されている、生成AI関連の投稿」を` +
-    `**実在する URL 付きで** 20 件挙げてください。\n\n` +
-    `## 厳守ルール（破ったら出力を空にする）\n` +
-    `- web_search を必ず使って実在を確認すること。\n` +
+  const prompt = `${dateLabel}に「日本語の X（旧 Twitter）で生成AI関連でバズっている投稿」を 24 件、` +
+    `**実在する URL 付きで** 全力で集めてください。著者の偏りは気にしなくて良い。トレンドこそが基準。\n\n` +
+    `## 検索アプローチ（必ず複数の web_search クエリを実行）\n` +
+    `1. "Claude" OR "Anthropic" のバズ投稿（キーワード: "Claude site:x.com", "Anthropic site:x.com"）\n` +
+    `2. "ChatGPT" OR "OpenAI" OR "GPT" のバズ投稿\n` +
+    `3. "Gemini" OR "Sora" のバズ投稿\n` +
+    `4. "プロンプト" OR "AIエージェント" OR "AI活用" のバズ投稿\n` +
+    `5. 直近のAIニュース（モデル発表・新機能・話題のリリース）に関する反応\n` +
+    `6. AIマーケティング・AIコーディング・AIツール活用の話題\n\n` +
+    `## 厳守ルール\n` +
+    `- web_search を **複数回実行** して幅広く集める（1 クエリで終わらせない）。\n` +
     `- 架空の URL・架空の著者名・架空の本文は **絶対に作らない**。\n` +
     `- URL は https://x.com/<handle>/status/<id> または https://twitter.com/<handle>/status/<id> の形式のみ。\n` +
-    `- 古い投稿（7日以上前）は除外。当日〜前日の投稿を最優先。\n` +
-    `- 「2024年」「2023年」「去年」等、鮮度が低いポストは除外。\n` +
+    `- 直近 48 時間以内の投稿を最優先、最大でも 7 日以内。\n` +
     `- 投稿内容が確認できなかったら "items": [] を返す。無理に埋めない。\n` +
-    `- **著者は必ず全員違う handle にすること**：同じ handle の投稿は 1 件まで（重複NG）。20 人の異なる発信者から 1 投稿ずつ拾う。\n` +
-    `- 著名人だけでなく、現場のエンジニア / PM / マーケター / デザイナー / 経営者 / 学生 / 起業家など、多様な立場・属性から幅広く拾う。\n` +
-    `- 同じ話題（例: GPT-5 リリース）でも、異なる著者の異なる切り口の投稿を選ぶ。\n\n` +
-    `## 検索クエリの例\n` +
-    `- "ChatGPT site:x.com" "Claude site:x.com" "生成AI site:x.com"\n` +
-    `- 鮮度のために「${dateLabel}」や直近の AI ニュース名（モデル名・機能名）を合わせて検索\n\n` +
+    `- **著者の偏りは気にしない**：トレンドが基準。同じ著者が 2-3 件入っても OK（バズっているなら）。\n` +
+    `- 著名人だけでなく、現場のエンジニア / PM / マーケター / デザイナー / 経営者 / 学生 / 起業家など、多様な立場から幅広く拾う。\n\n` +
     `## 出力フォーマット（JSON のみ、説明文なし、コードフェンス無し）\n` +
     `{"items":[{"author":"表示名","handle":"@xxxx","text":"本文（200字以内に整形可）",` +
     `"url":"https://x.com/<handle>/status/<id>","tag":"短いトピック名"}, ...]}`;
@@ -326,9 +327,10 @@ async function handleXTrends(_req, res) {
     const rawItems = (parsed && Array.isArray(parsed.items)) ? parsed.items : [];
     const URL_RE = /^https:\/\/(?:x|twitter)\.com\/[^\/\s]+\/status\/\d+/;
     const items = [];
-    // 厳格 1 人 1 件（同じ著者の連投を排除して幅広い視点を確保）
-    const seenHandles = new Set();
-    for (const it of rawItems.slice(0, 24)) {
+    // トレンド優先（著者で絞らない）。1 人独占を防ぐソフトキャップ最大 3 件/著者。
+    const handleCount = new Map();
+    const MAX_PER_AUTHOR = 3;
+    for (const it of rawItems.slice(0, 30)) {
       const url = String(it.url || '').trim();
       if (!URL_RE.test(url)) continue;
       const handle = String(it.handle || '').trim();
@@ -336,8 +338,9 @@ async function handleXTrends(_req, res) {
       const body = String(it.text || '').trim();
       if (!author || !handle || !body) continue;
       const h = handle.replace(/^@/, '').toLowerCase();
-      if (seenHandles.has(h)) continue;
-      seenHandles.add(h);
+      const c = handleCount.get(h) || 0;
+      if (c >= MAX_PER_AUTHOR) continue;
+      handleCount.set(h, c + 1);
       items.push({
         id: 'xt_' + simpleHash(url),
         author: author.slice(0, 40),
