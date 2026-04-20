@@ -1297,13 +1297,25 @@
     animateCount(document.getElementById('stat-read'), read, '分');
     const bd = document.getElementById('stat-breakdown');
     if (bd) bd.innerHTML = `<b>${mustCount}</b>主要 · <b>${weekCount}</b>注目 · <b>${fyiCount}</b>その他`;
+    // 「前回訪問以降に N 件追加」プロンプト（再訪時の発見性UP）
+    const newSinceCount = NEWS_DATA.filter(isNewSinceLastVisit).length;
+    const diversityEl = document.getElementById('hero-diversity');
+    if (diversityEl && newSinceCount > 0) {
+      // diversity の前に NEW 表示を仕込む（aggregate 後に上書きされないように先に設定）
+      diversityEl.dataset.newSince = String(newSinceCount);
+    }
     // ── ソース多様性バッジ + 今週のトピック chips（毎日違う見え方を作る信頼シグナル） ──
     aggregateHeroSignals().then(({ sourceCount, topTags }) => {
       const diversity = document.getElementById('hero-diversity');
       if (diversity) {
+        const newSince = Number(diversity.dataset.newSince || 0);
         if (sourceCount > 0) {
           diversity.style.display = '';
-          diversity.innerHTML = `📡 <b>${sourceCount}</b> 媒体・<b>${total}</b> 記事から精選（直近 7 日）`;
+          let html = `📡 <b>${sourceCount}</b> 媒体・<b>${total}</b> 記事から精選（直近 7 日）`;
+          if (newSince > 0) {
+            html += ` · <span class="hero-newsince">⭕ 前回以降 <b>${newSince}</b> 件追加</span>`;
+          }
+          diversity.innerHTML = html;
         }
       }
       const trend = document.getElementById('hero-trend-chips');
@@ -1499,7 +1511,7 @@
   function renderMustKnow(items) {
     const root = document.getElementById('must-know');
     if (!items.length) {
-      root.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">本日の主要ニュースはまだ入ってきていません</div></div>';
+      root.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">本日は主要メディア（ITmedia / 日経 / ASCII / Publickey 等）から該当する重要ニュースが届いていません。<br>明朝 8:00 JST の定期更新をお待ちください。</div></div>';
       return;
     }
     root.innerHTML = items.map((n, idx) => {
@@ -1587,7 +1599,7 @@
   function renderThisWeek(items) {
     const root = document.getElementById('this-week');
     if (!items.length) {
-      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-text">注目ニュースはありません</div></div>';
+      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">⚡</div><div class="empty-text">本日は注目ニュース該当なし。<br>主要ニュース と ヘッドライン もご確認ください。</div></div>';
       return;
     }
     root.innerHTML = items.map((n, i) => {
@@ -1714,7 +1726,7 @@
     // パーソナライズ: カテゴリフィルタがallの場合、閲覧傾向で並び替え
     const sortedAll = state.activeCat === 'all' ? getPersonalizedOrder(items) : items;
     if (!sortedAll.length) {
-      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">📭</div><div class="empty-text">条件に一致するニュースがありません</div></div>';
+      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">🔍</div><div class="empty-text">フィルタに一致するニュースがありません。<br>「すべて」タブをクリックしてリセットしてください。</div></div>';
       const mb = document.getElementById('more-expand-btn');
       if (mb) mb.setAttribute('hidden', '');
       return;
