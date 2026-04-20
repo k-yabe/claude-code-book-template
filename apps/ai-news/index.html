@@ -1778,6 +1778,20 @@
       background: #00ffff;
       box-shadow: 0 0 6px rgba(0,255,255,0.9);
     }
+    /* 準備中: スピナー風の右上ドット（ゴールド脈動） */
+    .audio-btn.preparing::after {
+      content: ''; position: absolute; top: 6px; right: 6px;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold);
+      animation: audioPrepBlink 1.1s ease-in-out infinite;
+    }
+    @keyframes audioPrepBlink {
+      0%, 100% { opacity: 0.4; transform: scale(0.85); }
+      50%      { opacity: 1; transform: scale(1.15); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .audio-btn.preparing::after { animation: none; }
+    }
     @keyframes audioPlayingPulse {
       0%, 100% { box-shadow: inset 0 0 0 0 rgba(255,184,28,0); }
       50%      { box-shadow: inset 0 0 16px 2px rgba(255,184,28,0.25); }
@@ -2448,9 +2462,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '04/20', text: '🧹 ツールバーから不要な「📤 ブリーフィングを共有」ボタンを撤去（使われていない機能を削除してシンプルに）' },
-        { date: '04/20', text: '🔍 X トレンドの透明性向上：データソース可視化（API取得 vs シード）／API プロンプトを 24 件全力収集に拡張' },
-        { date: '04/20', text: '🎤 AI音声ダイジェストを業界最高品質に：ElevenLabs 対応／40+の英字頭字語をカタカナ読みに自動置換（NEC→エヌイーシー 等の誤読を解消）' }
+        { date: '04/20', text: '⚡ AI音声ダイジェストを「クリック即再生」に：プリロードを IIFE トップに前倒し／MP3 バイト prewarm（canplaythrough 待機）／UI 状態を4段階で可視化（準備中→台本執筆→ナレーション生成→準備完了）' },
+        { date: '04/20', text: '🧹 ツールバーから不要な「📤 ブリーフィングを共有」ボタンを撤去' },
+        { date: '04/20', text: '🔍 X トレンドの透明性向上：データソース可視化（API取得 vs シード）／API プロンプトを 24 件全力収集に拡張' }
       ]
     });
 
