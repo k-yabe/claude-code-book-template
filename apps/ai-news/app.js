@@ -1394,42 +1394,63 @@
 
   /* ── Executive Summary ── */
   /** 実データで EXEC_SUMMARY が空の時、top記事 3件から 1 文で簡易サマリーを生成。
-   *  ハード 78字カットは廃止 — 連用形で切れて「文章途中で切れてる」と誤解されるため。
-   *  各記事の whyItMatters / summary の **先頭 1 文** をそのまま返す。長さ制御は CSS 折返しに任せる。 */
+   *  各記事について whyItMatters → summary → title の優先で、日本語句点で終わる
+   *  綺麗な先頭 1 文を選ぶ。「…」で終わる truncated 文は棄却して次のソースを試す。 */
+  function endsWithEllipsis(s) {
+    if (!s) return false;
+    return /[…\u2026]$/.test(s) || /\.{3}$/.test(s);
+  }
+  function firstCleanSentence(text) {
+    if (!text) return '';
+    const t = String(text).trim();
+    if (t.length < 10) return '';
+    const parts = t.split(/(?<=[。！？])/).map(s => s.trim()).filter(Boolean);
+    const first = parts[0] || t;
+    // truncated な文（「…」や「...」で終わる）は採用しない
+    if (endsWithEllipsis(first)) return '';
+    return first;
+  }
   function deriveSummaryLines() {
     const { mustKnow, thisWeek, fyi } = partition();
     const pick = [...mustKnow, ...thisWeek, ...fyi].slice(0, 3);
     return pick.map(n => {
-      const base = (n.whyItMatters && n.whyItMatters.length > 8) ? n.whyItMatters : n.summary;
-      if (base && base.length > 10) {
-        // 先頭 1 文（「。」「！」「？」まで）を抽出、無ければ全文を返す
-        const firstSent = (String(base).split(/(?<=[。！？])/)[0] || base).trim();
-        return firstSent;
+      // 3 種類のソースを順に試して、最初に「綺麗に句点で終わる 1 文」が取れたものを採用
+      const sources = [n.whyItMatters, n.summary, n.title];
+      for (const src of sources) {
+        const s = firstCleanSentence(src);
+        if (s) return s;
       }
-      return n.title;
+      // どれも truncated なら最終フォールバックとして title（通常は短いので安全）
+      return String(n.title || '').trim();
     });
   }
   /** 3行サマリーの各行を整える。
    *  方針: 日本語の 1 文（「。」「！」「？」で終わる）なら **文字数に関わらず全文を表示する**。
-   *  読点「、」で切り詰めると連用形（〜し、〜で、等）で終わって「文章途中で切れてる」と
-   *  見えるため、中途半端な truncation はしない。長さ制御は CSS（折り返し）に任せる。
-   *  複数文に分かれている場合だけ、最初の 1 文に絞る（冗長な補足を避けるため）。 */
+   *  ただし truncated（末尾「…」/「...」）な行は空扱いで除外 — 「文章途中で切れてる」誤認を防ぐ。 */
   function tightenSummaryLine(s) {
     const raw = String(s || '').trim();
     if (!raw) return '';
-    // 「。」「！」「？」で切り出した先頭文を返す（末尾の句点は保持）。
-    // 句点がなければそのまま全文を返す（無闇に …で切らない）。
-    const sentences = raw.split(/(?<=[。！？])/).map(s => s.trim()).filter(Boolean);
-    return sentences[0] || raw;
+    // 最初の「。」「！」「？」までを 1 文として抽出
+    const sentences = raw.split(/(?<=[。！？])/).map(x => x.trim()).filter(Boolean);
+    const first = sentences[0] || raw;
+    // truncated な行（「…」「...」で終わる）は除外 → filter(Boolean) で消える
+    if (/[…\u2026]$/.test(first) || /\.{3}$/.test(first)) return '';
+    return first;
   }
   function renderExecSummary() {
     const root = document.getElementById('exec-summary');
     if (!root) return;
-    let lines = EXEC_SUMMARY;
-    if (!lines || !lines.length || lines.every(l => !String(l || '').trim())) {
-      lines = deriveSummaryLines();
+    // まず LLM 生成の EXEC_SUMMARY を試す（個別行が「…」で終わっていたり空なら採用しない）
+    let lines = (EXEC_SUMMARY || []).map(tightenSummaryLine).filter(Boolean);
+    // 空行・truncated 行で埋まっている / 不足している場合は deriveSummaryLines で補完
+    if (lines.length < 3) {
+      const derived = deriveSummaryLines().map(tightenSummaryLine).filter(Boolean);
+      const seen = new Set(lines);
+      for (const d of derived) {
+        if (lines.length >= 3) break;
+        if (!seen.has(d)) { lines.push(d); seen.add(d); }
+      }
     }
-    lines = (lines || []).map(tightenSummaryLine).filter(Boolean);
     if (!lines || !lines.length) {
       root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">📋</div><div class="empty-text">本日のサマリーは準備中です。<br>明朝 8:00 JST の定期更新までお待ちください。</div></div>';
       return;
