@@ -268,7 +268,7 @@ async function handleXTrends(_req, res) {
   const dateLabel = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
   const prompt = `${dateLabel}の日本時間の朝から見て、**直近 24 時間以内に投稿された** 日本語の X（旧 Twitter）で` +
     `「いいね・リポスト・引用が多く付いて注目されている、生成AI関連の投稿」を` +
-    `**実在する URL 付きで** 12 件挙げてください。\n\n` +
+    `**実在する URL 付きで** 16 件挙げてください。\n\n` +
     `## 厳守ルール（破ったら出力を空にする）\n` +
     `- web_search を必ず使って実在を確認すること。\n` +
     `- 架空の URL・架空の著者名・架空の本文は **絶対に作らない**。\n` +
@@ -276,7 +276,7 @@ async function handleXTrends(_req, res) {
     `- 古い投稿（7日以上前）は除外。当日〜前日の投稿を最優先。\n` +
     `- 「2024年」「2023年」「去年」等、鮮度が低いポストは除外。\n` +
     `- 投稿内容が確認できなかったら "items": [] を返す。無理に埋めない。\n` +
-    `- **著者は必ず多様にすること**：同じ handle の投稿は 1 件まで。12 人の異なる発信者から選ぶ。\n` +
+    `- **著者は必ず多様にすること**：同じ handle の投稿は最大 2 件まで。最低 8 人以上の異なる発信者から選ぶ。\n` +
     `- 著名人だけでなく、一般エンジニア・PM・マーケター・経営者など多様な立場から拾う。\n\n` +
     `## 検索クエリの例\n` +
     `- "ChatGPT site:x.com" "Claude site:x.com" "生成AI site:x.com"\n` +
@@ -325,8 +325,9 @@ async function handleXTrends(_req, res) {
     const rawItems = (parsed && Array.isArray(parsed.items)) ? parsed.items : [];
     const URL_RE = /^https:\/\/(?:x|twitter)\.com\/[^\/\s]+\/status\/\d+/;
     const items = [];
-    const seenHandles = new Set(); // 著者重複を排除（同じ人ばかり並ぶ問題対策）
-    for (const it of rawItems.slice(0, 16)) {
+    const handleCount = new Map(); // 著者ごとに最大 2 件まで（独占防止 + 件数確保）
+    const MAX_PER_AUTHOR = 2;
+    for (const it of rawItems.slice(0, 20)) {
       const url = String(it.url || '').trim();
       if (!URL_RE.test(url)) continue;
       const handle = String(it.handle || '').trim();
@@ -334,8 +335,9 @@ async function handleXTrends(_req, res) {
       const body = String(it.text || '').trim();
       if (!author || !handle || !body) continue;
       const h = handle.replace(/^@/, '').toLowerCase();
-      if (seenHandles.has(h)) continue; // 同一著者の 2 投稿目以降はスキップ
-      seenHandles.add(h);
+      const c = handleCount.get(h) || 0;
+      if (c >= MAX_PER_AUTHOR) continue;
+      handleCount.set(h, c + 1);
       items.push({
         id: 'xt_' + simpleHash(url),
         author: author.slice(0, 40),
