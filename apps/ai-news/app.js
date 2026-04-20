@@ -1119,17 +1119,33 @@
     //     hatena>=1 か matchesTool/matchesAIBrand を必須にする。LLM タグだけで「注目」扱いにすると
     //     「全く注目されてない個人ブログ」が紛れ込む。
     //  ②件数不足なら fyi から「非UGCメディア かつ 人気度シグナルあり」の記事のみ昇格。
+    //  ③画像が無い記事（Google News リダイレクター起源など）は見た目が揃わないので基本的に fyi に回し、
+    //     足りない時だけ拾う（画像優先 → 画像なし補填の 2 段階）。
     //  主要ニュースと同じ話題の記事もここでは除外して重複表示を防ぐ。
     const THIS_WEEK_MAX = 6;
     const dedupAgainst = (candidate, existing) => existing.some(p => sameStory(p.title, candidate.title));
     const ugcHasSignal = (n) => (Number(n.hatenaCount) || 0) >= 1 || matchesTool(n) || matchesAIBrand(n);
+    const hasImage = (n) => !!(n.image && /^https?:\/\//.test(n.image));
     let thisWeek = [];
+    // パス1: this_week urgency + 画像あり を先に拾う（見た目が揃う）
     for (const n of sorted.filter(n => n.urgency === 'this_week' && !usedIds1.has(n.id))) {
       if (thisWeek.length >= THIS_WEEK_MAX) break;
-      if (isUgc(n) && !ugcHasSignal(n)) continue; // 注目度シグナルゼロの UGC は this_week から除外
+      if (!hasImage(n)) continue;
+      if (isUgc(n) && !ugcHasSignal(n)) continue;
       if (dedupAgainst(n, mustKnow)) continue;
       if (dedupAgainst(n, thisWeek)) continue;
       thisWeek.push(n);
+    }
+    // パス2: 不足していたら画像なしの this_week 記事でも拾う（視覚的フォールバックあり）
+    if (thisWeek.length < THIS_WEEK_MAX) {
+      for (const n of sorted.filter(n => n.urgency === 'this_week' && !usedIds1.has(n.id))) {
+        if (thisWeek.length >= THIS_WEEK_MAX) break;
+        if (hasImage(n)) continue; // パス1 で拾済
+        if (isUgc(n) && !ugcHasSignal(n)) continue;
+        if (dedupAgainst(n, mustKnow)) continue;
+        if (dedupAgainst(n, thisWeek)) continue;
+        thisWeek.push(n);
+      }
     }
     if (thisWeek.length < THIS_WEEK_MAX) {
       const existing = new Set(thisWeek.map(n => n.id));
