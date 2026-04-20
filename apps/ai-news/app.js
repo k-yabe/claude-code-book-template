@@ -1086,8 +1086,16 @@
   }
 
   function partition() {
-    // 消費者向け商品記事（PCセール・通販等）は B2B マーケ視点で不要なので全体から除外
-    const base = NEWS_DATA.filter(n => !isConsumerNoise(n));
+    // ①消費者向け商品記事（PCセール・通販等）は B2B マーケ視点で不要
+    // ②再掲／再配信記事は情報価値が低い（「※この記事は…再掲です」等の注記を含むもの）
+    // ③画像のない記事は視覚的に崩れるのでそもそも出さない（client ポリシー）
+    //    画像は scraper の OGP + hydrateMissingImages() で可能な限り補完済み
+    const base = NEWS_DATA.filter(n => {
+      if (isConsumerNoise(n)) return false;
+      if (isReprint(n)) return false;
+      if (!n.image || !/^https?:\/\//.test(n.image)) return false;
+      return true;
+    });
     const buzzActive = (() => {
       if (!base.length) return false;
       const withBuzz = base.filter(n => (Number(n.hatenaCount) || 0) > 0).length;
@@ -1900,17 +1908,107 @@
   /* ────────── ⑨ データ取得（自動更新JSON → 失敗時シード） ──────────  */
   let dataMeta = { updatedAt: null, generatedFor: null };
 
+  /** 「画像ない記事は NG」ポリシー。NEWS_DATA のうち image が無い記事について、
+   *  /api/ai-news-api action=resolve-ogp で OGP 画像をサーバ側 fetch して埋める。
+   *  セッション内キャッシュ（TTL 24h）で同じ URL は二度叩かない。
+   *  更新があれば fullRender + renderX を呼び直す。 */
+  const OGP_HYDRATE_CACHE_KEY = 'ai-news:ogpHydrate:v1';
+  const OGP_HYDRATE_TTL_MS = 24 * 60 * 60 * 1000;
+  async function hydrateMissingImages() {
+    if (!NEWS_DATA.length) return;
+    let cached = {};
+    try {
+      const raw = sessionStorage.getItem(OGP_HYDRATE_CACHE_KEY);
+      if (raw) {
+        const obj = JSON.parse(raw);
+        if (obj && typeof obj === 'object' && Date.now() - (obj.at || 0) < OGP_HYDRATE_TTL_MS) {
+          cached = obj.images || {};
+        }
+      }
+    } catch {}
+    // まずキャッシュヒットするものを適用
+    let applied = 0;
+    NEWS_DATA.forEach(n => {
+      if (!n.image && n.url && cached[n.url]) {
+        n.image = cached[n.url];
+        applied++;
+      }
+    });
+    if (applied) { fullRender(); }
+    // キャッシュに無い URL を集めてバッチ fetch
+    const needFetch = NEWS_DATA
+      .filter(n => !n.image && n.url && /^https?:\/\//.test(n.url) && !(n.url in cached))
+      .map(n => n.url);
+    if (!needFetch.length) return;
+    const batches = [];
+    for (let i = 0; i < needFetch.length; i += 20) batches.push(needFetch.slice(i, i + 20));
+    let anyApplied = false;
+    for (const urls of batches) {
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 15000);
+        const res = await fetch('/api/ai-news-api', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'resolve-ogp', urls }),
+          signal: ctrl.signal,
+        });
+        clearTimeout(timer);
+        if (!res.ok) continue;
+        const json = await res.json();
+        if (json && json.images) {
+          Object.assign(cached, json.images);
+          NEWS_DATA.forEach(n => {
+            if (!n.image && json.images[n.url]) {
+              n.image = json.images[n.url];
+              anyApplied = true;
+            }
+          });
+        }
+      } catch {}
+    }
+    try {
+      sessionStorage.setItem(OGP_HYDRATE_CACHE_KEY, JSON.stringify({ images: cached, at: Date.now() }));
+    } catch {}
+    if (anyApplied) { fullRender(); }
+  }
+
+  /** 再掲／過去記事の再配信である旨が明記された記事を除外する判定。
+   *  例: 「※この記事は2025年4月28日に掲載された記事の再掲です。」のような注記。
+   *  scraper 側でも同じワードを見るが、既存データ救済のため client でもチェック。 */
+  const REPRINT_PATTERNS = [
+    'この記事は', // ※この記事は…
+    '再掲',
+    '再配信',
+    '再掲載',
+    'Reposted',
+    'リポスト',
+  ];
+  function isReprint(n) {
+    const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '');
+    // 「再掲」「再配信」「再掲載」は単体でヒット、「この記事は」は「再掲」と共起する場合のみ
+    if (/再掲|再配信|再掲載/.test(hay)) return true;
+    if (hay.includes('この記事は') && /掲載|配信|公開/.test(hay) && /再/.test(hay)) return true;
+    return false;
+  }
+
   /** 初回ロード時にサーバ側 API（Claude + web_search）から最新 X トレンドを取る。
-   *  返り値: true なら X_HIGHLIGHTS を更新した（renderX を呼び直すべき）。 */
-  const X_TRENDS_CACHE_KEY = 'ai-news:xtrends:v1';
-  const X_TRENDS_TTL_MS = 4 * 60 * 60 * 1000; // 4 時間
+   *  返り値: true なら X_HIGHLIGHTS を更新した（renderX を呼び直すべき）。
+   *  v2: キャッシュは日付でバケット化し「日が変わったら必ず再取得」。同日内は 1 時間 TTL。 */
+  const X_TRENDS_CACHE_KEY = 'ai-news:xtrends:v2';
+  const X_TRENDS_TTL_MS = 60 * 60 * 1000; // 1 時間（同日内の複数アクセスを節約）
+  function todayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  }
   async function loadFreshXTrends() {
-    // session 内キャッシュ：4時間以内の取得結果があれば再利用（API 呼び出し節約）
+    // 日付単位のキャッシュ：日付が変わったら必ず再取得
     try {
       const raw = sessionStorage.getItem(X_TRENDS_CACHE_KEY);
       if (raw) {
         const cached = JSON.parse(raw);
-        if (cached && Array.isArray(cached.items) && cached.items.length &&
+        if (cached && cached.day === todayKey() &&
+            Array.isArray(cached.items) && cached.items.length &&
             Date.now() - (cached.at || 0) < X_TRENDS_TTL_MS) {
           X_HIGHLIGHTS = cached.items;
           return true;
@@ -1941,7 +2039,7 @@
         retweets: Number(x.retweets) || 0,
       }));
       try {
-        sessionStorage.setItem(X_TRENDS_CACHE_KEY, JSON.stringify({ items: X_HIGHLIGHTS, at: Date.now() }));
+        sessionStorage.setItem(X_TRENDS_CACHE_KEY, JSON.stringify({ items: X_HIGHLIGHTS, at: Date.now(), day: todayKey() }));
       } catch {}
       return true;
     } catch (e) {
@@ -2093,6 +2191,10 @@
       // ── バックグラウンドで最新の X トレンドを fetch（Vercel Function 経由で Claude+web_search） ──
       // ページ初期表示をブロックせず、取得できたら X セクションだけ再レンダーする。
       loadFreshXTrends().then(updated => { if (updated) renderX(); });
+      // ── 画像のない記事について OGP を on-demand 取得し、取得でき次第カードを差し替える ──
+      // 「画像ない記事は NG」ポリシーに従い、取得失敗のまま画像が埋まらなかった記事は
+      // partition() 段階で表示候補から外れる（非表示）。
+      hydrateMissingImages();
       return;
     }
 
@@ -2870,8 +2972,13 @@
     const list = document.getElementById('competitor-list');
     const head = document.getElementById('sec-competitor');
     if (!list || !head) return 0;
-    // 消費者向け商品記事はここでも除外（partition と同じポリシー）
-    const base = NEWS_DATA.filter(n => !isConsumerNoise(n));
+    // 同じポリシー: 商品ノイズ除外／再掲除外／画像必須
+    const base = NEWS_DATA.filter(n => {
+      if (isConsumerNoise(n)) return false;
+      if (isReprint(n)) return false;
+      if (!n.image || !/^https?:\/\//.test(n.image)) return false;
+      return true;
+    });
     const byRecent = (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt);
     let items = base.filter(matchesCompetitor).slice().sort(byRecent);
     if (!items.length) items = base.filter(matchesIndustry).slice().sort(byRecent);

@@ -430,6 +430,18 @@ def is_consumer_noise(title: str, summary: str) -> bool:
     return any(w in hay for w in _CONSUMER_NOISE_WORDS)
 
 
+# 再掲／再配信記事の検出。例:
+#   「※この記事は2025年4月28日に掲載された記事の再掲です。」
+#   「（2026年1月15日公開の記事を再編集）」
+# 情報価値が低いので scrape 段階で除外する。
+_REPRINT_RE = re.compile(r"再掲|再配信|再掲載|再編集", re.IGNORECASE)
+
+def is_reprint(title: str, summary: str) -> bool:
+    """記事が過去記事の再掲／再配信かを判定。"""
+    hay = (title or "") + " " + (summary or "")
+    return bool(_REPRINT_RE.search(hay))
+
+
 def is_competitor_mention(title: str, summary: str) -> bool:
     """記事タイトル or 要約が AKKODiS 競合企業に言及しているか判定。
     ただし製品販売・値下げ等の「競合動向ではない」文脈は除外する。"""
@@ -582,6 +594,10 @@ def fetch_all() -> list[dict]:
                 raw_summary = strip_html(getattr(e, "summary", "") or getattr(e, "description", "") or "")
                 # 消費者向け商品セール記事（PC販売・通販値下げ等）は B2B マーケ視点で不要 → ハード除外
                 if is_consumer_noise(title, raw_summary):
+                    continue
+                # 再掲／再配信記事は情報価値が低いので除外
+                if is_reprint(title, raw_summary):
+                    log(f"  skip (reprint): {title[:40]}")
                     continue
                 # AI or マーケティング関連でない記事を除外（AI NEWS は AI + マーケ視点）
                 # AI/マーケ関連 or 競合企業言及のいずれか満たせば採用
