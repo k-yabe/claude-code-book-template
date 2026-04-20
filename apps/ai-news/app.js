@@ -2984,28 +2984,41 @@
     }
   }
 
-  /** 「今日のブリーフィング」を Slack/メール向けのテキストにして共有（Web Share API → clipboard） */
+  /** 「今日のブリーフィング」を Slack/メール向けのテキストにして共有（Web Share API → clipboard）。
+   *  Slack に貼り付けるとそのまま読みやすくなるよう、絵文字付き見出し・空行・URL を含めた構造化テンプレ。 */
   async function shareDailyBrief() {
     const { mustKnow, thisWeek } = partition();
     const d = new Date();
-    const header = `📰 AI NEWS — ${d.getMonth()+1}/${d.getDate()}(${WEEKDAYS[d.getDay()]}) 主要トピック`;
+    const dateStr = `${d.getMonth()+1}/${d.getDate()}(${WEEKDAYS[d.getDay()]})`;
+    const header = `📰 *AI NEWS — ${dateStr} 朝のブリーフ*`;
     const lines = [header, ''];
+    // 3 行サマリー
     if (EXEC_SUMMARY && EXEC_SUMMARY.length) {
-      lines.push('【今日のポイント】');
-      EXEC_SUMMARY.slice(0, 3).forEach((s, i) => lines.push(`${i + 1}. ${s}`));
-      lines.push('');
-    }
-    const top = [...mustKnow, ...thisWeek].slice(0, 5);
-    if (top.length) {
-      lines.push('【注目記事】');
-      top.forEach((n, i) => {
-        lines.push(`${i + 1}. ${n.title}`);
-        if (n.url) lines.push(`   ${n.url}`);
-        if (n.whyItMatters) lines.push(`   → ${n.whyItMatters.slice(0, 80)}`);
+      lines.push('🎯 *今日のポイント*');
+      EXEC_SUMMARY.slice(0, 3).forEach(s => {
+        const sentence = (String(s).split(/(?<=[。！？])/)[0] || s).trim();
+        if (sentence && !/[…\u2026]$/.test(sentence)) lines.push(`• ${sentence}`);
       });
       lines.push('');
     }
-    lines.push('— 詳しくは AI NEWS アプリで');
+    // 主要 + 注目を 5 件
+    const top = [...mustKnow, ...thisWeek].slice(0, 5);
+    if (top.length) {
+      lines.push('🔥 *注目の 5 記事*');
+      top.forEach((n, i) => {
+        lines.push(`${i + 1}. ${n.title}`);
+        if (n.whyItMatters) {
+          const why = n.whyItMatters.slice(0, 100).replace(/\n/g, ' ');
+          lines.push(`   → ${why}`);
+        }
+        if (n.url) lines.push(`   ${n.url}`);
+        lines.push('');
+      });
+    }
+    // 締めくくり: アプリへの誘導 + ハッシュタグ
+    lines.push('━━━━━━━━━━━━━━━━━');
+    lines.push('🤖 _毎朝 8:00 JST 更新 / AI が選ぶ AI×マーケのインテリジェンス・ブリーフ_');
+    lines.push(`🔗 https://kunito-yabe.vercel.app/apps/ai-news/`);
     const text = lines.join('\n');
 
     // Web Share API を優先、失敗時は clipboard
