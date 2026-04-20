@@ -1203,10 +1203,100 @@ def generate_digest_script(exec_summary: list[str], mustknow: list[dict], thiswe
         return None
 
 
+TTS_KATAKANA_MAP = {
+    # TTS が綴り読みで誤発音する英字頭字語をカタカナに置換
+    # 例: 「NEC」→「ネック」誤読を防ぐ
+    "NEC": "エヌイーシー", "IBM": "アイビーエム", "NTT": "エヌティーティー",
+    "AWS": "エーダブリューエス", "GCP": "ジーシーピー", "Azure": "アジュール",
+    "IoT": "アイオーティー", "DX": "ディーエックス", "ESG": "イーエスジー",
+    "AI": "エーアイ", "IT": "アイティー", "API": "エーピーアイ",
+    "LLM": "エルエルエム", "RAG": "ラグ", "GPT": "ジーピーティー",
+    "GPT-4": "ジーピーティーフォー", "GPT-5": "ジーピーティーファイブ",
+    "NLP": "エヌエルピー", "KPI": "ケーピーアイ", "ROI": "アールオーアイ",
+    "CEO": "シーイーオー", "CTO": "シーティーオー", "CIO": "シーアイオー", "COO": "シーオーオー",
+    "M&A": "エムアンドエー", "B2B": "ビートゥービー", "B2C": "ビートゥーシー",
+    "SaaS": "サース", "SLA": "エスエルエー", "SDK": "エスディーケー",
+    "CRM": "シーアールエム", "ERP": "イーアールピー", "BPO": "ビーピーオー",
+    "SIer": "エスアイアー", "SES": "エスイーエス", "PoC": "ピーオーシー", "MVP": "エムブイピー",
+    "OpenAI": "オープンエーアイ", "Anthropic": "アンソロピック",
+    "Claude": "クロード", "ChatGPT": "チャットジーピーティー",
+    "Gemini": "ジェミニ", "Copilot": "コパイロット",
+    "Devin": "デビン", "Cursor": "カーソル",
+}
+
+
+def naturalize_japanese_tts_script(s: str) -> str:
+    """日本語 TTS スクリプトを「人間が話す」リズムに整える前処理。
+    ・英字頭字語をカタカナに置換（NEC→エヌイーシー 等で誤読を防ぐ）
+    ・段落間に改行確保 → 自然な間
+    ・句点直後に半角スペース → 短い息継ぎ
+    ・接続詞前後にスペース → トーン切り替え
+    """
+    if not s:
+        return s
+    t = s
+    # 英字頭字語をカタカナに置換（前後 alphanum 不在チェックで誤マッチ防止）
+    for eng, kana in TTS_KATAKANA_MAP.items():
+        escaped = re.escape(eng)
+        t = re.sub(rf"(?<![A-Za-z0-9]){escaped}(?![A-Za-z0-9])", kana, t)
+    t = re.sub(r"\n+", "\n\n", t)
+    t = re.sub(r"(続いて|一方で|そして|まずは|最後に|では|さて)(、|。)?", r" \1\2 ", t)
+    t = re.sub(r"。([^」』）)\s])", r"。 \1", t)
+    t = re.sub(r" {2,}", " ", t)
+    t = re.sub(r"\n ", "\n", t)
+    return t.strip()
+
+
 def generate_tts_mp3(text: str) -> bytes | None:
-    """OpenAI TTS (gpt-4o-mini-tts / voice=nova) で日本語 MP3 を生成。失敗時 None。"""
+    """日本語 MP3 を生成。優先順位: ElevenLabs（最高品質）→ OpenAI（フォールバック）。"""
+    if not text:
+        return None
+    natural = naturalize_japanese_tts_script(text)
+    eleven_key = os.environ.get("ELEVENLABS_API_KEY", "").strip()
+    if eleven_key:
+        mp3 = _generate_tts_elevenlabs(natural, eleven_key)
+        if mp3:
+            return mp3
+        log("ElevenLabs TTS failed, falling back to OpenAI")
+    return _generate_tts_openai(natural)
+
+
+def _generate_tts_elevenlabs(text: str, api_key: str) -> bytes | None:
+    """ElevenLabs eleven_multilingual_v2 で日本語 MP3 を生成。失敗時 None。
+    Voice ID は環境変数 ELEVENLABS_VOICE_ID で上書き可（デフォルト Sarah）。"""
+    voice_id = os.environ.get("ELEVENLABS_VOICE_ID", "EXAVITQu4vr4xnSDxMaL").strip() or "EXAVITQu4vr4xnSDxMaL"
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+            method="POST",
+            headers={
+                "xi-api-key": api_key,
+                "Content-Type": "application/json",
+                "Accept": "audio/mpeg",
+            },
+            data=json.dumps({
+                "text": text[:4800],
+                "model_id": "eleven_multilingual_v2",
+                "voice_settings": {
+                    "stability": 0.45,
+                    "similarity_boost": 0.85,
+                    "style": 0.35,
+                    "use_speaker_boost": True,
+                },
+            }).encode("utf-8"),
+        )
+        with urllib.request.urlopen(req, timeout=180) as resp:
+            return resp.read()
+    except Exception as e:
+        log(f"elevenlabs tts error: {e}")
+        return None
+
+
+def _generate_tts_openai(text: str) -> bytes | None:
+    """OpenAI gpt-4o-mini-tts フォールバック。"""
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
-    if not api_key or not text:
+    if not api_key:
         return None
     try:
         import urllib.request
@@ -1219,7 +1309,7 @@ def generate_tts_mp3(text: str) -> bytes | None:
             },
             data=json.dumps({
                 "model": "gpt-4o-mini-tts",
-                # 日本語のナチュラル発声で評価が高い shimmer に変更（旧 nova はやや機械的）
+                # 日本語のナチュラル発声で評価が高い shimmer
                 "voice": "shimmer",
                 "input": text[:4800],
                 "instructions": TTS_INSTRUCTIONS,
@@ -1231,7 +1321,7 @@ def generate_tts_mp3(text: str) -> bytes | None:
         with urllib.request.urlopen(req, timeout=120) as resp:
             return resp.read()
     except Exception as e:
-        log(f"tts error: {e}")
+        log(f"openai tts error: {e}")
         return None
 
 

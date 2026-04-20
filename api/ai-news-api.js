@@ -365,11 +365,15 @@ function simpleHash(s) {
   return Math.abs(h).toString(16).slice(0, 10);
 }
 
-/* ── TTS 音声生成（OpenAI） ── */
+/* ── TTS 音声生成 ──
+   優先順位: ElevenLabs（最高品質、ELEVENLABS_API_KEY 設定時）→ OpenAI（フォールバック）
+   ElevenLabs の eleven_multilingual_v2 は日本語の自然さで業界トップクラス。
+   未設定なら OpenAI gpt-4o-mini-tts に自動フォールバック。 */
 async function handleTTS(req, res) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return res.status(501).json({ error: 'TTS APIキーが未設定です' });
+  const elevenKey = process.env.ELEVENLABS_API_KEY;
+  const openaiKey = process.env.OPENAI_API_KEY;
+  if (!elevenKey && !openaiKey) {
+    return res.status(501).json({ error: 'TTS APIキーが未設定です（ELEVENLABS_API_KEY または OPENAI_API_KEY）' });
   }
 
   const { text } = req.body || {};
@@ -377,6 +381,143 @@ async function handleTTS(req, res) {
     return res.status(400).json({ error: 'テキストは1〜5000文字で指定してください' });
   }
 
+  // スクリプトを前処理: 自然な息継ぎ／間を入れる（人間っぽさ向上）
+  const naturalText = naturalizeJapaneseTtsScript(text);
+
+  // ElevenLabs 優先（よりナチュラル）
+  if (elevenKey) {
+    const ok = await tryElevenLabsTTS(naturalText, elevenKey, res);
+    if (ok) return; // 成功時は send 済み
+    // 失敗時は OpenAI にフォールバック
+  }
+  if (!openaiKey) {
+    return res.status(502).json({ error: 'TTS生成に失敗しました（フォールバック先なし）' });
+  }
+  return tryOpenAITTS(naturalText, openaiKey, res);
+}
+
+/** 英字頭字語 → カタカナ読み変換マップ。
+ *  TTS が「NEC」を「ネック」、「IBM」を「アイビーム」と読み間違えるのを防ぐ。
+ *  単語境界（前後が英数字でない）のみ置換するので、長い単語の中の文字列は影響を受けない。 */
+const TTS_KATAKANA_MAP = {
+  'NEC': 'エヌイーシー',
+  'IBM': 'アイビーエム',
+  'NTT': 'エヌティーティー',
+  'AWS': 'エーダブリューエス',
+  'GCP': 'ジーシーピー',
+  'Azure': 'アジュール',
+  'IoT': 'アイオーティー',
+  'DX': 'ディーエックス',
+  'ESG': 'イーエスジー',
+  'AI': 'エーアイ',
+  'IT': 'アイティー',
+  'API': 'エーピーアイ',
+  'LLM': 'エルエルエム',
+  'RAG': 'ラグ',
+  'GPT': 'ジーピーティー',
+  'GPT-4': 'ジーピーティーフォー',
+  'GPT-5': 'ジーピーティーファイブ',
+  'NLP': 'エヌエルピー',
+  'KPI': 'ケーピーアイ',
+  'ROI': 'アールオーアイ',
+  'CEO': 'シーイーオー',
+  'CTO': 'シーティーオー',
+  'CIO': 'シーアイオー',
+  'COO': 'シーオーオー',
+  'M&A': 'エムアンドエー',
+  'B2B': 'ビートゥービー',
+  'B2C': 'ビートゥーシー',
+  'SaaS': 'サース',
+  'SLA': 'エスエルエー',
+  'SDK': 'エスディーケー',
+  'CRM': 'シーアールエム',
+  'ERP': 'イーアールピー',
+  'BPO': 'ビーピーオー',
+  'SIer': 'エスアイアー',
+  'SES': 'エスイーエス',
+  'PoC': 'ピーオーシー',
+  'MVP': 'エムブイピー',
+  'OpenAI': 'オープンエーアイ',
+  'Anthropic': 'アンソロピック',
+  'Claude': 'クロード',
+  'ChatGPT': 'チャットジーピーティー',
+  'Gemini': 'ジェミニ',
+  'Copilot': 'コパイロット',
+  'Devin': 'デビン',
+  'Cursor': 'カーソル',
+};
+/** 日本語 TTS スクリプトを「人間が話す」リズムに整える前処理。
+ *  ・英字頭字語をカタカナ読みに置換（NEC→エヌイーシー 等）
+ *  ・段落間に二重改行 → 自然な間
+ *  ・「。」直後に半角スペース → 短い息継ぎ
+ *  ・接続詞前後にスペース → トーン切り替え */
+function naturalizeJapaneseTtsScript(s) {
+  let t = String(s || '');
+  // 英字頭字語をカタカナに置換（前後 alphanum 不在チェックで誤マッチ防止）
+  for (const [eng, kana] of Object.entries(TTS_KATAKANA_MAP)) {
+    const escaped = eng.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(`(?<![A-Za-z0-9])${escaped}(?![A-Za-z0-9])`, 'g');
+    t = t.replace(re, kana);
+  }
+  // 段落間（改行）には十分な間
+  t = t.replace(/\n+/g, '\n\n');
+  // 重要な接続詞の前後に間
+  t = t.replace(/(続いて|一方で|そして|まずは|最後に|では|さて)(、|。)?/g, ' $1$2 ');
+  // 句点直後にスペース（読み上げで自然な間）
+  t = t.replace(/。([^」』）)\s])/g, '。 $1');
+  // 過剰なスペース除去
+  t = t.replace(/ {2,}/g, ' ').replace(/\n /g, '\n');
+  return t.trim();
+}
+
+/** ElevenLabs TTS（最高品質）。成功時 true を返して MP3 を res に送信済み。 */
+async function tryElevenLabsTTS(text, apiKey, res) {
+  // Voice ID: 日本語ナチュラル発声で定評がある "Sarah"（21m00Tcm4TlvDq8ikWAM）。
+  // 環境変数 ELEVENLABS_VOICE_ID で上書き可能。
+  const voiceId = (process.env.ELEVENLABS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL').trim();
+  // モデル: eleven_multilingual_v2 が日本語含む 29 言語に対応。
+  const model = 'eleven_multilingual_v2';
+  try {
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`, {
+      method: 'POST',
+      headers: {
+        'xi-api-key': apiKey,
+        'Content-Type': 'application/json',
+        'Accept': 'audio/mpeg',
+      },
+      body: JSON.stringify({
+        text,
+        model_id: model,
+        voice_settings: {
+          stability: 0.45,        // 低めで表現の幅を出す（自然さ向上）
+          similarity_boost: 0.85, // 高めで声質を一定に
+          style: 0.35,            // 適度な抑揚（高すぎると過剰に演技的）
+          use_speaker_boost: true,
+        },
+        // モデルに「ニュースアンカー」のスタイルを追加で指示
+        // ElevenLabs はテキスト中の「、」「。」「—」を間として尊重するので前処理で十分
+      }),
+    });
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      console.error('[ai-news-api:tts] ElevenLabs error:', response.status, errText.slice(0, 300));
+      return false;
+    }
+    const buffer = Buffer.from(await response.arrayBuffer());
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Content-Length', buffer.length);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('X-TTS-Provider', 'elevenlabs');
+    res.status(200).send(buffer);
+    return true;
+  } catch (err) {
+    console.error('[ai-news-api:tts] ElevenLabs error:', err.message);
+    return false;
+  }
+}
+
+/** OpenAI TTS フォールバック。 */
+async function tryOpenAITTS(text, apiKey, res) {
   try {
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',
@@ -469,6 +610,7 @@ If you sound robotic on a single sentence, the whole credibility breaks. Be 100%
     res.setHeader('Content-Type', 'audio/mpeg');
     res.setHeader('Content-Length', buffer.length);
     res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('X-TTS-Provider', 'openai');
     return res.status(200).send(buffer);
   } catch (err) {
     console.error('[ai-news-api:tts] error:', err.message);
