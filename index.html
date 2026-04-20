@@ -706,6 +706,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '📊', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-20(月)', desc: '【ヘッドライン・競合動向の件数不足を解消】画像必須フィルタが原因で Google News 記事（業界報道のメインソース）が全滅していた問題を修正。主要ニュース／注目ニュース（ヒーロー的な大きいカード）は引き続き画像必須、ヘッドライン（コンパクト表示）と競合動向は画像なしも許可（ソースロゴ fallback で視覚的に成立）。これで Google News の日立/NEC/NRI/IT人材市場 等の記事が表示されるようになり、ヘッドライン 1→4 件・競合動向 1→5 件 と大幅改善。' },
       { icon: '✂', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-20(月)', desc: '【3行サマリー途中切れ・空欄を根本対策】①scraper の whyItMatters は 200字で「…」付き truncate されており、日本語「。」が無い記事はまるごと「…」で終わってしまっていた。deriveSummaryLines() に「truncated 文は棄却 → 次のソース（summary → title）を試す」ロジックを追加。②tightenSummaryLine も末尾「…/...」行を空として返す（filter で消える）。③renderExecSummary で EXEC_SUMMARY に空行・truncated 行があった場合、deriveSummaryLines で補填して必ず 3 行綺麗に表示。' },
       { icon: '🧭', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-20(月)', desc: '【セクション役割を明確化 + 4点修正】①その他ニュース→「ヘッドライン」に改名し、カードをコンパクト化（thumb 72×72・本文タイトル中心・分析は hover で展開）。これで「注目ニュース」（分析・アクション付き大きめカード）と「ヘッドライン」（タイトル一覧）の違いが一目で分かる。各セクションの sub-title も具体化。②3行サマリーの途中切れ再発を修正。③競合動向: 旧仕様のフォールバック構造を廃止し「競合 ∪ 業界マッチ」を合算で表示。④fyi の Zenn/Qiita/note 個人ブログ除外（hatena>=10 の例外のみ）は継続。' },
       { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-20(月)', desc: '【その他ニュースはメディア記事のみに】Zenn / Qiita / note の個人ブログ（UGC）が fyi に並んでしまう問題を解消。「一般的に生成AI・マーケで話題になっているメディア記事」を載せる方針に変更。UGC は基本非表示、hatena>=10 の高人気投稿のみ例外救済。メディア記事が 0 件の日のみ順次閾値を緩めるフォールバックあり。ITmedia/ASCII.jp/日経/Publickey/DIGIDAY 等の正統派メディア記事だけが並ぶ。' },

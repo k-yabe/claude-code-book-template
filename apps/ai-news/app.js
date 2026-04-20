@@ -1087,15 +1087,14 @@
 
   function partition() {
     // ①消費者向け商品記事（PCセール・通販等）は B2B マーケ視点で不要
-    // ②再掲／再配信記事は情報価値が低い（「※この記事は…再掲です」等の注記を含むもの）
-    // ③画像のない記事は視覚的に崩れるのでそもそも出さない（client ポリシー）
-    //    画像は scraper の OGP + hydrateMissingImages() で可能な限り補完済み
+    // ②再掲／再配信記事は情報価値が低い
+    // ※画像の有無: thisWeek は strict（必須）、fyi はゆるめ（ソースロゴ fallback で十分）
     const base = NEWS_DATA.filter(n => {
       if (isConsumerNoise(n)) return false;
       if (isReprint(n)) return false;
-      if (!n.image || !/^https?:\/\//.test(n.image)) return false;
       return true;
     });
+    const hasImage = (n) => !!(n.image && /^https?:\/\//.test(n.image));
     const buzzActive = (() => {
       if (!base.length) return false;
       const withBuzz = base.filter(n => (Number(n.hatenaCount) || 0) > 0).length;
@@ -1112,15 +1111,19 @@
       return new Date(b.publishedAt) - new Date(a.publishedAt);
     });
     // 本日の主要ニュース: メディア & urgency=must_know & バズ閾値クリア のみ、上位2件
+    // 画像必須（ヒーロー的な大きいカードなので画像無しだと崩れる）
     // 同じ話題の記事は 1 件のみに絞って重複を防ぐ
     let mustKnow = pickTopUnique(
-      sorted.filter(n => n.urgency === 'must_know' && !isUgc(n) && passes(n, 'main')),
+      sorted.filter(n => n.urgency === 'must_know' && !isUgc(n) && hasImage(n) && passes(n, 'main')),
       2,
     );
     if (!mustKnow.length) {
-      mustKnow = pickTopUnique(sorted.filter(n => !isUgc(n) && passes(n, 'default')), 2);
+      mustKnow = pickTopUnique(sorted.filter(n => !isUgc(n) && hasImage(n) && passes(n, 'default')), 2);
     }
-    if (!mustKnow.length && sorted.length > 0) mustKnow = sorted.slice(0, 1);
+    if (!mustKnow.length && sorted.length > 0) {
+      const firstWithImg = sorted.find(n => hasImage(n) && !isUgc(n));
+      mustKnow = firstWithImg ? [firstWithImg] : sorted.slice(0, 1);
+    }
     const usedIds1 = new Set(mustKnow.map(n => n.id));
     // 注目ニュース:
     //  ①LLM が urgency=this_week と判定した記事を拾う。ただし UGC（個人ブログ）の場合は
@@ -1133,7 +1136,6 @@
     const THIS_WEEK_MAX = 6;
     const dedupAgainst = (candidate, existing) => existing.some(p => sameStory(p.title, candidate.title));
     const ugcHasSignal = (n) => (Number(n.hatenaCount) || 0) >= 1 || matchesTool(n) || matchesAIBrand(n);
-    const hasImage = (n) => !!(n.image && /^https?:\/\//.test(n.image));
     let thisWeek = [];
     // パス1: this_week urgency + 画像あり を先に拾う（見た目が揃う）
     for (const n of sorted.filter(n => n.urgency === 'this_week' && !usedIds1.has(n.id))) {
@@ -3002,11 +3004,10 @@
     const list = document.getElementById('competitor-list');
     const head = document.getElementById('sec-competitor');
     if (!list || !head) return 0;
-    // 同じポリシー: 商品ノイズ除外／再掲除外／画像必須
+    // 同じポリシー: 商品ノイズ除外／再掲除外（画像はソースロゴ fallback で十分なので不要）
     const base = NEWS_DATA.filter(n => {
       if (isConsumerNoise(n)) return false;
       if (isReprint(n)) return false;
-      if (!n.image || !/^https?:\/\//.test(n.image)) return false;
       return true;
     });
     const byRecent = (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt);
