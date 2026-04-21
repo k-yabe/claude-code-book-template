@@ -414,6 +414,16 @@
     'お買い得', 'キャンセル品', 'セール品', '値下げ', '値引き', '特価',
     'クーポン', '通販', 'ECサイト', 'オンラインショップ',
     '予約受付', '新発売', '発売日', '開封レビュー',
+    // Yahoo!ファイナンス等の株価自動生成ページ（競合動向ではない）
+    '株価・株式情報', '株価情報', '値動きの背景',
+    '今の株価の理由', '株価の理由は', 'AIが解説',
+    'Yahoo!ファイナンス',
+  ];
+  /** 競合判定から除外する URL パターン（株価情報ページ等）。 */
+  const COMPETITOR_NOISE_URL_PATTERNS = [
+    'finance.yahoo.co.jp/quote',
+    'kabutan.jp/stock',
+    'minkabu.jp/stock',
   ];
   /** 「ニュース・インテリジェンスに不要」な消費者向け商品記事の判定。
    *  PC/ガジェット販売、値下げセール、通販キャンペーン記事は B2B マーケ担当者には
@@ -452,12 +462,26 @@
     const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '');
     return INDUSTRY_KEYWORDS.some(k => hay.includes(k));
   }
+  /** 短い ASCII 競合名は単語境界チェックして誤マッチ防止。
+   *  "NEC" が "connected"、"TIS" が "statistics" にヒットしないように。
+   *  日本語文字と ASCII 文字の境界は word-boundary にならないので別扱い。 */
+  const _COMPETITOR_SHORT_ASCII = COMPETITOR_KEYWORDS.filter(k => /^[\x20-\x7e]+$/.test(k) && k.length <= 5);
+  const _COMPETITOR_OTHERS = COMPETITOR_KEYWORDS.filter(k => !(/^[\x20-\x7e]+$/.test(k) && k.length <= 5));
+  const _COMPETITOR_SHORT_RE = _COMPETITOR_SHORT_ASCII.length
+    ? new RegExp('\\b(?:' + _COMPETITOR_SHORT_ASCII.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')\\b', 'i')
+    : null;
+  function _hasCompetitorMatch(hay) {
+    if (_COMPETITOR_SHORT_RE && _COMPETITOR_SHORT_RE.test(hay)) return true;
+    const lower = hay.toLowerCase();
+    return _COMPETITOR_OTHERS.some(k => lower.includes(k.toLowerCase()));
+  }
   function matchesCompetitor(n) {
     const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '');
     if (COMPETITOR_NOISE.some(w => hay.includes(w))) return false;
-    if (n.isCompetitor) return true;
-    const lower = hay.toLowerCase();
-    return COMPETITOR_KEYWORDS.some(k => lower.includes(k.toLowerCase()));
+    const url = n.url || '';
+    if (COMPETITOR_NOISE_URL_PATTERNS.some(p => url.includes(p))) return false;
+    if (n.isCompetitor) return _hasCompetitorMatch(hay);
+    return _hasCompetitorMatch(hay);
   }
 
   const STORE_KEY_FAV    = 'ai-news:fav:v1';
@@ -1627,9 +1651,8 @@
           <div class="brief-card-content">
             <div class="brief-card-head">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-              ${matchesTool(n) ? '<span class="meta-tool-badge" title="ツール活用Tips">🛠</span>' : ''}
-              ${sourceTypeBadge(n)}<button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
-              ${(() => { const c = getStoryCluster(n.id); return c ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体報道</span>` : ''; })()}
+              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
+              ${(() => { const c = getStoryCluster(n.id); return c && c.count >= 3 ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体報道</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
             </div>
@@ -1749,9 +1772,8 @@
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-              ${matchesTool(n) ? '<span class="meta-tool-badge" title="ツール活用Tips">🛠</span>' : ''}
-              ${sourceTypeBadge(n)}<button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
-              ${(() => { const c = getStoryCluster(n.id); return c ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体</span>` : ''; })()}
+              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
+              ${(() => { const c = getStoryCluster(n.id); return c && c.count >= 3 ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
             </div>
@@ -3121,7 +3143,7 @@
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-              ${sourceTypeBadge(n)}<span class="meta-source">${escapeHtml(n.source)}</span>
+              <span class="meta-source">${escapeHtml(n.source)}</span>
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
               ${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}

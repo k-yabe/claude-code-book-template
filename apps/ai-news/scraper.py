@@ -402,7 +402,19 @@ COMPETITOR_KEYWORDS = [
     # ── ⑦エンジニア向けプラットフォーム ──
     "Green", "Wantedly", "Findy", "LAPRAS", "paiza", "Indeed", "Forkwell",
 ]
-_COMPETITOR_RE = re.compile("|".join(re.escape(k) for k in COMPETITOR_KEYWORDS), re.IGNORECASE)
+# 短い ASCII 競合名は英文中の部分一致で誤検知しやすい（NEC → "connected", TIS → "statistics",
+# OTS → "spots", DIS → "discussed", Green → "greenfield" 等）。word boundary (\b) を強制し、
+# 日本語文字境界や句読点でのマッチに限定する。
+def _is_short_ascii(k: str) -> bool:
+    return k.isascii() and len(k) <= 5
+_COMPETITOR_SHORT_ASCII = [k for k in COMPETITOR_KEYWORDS if _is_short_ascii(k)]
+_COMPETITOR_OTHERS = [k for k in COMPETITOR_KEYWORDS if not _is_short_ascii(k)]
+_COMPETITOR_RE_PARTS = []
+if _COMPETITOR_SHORT_ASCII:
+    _COMPETITOR_RE_PARTS.append(r"\b(?:" + "|".join(re.escape(k) for k in _COMPETITOR_SHORT_ASCII) + r")\b")
+if _COMPETITOR_OTHERS:
+    _COMPETITOR_RE_PARTS.append("(?:" + "|".join(re.escape(k) for k in _COMPETITOR_OTHERS) + ")")
+_COMPETITOR_RE = re.compile("|".join(_COMPETITOR_RE_PARTS), re.IGNORECASE)
 
 # 競合名が登場していても「競合動向」ではない記事を除外するためのノイズ語。
 # 例: 「富士通 WEB MART」のPC通販セール、「NEC Direct」の値下げ等。
@@ -411,6 +423,17 @@ _COMPETITOR_NOISE_WORDS = [
     "お買い得", "キャンセル品", "セール品", "値下げ", "値引き", "特価",
     "クーポン", "通販", "ECサイト", "オンラインショップ",
     "予約受付", "新発売", "発売日", "開封レビュー",
+    # Yahoo!ファイナンス等の株価自動生成ページ（競合の動向ではない）
+    "株価・株式情報", "株価情報", "値動きの背景",
+    "今の株価の理由", "株価の理由は", "AIが解説",
+    "Yahoo!ファイナンス",
+]
+
+# 競合判定から除外する URL パターン（株価ページ・チャート等の自動生成ページ）
+_COMPETITOR_NOISE_URL_PATTERNS = [
+    "finance.yahoo.co.jp/quote",
+    "kabutan.jp/stock",
+    "minkabu.jp/stock",
 ]
 
 # B2B マーケ担当者のインテリジェンス・ブリーフには不要な消費者向け商品記事を
@@ -442,11 +465,13 @@ def is_reprint(title: str, summary: str) -> bool:
     return bool(_REPRINT_RE.search(hay))
 
 
-def is_competitor_mention(title: str, summary: str) -> bool:
+def is_competitor_mention(title: str, summary: str, url: str = "") -> bool:
     """記事タイトル or 要約が AKKODiS 競合企業に言及しているか判定。
-    ただし製品販売・値下げ等の「競合動向ではない」文脈は除外する。"""
+    ただし製品販売・値下げ・株価情報等の「競合動向ではない」文脈は除外する。"""
     hay = (title or "") + " " + (summary or "")
     if any(w in hay for w in _COMPETITOR_NOISE_WORDS):
+        return False
+    if url and any(p in url for p in _COMPETITOR_NOISE_URL_PATTERNS):
         return False
     return bool(_COMPETITOR_RE.search(hay))
 
@@ -602,7 +627,7 @@ def fetch_all() -> list[dict]:
                 # AI or マーケティング関連でない記事を除外（AI NEWS は AI + マーケ視点）
                 # AI/マーケ関連 or 競合企業言及のいずれか満たせば採用
                 # （競合プレスリリースは AI キーワード含まないケースが多いので救済）
-                if not is_ai_related(title, raw_summary) and not is_competitor_mention(title, raw_summary):
+                if not is_ai_related(title, raw_summary) and not is_competitor_mention(title, raw_summary, url):
                     continue
                 # URL 到達性チェック（404 / dead link を事前に除外して「リンク間違い」を根絶）
                 if not validate_url(url):
@@ -645,7 +670,7 @@ def fetch_all() -> list[dict]:
                     "category": src["category"],
                     "publishedAt": pub.isoformat(),
                     "hatenaCount": hatena,
-                    "isCompetitor": is_competitor_mention(title, raw_summary),
+                    "isCompetitor": is_competitor_mention(title, raw_summary, url),
                 })
                 count += 1
             log(f"  -> {count} new")
