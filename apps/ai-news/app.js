@@ -1740,11 +1740,9 @@
       const cat = n.category;
       const hasUrl = !!n.url;
       const imgSrc = pickImage(n);
-      const fFavicon = sourceFavicon(n.url) || '';
-      const fInitials = (n.source || '').substring(0, 2).toUpperCase();
       return `
         <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}">${fFavicon ? `<img class="source-logo-xs" src="${fFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-xs">${escapeHtml(fInitials)}</span>`}<span class="fyi-visual-source">${escapeHtml(n.source)}</span></div>`}
+          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}"><span class="fyi-visual-headline">${escapeHtml(n.title)}</span><span class="fyi-visual-source">${escapeHtml(n.source).replace(/^Google News \((.+)\)$/, '$1')}</span></div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
@@ -3105,11 +3103,11 @@
       const cat = n.category;
       const hasUrl = !!n.url;
       const imgSrc = pickImage(n);
-      const fFavicon = sourceFavicon(n.url) || '';
-      const fInitials = (n.source || '').substring(0, 2).toUpperCase();
+      // 画像なし時は「記事タイトル + ソース名」を主役にしたタイポグラフィ・ビジュアルに。
+      // 同じソースでもタイトルが違えば視覚的にユニークになり「同じ画像ばかり」問題を解消。
       return `
         <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}">${fFavicon ? `<img class="source-logo-xs" src="${fFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-xs">${escapeHtml(fInitials)}</span>`}<span class="fyi-visual-source">${escapeHtml(n.source)}</span></div>`}
+          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}"><span class="fyi-visual-headline">${escapeHtml(n.title)}</span><span class="fyi-visual-source">${escapeHtml(n.source).replace(/^Google News \((.+)\)$/, '$1')}</span></div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
