@@ -1048,14 +1048,6 @@
       letter-spacing: 0.04em; transition: opacity var(--ease-base);
     }
     .ext-btn:hover { opacity: 0.85; }
-    .share-btn {
-      background: none; border: 1px solid var(--border);
-      color: var(--text-muted); font-size: 0.65rem; font-weight: 700;
-      padding: 4px 10px; cursor: pointer; font-family: var(--font-sans);
-      letter-spacing: 0.04em; transition: all var(--ease-base);
-      display: inline-flex; align-items: center; gap: 3px;
-    }
-    .share-btn:hover { border-color: var(--gold); color: var(--navy); }
 
     /* ── トースト通知 ── */
     .toast {
@@ -1200,7 +1192,6 @@
     .more-list > .fyi-card .src-type,
     .more-list > .fyi-card .meta-multi,
     .more-list > .fyi-card .meta-tool-badge,
-    .more-list > .fyi-card .fyi-why,
     .more-list > .fyi-card .fyi-action,
     .more-list > .fyi-card .fyi-tags {
       display: none;
@@ -1209,10 +1200,25 @@
     .more-list > .fyi-card .meta-new-since {
       font-size: 0.6rem; padding: 1px 4px;
     }
+    /* 分析（fyi-why）は hover/focus で滑らかに展開。
+       display:none ↔ -webkit-box の切り替えだと高さが瞬間的にジャンプして不自然なので、
+       max-height + opacity + margin-top をトランジションする。 */
+    .more-list > .fyi-card .fyi-why {
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+      margin-bottom: 0;
+      overflow: hidden;
+      transition: max-height 0.22s ease, opacity 0.18s ease 0.04s, margin-top 0.18s ease;
+    }
     .more-list > .fyi-card:hover .fyi-why,
     .more-list > .fyi-card:focus-within .fyi-why {
-      display: -webkit-box;
-      margin-top: 4px;
+      max-height: 5.2em;
+      opacity: 1;
+      margin-top: 6px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .more-list > .fyi-card .fyi-why { transition: none; }
     }
     .more-list > .fyi-card .fyi-meta {
       font-size: 0.7rem;
@@ -2169,7 +2175,7 @@
       /* 非表示: ナビ/コマンドバー/フッター/音声/フィルタ/お気に入りボタン等のインタラクティブ要素 */
       .nav, .cmd-bar, .more-toolbar, .audio-player, .audio-cluster,
       .back-to-top, .section-nav, #onboarding, .ob-overlay,
-      .star-btn, .share-btn, .brief-read-toggle, .read-toggle,
+      .star-btn, .brief-read-toggle, .read-toggle,
       .hero-live-row, .hero-pulse, .data-note,
       .x-section, .sec-head.x, .celebration-banner {
         display: none !important;

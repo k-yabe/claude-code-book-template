@@ -690,16 +690,6 @@
     el.classList.add('show');
     _toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
   }
-  async function shareArticle(title, url) {
-    const text = `${title}\n${url}`;
-    if (navigator.share) {
-      try { await navigator.share({ title, url }); return; } catch {}
-    }
-    if (navigator.clipboard) {
-      try { await navigator.clipboard.writeText(text); showToast('リンクをコピーしました'); return; } catch {}
-    }
-    showToast('共有に失敗しました');
-  }
   /** whyItMatters が summary と重複していれば空扱い（重複表示を防ぐ）。
    *  scraper フォールバックが「要約冒頭を whyItMatters に流用」するケースに対応。 */
   function meaningfulWhyItMatters(n) {
@@ -1594,7 +1584,6 @@
           <div class="top-foot">
             <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読' : '✓ 既読'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-            ${hasUrl ? `<button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(n.url)}" aria-label="共有">↗ 共有</button>` : ''}
             ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む →</a>` : ''}
           </div>
         </div>
@@ -1611,12 +1600,6 @@
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
       btn.addEventListener('click', e => { e.stopPropagation(); toggleFav(btn.dataset.fav, btn); });
-    });
-    root.querySelectorAll('.share-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        shareArticle(btn.dataset.shareTitle, btn.dataset.shareUrl);
-      });
     });
   }
 
@@ -1672,7 +1655,6 @@
             <div class="brief-card-foot">
               <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
               <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
-              ${hasUrl ? `<button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(n.url)}" aria-label="共有">↗</button>` : ''}
               ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
             </div>
           </div>
@@ -1680,7 +1662,7 @@
     }).join('');
     root.querySelectorAll('.brief-card').forEach(el => {
       el.addEventListener('click', e => {
-        if (e.target.closest('.star-btn') || e.target.closest('.brief-ext-link') || e.target.closest('.brief-read-toggle') || e.target.closest('.share-btn') || e.target.closest('.meta-source-btn') || e.target.closest('.tag-btn')) return;
+        if (e.target.closest('.star-btn') || e.target.closest('.brief-ext-link') || e.target.closest('.brief-read-toggle') || e.target.closest('.meta-source-btn') || e.target.closest('.tag-btn')) return;
         markRead(el.dataset.id, el);
         if (el.dataset.cat) recordClick(el.dataset.cat);
         openExternal(el.dataset.url);
@@ -1697,12 +1679,6 @@
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
       btn.addEventListener('click', e => { e.stopPropagation(); toggleFav(btn.dataset.fav, btn); });
-    });
-    root.querySelectorAll('.share-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        shareArticle(btn.dataset.shareTitle, btn.dataset.shareUrl);
-      });
     });
   }
 
@@ -1785,7 +1761,6 @@
               <div style="display:flex;align-items:center;gap:8px;">
                 <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
                 <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り">★</button>
-                ${hasUrl ? `<button class="share-btn" data-share-title="${escapeHtml(n.title)}" data-share-url="${escapeHtml(n.url)}" aria-label="共有" title="共有/URLコピー">↗</button>` : ''}
                 ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
               </div>
             </div>
@@ -1794,7 +1769,7 @@
     }).join('');
     root.querySelectorAll('.fyi-card').forEach(el => {
       el.addEventListener('click', e => {
-        if (e.target.closest('.star-btn') || e.target.closest('.brief-read-toggle') || e.target.closest('.brief-ext-link') || e.target.closest('.share-btn') || e.target.closest('.meta-source-btn') || e.target.closest('.tag-btn')) return;
+        if (e.target.closest('.star-btn') || e.target.closest('.brief-read-toggle') || e.target.closest('.brief-ext-link') || e.target.closest('.meta-source-btn') || e.target.closest('.tag-btn')) return;
         markRead(el.dataset.id, el);
         if (el.dataset.cat) recordClick(el.dataset.cat);
         openExternal(el.dataset.url);
@@ -1811,12 +1786,6 @@
     });
     root.querySelectorAll('.star-btn').forEach(btn => {
       btn.addEventListener('click', e => { e.stopPropagation(); toggleFav(btn.dataset.fav, btn); });
-    });
-    root.querySelectorAll('.share-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        shareArticle(btn.dataset.shareTitle, btn.dataset.shareUrl);
-      });
     });
     // タグクリックで検索に #tag をセットして絞り込み
     root.querySelectorAll('.tag-btn[data-tag-filter]').forEach(btn => {
@@ -3098,11 +3067,12 @@
     const list = document.getElementById('competitor-list');
     const head = document.getElementById('sec-competitor');
     if (!list || !head) return 0;
-    // 同じポリシー: 商品ノイズ除外／再掲除外／画像必須（hydrate API で補完できなかったものは表示しない）
+    // 競合動向は画像なしも許可（Google News / PR TIMES の RSS は og:image を含まないことが多い）。
+    // 画像が無ければソースロゴ / initials の fyi-visual fallback で視覚的に成立する。
+    // 商品ノイズと再掲だけは除外。
     const base = NEWS_DATA.filter(n => {
       if (isConsumerNoise(n)) return false;
       if (isReprint(n)) return false;
-      if (!n.image || !/^https?:\/\//.test(n.image)) return false;
       return true;
     });
     const byRecent = (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt);
