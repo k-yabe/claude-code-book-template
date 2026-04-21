@@ -439,6 +439,30 @@
     const hay = (n.title || '') + ' ' + (n.summary || '');
     return CONSUMER_NOISE_WORDS.some(w => hay.includes(w));
   }
+  /** B2B マーケ / AI / 採用マーケ のいずれにも該当しない「明らかに無関係」な記事を除外。
+   *  B2C エンタメキャンペーン、一般的なブランド論考、個人向けセキュリティ記事等。
+   *  scraper 側ではキーワード豊富に拾うが、ヘッドライン等の最終表示では対象読者
+   *  （AKKODiS マーケチーム = B2B IT サービス / 人材業界）にフィットするものだけ残す。 */
+  const OFFTOPIC_TITLE_PATTERNS = [
+    // B2C キャンペーン / エンタメ系
+    '周年企画', '25周年', '春のマンガまつり', 'マンガまつり',
+    '曲フリ', 'ケツメイシ', 'お取り寄せ',
+    // 株価情報ページ（Yahoo Finance 等の自動生成）
+    '株価・株式情報', '値動きの背景', '今の株価', '株価情報',
+    // 一般向け注意喚起・消費者保護
+    '音声詐欺', '特殊詐欺', '振り込め詐欺',
+    // 個人ブログの技術チュートリアル（読者が B2B マーケ担当者のため）
+    'obsidian', '育つ知識ベース',
+  ];
+  const OFFTOPIC_SOURCE_UGC_PATTERNS = [
+    // 個人ブログ UGC — タイトルだけでは関連性判定しにくいが、
+    // 読者（B2B マーケ担当）にフィットするのは大手メディアのAI/業界記事。
+    // ただし Qiita/Zenn の「ツール活用 Tips」系は keep したいので、個別判定は別途。
+  ];
+  function isOffTopic(n) {
+    const title = (n.title || '').toLowerCase();
+    return OFFTOPIC_TITLE_PATTERNS.some(p => title.includes(p.toLowerCase()));
+  }
   /** 業界動向（AKKODiS の事業領域）を示すキーワード。特定の競合企業名が出てこなくても、
    *  SIer / IT サービス / エンジニア派遣 等の「業界マクロ動向」記事をここで拾う。
    *  ※ 単体の「IT人材」「AI人材」だけだと個別企業の導入事例にも誤マッチするので、
@@ -1117,6 +1141,7 @@
     const base = NEWS_DATA.filter(n => {
       if (isConsumerNoise(n)) return false;
       if (isReprint(n)) return false;
+      if (isOffTopic(n)) return false;  // AI/B2B/採用マーケ無関係な記事を除外
       if (!n.image || !/^https?:\/\//.test(n.image)) return false;
       return true;
     });
@@ -2010,9 +2035,12 @@
       }
     });
     if (applied) { fullRender(); }
-    // キャッシュに無い URL を集めてバッチ fetch
+    // 未取得 URL を集めてバッチ fetch。
+    // 注意: 過去に null を返した URL も再挑戦する。Google News 系は resolve に
+    // 失敗しがちで、サーバー再起動や OGP 解決アルゴリズム改善後は成功することがある。
+    // サーバー側 CDN キャッシュ（s-maxage=3600）が効くので負荷は軽微。
     const needFetch = NEWS_DATA
-      .filter(n => !n.image && n.url && /^https?:\/\//.test(n.url) && !(n.url in cached))
+      .filter(n => !n.image && n.url && /^https?:\/\//.test(n.url))
       .map(n => n.url);
     if (!needFetch.length) return;
     const batches = [];
@@ -3065,12 +3093,12 @@
     const list = document.getElementById('competitor-list');
     const head = document.getElementById('sec-competitor');
     if (!list || !head) return 0;
-    // 競合動向は画像なしも許可（Google News / PR TIMES の RSS は og:image を含まないことが多い）。
-    // 画像が無ければソースロゴ / initials の fyi-visual fallback で視覚的に成立する。
-    // 商品ノイズと再掲だけは除外。
+    // 競合動向の base フィルタ: 商品ノイズ / 再掲 / 無関係トピックは除外。
+    // 画像は最終段で必須 + dedupe チェック。
     const base = NEWS_DATA.filter(n => {
       if (isConsumerNoise(n)) return false;
       if (isReprint(n)) return false;
+      if (isOffTopic(n)) return false;
       return true;
     });
     const byRecent = (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt);
@@ -3087,17 +3115,28 @@
     }
     // 元記事リンクがない記事は表示しない（ニュースアプリとしてリンク必須）
     const withUrl = items.filter(n => n.url && /^https?:\/\//.test(n.url));
-    if (!withUrl.length) {
-      // セクションを消すのではなく、空状態メッセージを見せる
+    // 画像必須 + 画像 URL の重複排除（同じ画像が並ぶのを防ぐ）
+    const seenImages = new Set();
+    const withImg = withUrl.filter(n => {
+      const img = n.image;
+      if (!img || !/^https?:\/\//.test(img)) return false;
+      // 画像 URL の末尾クエリ差を吸収してキー化
+      const key = img.split('?')[0].split('#')[0].toLowerCase();
+      if (seenImages.has(key)) return false;
+      seenImages.add(key);
+      return true;
+    });
+    if (!withImg.length) {
+      // OGP hydrate がまだ走っていないケースの「読み込み中」状態 / データ不足時のメッセージ
       list.removeAttribute('hidden');
       head.style.display = '';
-      list.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">🏢</div><div class="empty-text">本日は該当する競合・業界動向のニュースはありません。<br>AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT/パーソル等）を<br>毎朝 8:00 JST に監視中。明朝の更新をお待ちください。</div></div>';
+      list.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">🏢</div><div class="empty-text">競合ニュースの画像を取得中です…<br><small style="opacity:0.7">数秒で読み込まれます。更新がなければ明朝 8:00 JST の次回配信をお待ちください。</small></div></div>';
       return 0;
     }
     list.removeAttribute('hidden');
     head.style.display = '';
     // FYI カードの DOM 構造を流用するため、renderMore と同じ HTML を生成
-    list.innerHTML = withUrl.map(n => {
+    list.innerHTML = withImg.map(n => {
       const isRead = state.read.has(n.id);
       const isFav = state.fav.has(n.id);
       const cat = n.category;
@@ -3136,7 +3175,7 @@
         openExternal(el.dataset.url);
       });
     });
-    return withUrl.length;
+    return withImg.length;
   }
 
   // セクションが見えたらカウントアップする

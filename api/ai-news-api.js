@@ -52,38 +52,53 @@ async function handleResolveOgp(req, res) {
 
   /** Google News リダイレクター URL を実記事 URL に解決する。
    *  ① fetch follow-redirect で resp.url が news.google.com 以外になればそれを採用
-   *  ② HTML body 内の anchor / meta refresh から実 URL を抽出 */
+   *  ② HTML body 内の anchor / meta refresh / JSON-LD から実 URL を抽出
+   *  ③ それでもダメなら Chromium UA でリトライ（bot UA を弾くケース対策） */
   async function resolveGoogleNews(gnewsUrl) {
-    try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 6000);
-      const resp = await fetch(gnewsUrl, {
-        method: 'GET',
-        redirect: 'follow',
-        signal: ctrl.signal,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; AI-NEWS-Bot/1.0; +https://kunito-yabe.vercel.app/)',
-          'Accept': 'text/html,application/xhtml+xml',
-          'Accept-Language': 'ja,en;q=0.8',
-        },
-      });
-      clearTimeout(timer);
-      if (resp.url && !resp.url.includes('news.google.com')) return resp.url;
-      if (!resp.ok) return null;
-      const html = await resp.text();
-      // meta refresh から URL 抽出
-      const meta = html.match(/<meta[^>]+http-equiv=["']refresh["'][^>]+url=([^"'>\s]+)/i);
-      if (meta && meta[1] && !meta[1].includes('news.google.com')) return meta[1];
-      // 本文内の data-n-au 属性（Google News 内部の実 URL マーカー）
-      const dna = html.match(/data-n-au=["'](https?:\/\/[^"']+)["']/i);
-      if (dna && dna[1] && !dna[1].includes('news.google.com')) return dna[1];
-      // 最初の外部 anchor href
-      const anchor = html.match(/<a[^>]+href=["'](https?:\/\/(?!news\.google\.com)[^"']+)["']/i);
-      if (anchor && anchor[1]) return anchor[1];
-      return null;
-    } catch {
-      return null;
+    const UA_BROWSER = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36';
+    const UA_BOT = 'Mozilla/5.0 (compatible; AI-NEWS-Bot/1.0; +https://kunito-yabe.vercel.app/)';
+    async function attempt(ua) {
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 8000);
+        const resp = await fetch(gnewsUrl, {
+          method: 'GET',
+          redirect: 'follow',
+          signal: ctrl.signal,
+          headers: {
+            'User-Agent': ua,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
+            'Accept-Language': 'ja,en;q=0.8',
+          },
+        });
+        clearTimeout(timer);
+        if (resp.url && !resp.url.includes('news.google.com')) return resp.url;
+        if (!resp.ok) return null;
+        const html = await resp.text();
+        // meta refresh から URL 抽出
+        const meta = html.match(/<meta[^>]+http-equiv=["']refresh["'][^>]+url=([^"'>\s]+)/i);
+        if (meta && meta[1] && !meta[1].includes('news.google.com')) return meta[1];
+        // data-n-au 属性（Google News 内部の実 URL マーカー）
+        const dna = html.match(/data-n-au=["'](https?:\/\/[^"']+)["']/i);
+        if (dna && dna[1] && !dna[1].includes('news.google.com')) return dna[1];
+        // JSON-LD の mainEntityOfPage / url
+        const ld = html.match(/"(?:mainEntityOfPage|url)"\s*:\s*"(https?:\/\/(?!news\.google\.com)[^"]+)"/i);
+        if (ld && ld[1]) return ld[1];
+        // canonical link
+        const canon = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["'](https?:\/\/(?!news\.google\.com)[^"']+)["']/i);
+        if (canon && canon[1]) return canon[1];
+        // 最初の外部 anchor href
+        const anchor = html.match(/<a[^>]+href=["'](https?:\/\/(?!news\.google\.com)[^"']+)["']/i);
+        if (anchor && anchor[1]) return anchor[1];
+        return null;
+      } catch {
+        return null;
+      }
     }
+    const r1 = await attempt(UA_BOT);
+    if (r1) return r1;
+    // フォールバック: Chromium UA で再試行（Google News が bot UA を弾くケース対策）
+    return await attempt(UA_BROWSER);
   }
 
   async function fetchOgp(targetUrl) {
