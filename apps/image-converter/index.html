@@ -81,7 +81,17 @@
     .resize-row label { font-size: 0.84rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; cursor: pointer; }
 
     /* ── App-specific: CTA margin ── */
-    .cta-btn { margin-bottom: var(--sp-5); }
+    .cta-btn {
+      display: block;
+      width: fit-content;
+      max-width: 100%;
+      min-width: 280px;
+      padding: 14px 52px;
+      margin: 0 auto var(--sp-5);
+    }
+    @media (max-width: 600px) {
+      .cta-btn { width: 100%; min-width: 0; }
+    }
 
     /* ── App-specific: ローディング ── */
     .loading-area { display: none; text-align: center; padding: var(--sp-8) 0; }
