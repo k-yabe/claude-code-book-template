@@ -66,6 +66,20 @@
     }
     .reset-btn:hover { border-color: var(--navy); color: var(--navy); }
 
+    /* ── App-specific: Action row (Check + Reset) ── */
+    .action-row {
+      display: flex; gap: var(--sp-2); margin-top: var(--sp-3);
+      justify-content: center; align-items: stretch; flex-wrap: wrap;
+    }
+    .action-row .check-btn {
+      width: auto; flex: 0 0 auto; min-width: 260px; padding: 14px 52px;
+    }
+    @media (max-width: 600px) {
+      .action-row { flex-direction: column-reverse; gap: var(--sp-2); }
+      .action-row .check-btn,
+      .action-row .reset-btn { width: 100%; min-width: 0; }
+    }
+
     /* ── App-specific: Loading Message ── */
     .loading-msg {
       text-align: center; padding: 40px 20px; background: var(--surface);
@@ -200,8 +214,8 @@
     <div class="file-status" id="file-status"></div>
   </div>
 
-  <div style="display:flex;gap:8px;margin-top:12px;">
-    <button class="check-btn" id="check-btn" style="margin-top:0;flex:1;">チェックする</button>
+  <div class="action-row">
+    <button class="check-btn" id="check-btn">チェックする</button>
     <button class="reset-btn" id="reset-btn">クリア</button>
   </div>
   <div class="error-msg" id="error-msg" role="alert"></div>
@@ -576,9 +590,9 @@
       { icon: '🛡️', text: 'AKKODiS固有名詞の表記ミスも検出' }
     ],
     updates: [
+      { date: '04/21', text: '「チェックする」ボタンが横に伸びすぎていた問題を修正 — 中央寄せ＋適正幅に' },
       { date: '04/14', text: 'スムーススクロールがOSの「視差効果を減らす」設定を尊重するよう改善' },
-      { date: '04/13', text: 'ペースト時XSSサニタイズ追加・ファイルドロップゾーンアクセシビリティ強化' },
-      { date: '04/09', text: '記者ハンドブック準拠ルールを大幅追加 — 慣用句・助詞・敬語・外来語・数字表記など9カテゴリ' }
+      { date: '04/13', text: 'ペースト時XSSサニタイズ追加・ファイルドロップゾーンアクセシビリティ強化' }
     ]
   });</script>
 </body>
