@@ -1172,12 +1172,28 @@
       padding: var(--sp-3) var(--sp-4);
       gap: var(--sp-3);
       align-items: flex-start;
-      transition: background 0.15s ease, padding-left 0.15s ease;
+      position: relative;
+      transition: background-color 0.2s cubic-bezier(.4,0,.2,1);
     }
-    /* ホバー時に軽くゴールドバーを左から差し込む（クリック可能性を強調） */
-    .more-list > .fyi-card:hover {
-      padding-left: calc(var(--sp-4) + 3px);
-      box-shadow: inset 3px 0 0 var(--gold);
+    /* ホバー時にゴールドバーを左から上品に出し入れ（scaleY で layout shift なし） */
+    .more-list > .fyi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      width: 3px;
+      background: var(--gold);
+      transform: scaleY(0);
+      transform-origin: center;
+      transition: transform 0.24s cubic-bezier(.4,0,.2,1);
+      pointer-events: none;
+    }
+    .more-list > .fyi-card:hover,
+    .more-list > .fyi-card:focus-within {
+      background-color: var(--surface-alt);
+    }
+    .more-list > .fyi-card:hover::before,
+    .more-list > .fyi-card:focus-within::before {
+      transform: scaleY(1);
     }
     .more-list > .fyi-card .fyi-thumb,
     .more-list > .fyi-card .fyi-visual {
@@ -1200,25 +1216,41 @@
     .more-list > .fyi-card .meta-new-since {
       font-size: 0.6rem; padding: 1px 4px;
     }
-    /* 分析（fyi-why）は hover/focus で滑らかに展開。
-       display:none ↔ -webkit-box の切り替えだと高さが瞬間的にジャンプして不自然なので、
-       max-height + opacity + margin-top をトランジションする。 */
+    /* ヘッドライン hover 時の分析展開は、-webkit-line-clamp の 2行切り詰めを
+       解除して「全文が途中切れしない」ように。展開量は max-height を十分大きく取って
+       content height で収まるようにし、上に薄いセパレーター線を fade in させて
+       視覚的な繋がりを保つ。 */
     .more-list > .fyi-card .fyi-why {
+      display: block;            /* -webkit-box の line-clamp を打ち消す */
+      -webkit-line-clamp: unset;
+      overflow: hidden;
       max-height: 0;
       opacity: 0;
       margin-top: 0;
       margin-bottom: 0;
-      overflow: hidden;
-      transition: max-height 0.22s ease, opacity 0.18s ease 0.04s, margin-top 0.18s ease;
+      padding-top: 0;
+      border-top: 1px solid transparent;
+      font-size: 0.82rem;
+      line-height: 1.62;
+      color: var(--text-secondary);
+      transition:
+        max-height 0.3s cubic-bezier(.4,0,.2,1),
+        opacity 0.22s ease 0.06s,
+        margin-top 0.24s cubic-bezier(.4,0,.2,1),
+        padding-top 0.24s cubic-bezier(.4,0,.2,1),
+        border-top-color 0.24s ease;
     }
     .more-list > .fyi-card:hover .fyi-why,
     .more-list > .fyi-card:focus-within .fyi-why {
-      max-height: 5.2em;
+      max-height: 16em;   /* 余裕を持たせて途中切れを防ぐ */
       opacity: 1;
-      margin-top: 6px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top-color: rgba(0, 31, 51, 0.08);
     }
     @media (prefers-reduced-motion: reduce) {
-      .more-list > .fyi-card .fyi-why { transition: none; }
+      .more-list > .fyi-card .fyi-why,
+      .more-list > .fyi-card::before { transition: none; }
     }
     .more-list > .fyi-card .fyi-meta {
       font-size: 0.7rem;
@@ -1283,44 +1315,78 @@
       .fyi-thumb { width: 160px; height: 100px; }
       .fyi-visual { width: 120px; height: 100px; }
     }
-    /* ── FYI: 画像なし時のソースロゴビジュアル ── */
+    /* ── FYI: 画像なし時のタイポグラフィ・ビジュアル ──
+       同じソースでも「タイトル」が異なれば視覚的にユニークに見えるよう、
+       ソースロゴではなく記事タイトルを主役にする。
+       ブランド配色のグラデーション + 細い gold アクセント + ソース名 small。 */
     .fyi-visual {
       flex-shrink: 0; width: 100px; height: 90px;
       background: var(--navy);
-      display: flex; align-items: center; justify-content: center;
+      display: flex; flex-direction: column;
+      align-items: flex-start; justify-content: space-between;
+      padding: 10px 12px;
       position: relative; overflow: hidden;
+      color: var(--white);
+      text-decoration: none;
     }
+    /* ゴールドのダイアゴナルアクセント（ブランド感） */
     .fyi-visual::before {
       content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, transparent 40%, rgba(255,184,28,0.15) 100%);
+      background: linear-gradient(135deg, transparent 55%, rgba(255,184,28,0.14) 100%);
+      pointer-events: none;
     }
-    .fyi-visual.cat-ai { background: linear-gradient(135deg, #000a14 0%, var(--navy) 100%); }
-    .fyi-visual.cat-ai::before { background: linear-gradient(135deg, transparent 40%, rgba(0,255,255,0.18) 100%); }
-    .fyi-visual.cat-market { background: linear-gradient(135deg, var(--navy) 0%, #2a3550 100%); }
-    .fyi-visual.cat-marketing { background: linear-gradient(135deg, var(--navy) 0%, #3a2a14 100%); }
+    /* 左端 2px の gold stripe（アクセント、アイデンティティ） */
+    .fyi-visual::after {
+      content: ''; position: absolute;
+      top: 10px; bottom: 10px; left: 0;
+      width: 2px; background: var(--gold);
+    }
+    .fyi-visual.cat-ai {
+      background: linear-gradient(135deg, #000a14 0%, var(--navy) 100%);
+    }
+    .fyi-visual.cat-ai::before {
+      background: linear-gradient(135deg, transparent 55%, rgba(0,255,255,0.18) 100%);
+    }
+    .fyi-visual.cat-market {
+      background: linear-gradient(135deg, var(--navy) 0%, #12334f 100%);
+    }
+    .fyi-visual.cat-marketing {
+      background: linear-gradient(135deg, var(--navy) 0%, #3a2a14 100%);
+    }
+    /* タイトル抜粋：記事ごとに必ず異なる → ビジュアルのユニーク性を担保 */
+    .fyi-visual-headline {
+      position: relative; z-index: 1;
+      font-size: 0.74rem; font-weight: 700;
+      line-height: 1.35; letter-spacing: -0.01em;
+      color: var(--white);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-word;
+    }
+    .fyi-visual-source {
+      position: relative; z-index: 1;
+      font-size: 0.58rem; font-weight: 800;
+      color: var(--gold); letter-spacing: 0.06em;
+      text-transform: uppercase;
+      max-width: 100%;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    /* 旧 .source-logo-xs / .source-initials-xs — レガシー箇所で使われる可能性があるため残す */
     .source-logo-xs {
-      width: 40px; height: 40px;
-      background: var(--white); padding: 4px;
+      width: 32px; height: 32px;
+      background: var(--white); padding: 3px;
       object-fit: contain; position: relative; z-index: 1;
     }
     .source-initials-xs {
-      width: 40px; height: 40px;
+      width: 32px; height: 32px;
       background: var(--gold); color: var(--navy);
       display: inline-flex; align-items: center; justify-content: center;
-      font-size: 0.78rem; font-weight: 900;
+      font-size: 0.72rem; font-weight: 900;
       position: relative; z-index: 1;
     }
-    /* FYI 画像なし時のソース名を大きめに表示（空っぽ navy を減らす） */
-    .fyi-visual-source {
-      position: relative; z-index: 1;
-      margin-top: 6px;
-      font-size: 0.6rem; font-weight: 800;
-      color: var(--gold); letter-spacing: 0.04em;
-      text-align: center;
-      max-width: 90%;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .fyi-visual { flex-direction: column; }
     .fyi-body { flex: 1; min-width: 0; }
     /* meta 行にソースタイプ / NEW バッジ / 時刻など多要素が並ぶため折り返し必須。
        狭幅で横スクロールが発生しないように flex-wrap を許可する。 */
