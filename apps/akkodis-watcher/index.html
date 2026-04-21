@@ -327,11 +327,11 @@
     <span><strong>監視対象</strong> Blog / Thinkers &amp; Makers / Client Stories</span>
     <span><strong><span class="badge-new" style="vertical-align:middle;">NEW</span></strong> 公開から14日以内</span>
   </div>
-  <div class="source-filters" id="source-filters">
-    <button class="source-filter-btn active" data-source="all">すべて</button>
-    <button class="source-filter-btn" data-source="blog">Blog</button>
-    <button class="source-filter-btn" data-source="thinkers">Thinkers &amp; Makers</button>
-    <button class="source-filter-btn" data-source="client">Client Stories</button>
+  <div class="source-filters" id="source-filters" role="group" aria-label="ソース別フィルター">
+    <button class="source-filter-btn active" data-source="all" aria-pressed="true">すべて</button>
+    <button class="source-filter-btn" data-source="blog" aria-pressed="false">Blog</button>
+    <button class="source-filter-btn" data-source="thinkers" aria-pressed="false">Thinkers &amp; Makers</button>
+    <button class="source-filter-btn" data-source="client" aria-pressed="false">Client Stories</button>
   </div>
   <div class="toolbar">
     <input class="filter-input" id="filter-input" type="text" placeholder="キーワードで絞り込む..." autocomplete="off" />
@@ -527,8 +527,12 @@
       document.getElementById('source-filters').addEventListener('click', e => {
         const btn = e.target.closest('.source-filter-btn');
         if (!btn) return;
-        document.querySelectorAll('.source-filter-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.source-filter-btn').forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-pressed', 'false');
+        });
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         activeSource = sourceMap[btn.dataset.source] || 'all';
         applyFilters();
       });
