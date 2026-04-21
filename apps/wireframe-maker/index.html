@@ -259,7 +259,7 @@
     .section-card .sec-actions { display: flex; gap: 1px; flex-shrink: 0; }
     .section-card .sec-action-btn { background: none; border: none; color: #d0d5dc; font-size: 0.85rem; cursor: pointer; padding: 2px 5px; transition: color 0.12s; }
     .section-card .sec-action-btn:hover { color: #001f33; }
-    .section-card .sec-action-btn.sec-delete:hover { color: #c0392b; }
+    .section-card .sec-action-btn.sec-delete:hover { color: var(--error-text); }
     /* CVR スコアバッジ */
     .sec-cvr-badge { font-size: 0.58rem; font-weight: 700; padding: 1px 4px; margin-left: 4px; }
     .sec-cvr-badge.high { background: rgba(34,197,94,0.1); color: #16a34a; }
@@ -302,7 +302,7 @@
     .btn-new:hover { border-color: #b0bec5; }
 
     /* ===== 共通 ===== */
-    .error-msg { background: #fff5f4; border: 1.5px solid #fab1a0; border-left: 3px solid #c0392b; color: #c0392b; padding: 8px 12px; font-size: 0.75rem; margin: 8px 12px; min-height: 0; }
+    .error-msg { background: var(--error-bg); border: 1.5px solid var(--error-border); border-left: 3px solid var(--error-text); color: var(--error-text); padding: 8px 12px; font-size: 0.75rem; margin: 8px 12px; min-height: 0; }
     .error-msg:empty { display: none; }
 
     .loading-dots { display: inline-flex; gap: 3px; }
@@ -4507,7 +4507,7 @@ async function generateVariant() {
 
   } catch (e) {
     const colB = document.getElementById('variant-col-b');
-    if (colB) colB.innerHTML = `<div style="padding:20px;color:#c0392b;font-size:0.78rem">エラー: ${escHtml(e.message)}</div>`;
+    if (colB) colB.innerHTML = `<div style="padding:20px;color:var(--error-text);font-size:0.78rem">エラー: ${escHtml(e.message)}</div>`;
   }
 }
 
@@ -4721,7 +4721,7 @@ function showLinkPicker(sectionId) {
 
   if (existingLink) {
     optionsHtml += `<div class="variant-sec" onclick="removePageLink('${sectionId}');this.closest('.shortcuts-overlay').remove()" style="cursor:pointer;border-color:#ef4444">
-      <span class="vs-label" style="color:#c0392b">リンクを削除</span>
+      <span class="vs-label" style="color:var(--error-text)">リンクを削除</span>
     </div>`;
   }
 
@@ -5370,7 +5370,7 @@ async function analyzeCompetitor() {
     const competitorSections = data2.sections;
     renderCompetitorComparison(body, competitorSections, url);
   } catch (e) {
-    body.innerHTML = `<div style="padding:20px;color:#c0392b;font-size:0.78rem">エラー: ${escHtml(e.message)}</div>`;
+    body.innerHTML = `<div style="padding:20px;color:var(--error-text);font-size:0.78rem">エラー: ${escHtml(e.message)}</div>`;
   }
 }
 
@@ -7486,7 +7486,7 @@ function showProjectList() {
         <div style="font-size:0.68rem;color:#8a9bb0;margin-top:2px;">${p.sectionCount || 0}セクション · ${new Date(p.updatedAt).toLocaleString('ja-JP')}</div>
       </div>
       <button onclick="event.stopPropagation();loadProject('${p.id}');this.closest('.project-list-overlay').remove()" style="background:#001f33;color:#fff;border:none;padding:4px 12px;font-size:0.7rem;cursor:pointer;">開く</button>
-      <button onclick="event.stopPropagation();if(confirm('削除しますか？'))deleteProject('${p.id}')" style="background:none;border:1px solid #e8ecf0;color:#c0392b;padding:4px 8px;font-size:0.7rem;cursor:pointer;">削除</button>`;
+      <button onclick="event.stopPropagation();if(confirm('削除しますか？'))deleteProject('${p.id}')" style="background:none;border:1px solid #e8ecf0;color:var(--error-text);padding:4px 8px;font-size:0.7rem;cursor:pointer;">削除</button>`;
       list.appendChild(item);
     });
   }

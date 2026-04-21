@@ -681,17 +681,17 @@
 
       resultSummary.innerHTML = `
         <span class="summary-text">${successResults.length}枚を${selectedExt.toUpperCase()}に変換完了</span>
-        <span class="summary-saved" style="color: ${savedPct >= 0 ? '#00b894' : '#c0392b'}">
+        <span class="summary-saved" style="color: ${savedPct >= 0 ? 'var(--success-text)' : 'var(--error-text)'}">
           ${formatSize(totalOriginal)} → ${formatSize(totalConverted)}（${savedPct >= 0 ? savedPct + '%削減' : Math.abs(savedPct) + '%増加'}）
         </span>
       `;
 
       resultList.innerHTML = results.map((r, i) => {
         if (r.error) {
-          return `<div class="result-item" style="border-left: 3px solid #c0392b;">
+          return `<div class="result-item" style="border-left: 3px solid var(--error-text);">
             <div class="result-info">
               <div class="result-name">${escHtml(r.name)}</div>
-              <div class="result-sizes" style="color:#c0392b;">エラー: ${escHtml(r.error)}</div>
+              <div class="result-sizes" style="color:var(--error-text);">エラー: ${escHtml(r.error)}</div>
             </div>
           </div>`;
         }
@@ -703,9 +703,9 @@
         let sizeStatus = '';
         if (r.autoOptimized) {
           if (r.underTarget) {
-            sizeStatus = `<span style="font-size:0.78rem; font-weight:700; color:#00b894; margin-left:6px;">${formatSize(r.convertedSize)} — 1MB以下 OK</span>`;
+            sizeStatus = `<span style="font-size:0.78rem; font-weight:700; color:var(--success-text); margin-left:6px;">${formatSize(r.convertedSize)} — 1MB以下 OK</span>`;
           } else {
-            sizeStatus = `<span style="font-size:0.78rem; font-weight:700; color:#c0392b; margin-left:6px;">${formatSize(r.convertedSize)} — 1MB超（最低品質でも超過）</span>`;
+            sizeStatus = `<span style="font-size:0.78rem; font-weight:700; color:var(--error-text); margin-left:6px;">${formatSize(r.convertedSize)} — 1MB超（最低品質でも超過）</span>`;
           }
         }
 
@@ -779,5 +779,20 @@
 
     HistoryManager.init('Image Converter');
   </script>
+  <script src="../../assets/onboarding.js"></script>
+  <script>initOnboarding({
+    appName: 'image-converter',
+    title: 'Image Converter',
+    description: '画像フォーマット変換と1MB以下への自動軽量化をブラウザだけで完結',
+    features: [
+      { icon: '⚡', text: 'WebP / AVIF / JPEG / PNG を一括変換' },
+      { icon: '📉', text: '品質を自動調整して1MB以下にスリム化' },
+      { icon: '🔒', text: 'ブラウザ内で処理、画像はサーバーに送られない' }
+    ],
+    updates: [
+      { date: '04/21', text: '「自動で1MB以下に変換」ボタンが横に伸びすぎていた問題を修正＋成功/エラー色をブランドトークンに統一' },
+      { date: '04/14', text: 'スムーススクロールがOSの「視差効果を減らす」設定を尊重するよう改善' }
+    ]
+  });</script>
 </body>
 </html>
