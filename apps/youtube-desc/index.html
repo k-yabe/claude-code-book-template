@@ -68,7 +68,16 @@
     }
 
     /* ── App-specific: Generate button wrapper ── */
-    .generate-wrap { margin-top: var(--sp-4); }
+    .generate-wrap { margin-top: var(--sp-4); text-align: center; }
+    .generate-wrap .generate-btn {
+      display: inline-block;
+      width: auto;
+      min-width: 260px;
+      padding: 14px 52px;
+    }
+    @media (max-width: 600px) {
+      .generate-wrap .generate-btn { width: 100%; min-width: 0; display: block; }
+    }
 
     /* ── App-specific: Error (uses .error class) ── */
     .error {
@@ -592,9 +601,9 @@ X→ https://x.com/AkkodisJapan
       { icon: '📈', text: '検索に強い説明文でリーチを拡大' }
     ],
     updates: [
+      { date: '04/21', text: '「説明文を生成する」ボタンが横に伸びすぎていた問題を修正 — 中央寄せ＋適正幅に' },
       { date: '04/14', text: 'スムーススクロールがOSの「視差効果を減らす」設定を尊重するよう改善' },
-      { date: '03/21', text: 'プレビューをプレーヤー風にリデザイン・サンプルボタン追加' },
-      { date: '03/18', text: 'ハッシュタグ固定化・SEOバッジ日本語化' }
+      { date: '03/21', text: 'プレビューをプレーヤー風にリデザイン・サンプルボタン追加' }
     ]
   });</script>
 </body>

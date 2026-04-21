@@ -56,7 +56,17 @@
     .upload-filename { font-size: var(--text-base); color: var(--success-text); font-weight: 600; margin-top: 6px; }
 
     /* Generate button extras */
-    .generate-btn { margin-bottom: var(--sp-5); }
+    .generate-btn {
+      display: block;
+      width: fit-content;
+      max-width: 100%;
+      min-width: 260px;
+      padding: 14px 52px;
+      margin: 0 auto var(--sp-5);
+    }
+    @media (max-width: 600px) {
+      .generate-btn { width: 100%; min-width: 0; }
+    }
 
     /* Spinner */
     .spinner {
@@ -642,9 +652,9 @@
       { icon: '📏', text: '命名規則の統一に役立つ' }
     ],
     updates: [
+      { date: '04/21', text: '「候補を生成する」「再生成する」ボタンが横に伸びすぎていた問題を修正 — 中央寄せ＋適正幅に' },
       { date: '04/14', text: '候補数を3件→5件に拡張／非対応ファイルドロップ時のエラー表示追加' },
-      { date: '03/21', text: 'サンプルボタン追加' },
-      { date: '03/18', text: 'スコア表示を星評価（★）に改善' }
+      { date: '03/21', text: 'サンプルボタン追加' }
     ]
   });</script>
 </body>
