@@ -1,3 +1,5 @@
+import { mapAnthropicError } from './_anthropic-error.js';
+
 const SYSTEM_PROMPT = `あなたはWebページのワイヤーフレーム設計の世界最高峰の専門家です。
 ユーザーの要件をもとに、ページのセクション構成をJSONで返してください。
 
@@ -482,8 +484,9 @@ export default async function handler(req, res) {
       });
 
       if (!response.ok) {
-        if (response.status === 429) return res.status(429).json({ error: 'しばらく時間をおいて再試行してください。' });
-        return res.status(response.status).json({ error: `APIエラー (${response.status})` });
+        const errText = await response.text();
+        const { status, body } = mapAnthropicError(response.status, errText);
+        return res.status(status).json({ error: body.error.message, code: body.error.code });
       }
 
       const data = await response.json();
@@ -697,8 +700,9 @@ heading, subtext, cta-button, cta-with-note, hero-image, placeholder-image, icon
     });
 
     if (!response.ok) {
-      if (response.status === 429) return res.status(429).json({ error: 'しばらく時間をおいて再試行してください。' });
-      return res.status(response.status).json({ error: `APIエラー (${response.status})` });
+      const errText = await response.text();
+      const { status, body } = mapAnthropicError(response.status, errText);
+      return res.status(status).json({ error: body.error.message, code: body.error.code });
     }
 
     const data = await response.json();

@@ -18,6 +18,8 @@
  *
  * GET /api/ai-news-api?action=xtrends にも対応（GET キャッシュで 1 時間）
  */
+import { mapAnthropicError } from './_anthropic-error.js';
+
 export default async function handler(req, res) {
   // xtrends は GET/POST 両方受ける（GET なら CDN キャッシュが効きやすい）
   if (req.method === 'GET' && (req.query && req.query.action === 'xtrends')) {
@@ -253,7 +255,8 @@ async function handleDigest(req, res) {
     if (!response.ok) {
       const errText = await response.text();
       console.error('[ai-news-api:digest] Anthropic error:', response.status, errText);
-      return res.status(502).json({ error: 'ダイジェスト生成に失敗しました' });
+      const { status, body } = mapAnthropicError(response.status, errText);
+      return res.status(status).json({ error: body.error.message, code: body.error.code });
     }
 
     const data = await response.json();
@@ -320,7 +323,8 @@ async function handleXTrends(_req, res) {
     if (!response.ok) {
       const errText = await response.text();
       console.error('[ai-news-api:xtrends] Anthropic error:', response.status, errText);
-      return res.status(502).json({ error: 'X トレンド取得に失敗しました', items: [] });
+      const { status, body } = mapAnthropicError(response.status, errText);
+      return res.status(status).json({ error: body.error.message, code: body.error.code, items: [] });
     }
     const data = await response.json();
     const text = (data.content || [])
