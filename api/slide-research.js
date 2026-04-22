@@ -3,6 +3,8 @@
  * トピックについてweb検索で徹底調査し、構造化された調査結果をストリーミング返却。
  */
 
+import { mapAnthropicError } from './_anthropic-error.js';
+
 export const config = { runtime: 'edge' };
 
 const RESEARCH_SYSTEM_PROMPT = `あなたは企業向けプレゼン資料のためのリサーチアナリストです。
@@ -131,14 +133,9 @@ export default async function handler(req) {
 
     if (!response.ok) {
       const errText = await response.text();
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: 'しばらく時間をおいて再試行してください。' }), {
-          status: 429,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        });
-      }
-      return new Response(JSON.stringify({ error: `APIエラー (${response.status})` }), {
-        status: response.status,
+      const { status, body } = mapAnthropicError(response.status, errText);
+      return new Response(JSON.stringify({ error: body.error.message, code: body.error.code }), {
+        status,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
     }

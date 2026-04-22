@@ -1,6 +1,8 @@
 // Combined Slide Maker operations: generate, factcheck, image
 // Routed by ?action= query parameter
 
+import { mapAnthropicError } from './_anthropic-error.js';
+
 export default async function handler(req, res) {
   const action = req.query.action;
 
@@ -130,10 +132,9 @@ async function handleFactcheck(req, res) {
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        return res.status(429).json({ error: 'しばらく時間をおいて再試行してください。' });
-      }
-      return res.status(response.status).json({ error: `APIエラー (${response.status})` });
+      const errText = await response.text();
+      const { status, body } = mapAnthropicError(response.status, errText);
+      return res.status(status).json({ error: body.error.message, code: body.error.code });
     }
 
     const data = await response.json();
@@ -504,8 +505,9 @@ async function handleGenerate(req, res) {
       });
 
       if (!response.ok) {
-        if (response.status === 429) return res.status(429).json({ error: 'しばらく時間をおいて再試行してください。' });
-        return res.status(response.status).json({ error: `APIエラー (${response.status})` });
+        const errText = await response.text();
+        const { status, body } = mapAnthropicError(response.status, errText);
+        return res.status(status).json({ error: body.error.message, code: body.error.code });
       }
 
       const data = await response.json();
@@ -650,10 +652,8 @@ ${supplement ? `- 補足データ・根拠（グラフに使える場合は cont
 
     if (!response.ok) {
       const errText = await response.text();
-      if (response.status === 429) {
-        return res.status(429).json({ error: 'しばらく時間をおいて再試行してください。' });
-      }
-      return res.status(response.status).json({ error: `APIエラー (${response.status})` });
+      const { status, body } = mapAnthropicError(response.status, errText);
+      return res.status(status).json({ error: body.error.message, code: body.error.code });
     }
 
     const data = await response.json();
