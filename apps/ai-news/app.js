@@ -444,14 +444,25 @@
    *  scraper 側ではキーワード豊富に拾うが、ヘッドライン等の最終表示では対象読者
    *  （AKKODiS マーケチーム = B2B IT サービス / 人材業界）にフィットするものだけ残す。 */
   const OFFTOPIC_TITLE_PATTERNS = [
-    // B2C キャンペーン / エンタメ系
-    '周年企画', '25周年', '春のマンガまつり', 'マンガまつり',
-    '曲フリ', 'ケツメイシ', 'お取り寄せ',
-    // 株価情報ページ（Yahoo Finance 等の自動生成）
+    // ── 株価情報ページ（Yahoo Finance 等の自動生成） ──
     '株価・株式情報', '値動きの背景', '今の株価', '株価情報',
-    // 一般向け注意喚起・消費者保護
-    '音声詐欺', '特殊詐欺', '振り込め詐欺',
-    // 個人ブログの技術チュートリアル（読者が B2B マーケ担当者のため）
+    // ── B2C 季節イベント・ギフト商戦 ──
+    '母の日', '父の日', 'バレンタイン', 'ホワイトデー',
+    'ハロウィン', 'クリスマス商戦', 'お中元', 'お歳暮',
+    'ボジョレー', '年賀状',
+    // ── B2C キャンペーン / 周年企画 ──
+    '周年企画', '周年キャンペーン', '25周年', '40周年', '50周年',
+    '春のマンガまつり', 'マンガまつり', '夏祭り', 'ファン感謝',
+    'お取り寄せ', '自分ごと化',
+    // ── 特定 B2C ブランド／消費者向け商材 ──
+    'ケツメイシ', 'コアラのマーチ', '曲フリ',
+    'ジュエリー市場', 'アパレル市場', 'スイーツ市場',
+    // ── スポーツ B2C ──
+    'W杯', 'ワールドカップ', 'DAZN', 'サッカー専用', 'サッカーファン',
+    'Jリーグ', 'プロ野球', '甲子園', 'オリンピック', '五輪',
+    // ── 一般向け注意喚起・消費者保護 ──
+    '音声詐欺', '特殊詐欺', '振り込め詐欺', 'フィッシング注意',
+    // ── 個人ブログの技術チュートリアル（B2B マーケ担当者向けではない） ──
     'obsidian', '育つ知識ベース',
   ];
   const OFFTOPIC_SOURCE_UGC_PATTERNS = [
@@ -499,11 +510,22 @@
     const lower = hay.toLowerCase();
     return _COMPETITOR_OTHERS.some(k => lower.includes(k.toLowerCase()));
   }
+  /** ソース名が「Google News (<競合名>)」「PR TIMES (<競合名>)」形式なら、
+   *  body のキーワード一致が弱くても競合として扱う（feed 購読で既に競合と明示済みのため）。 */
+  function _matchesCompetitorSource(source) {
+    if (!source) return false;
+    const m = String(source).match(/^(?:Google News|PR TIMES)\s*\(([^)]+)\)\s*$/);
+    if (!m) return false;
+    const name = m[1].toLowerCase();
+    return COMPETITOR_KEYWORDS.some(k => k.toLowerCase() === name || name.includes(k.toLowerCase()));
+  }
   function matchesCompetitor(n) {
     const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '');
     if (COMPETITOR_NOISE.some(w => hay.includes(w))) return false;
     const url = n.url || '';
     if (COMPETITOR_NOISE_URL_PATTERNS.some(p => url.includes(p))) return false;
+    // ソース名経由でのマッチは確実性が高いので最優先で採用
+    if (_matchesCompetitorSource(n.source)) return true;
     if (n.isCompetitor) return _hasCompetitorMatch(hay);
     return _hasCompetitorMatch(hay);
   }

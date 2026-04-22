@@ -531,18 +531,50 @@ def parse_pub(entry: Any) -> datetime | None:
 # description の中に実際の記事 URL が <a href="..."> で含まれているので抽出する。
 # こうすることで: ①OGP 画像取得が実 URL で実行できる、②ユーザーが記事を直接開ける。
 _GNEWS_REAL_URL_RE = re.compile(r'<a[^>]+href=["\'](https?://[^"\']+)["\']', re.IGNORECASE)
+_META_REFRESH_RE = re.compile(r'<meta[^>]+http-equiv=["\']refresh["\'][^>]+url=([^"\'>\s]+)', re.IGNORECASE)
+_CANONICAL_RE = re.compile(r'<link[^>]+rel=["\']canonical["\'][^>]+href=["\'](https?://[^"\']+)["\']', re.IGNORECASE)
+
+def _fetch_gnews_real_url(link: str, timeout: int = 6) -> str | None:
+    """Google News URL を HTTP フォロー + HTML パースで実 URL に解決する（最後の手段）。"""
+    try:
+        req = Request(link, headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9",
+            "Accept-Language": "ja,en;q=0.8",
+        })
+        with urlopen(req, timeout=timeout) as resp:
+            final = resp.geturl()
+            if final and "news.google.com" not in final:
+                return final
+            raw = resp.read(262144)
+        html_text = raw.decode("utf-8", errors="ignore")
+        for rx in (_META_REFRESH_RE, _CANONICAL_RE, _GNEWS_REAL_URL_RE):
+            m = rx.search(html_text)
+            if m:
+                candidate = m.group(1).strip()
+                if candidate and "news.google.com" not in candidate and candidate.startswith("http"):
+                    return candidate
+        return None
+    except Exception:
+        return None
 
 def resolve_article_url(link: str, description: str | None) -> str:
-    """Google News 等のリダイレクター URL を実記事 URL に解決。解決できなければ元の link を返す。"""
+    """Google News 等のリダイレクター URL を実記事 URL に解決。解決できなければ元の link を返す。
+    ①description 内の <a href> を最優先（軽量）
+    ②それでもダメなら HTTP フォローで実 URL を取得（重いが確実） """
     if not link:
         return link
     if "news.google.com/" in link:
         m = _GNEWS_REAL_URL_RE.search(description or "")
         if m:
             real = m.group(1)
-            # Google News 内部リンクは除外（cluster ページ等）
             if "news.google.com" not in real:
                 return real
+        # description に <a href> が無いケース（Google News モダン RSS 形式）のため
+        # 実 URL を直接フォローして解決する
+        real2 = _fetch_gnews_real_url(link)
+        if real2:
+            return real2
     return link
 
 
