@@ -1,14 +1,13 @@
 {
-  "ranAt": "2026-04-24T23:34:54.626283+00:00",
+  "ranAt": "2026-04-25T23:31:08.856217+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": false,
   "sources": 65,
   "phase": "start",
-  "fetched_items": 35,
-  "summarizer": "fallback",
-  "anthropicError": "JSON parse failed: JSONDecodeError: Expecting ',' delimiter: line 245 column 6 (char 11107) (raw len=11339)",
-  "final_items": 35,
-  "competitor_items": 8,
-  "x_highlights": 0,
-  "durationSec": 235.3
+  "fetched_items": 10,
+  "summarizer": "anthropic_haiku",
+  "final_items": 10,
+  "competitor_items": 2,
+  "x_highlights": 6,
+  "durationSec": 172.9
 }
