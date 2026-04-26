@@ -29,9 +29,15 @@ hr()   { printf "${DIM}%s${RESET}\n" "──────────────
 REPO_RAW="https://raw.githubusercontent.com/k-yabe/claude-code-book-template/main"
 SKILL_URL="${REPO_RAW}/assets/setup/daily-watch/SKILL.md"
 PLIST_URL="${REPO_RAW}/assets/setup/launchd/com.kunito.daily-watch.plist"
+LAST30_COMMAND_URL="${REPO_RAW}/assets/setup/last30/command/last30.md"
+LAST30_SKILL_URL="${REPO_RAW}/assets/setup/last30/skill/SKILL.md"
 
 SKILL_DIR="${HOME}/.claude/skills/daily-watch"
 SKILL_PATH="${SKILL_DIR}/SKILL.md"
+LAST30_COMMAND_DIR="${HOME}/.claude/commands"
+LAST30_COMMAND_PATH="${LAST30_COMMAND_DIR}/last30.md"
+LAST30_SKILL_DIR="${HOME}/.claude/skills/last30"
+LAST30_SKILL_PATH="${LAST30_SKILL_DIR}/SKILL.md"
 DOCS_DIR="${HOME}/Documents/AI_Daily"
 PLIST_NAME="com.kunito.daily-watch"
 PLIST_PATH="${HOME}/Library/LaunchAgents/${PLIST_NAME}.plist"
@@ -103,6 +109,39 @@ ${GOLD}${BOLD}手動で 1 度だけ以下を実行してください（既に do
    /plugin install last30days@last30days-skill
    /last30days Claude Code skills                  # 動作確認
 EOF
+fi
+
+# --- Phase 1.5: /last30 カスタムスラッシュコマンド + スキル ---------
+hr
+log "Phase 1.5: /last30 カスタムコマンド & スキルを設置（CLI/デスクトップ両対応）"
+hr
+
+# プラグイン由来の /last30days はデスクトップアプリで動かないため、
+# カスタムスラッシュコマンド + スキル形式で同等機能を /last30 として提供する。
+# - ~/.claude/commands/last30.md   : CLI で確実に /last30 として動く（デスクトップでも動く可能性）
+# - ~/.claude/skills/last30/SKILL.md: 自然言語で「last30 スキルで〜」と全入口から呼べる
+
+mkdir -p "${LAST30_COMMAND_DIR}"
+mkdir -p "${LAST30_SKILL_DIR}"
+
+if [[ -f "${LAST30_COMMAND_PATH}" ]]; then
+    cp "${LAST30_COMMAND_PATH}" "${LAST30_COMMAND_PATH}.bak.$(date +%Y%m%d-%H%M%S)"
+    warn "既存 last30.md (command) を退避"
+fi
+if curl -fsSL "${LAST30_COMMAND_URL}" -o "${LAST30_COMMAND_PATH}"; then
+    ok "カスタムスラッシュコマンド設置: ${LAST30_COMMAND_PATH}"
+else
+    warn "last30 コマンドの取得に失敗（${LAST30_COMMAND_URL}）"
+fi
+
+if [[ -f "${LAST30_SKILL_PATH}" ]]; then
+    cp "${LAST30_SKILL_PATH}" "${LAST30_SKILL_PATH}.bak.$(date +%Y%m%d-%H%M%S)"
+    warn "既存 last30 SKILL.md を退避"
+fi
+if curl -fsSL "${LAST30_SKILL_URL}" -o "${LAST30_SKILL_PATH}"; then
+    ok "スキル設置: ${LAST30_SKILL_PATH}"
+else
+    warn "last30 SKILL.md の取得に失敗（${LAST30_SKILL_URL}）"
 fi
 
 # --- Phase 2: daily-watch スキル設置 -------------------------------
@@ -231,22 +270,28 @@ printf "${GREEN}${BOLD}✓ セットアップ完了${RESET}\n"
 hr
 cat <<EOF
 ${BOLD}成果物:${RESET}
-  • Skill:     ${SKILL_PATH}
-  • LaunchD:   ${PLIST_PATH}
-  • 出力先:    ${DOCS_DIR}/
-  • Logs:      ${LOG_OUT} / ${LOG_ERR}
+  • Skill (daily-watch):  ${SKILL_PATH}
+  • Command (/last30):    ${LAST30_COMMAND_PATH}
+  • Skill (last30):       ${LAST30_SKILL_PATH}
+  • LaunchD:              ${PLIST_PATH}
+  • 出力先:               ${DOCS_DIR}/
+  • Logs:                 ${LOG_OUT} / ${LOG_ERR}
 
 ${BOLD}日次運用:${RESET}
   毎朝 ${BOLD}07:00 (JST)${RESET} に launchd が daily-watch スキルを起動し、
   新着があれば ${BOLD}${DOCS_DIR}/YYYY-MM-DD.md${RESET} を更新します。
 
 ${BOLD}どこで使える？:${RESET}
-  • ${BOLD}/last30days${RESET}（プラグイン由来）  → ${BOLD}CLI 専用${RESET}
+  • ${BOLD}/last30days${RESET}（プラグイン由来 ・ オリジナル）  → ${BOLD}CLI 専用${RESET}
        ${DIM}claude > /last30days <query>${RESET}
-  • ${BOLD}daily-watch${RESET}（スキル）           → CLI / デスクトップアプリ から自然言語で要求
+  • ${BOLD}/last30${RESET}（カスタムスラッシュコマンド ・ 本リポ製）→ CLI で確実、デスクトップは要検証
+       ${DIM}claude > /last30 <query>${RESET}
+  • ${BOLD}last30${RESET}（スキル ・ 本リポ製の代替）        → CLI / デスクトップアプリ どちらでも自然言語で
+       ${DIM}例: 「last30 スキルで Claude Code skills を調べて」${RESET}
+  • ${BOLD}daily-watch${RESET}（スキル）                    → CLI / デスクトップアプリ から自然言語で要求
        ${DIM}例: 「daily-watch スキルを使って」${RESET}
-  • ${BOLD}毎朝の自動実行${RESET}               → launchd → CLI で稼働、出力 .md は全入口から閲覧可能
-  • ${BOLD}蓄積レポートの参照${RESET}             → CLAUDE.md のルールにより全入口で同じように参照される
+  • ${BOLD}毎朝の自動実行${RESET}                          → launchd → CLI で稼働、出力 .md は全入口から閲覧可能
+  • ${BOLD}蓄積レポートの参照${RESET}                        → CLAUDE.md のルールにより全入口で同じように参照される
 
 ${BOLD}Tips:${RESET}
   • 即時実行:       ${DIM}launchctl start ${PLIST_NAME}${RESET}
