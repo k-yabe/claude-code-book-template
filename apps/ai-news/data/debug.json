@@ -1,13 +1,13 @@
 {
-  "ranAt": "2026-04-25T23:31:08.856217+00:00",
+  "ranAt": "2026-04-26T23:33:15.674284+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": false,
   "sources": 65,
   "phase": "start",
-  "fetched_items": 10,
+  "fetched_items": 22,
   "summarizer": "anthropic_haiku",
-  "final_items": 10,
-  "competitor_items": 2,
-  "x_highlights": 6,
-  "durationSec": 172.9
+  "final_items": 22,
+  "competitor_items": 7,
+  "x_highlights": 0,
+  "durationSec": 194.7
 }
