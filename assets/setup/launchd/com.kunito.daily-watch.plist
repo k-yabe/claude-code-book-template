@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  com.kunito.daily-watch
+  =======================
+  毎朝 07:00(JST) に Claude Code の `daily-watch` スキルを起動するための launchd 設定。
+
+  設置先:
+    ~/Library/LaunchAgents/com.kunito.daily-watch.plist
+
+  ProgramArguments の `__CLAUDE_PATH__` プレースホルダを必ず実機の絶対パスに置換すること。
+  確認コマンド: `which claude`
+  例: /Users/yabekunito/.npm-global/bin/claude
+
+  登録: launchctl load ~/Library/LaunchAgents/com.kunito.daily-watch.plist
+  即時実行テスト: launchctl start com.kunito.daily-watch
+  ログ: /tmp/daily-watch.log / /tmp/daily-watch.error.log
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.kunito.daily-watch</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/zsh</string>
+        <string>-l</string>
+        <string>-c</string>
+        <string>__CLAUDE_PATH__ -p "use the daily-watch skill"</string>
+    </array>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>7</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/daily-watch.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/daily-watch.error.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-04-19（AI NEWS 競合PR拡充22社・fyi質フィルタ強化・Xトレンド日次更新 (Claude+web_search) ＋シードプール日付シャッフル）
+最終更新: 2026-04-26（S080 AI情報収集の自動化セットアップ — `/last30days` + `daily-watch` + launchd の成果物・ランブックを `assets/setup/` と `docs/ai-info-gathering-setup.md` に整備）
 
 ---
 
@@ -23,12 +23,16 @@
 /
 ├── CLAUDE.md              # AIへの開発ルール（このプロジェクトの憲法）
 ├── docs/
-│   └── design.md          # 永続的ドキュメント（本ファイル）
+│   ├── design.md                      # 永続的ドキュメント（本ファイル）
+│   └── ai-info-gathering-setup.md     # AI情報収集セットアップのランブック（S080）
 ├── steering/              # ステアリングファイル（作業単位の管理）
 │   ├── _template.md       # テンプレート
 │   └── S001-*.md          # 各作業単位
 ├── specs/                 # 機能スペック（詳細仕様）
 │   └── *.spec.md
+├── assets/setup/          # ローカル環境セットアップ用テンプレート（ユーザーが Mac にコピー）
+│   ├── daily-watch/SKILL.md                        # ~/.claude/skills/daily-watch/SKILL.md へ
+│   └── launchd/com.kunito.daily-watch.plist        # ~/Library/LaunchAgents/ へ
 ├── index.html             # ブロック崩しゲーム（マークアップ + CSS）
 ├── main.js                # ブロック崩しゲーム（ロジック）
 ├── todo.html              # Todoアプリ（React via CDN）
