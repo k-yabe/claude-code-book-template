@@ -14,6 +14,19 @@
 2. **`daily-watch` スキル + launchd** — 指定サイトを毎朝 07:00 JST に巡回し、新着のみを差分要約して `~/Documents/AI_Daily/` に蓄積
 3. **ナレッジベース連携（任意）** — 取得結果を Obsidian Vault などから過去文脈として参照可能にする
 
+## CLI とデスクトップアプリの両対応について
+
+**install は 1 回で OK**。Claude Code は CLI / デスクトップアプリ / VS Code 拡張 / JetBrains プラグインで `~/.claude/` を共有しているため（公式: *Configuration file locations*）、後述の bootstrap.sh で `~/.claude/skills/daily-watch/SKILL.md` と `/last30days` プラグインが入れば、**すべての入り口から同じように呼び出せます**。
+
+| 入り口 | 使い方 |
+|--------|--------|
+| CLI | `claude` で対話モード起動 → `/last30days <query>` または `daily-watch` を要求 |
+| デスクトップアプリ | `/` メニューから `last30days` を選択、または `daily-watch` をスキル一覧から起動 |
+| VS Code 拡張 | コマンドパレット経由で同じスキル |
+| JetBrains プラグイン | 同上 |
+
+毎朝 07:00 の launchd 自動実行は **CLI 経由**（`claude -p "use the daily-watch skill"`）で動きます。生成された `~/Documents/AI_Daily/YYYY-MM-DD.md` はディスク上のファイルなので、デスクトップアプリ含めどこからでも参照できます。
+
 ---
 
 ## ⚡ ワンライナー・セットアップ（推奨）

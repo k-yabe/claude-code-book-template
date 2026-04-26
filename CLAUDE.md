@@ -14,6 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ユーザーの Mac では、毎朝 07:00 (JST) に launchd 経由で `daily-watch` スキルが走り、AI 関連サイト（Anthropic News / Engineering Blog / Claude Code Release Notes / Docs Map 等）の新着差分要約が `~/Documents/AI_Daily/YYYY-MM-DD.md` に蓄積されている（Obsidian 移行後は `~/Obsidian/<Vault>/AI_Daily/`）。
 
+**Claude Code は CLI / デスクトップアプリ / VS Code 拡張 / JetBrains プラグインで `~/.claude/` を共有しているため、`daily-watch` スキルと `/last30days` プラグインはどの入り口からでも同じように呼び出せる**（公式: Configuration file locations）。本ルールも入り口を問わず適用される。
+
 - ユーザーから「最近の Claude Code の動向は？」「Anthropic の最新発表は？」など **AI / Claude Code の動向を問う質問** が来たら、まず `~/Documents/AI_Daily/` 配下の関連日付・関連トピックの .md を読み、そこを根拠に回答する
 - ファイルが存在しない・読めない環境（Web サンドボックス等）では、無理に読みに行かずに通常の知識で回答してよい
 - 過去のレポートは検索可能な蓄積資産なので、毎日のセットアップ作業（S080）の成果物として丁寧に扱うこと
