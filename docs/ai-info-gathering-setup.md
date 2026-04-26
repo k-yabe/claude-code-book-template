@@ -16,6 +16,31 @@
 
 ---
 
+## ⚡ ワンライナー・セットアップ（推奨）
+
+Mac の Terminal に以下の **1 行を貼るだけ** で Phase 1 + Phase 2 が自動セットアップされる:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/k-yabe/claude-code-book-template/main/assets/setup/bootstrap.sh | bash
+```
+
+スクリプトの実体は `assets/setup/bootstrap.sh`。やること:
+
+- macOS / `claude` バイナリ / バージョン 1.0+ の preflight チェック
+- `/plugin marketplace add` + `/plugin install last30days@last30days-skill` の自動実行（headless が失敗した場合は対話で再実行する案内を表示）
+- `~/.claude/skills/daily-watch/SKILL.md` の設置（既存は `.bak.YYYYMMDD-HHMMSS` に退避）
+- `~/Documents/AI_Daily/` 作成
+- `~/Library/LaunchAgents/com.kunito.daily-watch.plist` を `which claude` の結果で置換しつつ設置（既存 plist は退避＋ unload）
+- `plutil -lint` で構文検証
+- `launchctl load` → `launchctl start` で即時実行
+- 30 秒以内の出力ファイル生成を verify
+
+冪等で安全に再実行できる。Phase 3（Obsidian 連携）はパス確定後に手動で SKILL.md と plist の出力先を書き換える運用。
+
+うまく動かない場合は次セクションの手動手順を参照。
+
+---
+
 ## 制約・前提
 
 - Claude Code 1.0 以上が必要（`claude --version`）
