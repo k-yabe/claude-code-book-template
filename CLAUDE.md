@@ -18,8 +18,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | 仕組み | CLI | デスクトップアプリ | VS Code / JetBrains |
 |--------|-----|-----------------|---------------------|
-| `/last30days`（プラグイン由来コマンド） | ✓ | ✗（CLI でのみ） | ✗ |
-| `daily-watch` スキル（自然言語で要求） | ✓ | ✓（要検証） | ✓（要検証） |
+| `/last30days`（プラグイン由来コマンド・オリジナル） | ✓ | ✗（CLI でのみ） | ✗ |
+| `/last30`（カスタムスラッシュコマンド・本リポ製） | ✓ | ✓（要検証） | ✓（要検証） |
+| `last30` スキル（自然言語で「last30 スキルで〜」） | ✓ | ✓ | ✓ |
+| `daily-watch` スキル（自然言語で要求） | ✓ | ✓ | ✓ |
 | `~/Documents/AI_Daily/*.md` を読んで回答（本ルール） | ✓ | ✓ | ✓ |
 | 毎朝 07:00 launchd 自動実行（CLI 経由） | ✓（実体） | 出力ファイルだけ参照 | 出力ファイルだけ参照 |
 
