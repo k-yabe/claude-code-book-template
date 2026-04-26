@@ -16,16 +16,20 @@
 
 ## CLI とデスクトップアプリの両対応について
 
-**install は 1 回で OK**。Claude Code は CLI / デスクトップアプリ / VS Code 拡張 / JetBrains プラグインで `~/.claude/` を共有しているため（公式: *Configuration file locations*）、後述の bootstrap.sh で `~/.claude/skills/daily-watch/SKILL.md` と `/last30days` プラグインが入れば、**すべての入り口から同じように呼び出せます**。
+Claude Code は CLI / デスクトップアプリ / VS Code 拡張 / JetBrains プラグインで `~/.claude/` の **設定・スキル・プラグインの実体** を共有しています（公式: *Configuration file locations*）。ただし機能ごとに **どの入り口から呼べるか** が異なるため、以下を厳密に把握しておくこと。
 
-| 入り口 | 使い方 |
-|--------|--------|
-| CLI | `claude` で対話モード起動 → `/last30days <query>` または `daily-watch` を要求 |
-| デスクトップアプリ | `/` メニューから `last30days` を選択、または `daily-watch` をスキル一覧から起動 |
-| VS Code 拡張 | コマンドパレット経由で同じスキル |
-| JetBrains プラグイン | 同上 |
+| 機能 | CLI | デスクトップアプリ | VS Code / JetBrains |
+|------|:---:|:----------------:|:-------------------:|
+| `/last30days`（**プラグイン由来のスラッシュコマンド**） | ✓ | **✗ CLI 専用** | **✗ CLI 専用** |
+| `daily-watch` スキル（自然言語で「daily-watch スキルを使って」と頼む） | ✓ | ✓（要検証） | ✓（要検証） |
+| 毎朝 07:00 の launchd 自動実行（`claude -p` 経由） | ✓（実体） | 出力ファイルだけ閲覧可 | 出力ファイルだけ閲覧可 |
+| `~/Documents/AI_Daily/*.md` を読んで回答（CLAUDE.md ルール） | ✓ | ✓ | ✓ |
 
-毎朝 07:00 の launchd 自動実行は **CLI 経由**（`claude -p "use the daily-watch skill"`）で動きます。生成された `~/Documents/AI_Daily/YYYY-MM-DD.md` はディスク上のファイルなので、デスクトップアプリ含めどこからでも参照できます。
+> ⚠️ プラグインのスラッシュコマンド（`/last30days`）は CLI 専用です。デスクトップアプリでは `/last30days` と打っても認識されません。SNS 横断リサーチをやりたい時は **CLI で `claude` を起動して** `/last30days <query>` を実行してください。
+>
+> 一方、`daily-watch` のような **通常のスキル**（`~/.claude/skills/<name>/SKILL.md` 形式）は自然言語で呼び出せるため、デスクトップアプリでも「daily-watch スキルを使って今日の AI ニュースをまとめて」のように依頼すれば動くはずです（公式ドキュメントの記述ベース。手元での動作確認が望ましい）。
+
+**重要な実用面**: デスクトップアプリで AI 動向を質問すると、CLAUDE.md のナレッジ参照ルールが効いて `~/Documents/AI_Daily/*.md` を自動で読みに行く設計になっています。`/last30days` を直接叩けなくても、launchd で毎朝蓄積される .md は **すべての入り口から普通に活用できます**。
 
 ---
 

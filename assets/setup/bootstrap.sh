@@ -240,12 +240,13 @@ ${BOLD}日次運用:${RESET}
   毎朝 ${BOLD}07:00 (JST)${RESET} に launchd が daily-watch スキルを起動し、
   新着があれば ${BOLD}${DOCS_DIR}/YYYY-MM-DD.md${RESET} を更新します。
 
-${BOLD}使える場所（~/.claude/ 共有）:${RESET}
-  • ${BOLD}CLI${RESET}           ${DIM}claude > /last30days <query>${RESET}
-  • ${BOLD}デスクトップアプリ${RESET} ${DIM}/ メニュー → last30days / daily-watch${RESET}
-  • ${BOLD}VS Code 拡張${RESET}    ${DIM}コマンドパレット経由で同じスキル${RESET}
-  • ${BOLD}JetBrains プラグイン${RESET}
-  install は 1 回のみ。すべての入り口で同じスキル・プラグインが使えます。
+${BOLD}どこで使える？:${RESET}
+  • ${BOLD}/last30days${RESET}（プラグイン由来）  → ${BOLD}CLI 専用${RESET}
+       ${DIM}claude > /last30days <query>${RESET}
+  • ${BOLD}daily-watch${RESET}（スキル）           → CLI / デスクトップアプリ から自然言語で要求
+       ${DIM}例: 「daily-watch スキルを使って」${RESET}
+  • ${BOLD}毎朝の自動実行${RESET}               → launchd → CLI で稼働、出力 .md は全入口から閲覧可能
+  • ${BOLD}蓄積レポートの参照${RESET}             → CLAUDE.md のルールにより全入口で同じように参照される
 
 ${BOLD}Tips:${RESET}
   • 即時実行:       ${DIM}launchctl start ${PLIST_NAME}${RESET}

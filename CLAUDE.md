@@ -14,7 +14,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ユーザーの Mac では、毎朝 07:00 (JST) に launchd 経由で `daily-watch` スキルが走り、AI 関連サイト（Anthropic News / Engineering Blog / Claude Code Release Notes / Docs Map 等）の新着差分要約が `~/Documents/AI_Daily/YYYY-MM-DD.md` に蓄積されている（Obsidian 移行後は `~/Obsidian/<Vault>/AI_Daily/`）。
 
-**Claude Code は CLI / デスクトップアプリ / VS Code 拡張 / JetBrains プラグインで `~/.claude/` を共有しているため、`daily-watch` スキルと `/last30days` プラグインはどの入り口からでも同じように呼び出せる**（公式: Configuration file locations）。本ルールも入り口を問わず適用される。
+**Claude Code は CLI / デスクトップアプリ / VS Code 拡張 / JetBrains プラグインで `~/.claude/` の設定・スキル・プラグインの実体を共有している**（公式: Configuration file locations）。ただし **プラグイン由来のスラッシュコマンド（`/last30days` 等）は CLI 専用** で、デスクトップアプリ等では `/<コマンド名>` として呼び出せない。本ルール（蓄積された .md を読みに行く運用）はファイル参照のみなので、入り口を問わず適用される。
+
+| 仕組み | CLI | デスクトップアプリ | VS Code / JetBrains |
+|--------|-----|-----------------|---------------------|
+| `/last30days`（プラグイン由来コマンド） | ✓ | ✗（CLI でのみ） | ✗ |
+| `daily-watch` スキル（自然言語で要求） | ✓ | ✓（要検証） | ✓（要検証） |
+| `~/Documents/AI_Daily/*.md` を読んで回答（本ルール） | ✓ | ✓ | ✓ |
+| 毎朝 07:00 launchd 自動実行（CLI 経由） | ✓（実体） | 出力ファイルだけ参照 | 出力ファイルだけ参照 |
 
 - ユーザーから「最近の Claude Code の動向は？」「Anthropic の最新発表は？」など **AI / Claude Code の動向を問う質問** が来たら、まず `~/Documents/AI_Daily/` 配下の関連日付・関連トピックの .md を読み、そこを根拠に回答する
 - ファイルが存在しない・読めない環境（Web サンドボックス等）では、無理に読みに行かずに通常の知識で回答してよい
