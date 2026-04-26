@@ -170,34 +170,37 @@ launchctl start com.kunito.daily-watch # 即時実行
 
 ---
 
-## Phase 3: ナレッジベース連携（任意）
+## Phase 3: ナレッジベース連携
 
-ユーザーが Obsidian を使う場合のみ実施する。
+### 3-A. CLAUDE.md のナレッジ参照ルール（既に追記済み）
 
-### Obsidian を使う場合
+本リポジトリの `CLAUDE.md` には既に「ナレッジ参照ルール（AI Daily）」セクションが入っている（S080 の一環）。Claude Code がこのリポで作業する際、AI / Claude Code の動向を問う質問が来たら `~/Documents/AI_Daily/`（Obsidian 移行後は Vault 配下）の関連 .md を読んで回答する運用になる。
 
-1. Vault のパスを確定（例: `~/Obsidian/MyVault/`）
-2. SKILL.md と plist の出力先を Vault 配下に変更:
-   - `~/Documents/AI_Daily/` → `~/Obsidian/MyVault/AI_Daily/`
-   - SKILL.md の「出力先」セクションのみ書き換え（5箇所程度）
-3. プロジェクトルートの `CLAUDE.md` に以下を追記:
+ファイルが存在しない・読めない環境（Web サンドボックス等）では無理に読みに行かず通常知識で回答する設計にしているため、Obsidian 連携の有無に関わらず安全。
 
-   ```markdown
-   ## ナレッジ参照ルール
+### 3-B. Obsidian Vault への移行（任意・自動）
 
-   AI 関連の調査結果は `~/Obsidian/MyVault/AI_Daily/` に蓄積されている。
-   質問の文脈に該当しそうな日付・トピックがあれば、関連 .md ファイルを読んで回答に反映すること。
-   ```
+Obsidian を使い始めたら、Mac の Terminal に **1 行貼るだけ** で出力先を Vault に切り替えられる:
 
-### Obsidian を使わない場合
+```bash
+curl -fsSL https://raw.githubusercontent.com/k-yabe/claude-code-book-template/main/assets/setup/migrate-to-obsidian.sh \
+  | bash -s -- ~/Obsidian/MyVault
+```
 
-- 出力先は `~/Documents/AI_Daily/` のまま
-- `CLAUDE.md` のナレッジ参照ルールも同パスを指定
+スクリプトの実体は `assets/setup/migrate-to-obsidian.sh`。やること:
+
+- Vault パスの存在検証
+- `~/Documents/AI_Daily/` の既存 .md と `last_snapshot.json` を `<Vault>/AI_Daily/` にコピー（既存は `.bak.YYYYMMDD-HHMMSS` に退避）
+- `~/.claude/skills/daily-watch/SKILL.md` の出力先パスを sed で書き換え（バックアップ取得）
+- `launchctl unload` → `load` で新しい SKILL.md を反映
+- 元の `~/Documents/AI_Daily/` は残す（手動で削除可）
+
+冪等。Vault パスを変えて再実行も可能（その場合は新しい Vault に再コピー）。
 
 ### 完了条件
 
-- `CLAUDE.md` にナレッジ参照ルールが追記されている
-- 「最近の Claude Code の動向は?」と聞いて、過去の `AI_Daily` を参照した回答が返ってくる
+- 本リポジトリの `CLAUDE.md` に「ナレッジ参照ルール（AI Daily）」セクションが入っている（S080 で追記済み）
+- （任意）Obsidian 移行後、`<Vault>/AI_Daily/YYYY-MM-DD.md` が翌朝の launchd 自動実行で生成される
 
 ---
 

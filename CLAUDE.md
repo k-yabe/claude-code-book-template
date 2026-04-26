@@ -10,6 +10,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 「どうしますか？」と聞く前に、まず実行可能な手段を全て試す
 - **Vercel 自動デプロイを前提にする**: 作業が一段落したら、常に `main` までマージして Vercel の自動デプロイをトリガーする（PR を作り自動マージ。feature ブランチで止めない）。ユーザーが「Vercelに上げて」「本番にして」と明示しなくても、完了フローにマージ＆デプロイを含めること。
 
+## ナレッジ参照ルール（AI Daily）
+
+ユーザーの Mac では、毎朝 07:00 (JST) に launchd 経由で `daily-watch` スキルが走り、AI 関連サイト（Anthropic News / Engineering Blog / Claude Code Release Notes / Docs Map 等）の新着差分要約が `~/Documents/AI_Daily/YYYY-MM-DD.md` に蓄積されている（Obsidian 移行後は `~/Obsidian/<Vault>/AI_Daily/`）。
+
+- ユーザーから「最近の Claude Code の動向は？」「Anthropic の最新発表は？」など **AI / Claude Code の動向を問う質問** が来たら、まず `~/Documents/AI_Daily/` 配下の関連日付・関連トピックの .md を読み、そこを根拠に回答する
+- ファイルが存在しない・読めない環境（Web サンドボックス等）では、無理に読みに行かずに通常の知識で回答してよい
+- 過去のレポートは検索可能な蓄積資産なので、毎日のセットアップ作業（S080）の成果物として丁寧に扱うこと
+- 関連: `assets/setup/`（セットアップ成果物）, `docs/ai-info-gathering-setup.md`（ランブック）, `steering/S080-AI情報収集セットアップ.md`
+
 ## Running the Game
 
 This is a static, no-build project. Open `index.html` directly in a browser, or serve it locally:
