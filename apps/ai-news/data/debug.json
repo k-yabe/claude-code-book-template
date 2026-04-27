@@ -1,13 +1,14 @@
 {
-  "ranAt": "2026-04-26T23:33:15.674284+00:00",
+  "ranAt": "2026-04-27T23:45:53.009695+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": false,
   "sources": 65,
   "phase": "start",
-  "fetched_items": 22,
-  "summarizer": "anthropic_haiku",
-  "final_items": 22,
-  "competitor_items": 7,
+  "fetched_items": 37,
+  "summarizer": "fallback",
+  "anthropicError": "JSON parse failed: JSONDecodeError: Expecting ',' delimiter: line 275 column 6 (char 11349) (raw len=11671)",
+  "final_items": 37,
+  "competitor_items": 9,
   "x_highlights": 0,
-  "durationSec": 194.7
+  "durationSec": 218.1
 }
