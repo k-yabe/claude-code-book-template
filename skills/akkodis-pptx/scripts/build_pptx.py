@@ -3,30 +3,29 @@
 
 入力 (Markdown ライク):
     # タイトル: ...
+    # サブタイトル: ...   （任意）
     # 用途: external | internal
     # トーン: dark | white
-    # サブタイトル: ...   （任意）
     # 作成: ...           （任意）
 
+    ## アジェンダ              （明示すれば自動アジェンダは抑制される）
     ## セクション名             ← 通常スライド
-    - 箇条書き
     - 箇条書き
     > 発表者ノート（任意）
 
     ## KPI: 指標A=120% | 指標B=95% | 指標C=80%   ← KPI スライド
-    指標Aは前年比 +20%、指標Bは横ばい...
 
-    ## アジェンダ              ← 自動生成（明示しなくても先頭に挿入）
-    （省略すると自動でアジェンダスライドが入る）
+    ## まとめ                  ← クロージング
 
-    ## まとめ                  ← 自動生成
-    - 結論1
-    - 結論2
-
-使い方:
-    python build_pptx.py --template templates/external-white.pptx \
-        --input input.md --output out.pptx
-    # template 省略時は 用途×トーン から自動選択
+設計方針:
+- テンプレ（external/internal × dark/white）の slide_layouts のグラフィック
+  （Wave Landscape / Mesh / Eye Akkodis 等）を活かす
+- 表紙は layout 0 を使い placeholder にタイトル/サブタイトルを流し込む
+- 本文スライドは layout 1（Mesh grey 系）を使い、IMG_Back の大背景は
+  そのまま残しつつ、タイトル placeholder を上部に再配置し本文 box を下に追加
+- ロゴ・「@Akkodis」フッターはマスターに既に入っているので追加配置しない
+- フォントは Noto Sans JP / 本文 18pt / タイトル 28-32pt
+- 全テキストに表記補正 (notation.correct) を適用
 
 依存: python-pptx
 """
@@ -42,11 +41,10 @@ from pathlib import Path
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.oxml.ns import qn
-from pptx.util import Emu, Inches, Pt
+from pptx.util import Inches, Pt
 
-# ローカル import（同ディレクトリの notation.py）
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from notation import correct  # noqa: E402
 
@@ -62,8 +60,8 @@ class Section:
     title: str
     bullets: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
-    kind: str = "content"  # content | kpi | closing
-    kpis: list[tuple[str, str]] = field(default_factory=list)  # [(label, value)]
+    kind: str = "content"  # content | kpi | closing | agenda
+    kpis: list[tuple[str, str]] = field(default_factory=list)
 
 
 @dataclass
@@ -74,6 +72,9 @@ class Deck:
     tone: str = "white"
     author: str = ""
     sections: list[Section] = field(default_factory=list)
+
+
+# ── パース ──────────────────────────────────────────────────
 
 
 def parse_input(text: str) -> Deck:
@@ -102,7 +103,6 @@ def parse_input(text: str) -> Deck:
         line = raw.rstrip()
         if not line.strip() and current is None:
             continue
-        # メタデータ
         if current is None:
             matched = False
             for pattern, attr in meta_re.items():
@@ -114,26 +114,27 @@ def parse_input(text: str) -> Deck:
                     break
             if matched:
                 continue
-        # KPI スライドヘッダ
         kpis = parse_kpi_header(line)
         if kpis is not None:
-            current = Section(title="KPI", kind="kpi", kpis=kpis)
+            current = Section(title="KPI ハイライト", kind="kpi", kpis=kpis)
             deck.sections.append(current)
             continue
-        # 通常セクション
         m = re.match(r"^##\s+(.+)$", line)
         if m:
             title = m.group(1).strip()
-            kind = "closing" if title in ("まとめ", "結論", "Conclusion", "Closing") else "content"
+            if title in ("アジェンダ", "Agenda", "目次"):
+                kind = "agenda"
+            elif title in ("まとめ", "結論", "Conclusion", "Closing", "Thank you"):
+                kind = "closing"
+            else:
+                kind = "content"
             current = Section(title=title, kind=kind)
             deck.sections.append(current)
             continue
-        # 発表者ノート
         m = re.match(r"^\s*>\s+(.+)$", line)
         if m and current is not None:
             current.notes.append(m.group(1).strip())
             continue
-        # 箇条書き
         m = re.match(r"^\s*[-*0-9]+\.?\s+(.+)$", line)
         if m and current is not None:
             current.bullets.append(m.group(1).strip())
@@ -143,8 +144,144 @@ def parse_input(text: str) -> Deck:
     return deck
 
 
+# ── レイアウト・テンプレ操作 ────────────────────────────────
+
+
 def _is_dark(deck: Deck) -> bool:
     return deck.tone == "dark"
+
+
+def _layout_for(prs: Presentation, *, title_layout: bool) -> "pptx.slide.SlideLayout":
+    """表紙用 / 本文用のレイアウトを選ぶ。"""
+    if title_layout:
+        # 表紙: Wave Landscape (layout 0) — 一番デザインが効いている
+        return prs.slide_layouts[0]
+    # 本文: Mesh grey 系（layout 1）
+    if len(prs.slide_layouts) > 1:
+        return prs.slide_layouts[1]
+    return prs.slide_layouts[0]
+
+
+def _hide_shape(shape) -> None:
+    """シェイプを slide から削除する。"""
+    sp = shape._element
+    sp.getparent().remove(sp)
+
+
+def _get_placeholder(slide, idx: int):
+    for ph in slide.placeholders:
+        if ph.placeholder_format.idx == idx:
+            return ph
+    return None
+
+
+def _strip_layout_background(slide) -> None:
+    """本文スライド用にレイアウトの大背景画像 IMG_Back を slide から取り除く。
+
+    placeholder ではなく picture シェイプとしてレイアウトに含まれる IMG_Back を
+    inherit 解除し、上部にタイトル + 下部に本文を配置できる空間を確保する。
+    """
+    # slide 自体に IMG_Back 相当のシェイプは無いが、レイアウトのものが透けて見えている。
+    # 本文を IMG_Back 上に重ねるため、半透明の白オーバーレイをスライドに差し込む。
+    from pptx.util import Emu
+
+    prs = slide.part.package.presentation_part.presentation
+    width = prs.slide_width
+    height = prs.slide_height
+    # スライド全体に半透明の白マットを敷く（背景デザインを薄く残すため）
+    overlay = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, width, height)
+    overlay.line.fill.background()
+    overlay.fill.solid()
+    overlay.fill.fore_color.rgb = WHITE
+    # 透過率 25%（PowerPoint XML 直接編集）
+    sp_pr = overlay.fill._xPr
+    solid = sp_pr.find(qn("a:solidFill"))
+    if solid is not None:
+        srgb = solid.find(qn("a:srgbClr"))
+        if srgb is not None:
+            from lxml import etree
+            alpha = etree.SubElement(srgb, qn("a:alpha"))
+            alpha.set("val", "82000")  # 82% 不透明 = 18% 透過
+    # この overlay を最背面に配置する（zorder で他要素より下に）
+    spTree = overlay._element.getparent()
+    spTree.remove(overlay._element)
+    # IMG_Back を覆って、その上にタイトル/本文を置けるよう、最背面ではなく
+    # 「IMG_Back の直後（その上）かつ placeholder/text の前」に挿入する。
+    # 簡単のため、spTree の最初の子に近い位置に置く。
+    # nvGrpSpPr / grpSpPr は先頭にあるのでそれをスキップして第3要素として挿入。
+    insert_idx = 2
+    children = list(spTree)
+    if len(children) > insert_idx:
+        spTree.insert(insert_idx, overlay._element)
+    else:
+        spTree.append(overlay._element)
+
+
+def _strip_layout_background_dark(slide) -> None:
+    """ダーク用: Navy の半透明オーバーレイを敷く。"""
+    from pptx.util import Emu
+
+    prs = slide.part.package.presentation_part.presentation
+    width = prs.slide_width
+    height = prs.slide_height
+    overlay = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, width, height)
+    overlay.line.fill.background()
+    overlay.fill.solid()
+    overlay.fill.fore_color.rgb = NAVY
+    sp_pr = overlay.fill._xPr
+    solid = sp_pr.find(qn("a:solidFill"))
+    if solid is not None:
+        srgb = solid.find(qn("a:srgbClr"))
+        if srgb is not None:
+            from lxml import etree
+            alpha = etree.SubElement(srgb, qn("a:alpha"))
+            alpha.set("val", "85000")
+    spTree = overlay._element.getparent()
+    spTree.remove(overlay._element)
+    insert_idx = 2
+    children = list(spTree)
+    if len(children) > insert_idx:
+        spTree.insert(insert_idx, overlay._element)
+    else:
+        spTree.append(overlay._element)
+
+
+def _move_title_to_top(slide, *, dark: bool) -> None:
+    """既存タイトル placeholder を上部に移動 + Gold 下線を追加。"""
+    title_ph = _get_placeholder(slide, 0)
+    if title_ph is None:
+        return
+    title_ph.left = Inches(0.6)
+    title_ph.top = Inches(0.5)
+    title_ph.width = Inches(12.13)
+    title_ph.height = Inches(0.9)
+    # フォント
+    tf = title_ph.text_frame
+    if tf.paragraphs and tf.paragraphs[0].runs:
+        for run in tf.paragraphs[0].runs:
+            run.font.size = Pt(28)
+            run.font.bold = True
+            run.font.color.rgb = GOLD if dark else NAVY
+            run.font.name = "Noto Sans JP"
+    # SubTitle / Date placeholder は本文スライドでは非表示
+    for idx in (10, 11):
+        ph = _get_placeholder(slide, idx)
+        if ph is not None:
+            _hide_shape(ph)
+
+
+def _add_title_underline(slide, *, dark: bool) -> None:
+    """タイトル下に Gold アクセント線。"""
+    prs = slide.part.package.presentation_part.presentation
+    line = slide.shapes.add_shape(
+        MSO_SHAPE.RECTANGLE, Inches(0.6), Inches(1.45), Inches(0.6), Inches(0.06)
+    )
+    line.line.fill.background()
+    line.fill.solid()
+    line.fill.fore_color.rgb = GOLD
+
+
+# ── テキスト描画 ────────────────────────────────────────────
 
 
 def _set_text(
@@ -153,7 +290,7 @@ def _set_text(
     *,
     size_pt,
     bold=False,
-    color: RGBColor | None = None,
+    color=None,
     align=None,
     font="Noto Sans JP",
 ):
@@ -170,73 +307,26 @@ def _set_text(
         run.font.color.rgb = color
 
 
-def _add_bullets(frame, bullets, *, dark: bool, size_pt: int = 20):
+def _add_bullets(frame, bullets, *, dark: bool, size_pt: int = 18):
     frame.text = ""
-    color = WHITE if dark else BLACK
     frame.word_wrap = True
+    color = WHITE if dark else BLACK
     for i, b in enumerate(bullets):
         if i == 0:
             p = frame.paragraphs[0]
         else:
             p = frame.add_paragraph()
         p.level = 0
-        p.space_after = Pt(8)
+        p.space_before = Pt(4)
+        p.space_after = Pt(10)
         run = p.add_run()
-        run.text = "・" + correct(b)
+        run.text = "—  " + correct(b)
         run.font.size = Pt(size_pt)
         run.font.name = "Noto Sans JP"
         run.font.color.rgb = color
-
-
-def _paint_background(slide, dark: bool):
-    fill = slide.background.fill
-    fill.solid()
-    fill.fore_color.rgb = NAVY if dark else WHITE
-
-
-def _add_footer_band(slide, prs):
-    width = prs.slide_width
-    height = Inches(0.04)
-    top = prs.slide_height - height - Inches(0.4)
-    shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, top, width, height)
-    shape.line.fill.background()
-    shape.fill.solid()
-    shape.fill.fore_color.rgb = GOLD
-
-
-def _add_logo(slide, prs, *, on_dark: bool):
-    """各スライド左下にロゴを配置する。"""
-    logo_dir = Path(__file__).resolve().parent.parent / "brand"
-    # SVG は python-pptx で直接埋めにくいため、PNG 等価品があればそれを使う
-    # ここでは SVG をそのまま参照（PowerPoint は SVG を表示できる）
-    logo_name = "AKKODIS_Logo_RGB_WHITE.svg" if on_dark else "AKKODIS_Logo_RGB_BLUE.svg"
-    logo_path = logo_dir / logo_name
-    if not logo_path.exists():
-        return
-    height = Inches(0.35)
-    top = prs.slide_height - height - Inches(0.5)
-    left = Inches(0.4)
-    try:
-        slide.shapes.add_picture(str(logo_path), left, top, height=height)
-    except Exception:
-        # SVG 非対応の環境ではスキップ
-        pass
-
-
-def _add_page_number(slide, prs, num: int, total: int, *, dark: bool):
-    height = Inches(0.3)
-    top = prs.slide_height - height - Inches(0.45)
-    width = Inches(1.5)
-    left = prs.slide_width - width - Inches(0.4)
-    box = slide.shapes.add_textbox(left, top, width, height)
-    color = WHITE if dark else GRAY
-    _set_text(
-        box.text_frame,
-        f"{num} / {total}",
-        size_pt=10,
-        color=color,
-        align=PP_ALIGN.RIGHT,
-    )
+        # 最初のダッシュだけ Gold 強調
+        if len(p.runs) > 0:
+            p.runs[0].text = "—  " + correct(b)
 
 
 def _set_speaker_notes(slide, notes: list[str]) -> None:
@@ -247,185 +337,282 @@ def _set_speaker_notes(slide, notes: list[str]) -> None:
     notes_slide.notes_text_frame.text = text
 
 
+def _add_page_number(slide, prs, num: int, total: int, *, dark: bool):
+    box = slide.shapes.add_textbox(
+        prs.slide_width - Inches(1.4), prs.slide_height - Inches(0.5),
+        Inches(1.0), Inches(0.3),
+    )
+    color = GRAY if not dark else RGBColor(0xC0, 0xC4, 0xCC)
+    _set_text(box.text_frame, f"{num} / {total}", size_pt=10, color=color, align=PP_ALIGN.RIGHT)
+
+
+# ── スライドビルダー ───────────────────────────────────────
+
+
 def build_title_slide(prs: Presentation, deck: Deck, num: int, total: int) -> None:
-    layout = prs.slide_layouts[0]
+    layout = _layout_for(prs, title_layout=True)
     slide = prs.slides.add_slide(layout)
-    _paint_background(slide, dark=True)
 
-    width = prs.slide_width
-    height = prs.slide_height
+    # placeholder にタイトル / サブタイトル / 日付を流し込む
+    title_ph = _get_placeholder(slide, 0)
+    if title_ph is not None:
+        tf = title_ph.text_frame
+        tf.text = ""
+        p = tf.paragraphs[0]
+        run = p.add_run()
+        run.text = correct(deck.title)
+        run.font.size = Pt(40)
+        run.font.bold = True
+        run.font.name = "Noto Sans JP"
+        run.font.color.rgb = NAVY  # 表紙は白背景なら Navy
 
-    # Title
-    title_box = slide.shapes.add_textbox(
-        Inches(0.6), height / 2 - Inches(1.0), width - Inches(1.2), Inches(1.4)
-    )
-    _set_text(title_box.text_frame, deck.title, size_pt=40, bold=True, color=GOLD)
+    sub_ph = _get_placeholder(slide, 10)
+    if sub_ph is not None:
+        tf = sub_ph.text_frame
+        tf.text = ""
+        p = tf.paragraphs[0]
+        run = p.add_run()
+        sub_text = deck.subtitle or ("AKKODiS — External" if deck.audience.startswith("ext") else "AKKODiS — Internal")
+        run.text = correct(sub_text)
+        run.font.size = Pt(20)
+        run.font.name = "Noto Sans JP"
+        run.font.color.rgb = NAVY
 
-    # Subtitle
-    if deck.subtitle:
-        sub_box = slide.shapes.add_textbox(
-            Inches(0.6), height / 2 + Inches(0.3), width - Inches(1.2), Inches(0.6)
-        )
-        _set_text(sub_box.text_frame, deck.subtitle, size_pt=20, color=WHITE)
-
-    # Audience tag + author
-    label = "External" if deck.audience.startswith("ext") else "Internal"
-    tag_text = f"AKKODiS — {label}"
-    if deck.author:
-        tag_text += f"  /  {deck.author}"
-    tag_box = slide.shapes.add_textbox(
-        Inches(0.6), height - Inches(1.5), width - Inches(1.2), Inches(0.5)
-    )
-    _set_text(tag_box.text_frame, tag_text, size_pt=14, color=GOLD)
-
-    _add_footer_band(slide, prs)
-    _add_logo(slide, prs, on_dark=True)
-    _add_page_number(slide, prs, num, total, dark=True)
-
-
-def build_agenda_slide(prs: Presentation, deck: Deck, num: int, total: int) -> None:
-    layout = prs.slide_layouts[0]
-    slide = prs.slides.add_slide(layout)
-    dark = _is_dark(deck)
-    _paint_background(slide, dark=dark)
-
-    width = prs.slide_width
-    title_color = GOLD if dark else NAVY
-    title_box = slide.shapes.add_textbox(Inches(0.6), Inches(0.5), width - Inches(1.2), Inches(0.9))
-    _set_text(title_box.text_frame, "アジェンダ", size_pt=32, bold=True, color=title_color)
-
-    # 番号付きの章立て
-    body_box = slide.shapes.add_textbox(
-        Inches(0.6), Inches(1.7), width - Inches(1.2), Inches(5.0)
-    )
-    items = []
-    for i, sec in enumerate(deck.sections, start=1):
-        if sec.kind == "kpi":
-            items.append(f"{i:02}.  KPI ハイライト")
-        else:
-            items.append(f"{i:02}.  {sec.title}")
-    _add_bullets(body_box.text_frame, items, dark=dark, size_pt=22)
-
-    _add_footer_band(slide, prs)
-    _add_logo(slide, prs, on_dark=dark)
-    _add_page_number(slide, prs, num, total, dark=dark)
+    date_ph = _get_placeholder(slide, 11)
+    if date_ph is not None:
+        from datetime import date
+        tf = date_ph.text_frame
+        tf.text = ""
+        p = tf.paragraphs[0]
+        run = p.add_run()
+        author_part = f"  /  {deck.author}" if deck.author else ""
+        run.text = f"{date.today().strftime('%Y.%m.%d')}{author_part}"
+        run.font.size = Pt(11)
+        run.font.name = "Noto Sans JP"
+        run.font.color.rgb = GRAY
 
 
 def build_section_slide(
     prs: Presentation, deck: Deck, section: Section, num: int, total: int
 ) -> None:
-    layout = prs.slide_layouts[1] if len(prs.slide_layouts) > 1 else prs.slide_layouts[0]
+    layout = _layout_for(prs, title_layout=False)
     slide = prs.slides.add_slide(layout)
     dark = _is_dark(deck)
-    _paint_background(slide, dark=dark)
 
-    width = prs.slide_width
-    title_color = GOLD if dark else NAVY
+    # 背景は半透明オーバーレイで落ち着かせる
+    if dark:
+        _strip_layout_background_dark(slide)
+    else:
+        _strip_layout_background(slide)
 
-    # Navy 帯（タイトル背景）
-    band = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, Inches(0.45), width, Inches(0.05))
-    band.line.fill.background()
-    band.fill.solid()
-    band.fill.fore_color.rgb = GOLD if dark else NAVY
+    # タイトルを上部に移動
+    _move_title_to_top(slide, dark=dark)
+    title_ph = _get_placeholder(slide, 0)
+    if title_ph is not None:
+        title_ph.text_frame.text = correct(section.title)
+        for run in title_ph.text_frame.paragraphs[0].runs:
+            run.font.size = Pt(28)
+            run.font.bold = True
+            run.font.color.rgb = GOLD if dark else NAVY
+            run.font.name = "Noto Sans JP"
 
-    title_box = slide.shapes.add_textbox(
-        Inches(0.6), Inches(0.65), width - Inches(1.2), Inches(0.9)
-    )
-    _set_text(title_box.text_frame, section.title, size_pt=30, bold=True, color=title_color)
+    # Gold 下線
+    _add_title_underline(slide, dark=dark)
 
+    # 本文ボディ
     body_box = slide.shapes.add_textbox(
-        Inches(0.6), Inches(1.8), width - Inches(1.2), Inches(5.0)
+        Inches(0.6), Inches(1.8), Inches(12.13), Inches(5.0)
     )
     bullets = section.bullets if section.bullets else ["（内容を追加してください）"]
-    _add_bullets(body_box.text_frame, bullets, dark=dark, size_pt=20)
+    _add_bullets(body_box.text_frame, bullets, dark=dark, size_pt=18)
 
     _set_speaker_notes(slide, section.notes)
-    _add_footer_band(slide, prs)
-    _add_logo(slide, prs, on_dark=dark)
+    _add_page_number(slide, prs, num, total, dark=dark)
+
+
+def build_agenda_slide(prs: Presentation, deck: Deck, num: int, total: int, items: list[str]) -> None:
+    layout = _layout_for(prs, title_layout=False)
+    slide = prs.slides.add_slide(layout)
+    dark = _is_dark(deck)
+    if dark:
+        _strip_layout_background_dark(slide)
+    else:
+        _strip_layout_background(slide)
+
+    _move_title_to_top(slide, dark=dark)
+    title_ph = _get_placeholder(slide, 0)
+    if title_ph is not None:
+        title_ph.text_frame.text = "アジェンダ"
+        for run in title_ph.text_frame.paragraphs[0].runs:
+            run.font.size = Pt(28)
+            run.font.bold = True
+            run.font.color.rgb = GOLD if dark else NAVY
+            run.font.name = "Noto Sans JP"
+    _add_title_underline(slide, dark=dark)
+
+    body_box = slide.shapes.add_textbox(
+        Inches(1.0), Inches(2.0), Inches(11.5), Inches(4.5)
+    )
+    tf = body_box.text_frame
+    tf.text = ""
+    tf.word_wrap = True
+    color = WHITE if dark else BLACK
+    for i, item in enumerate(items):
+        if i == 0:
+            p = tf.paragraphs[0]
+        else:
+            p = tf.add_paragraph()
+        p.space_after = Pt(14)
+        # 番号 (Gold) + 区切り + テキスト
+        num_run = p.add_run()
+        num_run.text = f"{i+1:02}    "
+        num_run.font.size = Pt(28)
+        num_run.font.bold = True
+        num_run.font.color.rgb = GOLD
+        num_run.font.name = "Inter"
+        text_run = p.add_run()
+        text_run.text = correct(item)
+        text_run.font.size = Pt(22)
+        text_run.font.name = "Noto Sans JP"
+        text_run.font.color.rgb = color
+
     _add_page_number(slide, prs, num, total, dark=dark)
 
 
 def build_kpi_slide(
     prs: Presentation, deck: Deck, section: Section, num: int, total: int
 ) -> None:
-    layout = prs.slide_layouts[0]
+    layout = _layout_for(prs, title_layout=False)
     slide = prs.slides.add_slide(layout)
     dark = _is_dark(deck)
-    _paint_background(slide, dark=dark)
+    if dark:
+        _strip_layout_background_dark(slide)
+    else:
+        _strip_layout_background(slide)
 
-    width = prs.slide_width
-    title_color = GOLD if dark else NAVY
-
-    title_box = slide.shapes.add_textbox(Inches(0.6), Inches(0.5), width - Inches(1.2), Inches(0.9))
-    _set_text(title_box.text_frame, "KPI ハイライト", size_pt=30, bold=True, color=title_color)
+    _move_title_to_top(slide, dark=dark)
+    title_ph = _get_placeholder(slide, 0)
+    if title_ph is not None:
+        title_ph.text_frame.text = correct(section.title) or "KPI ハイライト"
+        for run in title_ph.text_frame.paragraphs[0].runs:
+            run.font.size = Pt(28)
+            run.font.bold = True
+            run.font.color.rgb = GOLD if dark else NAVY
+            run.font.name = "Noto Sans JP"
+    _add_title_underline(slide, dark=dark)
 
     n = max(1, len(section.kpis))
-    cell_w = (width - Inches(1.2)) // n
-    cell_top = Inches(2.0)
+    cell_w = (prs.slide_width - Inches(1.2)) // n
+    cell_top = Inches(2.4)
     for i, (label, value) in enumerate(section.kpis):
         cell_left = Inches(0.6) + cell_w * i
-        # Value (大きく Gold)
-        val_box = slide.shapes.add_textbox(cell_left, cell_top, cell_w, Inches(2.0))
-        _set_text(val_box.text_frame, value, size_pt=64, bold=True, color=GOLD, align=PP_ALIGN.CENTER)
-        # Label (小さく)
+        # 値（大 Gold）
+        val_box = slide.shapes.add_textbox(cell_left, cell_top, cell_w, Inches(1.8))
+        val_tf = val_box.text_frame
+        val_tf.word_wrap = True
+        val_tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+        _set_text(val_tf, value, size_pt=60, bold=True, color=GOLD, align=PP_ALIGN.CENTER, font="Inter")
+        # ラベル
         lbl_box = slide.shapes.add_textbox(
-            cell_left, cell_top + Inches(2.2), cell_w, Inches(0.6)
+            cell_left, cell_top + Inches(2.0), cell_w, Inches(0.6)
         )
         _set_text(
             lbl_box.text_frame,
             label,
-            size_pt=16,
+            size_pt=14,
             color=WHITE if dark else NAVY,
             align=PP_ALIGN.CENTER,
         )
+        # 区切り線（最後以外）
+        if i < n - 1:
+            sep = slide.shapes.add_shape(
+                MSO_SHAPE.RECTANGLE,
+                cell_left + cell_w - Inches(0.01),
+                cell_top + Inches(0.4),
+                Inches(0.01),
+                Inches(1.6),
+            )
+            sep.line.fill.background()
+            sep.fill.solid()
+            sep.fill.fore_color.rgb = RGBColor(0xE0, 0xE4, 0xE8) if not dark else RGBColor(0x55, 0x66, 0x77)
 
-    # 補足テキスト（KPI セクションの bullets を下部に）
+    # 補足
     if section.bullets:
         note_box = slide.shapes.add_textbox(
-            Inches(0.6), Inches(5.4), width - Inches(1.2), Inches(1.2)
+            Inches(0.6), Inches(5.6), Inches(12.13), Inches(1.4)
         )
         _add_bullets(note_box.text_frame, section.bullets, dark=dark, size_pt=14)
 
     _set_speaker_notes(slide, section.notes)
-    _add_footer_band(slide, prs)
-    _add_logo(slide, prs, on_dark=dark)
     _add_page_number(slide, prs, num, total, dark=dark)
 
 
 def build_closing_slide(
     prs: Presentation, deck: Deck, section: Section, num: int, total: int
 ) -> None:
-    layout = prs.slide_layouts[0]
+    # クロージングは layout 0（Wave Landscape）に Navy オーバーレイ
+    layout = _layout_for(prs, title_layout=True)
     slide = prs.slides.add_slide(layout)
-    _paint_background(slide, dark=True)
-    width = prs.slide_width
 
+    # Navy 半透明オーバーレイ（白背景でも Navy ベタに）
+    prs_obj = slide.part.package.presentation_part.presentation
+    overlay = slide.shapes.add_shape(
+        MSO_SHAPE.RECTANGLE, 0, 0, prs_obj.slide_width, prs_obj.slide_height
+    )
+    overlay.line.fill.background()
+    overlay.fill.solid()
+    overlay.fill.fore_color.rgb = NAVY
+    spTree = overlay._element.getparent()
+    spTree.remove(overlay._element)
+    spTree.insert(2, overlay._element)
+
+    # 既存 placeholder を全部隠す
+    for idx in (0, 10, 11):
+        ph = _get_placeholder(slide, idx)
+        if ph is not None:
+            _hide_shape(ph)
+
+    # 大タイトル
     title_box = slide.shapes.add_textbox(
-        Inches(0.6), Inches(0.6), width - Inches(1.2), Inches(0.9)
+        Inches(0.6), Inches(2.0), Inches(12.13), Inches(1.4)
     )
-    _set_text(title_box.text_frame, section.title, size_pt=32, bold=True, color=GOLD)
+    _set_text(
+        title_box.text_frame,
+        correct(section.title),
+        size_pt=44,
+        bold=True,
+        color=GOLD,
+        align=PP_ALIGN.LEFT,
+    )
 
+    # まとめ箇条書き
     body_box = slide.shapes.add_textbox(
-        Inches(0.6), Inches(1.9), width - Inches(1.2), Inches(4.6)
+        Inches(0.6), Inches(3.5), Inches(12.13), Inches(2.5)
     )
-    _add_bullets(body_box.text_frame, section.bullets, dark=True, size_pt=22)
+    if section.bullets:
+        _add_bullets(body_box.text_frame, section.bullets, dark=True, size_pt=20)
 
-    # Thank you サインオフ
+    # サインオフ
     sign_box = slide.shapes.add_textbox(
-        Inches(0.6), prs.slide_height - Inches(1.3), width - Inches(1.2), Inches(0.5)
+        Inches(0.6), prs_obj.slide_height - Inches(1.0), Inches(12.13), Inches(0.5)
     )
-    _set_text(sign_box.text_frame, "Thank you. — AKKODiS", size_pt=14, color=GOLD)
+    _set_text(
+        sign_box.text_frame,
+        "Thank you. — AKKODiS",
+        size_pt=14,
+        color=GOLD,
+        align=PP_ALIGN.RIGHT,
+    )
 
     _set_speaker_notes(slide, section.notes)
-    _add_footer_band(slide, prs)
-    _add_logo(slide, prs, on_dark=True)
-    _add_page_number(slide, prs, num, total, dark=True)
+
+
+# ── ビルド本体 ──────────────────────────────────────────────
 
 
 def build(deck: Deck, template: Path) -> Presentation:
     prs = Presentation(str(template))
-    # 既存テンプレに含まれるサンプルスライドを除去（参照と part を両方）
-    xml_slides = prs.slides._sldIdLst  # type: ignore[attr-defined]
+    xml_slides = prs.slides._sldIdLst
     slides_part = prs.part
     for sld in list(xml_slides):
         rId = sld.get(qn("r:id"))
@@ -433,27 +620,32 @@ def build(deck: Deck, template: Path) -> Presentation:
             slides_part.drop_rel(rId)
         xml_slides.remove(sld)
 
-    # アジェンダを自動挿入（明示されていない場合）
-    has_agenda = any(s.title in ("アジェンダ", "Agenda", "目次") for s in deck.sections)
-    insert_agenda = (not has_agenda) and len(deck.sections) >= 2
+    # アジェンダを自動挿入（明示が無く、本文 2 つ以上ある場合）
+    has_agenda = any(s.kind == "agenda" for s in deck.sections)
+    insert_agenda = (not has_agenda) and len([s for s in deck.sections if s.kind != "agenda"]) >= 2
 
-    # 総スライド数
     total = 1 + (1 if insert_agenda else 0) + len(deck.sections)
-
     num = 1
     build_title_slide(prs, deck, num, total)
     num += 1
+
     if insert_agenda:
-        build_agenda_slide(prs, deck, num, total)
+        agenda_items = [s.title for s in deck.sections if s.kind != "agenda"]
+        build_agenda_slide(prs, deck, num, total, agenda_items)
         num += 1
+
     for sec in deck.sections:
-        if sec.kind == "kpi":
+        if sec.kind == "agenda":
+            items = sec.bullets if sec.bullets else [s.title for s in deck.sections if s != sec and s.kind != "agenda"]
+            build_agenda_slide(prs, deck, num, total, items)
+        elif sec.kind == "kpi":
             build_kpi_slide(prs, deck, sec, num, total)
         elif sec.kind == "closing":
             build_closing_slide(prs, deck, sec, num, total)
         else:
             build_section_slide(prs, deck, sec, num, total)
         num += 1
+
     return prs
 
 
@@ -468,9 +660,9 @@ def resolve_template(template: Path | None, deck: Deck) -> Path:
 
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description="AKKODiS ブランド準拠 PPTX 生成")
-    ap.add_argument("--template", type=Path, default=None, help="ベース .pptx（省略時は入力から自動選択）")
-    ap.add_argument("--input", type=Path, required=True, help="Markdown ライク入力ファイル")
-    ap.add_argument("--output", type=Path, required=True, help="出力 .pptx")
+    ap.add_argument("--template", type=Path, default=None)
+    ap.add_argument("--input", type=Path, required=True)
+    ap.add_argument("--output", type=Path, required=True)
     args = ap.parse_args(argv)
 
     text = args.input.read_text(encoding="utf-8")
