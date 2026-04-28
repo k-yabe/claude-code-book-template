@@ -1,6 +1,8 @@
 // Multi-mode URL fetch handler
 // - default: article text extraction (POST {url})
-// - proxy: raw fetch with headers (POST {url}) via ?mode=proxy
+// - proxy: raw fetch with headers via ?mode=proxy
+//     • GET ?url=...  → HTML 本体を返す（iframeプレビュー用）
+//     • POST {url}    → ステータス + ヘッダ + body を JSON で返す（差分検出用）
 // - ogp: raw HTML fetch (GET ?url=...) via ?mode=ogp
 
 const MAX_BODY_SIZE = 2 * 1024 * 1024; // 2MB
@@ -38,37 +40,47 @@ export default async function handler(req, res) {
 }
 
 // --- Proxy mode: raw fetch with cache headers ---
+// GET ?url=...  → iframe プレビュー用に HTML 本体を直接返す
+// POST {url}    → 差分検出用にステータス + ヘッダ + body を JSON で返す
 async function handleProxy(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     return res.status(204).end();
   }
 
-  if (req.method !== 'POST') {
+  if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { url } = req.body || {};
+  const url = req.method === 'GET' ? req.query.url : (req.body || {}).url;
   if (!url || typeof url !== 'string') {
-    return res.status(400).json({ error: 'URL is required' });
+    return req.method === 'GET'
+      ? res.status(400).send('URL is required')
+      : res.status(400).json({ error: 'URL is required' });
   }
 
   let parsed;
   try {
     parsed = new URL(url);
   } catch {
-    return res.status(400).json({ error: 'Invalid URL format' });
+    return req.method === 'GET'
+      ? res.status(400).send('Invalid URL format')
+      : res.status(400).json({ error: 'Invalid URL format' });
   }
 
   if (!['http:', 'https:'].includes(parsed.protocol)) {
-    return res.status(400).json({ error: 'Only HTTP/HTTPS URLs are allowed' });
+    return req.method === 'GET'
+      ? res.status(400).send('Only HTTP/HTTPS URLs are allowed')
+      : res.status(400).json({ error: 'Only HTTP/HTTPS URLs are allowed' });
   }
 
   if (isPrivateHost(parsed.hostname)) {
-    return res.status(403).json({ error: 'Access to private/internal addresses is not allowed' });
+    return req.method === 'GET'
+      ? res.status(403).send('Access to private/internal addresses is not allowed')
+      : res.status(403).json({ error: 'Access to private/internal addresses is not allowed' });
   }
 
   try {
@@ -86,10 +98,20 @@ async function handleProxy(req, res) {
 
     const buffer = await response.arrayBuffer();
     if (buffer.byteLength > MAX_BODY_SIZE) {
-      return res.status(413).json({ error: `Response too large (${(buffer.byteLength / 1024 / 1024).toFixed(1)}MB). Max ${MAX_BODY_SIZE / 1024 / 1024}MB.` });
+      return req.method === 'GET'
+        ? res.status(413).send(`Response too large (${(buffer.byteLength / 1024 / 1024).toFixed(1)}MB).`)
+        : res.status(413).json({ error: `Response too large (${(buffer.byteLength / 1024 / 1024).toFixed(1)}MB). Max ${MAX_BODY_SIZE / 1024 / 1024}MB.` });
     }
 
     const body = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
+
+    if (req.method === 'GET') {
+      const ct = response.headers.get('content-type') || 'text/html; charset=utf-8';
+      res.setHeader('Content-Type', ct);
+      res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).send(body);
+    }
 
     const headers = {};
     const headerKeys = ['cache-control', 'age', 'last-modified', 'etag', 'x-cache', 'x-cache-hits', 'cf-cache-status', 'x-varnish', 'via', 'expires', 'date', 'content-type'];
@@ -107,9 +129,13 @@ async function handleProxy(req, res) {
     });
   } catch (err) {
     if (err.name === 'AbortError') {
-      return res.status(504).json({ error: 'Request timed out (8s)' });
+      return req.method === 'GET'
+        ? res.status(504).send('Request timed out (8s)')
+        : res.status(504).json({ error: 'Request timed out (8s)' });
     }
-    return res.status(502).json({ error: `Failed to fetch: ${err.message}` });
+    return req.method === 'GET'
+      ? res.status(502).send(`Failed to fetch: ${err.message}`)
+      : res.status(502).json({ error: `Failed to fetch: ${err.message}` });
   }
 }
 
