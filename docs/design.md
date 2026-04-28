@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-04-26（S080 AI情報収集の自動化セットアップ — `/last30days` + `daily-watch` + launchd の成果物・ランブックを `assets/setup/` と `docs/ai-info-gathering-setup.md` に整備）
+最終更新: 2026-04-28（S081 AKKODiS Claude Skills — PPTX/XLSX/DOCX の 3 Skill を `skills/` 配下に整備し、Writing Checker と同一の表記ルール `brand/notation-rules.md` を全 Skill に同梱）
 
 ---
 
@@ -237,6 +237,32 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 
 **スコア計算:**
 `10 × 消去数 × max(1, 連鎖ボーナス + 色ボーナス + グループボーナス)`
+
+---
+
+## 4.X AKKODiS Claude Skills（S081）
+
+`skills/` 配下に Claude（claude.ai / Claude Code）から呼び出せる Skill を 3 種配置している。各 Skill は単独で配布可能な自己完結ディレクトリ。
+
+| Skill | 出力 | ベース技術 |
+|-------|------|------------|
+| `skills/akkodis-pptx/` | PowerPoint (.pptx) | python-pptx + 既存 4 テンプレ流用 |
+| `skills/akkodis-xlsx/` | Excel (.xlsx) | openpyxl |
+| `skills/akkodis-docx/` | Word (.docx) | python-docx |
+
+### 共通ルール
+
+- 各 Skill は `SKILL.md`（フロントマター: `name`, `description`）+ `brand/`（`style-guide.md` / `notation-rules.md` / ロゴ SVG 5 種）+ `scripts/`（生成スクリプト）+ `examples/` の構成
+- `brand/notation-rules.md` は `apps/writing-checker/knowledge.js` の KNOWLEDGE 全文を Markdown 化したもの。記者ハンドブック準拠 19 セクション + AKKODiS 固有名詞 + Microsoft 表記 + IOWN® 表記を含む
+- ブランドカラーは Navy `#001f33` / Gold `#ffb81c` で固定。フォントは Noto Sans JP / Inter
+- 配布形態は **ZIP 一択**: 個人 Pro/Max プラン前提のため、claude.ai → Settings → Capabilities → Skills へ各自アップロード、または Claude Code 利用者は `~/.claude/skills/` に展開
+- ZIP 化は `scripts/build-skill-zips.sh` で `dist/skills/akkodis-{pptx,xlsx,docx}.zip` を生成（`dist/` は `.gitignore` 済）
+
+### Web アプリ（`apps/slide-maker/`）との関係
+
+- Web アプリ: ブラウザ GUI で操作したい人向け
+- Skill: Claude に自然言語で頼みたい人向け
+- 両者を共存させ、PPTX テンプレ資産（`apps/slide-maker/templates/*.pptx`）は Skill の `skills/akkodis-pptx/templates/` にコピーで自己完結性を担保
 
 ---
 
