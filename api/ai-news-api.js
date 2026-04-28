@@ -510,13 +510,19 @@ async function tryElevenLabsTTS(text, apiKey, res) {
       body: JSON.stringify({
         text,
         model_id: model,
+        // 日本語ニュースアンカーらしい上質さを出す調整。
+        // - stability 0.50: 自然な揺らぎを残しつつ朗読としては安定
+        // - similarity_boost 0.90: 声質を強く保持して「同じ人が話している」一貫性
+        // - style 0.50: 適度な抑揚（プロのアンカーらしい起伏）
+        // - use_speaker_boost: true で発話の明瞭度を上げる
         voice_settings: {
-          stability: 0.45,        // 低めで表現の幅を出す（自然さ向上）
-          similarity_boost: 0.85, // 高めで声質を一定に
-          style: 0.35,            // 適度な抑揚（高すぎると過剰に演技的）
+          stability: 0.50,
+          similarity_boost: 0.90,
+          style: 0.50,
           use_speaker_boost: true,
         },
-        // モデルに「ニュースアンカー」のスタイルを追加で指示
+        // 連続文の自然な間合いを enable
+        apply_text_normalization: 'auto',
         // ElevenLabs はテキスト中の「、」「。」「—」を間として尊重するので前処理で十分
       }),
     });

@@ -519,6 +519,23 @@
     const name = m[1].toLowerCase();
     return COMPETITOR_KEYWORDS.some(k => k.toLowerCase() === name || name.includes(k.toLowerCase()));
   }
+  /** 競合動向セクション用のソース表示。長く事務的な「Google News (NTTデータ)」を
+   *  「NTTデータ（第三者報道）」のように人間が読みやすい形式に変換する。
+   *  competitor 以外のセクションには影響を与えない（呼び出し側でのみ適用）。 */
+  function prettyCompetitorSource(source) {
+    if (!source) return '';
+    const s = String(source);
+    let m = s.match(/^Google News\s*\(([^)]+)\)\s*$/);
+    if (m) return `${m[1]}（第三者報道）`;
+    m = s.match(/^PR TIMES\s*\(([^)]+)\)\s*$/);
+    if (m) return `${m[1]}（プレスリリース）`;
+    if (/NEWSROOM/i.test(s) || /ニュースリリース/.test(s) || /プレスリリース/.test(s)) {
+      // 例: "アクセンチュア NEWSROOM" → "アクセンチュア（公式発表）"
+      const company = s.replace(/\s*(NEWSROOM|ニュースリリース|プレスリリース)\s*$/i, '').trim();
+      if (company) return `${company}（公式発表）`;
+    }
+    return s;
+  }
   function matchesCompetitor(n) {
     const hay = (n.title || '') + ' ' + (n.summary || '') + ' ' + (n.whyItMatters || '');
     if (COMPETITOR_NOISE.some(w => hay.includes(w))) return false;
@@ -3200,11 +3217,11 @@
       // 同じソースでもタイトルが違えば視覚的にユニークになり「同じ画像ばかり」問題を解消。
       return `
         <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}"><span class="fyi-visual-headline">${escapeHtml(n.title)}</span><span class="fyi-visual-source">${escapeHtml(n.source).replace(/^Google News \((.+)\)$/, '$1')}</span></div>`}
+          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}"><span class="fyi-visual-headline">${escapeHtml(n.title)}</span><span class="fyi-visual-source">${escapeHtml(prettyCompetitorSource(n.source))}</span></div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-              <span class="meta-source">${escapeHtml(n.source)}</span>
+              <span class="meta-source">${escapeHtml(prettyCompetitorSource(n.source))}</span>
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
               ${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
