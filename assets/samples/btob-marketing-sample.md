@@ -1,6 +1,6 @@
 # タイトル: BtoB マーケティングの全体像
 # サブタイトル: 失敗しがちな3つの罠と打ち手
-# 用途: internal
+# 用途: external
 # トーン: white
 # 作成: AKKODiS Japan / マーケティング部
 
