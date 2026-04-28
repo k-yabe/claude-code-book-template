@@ -3,7 +3,7 @@
 > **このファイルは「永続的ドキュメント」です。**
 > 仕様・設計・決定事項は常にここを最新の状態に保ってください。
 
-最終更新: 2026-04-28（S081 AKKODiS Claude Skills — PPTX/XLSX/DOCX の 3 Skill を `skills/` 配下に整備し、Writing Checker と同一の表記ルール `brand/notation-rules.md` を全 Skill に同梱）
+最終更新: 2026-04-28（S081 AKKODiS Claude Skills v2.0 — 表記自動補正モジュール `notation.py`、PPTX の KPI/アジェンダ自動/ロゴ配置/発表者ノート、XLSX の棒グラフ + CellIsRule、DOCX の Heading スタイル + 目次フィールド + Navy ヘッダーテーブル、pytest 36 ケース整備）
 
 ---
 

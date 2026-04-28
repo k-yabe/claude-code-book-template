@@ -102,6 +102,33 @@ claude.ai 上ではサンドボックス環境に自動インストールされ�
 - AKKODiS ロゴおよびブランドガイドラインは社外秘
 - 社外配布する場合は別途上長の承認を得ること
 
+## トラブルシュート
+
+| 症状 | 対処 |
+|------|------|
+| claude.ai に Skill をアップロードすると `name` が衝突する | 個人プランでは同名の Skill を 1 アカウント 1 個まで。古い版を削除してから再アップロード |
+| Skill が呼ばれない | プロンプトに「PPTX で」「Excel で」「Word で」など出力フォーマットを明示する |
+| Skill 実行時に `python-pptx` 等が無いと言われる | claude.ai のサンドボックスは初回に自動 install するが、長時間後に Skill を呼び直すと再 install が必要なことがある（数十秒待つ）|
+| ロゴが PowerPoint で表示されない | PowerPoint のバージョンによっては SVG 表示で問題が出ることがある。`brand/AKKODIS_Logo_*.svg` を PNG に変換して差し替える |
+| Word の目次が空 | TOC は Word フィールド。Word で開いて `F9` で更新 |
+| 表記補正で意図しない変換が起きる | 各 Skill の `scripts/notation.py` を編集（同梱テスト `tests/test_skills.py::TestNotation` を再実行で検証） |
+
+## テスト
+
+リポジトリルートで pytest を実行すると、3 Skill の動作確認 + 表記補正のユニットテストが走る。
+
+```bash
+pip install pytest python-pptx openpyxl python-docx
+python -m pytest tests/test_skills.py -v
+# → 36 passed
+```
+
 ## バージョン
 
-- v1.0.0（2026-04-28）— 初版（PPTX / XLSX / DOCX 同時公開）
+- **v2.0.0（2026-04-28）** — 大幅機能強化：
+  - 表記自動補正モジュール `notation.py` を導入（Akkodis→AKKODiS、頂く→いただく、IOWN→IOWN®、PowerBI→Power BI など機械的に置換可能なものは Python が自動修正）
+  - PPTX: 表紙 + アジェンダ自動 + KPI スライド（Gold 大数字）+ クロージング、ロゴ自動配置、発表者ノート、Gold フッター帯、ページ番号
+  - XLSX: 棒グラフ自動追加（`[chart]` 指定）、条件付き書式（CellIsRule で 100% / 80% 閾値）、オートフィルタ、印刷設定（横向き A4・タイトル行繰り返し・ヘッダー/フッター）
+  - DOCX: Heading 1/2 スタイル定義、目次フィールド (TOC)、Markdown 表 → Navy ヘッダーテーブル、表紙シェーディング、ヘッダー/フッター（機密区分 + ページ番号）
+  - pytest 36 ケースを `tests/test_skills.py` に整備
+- v1.0.0（2026-04-28）— 初版

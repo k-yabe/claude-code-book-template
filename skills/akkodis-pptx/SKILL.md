@@ -1,6 +1,6 @@
 ---
 name: akkodis-pptx
-description: AKKODiSブランドガイドに準拠した PowerPoint プレゼン資料（.pptx）を生成する。社外向け / 社内向け × ダーク / ライト の 4 テンプレートをベースに、Markdown ライクな入力からスライドを組み立てる。色（Navy #001f33 / Gold #ffb81c）、フォント、ロゴ配置、余白などのブランド規約を自動適用。提案書・案件報告・社内勉強会・営業資料など、AKKODiS の社員が PPT を作るときに使う。
+description: AKKODiSブランドガイドに準拠した PowerPoint プレゼン資料（.pptx）を生成する。社外向け/社内向け × ダーク/ライト の 4 テンプレートをベースに、Markdown ライクな入力からスライドを組み立てる。表紙・自動アジェンダ・本文・KPI ダッシュボード・まとめスライドの 5 種別をサポート。各スライド左下に AKKODiS ロゴを自動配置、Gold 帯のフッター + ページ番号も自動付与。発表者ノートを `> ` 行で記述可能。Navy/Gold ブランド色・Noto Sans JP・余白などのデザイン規約に加え、Writing Checker と同一の表記ルール（記者ハンドブック準拠 / AKKODiS 固有名詞 / Microsoft 表記 / IOWN®）を全テキストに自動補正。提案書・案件報告・社内勉強会・営業資料・キックオフなど、AKKODiS の社員が PPT を作るときに使う。
 ---
 
 # AKKODiS PPTX Skill
@@ -9,94 +9,109 @@ description: AKKODiSブランドガイドに準拠した PowerPoint プレゼン
 
 ## いつ使うか
 
-ユーザーが以下のいずれかを求めたら、このスキルを使うことを検討する。
-
 - 「AKKODiS のスライドを作って」「ブランド準拠のパワポが欲しい」
-- 「社外向け／社内向けのプレゼン」「提案書を pptx で」
+- 「社外向け / 社内向けのプレゼン」「提案書を pptx で」
 - 「会社のテンプレで資料化して」「Navy と Gold のスライド」
+- 「KPI を大きく見せるダッシュボード形式で」
 
-## 入力の受け取り方
+## 入力フォーマット
 
-ユーザーから「内容」と「用途」を受け取る。曖昧な場合は以下を簡潔に確認する。
-
-1. **用途**: 社外向け（external） / 社内向け（internal）
-2. **トーン**: ダーク（dark, 濃紺背景） / ライト（white, 白背景）
-3. **タイトルとセクション構成**: 章立て + 各章の要点 3〜5個
-
-入力例（Markdown ライクで OK）：
+Markdown ライクで以下を受け取る。
 
 ```
 # タイトル: 2026 Q2 マーケティング戦略
-# 用途: external
-# トーン: white
+# サブタイトル: ナーチャリング自動化で SQL 創出 +30%   （任意）
+# 用途: external          # external | internal
+# トーン: white           # dark | white
+# 作成: 田中（任意）
 
-## 現状分析
+## 現状分析                ← 通常スライド
 - リード獲得は前年比 120%
 - CV 率は伸び悩み
+> 発表者ノート（> 行で書ける、任意）
 
-## 課題
-- 中盤ファネルでの離脱
-- ナーチャリング不足
+## KPI: SQL創出=+30% | 商談化率=+10pt | ROAS=2.4倍   ← KPI スライド
+3指標を Q2 末までに達成する。
 
-## 施策
-1. ウェビナー連動キャンペーン
-2. メール自動化のセグメント拡張
-3. 業界別 LP の追加
+## まとめ                  ← クロージングスライド
+- 結論1
+- 結論2
 ```
+
+特殊シンタックス:
+
+| 記法 | スライド種別 |
+|------|--------------|
+| `## <名前>` | 通常スライド（タイトル + 箇条書き） |
+| `## KPI: A=値1 \| B=値2 \| C=値3` | KPI スライド（数値を Gold で大きく表示） |
+| `## まとめ` / `## 結論` | クロージングスライド（Navy 背景 + Thank you） |
+| `> 文` | 直前のスライドの発表者ノート |
+
+セクションが 2 つ以上ある場合、**アジェンダスライドが自動挿入** される。
 
 ## 生成手順
 
-1. `templates/` から用途×トーンに合致する `.pptx` を選ぶ：
-   - `external-dark.pptx` / `external-white.pptx`
-   - `internal-dark.pptx` / `internal-white.pptx`
-2. `brand/style-guide.md` を必ず先に読み、カラー・フォント・余白・ロゴ配置のルールを順守する。
-3. **`brand/notation-rules.md` を必ず先に読み、表記ルール（記者ハンドブック準拠 / AKKODiS 固有名詞 / Microsoft 表記 / IOWN® 表記）を全文に適用する。** タイトル・見出し・本文・キャプションすべてに対し、固有名詞の大文字小文字、ひらがな送り仮名、IOWN® の ® 有無、Microsoft 製品名のスペース有無などを点検し、必要に応じて自動修正する。
-4. `scripts/build_pptx.py` を実行して .pptx を生成する。引数：
+1. `brand/style-guide.md` と `brand/notation-rules.md` を**必ず先に読む**。
+2. `scripts/build_pptx.py` を実行（`--template` 省略時は用途×トーンから自動選択）：
    ```bash
    python scripts/build_pptx.py \
-     --template templates/external-white.pptx \
      --input <ユーザー入力 .md> \
      --output <出力先 .pptx>
    ```
-5. 表紙・各セクションスライド・まとめスライドを順に作る。各スライド左下にロゴ（`brand/AKKODIS_Logo_RGB_BLUE.svg` をPNG変換して埋め込み、または PPTX マスター上の既存ロゴをそのまま使う）。
-6. 生成後、`brand/notation-rules.md` で再度全テキストを照合し、表記揺れがあれば修正版を再生成する。
-7. 出力パスをユーザーに返す。
+3. スクリプトが以下を自動で行う：
+   - 用途×トーンに対応するテンプレ（`external-{dark,white}.pptx` / `internal-{dark,white}.pptx`）を選択
+   - 全テキストを `notation.py` で表記補正（Akkodis→AKKODiS、頂く→いただく、IOWN→IOWN® など）
+   - 表紙（Gold タイトル on Navy）+ アジェンダ（自動）+ 本文 + KPI + まとめ
+   - 各スライド左下に AKKODiS ロゴ（`brand/AKKODIS_Logo_RGB_*.svg` を背景色に応じて選択）
+   - 下部に Gold 細帯 + 右下にページ番号（`X / Y`）
+   - `> ` 行があれば発表者ノートに格納
+4. 出力パスをユーザーに返す。
 
-## 必ず守るブランドルール（要点）
+## ブランドルール（要点）
 
-- カラー: Navy `#001f33` / Gold `#ffb81c` / White `#FFFFFF` / Black `#000000`
-- 強調色は Gold のみ。アクセントを増やしすぎない。
-- 本文フォント: Noto Sans JP（日本語）、Inter / Arial（欧文）。ゴシック以外を使わない。
-- タイトルスライドは Navy 背景 + Gold タイトルが基本。
-- ロゴは必ず白か青のいずれかを背景コントラストに合わせて選ぶ（赤や黒の背景は使わない）。
-- 1スライドの本文は箇条書き 3〜5 行、文字サイズは 18pt 以上。
+- カラー: Navy `#001f33` / Gold `#ffb81c` / White / Black
+- 強調色は Gold のみ。タイトルスライドは Navy 背景 + Gold タイトル
+- フォント: Noto Sans JP（日本語）、Inter / Arial（欧文）
+- ロゴ: 暗背景には `RGB_WHITE`、白背景には `RGB_BLUE` を使う
+- 1 スライドの本文は箇条書き 3〜5 行、18pt 以上
 
-詳細は `brand/style-guide.md` を参照。
+詳細は `brand/style-guide.md`。表記ルールは `brand/notation-rules.md`。
 
 ## ファイル構成
 
 ```
 akkodis-pptx/
-├── SKILL.md                         # このファイル
+├── SKILL.md
 ├── brand/
-│   ├── style-guide.md              # ブランドルール詳細（カラー・フォント・余白）
-│   ├── notation-rules.md           # 表記ルール（Writing Checker と同一・全文）
-│   └── AKKODIS_Logo_*.svg          # ロゴ 5 種
+│   ├── style-guide.md
+│   ├── notation-rules.md           # 表記ルール（Writing Checker と全文同一）
+│   └── AKKODIS_Logo_*.svg          # 5 種
 ├── templates/
 │   ├── external-dark.pptx
 │   ├── external-white.pptx
 │   ├── internal-dark.pptx
 │   └── internal-white.pptx
 ├── scripts/
-│   └── build_pptx.py               # python-pptx ベース生成スクリプト
+│   ├── build_pptx.py               # 本体
+│   └── notation.py                 # 表記補正モジュール
 └── examples/
-    └── sample-input.md             # 最小サンプル入力
+    └── sample-input.md
 ```
 
 ## 依存
 
 - Python 3.10+
 - `python-pptx>=0.6.23`
-- `Pillow>=10.0`（ロゴ変換用、任意）
 
-未インストールの場合は `pip install python-pptx Pillow` を実行する。
+`pip install python-pptx`
+
+## トラブルシュート
+
+- **「テンプレートが見つかりません」**: 用途/トーンの綴り（`external` / `internal`、`dark` / `white`）を確認。テンプレ4種は `templates/` に置いてある必要がある。
+- **「ロゴが表示されない」**: PowerPoint のバージョンによっては SVG 表示で問題が出ることがある。その場合 `brand/` の SVG を PNG 変換して差し替えるとよい。
+- **「表記補正で意図しない変換が起きる」**: `scripts/notation.py` の `_SUBSTITUTIONS` を編集（同梱テスト `tests/test_skills.py::TestNotation` を再実行で検証）。
+
+## バージョン
+
+- v2.0.0（2026-04-28）— アジェンダ自動挿入、KPI スライド、まとめスライド、ロゴ自動配置、発表者ノート、表記補正モジュール
+- v1.0.0（2026-04-28）— 初版

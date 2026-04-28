@@ -1,6 +1,6 @@
 # [S081] AKKODiS Claude Skills（PPTX / XLSX / DOCX）
 
-**ステータス**: 進行中
+**ステータス**: 完了（v2.0.0）
 **作成日**: 2026-04-28
 **完了日**: —
 
@@ -91,3 +91,10 @@ claude.ai（Pro/Max 個人プラン）および Claude Code から自然言語�
 
 - 2026-04-28: 開始。配布形態は「ZIP配布 + 各自で claude.ai に Upload / `~/.claude/skills/` 設置」に確定（チームプランではないため）。
 - 2026-04-28: 既存 PPTX テンプレ 4 種（external/internal × dark/white）を流用する方針。AKKODiS ブランドカラーは Navy `#001f33` / Gold `#ffb81c`。
+- 2026-04-28: v1.0.0 として 3 Skill 同時公開、auto-merge で main へ。
+- 2026-04-28: **v2.0.0 大幅機能強化**:
+  - 共通: `scripts/notation.py` を導入。`brand/notation-rules.md` を「Claude に読ませるだけ」だった v1 から、Python 側でも機械的置換が安全な約 70 ルール（Akkodis→AKKODiS、innovation Lab. の i 小文字、IOWN®/IOWN GLOBAL FORUM™、PowerBI→Power BI、頂く→いただく、行ない→行い、まず最初に→まず、…等）を自動補正するように強化。Claude が見落としても安全網が機能する。
+  - PPTX: 5 スライド種別（title / agenda 自動 / content / KPI / closing）、各スライドに AKKODiS ロゴ自動配置（背景色に応じて Blue/White を自動選択）、Gold フッター帯 + 右下ページ番号、`>` 行で発表者ノート、`## KPI: A=値1 | B=値2` で KPI 大数字スライド。
+  - XLSX: シート名末尾 `[chart]` で棒グラフ自動追加、`CellIsRule` での真の条件付き書式（100% 以上 Gold / 80% 未満 薄赤）、オートフィルタ、横向き A4 印刷設定（フィット幅 + タイトル行繰り返し + ヘッダー/フッター）、シートタブ Navy。
+  - DOCX: Heading 1 / Heading 2 / Normal を AKKODiS 仕様で再定義、Markdown 表 → Navy ヘッダー（白文字 Bold）+ Light Grid Accent 1 のテーブル、`proposal` で章数 ≥3 なら目次フィールド (TOC) を自動挿入、表紙の Navy 帯シェーディング、ヘッダー/フッター（タイトル + 機密区分 + ページ番号フィールド）。
+  - テスト: `tests/test_skills.py` に 36 ケースの pytest（表記補正 10 / PPTX 5 / XLSX 7 / DOCX 5 / 配布構造 9）。全ケース pass を確認。
