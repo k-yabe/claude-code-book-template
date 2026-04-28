@@ -27,7 +27,98 @@
 
 /* eslint-disable no-unused-vars */
 var OB_VERSION = 4; // この数字を上げると全員に再表示される（v4: 全アプリ大幅アップデート通知）
+
+// ──────────────────────────────────────────────────────────
+//   App view ログ送信（ブックマーク直接アクセスも含めて全訪問を捕捉）
+// ──────────────────────────────────────────────────────────
+// 仕様:
+// - 各アプリの index.html が initOnboarding() を呼ぶたびに、これが先に走って
+//   /api/log に open_app ログを送る。
+// - スプレッドシート上のラベルを既存データと揃えるため slug → 表示名のマップを使う。
+// - portal の「カードクリック → open_app 送信 → 遷移」と二重にならないように、
+//   portal が sessionStorage に直前ヒントを残しているのを参照して 30 秒以内の
+//   同一アプリは抑制する。
+// - 同一セッション内のページリロード・タブ復帰での重複送信も 5 分窓で抑制。
+// - 送信は navigator.sendBeacon 優先（ページ遷移中でも保証配信）、未対応環境は
+//   keepalive: true 付き fetch にフォールバック。
+const _APP_DISPLAY_NAMES = {
+  'ogp-checker':           'OGP Checker',
+  'url-slug-generator':    'URL Slug Generator',
+  'banner-resizer':        'Banner Resizer',
+  'youtube-desc':          'YouTube Generator',
+  'marketo-mail-generator':'Marketo Mail Generator',
+  'akkodis-watcher':       'Global Antenna',
+  'ai-news':               'AI NEWS',
+  'writing-checker':       'Writing Checker',
+  'sns-post-generator':    'Post Generator',
+  'cache-checker':         'Cache Checker',
+  'image-converter':       'Image Converter',
+  'wireframe-maker':       'Wireframe Maker',
+  'slide-maker':           'Slide Maker',
+  'prompt-maker':          'Prompt Maker',
+};
+
+function sendAppView(appName) {
+  if (!appName) return;
+  const displayName = _APP_DISPLAY_NAMES[appName] || appName;
+
+  // ① portal の card click が直前に同じアプリで open_app を送っていたら重複なのでスキップ
+  try {
+    const last = sessionStorage.getItem('mapps_last_open_app');
+    if (last) {
+      const parsed = JSON.parse(last);
+      if (parsed && parsed.app === displayName && Date.now() - (parsed.t || 0) < 30 * 1000) {
+        sessionStorage.removeItem('mapps_last_open_app'); // 一度だけ抑制
+        return;
+      }
+    }
+  } catch {}
+
+  // ② 同一セッション内のリロード・戻るボタン等での重複は 5 分窓で抑制
+  const dedupeKey = 'mapps_view_sent_' + appName;
+  try {
+    const lastSent = parseInt(sessionStorage.getItem(dedupeKey) || '0', 10);
+    if (lastSent && Date.now() - lastSent < 5 * 60 * 1000) return;
+    sessionStorage.setItem(dedupeKey, String(Date.now()));
+  } catch {}
+
+  // ③ ユーザー名: portal で localStorage に保存されているのでそれを優先。
+  //    各アプリは sessionStorage を初期化していないので localStorage から取る。
+  const user =
+    (typeof localStorage !== 'undefined' && localStorage.getItem('username')) ||
+    (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('username')) ||
+    'unknown';
+
+  const payload = JSON.stringify({
+    user,
+    action: 'open_app',
+    app: displayName,
+    timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
+  });
+
+  try {
+    if (navigator.sendBeacon) {
+      const blob = new Blob([payload], { type: 'application/json' });
+      if (navigator.sendBeacon('/api/log', blob)) return;
+    }
+  } catch {}
+
+  try {
+    fetch('/api/log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: payload,
+      keepalive: true,
+      mode: 'same-origin',
+    }).catch(() => {});
+  } catch {}
+}
+
 function initOnboarding(config) {
+  // どのアプリ起動経路（portal クリック / ブックマーク / 直リンク）でも
+  // GAS スプレッドシートに 1 行残るように、まずアプリビューを記録する。
+  try { sendAppView(config && config.appName); } catch {}
+
   const key = config.appName + '_onboarded_v' + OB_VERSION;
   if (localStorage.getItem(key) === '1') return;
 
