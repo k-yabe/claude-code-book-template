@@ -108,7 +108,9 @@ async function handleProxy(req, res) {
     if (req.method === 'GET') {
       const ct = response.headers.get('content-type') || 'text/html; charset=utf-8';
       res.setHeader('Content-Type', ct);
+      // iframe プレビュー: 同一オリジンからの埋め込みのみ許可（ブラウザのクリックジャッキング対策）
       res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+      res.setHeader('Content-Security-Policy', "frame-ancestors 'self'");
       res.setHeader('Cache-Control', 'no-store');
       return res.status(200).send(body);
     }

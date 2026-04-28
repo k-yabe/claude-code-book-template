@@ -137,16 +137,38 @@ function initOnboarding(config) {
       .ob-overlay.show { opacity: 1; }
       .ob-modal {
         background: #fff; width: 90vw; max-width: 440px;
+        max-height: calc(100vh - 40px);
         box-shadow: 0 24px 64px rgba(0,31,51,0.3);
         transform: scale(0.94) translateY(16px);
         transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
-        overflow: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        position: relative;
       }
       .ob-overlay.show .ob-modal { transform: scale(1) translateY(0); }
 
+      /* ── 閉じるボタン (×) ── */
+      .ob-close {
+        position: absolute; top: 8px; right: 8px;
+        width: 36px; height: 36px;
+        background: transparent; color: #fff;
+        border: 1px solid rgba(255,255,255,0.25);
+        font-family: inherit;
+        font-size: 1.1rem; line-height: 1;
+        cursor: pointer; padding: 0;
+        display: inline-flex; align-items: center; justify-content: center;
+        z-index: 1;
+        transition: background 0.15s, border-color 0.15s;
+      }
+      .ob-close:hover, .ob-close:focus {
+        background: rgba(255,255,255,0.12);
+        border-color: rgba(255,255,255,0.5);
+        outline: none;
+      }
+
       /* ── ヘッダー ── */
       .ob-header {
-        background: #001f33; padding: 24px 28px 20px; color: #fff;
+        background: #001f33; padding: 24px 56px 20px 28px; color: #fff;
         border-bottom: 3px solid #ffb81c;
       }
       .ob-header h2 {
@@ -246,13 +268,14 @@ function initOnboarding(config) {
       .ob-update-text { min-width: 0; }
 
       @media (max-width: 600px) {
-        .ob-modal { max-width: 95vw; }
-        .ob-header { padding: 20px 18px 16px; }
+        .ob-modal { max-width: 95vw; max-height: calc(100vh - 24px); }
+        .ob-header { padding: 18px 52px 14px 18px; }
         .ob-features { padding: 16px 18px 8px; }
         .ob-updates { padding: 0 18px 8px; }
         .ob-footer { padding: 14px 18px 18px; flex-direction: column-reverse; gap: 10px; align-items: stretch; }
-        .ob-btn { text-align: center; }
+        .ob-btn { text-align: center; min-height: 44px; }
         .ob-dismiss { justify-content: center; }
+        .ob-close { width: 40px; height: 40px; font-size: 1.3rem; top: 6px; right: 6px; }
       }
     `;
     document.head.appendChild(style);
@@ -282,12 +305,14 @@ function initOnboarding(config) {
 
   const overlay = document.createElement('div');
   overlay.className = 'ob-overlay';
-  overlay.setAttribute('role', 'dialog');
-  overlay.setAttribute('aria-modal', 'true');
+  // モーダル本体の方に role="dialog" を付ける（overlay は装飾要素扱い）
+  // タイトル h2 を aria-labelledby で参照させてスクリーンリーダーに読ませる。
+  const titleId = 'ob-title-' + config.appName;
   overlay.innerHTML = `
-    <div class="ob-modal">
+    <div class="ob-modal" role="dialog" aria-modal="true" aria-labelledby="${titleId}">
+      <button type="button" class="ob-close" aria-label="閉じる" title="閉じる">×</button>
       <div class="ob-header">
-        <h2><span>${config.title}</span> でできること</h2>
+        <h2 id="${titleId}"><span>${config.title}</span> でできること</h2>
         <p>${config.description}</p>
       </div>
       <div class="ob-features">${featuresHtml}</div>
@@ -308,23 +333,24 @@ function initOnboarding(config) {
   });
 
   // --- 閉じる ---
+  // keydown リスナーは閉じ方によらず必ず外す（複数回 onboarding が走った時の累積を防ぐ）
+  function onKeydown(e) {
+    if (e.key === 'Escape') close();
+  }
   function close() {
     const noMore = overlay.querySelector('#ob-no-more').checked;
     if (noMore) {
       localStorage.setItem(key, '1');
     }
     overlay.classList.remove('show');
+    document.removeEventListener('keydown', onKeydown);
     setTimeout(() => overlay.remove(), 300);
   }
 
   overlay.querySelector('.ob-btn').addEventListener('click', close);
+  overlay.querySelector('.ob-close').addEventListener('click', close);
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) close();
   });
-  document.addEventListener('keydown', function handler(e) {
-    if (e.key === 'Escape') {
-      close();
-      document.removeEventListener('keydown', handler);
-    }
-  });
+  document.addEventListener('keydown', onKeydown);
 }
