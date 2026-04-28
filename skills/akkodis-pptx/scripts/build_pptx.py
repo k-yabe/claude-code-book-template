@@ -179,18 +179,43 @@ def _select_layouts(prs: Presentation, *, n_kpi: int = 0) -> dict:
             "Agenda - Computer",
             "Agenda - With Picture",
         ) or _find_layout(prs, "Title, Subtitle and one Paragrah", "Simple Title, Subtitle & Content"),
-        "content": _find_layout(
+        # 本文用は内容に応じて切り替えるため複数候補を保持
+        "content_paragraph": _find_layout(
             prs,
             "Simple Title, Subtitle & Content",
             "Title, Subtitle and one Paragrah",
         ),
+        "content_six": _find_layout(prs, "Six Text Boxes"),
+        "content_two_paragraph": _find_layout(prs, "Two Paragraphs with Blue Line"),
+        "content_centered": _find_layout(prs, "Centered Text Box 2", "Simple texte centered"),
         "kpi": (
             _find_layout(prs, "Six Text Boxes")
             if n_kpi >= 4
-            else _find_layout(prs, "Centered Text Box 2")
+            else _find_layout(prs, "Centered Text Box 2", "Simple texte centered")
         ) or _find_layout(prs, "Simple Title, Subtitle & Content"),
         "closing": _find_layout(prs, "Thank you", "End with Voice", "Eye Akkodis"),
     }
+
+
+def _pick_content_layout(layouts: dict, section: Section):
+    """セクション内容に応じて最適な本文 layout を選ぶ。
+
+    - 4-6 bullets, 各 80 文字以内 → Six Text Boxes (グリッド)
+    - 2 bullets, 各 100 文字以内 → Two Paragraphs with Blue Line (2列対比)
+    - 1 bullet（長い）または 7+ → Title + Paragraph（番号付き強化）
+    """
+    bullets = section.bullets or []
+    n = len(bullets)
+    if n == 0:
+        return layouts["content_paragraph"], "paragraph"
+    avg_len = sum(len(b) for b in bullets) / n
+    max_len = max(len(b) for b in bullets) if bullets else 0
+
+    if 3 <= n <= 6 and max_len <= 80 and layouts.get("content_six") is not None:
+        return layouts["content_six"], "six"
+    if n == 2 and max_len <= 120 and layouts.get("content_two_paragraph") is not None:
+        return layouts["content_two_paragraph"], "two"
+    return layouts["content_paragraph"], "paragraph"
 
 
 # ── placeholder 操作ヘルパ ────────────────────────────────
@@ -354,20 +379,123 @@ def build_agenda_slide(prs: Presentation, deck: Deck, layout, items: list[str]) 
                 run_b.text = correct(item)
 
 
-def build_content_slide(prs: Presentation, deck: Deck, layout, section: Section) -> None:
+def _split_bullet(bullet: str) -> tuple[str, str]:
+    """「課題 → 打ち手」「Label: 詳細」等を head / body に分割。"""
+    for sep in (" → ", "→", " ⇒ ", "⇒"):
+        if sep in bullet:
+            head, _, body = bullet.partition(sep)
+            return head.strip(), body.strip()
+    for sep in ("：", ":"):
+        if sep in bullet:
+            head, _, body = bullet.partition(sep)
+            if len(head.strip()) <= 30:  # 長すぎる head は分割しない
+                return head.strip(), body.strip()
+    return bullet.strip(), ""
+
+
+def _detect_six_box_cells(slide):
+    """Six Text Boxes layout から、(number_ph, header_ph, body_ph) の 6 ペアを返す。
+
+    位置情報で動的にマッピングするためテンプレ依存しない。
+    """
+    placeholders = [
+        ph for ph in slide.placeholders
+        if ph.placeholder_format.idx not in (29, 30, 31)  # title/subtitle 除外
+    ]
+    # 番号 placeholder（width が小さい）/ header / body を分離
+    numbers = [ph for ph in placeholders if (ph.width or 0) < 686000]  # < 0.75 inch
+    not_numbers = [ph for ph in placeholders if (ph.width or 0) >= 686000]
+    # 番号位置を基準に header（同じ top, 大きい left）と body（同じ left, 下）を見つける
+    cells = []
+    for num_ph in sorted(numbers, key=lambda p: (p.top or 0, p.left or 0)):
+        num_top = num_ph.top or 0
+        # header: 同じ top（±0.1 inch）かつ left が num_ph の右
+        header_ph = None
+        for ph in not_numbers:
+            if abs((ph.top or 0) - num_top) < 91440 and (ph.left or 0) > (num_ph.left or 0):
+                if header_ph is None or (ph.left or 0) < (header_ph.left or 0):
+                    header_ph = ph
+        if header_ph is None:
+            continue
+        # body: header の左と同じ、top が下
+        body_ph = None
+        for ph in not_numbers:
+            if ph is header_ph:
+                continue
+            if abs((ph.left or 0) - (header_ph.left or 0)) < 91440 and (ph.top or 0) > (header_ph.top or 0):
+                if body_ph is None or (ph.top or 0) < (body_ph.top or 0):
+                    body_ph = ph
+        cells.append((num_ph, header_ph, body_ph))
+    # ソート: 行優先（top） → 列（left）
+    cells.sort(key=lambda c: ((c[1].top or 0), (c[1].left or 0)))
+    return cells
+
+
+def build_content_six_text_boxes(prs: Presentation, deck: Deck, layout, section: Section) -> None:
+    """6 セルグリッドで bullets をカード化（視認性高）。"""
     slide = prs.slides.add_slide(layout)
-    # Title + Subtitle + Paragraph layout
+    title_ph = _ph_by_name(slide, "Title_01", "Res_Title", "Title")
+    sub_ph = _ph_by_name(slide, "SubTitle")
+    _set_ph_text(title_ph, section.title)
+    if sub_ph is not None:
+        _hide_shape(sub_ph)
+
+    # Six Text Boxes は body に Res_Paraph_01 (idx=10) を含む。これは Title 配下では無く 1 セル目の body
+    # なので _detect_six_box_cells で番号-ヘッダ-本文を位置で抽出する。
+    cells = _detect_six_box_cells(slide)
+    bullets = section.bullets
+
+    for i, (num_ph, header_ph, body_ph) in enumerate(cells):
+        if i < len(bullets):
+            head, body = _split_bullet(bullets[i])
+            _set_ph_text(num_ph, str(i + 1))
+            _set_ph_text(header_ph, head)
+            if body_ph is not None:
+                _set_ph_text(body_ph, body)
+        else:
+            # 余ったセルは完全削除
+            _hide_shape(num_ph)
+            _hide_shape(header_ph)
+            if body_ph is not None:
+                _hide_shape(body_ph)
+
+    _set_speaker_notes(slide, section.notes)
+
+
+def build_content_two_paragraphs(prs: Presentation, deck: Deck, layout, section: Section) -> None:
+    """2 列対比レイアウト。"""
+    slide = prs.slides.add_slide(layout)
+    title_ph = _ph_by_name(slide, "Title_01", "Res_Title", "Title")
+    sub_ph = _ph_by_name(slide, "SubTitle")
+    paras = _ph_all_by_name(slide, "Paraph_")
+
+    _set_ph_text(title_ph, section.title)
+    if sub_ph is not None:
+        _hide_shape(sub_ph)
+
+    bullets = section.bullets
+    for i, ph in enumerate(paras):
+        if i < len(bullets):
+            head, body = _split_bullet(bullets[i])
+            text = head if not body else f"{head}\n\n{body}"
+            _set_ph_text(ph, text)
+        else:
+            _hide_shape(ph)
+
+    _set_speaker_notes(slide, section.notes)
+
+
+def build_content_paragraph(prs: Presentation, deck: Deck, layout, section: Section) -> None:
+    """Title + Paragraph layout で番号付き強化。"""
+    slide = prs.slides.add_slide(layout)
     title_ph = _ph_by_name(slide, "Title_01", "Res_Title", "Title")
     sub_ph = _ph_by_name(slide, "SubTitle")
     para_ph = _ph_by_name(slide, "Paraph_01", "Paraph")
 
     _set_ph_text(title_ph, section.title)
-    # SubTitle はセクション固有のサブタイトルが無い限り、placeholder を完全削除
-    # （残すとレイアウトの "Lorem ipsum" デフォルト文が出てしまうため）
     if sub_ph is not None:
         _hide_shape(sub_ph)
 
-    # Paragraph に箇条書きを流し込む
     if para_ph is not None:
         tf = para_ph.text_frame
         tf.word_wrap = True
@@ -375,16 +503,32 @@ def build_content_slide(prs: Presentation, deck: Deck, layout, section: Section)
         bullets = section.bullets if section.bullets else ["（内容を追加してください）"]
         for i, b in enumerate(bullets):
             p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-            p.space_after = Pt(10)
-            # Gold dash + body
-            run_d = p.add_run()
-            run_d.text = "—  "
-            run_d.font.bold = True
-            run_d.font.color.rgb = GOLD
+            p.space_after = Pt(14)
+            # 大きな Gold 番号（視覚アンカー）
+            run_n = p.add_run()
+            run_n.text = f"{i+1:02}    "
+            run_n.font.bold = True
+            run_n.font.size = Pt(20)
+            run_n.font.color.rgb = GOLD
+            run_n.font.name = "Inter"
+            # 本文
             run_b = p.add_run()
             run_b.text = correct(b)
+            run_b.font.size = Pt(16)
+            run_b.font.name = "Noto Sans JP"
 
     _set_speaker_notes(slide, section.notes)
+
+
+def build_content_slide(prs: Presentation, deck: Deck, layouts: dict, section: Section) -> None:
+    """セクション内容に応じて最適な layout で本文スライドを構築。"""
+    layout, kind = _pick_content_layout(layouts, section)
+    if kind == "six":
+        build_content_six_text_boxes(prs, deck, layout, section)
+    elif kind == "two":
+        build_content_two_paragraphs(prs, deck, layout, section)
+    else:
+        build_content_paragraph(prs, deck, layout, section)
 
 
 def build_kpi_slide(prs: Presentation, deck: Deck, layout, section: Section) -> None:
@@ -493,20 +637,20 @@ def build(deck: Deck, template: Path) -> Presentation:
 
     if insert_agenda:
         agenda_items = [s.title for s in deck.sections if s.kind != "agenda"]
-        build_agenda_slide(prs, deck, layouts["agenda"] or layouts["content"], agenda_items)
+        build_agenda_slide(prs, deck, layouts["agenda"] or layouts["content_paragraph"], agenda_items)
 
     for sec in deck.sections:
         if sec.kind == "agenda":
             items = sec.bullets if sec.bullets else [
                 s.title for s in deck.sections if s != sec and s.kind != "agenda"
             ]
-            build_agenda_slide(prs, deck, layouts["agenda"] or layouts["content"], items)
+            build_agenda_slide(prs, deck, layouts["agenda"] or layouts["content_paragraph"], items)
         elif sec.kind == "kpi":
-            build_kpi_slide(prs, deck, layouts["kpi"] or layouts["content"], sec)
+            build_kpi_slide(prs, deck, layouts["kpi"] or layouts["content_paragraph"], sec)
         elif sec.kind == "closing":
             build_closing_slide(prs, deck, layouts["closing"] or layouts["title"], sec)
         else:
-            build_content_slide(prs, deck, layouts["content"], sec)
+            build_content_slide(prs, deck, layouts, sec)
 
     return prs
 
