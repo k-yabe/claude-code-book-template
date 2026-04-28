@@ -45,14 +45,21 @@ from pathlib import Path
 
 from pptx import Presentation
 from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.oxml.ns import qn
-from pptx.util import Pt
+from pptx.util import Inches, Pt
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from notation import correct  # noqa: E402
 
 NAVY = RGBColor(0x00, 0x1F, 0x33)
 GOLD = RGBColor(0xFF, 0xB8, 0x1C)
+WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+BLACK = RGBColor(0x00, 0x00, 0x00)
+LIGHT_GOLD = RGBColor(0xFF, 0xF6, 0xDD)
+LIGHT_GRAY = RGBColor(0xF4, 0xF6, 0xF8)
+GOLD_BORDER = RGBColor(0xE8, 0x9F, 0x00)
 
 
 @dataclass
@@ -197,20 +204,37 @@ def _select_layouts(prs: Presentation, *, n_kpi: int = 0) -> dict:
     }
 
 
+def _has_arrow_pattern(bullets: list[str]) -> bool:
+    """全ての bullet に「課題 → 打ち手」パターンが含まれるか。"""
+    if not bullets:
+        return False
+    arrows = [" → ", "→", " ⇒ ", "⇒"]
+    matches = sum(1 for b in bullets if any(a in b for a in arrows))
+    return matches >= max(2, int(len(bullets) * 0.7))  # 7割以上にあれば真
+
+
 def _pick_content_layout(layouts: dict, section: Section):
     """セクション内容に応じて最適な本文 layout を選ぶ。
 
-    - 4-6 bullets, 各 80 文字以内 → Six Text Boxes (グリッド)
-    - 2 bullets, 各 100 文字以内 → Two Paragraphs with Blue Line (2列対比)
-    - 1 bullet（長い）または 7+ → Title + Paragraph（番号付き強化）
+    優先順位:
+    - 2-7 bullets で大半に "→" があれば → flowchart（自前で図形描画）
+    - 3-6 bullets, 各 80 文字以内 → Six Text Boxes (グリッド)
+    - 2 bullets, 各 120 文字以内 → Two Paragraphs with Blue Line
+    - それ以外 → Title + Paragraph（番号付き強化）
     """
     bullets = section.bullets or []
     n = len(bullets)
     if n == 0:
         return layouts["content_paragraph"], "paragraph"
-    avg_len = sum(len(b) for b in bullets) / n
     max_len = max(len(b) for b in bullets) if bullets else 0
 
+    if 2 <= n <= 7 and _has_arrow_pattern(bullets):
+        # flowchart は背景がシンプルな layout を使う
+        base = (
+            layouts.get("content_paragraph")
+            or layouts.get("content_centered")
+        )
+        return base, "flowchart"
     if 3 <= n <= 6 and max_len <= 80 and layouts.get("content_six") is not None:
         return layouts["content_six"], "six"
     if n == 2 and max_len <= 120 and layouts.get("content_two_paragraph") is not None:
@@ -520,10 +544,130 @@ def build_content_paragraph(prs: Presentation, deck: Deck, layout, section: Sect
     _set_speaker_notes(slide, section.notes)
 
 
+def _set_shape_text(shape, text, *, size_pt, bold=False, color=NAVY, font="Noto Sans JP", align=PP_ALIGN.LEFT):
+    tf = shape.text_frame
+    tf.text = ""
+    tf.margin_left = Inches(0.15)
+    tf.margin_right = Inches(0.15)
+    tf.margin_top = Inches(0.05)
+    tf.margin_bottom = Inches(0.05)
+    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    tf.word_wrap = True
+    p = tf.paragraphs[0]
+    p.alignment = align
+    run = p.add_run()
+    run.text = correct(text)
+    run.font.size = Pt(size_pt)
+    run.font.bold = bold
+    run.font.name = font
+    run.font.color.rgb = color
+
+
+def build_content_flowchart(prs: Presentation, deck: Deck, layout, section: Section) -> None:
+    """「課題 → 打ち手」を 図形フローチャート で描画。
+
+    各 bullet を:
+        [Navy 角丸矩形 (課題)] → [Gold 矢印] → [淡 Gold 角丸矩形 (打ち手)]
+    の横一列で配置し、bullets 数だけ縦に並べる。
+    """
+    slide = prs.slides.add_slide(layout)
+    title_ph = _ph_by_name(slide, "Title_01", "Res_Title", "Title")
+    sub_ph = _ph_by_name(slide, "SubTitle")
+    para_ph = _ph_by_name(slide, "Paraph_01", "Paraph")
+    _set_ph_text(title_ph, section.title)
+    if sub_ph is not None:
+        _hide_shape(sub_ph)
+    if para_ph is not None:
+        _hide_shape(para_ph)
+
+    bullets = section.bullets
+    n = len(bullets)
+    if n == 0:
+        return
+
+    # 配置領域: y=1.6 〜 y=7.0、幅: 0.5 〜 12.83 inch（13.33 - margins）
+    area_top = Inches(1.7)
+    area_height = Inches(5.3)
+    margin = Inches(0.5)
+    available_w = prs.slide_width - margin * 2
+
+    # 行数に応じて高さ・ギャップ調整
+    gap = Inches(0.18) if n >= 4 else Inches(0.28)
+    row_h = (area_height - gap * (n - 1)) // n
+    # 列幅: 課題 35% / 矢印 6% / 打ち手 55% / 番号 4%
+    num_w = Inches(0.55)
+    head_w = int(available_w * 0.30) - num_w
+    arrow_w = int(available_w * 0.06)
+    body_w = available_w - num_w - head_w - arrow_w - Inches(0.2)
+
+    num_l = margin
+    head_l = num_l + num_w
+    arrow_l = head_l + head_w + Inches(0.05)
+    body_l = arrow_l + arrow_w + Inches(0.1)
+
+    for i, bullet in enumerate(bullets):
+        head, body = _split_bullet(bullet)
+        y = area_top + i * (row_h + gap)
+
+        # 番号サークル (Gold)
+        num_size = min(int(row_h), int(num_w))
+        num_y = y + (row_h - num_size) // 2
+        circle = slide.shapes.add_shape(
+            MSO_SHAPE.OVAL, num_l, num_y, num_size, num_size
+        )
+        circle.fill.solid()
+        circle.fill.fore_color.rgb = GOLD
+        circle.line.fill.background()
+        _set_shape_text(circle, str(i + 1), size_pt=18, bold=True, color=NAVY,
+                       font="Inter", align=PP_ALIGN.CENTER)
+
+        # 課題ボックス (Navy)
+        head_box = slide.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, head_l, y, head_w, row_h
+        )
+        head_box.fill.solid()
+        head_box.fill.fore_color.rgb = NAVY
+        head_box.line.fill.background()
+        # 角丸を控えめに
+        head_box.adjustments[0] = 0.12
+        # 文字サイズはテキスト長に応じて調整
+        h_size = 13 if len(head) > 18 else 15
+        _set_shape_text(head_box, head, size_pt=h_size, bold=True, color=WHITE,
+                       align=PP_ALIGN.CENTER)
+
+        # 矢印 (Gold)
+        arrow_h = Inches(0.35) if row_h > Inches(0.6) else int(row_h * 0.6)
+        arrow_y = y + (row_h - arrow_h) // 2
+        arrow = slide.shapes.add_shape(
+            MSO_SHAPE.RIGHT_ARROW, arrow_l, arrow_y, arrow_w, arrow_h
+        )
+        arrow.fill.solid()
+        arrow.fill.fore_color.rgb = GOLD
+        arrow.line.fill.background()
+
+        # 打ち手ボックス (淡 Gold + Gold ボーダー)
+        body_box = slide.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, body_l, y, body_w, row_h
+        )
+        body_box.fill.solid()
+        body_box.fill.fore_color.rgb = LIGHT_GOLD
+        body_box.line.color.rgb = GOLD_BORDER
+        body_box.line.width = Pt(1.25)
+        body_box.adjustments[0] = 0.12
+        body_text = body if body else head  # body 無ければ head 全文
+        b_size = 12 if len(body_text) > 38 else 13
+        _set_shape_text(body_box, body_text, size_pt=b_size, bold=False, color=NAVY,
+                       align=PP_ALIGN.LEFT)
+
+    _set_speaker_notes(slide, section.notes)
+
+
 def build_content_slide(prs: Presentation, deck: Deck, layouts: dict, section: Section) -> None:
     """セクション内容に応じて最適な layout で本文スライドを構築。"""
     layout, kind = _pick_content_layout(layouts, section)
-    if kind == "six":
+    if kind == "flowchart":
+        build_content_flowchart(prs, deck, layout, section)
+    elif kind == "six":
         build_content_six_text_boxes(prs, deck, layout, section)
     elif kind == "two":
         build_content_two_paragraphs(prs, deck, layout, section)
