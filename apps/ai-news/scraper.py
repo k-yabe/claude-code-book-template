@@ -638,6 +638,9 @@ def load_recent_archive_urls(days: int = ARCHIVE_DEDUP_DAYS) -> set[str]:
 # ── 収集 ──────────────────────────────────────────
 def fetch_all() -> list[dict]:
     cutoff = datetime.now(UTC) - timedelta(hours=RECENT_HOURS)
+    # 競合プレスリリース系（PR TIMES / 公式コーポレート RSS）は B2B カデンスが
+    # 週単位なので 36h だと取りこぼす。7 日窓で別立て判定する。
+    cutoff_press = datetime.now(UTC) - timedelta(days=7)
     all_items: list[dict] = []
     seen_urls: set[str] = set()
     # 前日以前に既出の URL は除外（毎朝同じニュースが並ぶのを防ぐ）
@@ -672,7 +675,17 @@ def fetch_all() -> list[dict]:
                 if not url.startswith(("http://", "https://")):
                     continue
                 pub = parse_pub(e)
-                if pub is None or pub < cutoff:
+                # ソースが競合プレスリリース系（PR TIMES / コーポレート公式 RSS）なら
+                # 7 日窓で許容。それ以外は通常の RECENT_HOURS。
+                src_name = str(src.get("name", ""))
+                is_press_source = (
+                    src_name.startswith("PR TIMES")
+                    or "NEWSROOM" in src_name
+                    or "ニュースリリース" in src_name
+                    or "プレスリリース" in src_name
+                )
+                eff_cutoff = cutoff_press if is_press_source else cutoff
+                if pub is None or pub < eff_cutoff:
                     continue
                 title = strip_html(getattr(e, "title", "") or "").strip()
                 if not title:
@@ -1010,27 +1023,89 @@ _LAST_JSON_PARSE_ERROR: str | None = None
 
 
 def extract_json(text: str) -> dict | None:
+    """Claude / GPT が返す JSON 風テキストから dict を抽出する。
+    LLM の典型的な失敗パターン（コードフェンス・トレーリングカンマ・スマートクオート・
+    JS コメント・改行内未エスケープ）を全部吸収して、できるだけ救済する。"""
     global _LAST_JSON_PARSE_ERROR
     text = text.strip()
-    # コードフェンス除去
+    # ① コードフェンス除去
     text = re.sub(r"^```(?:json)?\s*", "", text)
     text = re.sub(r"\s*```$", "", text)
-    # 最初の { 〜 最後の }
+    # ② スマートクオート (LLM 出力に紛れることがある) を直す
+    text = (text.replace("“", '"').replace("”", '"')
+                .replace("‘", "'").replace("’", "'"))
+    # ③ 最初の { 〜 最後の } を抽出
     s, e = text.find("{"), text.rfind("}")
     if s == -1 or e == -1:
         _LAST_JSON_PARSE_ERROR = f"no braces found (len={len(text)})"
         return None
     body = text[s : e + 1]
-    try:
-        return json.loads(body)
-    except Exception as ex:
-        # よくある Claude のミス: trailing comma / 改行内の制御文字を修復して再試行
+
+    def _try(body_str: str) -> dict | None:
         try:
-            fixed = re.sub(r",\s*([}\]])", r"\1", body)  # trailing comma 除去
-            return json.loads(fixed)
-        except Exception as ex2:
-            _LAST_JSON_PARSE_ERROR = f"{type(ex).__name__}: {ex}"
+            return json.loads(body_str)
+        except Exception:
             return None
+
+    # 試行 1: そのままパース
+    parsed = _try(body)
+    if parsed is not None:
+        return parsed
+
+    # 試行 2: trailing comma 除去
+    fixed = re.sub(r",\s*([}\]])", r"\1", body)
+    parsed = _try(fixed)
+    if parsed is not None:
+        return parsed
+
+    # 試行 3: JS スタイルのコメントを除去 (Claude が説明コメントを混ぜることがある)
+    fixed2 = re.sub(r"//[^\n]*\n", "\n", fixed)            # // コメント
+    fixed2 = re.sub(r"/\*[\s\S]*?\*/", "", fixed2)         # /* */ コメント
+    parsed = _try(fixed2)
+    if parsed is not None:
+        return parsed
+
+    # 試行 4: 文字列値内の生改行 (\n をリテラルで含むケース) を \\n に置換。
+    # これは JSON 仕様では制御文字が許されないので最も多い失敗パターン。
+    # 簡易的に: ダブルクオート開始からエンドまでの間の \n を \\n に。
+    def _escape_newlines_in_strings(s: str) -> str:
+        out = []
+        in_str = False
+        escaped = False
+        for ch in s:
+            if escaped:
+                out.append(ch)
+                escaped = False
+                continue
+            if ch == "\\":
+                out.append(ch)
+                escaped = True
+                continue
+            if ch == '"':
+                in_str = not in_str
+                out.append(ch)
+                continue
+            if in_str and ch == "\n":
+                out.append("\\n")
+                continue
+            if in_str and ch == "\r":
+                out.append("\\r")
+                continue
+            if in_str and ch == "\t":
+                out.append("\\t")
+                continue
+            out.append(ch)
+        return "".join(out)
+
+    fixed3 = _escape_newlines_in_strings(fixed2)
+    parsed = _try(fixed3)
+    if parsed is not None:
+        return parsed
+
+    _LAST_JSON_PARSE_ERROR = (
+        f"JSONDecodeError after 4 repair attempts (raw len={len(body)})"
+    )
+    return None
 
 
 # ── 保存 ──────────────────────────────────────────
@@ -1070,6 +1145,32 @@ def fetch_x_trends_via_claude() -> list[dict]:
         return []
     today_jst = datetime.now(JST)
     date_label = today_jst.strftime("%Y年%m月%d日")
+    # 直近 N 日間のアーカイブから既出の handle を集めて、プロンプトで重複回避させる。
+    # これで「毎日同じ人が出る」現象を緩和する。
+    recent_handles: set[str] = set()
+    try:
+        today_d = today_jst.date()
+        for i in range(7):  # 過去 7 日
+            day = today_d - timedelta(days=i)
+            arch = ARCH_DIR / f"{day.strftime('%Y-%m-%d')}.json"
+            if not arch.exists():
+                continue
+            data = json.loads(arch.read_text(encoding="utf-8"))
+            for h in (data.get("xHighlights") or []):
+                handle = (h.get("handle") or "").strip().lstrip("@").lower()
+                if handle:
+                    recent_handles.add(handle)
+    except Exception:
+        pass
+    avoid_block = ""
+    if recent_handles:
+        sample = sorted(recent_handles)[:25]
+        avoid_block = (
+            "\n## 多様性制約（重要）\n"
+            "- 過去 7 日間で既に出した以下の handle は**極力避けて**新しい著者を選ぶ:\n"
+            "  " + ", ".join(f"@{h}" for h in sample) + "\n"
+            "- 同一 handle は 1 件まで。3 件以上の枠は別人にすること\n"
+        )
     prompt = (
         f"今日（{date_label}）または直近 48 時間以内に、日本語のX（旧Twitter）で"
         "「いいね・リポスト・引用が多く付いて注目されている、生成AI関連の投稿」を"
@@ -1078,9 +1179,12 @@ def fetch_x_trends_via_claude() -> list[dict]:
         "- web_search を使って実在を確認すること。架空の URL や著者名は絶対に作らない\n"
         "- URL は https://x.com/<handle>/status/<id> または https://twitter.com/... の形式のみ\n"
         "- 投稿が確認できなかった場合は「無し」と返す（無理に埋めない）\n"
-        "- 著者は誰でも良い（著名人/一般ユーザー問わず、エンゲージメントが多いもの）\n\n"
-        "## 出力フォーマット（JSON のみ、説明文なし）\n"
-        "{\"items\":[{\"author\":\"表示名\",\"handle\":\"@xxxx\",\"text\":\"本文（200字以内に整形可）\","
+        "- 著者は誰でも良い（著名人/一般ユーザー問わず、エンゲージメントが多いもの）\n"
+        "- **同じ著者から 2 件以上は採用しない**（多様性のため）\n"
+        "- B2B マーケ／生成AI 実務／競合動向に関係する話題を優先\n"
+        + avoid_block +
+        "\n## 出力フォーマット（JSON のみ、説明文なし、コードフェンス不要）\n"
+        "{\"items\":[{\"author\":\"表示名\",\"handle\":\"@xxxx\",\"text\":\"本文（200字以内に整形可、改行は \\\\n でエスケープ）\","
         "\"url\":\"https://x.com/.../status/...\",\"tag\":\"短いトピック名\"}, ...]}"
     )
     try:
@@ -1103,7 +1207,8 @@ def fetch_x_trends_via_claude() -> list[dict]:
         return []
     raw_items = parsed.get("items") or []
     out: list[dict] = []
-    for it in raw_items[:8]:
+    seen_handles: set[str] = set()  # 同一 handle 重複排除（多様性確保）
+    for it in raw_items[:12]:  # 候補は多めに見て、handle 重複でスキップしながら 6 件まで
         url = (it.get("url") or "").strip()
         if not url or not re.match(r"^https://(?:x|twitter)\.com/[^/]+/status/\d+", url):
             continue
@@ -1117,6 +1222,12 @@ def fetch_x_trends_via_claude() -> list[dict]:
         tag = (it.get("tag") or "AI").strip()[:20]
         if not author or not handle or not text_body:
             continue
+        # 同一 handle 排除（プロンプトでも指示しているが二重防御）
+        h_key = handle.lstrip("@").lower()
+        if h_key in seen_handles:
+            log(f"x trends skip duplicate handle: @{h_key}")
+            continue
+        seen_handles.add(h_key)
         # アバターは unavatar.io 経由で X handle から自動取得
         h = handle.lstrip("@")
         avatar = f"https://unavatar.io/x/{h}"
@@ -1133,7 +1244,9 @@ def fetch_x_trends_via_claude() -> list[dict]:
             "likes": 3000,
             "retweets": 0,
         })
-    log(f"x trends: collected {len(out)} valid posts")
+        if len(out) >= 6:
+            break
+    log(f"x trends: collected {len(out)} valid posts (unique authors)")
     return out
 
 
@@ -1366,12 +1479,17 @@ def _generate_tts_elevenlabs(text: str, api_key: str) -> bytes | None:
             data=json.dumps({
                 "text": text[:4800],
                 "model_id": "eleven_multilingual_v2",
+                # 日本語ニュースアンカーらしい上質さを出す調整。
+                # stability=0.50 で自然な揺らぎを残しつつ朗読として安定、
+                # similarity_boost=0.90 で声質を強く保持、
+                # style=0.50 でプロのアンカーらしい起伏を出す。
                 "voice_settings": {
-                    "stability": 0.45,
-                    "similarity_boost": 0.85,
-                    "style": 0.35,
+                    "stability": 0.50,
+                    "similarity_boost": 0.90,
+                    "style": 0.50,
                     "use_speaker_boost": True,
                 },
+                "apply_text_normalization": "auto",
             }).encode("utf-8"),
         )
         with urllib.request.urlopen(req, timeout=180) as resp:
