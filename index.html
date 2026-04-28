@@ -291,6 +291,15 @@
       flex-shrink: 0;
     }
 
+    .changelog-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,31,51,0.35);
+      z-index: 199;
+    }
+    .changelog-backdrop.open { display: block; }
+
     .changelog-dropdown {
       display: none;
       position: absolute;
@@ -320,6 +329,25 @@
       color: #001f33;
     }
     .changelog-date { font-size: 0.7rem; color: #b2bec3; }
+    .changelog-close {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid #e8ecf0;
+      color: #001f33;
+      font-size: 1.1rem;
+      line-height: 1;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+      margin: -6px -6px -6px 8px;
+      border-radius: 0;
+    }
+    .changelog-close:hover,
+    .changelog-close:focus { background: #f4f5f7; outline: none; }
 
     .changelog-body {
       padding: 10px 20px 16px;
@@ -371,7 +399,19 @@
       .logout-btn { padding: 4px 10px; font-size: 0.68rem; }
       .portal-body { padding: 12px 12px 40px; }
       .section-bar { gap: 6px; margin-bottom: 10px; }
-      .changelog-dropdown { right: -40px; width: 92vw; }
+      .changelog-dropdown {
+        position: fixed;
+        top: 60px;
+        right: 8px;
+        left: 8px;
+        width: auto;
+        max-height: calc(100vh - 76px);
+        display: none;
+        flex-direction: column;
+      }
+      .changelog-dropdown.open { display: flex; }
+      .changelog-body { max-height: calc(100vh - 140px); }
+      .changelog-close { width: 40px; height: 40px; font-size: 1.4rem; }
     }
 
     @keyframes cardIn {
@@ -557,9 +597,10 @@
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
         <div class="changelog-wrap">
-          <button class="changelog-btn" id="changelog-btn"><span class="changelog-btn-dot"></span>WHAT'S NEW</button>
-          <div class="changelog-dropdown" id="changelog-dropdown"></div>
+          <button class="changelog-btn" id="changelog-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="changelog-dropdown"><span class="changelog-btn-dot"></span>WHAT'S NEW</button>
+          <div class="changelog-dropdown" id="changelog-dropdown" role="dialog" aria-modal="true" aria-label="WHAT'S NEW"></div>
         </div>
+        <div class="changelog-backdrop" id="changelog-backdrop" hidden></div>
         <button class="logout-btn" id="logout-btn">Sign out</button>
       </div>
     </nav>
@@ -706,6 +747,8 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '📱', app: 'Marketing Apps ポータル', badge: 'UPDATE', date: '2026-04-28(火)', desc: '【モバイルで WHAT\'S NEW を閉じられない不具合を修正】これまではドロップダウンに × ボタンが無く、画面の大半を覆う割に navbar の小さな WHAT\'S NEW ボタンを再タップする以外に閉じる手段が無かった（モバイルは Esc キーが使えない）。①ヘッダー右上に閉じるボタン（×）を追加、tap で確実に閉じるように。②モバイル時はドロップダウンを `position: fixed` で全幅 (left:8px / right:8px) に切り替え、半透明バックドロップを背面に出してドロップダウン外の任意の場所をタップしても閉じられるように。③`role="dialog"` `aria-modal="true"` `aria-label` `aria-haspopup` `aria-expanded` `aria-controls` を付与してアクセシビリティも改善。④document クリックで閉じるロジックも `dropdown.contains(e.target)` を含めるように修正し、ドロップダウン内のスクロールやコピー操作で誤って閉じないように。' },
+      { icon: '📰', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-28(火)', desc: '【精度向上 + 競合プレスリリース取得を強化】ユーザー報告「HISモバイル、SIM契約でパカパカケータイ半額キャンペーン」のような B2B マーケと無関係な消費者向け通信プロモが混入する問題を解消。①`MARKETING_KEYWORDS_CONTAIN` から generic 過ぎる「キャンペーン」「プロモーション」を撤去（家電セール / 通信プロモに過マッチする原因）。②`_CONSUMER_NOISE_WORDS` に消費者通信ノイズを大量追加：`半額キャンペーン` `半額セール` `格安SIM` `MVNO` `格安スマホ` `ガラケー` `パカパカケータイ` `フィーチャーフォン` `携帯料金` `通信プラン値下げ` `月額0円` `0円スマホ` `ふるさと納税` `ポイント還元キャンペーン` `増量キャンペーン` `プレゼントキャンペーン` `抽選キャンペーン` 等 16 語。③競合プレスリリース取得を拡張：PR TIMES に NSSOL / CTC / 大塚商会 / KPMGコンサル / EYストラテジー / デジタルハーツ / バルテス / フォーラムエンジニアリング / ヒューマンリソシア / パソナテック の 10 社を追加、さらに **アクセンチュア NEWSROOM** / **NTTデータ ニュースリリース** / **富士通 プレスリリース** の公式コーポレート RSS を直接購読して PR TIMES 経由しない発信も捕捉。' },
       { icon: '🚀', app: 'AKKODiS Claude Skills', badge: 'UPDATE', date: '2026-04-28(火)', desc: '【AKKODiS Claude Skills を v2.0 に大幅強化（S081）】v1 の「ファイルを生成するだけ」から「品質保証された配布物」へ。①**表記自動補正モジュール** `scripts/notation.py` を全 Skill に同梱：Writing Checker の知識から機械的に置換可能な約 70 ルール（Akkodis→AKKODiS、innovation Lab. の i 小文字、IOWN→IOWN®、IOWN®構想→IOWN構想、IOWN GLOBAL FORUM→IOWN GLOBAL FORUM™、PowerBI→Power BI、頂く→いただく、行ない→行い、まず最初に→まず、二重敬語修正、全角数字→半角…）を Python が自動補正。Claude が見落としても安全網が機能する。②**PPTX**: 5 スライド種別（表紙/アジェンダ自動/通常/KPI/まとめ）、各スライドに AKKODiS ロゴ自動配置（背景色に応じて Blue/White を自動選択）、Gold フッター帯 + 右下ページ番号 (X/Y)、`>` 行で発表者ノート、`## KPI: A=値1 | B=値2` で KPI 大数字スライド。③**XLSX**: シート名末尾 `[chart]` で棒グラフ自動追加、CellIsRule での真の条件付き書式（100% 以上 Gold / 80% 未満 薄赤）、オートフィルタ、横向き A4 印刷設定（フィット幅 + タイトル行繰り返し + ヘッダー/フッター）、シートタブ Navy。④**DOCX**: Heading 1/Heading 2 を AKKODiS 仕様で再定義、Markdown 表 → Navy ヘッダー（白文字 Bold）テーブル、proposal で章数 ≥3 なら目次フィールド (TOC) を自動挿入、表紙の Navy 帯シェーディング強化、ヘッダー/フッター（タイトル + 機密区分 + ページ番号フィールド）。⑤**`tests/test_skills.py`** に 36 ケースの pytest（表記補正 10 / PPTX 5 / XLSX 7 / DOCX 5 / 配布構造 9）。全 36 ケース pass を確認。⑥`skills/README.md` にトラブルシュート表とテスト手順を追加。' },
       { icon: '🧩', app: 'AKKODiS Claude Skills', badge: 'NEW', date: '2026-04-28(火)', desc: '【AKKODiS ブランド準拠の Claude Skill 3 本セットを公開（S081）】部長要望「AKKODiSブランド準拠のスライド生成を Claude Skill として共有したい。Excel/Word 版もあると良い」に応える3点セット。①`skills/akkodis-pptx/` — 既存スライドメーカーの 4 テンプレ（external/internal × dark/white）を流用し python-pptx で生成。Markdown ライク入力 → 表紙 + 章立てスライドを Navy/Gold で組み立て、フッターに Gold 帯 + 中央にページ番号。②`skills/akkodis-xlsx/` — openpyxl 製。KPI ダッシュボード/案件一覧用。Navy ヘッダー + 白文字 Bold、ゼブラ、達成率 100% 超で Gold 背景・80% 未満で薄赤、列幅自動、フリーズペイン、シートタブ Navy。③`skills/akkodis-docx/` — python-docx 製。提案書/議事録/社内通達/報告書の 4 種別。表紙 + Navy 18pt 見出し + Gold アクセント + ヘッダー/フッター。④全 Skill が `brand/notation-rules.md`（Writing Checker と完全同一の知識：記者ハンドブック準拠 19 セクション + AKKODiS 固有名詞 + Microsoft 表記 + IOWN® 表記）を同梱し、本文・見出し・セル・キャプション全テキストに表記ルールを自動適用。⑤`scripts/build-skill-zips.sh` で 3 種を ZIP 化し、claude.ai（Pro/Max 個人プラン）の Settings → Capabilities → Skills へアップロード、または `~/.claude/skills/` に展開して Claude Code から呼べる。⑥3 つ全てローカルで .pptx/.xlsx/.docx 生成のスモークテストに合格済。' },
       { icon: '📝', app: '開発インフラ', badge: 'UPDATE', date: '2026-04-26(日)', desc: '【AI情報収集の自動化 — Team Growth ナレッジシェア記事を追加（S080）】docs/team-growth-ai-info-gathering.md を新規作成。本日 1 日で実装した AI 情報収集自動化セットアップ（bootstrap.sh ワンライナー / daily-watch スキル + launchd / migrate-to-obsidian.sh / 自作 /last30 + last30 スキル / CLAUDE.md ナレッジ参照ルール）の内容と、試行錯誤から得られた 7 つのチーム向け学びをまとめたドキュメント。学びには「公式ドキュメント agent の自信満々な回答を 3 連続で実機が反証した話」「skill / command / plugin の使い分け早見表（custom slash command も desktop app では NG が確定）」「ファイルベースの蓄積が最強の AI 連携 API レス手段である理由」「スペック駆動 + auto-merge による止まらない開発体験」を含む。最後に「Mac 常駐タスク自動化」最小テンプレを再現可能なレシピとして添付。既存の team-growth-ai-news.md と同じ構成・トーンで揃え、チーム展開しやすいように仕上げた。' },
@@ -937,11 +980,13 @@
       changelogReady = true;
       const btn = document.getElementById('changelog-btn');
       const dropdown = document.getElementById('changelog-dropdown');
+      const backdrop = document.getElementById('changelog-backdrop');
       btn.innerHTML = `<span class="changelog-btn-dot"></span>WHAT'S NEW <span style="opacity:0.7;font-weight:400;">${WHATS_NEW.length}</span>`;
 
       dropdown.innerHTML = `
         <div class="changelog-header">
           <span class="changelog-title">WHAT'S NEW</span>
+          <button type="button" class="changelog-close" id="changelog-close" aria-label="閉じる">×</button>
         </div>
         <div class="changelog-body">
           ${WHATS_NEW.map(w => {
@@ -963,13 +1008,31 @@
         </div>`;
 
       const wrap = document.querySelector('.changelog-wrap');
-      btn.addEventListener('click', () => dropdown.classList.toggle('open'));
+      const open = () => {
+        dropdown.classList.add('open');
+        backdrop.classList.add('open');
+        backdrop.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+      };
+      const close = () => {
+        dropdown.classList.remove('open');
+        backdrop.classList.remove('open');
+        backdrop.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+      };
+      const toggle = () => (dropdown.classList.contains('open') ? close() : open());
+
+      btn.addEventListener('click', toggle);
+      backdrop.addEventListener('click', close);
+      dropdown.querySelector('#changelog-close').addEventListener('click', close);
       document.addEventListener('click', e => {
-        if (!wrap.contains(e.target)) dropdown.classList.remove('open');
+        if (!dropdown.classList.contains('open')) return;
+        if (wrap.contains(e.target) || dropdown.contains(e.target) || backdrop.contains(e.target)) return;
+        close();
       });
       document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && dropdown.classList.contains('open')) {
-          dropdown.classList.remove('open');
+          close();
           btn.focus();
         }
       });

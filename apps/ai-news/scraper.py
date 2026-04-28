@@ -121,6 +121,27 @@ SOURCES: list[dict[str, object]] = [
     {"name": "Google News (SIer業界)",    "url": "https://news.google.com/rss/search?q=SIer+業界+(AI+OR+M%26A+OR+業務提携)&hl=ja&gl=JP&ceid=JP:ja",                   "category": "market", "tier": "media", "max": 3},
     {"name": "Google News (エンジニア派遣)","url": "https://news.google.com/rss/search?q=エンジニア派遣+OR+技術者派遣+(業界+OR+市場+OR+トレンド)&hl=ja&gl=JP&ceid=JP:ja",   "category": "market", "tier": "media", "max": 3},
     {"name": "Google News (IT人材市場)",  "url": "https://news.google.com/rss/search?q=IT人材+(不足+OR+採用市場+OR+リスキリング)&hl=ja&gl=JP&ceid=JP:ja",                "category": "market", "tier": "media", "max": 3},
+    # ── PR TIMES 追加（SIer / コンサル / 派遣の取りこぼし救済） ──
+    {"name": "PR TIMES (NSSOL)",         "url": "https://prtimes.jp/main/rdf/freeword/日鉄ソリューションズ/0/1",   "category": "market", "tier": "media", "max": 2},
+    {"name": "PR TIMES (CTC)",           "url": "https://prtimes.jp/main/rdf/freeword/伊藤忠テクノソリューションズ/0/1", "category": "market", "tier": "media", "max": 2},
+    {"name": "PR TIMES (大塚商会)",        "url": "https://prtimes.jp/main/rdf/freeword/大塚商会/0/1",                "category": "market", "tier": "media", "max": 2},
+    {"name": "PR TIMES (KPMGコンサル)",     "url": "https://prtimes.jp/main/rdf/freeword/KPMGコンサルティング/0/1",  "category": "market", "tier": "media", "max": 2},
+    {"name": "PR TIMES (EYストラテジー)",   "url": "https://prtimes.jp/main/rdf/freeword/EYストラテジー/0/1",          "category": "market", "tier": "media", "max": 2},
+    {"name": "PR TIMES (デジタルハーツ)",   "url": "https://prtimes.jp/main/rdf/freeword/デジタルハーツ/0/1",          "category": "market", "tier": "media", "max": 2},
+    {"name": "PR TIMES (バルテス)",        "url": "https://prtimes.jp/main/rdf/freeword/バルテス/0/1",                "category": "market", "tier": "media", "max": 2},
+    {"name": "PR TIMES (フォーラムエンジニアリング)", "url": "https://prtimes.jp/main/rdf/freeword/フォーラムエンジニアリング/0/1", "category": "market", "tier": "media", "max": 2},
+    {"name": "PR TIMES (ヒューマンリソシア)", "url": "https://prtimes.jp/main/rdf/freeword/ヒューマンリソシア/0/1",     "category": "market", "tier": "media", "max": 2},
+    {"name": "PR TIMES (パソナテック)",     "url": "https://prtimes.jp/main/rdf/freeword/パソナテック/0/1",            "category": "market", "tier": "media", "max": 2},
+    # ── PR TIMES カテゴリ別フィード（プレスリリース横断） ──
+    # IT・通信カテゴリ全体（カテゴリID=14）と人材・教育（=12）の最新プレスを横断取得して
+    # 競合キーワードでフィルタリングする（is_competitor_mention で救済）
+    {"name": "PR TIMES (IT・通信カテゴリ)", "url": "https://prtimes.jp/index.rdf",                                       "category": "market", "tier": "media", "max": 6},
+    # ── Adecco グループ（自社グループ動向の参考） ──
+    {"name": "PR TIMES (Adecco)",        "url": "https://prtimes.jp/main/rdf/freeword/アデコグループ/0/1",            "category": "market", "tier": "media", "max": 2},
+    # ── 競合別 公式コーポレートニュース RSS（PR TIMES に出さない自社サイト発信を捕捉） ──
+    {"name": "アクセンチュア NEWSROOM",      "url": "https://www.accenture.com/jp-ja/newsroom/rss",                     "category": "market", "tier": "media", "max": 3},
+    {"name": "NTTデータ ニュースリリース",   "url": "https://www.nttdata.com/global/ja/news/release/feed",              "category": "market", "tier": "media", "max": 3},
+    {"name": "富士通 プレスリリース",        "url": "https://pr.fujitsu.com/jp/news/feed/index.xml",                    "category": "market", "tier": "media", "max": 3},
 ]
 
 # 取得上限・要約上限
@@ -307,8 +328,10 @@ MARKETING_KEYWORDS_WORD = [
     "ATS",  # Applicant Tracking System（人材業界専門用語）
 ]
 MARKETING_KEYWORDS_CONTAIN = [
-    # マーケティング専門用語（「ブランド」「配信」等の generic 語は誤検知の元なので含めない）
-    "マーケティング", "マーケ", "プロモーション", "キャンペーン",
+    # マーケティング専門用語（「ブランド」「配信」「キャンペーン」「プロモーション」等の
+    # generic 語は通信プラン・SIM 契約・家電セールに誤マッチするので含めない。
+    # B2B マーケ視点で意味のある専門用語のみに絞る）
+    "マーケティング", "マーケ",
     "ブランディング", "コンテンツマーケ", "コンテンツマーケティング",
     "コンバージョン", "リターゲティング", "リターゲ", "リタゲ",
     "インフルエンサー", "アフィリエイト",
@@ -444,6 +467,14 @@ _CONSUMER_NOISE_WORDS = [
     "予約受付中", "予約開始", "新発売", "発売日決定", "開封レビュー",
     "WEB MART", "Direct Shop", "アウトレット",
     "円引き", "円OFF", "割引セール", "期間限定セール",
+    # 消費者向け通信プラン・SIM・端末プロモは B2B マーケ視点で不要
+    "半額キャンペーン", "半額セール", "半額プラン",
+    "格安SIM", "MVNO", "格安スマホ", "格安プラン",
+    "ガラケー", "パカパカケータイ", "二つ折り携帯", "フィーチャーフォン",
+    "スマホ料金", "携帯料金", "通信料金", "通信プラン値下げ",
+    "月額料金", "月額0円", "0円スマホ",
+    "ふるさと納税", "ポイント還元キャンペーン", "増量キャンペーン",
+    "プレゼントキャンペーン", "抽選キャンペーン",
 ]
 
 
