@@ -21,8 +21,8 @@ Markdown ライクで以下を受け取る。
 ```
 # タイトル: 2026 Q2 マーケティング戦略
 # サブタイトル: ナーチャリング自動化で SQL 創出 +30%   （任意）
-# 用途: external          # external | internal
-# トーン: white           # dark | white
+# 用途: external          # external | internal（既定: external）
+# トーン: white           # dark | white（既定: white）
 # 作成: 田中（任意）
 
 ## 現状分析                ← 通常スライド
@@ -59,11 +59,13 @@ Markdown ライクで以下を受け取る。
      --output <出力先 .pptx>
    ```
 3. スクリプトが以下を自動で行う：
-   - 用途×トーンに対応するテンプレ（`external-{dark,white}.pptx` / `internal-{dark,white}.pptx`）を選択
+   - 用途×トーンに対応するテンプレ（`external-{dark,white}.pptx` / `internal-{dark,white}.pptx`）を選択。**用途は既定 `external`**（社外秘の internal テンプレは明示指定時のみ）
+   - スライド種別ごとに **最適な layout を自動選択**：
+     - 表紙 → `Wave Landscape` / `Mesh Yellow & Blue`（フルデコレーション）
+     - 本文/アジェンダ/KPI → `Mesh grey` / `Full picture to insert`（IMG_Back を XML 削除して clean canvas に）
+     - クロージング → `Eye Akkodis`（フルイメージ背景に Thank you を placeholder で配置）
    - 全テキストを `notation.py` で表記補正（Akkodis→AKKODiS、頂く→いただく、IOWN→IOWN® など）
-   - 表紙（Gold タイトル on Navy）+ アジェンダ（自動）+ 本文 + KPI + まとめ
-   - 各スライド左下に AKKODiS ロゴ（`brand/AKKODIS_Logo_RGB_*.svg` を背景色に応じて選択）
-   - 下部に Gold 細帯 + 右下にページ番号（`X / Y`）
+   - 各スライド右下にページ番号（`X / Y`）
    - `> ` 行があれば発表者ノートに格納
 4. 出力パスをユーザーに返す。
 
