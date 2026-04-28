@@ -18,3 +18,6 @@ service-account*.json
 test-results/
 node_modules/
 __pycache__/
+
+# Skill配布用 ZIP（build-skill-zips.sh で再生成可能）
+dist/skills/
