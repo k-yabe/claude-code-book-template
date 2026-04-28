@@ -1871,6 +1871,36 @@
     @media (prefers-reduced-motion: reduce) {
       .audio-btn.playing { animation: none; }
     }
+    /* ── モバイル対応（音声ダイジェスト） ── */
+    @media (max-width: 600px) {
+      .audio-cluster {
+        width: 100%;
+        flex: 1 1 100%;
+        order: 99;            /* cmd-bar の他のボタンより下に折返し */
+        min-height: 44px;     /* iOS の推奨タップ領域 44px を確保 */
+      }
+      .audio-btn {
+        flex: 1 1 auto;
+        justify-content: center;
+        padding: 10px 12px;
+      }
+      .audio-btn-icon { width: 22px; height: 22px; font-size: 0.7rem; }
+      .audio-btn-label { font-size: 0.78rem; }
+      /* 「約5分」メタは画面が狭いと冗長なので非表示 */
+      .audio-btn-meta { display: none; }
+      .speed-select-wrap { min-height: 44px; }
+      .speed-select { min-height: 44px; padding: 0 28px 0 14px; font-size: 0.78rem; }
+      /* 再生中の floating mini player を home indicator (safe-area) と被らない位置に */
+      .audio-player {
+        bottom: max(16px, env(safe-area-inset-bottom, 16px));
+        padding: 12px 14px 14px;
+        gap: 10px;
+      }
+      .ap-stop { width: 44px; height: 44px; font-size: 1.05rem; }
+      .ap-skip { height: 44px; font-size: 0.7rem; padding: 0 8px; }
+      .ap-title { font-size: 0.74rem; }
+      .ap-meta { font-size: 0.66rem; }
+    }
     /* スピードセレクタ（<select> をブランド配色に） */
     .speed-select-wrap {
       display: inline-flex; align-items: center;
@@ -2534,9 +2564,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '04/28', text: '🎯 精度UP：消費者通信ノイズ（半額キャンペーン／格安SIM／MVNO／ガラケー／月額0円 等16語）を除外し、「キャンペーン」「プロモーション」の generic マッチを停止。HISモバイル系のような無関係記事が混入しなくなった' },
-        { date: '04/28', text: '🏢 競合動向強化：PR TIMES に NSSOL／CTC／大塚商会／KPMGコンサル／EYストラテジー／デジタルハーツ／バルテス 等10社を追加、さらにアクセンチュア NEWSROOM／NTTデータ／富士通 公式プレスリリースを直接購読' },
-        { date: '04/20', text: '⚡ AI音声ダイジェストを「クリック即再生」に：プリロードを IIFE トップに前倒し／MP3 バイト prewarm／UI 状態を4段階で可視化' }
+        { date: '04/28', text: '🔊 音声ダイジェストをモバイル対応：iOS Safari / Android で再生されない問題を修正。Audio に preload=auto / playsInline 設定、playbackRate を play() 後に適用、Web Speech voices を起動時に温める。CSS も 44px タップ領域確保＋safe-area 対応' },
+        { date: '04/28', text: '🎯 精度UP：消費者通信ノイズ（半額キャンペーン／格安SIM／MVNO／ガラケー／月額0円 等16語）を除外。HISモバイル系の無関係記事が混入しなくなった' },
+        { date: '04/28', text: '🏢 競合動向強化：PR TIMES に NSSOL／CTC／大塚商会／KPMGコンサル／EYストラテジー 等10社追加、アクセンチュア／NTTデータ／富士通 公式プレスを直接購読' }
       ]
     });
 

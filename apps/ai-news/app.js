@@ -2557,6 +2557,29 @@
     return SPEED_OPTIONS.includes(v) ? v : DEFAULT_SPEED;
   }
   let speechState = { playing: false, audio: null, speed: loadSpeed() };
+
+  // iOS Safari は最初の getVoices() が空配列を返す。voiceschanged で温める。
+  // この一度限りの呼び出しでブラウザに「日本語TTSの準備をしておいて」とヒントを与える。
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        try { window.speechSynthesis.getVoices(); } catch {}
+      };
+    } catch {}
+  }
+
+  /** iOS / Android で確実に動くように Audio オブジェクトをセットアップ。
+   *  - preload='auto' : モバイルは default で metadata しか取らないので明示
+   *  - playsInline=true : iOS Safari でフルスクリーン化されないように（video 系プロパティだが audio にも害なし）
+   *  Note: src は呼び出し側が設定する（src を引数で渡すと iOS が同期 play を拒否する場合があるため）。 */
+  function buildMobileSafeAudio(src) {
+    const a = new Audio();
+    a.preload = 'auto';
+    try { a.playsInline = true; } catch {}
+    a.src = src;
+    return a;
+  }
   function setSpeed(v) {
     const next = SPEED_OPTIONS.includes(v) ? v : DEFAULT_SPEED;
     speechState.speed = next;
@@ -2805,6 +2828,7 @@
       try {
         const a = new Audio();
         a.preload = 'auto';
+        try { a.playsInline = true; } catch {}
         a.src = url;
         const done = () => { a.removeEventListener('canplaythrough', done); resolve(); };
         a.addEventListener('canplaythrough', done, { once: true });
@@ -2855,9 +2879,10 @@
     speechState.playing = true;
 
     if (preloadedAudioUrl) {
-      const audio = new Audio(preloadedAudioUrl);
+      // モバイル (特に iOS Safari) は user-gesture 直後の同期 play() でないと拒否されるため
+      // 以降は「await を一切挟まず」に play() まで到達させる。
+      const audio = buildMobileSafeAudio(preloadedAudioUrl);
       speechState.audio = audio;
-      audio.playbackRate = speechState.speed;
       setBtnState(`⏹ 再生中`, true);
       showAudioPlayer();
       audio.ontimeupdate = () => {
@@ -2871,7 +2896,10 @@
       };
       audio.onended = () => stopSpeech();
       audio.onerror = () => { fallbackWebSpeech((preloadedDigest || '').split(/[。\n]+/).filter(Boolean)); };
-      audio.play().catch(() => { fallbackWebSpeech((preloadedDigest || '').split(/[。\n]+/).filter(Boolean)); });
+      // iOS は playbackRate を play() 前に変更すると稀に rejection するので、再生開始後に適用
+      audio.play().then(() => {
+        try { audio.playbackRate = speechState.speed; } catch {}
+      }).catch(() => { fallbackWebSpeech((preloadedDigest || '').split(/[。\n]+/).filter(Boolean)); });
       return;
     }
 
@@ -2894,9 +2922,11 @@
 
       if (audioUrl) {
         preloadedAudioUrl = audioUrl;
-        const audio = new Audio(audioUrl);
+        // 注: ここはオンデマンド生成パス。iOS では既に await を挟んでいるため
+        // user-gesture が失効していて play() が rejection する可能性があるが、
+        // その場合は catch で fallbackWebSpeech に流れるので致命的ではない。
+        const audio = buildMobileSafeAudio(audioUrl);
         speechState.audio = audio;
-        audio.playbackRate = speechState.speed;
         setBtnState(`⏹ 再生中`, true);
         showAudioPlayer();
         audio.ontimeupdate = () => {
@@ -2910,7 +2940,9 @@
         };
         audio.onended = () => stopSpeech();
         audio.onerror = () => { fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean)); };
-        audio.play().catch(() => { fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean)); });
+        audio.play().then(() => {
+          try { audio.playbackRate = speechState.speed; } catch {}
+        }).catch(() => { fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean)); });
         return;
       }
       fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean));
