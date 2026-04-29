@@ -220,10 +220,10 @@
           <summary style="font-size:0.84rem; font-weight:600; color:var(--navy); cursor:pointer; padding:8px 0; user-select:none;">詳細設定（上級者向け）</summary>
           <div style="padding-top:12px;">
             <div class="form-group" id="quality-group">
-              <label class="form-label">品質 <span id="quality-val-label" style="font-weight:400; color:var(--text-muted);">（軽量化 ← → 高品質）</span></label>
+              <label class="form-label" for="quality-slider">品質 <span id="quality-val-label" style="font-weight:400; color:var(--text-muted);">（軽量化 ← → 高品質）</span></label>
               <div class="slider-row">
                 <span style="font-size:0.75rem; color:var(--text-muted);">1%</span>
-                <input type="range" id="quality-slider" min="1" max="100" value="80">
+                <input type="range" id="quality-slider" min="1" max="100" value="80" aria-label="出力画像の品質（1〜100、高いほど高品質）">
                 <span style="font-size:0.75rem; color:var(--text-muted);">100%</span>
                 <span class="slider-val" id="quality-val">80%</span>
               </div>
@@ -790,6 +790,7 @@
       { icon: '🔒', text: 'ブラウザ内で処理、画像はサーバーに送られない' }
     ],
     updates: [
+      { date: '04/29', text: '♿ 品質スライダーのアクセシビリティ改善：label の for 属性が欠けていた問題を修正、aria-label「出力画像の品質（1〜100、高いほど高品質）」を追加してスクリーンリーダーで意図が伝わるように' },
       { date: '04/21', text: '「自動で1MB以下に変換」ボタンが横に伸びすぎていた問題を修正＋成功/エラー色をブランドトークンに統一' },
       { date: '04/14', text: 'スムーススクロールがOSの「視差効果を減らす」設定を尊重するよう改善' }
     ]
