@@ -1346,7 +1346,7 @@ def fetch_x_trends_via_claude() -> list[dict]:
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
         msg = client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=4000,
+            max_tokens=6000,  # 翻訳併記で 1 投稿あたりのトークンが増えたため余裕を確保
             tools=[{"type": "web_search_20250305", "name": "web_search"}],
             messages=[{"role": "user", "content": prompt}],
         )
@@ -1358,7 +1358,15 @@ def fetch_x_trends_via_claude() -> list[dict]:
         return []
     parsed = extract_json(text)
     if not parsed or "items" not in parsed:
-        log("x trends: no parseable JSON in claude response")
+        # X トレンドも過去 7 日中 6 日で 0 件だった。原因追跡のため raw 出力を保存。
+        try:
+            DATA_DIR.mkdir(parents=True, exist_ok=True)
+            (DATA_DIR / "x-trends-last-failure.txt").write_text(
+                text or "(empty)", encoding="utf-8"
+            )
+        except Exception:
+            pass
+        log(f"x trends: no parseable JSON in claude response (raw len={len(text or '')})")
         return []
     raw_items = parsed.get("items") or []
     out: list[dict] = []
@@ -1367,10 +1375,10 @@ def fetch_x_trends_via_claude() -> list[dict]:
         url = (it.get("url") or "").strip()
         if not url or not re.match(r"^https://(?:x|twitter)\.com/[^/]+/status/\d+", url):
             continue
-        # URL 到達性チェック（404/凍結アカウントなどを除外）
-        if not validate_url(url, timeout=5):
-            log(f"x trends skip unreachable: {url}")
-            continue
+        # X / Twitter URL は HEAD/GET で 429 / 403 を返すケースが多く、bot UA 経由の
+        # validate_url でほぼ全件 unreachable 判定されてしまい x_highlights が 0 件に
+        # なる事故が発生していた。プロンプト側で「web_search で実在確認」を強制している
+        # ため、URL 形式チェックだけで採用する。
         author = (it.get("author") or "").strip()[:40]
         handle = (it.get("handle") or "").strip()[:40]
         text_body = (it.get("text") or "").strip()

@@ -2606,9 +2606,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
+        { date: '04/29', text: '🐦 X 生成AIトレンドが過去7日で6日 0 件だった問題を修正：bot UA で X.com の HEAD/GET が 429/403 を返して URL 到達性チェックでほぼ全件 unreachable 判定されていた事故を特定。プロンプト側で web_search 実在確認を強制しているため X URL は形式マッチのみに緩和、max_tokens も 4000→6000 に拡張' },
         { date: '04/29', text: '🤖 Claude 要約の JSON パース失敗（過去 7 日中 5 日で fallback に落ちて whyItMatters / actionItem / 3 行サマリーが空だった問題）を Anthropic tool_use API でスキーマ強制 JSON 出力にして根治。extract_json も 6 段階修復に強化' },
-        { date: '04/29', text: '🏢 競合動向の収集ソースを抜本修正：PR TIMES のフリーワード feed が 7 日連続で 0 件と判明したため、Google News RSS 検索を競合 30 社分に拡張。B2C インフルエンサー / コスメ / 芸能 fluff の除外フィルタも 40 語強化' },
-        { date: '04/29', text: '🌐 X 生成AIトレンドの英語投稿に AI 翻訳を併記：「日本語訳」バッジ + 翻訳本文の下に「英語」原文を tone-down 表示。スクロール時の cmd-bar 追従デザインの違和感も修正' }
+        { date: '04/29', text: '🏢 競合動向の収集ソースを抜本修正：PR TIMES のフリーワード feed が 7 日連続で 0 件と判明したため、Google News RSS 検索を競合 30 社分に拡張。B2C インフルエンサー / コスメ / 芸能 fluff の除外フィルタも 40 語強化' }
       ]
     });
 
