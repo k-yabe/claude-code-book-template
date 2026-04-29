@@ -63,85 +63,63 @@ SOURCES: list[dict[str, object]] = [
     {"name": "Zenn (Claude)",            "url": "https://zenn.dev/topics/claude/feed",                         "category": "ai",        "tier": "ugc",   "max": 2},
     {"name": "Qiita (AI)",               "url": "https://qiita.com/tags/ai/feed",                              "category": "ai",        "tier": "ugc",   "max": 1},
     {"name": "note (AI)",                "url": "https://note.com/hashtag/AI/rss",                             "category": "ai",        "tier": "ugc",   "max": 1},
-    # 競合モニタリング（PR TIMES 会社別フリーワード検索 RSS）
-    # URL パターン: https://prtimes.jp/main/rdf/freeword/<company>/0/1
-    # AKKODiS の主戦場である SIer / IT コンサル / エンジニアリング派遣 / QA / 人材
-    # 各カテゴリの主要競合プレスリリースを横断取得して「競合動向」セクションを充実させる。
-    # ── ①SIer / IT サービス（本丸） ──
-    {"name": "PR TIMES (NTTデータ)",      "url": "https://prtimes.jp/main/rdf/freeword/NTTデータ/0/1",         "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (富士通)",         "url": "https://prtimes.jp/main/rdf/freeword/富士通/0/1",            "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (日立製作所)",     "url": "https://prtimes.jp/main/rdf/freeword/日立製作所/0/1",         "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (NEC)",           "url": "https://prtimes.jp/main/rdf/freeword/NEC/0/1",                "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (NRI)",           "url": "https://prtimes.jp/main/rdf/freeword/野村総合研究所/0/1",      "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (TIS)",           "url": "https://prtimes.jp/main/rdf/freeword/TISインテック/0/1",      "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (SCSK)",          "url": "https://prtimes.jp/main/rdf/freeword/SCSK/0/1",               "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (BIPROGY)",       "url": "https://prtimes.jp/main/rdf/freeword/BIPROGY/0/1",            "category": "market",    "tier": "media", "max": 2},
-    # ── ②IT / 戦略コンサル ──
-    {"name": "PR TIMES (アクセンチュア)", "url": "https://prtimes.jp/main/rdf/freeword/アクセンチュア/0/1",     "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (デロイト)",       "url": "https://prtimes.jp/main/rdf/freeword/デロイト/0/1",            "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (PwC)",           "url": "https://prtimes.jp/main/rdf/freeword/PwCコンサルティング/0/1", "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (ベイカレント)",   "url": "https://prtimes.jp/main/rdf/freeword/ベイカレント/0/1",        "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (アビーム)",       "url": "https://prtimes.jp/main/rdf/freeword/アビームコンサルティング/0/1", "category": "market", "tier": "media", "max": 2},
-    # ── ③エンジニアリング派遣・技術者アサイン ──
-    {"name": "PR TIMES (テクノプロ)",     "url": "https://prtimes.jp/main/rdf/freeword/テクノプロ/0/1",          "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (メイテック)",     "url": "https://prtimes.jp/main/rdf/freeword/メイテック/0/1",          "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (アウトソーシング)","url": "https://prtimes.jp/main/rdf/freeword/アウトソーシングテクノロジー/0/1", "category": "market", "tier": "media", "max": 2},
-    {"name": "PR TIMES (UTグループ)",     "url": "https://prtimes.jp/main/rdf/freeword/UTグループ/0/1",          "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (アルプス技研)",   "url": "https://prtimes.jp/main/rdf/freeword/アルプス技研/0/1",        "category": "market",    "tier": "media", "max": 2},
-    # ── ④QA / テスト受託 ──
-    {"name": "PR TIMES (SHIFT)",         "url": "https://prtimes.jp/main/rdf/freeword/株式会社SHIFT/0/1",       "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (ベリサーブ)",     "url": "https://prtimes.jp/main/rdf/freeword/ベリサーブ/0/1",          "category": "market",    "tier": "media", "max": 2},
-    # ── ⑤人材・求人 ──（既存）
-    {"name": "PR TIMES (パーソル)",       "url": "https://prtimes.jp/main/rdf/freeword/パーソル/0/1",          "category": "market",    "tier": "media", "max": 3},
-    {"name": "PR TIMES (リクルート)",     "url": "https://prtimes.jp/main/rdf/freeword/リクルート/0/1",         "category": "market",    "tier": "media", "max": 3},
-    {"name": "PR TIMES (マイナビ)",       "url": "https://prtimes.jp/main/rdf/freeword/マイナビ/0/1",          "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (ビズリーチ)",     "url": "https://prtimes.jp/main/rdf/freeword/ビズリーチ/0/1",         "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (レバテック)",     "url": "https://prtimes.jp/main/rdf/freeword/レバテック/0/1",         "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (パソナ)",         "url": "https://prtimes.jp/main/rdf/freeword/パソナ/0/1",            "category": "market",    "tier": "media", "max": 2},
-    {"name": "PR TIMES (アデコ)",         "url": "https://prtimes.jp/main/rdf/freeword/アデコ/0/1",            "category": "market",    "tier": "media", "max": 2},
-    # ── Google News 競合別検索（IR・決算・業績・新サービス・業務提携を幅広く拾う） ──
-    # PR TIMES だけでは「自社プレスのみ」なので、第三者報道（決算記事・業界分析・M&A報道等）も
-    # Google News RSS で補完。AI/IT 業界キーワードを add すると検索精度が上がる。
+    # ── 競合モニタリング ─────────────────────────────────────────
+    # 【経緯】PR TIMES の `freeword/<company>/0/1` は2026/4/22以降、過去 7 日間の
+    # 全ログで 0 件。URL パターン廃止 or feed 形式変更が原因と推定。コーポレート公式 RSS
+    # （Accenture NEWSROOM / NTTデータ / 富士通）も同様に取得不可。すべて Google News
+    # RSS 検索（実績あり：04-23〜04-29 で毎日 3〜13 件取得）に置き換える。
     # URL パターン: https://news.google.com/rss/search?q=<query>&hl=ja&gl=JP&ceid=JP:ja
+    # ── ①SIer / IT サービス（本丸競合） ──
     {"name": "Google News (NTTデータ)",   "url": "https://news.google.com/rss/search?q=NTTデータ+(AI+OR+決算+OR+業績+OR+M%26A+OR+新サービス)&hl=ja&gl=JP&ceid=JP:ja", "category": "market", "tier": "media", "max": 3},
     {"name": "Google News (富士通)",      "url": "https://news.google.com/rss/search?q=富士通+(AI+OR+決算+OR+業績+OR+M%26A+OR+新サービス)&hl=ja&gl=JP&ceid=JP:ja",     "category": "market", "tier": "media", "max": 3},
     {"name": "Google News (日立)",        "url": "https://news.google.com/rss/search?q=日立製作所+(AI+OR+決算+OR+業績+OR+デジタル)&hl=ja&gl=JP&ceid=JP:ja",            "category": "market", "tier": "media", "max": 3},
     {"name": "Google News (NEC)",        "url": "https://news.google.com/rss/search?q=NEC+(AI+OR+決算+OR+業績+OR+セキュリティ+OR+DX)&hl=ja&gl=JP&ceid=JP:ja",          "category": "market", "tier": "media", "max": 3},
-    {"name": "Google News (NRI)",        "url": "https://news.google.com/rss/search?q=野村総合研究所+(AI+OR+決算+OR+業績+OR+コンサル)&hl=ja&gl=JP&ceid=JP:ja",          "category": "market", "tier": "media", "max": 3},
+    {"name": "Google News (NRI)",        "url": "https://news.google.com/rss/search?q=野村総合研究所+(AI+OR+決算+OR+業績+OR+コンサル)&hl=ja&gl=JP&ceid=JP:ja",          "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (TIS)",        "url": "https://news.google.com/rss/search?q=TISインテック+(AI+OR+決算+OR+業績+OR+DX)&hl=ja&gl=JP&ceid=JP:ja",                 "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (SCSK)",       "url": "https://news.google.com/rss/search?q=SCSK+(AI+OR+決算+OR+業績+OR+DX)&hl=ja&gl=JP&ceid=JP:ja",                          "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (BIPROGY)",    "url": "https://news.google.com/rss/search?q=BIPROGY+(AI+OR+決算+OR+業績+OR+新サービス)&hl=ja&gl=JP&ceid=JP:ja",                "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (NSSOL)",      "url": "https://news.google.com/rss/search?q=日鉄ソリューションズ+(AI+OR+決算+OR+業績+OR+DX)&hl=ja&gl=JP&ceid=JP:ja",            "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (CTC)",        "url": "https://news.google.com/rss/search?q=伊藤忠テクノソリューションズ+(AI+OR+決算+OR+業績+OR+DX)&hl=ja&gl=JP&ceid=JP:ja",   "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (大塚商会)",    "url": "https://news.google.com/rss/search?q=大塚商会+(AI+OR+決算+OR+業績+OR+新サービス)&hl=ja&gl=JP&ceid=JP:ja",               "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (電通総研)",    "url": "https://news.google.com/rss/search?q=電通総研+(AI+OR+決算+OR+業績+OR+DX)&hl=ja&gl=JP&ceid=JP:ja",                       "category": "market", "tier": "media", "max": 2},
+    # ── ②IT / 戦略コンサル（上流競合） ──
     {"name": "Google News (アクセンチュア)","url": "https://news.google.com/rss/search?q=アクセンチュア+(AI+OR+決算+OR+業績+OR+業務提携)&hl=ja&gl=JP&ceid=JP:ja",          "category": "market", "tier": "media", "max": 3},
     {"name": "Google News (デロイト)",    "url": "https://news.google.com/rss/search?q=デロイト+トーマツ+(AI+OR+決算+OR+業績+OR+調査)&hl=ja&gl=JP&ceid=JP:ja",            "category": "market", "tier": "media", "max": 2},
-    {"name": "Google News (テクノプロ)",   "url": "https://news.google.com/rss/search?q=テクノプロ+(AI+OR+決算+OR+業績+OR+エンジニア)&hl=ja&gl=JP&ceid=JP:ja",           "category": "market", "tier": "media", "max": 2},
-    {"name": "Google News (メイテック)",   "url": "https://news.google.com/rss/search?q=メイテック+(AI+OR+決算+OR+業績+OR+技術者)&hl=ja&gl=JP&ceid=JP:ja",               "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (PwC)",        "url": "https://news.google.com/rss/search?q=PwCコンサルティング+(AI+OR+決算+OR+業績+OR+調査)&hl=ja&gl=JP&ceid=JP:ja",            "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (KPMG)",       "url": "https://news.google.com/rss/search?q=KPMGコンサルティング+(AI+OR+決算+OR+業績+OR+調査)&hl=ja&gl=JP&ceid=JP:ja",           "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (EY)",         "url": "https://news.google.com/rss/search?q=EYストラテジー+(AI+OR+決算+OR+業績+OR+調査)&hl=ja&gl=JP&ceid=JP:ja",                 "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (ベイカレント)","url": "https://news.google.com/rss/search?q=ベイカレント・コンサルティング+(AI+OR+決算+OR+業績+OR+業務提携)&hl=ja&gl=JP&ceid=JP:ja", "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (アビーム)",    "url": "https://news.google.com/rss/search?q=アビームコンサルティング+(AI+OR+決算+OR+業績+OR+業務提携)&hl=ja&gl=JP&ceid=JP:ja",   "category": "market", "tier": "media", "max": 2},
+    # ── ③エンジニアリング派遣・技術者アサイン（直接競合） ──
+    {"name": "Google News (テクノプロ)",   "url": "https://news.google.com/rss/search?q=テクノプロ・ホールディングス+(AI+OR+決算+OR+業績+OR+エンジニア)&hl=ja&gl=JP&ceid=JP:ja", "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (メイテック)",   "url": "https://news.google.com/rss/search?q=メイテック+(AI+OR+決算+OR+業績+OR+技術者派遣)&hl=ja&gl=JP&ceid=JP:ja",               "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (アウトソーシング)","url": "https://news.google.com/rss/search?q=アウトソーシングテクノロジー+(AI+OR+決算+OR+業績+OR+技術者)&hl=ja&gl=JP&ceid=JP:ja", "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (UTグループ)",   "url": "https://news.google.com/rss/search?q=UTグループ+(AI+OR+決算+OR+業績+OR+人材)&hl=ja&gl=JP&ceid=JP:ja",                    "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (アルプス技研)","url": "https://news.google.com/rss/search?q=アルプス技研+(AI+OR+決算+OR+業績+OR+技術者派遣)&hl=ja&gl=JP&ceid=JP:ja",                "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (フォーラムエンジニアリング)","url": "https://news.google.com/rss/search?q=フォーラムエンジニアリング+(AI+OR+決算+OR+業績+OR+技術者)&hl=ja&gl=JP&ceid=JP:ja", "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (パソナテック)", "url": "https://news.google.com/rss/search?q=パソナテック+(AI+OR+決算+OR+業績+OR+エンジニア)&hl=ja&gl=JP&ceid=JP:ja",              "category": "market", "tier": "media", "max": 2},
+    # ── ④QA / テスト受託（ソフトウェア技術領域） ──
     {"name": "Google News (SHIFT)",      "url": "https://news.google.com/rss/search?q=株式会社SHIFT+(AI+OR+決算+OR+業績+OR+品質保証)&hl=ja&gl=JP&ceid=JP:ja",            "category": "market", "tier": "media", "max": 2},
-    {"name": "Google News (パーソル)",    "url": "https://news.google.com/rss/search?q=パーソル+(AI+OR+決算+OR+業績+OR+人材+OR+転職)&hl=ja&gl=JP&ceid=JP:ja",             "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (ベリサーブ)",  "url": "https://news.google.com/rss/search?q=ベリサーブ+(AI+OR+決算+OR+業績+OR+品質保証)&hl=ja&gl=JP&ceid=JP:ja",                "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (デジタルハーツ)","url": "https://news.google.com/rss/search?q=デジタルハーツ+(AI+OR+決算+OR+業績+OR+品質保証)&hl=ja&gl=JP&ceid=JP:ja",            "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (バルテス)",    "url": "https://news.google.com/rss/search?q=バルテス+(AI+OR+決算+OR+業績+OR+品質保証)&hl=ja&gl=JP&ceid=JP:ja",                  "category": "market", "tier": "media", "max": 2},
+    # ── ⑤人材・求人プラットフォーム（候補者マーケ視点の二次競合） ──
+    {"name": "Google News (パーソル)",    "url": "https://news.google.com/rss/search?q=パーソルキャリア+(AI+OR+決算+OR+業績+OR+人材+OR+転職)&hl=ja&gl=JP&ceid=JP:ja",       "category": "market", "tier": "media", "max": 2},
     {"name": "Google News (リクルート)",  "url": "https://news.google.com/rss/search?q=リクルート+ホールディングス+(AI+OR+決算+OR+業績+OR+新サービス)&hl=ja&gl=JP&ceid=JP:ja", "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (マイナビ)",    "url": "https://news.google.com/rss/search?q=マイナビ+(AI+OR+決算+OR+業績+OR+新サービス)&hl=ja&gl=JP&ceid=JP:ja",                 "category": "market", "tier": "media", "max": 2},
     {"name": "Google News (ビズリーチ)",  "url": "https://news.google.com/rss/search?q=ビズリーチ+(AI+OR+決算+OR+業績+OR+新サービス)&hl=ja&gl=JP&ceid=JP:ja",             "category": "market", "tier": "media", "max": 2},
     {"name": "Google News (レバテック)",  "url": "https://news.google.com/rss/search?q=レバテック+(AI+OR+決算+OR+業績+OR+エンジニア)&hl=ja&gl=JP&ceid=JP:ja",              "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (パソナ)",      "url": "https://news.google.com/rss/search?q=パソナグループ+(AI+OR+決算+OR+業績+OR+人材)&hl=ja&gl=JP&ceid=JP:ja",                "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (アデコ)",      "url": "https://news.google.com/rss/search?q=アデコグループ+(AI+OR+決算+OR+業績+OR+人材)&hl=ja&gl=JP&ceid=JP:ja",                "category": "market", "tier": "media", "max": 2},
+    {"name": "Google News (ヒューマンリソシア)","url": "https://news.google.com/rss/search?q=ヒューマンリソシア+(AI+OR+決算+OR+業績+OR+技術者)&hl=ja&gl=JP&ceid=JP:ja",     "category": "market", "tier": "media", "max": 2},
     # ── 業界全体のマクロ動向（IR/業績マーケット） ──
     {"name": "Google News (SIer業界)",    "url": "https://news.google.com/rss/search?q=SIer+業界+(AI+OR+M%26A+OR+業務提携)&hl=ja&gl=JP&ceid=JP:ja",                   "category": "market", "tier": "media", "max": 3},
     {"name": "Google News (エンジニア派遣)","url": "https://news.google.com/rss/search?q=エンジニア派遣+OR+技術者派遣+(業界+OR+市場+OR+トレンド)&hl=ja&gl=JP&ceid=JP:ja",   "category": "market", "tier": "media", "max": 3},
     {"name": "Google News (IT人材市場)",  "url": "https://news.google.com/rss/search?q=IT人材+(不足+OR+採用市場+OR+リスキリング)&hl=ja&gl=JP&ceid=JP:ja",                "category": "market", "tier": "media", "max": 3},
-    # ── PR TIMES 追加（SIer / コンサル / 派遣の取りこぼし救済） ──
-    {"name": "PR TIMES (NSSOL)",         "url": "https://prtimes.jp/main/rdf/freeword/日鉄ソリューションズ/0/1",   "category": "market", "tier": "media", "max": 2},
-    {"name": "PR TIMES (CTC)",           "url": "https://prtimes.jp/main/rdf/freeword/伊藤忠テクノソリューションズ/0/1", "category": "market", "tier": "media", "max": 2},
-    {"name": "PR TIMES (大塚商会)",        "url": "https://prtimes.jp/main/rdf/freeword/大塚商会/0/1",                "category": "market", "tier": "media", "max": 2},
-    {"name": "PR TIMES (KPMGコンサル)",     "url": "https://prtimes.jp/main/rdf/freeword/KPMGコンサルティング/0/1",  "category": "market", "tier": "media", "max": 2},
-    {"name": "PR TIMES (EYストラテジー)",   "url": "https://prtimes.jp/main/rdf/freeword/EYストラテジー/0/1",          "category": "market", "tier": "media", "max": 2},
-    {"name": "PR TIMES (デジタルハーツ)",   "url": "https://prtimes.jp/main/rdf/freeword/デジタルハーツ/0/1",          "category": "market", "tier": "media", "max": 2},
-    {"name": "PR TIMES (バルテス)",        "url": "https://prtimes.jp/main/rdf/freeword/バルテス/0/1",                "category": "market", "tier": "media", "max": 2},
-    {"name": "PR TIMES (フォーラムエンジニアリング)", "url": "https://prtimes.jp/main/rdf/freeword/フォーラムエンジニアリング/0/1", "category": "market", "tier": "media", "max": 2},
-    {"name": "PR TIMES (ヒューマンリソシア)", "url": "https://prtimes.jp/main/rdf/freeword/ヒューマンリソシア/0/1",     "category": "market", "tier": "media", "max": 2},
-    {"name": "PR TIMES (パソナテック)",     "url": "https://prtimes.jp/main/rdf/freeword/パソナテック/0/1",            "category": "market", "tier": "media", "max": 2},
     # ── PR TIMES カテゴリ別フィード（プレスリリース横断） ──
-    # IT・通信カテゴリ全体（カテゴリID=14）と人材・教育（=12）の最新プレスを横断取得して
-    # 競合キーワードでフィルタリングする（is_competitor_mention で救済）
+    # `index.rdf` だけは生きており、IT・通信全体のプレスを引いて競合キーワードで救済できるので残す。
+    # 会社別 freeword feed (`/main/rdf/freeword/<company>/0/1`) は2026/4/22以降ずっと0件のため削除済。
     {"name": "PR TIMES (IT・通信カテゴリ)", "url": "https://prtimes.jp/index.rdf",                                       "category": "market", "tier": "media", "max": 6},
-    # ── Adecco グループ（自社グループ動向の参考） ──
-    {"name": "PR TIMES (Adecco)",        "url": "https://prtimes.jp/main/rdf/freeword/アデコグループ/0/1",            "category": "market", "tier": "media", "max": 2},
-    # ── 競合別 公式コーポレートニュース RSS（PR TIMES に出さない自社サイト発信を捕捉） ──
-    {"name": "アクセンチュア NEWSROOM",      "url": "https://www.accenture.com/jp-ja/newsroom/rss",                     "category": "market", "tier": "media", "max": 3},
-    {"name": "NTTデータ ニュースリリース",   "url": "https://www.nttdata.com/global/ja/news/release/feed",              "category": "market", "tier": "media", "max": 3},
-    {"name": "富士通 プレスリリース",        "url": "https://pr.fujitsu.com/jp/news/feed/index.xml",                    "category": "market", "tier": "media", "max": 3},
 ]
 
 # 取得上限・要約上限
@@ -477,11 +455,45 @@ _CONSUMER_NOISE_WORDS = [
     "プレゼントキャンペーン", "抽選キャンペーン",
 ]
 
+# B2C インフルエンサー / 芸能 / 化粧品 / 観光 / スポーツ消費者文脈の
+# 「マーケ用語は出るが AKKODiS B2B 案件には無関係」記事を弾くワード。
+# 「インフルエンサー」「ブランディング」自体は B2B 文脈でも使うため、ここでは
+# B2C 限定の強いシグナル（ファンダム／推し／化粧品ブランド名／消費者ブランド／
+# スポーツビッグイベント／芸能人不祥事）に絞る。
+_B2C_FLUFF_WORDS = [
+    # ファン経済 / 推し / 芸能人マーケ
+    "ファンダム", "ファン経済", "ファンエコノミー",
+    "推し活", "推しエコノミー", "推し消費", "推しマーケ",
+    "K-POP", "Kポップ", "アイドル", "ジャニーズ", "STARTO",
+    "芸能人", "タレント炎上", "炎上タレント", "不祥事", "モラル条項",
+    "卒業発表", "結婚発表",
+    # 化粧品 / 美容 / ファッション / ジュエリー（典型 B2C ブランドカテゴリ）
+    "コスメブランド", "化粧品ブランド", "美容ブランド",
+    "スキンケアブランド", "ヘアケアブランド",
+    "ファッションブランド", "アパレルブランド",
+    "ジュエリーブランド", "宝飾ブランド", "腕時計ブランド",
+    "メイク発表会", "新作コスメ", "新作香水", "限定コスメ",
+    # スポーツ消費者イベント・観光・グルメ・娯楽
+    "ワールドカップ", "Ｗ杯", "W杯", "オリンピック", "甲子園",
+    "Jリーグ", "プロ野球", "プロレス", "競馬",
+    "ふるさと納税", "観光地", "温泉",
+    "グルメ特集", "B級グルメ", "スイーツ特集", "食べ歩き",
+    # B2C 特化のマーケ施策（toC のみ意味があるトピック）
+    "シニア消費者", "若年層消費者", "Z世代消費者",
+    "推し活マーケ", "ファン心理",
+]
+
 
 def is_consumer_noise(title: str, summary: str) -> bool:
-    """消費者向け商品セール記事かどうか判定（B2B マーケ担当者には不要）。"""
+    """消費者向け商品セール記事 or B2C インフルエンサー / 芸能 fluff かどうか判定。
+    AKKODiS（B2B IT サービス／エンジニアリング）の朝のブリーフには不要なので
+    scrape 段階で落とす。"""
     hay = (title or "") + " " + (summary or "")
-    return any(w in hay for w in _CONSUMER_NOISE_WORDS)
+    if any(w in hay for w in _CONSUMER_NOISE_WORDS):
+        return True
+    if any(w in hay for w in _B2C_FLUFF_WORDS):
+        return True
+    return False
 
 
 # 再掲／再配信記事の検出。例:
@@ -1172,9 +1184,9 @@ def fetch_x_trends_via_claude() -> list[dict]:
             "- 同一 handle は 1 件まで。3 件以上の枠は別人にすること\n"
         )
     prompt = (
-        f"今日（{date_label}）または直近 48 時間以内に、日本語のX（旧Twitter）で"
+        f"今日（{date_label}）または直近 48 時間以内に、X（旧Twitter）で"
         "「いいね・リポスト・引用が多く付いて注目されている、生成AI関連の投稿」を"
-        "**実在する URL 付きで** 6 件挙げてください。\n\n"
+        "**実在する URL 付きで** 6 件挙げてください。日本語投稿でも英語投稿でも構いません。\n\n"
         "## 厳守ルール\n"
         "- web_search を使って実在を確認すること。架空の URL や著者名は絶対に作らない\n"
         "- URL は https://x.com/<handle>/status/<id> または https://twitter.com/... の形式のみ\n"
@@ -1182,9 +1194,22 @@ def fetch_x_trends_via_claude() -> list[dict]:
         "- 著者は誰でも良い（著名人/一般ユーザー問わず、エンゲージメントが多いもの）\n"
         "- **同じ著者から 2 件以上は採用しない**（多様性のため）\n"
         "- B2B マーケ／生成AI 実務／競合動向に関係する話題を優先\n"
+        "\n## 翻訳ルール（必須・厳格）\n"
+        "- `text` には**投稿の原文**をそのまま入れる（言語変換しない）\n"
+        "- `lang` には原文の言語コードを入れる: 日本語なら \"ja\"、英語なら \"en\"、その他なら ISO 639-1 コード\n"
+        "- `lang` が \"ja\" でない場合は **`textJa` フィールドに完璧な日本語訳** を入れる:\n"
+        "  - 専門用語（LLM／RAG／エージェント／推論モデル等）は適切な日本語で\n"
+        "  - 固有名詞（人名・サービス名・モデル名）はそのまま英字で残す\n"
+        "  - 直訳調を避け、日本語として自然な表現に\n"
+        "  - 絵文字や顔文字も意味を保って訳す or 適切に残す\n"
+        "  - URL／@メンション／#ハッシュタグは原文のまま残す\n"
+        "  - 200 字以内、改行は \\\\n でエスケープ\n"
+        "- `lang` が \"ja\" の場合は `textJa` は空文字列でよい\n"
         + avoid_block +
         "\n## 出力フォーマット（JSON のみ、説明文なし、コードフェンス不要）\n"
-        "{\"items\":[{\"author\":\"表示名\",\"handle\":\"@xxxx\",\"text\":\"本文（200字以内に整形可、改行は \\\\n でエスケープ）\","
+        "{\"items\":[{\"author\":\"表示名\",\"handle\":\"@xxxx\","
+        "\"text\":\"原文（200字以内、改行は \\\\n でエスケープ）\","
+        "\"lang\":\"ja|en|...\",\"textJa\":\"日本語訳（原文がjaの場合は空文字）\","
         "\"url\":\"https://x.com/.../status/...\",\"tag\":\"短いトピック名\"}, ...]}"
     )
     try:
@@ -1220,6 +1245,8 @@ def fetch_x_trends_via_claude() -> list[dict]:
         handle = (it.get("handle") or "").strip()[:40]
         text_body = (it.get("text") or "").strip()
         tag = (it.get("tag") or "AI").strip()[:20]
+        lang = (it.get("lang") or "").strip().lower()[:8] or "ja"
+        text_ja = (it.get("textJa") or "").strip()
         if not author or not handle or not text_body:
             continue
         # 同一 handle 排除（プロンプトでも指示しているが二重防御）
@@ -1231,12 +1258,16 @@ def fetch_x_trends_via_claude() -> list[dict]:
         # アバターは unavatar.io 経由で X handle から自動取得
         h = handle.lstrip("@")
         avatar = f"https://unavatar.io/x/{h}"
+        # 日本語以外で textJa が空の場合は表示側で「翻訳バッジを出さない」とする
+        # （Claude が訳をサボった場合の保険。原文だけは表示される）
         out.append({
             "id": f"xt_{hashlib.sha1(url.encode()).hexdigest()[:10]}",
             "author": author,
             "handle": handle if handle.startswith("@") else f"@{handle}",
             "avatar": avatar,
             "text": truncate(text_body, 240),
+            "lang": lang,
+            "textJa": truncate(text_ja, 280) if text_ja else "",
             "tag": tag,
             "url": url,
             # likes/retweets は web_search では取得困難。0 で通すと client の閾値で弾かれるため
