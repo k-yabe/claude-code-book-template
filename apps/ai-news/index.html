@@ -1593,6 +1593,41 @@
       font-weight: 500;
       position: relative; z-index: 1;
       flex: 1;
+      white-space: pre-wrap;
+    }
+    /* 日本語訳付きの場合、翻訳ブロックと原文ブロックを縦に並べる */
+    .x-text-ja {
+      flex: 0 0 auto;
+      margin-bottom: var(--sp-2);
+    }
+    .x-text-orig {
+      flex: 1;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      padding-top: var(--sp-2);
+      border-top: 1px dashed rgba(0,31,51,0.12);
+    }
+    /* 「日本語訳」「原文(英語)」バッジ — ナビーゴールドのコンパクト表示 */
+    .x-trans-badge,
+    .x-orig-badge {
+      display: inline-block;
+      font-size: 0.56rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      padding: 2px 6px;
+      margin-right: 6px;
+      vertical-align: 1px;
+      font-family: var(--font-sans);
+    }
+    .x-trans-badge {
+      background: var(--navy);
+      color: var(--gold);
+    }
+    .x-orig-badge {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid rgba(0,31,51,0.18);
     }
     .x-foot {
       display: flex; align-items: center; gap: var(--sp-3);
@@ -1761,23 +1796,30 @@
     /* ── 日付ナビゲーション ── */
     .date-nav { display: flex; align-items: center; gap: 6px; }
 
-    /* ── アクションバー ── */
+    /* ── アクションバー ──
+       スクロール時 navbar (56px ネイビー) のすぐ下に貼り付く。違和感の原因は
+       (1) 横マージンで「浮いている白いピル」に見える、
+       (2) 下にも余白があり navbar と切り離されて見える、
+       (3) 影が薄くて navbar との境界があいまい、の 3 点。
+       → 全幅・上端ピッタリ・下にネイビー系の細いセパレータを敷くことで navbar の延長として見える設計に変更。
+    */
     .cmd-bar {
       display: flex; align-items: center; justify-content: space-between;
       gap: var(--sp-3);
       background: var(--white);
-      padding: 8px var(--sp-4);
-      margin: 0 var(--sp-5) var(--sp-3);
+      padding: 8px var(--sp-5);
+      margin: 0 0 var(--sp-3);
       position: sticky; top: 56px; z-index: 9;
-      box-shadow: 0 1px 4px rgba(0,31,51,0.06);
+      border-bottom: 1px solid rgba(0,31,51,0.12);
+      box-shadow: 0 2px 6px rgba(0,31,51,0.05);
     }
-    /* PC では cmd-bar が両端に広がりすぎるので、中央寄せのコンテンツ幅にする */
+    /* PC では cmd-bar の中身を中央寄せのコンテンツ幅にする（バー自体は全幅） */
     @media (min-width: 1024px) {
-      .cmd-bar { justify-content: flex-end; gap: var(--sp-4); padding: 8px var(--sp-5); }
+      .cmd-bar { justify-content: flex-end; gap: var(--sp-4); padding: 8px var(--sp-7); }
       .cmd-bar .date-nav { margin-right: auto; }
     }
     @media (max-width: 600px) {
-      .cmd-bar { padding: 6px 10px; margin: 0 var(--sp-3) var(--sp-3); }
+      .cmd-bar { padding: 6px var(--sp-3); }
     }
     .cmd-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .cmd-updated {
@@ -2564,9 +2606,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '04/28', text: '🐦 X 生成AIトレンドが毎日同じ人固定だった問題を根治：JSON パース失敗を 4段階リペアで吸収、過去7日の handle を回避してプロンプトに反映、同一著者 1件のみに制限。毎日違う 6 名が並ぶ' },
-        { date: '04/28', text: '🏢 競合動向：PR TIMES／公式コーポレートRSSは7日窓で取得し週単位の B2B プレス取りこぼし解消。さらにラベル可読化で「Google News (NTTデータ)」→「NTTデータ（第三者報道）」' },
-        { date: '04/28', text: '🎙️ AI音声をプロのアナウンサー級にチューニング：voice_settings 再調整（stability 0.50 / similarity 0.90 / style 0.50）+ apply_text_normalization で数字・固有名詞の発音を ElevenLabs 側で正規化' }
+        { date: '04/29', text: '🏢 競合動向の収集ソースを抜本修正：PR TIMES のフリーワード feed が 7 日連続で 0 件と判明したため、Google News RSS 検索を競合 30 社分に拡張（NTTデータ・富士通・SHIFT・テクノプロ・アクセンチュア 他）。B2C インフルエンサー / コスメ / 芸能 fluff の除外フィルタも 40 語強化' },
+        { date: '04/29', text: '🌐 X 生成AIトレンドの英語投稿に AI 翻訳を併記：「日本語訳」バッジ + 翻訳本文の下に「英語」原文を tone-down 表示。専門用語は適切に和訳・固有名詞は英字保持・URL/メンションは原文のまま' },
+        { date: '04/29', text: '🪟 スクロール時の cmd-bar 追従デザインの違和感を修正：横マージン 0 で全幅化＋ border-bottom で navbar との一体感を演出（フローティングする白ピル感を解消）' }
       ]
     });
 

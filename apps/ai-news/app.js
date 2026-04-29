@@ -1957,6 +1957,24 @@
         ? `<img class="x-avatar" src="${escapeHtml(safeAvatar)}" alt="" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';">
            <span class="x-avatar-fallback" style="display:none;">${escapeHtml(x.author.charAt(0))}</span>`
         : `<span class="x-avatar-fallback">${escapeHtml(x.author.charAt(0))}</span>`;
+      // 原文が日本語以外で、かつ Claude が日本語訳を返している場合は併記。
+      // 翻訳が空のときは原文のみ表示（「(翻訳)」と書きながら空欄を出さない）。
+      const lang = String(x.lang || 'ja').toLowerCase();
+      const isForeign = lang && lang !== 'ja' && lang !== 'jp';
+      const hasTranslation = isForeign && x.textJa && x.textJa.trim().length > 0;
+      const langLabel = (
+        lang === 'en' ? '英語' :
+        lang === 'zh' || lang === 'zh-cn' || lang === 'zh-tw' ? '中国語' :
+        lang === 'ko' ? '韓国語' :
+        lang === 'es' ? 'スペイン語' :
+        lang === 'fr' ? 'フランス語' :
+        lang === 'de' ? 'ドイツ語' :
+        isForeign ? lang.toUpperCase() : ''
+      );
+      const textHtml = hasTranslation
+        ? `<div class="x-text x-text-ja"><span class="x-trans-badge" title="${escapeHtml(langLabel)}原文を AI が日本語訳">日本語訳</span>${escapeHtml(x.textJa)}</div>
+           <div class="x-text x-text-orig" lang="${escapeHtml(lang)}"><span class="x-orig-badge">${escapeHtml(langLabel || '原文')}</span>${escapeHtml(x.text)}</div>`
+        : `<div class="x-text"${isForeign ? ` lang="${escapeHtml(lang)}"` : ''}>${escapeHtml(x.text)}</div>`;
       return `
       <a class="x-item linked" href="${escapeHtml(x.url)}" target="_blank" rel="noopener noreferrer">
         <div class="x-head">
@@ -1967,7 +1985,7 @@
           </div>
           <span class="x-foot-tag">${escapeHtml(x.tag)}</span>
         </div>
-        <div class="x-text">${escapeHtml(x.text)}</div>
+        ${textHtml}
         <div class="x-foot">
           <span class="x-foot-link">↗ Xで開く</span>
         </div>
@@ -2177,6 +2195,8 @@
         handle: String(x.handle || ''),
         avatar: String(x.avatar || ''),
         text: String(x.text || ''),
+        lang: String(x.lang || 'ja').toLowerCase(),
+        textJa: String(x.textJa || ''),
         tag: String(x.tag || ''),
         url: String(x.url || ''),
         likes: Number(x.likes) || 3000,
@@ -2246,6 +2266,8 @@
           handle: String(x.handle || ''),
           avatar: String(x.avatar || ''),
           text: String(x.text || ''),
+          lang: String(x.lang || 'ja').toLowerCase(),
+          textJa: String(x.textJa || ''),
           tag: String(x.tag || ''),
           url: String(x.url || ''),
           likes: Number(x.likes) || 0,
@@ -2389,6 +2411,8 @@
           handle: String(x.handle || ''),
           avatar: String(x.avatar || ''),
           text: String(x.text || ''),
+          lang: String(x.lang || 'ja').toLowerCase(),
+          textJa: String(x.textJa || ''),
           tag: String(x.tag || ''),
           url: String(x.url || ''),
           likes: Number(x.likes) || 0,
