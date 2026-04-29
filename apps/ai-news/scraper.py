@@ -800,6 +800,24 @@ def fetch_all() -> list[dict]:
         -int(x.get("hatenaCount") or 0),                  # 人気記事先行
         -int(datetime.fromisoformat(x["publishedAt"].replace("Z","+00:00")).timestamp()),  # 新着先行
     ))
+    # 単一ソース独占の防止: 同一ソースは最大 5 件まで（ITmedia AI+ が単独で 8/29 = 28%
+    # を占めてブリーフが「ITmedia ダイジェスト」化していた問題への対策）。
+    # 並び順は人気度・新着順に確定済みなので、各ソース内の上位 5 件だけを残す。
+    PER_SOURCE_HARD_CAP = 5
+    src_count: dict[str, int] = {}
+    capped: list[dict] = []
+    dropped = 0
+    for it in all_items:
+        s = str(it.get("source", ""))
+        n = src_count.get(s, 0)
+        if n >= PER_SOURCE_HARD_CAP:
+            dropped += 1
+            continue
+        src_count[s] = n + 1
+        capped.append(it)
+    if dropped:
+        log(f"per-source cap: dropped {dropped} items (cap={PER_SOURCE_HARD_CAP}/source)")
+    all_items = capped
     log(f"total collected (after filter): {len(all_items)}")
     return all_items
 
