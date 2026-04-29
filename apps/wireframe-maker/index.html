@@ -411,7 +411,20 @@
     }
     @media (max-width: 480px) {
       .navbar { padding: 0 8px; gap: 4px; }
-      .navbar .back-btn { display: none; }
+      /* 「← アプリ一覧へ」のラベル文字を非表示にして「←」だけ残す。
+         display:none にすると全アプリ共通の「戻る」導線がモバイルだけ消えて
+         事故になるので、コンパクト化のみ行う。 */
+      .navbar .back-btn {
+        font-size: 0; /* テキスト非表示 */
+        padding: 7px 10px;
+        min-width: 36px;
+        line-height: 1;
+      }
+      .navbar .back-btn::before {
+        content: '←';
+        font-size: 1rem;
+        font-weight: 700;
+      }
       .navbar .navbar-divider { display: none; }
       .navbar .app-title { font-size: 0.75rem; }
       .navbar-btn { padding: 3px 6px; font-size: 0.6rem; }
@@ -7582,9 +7595,9 @@ if (_origOnSectionsChanged) {
       { icon: '🖼️', text: 'SVGプレビューでチームへの共有もスムーズ' }
     ],
     updates: [
+      { date: '04/29', text: '📱 モバイルで「アプリ一覧へ」戻るボタンが完全に消えていた問題を修正：font-size:0 + ::before で「←」だけを表示するコンパクト化アプローチに変更（display:none ではなくサイズだけ縮める）' },
       { date: '04/12', text: '正式公開！品質改善（セキュリティ・モバイル対応・アクセシビリティ）を経て開発中バッジを解除' },
-      { date: '04/11', text: 'ゼロから完了までの導線強化 — エラー時の案内改善・大容量資料の警告・エクスポートへの誘導CTA追加' },
-      { date: '04/10', text: 'スタートモーダル導入・全テキストのクリック編集対応・モード分離（ゼロから作る／既存サイトから作る）' }
+      { date: '04/11', text: 'ゼロから完了までの導線強化 — エラー時の案内改善・大容量資料の警告・エクスポートへの誘導CTA追加' }
     ]
   });</script>
 </body>
