@@ -27,6 +27,17 @@
       min-height: 100vh;
     }
 
+    /* スクリーンリーダー専用ラベル（視覚的には非表示だが a11y で読み上げられる） */
+    .sr-only {
+      position: absolute !important;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     /* ── ログイン画面 ── */
     @keyframes loginFadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -565,7 +576,8 @@
       <p class="login-tagline">業務効率化ツール集</p>
       <form id="login-form" autocomplete="on">
         <div id="name-wrap" style="display:none;">
-          <select id="name-select" style="width:100%;padding:14px 18px;margin-bottom:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.95rem;font-family:inherit;outline:none;appearance:none;">
+          <label for="name-select" class="sr-only">お名前</label>
+          <select id="name-select" aria-label="お名前を選択" style="width:100%;padding:14px 18px;margin-bottom:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.95rem;font-family:inherit;outline:none;appearance:none;">
             <option value="" disabled selected style="color:#666;background:#fff;">お名前を選択してください</option>
             <option value="Kunito Yabe" style="color:#2d3436;background:#fff;">Kunito Yabe</option>
             <option value="Makoto Kawai" style="color:#2d3436;background:#fff;">Makoto Kawai</option>
@@ -581,8 +593,9 @@
         <div id="switch-user-wrap" style="display:none;margin-bottom:10px;text-align:right;">
           <button type="button" id="switch-user-btn" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.75rem;cursor:pointer;font-family:inherit;padding:0;">別の名前でログイン →</button>
         </div>
-        <input type="text" name="username" autocomplete="username" style="position:absolute;opacity:0;height:0;width:0;padding:0;border:0;overflow:hidden;" value="marketing-team" />
-        <input type="password" id="pw-input" name="password" placeholder="Password" autocomplete="current-password" />
+        <input type="text" name="username" autocomplete="username" aria-hidden="true" tabindex="-1" style="position:absolute;opacity:0;height:0;width:0;padding:0;border:0;overflow:hidden;" value="marketing-team" />
+        <label for="pw-input" class="sr-only">パスワード</label>
+        <input type="password" id="pw-input" name="password" placeholder="Password" autocomplete="current-password" aria-label="パスワード" />
         <button type="submit">Sign In</button>
       </form>
       <div class="login-error" id="pw-error"></div>
@@ -747,6 +760,9 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '🏷', app: '全アプリ', badge: 'UPDATE', date: '2026-04-28(火)', desc: '【ブラウザタブ title をブランド統一】14 アプリの `<title>` がバラバラだった問題を解消。「Slide Maker | AKKODiS Tools」「Image Converter — AKKODiS Marketing Apps」「Banner Resizer」(ブランド名なし) 等を **`<App Name> — AKKODiS マーケティングアプリ`** に完全統一（og:title と一致）。Slack 等でリンクシェア時のプレビューと、ブラウザタブの一覧表示でブランド一貫性が出る。akkodis-watcher だけはアプリ名にブランド内蔵 (AKKODiS Global Antenna) なので例外。' },
+      { icon: '♿', app: 'Marketing Apps ポータル', badge: 'UPDATE', date: '2026-04-28(火)', desc: '【ログイン画面のアクセシビリティ改善】①`<select id="name-select">` に `<label class="sr-only">` を関連付けてスクリーンリーダーで「お名前」と読み上げられるように。②パスワード入力に `aria-label="パスワード"` と `<label class="sr-only">` を追加（`placeholder` だけだと a11y 不足）。③hidden username 入力（autocomplete のために置いている）に `aria-hidden="true"` `tabindex="-1"` を付与してスクリーンリーダー読み上げと Tab 移動から除外。`.sr-only` ユーティリティクラスを CSS に追加 (visually-hidden パターン)。' },
+      { icon: '⚡', app: '全アプリ', badge: 'UPDATE', date: '2026-04-28(火)', desc: '【onboarding.js キャッシュ追放】14 アプリ全部の `<script src="../../assets/onboarding.js">` を `?v=20260428` 付きに更新。今日の `sendAppView()` ビーコン追加・モーダル × ボタン・Escape リスナーリーク修正・role/aria 修正がブラウザのアグレッシブキャッシュで届かないリスクを排除。デプロイ直後から全員に新ロジックが届く。' },
       { icon: '🐦', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-28(火)', desc: '【X 生成AIトレンド 古い・人固定問題を根治】debug.json 精査で「JSON パース失敗で xHighlights が 0 件」「クライアント側 seed pool 5人だけにフォールバック」が原因と判明。①`extract_json` を 4 段階リペアに強化（コードフェンス/スマートクオート/トレーリングカンマ/JS コメント/文字列内未エスケープ改行）— Anthropic Claude の典型的な JSON 失敗を吸収。②`fetch_x_trends_via_claude` プロンプトに「過去 7 日のアーカイブから既出 handle を集めて回避指示」「同一著者は 1 件まで」「B2B マーケ／生成AI 実務／競合動向を優先」を追加。候補数は 8→12 に拡張して dedupe しながら 6 件採用。③scraper 側でも `seen_handles` set で post-filter dedupe（プロンプト遵守できなくても二重防御）。これで毎日違う 6 名・違う話題が並ぶように。' },
       { icon: '🏢', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-28(火)', desc: '【競合動向 — プレスリリース取りこぼし対策 + ラベル可読化】①B2B プレスリリースは投稿が週単位なので 36h 窓だと NTTデータ／富士通／アクセンチュア 等の最新発表が拾えない。`PR TIMES (xxx)` / `xxx NEWSROOM` / `xxx ニュースリリース` / `xxx プレスリリース` の各ソースは別建てで 7 日窓に拡張。②競合動向セクションのソース表示を `prettyCompetitorSource` でクリーンアップ：`Google News (NTTデータ)` → `NTTデータ（第三者報道）`、`PR TIMES (NTTデータ)` → `NTTデータ（プレスリリース）`、`アクセンチュア NEWSROOM` → `アクセンチュア（公式発表）`。一目で発信元の種類が分かるように。' },
       { icon: '🎙️', app: 'AI NEWS', badge: 'UPDATE', date: '2026-04-28(火)', desc: '【AI 音声ダイジェストを「人間と見分けがつかないレベル」へチューニング】ElevenLabs `eleven_multilingual_v2` の voice_settings を日本語ニュースアンカー仕様に再調整：`stability` 0.45→0.50（自然な揺らぎを残しつつ朗読として安定）、`similarity_boost` 0.85→0.90（声質を強く保持して「同じ人が話している」一貫性を強化）、`style` 0.35→0.50（プロのアンカーらしい抑揚）。さらに `apply_text_normalization: "auto"` を追加して数字・固有名詞の発音を ElevenLabs 側で正規化。scraper（事前生成）と Vercel API（オンデマンド）の両方に同設定を反映。なお ElevenLabs API キーが Vercel 環境変数 `ELEVENLABS_API_KEY` にセットされていれば自動で eleven_multilingual_v2 が使われる。未設定なら OpenAI gpt-4o-mini-tts にフォールバック。' },
