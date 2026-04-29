@@ -950,6 +950,48 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         "入力JSON:\n" + json.dumps(payload, ensure_ascii=False)
     )
 
+    # ── tool_use 強制でスキーマ駆動の JSON 出力を取る ──────────────────────
+    # 過去 7 日中 5 日で「JSON parse failed: JSONDecodeError after 4 repair attempts」が
+    # 発生しており、Haiku のテキスト出力 JSON パースは構造的に脆い。
+    # Anthropic の tool_use を使うとスキーマ強制 + 構造化 input でパース不要になる。
+    # 失敗時は従来のテキスト JSON フォールバックも残して二重防御。
+    BRIEF_TOOL = {
+        "name": "produce_brief",
+        "description": "AKKODiS マーケ担当者向けの今日のインテリジェンス・ブリーフを構造化して返す",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "executiveSummary": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "全記事を俯瞰した3行サマリー（各60字以内、平易な日本語）",
+                    "minItems": 1, "maxItems": 5,
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "i": {"type": "integer", "description": "入力ペイロードの index"},
+                            "summary": {"type": "string", "description": "事実要約（100〜140字）"},
+                            "whyItMatters": {"type": "string", "description": "AKKODiS マーケ担当者にとって何が変わるか（1文）"},
+                            "actionItem": {"type": "string", "description": "推奨アクション（誰が・何を・いつまでに、を含む1文）"},
+                            "pickerComment": {"type": "string", "description": "専門家視点の洞察コメント（1〜2文）"},
+                            "urgency": {"type": "string", "enum": ["must_know", "this_week", "fyi"]},
+                            "tags": {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": 5},
+                            "importance": {"type": "integer", "enum": [1, 2, 3]},
+                            "readMin": {"type": "integer", "minimum": 1, "maximum": 3},
+                        },
+                        "required": ["i", "summary", "urgency", "importance"],
+                    },
+                },
+            },
+            "required": ["executiveSummary", "items"],
+        },
+    }
+
+    parsed: dict | None = None
+    raw_text_for_debug: str = ""
     try:
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
         msg = client.messages.create(
@@ -957,20 +999,55 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
             max_tokens=8000,  # 4000 だと JSON が truncate されて parse error 発生
             system=system_prompt,
             messages=[{"role": "user", "content": user_prompt}],
+            tools=[BRIEF_TOOL],
+            tool_choice={"type": "tool", "name": "produce_brief"},
         )
-        text = "".join(getattr(b, "text", "") for b in msg.content)
+        # tool_use ブロックの input は SDK 側で既に dict 化されている
+        for block in msg.content:
+            if getattr(block, "type", "") == "tool_use" and getattr(block, "name", "") == "produce_brief":
+                tool_input = getattr(block, "input", None)
+                if isinstance(tool_input, dict):
+                    parsed = tool_input
+                    break
+        # tool_use が空だったとき用に text も保存（フォールバック解析と debug 保存用）
+        raw_text_for_debug = "".join(getattr(b, "text", "") for b in msg.content if getattr(b, "type", "") == "text")
     except Exception as ex:
         err = f"{type(ex).__name__}: {ex}"
-        log(f"anthropic call failed: {err}")
-        # main() の debug_stats に後から取り出せるよう module global に保存
-        # （global 宣言は関数冒頭で済ませている）
+        log(f"anthropic tool_use call failed: {err}, retrying with text mode")
         _LAST_ANTHROPIC_ERROR = err
-        return None
+        # tool_use 自体が落ちた（モデル側仕様変更等）場合のみ text フォールバック
+        try:
+            msg2 = client.messages.create(
+                model=HAIKU_MODEL,
+                max_tokens=8000,
+                system=system_prompt,
+                messages=[{"role": "user", "content": user_prompt}],
+            )
+            raw_text_for_debug = "".join(getattr(b, "text", "") for b in msg2.content)
+            parsed = extract_json(raw_text_for_debug)
+        except Exception as ex2:
+            _LAST_ANTHROPIC_ERROR = f"{type(ex2).__name__}: {ex2}"
+            log(f"anthropic text retry also failed: {_LAST_ANTHROPIC_ERROR}")
+            return None
 
-    parsed = extract_json(text)
+    # tool_use が空 / フォーマットずれの場合、text パスを試す（最終防御）
+    if not parsed and raw_text_for_debug:
+        parsed = extract_json(raw_text_for_debug)
+
     if not parsed or "items" not in parsed:
-        _LAST_ANTHROPIC_ERROR = f"JSON parse failed: {_LAST_JSON_PARSE_ERROR} (raw len={len(text or '')})"
-        log(f"anthropic response was not valid JSON: {_LAST_ANTHROPIC_ERROR}")
+        # 失敗時は raw 出力を debug ファイルに保存して原因追跡できるようにする
+        try:
+            DATA_DIR.mkdir(parents=True, exist_ok=True)
+            (DATA_DIR / "anthropic-last-failure.txt").write_text(
+                raw_text_for_debug or "(empty)", encoding="utf-8"
+            )
+        except Exception:
+            pass
+        _LAST_ANTHROPIC_ERROR = (
+            f"tool_use returned empty / JSON parse failed: {_LAST_JSON_PARSE_ERROR} "
+            f"(raw len={len(raw_text_for_debug or '')})"
+        )
+        log(f"anthropic response was not usable: {_LAST_ANTHROPIC_ERROR}")
         return None
 
     # executiveSummary を抽出（各行60字に強制カット：LLMが冗長な1文を返しても短く整える）
@@ -1053,14 +1130,19 @@ def extract_json(text: str) -> dict | None:
         return None
     body = text[s : e + 1]
 
-    def _try(body_str: str) -> dict | None:
+    def _try(body_str: str, strict: bool = True) -> dict | None:
         try:
-            return json.loads(body_str)
+            return json.loads(body_str, strict=strict)
         except Exception:
             return None
 
     # 試行 1: そのままパース
     parsed = _try(body)
+    if parsed is not None:
+        return parsed
+
+    # 試行 1b: strict=False（文字列値の中に \n \r \t などの制御文字を許容）
+    parsed = _try(body, strict=False)
     if parsed is not None:
         return parsed
 
@@ -1114,8 +1196,56 @@ def extract_json(text: str) -> dict | None:
     if parsed is not None:
         return parsed
 
+    # 試行 5: max_tokens で打ち切られた末尾の不完全要素を切り捨てる。
+    # 典型的な失敗例: `..."actionItem":"〜まで` で文字列途中切断 + items 配列が閉じてない。
+    # 戦略: 最後の完全な要素 `}` までで切り、`]}` を補って試す。
+    def _truncate_to_last_complete(s: str) -> str | None:
+        # items 配列の中身を完全な要素単位で再構築
+        # まず "items": [ の位置を探す
+        m = re.search(r'"items"\s*:\s*\[', s)
+        if not m:
+            return None
+        head = s[:m.end()]
+        rest = s[m.end():]
+        # items の中身を 1 要素ずつ取り出す（ネストした {} を depth カウントで処理）
+        depth = 0
+        in_str = False
+        escaped = False
+        last_complete = -1
+        for i, ch in enumerate(rest):
+            if escaped:
+                escaped = False
+                continue
+            if ch == "\\":
+                escaped = True
+                continue
+            if ch == '"':
+                in_str = not in_str
+                continue
+            if in_str:
+                continue
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    last_complete = i  # この } までが完全な 1 要素
+            elif ch == "]" and depth == 0:
+                # 既に items 配列が閉じている → 切り詰め不要
+                return None
+        if last_complete < 0:
+            return None
+        truncated = head + rest[: last_complete + 1] + "]}"
+        return truncated
+
+    fixed4 = _truncate_to_last_complete(fixed3)
+    if fixed4:
+        parsed = _try(fixed4, strict=False)
+        if parsed is not None:
+            return parsed
+
     _LAST_JSON_PARSE_ERROR = (
-        f"JSONDecodeError after 4 repair attempts (raw len={len(body)})"
+        f"JSONDecodeError after 6 repair attempts (raw len={len(body)})"
     )
     return None
 
