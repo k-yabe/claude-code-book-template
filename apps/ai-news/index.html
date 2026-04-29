@@ -1069,9 +1069,19 @@
       background: var(--white);
       margin: 0 var(--sp-5);
       box-shadow: 0 1px 3px rgba(0,31,51,0.06);
-      /* スクロール時もフィルタが常に使えるよう sticky 化 */
-      position: sticky; top: 0; z-index: 30;
+      /* スクロール時もフィルタが常に使えるよう sticky 化。
+         navbar (top:0, h:56, z:10) + cmd-bar (top:56, h:~57, z:9) の下に
+         スタックさせるため top:113px / z:8 にする。これより z が大きいと
+         スクロール時に navbar (📰 AI NEWS ロゴ) を覆い隠してしまう。 */
+      position: sticky; top: 113px; z-index: 8;
       border-bottom: 1px solid rgba(0,31,51,0.08);
+    }
+    /* モバイルでは cmd-bar が flex-wrap で 3 行（~152px）になり、
+       navbar (56) + cmd-bar (152) + more-toolbar (143) = 351px で iPhone SE の
+       高さ 800px の 44% がヘッダーに食われる。モバイルでは more-toolbar の
+       sticky 化を無効にして本文に画面を譲る（フィルタはスクロール戻しで使える）。 */
+    @media (max-width: 600px) {
+      .more-toolbar { position: static; }
     }
     .more-toolbar.stuck { box-shadow: 0 6px 18px rgba(0,31,51,0.14); }
     .tabs { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -2606,9 +2616,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '04/29', text: '⚖️ 単一ソース独占の防止：ITmedia AI+ 単独で 8/29 (28%) を占めて「ITmedia ダイジェスト」化していたため、同一ソース最大 5 件のハードキャップを追加。DIGIDAY / 競合 Google News / Zenn 等とのバランスが取れたソース構成に' },
-        { date: '04/29', text: '🐦 X 生成AIトレンドが過去7日で6日 0 件だった問題を修正：bot UA で X.com が 429/403 を返して URL 到達性チェックでほぼ全件 unreachable 判定されていた事故を特定。X URL は形式マッチのみに緩和、max_tokens も 4000→6000 に拡張' },
-        { date: '04/29', text: '🤖 Claude 要約の JSON パース失敗（過去 7 日中 5 日で fallback に落ちて whyItMatters / actionItem / 3 行サマリーが空だった問題）を Anthropic tool_use API でスキーマ強制 JSON 出力にして根治' }
+        { date: '04/29', text: '🩹 スクロール時に navbar (📰 AI NEWS ロゴ) が消える視覚バグを修正：more-toolbar が sticky top:0 z:30 で navbar を覆い隠していた問題を Playwright で発見。top:113px / z:8 にして navbar+cmd-bar の下にスタック。モバイルは sticky 無効化で本文に画面を譲る' },
+        { date: '04/29', text: '⚖️ 単一ソース独占の防止：ITmedia AI+ 単独で 8/29 (28%) を占めて「ITmedia ダイジェスト」化していたため、同一ソース最大 5 件のハードキャップを追加' },
+        { date: '04/29', text: '🤖 Claude 要約 + X トレンドの安定化：過去 7 日中 5 日で要約 fallback / 6 日で X トレンド 0 件だった問題を tool_use 化 + URL 検証緩和 + max_tokens 拡張で根治' }
       ]
     });
 
