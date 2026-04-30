@@ -1,14 +1,14 @@
 {
-  "ranAt": "2026-04-29T23:48:46.712414+00:00",
+  "ranAt": "2026-04-30T23:44:53.126703+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": false,
   "sources": 63,
   "phase": "start",
-  "fetched_items": 22,
+  "fetched_items": 38,
   "summarizer": "fallback",
-  "anthropicError": "tool_use returned empty / JSON parse failed: None (raw len=0)",
-  "final_items": 22,
-  "competitor_items": 3,
-  "x_highlights": 6,
-  "durationSec": 259.0
+  "anthropicError": "BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'You have reached your specified API usage limits. You will regain access on 2026-05-01 at 00:00 UTC.'}, 'request_id': 'req_011Caar551p6v1EexP252E8e'}",
+  "final_items": 38,
+  "competitor_items": 13,
+  "x_highlights": 0,
+  "durationSec": 80.2
 }
