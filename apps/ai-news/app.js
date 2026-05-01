@@ -3163,6 +3163,7 @@
     buildStoryClusters();
     const { mustKnow, thisWeek, fyi } = partition();
     _moreRef = fyi;
+    // ── 同期版: 互換性維持。await できない呼び出し元から使われる場合に備えて残す ──
     renderExecSummary();
     renderTrends();
     renderMustKnow(mustKnow);
@@ -3171,7 +3172,25 @@
     renderMore(fyi);
     const competitorCount = renderCompetitor();
     updateProgress();
-    // 各セクション見出しに件数バッジを設定（初期は 0、初めて見えた時にカウントアップ）
+    setCountTarget('count-must-know', mustKnow.length);
+    setCountTarget('count-this-week', thisWeek.length);
+    setCountTarget('count-more', fyi.length);
+    setCountTarget('count-competitor', competitorCount);
+  }
+  // TBT 削減用: 描画ステップごとにメインスレッドを譲るチャンク版。
+  // init() からはこちらを優先して呼ぶ。
+  async function fullRenderChunked() {
+    buildStoryClusters();
+    const { mustKnow, thisWeek, fyi } = partition();
+    _moreRef = fyi;
+    renderExecSummary(); await _yield();
+    renderTrends();      await _yield();
+    renderMustKnow(mustKnow); await _yield();
+    renderThisWeek(thisWeek); await _yield();
+    renderTabs(fyi);     await _yield();
+    renderMore(fyi);     await _yield();
+    const competitorCount = renderCompetitor(); await _yield();
+    updateProgress();
     setCountTarget('count-must-know', mustKnow.length);
     setCountTarget('count-this-week', thisWeek.length);
     setCountTarget('count-more', fyi.length);
@@ -3312,7 +3331,7 @@
     renderHero();
     await _yield();
     applyMeta(false);   // とりあえず「シードデータ表示中」
-    fullRender();
+    await fullRenderChunked();
     await _yield();
     renderX();
     await _yield();
@@ -3330,7 +3349,7 @@
       renderHero();
       await _yield();
       applyMeta(true);
-      fullRender();
+      await fullRenderChunked();
       await _yield();
       renderX();
       rewireMore();
