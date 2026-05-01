@@ -729,14 +729,14 @@
     <!-- ソースヒント -->
     <div class="source-hint" id="source-hint" style="display:none;">
       💡 ソースを追加すると、AIがその情報を踏まえてプロンプトを作成します。チェックボックスでAIに渡すソースを選べます。
-      <button class="source-hint-close" id="source-hint-close">✕</button>
+      <button class="source-hint-close" id="source-hint-close" aria-label="このヒントを閉じる">✕</button>
     </div>
 
     <!-- 横断分析 -->
     <div class="analysis-panel" id="analysis-panel">
       <div class="analysis-title">
         🔍 ソース横断分析
-        <button class="analysis-close" id="analysis-close">✕</button>
+        <button class="analysis-close" id="analysis-close" aria-label="横断分析パネルを閉じる">✕</button>
       </div>
       <div class="analysis-content" id="analysis-content"></div>
     </div>
@@ -745,7 +745,7 @@
     <div class="source-toolbar">
       <div class="search-wrapper">
         <input type="text" id="source-search" placeholder="🔍 ソースを検索…">
-        <button class="search-clear" id="search-clear">✕</button>
+        <button class="search-clear" id="search-clear" aria-label="検索をクリア">✕</button>
       </div>
       <span class="search-count" id="search-count"></span>
       <div class="tooltip-wrap">
@@ -888,7 +888,7 @@
       <span class="mindmap-header-title">🧠 ソース関係性マインドマップ</span>
       <div class="mindmap-header-actions">
         <button class="mindmap-header-btn" id="mindmap-download">📥 SVG保存</button>
-        <button class="mindmap-header-btn close" id="mindmap-close">✕</button>
+        <button class="mindmap-header-btn close" id="mindmap-close" aria-label="マインドマップを閉じる">✕</button>
       </div>
     </div>
     <div class="mindmap-body" id="mindmap-body">
@@ -903,7 +903,7 @@
     <div class="mindmap-header">
       <span class="mindmap-header-title">🃏 フラッシュカード</span>
       <div class="mindmap-header-actions">
-        <button class="mindmap-header-btn close" id="flashcard-close">✕</button>
+        <button class="mindmap-header-btn close" id="flashcard-close" aria-label="フラッシュカードを閉じる">✕</button>
       </div>
     </div>
     <div class="mindmap-body" id="flashcard-body">
@@ -919,7 +919,7 @@
       <span class="mindmap-header-title">❓ FAQ（よくある質問）</span>
       <div class="mindmap-header-actions">
         <button class="mindmap-header-btn" id="faq-copy-all">📋 全コピー</button>
-        <button class="mindmap-header-btn close" id="faq-close">✕</button>
+        <button class="mindmap-header-btn close" id="faq-close" aria-label="FAQパネルを閉じる">✕</button>
       </div>
     </div>
     <div class="mindmap-body" id="faq-body" style="align-items:flex-start;">
@@ -935,7 +935,7 @@
       <span class="mindmap-header-title">📊 インフォグラフィック</span>
       <div class="mindmap-header-actions">
         <button class="mindmap-header-btn" id="infographic-download">📥 SVG保存</button>
-        <button class="mindmap-header-btn close" id="infographic-close">✕</button>
+        <button class="mindmap-header-btn close" id="infographic-close" aria-label="インフォグラフィックを閉じる">✕</button>
       </div>
     </div>
     <div class="mindmap-body" id="infographic-body">
@@ -982,7 +982,7 @@
   <div class="history-modal">
     <div class="history-header">
       <span class="history-header-title">📜 プロンプト履歴</span>
-      <button class="mindmap-header-btn close" id="history-close">✕</button>
+      <button class="mindmap-header-btn close" id="history-close" aria-label="履歴モーダルを閉じる">✕</button>
     </div>
     <div class="history-body" id="history-body">
       <div class="history-empty">履歴はまだありません</div>
@@ -995,7 +995,7 @@
   <div class="mindmap-modal" style="max-width:640px;">
     <div class="mindmap-header">
       <span class="mindmap-header-title">📑 プロンプトテンプレート</span>
-      <button class="mindmap-header-btn close" id="template-close">✕</button>
+      <button class="mindmap-header-btn close" id="template-close" aria-label="テンプレートモーダルを閉じる">✕</button>
     </div>
     <div class="mindmap-body" style="align-items:flex-start;overflow-y:auto;">
       <div class="template-grid" id="template-grid"></div>
@@ -1008,7 +1008,7 @@
   <div class="mindmap-modal" style="max-width:480px;">
     <div class="mindmap-header">
       <span class="mindmap-header-title">⌨️ キーボードショートカット</span>
-      <button class="mindmap-header-btn close" id="shortcut-close">✕</button>
+      <button class="mindmap-header-btn close" id="shortcut-close" aria-label="ショートカット一覧を閉じる">✕</button>
     </div>
     <div class="mindmap-body" style="align-items:flex-start;">
       <div class="shortcut-list">
