@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-04-30T23:42:43Z",
+  "last_scraped": "2026-05-01T23:42:29Z",
   "articles": [
     {
       "id": "aerospace-defense-digital-engineering",
@@ -40,26 +40,6 @@
       "first_seen": "2026-04-14T23:34:52Z",
       "published_date": "2026-04-09T00:00:00Z",
       "summary_ja": "航空機の外観は変わらなくても内部システムは継続的に進化しており、新しい航空規制への対応と航空宇宙技術の急速な発展が機体の改修や最新化を推し進めています。アッコディスは欧州の大手航空機製造業者と長期的な協力関係を構築し、次世代の航法システムやデジタル飛行制御などの最新技術を統合し、炭素排出削減や運用効率の向上に取り組んでいます。航空機の安全性と信頼性を確保するため、厳密なテスト検証を実施して全世界の航空規制に適合させるとともに、現場での保守支援や異常分析を通じて機体の継続的な性能向上を支援しています。"
-    },
-    {
-      "id": "thinkers-and-makers-ai-driven-devops-automation-intelligent-it-operations",
-      "title": "Building Smarter IT: Automation Today, AI-Driven DevOps Tomorrow",
-      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-ai-driven-devops-automation-intelligent-it-operations",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-04-14T23:35:04Z",
-      "published_date": "2026-04-01T00:00:00Z",
-      "summary_ja": "現代の企業では、ソフトウェアの納期短縮と運用の信頼性を実現するために、自動化とAIを組み合わせた新しいアプローチが急速に広がっています。自動化だけでは効率化に留まりますが、AIを統合することで、問題が発生する前に予測して対応し、ダウンタイムを削減できるようになります。防衛セクターなどのセキュリティが厳格な環境では、GitLabやAnsibleなどのツールを使った自動化により、数百のシステムを安全かつ一貫性を保ちながら管理し、さらにAIによる異常検知と根本原因分析を加えることで、問題が深刻化する前に検出・解決できるようになります。"
-    },
-    {
-      "id": "thinkers-and-makers-ai-serious-games-healthcare",
-      "title": "From Play to Prevention: Combining Serious Games and AI for Early Health Warnings",
-      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-ai-serious-games-healthcare",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-04-14T23:35:17Z",
-      "published_date": "2026-04-01T00:00:00Z",
-      "summary_ja": "ゲームを通じた認知機能の測定にAIを組み合わせることで、医師が高齢者の認知低下をリアルタイムで検出できるようになり、従来の検査より迅速かつ正確な早期介入が可能になります。AkkodisのAI専門家が進めるSTAYWELLプロジェクトでは、ウェアラブルデバイスから収集した健康データとゲームの分析結果を統合し、特にアルツハイマー病や多発性硬化症などの年齢関連疾患の発見を支援しています。このAI技術は医師の臨床判断を補助するツールとして設計されており、医療機関や介護施設との協力を通じて、より多くの患者に個別化された予防的ケアを提供することを目指しています。"
     },
     {
       "id": "improving-the-acoustic-footprint-of-submarines",
