@@ -855,7 +855,7 @@
       let history = loadHistory().filter(u => u !== url);
       history.unshift(url);
       history = history.slice(0, HISTORY_MAX);
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch (_) {}
     }
     function renderHistory() {
       const history = loadHistory();
