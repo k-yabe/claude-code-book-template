@@ -589,7 +589,7 @@
     <div class="modal-box">
       <div class="modal-header">
         <div class="modal-slide-num" id="modal-slide-num">スライド 1</div>
-        <button class="modal-close" onclick="closeModal()">✕</button>
+        <button class="modal-close" onclick="closeModal()" aria-label="モーダルを閉じる">✕</button>
       </div>
       <div class="modal-layout-badge" id="modal-layout-badge">cover</div>
       <hr class="modal-divider">
@@ -1181,10 +1181,10 @@
           </select>
           <div class="outline-btns">
             <button class="outline-btn" onclick="openEditModal(${i})" title="編集">✎</button>
-            <button class="outline-btn" onclick="duplicateOutlineSlide(${i})" title="複製">⧉</button>
-            <button class="outline-btn" onclick="moveOutline(${i},-1)" title="上へ">↑</button>
-            <button class="outline-btn" onclick="moveOutline(${i},1)" title="下へ">↓</button>
-            <button class="outline-btn del" onclick="deleteOutlineSlide(${i})" title="削除">✕</button>
+            <button class="outline-btn" onclick="duplicateOutlineSlide(${i})" title="複製" aria-label="このスライドを複製">⧉</button>
+            <button class="outline-btn" onclick="moveOutline(${i},-1)" title="上へ" aria-label="このスライドを上へ移動">↑</button>
+            <button class="outline-btn" onclick="moveOutline(${i},1)" title="下へ" aria-label="このスライドを下へ移動">↓</button>
+            <button class="outline-btn del" onclick="deleteOutlineSlide(${i})" title="削除" aria-label="このスライドを削除">✕</button>
           </div>
         `;
 
@@ -1717,7 +1717,7 @@
 
         const overlay = document.createElement('div');
         overlay.className = 'fc-overlay';
-        overlay.innerHTML = `<button class="fc-close" onclick="event.stopPropagation();this.parentElement.remove()">✕</button>
+        overlay.innerHTML = `<button class="fc-close" onclick="event.stopPropagation();this.parentElement.remove()" aria-label="ファクトチェック詳細を閉じる">✕</button>
           <div class="fc-summary">${esc(result.summary || '')}</div>${claimsHtml}`;
         overlay.onclick = e => e.stopPropagation();
         thumb.appendChild(overlay);

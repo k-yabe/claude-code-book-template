@@ -470,7 +470,7 @@
             <div class="file-name">${escHtml(f.name)}</div>
             <div class="file-meta">${formatSize(f.size)} · ${f.type.split('/')[1].toUpperCase()}</div>
           </div>
-          <button class="file-remove" onclick="removeFile(${i})" title="削除">✕</button>
+          <button class="file-remove" onclick="removeFile(${i})" title="削除" aria-label="このファイルを変換対象から外す">✕</button>
         </div>`;
       }).join('');
     }
