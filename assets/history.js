@@ -25,7 +25,7 @@ const HistoryManager = {
     if (meta?.url) entry.url = String(meta.url).slice(0, 300);
     if (meta?.platform) entry.platform = String(meta.platform);
     entries.unshift(entry);
-    localStorage.setItem(this.key(), JSON.stringify(entries.slice(0, 10)));
+    try { localStorage.setItem(this.key(), JSON.stringify(entries.slice(0, 10))); } catch (_) { /* Safari private mode 等の書き込み失敗を無視 */ }
     this._updateBadge();
   },
 
@@ -94,7 +94,7 @@ const HistoryManager = {
 
   _deleteEntry(id) {
     const entries = this.getAll().filter(e => e.id !== id);
-    localStorage.setItem(this.key(), JSON.stringify(entries));
+    try { localStorage.setItem(this.key(), JSON.stringify(entries)); } catch (_) {}
     this._updateBadge();
     this._renderBody();
   },

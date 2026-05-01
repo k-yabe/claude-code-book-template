@@ -392,7 +392,7 @@
   </footer>
 
   <script src="../../assets/copy-utils.js"></script>
-  <script src="../../assets/history.js"></script>
+  <script src="../../assets/history.js?v=20260501"></script>
   <script>
     const urlInput = document.getElementById('url-input');
     const checkBtn = document.getElementById('check-btn');
@@ -537,13 +537,28 @@
       const hist = getHistory();
       hist.unshift(entry);
       if (hist.length > MAX_HISTORY) hist.length = MAX_HISTORY;
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+      try { localStorage.setItem(HISTORY_KEY, JSON.stringify(hist)); } catch (_) { /* Safari private mode 等で書き込み失敗してもアプリは動かす */ }
       renderHistory();
     }
     function clearHistory() {
-      localStorage.removeItem(HISTORY_KEY);
+      try { localStorage.removeItem(HISTORY_KEY); } catch (_) {}
       renderHistory();
     }
+    function formatRelativeTime(ts) {
+      const diffSec = Math.floor((Date.now() - ts) / 1000);
+      if (diffSec < 30) return 'たった今';
+      if (diffSec < 60) return `${diffSec}秒前`;
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `${diffMin}分前`;
+      const diffHour = Math.floor(diffMin / 60);
+      if (diffHour < 24) return `${diffHour}時間前`;
+      const diffDay = Math.floor(diffHour / 24);
+      if (diffDay < 7) return `${diffDay}日前`;
+      const d = new Date(ts);
+      return `${d.getMonth() + 1}/${d.getDate()}`;
+    }
+
+    let _historyTickTimer = null;
     function renderHistory() {
       const hist = getHistory();
       const container = document.getElementById('history-list');
@@ -551,20 +566,31 @@
       if (hist.length === 0) {
         container.innerHTML = '<div class="history-empty">チェック履歴はまだありません</div>';
         clearBtn.style.display = 'none';
+        if (_historyTickTimer) { clearInterval(_historyTickTimer); _historyTickTimer = null; }
         return;
       }
       clearBtn.style.display = '';
       container.innerHTML = '<div class="history-list">' + hist.map((h, i) => {
         const isSynced = h.changeCount === 0;
+        const timeLabel = h.ts ? formatRelativeTime(h.ts) : escHtml(h.date || '');
+        const timeTitle = h.ts ? new Date(h.ts).toLocaleString('ja-JP') : (h.date || '');
         return `<div class="history-item" onclick="recheck(${i})" title="${escHtml(h.url)}">
           <div class="history-item-icon">${isSynced ? '✅' : '⏳'}</div>
           <div class="history-item-body">
             <div class="history-item-url">${escHtml(h.url)}</div>
-            <div class="history-item-meta">${escHtml(h.date)}${h.duration ? ' · ' + h.duration : ''}</div>
+            <div class="history-item-meta"><span class="history-time" data-ts="${h.ts || ''}" title="${escHtml(timeTitle)}">${timeLabel}</span>${h.duration ? ' · ' + escHtml(h.duration) : ''}</div>
           </div>
           <div class="history-item-result ${isSynced ? 'synced' : 'diff'}">${isSynced ? '反映済み' : h.changeCount + '件差分'}</div>
         </div>`;
       }).join('') + '</div>';
+      if (!_historyTickTimer) {
+        _historyTickTimer = setInterval(() => {
+          document.querySelectorAll('.history-time[data-ts]').forEach(el => {
+            const ts = Number(el.dataset.ts);
+            if (ts) el.textContent = formatRelativeTime(ts);
+          });
+        }, 30000);
+      }
     }
     function recheck(index) {
       const hist = getHistory();
@@ -665,7 +691,7 @@
         document.getElementById('result-actions').classList.add('show');
 
         lastResult = { url: rawUrl, bypassUrl: bypassUrlStr, changes, currentData, latestData, duration: durationStr };
-        saveToHistory({ url: rawUrl, changeCount: changes.length, date: new Date().toLocaleString('ja-JP'), duration: durationStr });
+        saveToHistory({ url: rawUrl, changeCount: changes.length, ts: Date.now(), date: new Date().toLocaleString('ja-JP'), duration: durationStr });
         if (typeof HistoryManager !== 'undefined' && HistoryManager.save) {
           HistoryManager.save(`${rawUrl} → ${changes.length === 0 ? '反映済み' : changes.map(c=>c.label).join('・') + 'に差分'}`, rawUrl);
         }
@@ -738,10 +764,9 @@
       { icon: '📝', text: '結果をMarkdownでコピーして共有' }
     ],
     updates: [
+      { date: '05/01', text: 'チェック履歴の時刻表記を「5分前」「2時間前」のような相対時間に変更（30秒ごとに自動更新）。Safari 私的モードでも履歴保存が落ちないようガード追加' },
       { date: '04/09', text: 'デザイン刷新・チェック履歴・OGP画像比較・キャッシュヘッダー表示・所要時間表示' },
-      { date: '04/08', text: 'キャンセルボタン追加・進捗ステージ表示・Escキー対応' },
-      { date: '04/04', text: 'iframeプレビュー修正（X-Frame-Options対応）' },
-      { date: '04/03', text: 'PC幅1280pxプレビュー対応・サンプルURL更新' }
+      { date: '04/08', text: 'キャンセルボタン追加・進捗ステージ表示・Escキー対応' }
     ]
   });</script>
 </body>

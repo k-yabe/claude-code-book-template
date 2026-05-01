@@ -572,7 +572,7 @@
       dropdown.innerHTML = list.map(url => `
         <div class="url-history-item" data-url="${escAttr(url)}">
           <span class="url-history-text">${escHtml(url)}</span>
-          <button class="url-history-delete" data-del="${escAttr(url)}" title="削除">×</button>
+          <button class="url-history-delete" data-del="${escAttr(url)}" title="削除" aria-label="この URL を履歴から削除">×</button>
         </div>`).join('');
     }
   }
@@ -1024,7 +1024,7 @@ AIツールの活用により、コンテンツ制作の工数を従来の1/3に
   });
 </script>
 <script src="../../assets/copy-utils.js"></script>
-<script src="../../assets/history.js"></script>
+<script src="../../assets/history.js?v=20260501"></script>
 <script>HistoryManager.init('Post Generator');</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
@@ -1046,9 +1046,9 @@ AIツールの活用により、コンテンツ制作の工数を従来の1/3に
       { icon: '👀', text: '各SNSの実際の表示でプレビュー確認' }
     ],
     updates: [
+      { date: '05/01', text: 'URL履歴の削除ボタンに aria-label を追加 — スクリーンリーダー利用時にもどのURLを削除するか伝わるように。Safari 私的モードでも履歴保存が落ちないようガード追加' },
       { date: '04/21', text: '「生成する」ボタンが横に伸びすぎていた問題を修正 — 中央寄せ＋適正幅に' },
-      { date: '04/14', text: 'スムーススクロールがOSの「視差効果を減らす」設定を尊重するよう改善' },
-      { date: '04/13', text: 'モバイルレスポンシブ対応（タブ折り返し・入力欄縦並び・プレビュー幅最適化）' }
+      { date: '04/14', text: 'スムーススクロールがOSの「視差効果を減らす」設定を尊重するよう改善' }
     ]
   });</script>
 </body>
