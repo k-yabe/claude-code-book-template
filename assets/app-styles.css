@@ -34,8 +34,8 @@
   --border-light:   #f0f2f5;
   --text:           #2d3436;
   --text-secondary: #4a5568;
-  --text-muted:     #8a9bb0;
-  --text-faint:     #b2bec3;
+  --text-muted:     #58697a; /* WCAG AA: 5.4:1 vs white (旧 #8a9bb0 は 2.83:1 で不合格) */
+  --text-faint:     #607283; /* WCAG AA: 4.9:1 vs white (旧 #b2bec3 は 1.83:1 で不合格) */
   --focus-ring:     rgba(255, 184, 28, 0.12);
 
   /* ── Status Colors ── */
