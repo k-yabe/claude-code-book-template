@@ -555,11 +555,11 @@
   function saveUrlHistory(url) {
     const list = loadUrlHistory().filter(u => u !== url);
     list.unshift(url);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, HISTORY_MAX)));
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, HISTORY_MAX))); } catch (_) {}
   }
   function deleteUrlHistory(url) {
     const list = loadUrlHistory().filter(u => u !== url);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); } catch (_) {}
   }
 
   // ドロップダウン描画

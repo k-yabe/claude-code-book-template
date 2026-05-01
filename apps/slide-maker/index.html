@@ -646,7 +646,7 @@
     function dismissWelcome() {
       const hero = document.getElementById('welcome-hero');
       if (hero) hero.style.display = 'none';
-      localStorage.setItem('slide-maker-welcomed', '1');
+      try { localStorage.setItem('slide-maker-welcomed', '1'); } catch (_) {}
     }
     function toggleImportZone() {
       const zone = document.getElementById('import-zone');
@@ -703,7 +703,7 @@
       document.querySelectorAll('.tpl-chip').forEach(c => c.classList.remove('selected'));
       el.classList.add('selected');
       selectedTemplate = el.dataset.val;
-      localStorage.setItem('slide-tpl', selectedTemplate);
+      try { localStorage.setItem('slide-tpl', selectedTemplate); } catch (_) {}
       preloadTemplate(selectedTemplate);
       if (currentSlides) renderPreview(currentSlides);
     }
@@ -1916,7 +1916,7 @@
       deepResearchEnabled = false; researchData = null;
       document.getElementById('btn-research-toggle').classList.remove('active');
       selectedTemplate = 'external-white';
-      localStorage.setItem('slide-tpl', 'external-white');
+      try { localStorage.setItem('slide-tpl', 'external-white'); } catch (_) {}
       renderTplChips();
       document.getElementById('editor-left').innerHTML = '';
       document.getElementById('canvas-slide').innerHTML = '';
@@ -1929,7 +1929,7 @@
       // ウェルカムヒーローを再表示
       const hero = document.getElementById('welcome-hero');
       if (hero) hero.style.display = '';
-      localStorage.removeItem('slide-maker-welcomed');
+      try { localStorage.removeItem('slide-maker-welcomed'); } catch (_) {}
       hideError();
       setPhase('chat');
       initChat();

@@ -1182,7 +1182,7 @@
 
   // ── ステップガイド（共通オンボーディングに統合済み・無効化） ──
   // initOnboarding() で代替。ステップガイドは表示しない。
-  localStorage.setItem('pm_guide_seen', '1');
+  try { localStorage.setItem('pm_guide_seen', '1'); } catch (_) {}
 
   // ── ソースヒント ──────────────────────────
   document.getElementById('source-hint-close').addEventListener('click', () => {
@@ -1283,7 +1283,7 @@
       return source;
     },
     _loadLocal() { try { this._cache = JSON.parse(localStorage.getItem('pm_sources') || '[]'); } catch { this._cache = []; } },
-    _saveLocal() { localStorage.setItem('pm_sources', JSON.stringify(this._cache)); },
+    _saveLocal() { try { localStorage.setItem('pm_sources', JSON.stringify(this._cache)); } catch (_) {} },
     _updateBadge() {
       const b = document.getElementById('storage-badge');
       if (this.mode === 'cloud') { b.className = 'storage-badge cloud'; b.textContent = '☁️ クラウド保存'; }
@@ -2491,8 +2491,10 @@
     ]
   });
   // 共通ポップアップ表示時は既存のステップガイドを抑制
-  if (!localStorage.getItem('pm_guide_seen')) {
-    localStorage.setItem('pm_guide_seen', '1');
-  }</script>
+  try {
+    if (!localStorage.getItem('pm_guide_seen')) {
+      localStorage.setItem('pm_guide_seen', '1');
+    }
+  } catch (_) {}</script>
 </body>
 </html>

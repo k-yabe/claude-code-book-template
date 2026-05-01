@@ -369,16 +369,16 @@
   if (localStorage.getItem('auth') !== '1') { location.href = '/'; }
   const NEW_DAYS = 14;
   const THIS_YEAR = new Date().getFullYear();
-  localStorage.setItem('antennaLastVisit', Date.now());
+  try { localStorage.setItem('antennaLastVisit', Date.now()); } catch (_) {}
 
   // ── 既読管理 ────────────────────────────────────────
   const READ_KEY = 'antennaReadUrls';
-  const readUrls = new Set(JSON.parse(localStorage.getItem(READ_KEY) || '[]'));
+  const readUrls = new Set((() => { try { return JSON.parse(localStorage.getItem(READ_KEY) || '[]'); } catch { return []; } })());
 
   function markRead(url) {
     if (readUrls.has(url)) return;
     readUrls.add(url);
-    localStorage.setItem(READ_KEY, JSON.stringify([...readUrls]));
+    try { localStorage.setItem(READ_KEY, JSON.stringify([...readUrls])); } catch (_) {}
   }
 
   function dateType(article) {
@@ -590,7 +590,7 @@
       document.getElementById('reset-read-btn').addEventListener('click', () => {
         if (!confirm('既読をすべてリセットしますか？')) return;
         readUrls.clear();
-        localStorage.removeItem(READ_KEY);
+        try { localStorage.removeItem(READ_KEY); } catch (_) {}
         location.reload();
       });
     })
