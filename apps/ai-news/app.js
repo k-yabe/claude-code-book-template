@@ -1653,18 +1653,22 @@
         </div>
       </article>`;
     }).join('');
-    root.querySelectorAll('.read-toggle').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const id = btn.dataset.readId;
-        const card = btn.closest('.top-card');
-        toggleRead(id, card);
-        btn.textContent = state.read.has(id) ? '↩ 未読' : '✓ 既読';
+    // TBT 対策: 個別 listener attach をイベント委譲に統合
+    if (!root._delegated) {
+      root._delegated = true;
+      root.addEventListener('click', e => {
+        const star = e.target.closest('.star-btn');
+        if (star && root.contains(star)) { e.stopPropagation(); toggleFav(star.dataset.fav, star); return; }
+        const readBtn = e.target.closest('.read-toggle');
+        if (readBtn && root.contains(readBtn)) {
+          e.stopPropagation();
+          const id = readBtn.dataset.readId;
+          const card = readBtn.closest('.top-card');
+          toggleRead(id, card);
+          readBtn.textContent = state.read.has(id) ? '↩ 未読' : '✓ 既読';
+        }
       });
-    });
-    root.querySelectorAll('.star-btn').forEach(btn => {
-      btn.addEventListener('click', e => { e.stopPropagation(); toggleFav(btn.dataset.fav, btn); });
-    });
+    }
   }
 
   function renderThisWeek(items) {
@@ -1724,26 +1728,30 @@
           </div>
         </div>`;
     }).join('');
-    root.querySelectorAll('.brief-card').forEach(el => {
-      el.addEventListener('click', e => {
-        if (e.target.closest('.star-btn') || e.target.closest('.brief-ext-link') || e.target.closest('.brief-read-toggle') || e.target.closest('.meta-source-btn') || e.target.closest('.tag-btn')) return;
-        markRead(el.dataset.id, el);
-        if (el.dataset.cat) recordClick(el.dataset.cat);
-        openExternal(el.dataset.url);
+    // TBT 対策: 個別 listener attach をイベント委譲に統合
+    if (!root._delegated) {
+      root._delegated = true;
+      root.addEventListener('click', e => {
+        const star = e.target.closest('.star-btn');
+        if (star && root.contains(star)) { e.stopPropagation(); toggleFav(star.dataset.fav, star); return; }
+        const readBtn = e.target.closest('.brief-read-toggle');
+        if (readBtn && root.contains(readBtn)) {
+          e.stopPropagation();
+          const id = readBtn.dataset.readId;
+          const card = readBtn.closest('.brief-card');
+          toggleRead(id, card);
+          readBtn.textContent = state.read.has(id) ? '↩ 未読' : '✓ 既読';
+          return;
+        }
+        const card = e.target.closest('.brief-card');
+        if (card && root.contains(card)) {
+          if (e.target.closest('.brief-ext-link') || e.target.closest('.meta-source-btn') || e.target.closest('.tag-btn')) return;
+          markRead(card.dataset.id, card);
+          if (card.dataset.cat) recordClick(card.dataset.cat);
+          openExternal(card.dataset.url);
+        }
       });
-    });
-    root.querySelectorAll('.brief-read-toggle').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const id = btn.dataset.readId;
-        const card = btn.closest('.brief-card');
-        toggleRead(id, card);
-        btn.textContent = state.read.has(id) ? '↩ 未読' : '✓ 既読';
-      });
-    });
-    root.querySelectorAll('.star-btn').forEach(btn => {
-      btn.addEventListener('click', e => { e.stopPropagation(); toggleFav(btn.dataset.fav, btn); });
-    });
+    }
   }
 
   function renderTabs(fyi) {
@@ -1829,58 +1837,61 @@
           </div>
         </article>`;
     }).join('');
-    root.querySelectorAll('.fyi-card').forEach(el => {
-      el.addEventListener('click', e => {
-        if (e.target.closest('.star-btn') || e.target.closest('.brief-read-toggle') || e.target.closest('.brief-ext-link') || e.target.closest('.meta-source-btn') || e.target.closest('.tag-btn')) return;
-        markRead(el.dataset.id, el);
-        if (el.dataset.cat) recordClick(el.dataset.cat);
-        openExternal(el.dataset.url);
-      });
-    });
-    root.querySelectorAll('.brief-read-toggle').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const id = btn.dataset.readId;
-        const item = btn.closest('.fyi-card');
-        toggleRead(id, item);
-        btn.textContent = state.read.has(id) ? '↩ 未読' : '✓ 既読';
-      });
-    });
-    root.querySelectorAll('.star-btn').forEach(btn => {
-      btn.addEventListener('click', e => { e.stopPropagation(); toggleFav(btn.dataset.fav, btn); });
-    });
-    // タグクリックで検索に #tag をセットして絞り込み
-    root.querySelectorAll('.tag-btn[data-tag-filter]').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const tag = btn.dataset.tagFilter;
-        const input = document.getElementById('search');
-        if (input) {
-          input.value = '#' + tag;
-          state.keyword = '#' + tag;
-          savePrefs();
-          renderMore(_moreRef);
-          const sec = document.getElementById('sec-more') || document.getElementById('more-list');
-          if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // TBT 対策: 個別 querySelectorAll().forEach(addEventListener) を root へのイベント委譲に統合。
+    // 10 件 × 5 種 = 50 個の listener attach が 1 個に減るので renderMore のタスク時間が大幅に縮む。
+    if (!root._delegated) {
+      root._delegated = true;
+      root.addEventListener('click', e => {
+        const star = e.target.closest('.star-btn');
+        if (star && root.contains(star)) { e.stopPropagation(); toggleFav(star.dataset.fav, star); return; }
+        const readBtn = e.target.closest('.brief-read-toggle');
+        if (readBtn && root.contains(readBtn)) {
+          e.stopPropagation();
+          const id = readBtn.dataset.readId;
+          const item = readBtn.closest('.fyi-card');
+          toggleRead(id, item);
+          readBtn.textContent = state.read.has(id) ? '↩ 未読' : '✓ 既読';
+          return;
+        }
+        const tagBtn = e.target.closest('.tag-btn[data-tag-filter]');
+        if (tagBtn && root.contains(tagBtn)) {
+          e.stopPropagation();
+          const tag = tagBtn.dataset.tagFilter;
+          const input = document.getElementById('search');
+          if (input) {
+            input.value = '#' + tag;
+            state.keyword = '#' + tag;
+            savePrefs();
+            renderMore(_moreRef);
+            const sec = document.getElementById('sec-more') || document.getElementById('more-list');
+            if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          return;
+        }
+        const srcBtn = e.target.closest('.meta-source-btn[data-source-filter]');
+        if (srcBtn && root.contains(srcBtn)) {
+          e.stopPropagation();
+          const src = srcBtn.dataset.sourceFilter;
+          const input = document.getElementById('search');
+          if (input) {
+            input.value = src;
+            state.keyword = src;
+            savePrefs();
+            renderMore(_moreRef);
+            const sec = document.getElementById('sec-more') || document.getElementById('more-list');
+            if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          return;
+        }
+        const card = e.target.closest('.fyi-card');
+        if (card && root.contains(card)) {
+          if (e.target.closest('.brief-ext-link')) return;
+          markRead(card.dataset.id, card);
+          if (card.dataset.cat) recordClick(card.dataset.cat);
+          openExternal(card.dataset.url);
         }
       });
-    });
-    // ソース名クリックで、その媒体の記事に絞り込み
-    root.querySelectorAll('.meta-source-btn[data-source-filter]').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const src = btn.dataset.sourceFilter;
-        const input = document.getElementById('search');
-        if (input) {
-          input.value = src;
-          state.keyword = src;
-          savePrefs();
-          renderMore(_moreRef);
-          const sec = document.getElementById('sec-more') || document.getElementById('more-list');
-          if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    });
+    }
     // 「もっと見る」ボタンの表示切り替え
     const expandBtn = document.getElementById('more-expand-btn');
     if (expandBtn) {
