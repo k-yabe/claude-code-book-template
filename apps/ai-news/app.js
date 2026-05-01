@@ -1015,12 +1015,12 @@
     const bar = document.getElementById('trend-bar');
     if (!bar) return;
     const trends = extractTrends();
-    // タグが 0件なら trend-bar ごと非表示（空バーは「崩れ」に見えるため）
+    // タグが 0件なら visibility:hidden で非表示（display:none だと CLS が発生するため）
     if (!trends.length) {
-      bar.style.display = 'none';
+      bar.classList.add('hidden');
       return;
     }
-    bar.style.display = '';
+    bar.classList.remove('hidden');
     const label = '<span class="trend-label">HOT TOPICS</span>';
     const pills = trends.map(t =>
       `<button class="trend-pill" data-trend="${escapeHtml(t.tag)}">#${escapeHtml(t.tag)}</button>`
@@ -3303,12 +3303,19 @@
     if (head) _countObserver.observe(head);
   }
 
+  // 長時間タスク (Total Blocking Time) を抑えるため、重い同期処理の合間でブラウザに制御を返す。
+  // requestAnimationFrame の前にイベントループ 1 周分を渡すことで input イベントなどが処理可能になる。
+  const _yield = () => new Promise(r => setTimeout(r, 0));
+
   async function init() {
-    // ── 1. シードデータで即時パーティション + render（ブロックなし） ──
+    // ── 1. シードデータで即時パーティション + render（チャンク化してメインスレッドを譲る） ──
     renderHero();
+    await _yield();
     applyMeta(false);   // とりあえず「シードデータ表示中」
     fullRender();
+    await _yield();
     renderX();
+    await _yield();
     wireUp(_moreRef);
     wireKeyboard();
     wireDateNav();
@@ -3317,14 +3324,14 @@
     wireQuickActions();
 
     // ── 2. バックグラウンドで実データ取得（最大8秒） ──
-    // ローディング表示をセット
     const upd = document.getElementById('cmd-updated');
-    // ローディング表示は出さない（バックグラウンドで取得）
     const isRemote = await loadRemote();
     if (isRemote) {
       renderHero();
+      await _yield();
       applyMeta(true);
       fullRender();
+      await _yield();
       renderX();
       rewireMore();
     }

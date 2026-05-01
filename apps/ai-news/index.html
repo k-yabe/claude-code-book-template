@@ -1678,6 +1678,7 @@
       border-left: 6px solid var(--gold);
       overflow: hidden;
       box-shadow: 0 10px 30px rgba(0,31,51,0.18), 0 2px 6px rgba(0,31,51,0.10);
+      min-height: clamp(360px, 50vh, 480px); /* CLS 対策: JS 投入前にスペースを確保。executive summary 3-5段落分を見越して */
     }
     .exec-box::before {
       content: 'TODAY\'S BRIEFING';
@@ -2013,7 +2014,9 @@
       scrollbar-width: none;
       position: relative;
       border-left: 3px solid var(--gold);
+      min-height: 48px; /* CLS 対策: JS でトレンド投入前にスペースを確保 */
     }
+    .trend-bar.hidden { visibility: hidden; } /* JS 側で「トレンド0件時」に追加: 空でもスペースは保つ */
     .trend-bar::-webkit-scrollbar { display: none; }
     .trend-label {
       display: inline-flex; align-items: center; gap: 6px;
@@ -2064,6 +2067,12 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: var(--sp-4); padding: 0 var(--sp-5);
+      content-visibility: auto; /* オフスクリーンのカードはレンダリング省略 → 初期描画を高速化 */
+      contain-intrinsic-size: auto 800px; /* 高さの目安: スクロールバーの安定性確保 */
+    }
+    .x-grid {
+      content-visibility: auto;
+      contain-intrinsic-size: auto 600px;
     }
     @media (min-width: 1024px) {
       .brief-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
