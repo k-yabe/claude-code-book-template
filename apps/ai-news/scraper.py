@@ -1644,13 +1644,22 @@ def naturalize_japanese_tts_script(s: str) -> str:
 
 def generate_tts_mp3(text: str) -> bytes | None:
     """日本語 MP3 を生成。優先順位:
-    1. Azure AI Speech (ja-JP-NanamiNeural, customerservice style) — 完全日本語ネイティブで最も自然
-    2. ElevenLabs eleven_multilingual_v2 — 表現力高いが英語ネイティブ声優の多言語化なので英語訛り残る
-    3. OpenAI gpt-4o-mini-tts — フォールバック
+    1. VOICEVOX (デフォルト: 青山龍星・ノーマル) — 完全無料・登録不要・日本語ネイティブ。
+       GitHub Actions ランナー上で Docker engine を起動して使う想定。
+       ライセンス: 各話者の利用規約に従い、UI に「VOICEVOX:[キャラ名]」のクレジット表記が必要。
+    2. Azure AI Speech (ja-JP-NanamiNeural, customerservice style) — F0 無料 tier で月50万字無料。
+    3. ElevenLabs eleven_multilingual_v2 — 表現力高いが英語声優の多言語化なので英語訛り残る。
+    4. OpenAI gpt-4o-mini-tts — 最後のフォールバック。
     """
     if not text:
         return None
     natural = naturalize_japanese_tts_script(text)
+    voicevox_url = os.environ.get("VOICEVOX_BASE_URL", "").strip()
+    if voicevox_url:
+        mp3 = _generate_tts_voicevox(natural, voicevox_url)
+        if mp3:
+            return mp3
+        log("VOICEVOX TTS failed, falling back to Azure")
     azure_key = os.environ.get("AZURE_SPEECH_KEY", "").strip()
     azure_region = os.environ.get("AZURE_SPEECH_REGION", "").strip()
     if azure_key and azure_region:
@@ -1665,6 +1674,72 @@ def generate_tts_mp3(text: str) -> bytes | None:
             return mp3
         log("ElevenLabs TTS failed, falling back to OpenAI")
     return _generate_tts_openai(natural)
+
+
+def _generate_tts_voicevox(text: str, base_url: str) -> bytes | None:
+    """VOICEVOX エンジン経由で日本語 WAV を生成し、ffmpeg で MP3 に変換して返す。
+
+    話者 ID は VOICEVOX_SPEAKER_ID で上書き可（デフォルト 13 = 青山龍星・ノーマル）。
+    主要な落ち着き系話者:
+      13 = 青山龍星（ノーマル, 男性, ニュースアンカー向き）
+      29 = No.7（ノーマル, 中性女性）
+      23 = WhiteCUL（ノーマル, 女性）
+      20 = もち子さん（ノーマル, 女性）
+    speedScale / pitchScale で速度・ピッチも調整可（VOICEVOX_SPEED, VOICEVOX_PITCH）。
+    """
+    speaker_id = int(os.environ.get("VOICEVOX_SPEAKER_ID", "13") or "13")
+    speed = float(os.environ.get("VOICEVOX_SPEED", "0.97") or "0.97")
+    pitch = float(os.environ.get("VOICEVOX_PITCH", "0.0") or "0.0")
+    safe_text = text[:4800]
+    base = base_url.rstrip("/")
+    try:
+        import urllib.request
+        import urllib.parse
+        # 1) audio_query で合成パラメータを取得
+        q_url = f"{base}/audio_query?speaker={speaker_id}&text={urllib.parse.quote(safe_text)}"
+        with urllib.request.urlopen(urllib.request.Request(q_url, method="POST"), timeout=60) as resp:
+            query = json.loads(resp.read())
+        # 2) 速度・ピッチを上書き
+        query["speedScale"] = speed
+        query["pitchScale"] = pitch
+        # 3) synthesis で WAV を生成
+        s_url = f"{base}/synthesis?speaker={speaker_id}"
+        s_req = urllib.request.Request(
+            s_url, method="POST",
+            headers={"Content-Type": "application/json", "Accept": "audio/wav"},
+            data=json.dumps(query).encode("utf-8"),
+        )
+        with urllib.request.urlopen(s_req, timeout=180) as resp:
+            wav_bytes = resp.read()
+        if not wav_bytes:
+            return None
+        # 4) WAV → MP3 変換（GitHub Actions ランナーには ffmpeg プリインストール）
+        return _wav_to_mp3(wav_bytes)
+    except Exception as e:
+        log(f"voicevox tts error: {e}")
+        return None
+
+
+def _wav_to_mp3(wav_bytes: bytes) -> bytes | None:
+    """ffmpeg で WAV → MP3 変換。失敗時 None。"""
+    try:
+        import subprocess
+        result = subprocess.run(
+            [
+                "ffmpeg", "-loglevel", "error",
+                "-i", "pipe:0",
+                "-codec:a", "libmp3lame", "-qscale:a", "4",
+                "-f", "mp3", "pipe:1",
+            ],
+            input=wav_bytes, capture_output=True, timeout=60, check=True,
+        )
+        return result.stdout if result.stdout else None
+    except FileNotFoundError:
+        log("ffmpeg not found; cannot convert WAV to MP3")
+        return None
+    except Exception as e:
+        log(f"ffmpeg conversion failed: {e}")
+        return None
 
 
 def _generate_tts_azure(text: str, api_key: str, region: str) -> bytes | None:
@@ -1861,7 +1936,7 @@ def main() -> int:
         script = generate_digest_script(exec_summary, mustknow, thisweek)
         if script:
             log(f"digest script: {len(script)} chars")
-            log("generating TTS MP3 (Azure Nanami → ElevenLabs → OpenAI fallback)...")
+            log("generating TTS MP3 (VOICEVOX → Azure → ElevenLabs → OpenAI fallback)...")
             mp3 = generate_tts_mp3(script)
             if mp3:
                 save_audio(mp3, script)
