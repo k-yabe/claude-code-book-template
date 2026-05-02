@@ -1644,9 +1644,10 @@ def naturalize_japanese_tts_script(s: str) -> str:
 
 def generate_tts_mp3(text: str) -> bytes | None:
     """日本語 MP3 を生成。優先順位:
-    1. VOICEVOX (デフォルト: WhiteCUL・ノーマル) — 完全無料・登録不要・日本語ネイティブ。
-       GitHub Actions ランナー上で Docker engine を起動して使う想定。
-       ライセンス: 各話者の利用規約に従い、UI に「VOICEVOX:[キャラ名]」のクレジット表記が必要。
+    1. AivisSpeech / VOICEVOX (デフォルト: AivisSpeech Anneli) — 完全無料・登録不要・
+       商用OK（クレジット表記不要）の日本語特化 TTS。Style-Bert-VITS2 ベースで
+       VOICEVOX よりプロアナウンサー級の自然さ。VOICEVOX とは API 互換のため、
+       環境変数 VOICEVOX_BASE_URL を切り替えるだけで使える。
     2. Azure AI Speech (ja-JP-NanamiNeural, customerservice style) — F0 無料 tier で月50万字無料。
     3. ElevenLabs eleven_multilingual_v2 — 表現力高いが英語声優の多言語化なので英語訛り残る。
     4. OpenAI gpt-4o-mini-tts — 最後のフォールバック。
@@ -1776,9 +1777,11 @@ def _generate_tts_voicevox(text: str, base_url: str) -> bytes | None:
     長文を一気に合成するとメモリピークで engine が OOM kill されるため、
     句点単位で 600字程度のチャンクに分割し、順次合成して WAV を結合する。
 
-    話者 ID は VOICEVOX_SPEAKER_ID で上書き可（デフォルト 23 = WhiteCUL・ノーマル）。
-    主要な落ち着き系話者:
-      23 = WhiteCUL（ノーマル, 女性, 女子アナ風で聞き心地◎）← デフォルト
+    話者 ID は VOICEVOX_SPEAKER_ID で上書き可。
+    AivisSpeech 利用時は workflow が /speakers から Anneli の最初のスタイル ID を
+    自動取得して環境変数経由で渡してくる（手動指定不要）。
+    VOICEVOX 利用時の主要な落ち着き系話者:
+      23 = WhiteCUL（ノーマル, 女性, 女子アナ風で聞き心地◎）
       29 = No.7（ノーマル, 中性女性）
       13 = 青山龍星（ノーマル, 男性, ニュースアンカー向き）
       16 = 九州そら（ノーマル, 女性, しっかりした朗読）
@@ -1786,6 +1789,7 @@ def _generate_tts_voicevox(text: str, base_url: str) -> bytes | None:
     speedScale / pitchScale で速度・ピッチも調整可（VOICEVOX_SPEED, VOICEVOX_PITCH）。
     """
     global _VOICEVOX_LAST_ERROR
+    # default 23 は VOICEVOX 用フォールバック。AivisSpeech 利用時は workflow が上書き渡す。
     speaker_id = int(os.environ.get("VOICEVOX_SPEAKER_ID", "23") or "23")
     speed = float(os.environ.get("VOICEVOX_SPEED", "0.97") or "0.97")
     pitch = float(os.environ.get("VOICEVOX_PITCH", "0.0") or "0.0")
@@ -2066,7 +2070,7 @@ def main() -> int:
         if script:
             log(f"digest script: {len(script)} chars")
             debug_stats["audio"]["scriptChars"] = len(script)
-            log("generating TTS MP3 (VOICEVOX → Azure → ElevenLabs → OpenAI fallback)...")
+            log("generating TTS MP3 (AivisSpeech/VOICEVOX → Azure → ElevenLabs → OpenAI fallback)...")
             mp3 = generate_tts_mp3(script)
             if mp3:
                 save_audio(mp3, script)

@@ -47,37 +47,54 @@ jobs:
           sudo apt-get install -y -qq --no-install-recommends ffmpeg
           ffmpeg -version | head -1
 
-      - name: Start VOICEVOX engine (CPU) and warmup synthesis
-        # 完全無料・登録不要の日本語ネイティブ TTS。
-        # /version は速く返るがモデル loading は初回 synthesis で lazy に走るため、
-        # Python で /version 待機 + ウォームアップ合成までやってから VOICEVOX_OK を export。
+      - name: Start AivisSpeech engine (CPU) and warmup synthesis
+        # 完全無料・登録不要・商用OK（クレジット表記不要）の日本語特化 TTS。
+        # Style-Bert-VITS2 ベースで VOICEVOX よりプロアナウンサー級の自然さ。
+        # 初回は default voice model (250MB) + BERT (650MB) を auto-download するため
+        # /version 応答まで最大 5 分ほどかかる。warmup synthesis でモデル loading も完了させる。
         run: |
           docker run -d --rm \
-            --name voicevox \
-            -p 127.0.0.1:50021:50021 \
-            voicevox/voicevox_engine:cpu-latest
+            --name aivisspeech \
+            -p 127.0.0.1:10101:10101 \
+            ghcr.io/aivis-project/aivisspeech-engine:cpu-latest
           python3 - <<'PY' || warmup_status=$?
           import json, sys, time, urllib.request
-          base = "http://127.0.0.1:50021"
-          # /version 待機
-          for i in range(120):
+          base = "http://127.0.0.1:10101"
+          # /version 待機（モデル DL 込みなので最大 7 分待つ）
+          for i in range(210):
               try:
                   urllib.request.urlopen(base + "/version", timeout=2).read()
-                  print(f"voicevox /version OK after {i*2}s")
+                  print(f"aivisspeech /version OK after {i*2}s")
                   break
               except Exception:
                   time.sleep(2)
           else:
-              print("::warning::voicevox /version did not respond within 240s")
+              print("::warning::aivisspeech /version did not respond within 420s")
               sys.exit(2)
-          # ウォームアップ合成
-          print("warming up speaker=23 ('テスト')...")
+          # /speakers でデフォルト話者 (Anneli) のスタイル ID を取得
+          try:
+              speakers = json.loads(urllib.request.urlopen(base + "/speakers", timeout=30).read())
+              # Anneli の最初のスタイル ID を取得（通常はノーマル）
+              anneli = next((s for s in speakers if "Anneli" in s.get("name", "")), None)
+              if anneli and anneli.get("styles"):
+                  default_style_id = anneli["styles"][0]["id"]
+                  print(f"Anneli first style id = {default_style_id}, name = {anneli['styles'][0].get('name','?')}")
+                  with open("/tmp/aivis_speaker_id", "w") as f:
+                      f.write(str(default_style_id))
+              else:
+                  print(f"::warning::Anneli not found in speakers ({len(speakers)} entries)")
+                  sys.exit(3)
+          except Exception as e:
+              print(f"::warning::failed to fetch /speakers: {e}")
+              sys.exit(4)
+          # ウォームアップ合成（短文でモデルを load）
+          print(f"warming up Anneli (id={default_style_id}, text='テスト')...")
           t0 = time.time()
           try:
-              q_url = base + "/audio_query?speaker=23&text=%E3%83%86%E3%82%B9%E3%83%88"
-              q = json.loads(urllib.request.urlopen(urllib.request.Request(q_url, method="POST"), timeout=60).read())
+              q_url = base + f"/audio_query?speaker={default_style_id}&text=%E3%83%86%E3%82%B9%E3%83%88"
+              q = json.loads(urllib.request.urlopen(urllib.request.Request(q_url, method="POST"), timeout=120).read())
               s_req = urllib.request.Request(
-                  base + "/synthesis?speaker=23",
+                  base + f"/synthesis?speaker={default_style_id}",
                   method="POST",
                   headers={"Content-Type": "application/json", "Accept": "audio/wav"},
                   data=json.dumps(q).encode("utf-8"),
@@ -85,21 +102,22 @@ jobs:
               wav = urllib.request.urlopen(s_req, timeout=300).read()
               if not wav or len(wav) < 1000:
                   print(f"::warning::warmup WAV too small: {len(wav)} bytes")
-                  sys.exit(3)
-              print(f"voicevox warmup OK: {len(wav)} bytes WAV in {time.time()-t0:.1f}s")
+                  sys.exit(5)
+              print(f"aivisspeech warmup OK: {len(wav)} bytes WAV in {time.time()-t0:.1f}s")
               sys.exit(0)
           except Exception as e:
               print(f"::warning::warmup synthesis failed: {e}")
-              sys.exit(4)
+              sys.exit(6)
           PY
           warmup_status=${warmup_status:-0}
           if [ "$warmup_status" -eq 0 ]; then
-            echo "VOICEVOX_OK=1" >> "$GITHUB_ENV"
-            echo "voicevox is ready for scraper"
+            echo "AIVISSPEECH_OK=1" >> "$GITHUB_ENV"
+            echo "AIVISSPEECH_SPEAKER_ID=$(cat /tmp/aivis_speaker_id 2>/dev/null)" >> "$GITHUB_ENV"
+            echo "aivisspeech is ready for scraper"
           else
-            echo "VOICEVOX_OK=0" >> "$GITHUB_ENV"
-            echo "voicevox warmup failed (status=$warmup_status); will fall back"
-            docker logs voicevox 2>&1 | tail -40 || true
+            echo "AIVISSPEECH_OK=0" >> "$GITHUB_ENV"
+            echo "aivisspeech warmup failed (status=$warmup_status); will fall back"
+            docker logs aivisspeech 2>&1 | tail -40 || true
           fi
         continue-on-error: true
 
@@ -110,9 +128,13 @@ jobs:
           AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
           AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
-          # ウォームアップ済みの時だけ scraper が VOICEVOX を叩く。
+          # ウォームアップ済みの時だけ scraper が AivisSpeech を叩く。
           # 失敗時は空文字なので scraper は Azure → ElevenLabs → OpenAI に自動フォールバック。
-          VOICEVOX_BASE_URL: ${{ env.VOICEVOX_OK == '1' && 'http://127.0.0.1:50021' || '' }}
+          # AivisSpeech は VOICEVOX API 互換なので環境変数名はそのまま流用。
+          VOICEVOX_BASE_URL: ${{ env.AIVISSPEECH_OK == '1' && 'http://127.0.0.1:10101' || '' }}
+          VOICEVOX_SPEAKER_ID: ${{ env.AIVISSPEECH_SPEAKER_ID }}
+          # AivisSpeech 用に chunk サイズを少し小さめに（モデルが重いため）
+          VOICEVOX_CHUNK_CHARS: '500'
         run: |
           echo "::group::Python scraper output"
           python -u apps/ai-news/scraper.py
