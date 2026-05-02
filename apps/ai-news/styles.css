@@ -1651,7 +1651,10 @@
       border-left: 6px solid var(--gold);
       overflow: hidden;
       box-shadow: 0 10px 30px rgba(0,31,51,0.18), 0 2px 6px rgba(0,31,51,0.10);
-      min-height: clamp(360px, 50vh, 480px); /* CLS 対策: JS 投入前にスペースを確保。executive summary 3-5段落分を見越して */
+    }
+    /* CLS 対策: JS 投入前のみ高さを確保。content 投入後は自然な高さに戻す。 */
+    .exec-box:empty {
+      min-height: clamp(180px, 22vh, 240px);
     }
     .exec-box::before {
       content: 'TODAY\'S BRIEFING';
@@ -1688,6 +1691,7 @@
       .exec-box {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
+        align-items: start; /* 列ごとに自然な高さにし、空きスペースを作らない */
         gap: var(--sp-5);
         padding: calc(var(--sp-6) + 12px) var(--sp-7) var(--sp-6);
       }
