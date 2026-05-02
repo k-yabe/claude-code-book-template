@@ -26,7 +26,7 @@
   <link rel="preload" as="fetch" href="./data/news.json" crossorigin="anonymous">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260501">
+  <link rel="stylesheet" href="./styles.css?v=20260502">
 </head>
 <body>
   <div class="scroll-progress" id="scroll-progress"></div>
@@ -297,9 +297,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
+        { date: '05/02', text: '📋 「今日の3行サマリー」の下に巨大な空きスペースが残るレイアウト崩れを修正：CLS 対策の min-height がそのまま残ってボックスが 450px 固定になっていたのを、空のとき限定の控えめな min-height に置き換え。PC グリッドにも align-items:start を追加して列の間延びを解消' },
         { date: '04/29', text: '🩹 スクロール時に navbar (📰 AI NEWS ロゴ) が消える視覚バグを修正：more-toolbar が sticky top:0 z:30 で navbar を覆い隠していた問題を Playwright で発見。top:113px / z:8 にして navbar+cmd-bar の下にスタック。モバイルは sticky 無効化で本文に画面を譲る' },
-        { date: '04/29', text: '⚖️ 単一ソース独占の防止：ITmedia AI+ 単独で 8/29 (28%) を占めて「ITmedia ダイジェスト」化していたため、同一ソース最大 5 件のハードキャップを追加' },
-        { date: '04/29', text: '🤖 Claude 要約 + X トレンドの安定化：過去 7 日中 5 日で要約 fallback / 6 日で X トレンド 0 件だった問題を tool_use 化 + URL 検証緩和 + max_tokens 拡張で根治' }
+        { date: '04/29', text: '⚖️ 単一ソース独占の防止：ITmedia AI+ 単独で 8/29 (28%) を占めて「ITmedia ダイジェスト」化していたため、同一ソース最大 5 件のハードキャップを追加' }
       ]
     });
 
