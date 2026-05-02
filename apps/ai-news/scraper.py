@@ -1690,31 +1690,45 @@ def _generate_tts_voicevox(text: str, base_url: str) -> bytes | None:
     speaker_id = int(os.environ.get("VOICEVOX_SPEAKER_ID", "13") or "13")
     speed = float(os.environ.get("VOICEVOX_SPEED", "0.97") or "0.97")
     pitch = float(os.environ.get("VOICEVOX_PITCH", "0.0") or "0.0")
-    safe_text = text[:4800]
+    # CPU 合成は重いので 2,400 字（約 2 分の音声）でカット。GitHub Actions の 20 分予算に収める。
+    max_chars = int(os.environ.get("VOICEVOX_MAX_CHARS", "2400") or "2400")
+    # 24kHz → 16kHz でスピーチには十分、CPU 合成が約 30% 速い。
+    sampling_rate = int(os.environ.get("VOICEVOX_SAMPLING_RATE", "16000") or "16000")
+    safe_text = text[:max_chars]
     base = base_url.rstrip("/")
+    log(f"voicevox: speaker={speaker_id} chars={len(safe_text)} sr={sampling_rate} speed={speed}")
     try:
         import urllib.request
         import urllib.parse
+        import time as _time
         # 1) audio_query で合成パラメータを取得
+        t0 = _time.time()
         q_url = f"{base}/audio_query?speaker={speaker_id}&text={urllib.parse.quote(safe_text)}"
         with urllib.request.urlopen(urllib.request.Request(q_url, method="POST"), timeout=60) as resp:
             query = json.loads(resp.read())
-        # 2) 速度・ピッチを上書き
+        # 2) 速度・ピッチ・サンプリングレートを上書き
         query["speedScale"] = speed
         query["pitchScale"] = pitch
+        query["outputSamplingRate"] = sampling_rate
+        log(f"voicevox: audio_query done in {_time.time()-t0:.1f}s")
         # 3) synthesis で WAV を生成
+        t1 = _time.time()
         s_url = f"{base}/synthesis?speaker={speaker_id}"
         s_req = urllib.request.Request(
             s_url, method="POST",
             headers={"Content-Type": "application/json", "Accept": "audio/wav"},
             data=json.dumps(query).encode("utf-8"),
         )
-        with urllib.request.urlopen(s_req, timeout=180) as resp:
+        with urllib.request.urlopen(s_req, timeout=600) as resp:
             wav_bytes = resp.read()
+        log(f"voicevox: synthesis done in {_time.time()-t1:.1f}s ({len(wav_bytes)/1024:.0f} KB WAV)")
         if not wav_bytes:
             return None
-        # 4) WAV → MP3 変換（GitHub Actions ランナーには ffmpeg プリインストール）
-        return _wav_to_mp3(wav_bytes)
+        # 4) WAV → MP3 変換（ffmpeg は workflow で apt install 済み）
+        t2 = _time.time()
+        mp3 = _wav_to_mp3(wav_bytes)
+        log(f"voicevox: wav→mp3 done in {_time.time()-t2:.1f}s ({len(mp3)/1024 if mp3 else 0:.0f} KB MP3)")
+        return mp3
     except Exception as e:
         log(f"voicevox tts error: {e}")
         return None
