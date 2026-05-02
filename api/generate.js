@@ -28,6 +28,37 @@ export default async function handler(req, res) {
       body.max_tokens = MAX_TOKENS_CAP;
     }
 
+    // Server-side prompt caching: auto-stamp cache_control on long system
+    // prompts and on the last user message in multi-turn chats. This makes
+    // every /api/generate caller (Prompt Maker chat, Writing Checker, etc.)
+    // benefit transparently — no client-side change required.
+    //
+    // Thresholds:
+    // - System ≥ 8000 chars (~2000 tokens) clears Sonnet's 2048-token minimum
+    //   cacheable prefix. Smaller prefixes silently no-op (no cache write
+    //   premium charged), so this is a safe default.
+    // - Multi-turn messages (length ≥ 2) means the conversation prefix is
+    //   reusable across turns. Single-shot calls skip caching to avoid the
+    //   1.25× write premium with no read.
+    if (typeof body.system === 'string' && body.system.length >= 8000) {
+      body.system = [
+        { type: 'text', text: body.system, cache_control: { type: 'ephemeral' } },
+      ];
+    }
+    if (Array.isArray(body.messages) && body.messages.length >= 2) {
+      const lastIdx = body.messages.length - 1;
+      const last = body.messages[lastIdx];
+      if (last && typeof last.content === 'string') {
+        body.messages = body.messages.slice();
+        body.messages[lastIdx] = {
+          ...last,
+          content: [
+            { type: 'text', text: last.content, cache_control: { type: 'ephemeral' } },
+          ],
+        };
+      }
+    }
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
