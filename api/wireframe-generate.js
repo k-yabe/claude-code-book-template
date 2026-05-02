@@ -1,5 +1,29 @@
 import { mapAnthropicError } from './_anthropic-error.js';
 
+// Multi-turn chat helper: stamp cache_control on the last user message so the
+// growing conversation prefix is read at ~10% cost on subsequent turns.
+function withCachedLastMessage(messages) {
+  if (!Array.isArray(messages) || messages.length === 0) return messages;
+  const out = messages.slice();
+  const i = out.length - 1;
+  const last = out[i];
+  if (!last) return out;
+  if (typeof last.content === 'string') {
+    out[i] = {
+      ...last,
+      content: [{ type: 'text', text: last.content, cache_control: { type: 'ephemeral' } }],
+    };
+  } else if (Array.isArray(last.content) && last.content.length > 0) {
+    const blocks = last.content.slice();
+    const lb = blocks[blocks.length - 1];
+    if (lb && typeof lb === 'object') {
+      blocks[blocks.length - 1] = { ...lb, cache_control: { type: 'ephemeral' } };
+      out[i] = { ...last, content: blocks };
+    }
+  }
+  return out;
+}
+
 const SYSTEM_PROMPT = `あなたはWebページのワイヤーフレーム設計の世界最高峰の専門家です。
 ユーザーの要件をもとに、ページのセクション構成をJSONで返してください。
 
@@ -481,7 +505,9 @@ export default async function handler(req, res) {
           // CHAT_SYSTEM_PROMPT is large and reused across every chat turn — cache
           // it so repeated calls only pay ~10% for the prefix.
           system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
-          messages,
+          // Cache the conversation prefix too — on turn N+1 the prior turns
+          // (including any importedContent ~5K tokens) read from cache.
+          messages: withCachedLastMessage(messages),
         }),
       });
 
