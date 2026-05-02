@@ -149,7 +149,7 @@ async function handleFactcheck(req, res) {
         tools: [{
           type: 'web_search_20250305',
           name: 'web_search',
-          max_uses: 3,
+          max_uses: 2,
           user_location: { type: 'approximate', country: 'JP', timezone: 'Asia/Tokyo' },
         }],
       }),
@@ -526,7 +526,7 @@ async function handleGenerate(req, res) {
           tools: [{
             type: 'web_search_20250305',
             name: 'web_search',
-            max_uses: 3,
+            max_uses: 2,
             user_location: { type: 'approximate', country: 'JP', timezone: 'Asia/Tokyo' },
           }],
         }),
