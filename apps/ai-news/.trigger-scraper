@@ -1,1 +1,1 @@
-Trigger: 2026-05-02T18:30 JST - VOICEVOX timeout 20分拡張 + 合成最適化 (text 4800→2400, sr 24k→16k) 後の再試行
+Trigger: 2026-05-02T19:00 JST - VOICEVOX warmup synthesis 追加でモデル lazy loading 問題を解消
