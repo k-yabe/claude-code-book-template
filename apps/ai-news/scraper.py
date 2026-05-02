@@ -1679,8 +1679,102 @@ def generate_tts_mp3(text: str) -> bytes | None:
 _VOICEVOX_LAST_ERROR: str | None = None  # 直近の VOICEVOX 失敗理由（debug.json 用）
 
 
+def _split_text_for_tts(text: str, max_chunk_chars: int) -> list[str]:
+    """日本語句点（「。」「！」「？」）で文を区切り、`max_chunk_chars` 以下の
+    チャンクにまとめる。長文を一発合成するとメモリピークで VOICEVOX engine が
+    OOM kill されるため、短い単位に分けて順次合成 → 後で WAV を結合する。"""
+    text = (text or "").strip()
+    if not text:
+        return []
+    # 句点直後で分割（「。」「！」「？」を保持）
+    sentences: list[str] = []
+    cur = ""
+    for ch in text:
+        cur += ch
+        if ch in ("。", "！", "？", "\n"):
+            s = cur.strip()
+            if s:
+                sentences.append(s)
+            cur = ""
+    if cur.strip():
+        sentences.append(cur.strip())
+    # max_chunk_chars 以下の塊にまとめ直す
+    chunks: list[str] = []
+    buf = ""
+    for s in sentences:
+        if buf and len(buf) + len(s) > max_chunk_chars:
+            chunks.append(buf)
+            buf = s
+        else:
+            buf = (buf + s) if not buf else (buf + s)
+    if buf:
+        chunks.append(buf)
+    return chunks
+
+
+def _voicevox_synthesize_one(base: str, speaker_id: int, text: str,
+                              speed: float, pitch: float, sr: int) -> bytes | None:
+    """1 チャンクだけ /audio_query → /synthesis を実行して WAV bytes を返す。
+    失敗時は _VOICEVOX_LAST_ERROR をセットして None。"""
+    global _VOICEVOX_LAST_ERROR
+    import urllib.request
+    import urllib.parse
+    try:
+        q_url = f"{base}/audio_query?speaker={speaker_id}&text={urllib.parse.quote(text)}"
+        with urllib.request.urlopen(urllib.request.Request(q_url, method="POST"), timeout=60) as resp:
+            query = json.loads(resp.read())
+    except Exception as e:
+        _VOICEVOX_LAST_ERROR = f"audio_query[{len(text)}c]: {type(e).__name__}: {e}"
+        return None
+    query["speedScale"] = speed
+    query["pitchScale"] = pitch
+    query["outputSamplingRate"] = sr
+    try:
+        s_req = urllib.request.Request(
+            f"{base}/synthesis?speaker={speaker_id}", method="POST",
+            headers={"Content-Type": "application/json", "Accept": "audio/wav"},
+            data=json.dumps(query).encode("utf-8"),
+        )
+        with urllib.request.urlopen(s_req, timeout=300) as resp:
+            return resp.read()
+    except Exception as e:
+        _VOICEVOX_LAST_ERROR = f"synthesis[{len(text)}c]: {type(e).__name__}: {e}"
+        return None
+
+
+def _concat_wavs(wav_list: list[bytes]) -> bytes | None:
+    """同一 sample rate / channels の WAV bytes を python wave モジュールで結合。
+    ffmpeg 不要で完結する。"""
+    global _VOICEVOX_LAST_ERROR
+    if not wav_list:
+        return None
+    if len(wav_list) == 1:
+        return wav_list[0]
+    try:
+        import io
+        import wave
+        out = io.BytesIO()
+        with wave.open(out, "wb") as w_out:
+            params_set = False
+            for wav_bytes in wav_list:
+                if not wav_bytes:
+                    continue
+                with wave.open(io.BytesIO(wav_bytes), "rb") as w_in:
+                    if not params_set:
+                        w_out.setparams(w_in.getparams())
+                        params_set = True
+                    w_out.writeframes(w_in.readframes(w_in.getnframes()))
+        return out.getvalue()
+    except Exception as e:
+        _VOICEVOX_LAST_ERROR = f"concat_wavs: {type(e).__name__}: {e}"
+        return None
+
+
 def _generate_tts_voicevox(text: str, base_url: str) -> bytes | None:
     """VOICEVOX エンジン経由で日本語 WAV を生成し、ffmpeg で MP3 に変換して返す。
+
+    長文を一気に合成するとメモリピークで engine が OOM kill されるため、
+    句点単位で 600字程度のチャンクに分割し、順次合成して WAV を結合する。
 
     話者 ID は VOICEVOX_SPEAKER_ID で上書き可（デフォルト 13 = 青山龍星・ノーマル）。
     主要な落ち着き系話者:
@@ -1694,57 +1788,44 @@ def _generate_tts_voicevox(text: str, base_url: str) -> bytes | None:
     speaker_id = int(os.environ.get("VOICEVOX_SPEAKER_ID", "13") or "13")
     speed = float(os.environ.get("VOICEVOX_SPEED", "0.97") or "0.97")
     pitch = float(os.environ.get("VOICEVOX_PITCH", "0.0") or "0.0")
-    # CPU 合成は重いので 2,400 字（約 2 分の音声）でカット。GitHub Actions の 20 分予算に収める。
+    # 全体テキストの上限。デフォルト 2,400 字（約 2 分）。
     max_chars = int(os.environ.get("VOICEVOX_MAX_CHARS", "2400") or "2400")
+    # 1 チャンクの最大文字数。CPU エンジンの OOM kill を避けるため小さめに。
+    chunk_chars = int(os.environ.get("VOICEVOX_CHUNK_CHARS", "600") or "600")
     # 24kHz → 16kHz でスピーチには十分、CPU 合成が約 30% 速い。
     sampling_rate = int(os.environ.get("VOICEVOX_SAMPLING_RATE", "16000") or "16000")
-    safe_text = text[:max_chars]
+    safe_text = (text or "")[:max_chars]
     base = base_url.rstrip("/")
-    log(f"voicevox: speaker={speaker_id} chars={len(safe_text)} sr={sampling_rate} speed={speed}")
-    import urllib.request
-    import urllib.parse
+    chunks = _split_text_for_tts(safe_text, chunk_chars)
+    if not chunks:
+        _VOICEVOX_LAST_ERROR = "split: empty after split"
+        return None
+    log(f"voicevox: speaker={speaker_id} total_chars={len(safe_text)} "
+        f"chunks={len(chunks)} (max {chunk_chars}/chunk) sr={sampling_rate} speed={speed}")
     import time as _time
-    # 1) audio_query で合成パラメータを取得
-    try:
+    wav_parts: list[bytes] = []
+    t_total = _time.time()
+    for idx, chunk in enumerate(chunks, 1):
         t0 = _time.time()
-        q_url = f"{base}/audio_query?speaker={speaker_id}&text={urllib.parse.quote(safe_text)}"
-        with urllib.request.urlopen(urllib.request.Request(q_url, method="POST"), timeout=60) as resp:
-            query = json.loads(resp.read())
-        log(f"voicevox: audio_query done in {_time.time()-t0:.1f}s")
-    except Exception as e:
-        _VOICEVOX_LAST_ERROR = f"audio_query: {type(e).__name__}: {e}"
-        log(f"voicevox audio_query error: {e}")
+        wav = _voicevox_synthesize_one(base, speaker_id, chunk, speed, pitch, sampling_rate)
+        if not wav:
+            log(f"voicevox: chunk {idx}/{len(chunks)} FAILED ({_VOICEVOX_LAST_ERROR})")
+            return None
+        log(f"voicevox: chunk {idx}/{len(chunks)} done in {_time.time()-t0:.1f}s "
+            f"({len(chunk)}c → {len(wav)/1024:.0f}KB WAV)")
+        wav_parts.append(wav)
+    log(f"voicevox: all {len(chunks)} chunks done in {_time.time()-t_total:.1f}s")
+    # 結合
+    merged_wav = _concat_wavs(wav_parts)
+    if not merged_wav:
         return None
-    # 2) 速度・ピッチ・サンプリングレートを上書き
-    query["speedScale"] = speed
-    query["pitchScale"] = pitch
-    query["outputSamplingRate"] = sampling_rate
-    # 3) synthesis で WAV を生成
-    try:
-        t1 = _time.time()
-        s_url = f"{base}/synthesis?speaker={speaker_id}"
-        s_req = urllib.request.Request(
-            s_url, method="POST",
-            headers={"Content-Type": "application/json", "Accept": "audio/wav"},
-            data=json.dumps(query).encode("utf-8"),
-        )
-        with urllib.request.urlopen(s_req, timeout=600) as resp:
-            wav_bytes = resp.read()
-        log(f"voicevox: synthesis done in {_time.time()-t1:.1f}s ({len(wav_bytes)/1024:.0f} KB WAV)")
-    except Exception as e:
-        _VOICEVOX_LAST_ERROR = f"synthesis: {type(e).__name__}: {e}"
-        log(f"voicevox synthesis error: {e}")
-        return None
-    if not wav_bytes:
-        _VOICEVOX_LAST_ERROR = "synthesis: empty WAV"
-        return None
-    # 4) WAV → MP3 変換（ffmpeg は workflow で apt install 済み）
-    t2 = _time.time()
-    mp3 = _wav_to_mp3(wav_bytes)
+    log(f"voicevox: merged WAV = {len(merged_wav)/1024:.0f} KB")
+    # MP3 化
+    t_mp3 = _time.time()
+    mp3 = _wav_to_mp3(merged_wav)
     if mp3 is None:
-        _VOICEVOX_LAST_ERROR = _VOICEVOX_LAST_ERROR or "wav_to_mp3: returned None"
         return None
-    log(f"voicevox: wav→mp3 done in {_time.time()-t2:.1f}s ({len(mp3)/1024:.0f} KB MP3)")
+    log(f"voicevox: wav→mp3 done in {_time.time()-t_mp3:.1f}s ({len(mp3)/1024:.0f} KB MP3)")
     return mp3
 
 
