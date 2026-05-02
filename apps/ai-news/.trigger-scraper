@@ -1,1 +1,1 @@
-Trigger: 2026-05-02T20:00 JST - VOICEVOX 失敗理由を debug.json.audio.voicevoxError に詳細出力
+Trigger: 2026-05-02T20:30 JST - VOICEVOX を句点単位で chunk 分割合成 + WAV 結合に変更（OOM kill 回避）
