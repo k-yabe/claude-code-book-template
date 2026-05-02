@@ -71,13 +71,13 @@ jobs:
               print("::warning::voicevox /version did not respond within 240s")
               sys.exit(2)
           # ウォームアップ合成
-          print("warming up speaker=13 ('テスト')...")
+          print("warming up speaker=23 ('テスト')...")
           t0 = time.time()
           try:
-              q_url = base + "/audio_query?speaker=13&text=%E3%83%86%E3%82%B9%E3%83%88"
+              q_url = base + "/audio_query?speaker=23&text=%E3%83%86%E3%82%B9%E3%83%88"
               q = json.loads(urllib.request.urlopen(urllib.request.Request(q_url, method="POST"), timeout=60).read())
               s_req = urllib.request.Request(
-                  base + "/synthesis?speaker=13",
+                  base + "/synthesis?speaker=23",
                   method="POST",
                   headers={"Content-Type": "application/json", "Accept": "audio/wav"},
                   data=json.dumps(q).encode("utf-8"),

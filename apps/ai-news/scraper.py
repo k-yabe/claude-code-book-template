@@ -1644,7 +1644,7 @@ def naturalize_japanese_tts_script(s: str) -> str:
 
 def generate_tts_mp3(text: str) -> bytes | None:
     """日本語 MP3 を生成。優先順位:
-    1. VOICEVOX (デフォルト: 青山龍星・ノーマル) — 完全無料・登録不要・日本語ネイティブ。
+    1. VOICEVOX (デフォルト: WhiteCUL・ノーマル) — 完全無料・登録不要・日本語ネイティブ。
        GitHub Actions ランナー上で Docker engine を起動して使う想定。
        ライセンス: 各話者の利用規約に従い、UI に「VOICEVOX:[キャラ名]」のクレジット表記が必要。
     2. Azure AI Speech (ja-JP-NanamiNeural, customerservice style) — F0 無料 tier で月50万字無料。
@@ -1776,16 +1776,17 @@ def _generate_tts_voicevox(text: str, base_url: str) -> bytes | None:
     長文を一気に合成するとメモリピークで engine が OOM kill されるため、
     句点単位で 600字程度のチャンクに分割し、順次合成して WAV を結合する。
 
-    話者 ID は VOICEVOX_SPEAKER_ID で上書き可（デフォルト 13 = 青山龍星・ノーマル）。
+    話者 ID は VOICEVOX_SPEAKER_ID で上書き可（デフォルト 23 = WhiteCUL・ノーマル）。
     主要な落ち着き系話者:
-      13 = 青山龍星（ノーマル, 男性, ニュースアンカー向き）
+      23 = WhiteCUL（ノーマル, 女性, 女子アナ風で聞き心地◎）← デフォルト
       29 = No.7（ノーマル, 中性女性）
-      23 = WhiteCUL（ノーマル, 女性）
+      13 = 青山龍星（ノーマル, 男性, ニュースアンカー向き）
+      16 = 九州そら（ノーマル, 女性, しっかりした朗読）
       20 = もち子さん（ノーマル, 女性）
     speedScale / pitchScale で速度・ピッチも調整可（VOICEVOX_SPEED, VOICEVOX_PITCH）。
     """
     global _VOICEVOX_LAST_ERROR
-    speaker_id = int(os.environ.get("VOICEVOX_SPEAKER_ID", "13") or "13")
+    speaker_id = int(os.environ.get("VOICEVOX_SPEAKER_ID", "23") or "23")
     speed = float(os.environ.get("VOICEVOX_SPEED", "0.97") or "0.97")
     pitch = float(os.environ.get("VOICEVOX_PITCH", "0.0") or "0.0")
     # 全体テキストの上限。デフォルト 2,400 字（約 2 分）。

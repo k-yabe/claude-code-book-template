@@ -24,6 +24,9 @@
   <link rel="stylesheet" href="../../assets/app-styles.css?v=20260501">
   <!-- LCP/TBT 改善: news.json をプリフェッチして JS の loadRemote() が即座に解決するようにする -->
   <link rel="preload" as="fetch" href="./data/news.json" crossorigin="anonymous">
+  <!-- 音声ダイジェスト MP3 を HTML パース中から並列フェッチして「準備中」表示を最短化。
+       JS の tryStaticAudio() が走る頃にはブラウザキャッシュにのっているのでネットワーク追加 0。 -->
+  <link rel="preload" as="audio" href="./data/audio/latest.mp3">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <link rel="stylesheet" href="./styles.css?v=20260502">
@@ -223,7 +226,7 @@
         </div>
         <div class="dn-item">
           <div class="dn-label">音声ダイジェスト</div>
-          <div class="dn-value">VOICEVOX:青山龍星（無料・登録不要）→ Azure Nanami → ElevenLabs → OpenAI フォールバック</div>
+          <div class="dn-value">VOICEVOX:WhiteCUL（無料・登録不要・女子アナ風）→ Azure Nanami → ElevenLabs → OpenAI フォールバック</div>
         </div>
         <div class="dn-item">
           <div class="dn-label">フォールバック</div>
@@ -232,7 +235,7 @@
       </div>
       <!-- Powered by / 更新タイムスタンプ / バージョン -->
       <div class="data-note-foot">
-        <span class="data-foot-brand">Powered by <strong>Anthropic Claude</strong> × <strong>VOICEVOX:青山龍星</strong></span>
+        <span class="data-foot-brand">Powered by <strong>Anthropic Claude</strong> × <strong>VOICEVOX:WhiteCUL</strong></span>
         <span class="data-foot-sep" aria-hidden="true">·</span>
         <span class="data-foot-updated">最終更新 <span id="foot-updated">—</span></span>
         <span class="data-foot-sep" aria-hidden="true">·</span>
@@ -297,8 +300,8 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '05/02', text: '🆓 音声ダイジェストを完全無料・登録不要の VOICEVOX:青山龍星（ノーマル）に切替：GitHub Actions ランナー上で voicevox_engine の Docker コンテナを起動して、scraper.py から localhost:50021 で音声合成。Azure / ElevenLabs / OpenAI のような外部 API キー不要で、月額 ¥0 で日本語ネイティブの落ち着いた男性ニュースアンカー声が手に入る。話者は VOICEVOX_SPEAKER_ID 環境変数で No.7 / WhiteCUL / もち子さん 等にも切替可。VOICEVOX が起動しない・失敗した日には Azure Nanami → ElevenLabs → OpenAI にフォールバック' },
-        { date: '05/02', text: '🎙 音声ダイジェストの第2優先として Azure AI Speech ja-JP-NanamiNeural（customerservice スタイル）を追加。AZURE_SPEECH_KEY + AZURE_SPEECH_REGION が設定されている環境では VOICEVOX に次ぐバックアップとして使われる' },
+        { date: '05/02', text: '🎀 音声ダイジェストの声を女子アナ風 VOICEVOX:WhiteCUL（ノーマル）に変更：聞き心地の良い落ち着いた女性声で AI NEWS の朝ブリーフィングに最適。HTML に <link rel="preload" as="audio"> も追加して MP3 を JS 起動前から並列フェッチ、「準備中」表示が一瞬で「再生」に切り替わるように高速化。古い MP3 がブラウザキャッシュから返る問題も日付クエリ (?v=YYYY-MM-DD) で解消' },
+        { date: '05/02', text: '🆓 音声ダイジェストを完全無料・登録不要の VOICEVOX 経路に切替：GitHub Actions ランナー上で voicevox_engine の Docker コンテナを起動して、scraper.py が localhost:50021 で音声合成。長文を句点単位の chunk に分割合成 → WAV 結合してメモリピークを下げ engine 安定動作。VOICEVOX_SPEAKER_ID で話者切替可' },
         { date: '05/02', text: '📋 「今日の3行サマリー」の下に巨大な空きスペースが残るレイアウト崩れを修正：CLS 対策の min-height がそのまま残ってボックスが 450px 固定になっていたのを、空のとき限定の控えめな min-height に置き換え。PC グリッドにも align-items:start を追加して列の間延びを解消' }
       ]
     });
