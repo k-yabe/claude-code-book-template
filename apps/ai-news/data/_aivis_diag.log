@@ -1,0 +1,84 @@
+=== run started: 2026-05-02T13:31:30Z ===
+--- docker pull ---
+cpu-1.2.0: Pulling from aivis-project/aivisspeech-engine
+f63eb04151bc: Pulling fs layer
+60ee495033f4: Pulling fs layer
+30b475829855: Pulling fs layer
+297d5110f49e: Pulling fs layer
+4d6881450eb7: Pulling fs layer
+bccbeedc1e47: Pulling fs layer
+7223b7582e31: Pulling fs layer
+90cb7e5b83fb: Pulling fs layer
+1cbdc67c2091: Pulling fs layer
+2a13eb4c7f0e: Pulling fs layer
+e39eb6482b1a: Pulling fs layer
+083b638b9a1f: Pulling fs layer
+028fc28095d3: Pulling fs layer
+ca8649090c90: Pulling fs layer
+1df653e93324: Pulling fs layer
+1cbdc67c2091: Waiting
+2a13eb4c7f0e: Waiting
+e39eb6482b1a: Waiting
+083b638b9a1f: Waiting
+028fc28095d3: Waiting
+ca8649090c90: Waiting
+1df653e93324: Waiting
+bccbeedc1e47: Waiting
+297d5110f49e: Waiting
+7223b7582e31: Waiting
+4d6881450eb7: Waiting
+90cb7e5b83fb: Waiting
+60ee495033f4: Verifying Checksum
+60ee495033f4: Download complete
+f63eb04151bc: Verifying Checksum
+f63eb04151bc: Download complete
+4d6881450eb7: Verifying Checksum
+4d6881450eb7: Download complete
+f63eb04151bc: Pull complete
+30b475829855: Verifying Checksum
+30b475829855: Download complete
+7223b7582e31: Verifying Checksum
+7223b7582e31: Download complete
+90cb7e5b83fb: Verifying Checksum
+90cb7e5b83fb: Download complete
+297d5110f49e: Verifying Checksum
+297d5110f49e: Download complete
+1cbdc67c2091: Verifying Checksum
+1cbdc67c2091: Download complete
+e39eb6482b1a: Verifying Checksum
+e39eb6482b1a: Download complete
+60ee495033f4: Pull complete
+083b638b9a1f: Verifying Checksum
+083b638b9a1f: Download complete
+028fc28095d3: Verifying Checksum
+028fc28095d3: Download complete
+ca8649090c90: Verifying Checksum
+ca8649090c90: Download complete
+2a13eb4c7f0e: Verifying Checksum
+2a13eb4c7f0e: Download complete
+1df653e93324: Verifying Checksum
+1df653e93324: Download complete
+30b475829855: Pull complete
+297d5110f49e: Pull complete
+4d6881450eb7: Pull complete
+bccbeedc1e47: Verifying Checksum
+bccbeedc1e47: Download complete
+bccbeedc1e47: Pull complete
+7223b7582e31: Pull complete
+90cb7e5b83fb: Pull complete
+1cbdc67c2091: Pull complete
+2a13eb4c7f0e: Pull complete
+e39eb6482b1a: Pull complete
+083b638b9a1f: Pull complete
+028fc28095d3: Pull complete
+ca8649090c90: Pull complete
+1df653e93324: Pull complete
+Digest: sha256:5799c94c3594501be80eeda62106f15439a858c1630d25d1385576581433b192
+Status: Downloaded newer image for ghcr.io/aivis-project/aivisspeech-engine:cpu-1.2.0
+ghcr.io/aivis-project/aivisspeech-engine:cpu-1.2.0
+--- docker pull exit=0 ---
+7f828a22451c27c2ea430b88f9f31a274f01fbc5aae7fc0e84b2a3bd5a7ec05e
+--- docker run exit=0 ---
+--- python warmup ---
+aivisspeech /version OK after 24s
+::warning::Anneli not found in speakers (2 entries)
