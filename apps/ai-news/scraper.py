@@ -1944,20 +1944,29 @@ def main() -> int:
 
     # ── 音声ダイジェストを事前生成（GitHub Actions 実行時のみ） ──
     if os.environ.get("SKIP_AUDIO", "").strip() != "1":
+        debug_stats["audio"] = {
+            "voicevoxBaseUrl": os.environ.get("VOICEVOX_BASE_URL", ""),
+            "azureKeySet": bool(os.environ.get("AZURE_SPEECH_KEY", "").strip()),
+            "elevenKeySet": bool(os.environ.get("ELEVENLABS_API_KEY", "").strip()),
+        }
         mustknow = [x for x in items if x.get("urgency") == "must_know"][:2]
         thisweek = [x for x in items if x.get("urgency") == "this_week"][:6]
         log("generating digest script...")
         script = generate_digest_script(exec_summary, mustknow, thisweek)
         if script:
             log(f"digest script: {len(script)} chars")
+            debug_stats["audio"]["scriptChars"] = len(script)
             log("generating TTS MP3 (VOICEVOX → Azure → ElevenLabs → OpenAI fallback)...")
             mp3 = generate_tts_mp3(script)
             if mp3:
                 save_audio(mp3, script)
+                debug_stats["audio"]["mp3Bytes"] = len(mp3)
             else:
                 log("tts generation failed; static audio not saved")
+                debug_stats["audio"]["error"] = "all_tts_paths_failed"
         else:
             log("digest script generation failed; skipping audio")
+            debug_stats["audio"]["error"] = "digest_script_empty"
 
     debug_stats["durationSec"] = round(time.time() - started, 1)
     _write_debug_stats(debug_stats)

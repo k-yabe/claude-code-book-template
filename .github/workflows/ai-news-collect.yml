@@ -49,47 +49,57 @@ jobs:
 
       - name: Start VOICEVOX engine (CPU) and warmup synthesis
         # 完全無料・登録不要の日本語ネイティブ TTS。
-        # /version は速く返るがモデル loading は初回 synthesis で lazy に走るため
-        # ここで短文ウォームアップ合成までやってから次のステップに渡す。
+        # /version は速く返るがモデル loading は初回 synthesis で lazy に走るため、
+        # Python で /version 待機 + ウォームアップ合成までやってから VOICEVOX_OK を export。
         run: |
-          set -euxo pipefail
           docker run -d --rm \
             --name voicevox \
             -p 127.0.0.1:50021:50021 \
             voicevox/voicevox_engine:cpu-latest
-          # 1) /version が 200 を返すまで最大 180 秒待つ
-          ready=0
-          for i in $(seq 1 90); do
-            if curl -fsS --max-time 2 http://127.0.0.1:50021/version >/dev/null 2>&1; then
-              echo "voicevox /version OK after ${i}x2s"
-              ready=1
-              break
-            fi
-            sleep 2
-          done
-          if [ "$ready" != "1" ]; then
-            echo "::warning::voicevox /version did not respond within 180s; falling back to other TTS"
-            docker logs voicevox 2>&1 | tail -30 || true
-            echo "VOICEVOX_OK=0" >> "$GITHUB_ENV"
-            exit 0
-          fi
-          # 2) ウォームアップ合成（短文で青山龍星モデルをロード、これで以降の合成が速くなる）
-          echo "warming up voicevox (speaker=13, short text)..."
-          QUERY=$(curl -fsS --max-time 30 -X POST \
-            "http://127.0.0.1:50021/audio_query?speaker=13&text=%E3%83%86%E3%82%B9%E3%83%88") \
-            || { echo "::warning::audio_query failed"; echo "VOICEVOX_OK=0" >> "$GITHUB_ENV"; exit 0; }
-          curl -fsS --max-time 120 -X POST \
-            "http://127.0.0.1:50021/synthesis?speaker=13" \
-            -H "Content-Type: application/json" \
-            -d "$QUERY" \
-            -o /tmp/voicevox-warmup.wav \
-            || { echo "::warning::warmup synthesis failed"; echo "VOICEVOX_OK=0" >> "$GITHUB_ENV"; exit 0; }
-          if [ -s /tmp/voicevox-warmup.wav ]; then
-            echo "voicevox warmup OK ($(wc -c < /tmp/voicevox-warmup.wav) bytes WAV)"
+          python3 - <<'PY' || warmup_status=$?
+          import json, sys, time, urllib.request
+          base = "http://127.0.0.1:50021"
+          # /version 待機
+          for i in range(120):
+              try:
+                  urllib.request.urlopen(base + "/version", timeout=2).read()
+                  print(f"voicevox /version OK after {i*2}s")
+                  break
+              except Exception:
+                  time.sleep(2)
+          else:
+              print("::warning::voicevox /version did not respond within 240s")
+              sys.exit(2)
+          # ウォームアップ合成
+          print("warming up speaker=13 ('テスト')...")
+          t0 = time.time()
+          try:
+              q_url = base + "/audio_query?speaker=13&text=%E3%83%86%E3%82%B9%E3%83%88"
+              q = json.loads(urllib.request.urlopen(urllib.request.Request(q_url, method="POST"), timeout=60).read())
+              s_req = urllib.request.Request(
+                  base + "/synthesis?speaker=13",
+                  method="POST",
+                  headers={"Content-Type": "application/json", "Accept": "audio/wav"},
+                  data=json.dumps(q).encode("utf-8"),
+              )
+              wav = urllib.request.urlopen(s_req, timeout=300).read()
+              if not wav or len(wav) < 1000:
+                  print(f"::warning::warmup WAV too small: {len(wav)} bytes")
+                  sys.exit(3)
+              print(f"voicevox warmup OK: {len(wav)} bytes WAV in {time.time()-t0:.1f}s")
+              sys.exit(0)
+          except Exception as e:
+              print(f"::warning::warmup synthesis failed: {e}")
+              sys.exit(4)
+          PY
+          warmup_status=${warmup_status:-0}
+          if [ "$warmup_status" -eq 0 ]; then
             echo "VOICEVOX_OK=1" >> "$GITHUB_ENV"
+            echo "voicevox is ready for scraper"
           else
-            echo "::warning::warmup WAV is empty; falling back"
             echo "VOICEVOX_OK=0" >> "$GITHUB_ENV"
+            echo "voicevox warmup failed (status=$warmup_status); will fall back"
+            docker logs voicevox 2>&1 | tail -40 || true
           fi
         continue-on-error: true
 
