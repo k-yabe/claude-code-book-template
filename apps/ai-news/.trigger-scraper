@@ -1,1 +1,1 @@
-Trigger: 2026-05-02T22:30 JST - AivisSpeech docker tag を cpu-latest → cpu-1.2.0 に修正
+Trigger: 2026-05-02T23:00 JST - AivisSpeech timeout 20→30min + max_chars 2400→1500
