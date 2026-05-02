@@ -223,7 +223,7 @@
         </div>
         <div class="dn-item">
           <div class="dn-label">音声ダイジェスト</div>
-          <div class="dn-value">Azure Nanami（日本語ネイティブ）→ ElevenLabs → OpenAI フォールバック</div>
+          <div class="dn-value">VOICEVOX:青山龍星（無料・登録不要）→ Azure Nanami → ElevenLabs → OpenAI フォールバック</div>
         </div>
         <div class="dn-item">
           <div class="dn-label">フォールバック</div>
@@ -232,7 +232,7 @@
       </div>
       <!-- Powered by / 更新タイムスタンプ / バージョン -->
       <div class="data-note-foot">
-        <span class="data-foot-brand">Powered by <strong>Anthropic Claude</strong> × <strong>Azure Speech (Nanami)</strong></span>
+        <span class="data-foot-brand">Powered by <strong>Anthropic Claude</strong> × <strong>VOICEVOX:青山龍星</strong></span>
         <span class="data-foot-sep" aria-hidden="true">·</span>
         <span class="data-foot-updated">最終更新 <span id="foot-updated">—</span></span>
         <span class="data-foot-sep" aria-hidden="true">·</span>
@@ -297,9 +297,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '05/02', text: '🎙 音声ダイジェストを日本語ネイティブ音声に切替：Azure AI Speech の ja-JP-NanamiNeural（customerservice スタイル）を第1優先に追加。これまでの ElevenLabs Sarah / OpenAI shimmer は英語ネイティブ声優の多言語化で日本語アクセントに微妙な英語訛りが残っていたが、Nanami は日本人ネイティブ収録で、ニュースアンカー的な落ち着いた professional トーンが出せる。AZURE_SPEECH_KEY + AZURE_SPEECH_REGION が設定されている時のみ有効、未設定なら従来の ElevenLabs → OpenAI にフォールバック' },
-        { date: '05/02', text: '📋 「今日の3行サマリー」の下に巨大な空きスペースが残るレイアウト崩れを修正：CLS 対策の min-height がそのまま残ってボックスが 450px 固定になっていたのを、空のとき限定の控えめな min-height に置き換え。PC グリッドにも align-items:start を追加して列の間延びを解消' },
-        { date: '04/29', text: '🩹 スクロール時に navbar (📰 AI NEWS ロゴ) が消える視覚バグを修正：more-toolbar が sticky top:0 z:30 で navbar を覆い隠していた問題を Playwright で発見。top:113px / z:8 にして navbar+cmd-bar の下にスタック。モバイルは sticky 無効化で本文に画面を譲る' }
+        { date: '05/02', text: '🆓 音声ダイジェストを完全無料・登録不要の VOICEVOX:青山龍星（ノーマル）に切替：GitHub Actions ランナー上で voicevox_engine の Docker コンテナを起動して、scraper.py から localhost:50021 で音声合成。Azure / ElevenLabs / OpenAI のような外部 API キー不要で、月額 ¥0 で日本語ネイティブの落ち着いた男性ニュースアンカー声が手に入る。話者は VOICEVOX_SPEAKER_ID 環境変数で No.7 / WhiteCUL / もち子さん 等にも切替可。VOICEVOX が起動しない・失敗した日には Azure Nanami → ElevenLabs → OpenAI にフォールバック' },
+        { date: '05/02', text: '🎙 音声ダイジェストの第2優先として Azure AI Speech ja-JP-NanamiNeural（customerservice スタイル）を追加。AZURE_SPEECH_KEY + AZURE_SPEECH_REGION が設定されている環境では VOICEVOX に次ぐバックアップとして使われる' },
+        { date: '05/02', text: '📋 「今日の3行サマリー」の下に巨大な空きスペースが残るレイアウト崩れを修正：CLS 対策の min-height がそのまま残ってボックスが 450px 固定になっていたのを、空のとき限定の控えめな min-height に置き換え。PC グリッドにも align-items:start を追加して列の間延びを解消' }
       ]
     });
 

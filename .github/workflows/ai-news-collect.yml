@@ -39,10 +39,45 @@ jobs:
       - name: Install dependencies
         run: pip install -r apps/ai-news/requirements.txt
 
+      - name: Install ffmpeg (VOICEVOX WAV → MP3 変換用)
+        # ubuntu-latest (24.04) には ffmpeg がプリインストールされていないため明示インストール。
+        # ~3-5 秒で完了。VOICEVOX の WAV 出力を MP3 に変換するためだけに使う。
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg
+          ffmpeg -version | head -1
+
+      - name: Start VOICEVOX engine (CPU)
+        # 完全無料・登録不要の日本語ネイティブ TTS。
+        # scraper.py が http://127.0.0.1:50021 を叩いて音声合成する。
+        # Docker image はランナーキャッシュに乗ることが多く、初回 60-90s / 2回目 20-30s 程度。
+        run: |
+          docker run -d --rm \
+            --name voicevox \
+            -p 127.0.0.1:50021:50021 \
+            voicevox/voicevox_engine:cpu-latest
+          # エンジンが /version を 200 で返すまで最大 90 秒待つ
+          for i in $(seq 1 45); do
+            if curl -fsS --max-time 2 http://127.0.0.1:50021/version >/dev/null 2>&1; then
+              echo "voicevox engine ready (after ${i}x2s)"
+              curl -s http://127.0.0.1:50021/version || true
+              echo
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::warning::voicevox engine did not respond within 90s; scraper will fall back to Azure/ElevenLabs/OpenAI"
+        continue-on-error: true
+
       - name: Collect & summarize & generate audio
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+          AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          # scraper 側のデフォルトと揃える。空でも害はない。
+          VOICEVOX_BASE_URL: http://127.0.0.1:50021
         run: |
           echo "::group::Python scraper output"
           python -u apps/ai-news/scraper.py
