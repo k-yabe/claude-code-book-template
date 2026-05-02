@@ -1,14 +1,21 @@
 {
-  "ranAt": "2026-05-01T23:44:01.684564+00:00",
+  "ranAt": "2026-05-02T09:50:13.658859+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": false,
   "sources": 63,
   "phase": "start",
-  "fetched_items": 29,
-  "summarizer": "fallback",
-  "anthropicError": "BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CacjpP9cdPY9Wg9zHaS4q'}",
-  "final_items": 29,
-  "competitor_items": 10,
+  "fetched_items": 16,
+  "summarizer": "anthropic_haiku",
+  "final_items": 16,
+  "competitor_items": 1,
   "x_highlights": 0,
-  "durationSec": 82.7
+  "audio": {
+    "voicevoxBaseUrl": "http://127.0.0.1:50021",
+    "azureKeySet": false,
+    "elevenKeySet": false,
+    "scriptChars": 1713,
+    "error": "all_tts_paths_failed",
+    "voicevoxError": "synthesis: RemoteDisconnected: Remote end closed connection without response"
+  },
+  "durationSec": 340.1
 }
