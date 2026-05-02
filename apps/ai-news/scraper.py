@@ -1644,17 +1644,22 @@ def naturalize_japanese_tts_script(s: str) -> str:
 
 def generate_tts_mp3(text: str) -> bytes | None:
     """日本語 MP3 を生成。優先順位:
-    1. AivisSpeech / VOICEVOX (デフォルト: AivisSpeech Anneli) — 完全無料・登録不要・
-       商用OK（クレジット表記不要）の日本語特化 TTS。Style-Bert-VITS2 ベースで
-       VOICEVOX よりプロアナウンサー級の自然さ。VOICEVOX とは API 互換のため、
-       環境変数 VOICEVOX_BASE_URL を切り替えるだけで使える。
-    2. Azure AI Speech (ja-JP-NanamiNeural, customerservice style) — F0 無料 tier で月50万字無料。
-    3. ElevenLabs eleven_multilingual_v2 — 表現力高いが英語声優の多言語化なので英語訛り残る。
-    4. OpenAI gpt-4o-mini-tts — 最後のフォールバック。
+    1. Google Cloud TTS (ja-JP-Neural2-B) — 月100万字まで完全無料、プロアナウンサー級。
+       要 GOOGLE_TTS_API_KEY 環境変数（GCP コンソールで作成）。最優先。
+    2. AivisSpeech / VOICEVOX (engine が動いた場合) — 完全無料・登録不要だが声優キャラ系。
+    3. Azure AI Speech (ja-JP-NanamiNeural, customerservice style) — F0 無料 tier で月50万字無料。
+    4. ElevenLabs eleven_multilingual_v2 — 表現力高いが英語声優の多言語化なので英語訛り残る。
+    5. OpenAI gpt-4o-mini-tts — 最後のフォールバック。
     """
     if not text:
         return None
     natural = naturalize_japanese_tts_script(text)
+    google_key = os.environ.get("GOOGLE_TTS_API_KEY", "").strip()
+    if google_key:
+        mp3 = _generate_tts_google(natural, google_key)
+        if mp3:
+            return mp3
+        log("Google TTS failed, falling back to VOICEVOX/AivisSpeech")
     voicevox_url = os.environ.get("VOICEVOX_BASE_URL", "").strip()
     if voicevox_url:
         mp3 = _generate_tts_voicevox(natural, voicevox_url)
@@ -1675,6 +1680,59 @@ def generate_tts_mp3(text: str) -> bytes | None:
             return mp3
         log("ElevenLabs TTS failed, falling back to OpenAI")
     return _generate_tts_openai(natural)
+
+
+def _generate_tts_google(text: str, api_key: str) -> bytes | None:
+    """Google Cloud TTS Neural2 で日本語ネイティブ女性ナレーター声を生成。
+    デフォルト ja-JP-Neural2-B（女性、ニュース朗読向き、プロアナウンサー収録）。
+
+    環境変数で上書き可:
+    - GOOGLE_TTS_VOICE         (default: ja-JP-Neural2-B)
+                               候補: ja-JP-Neural2-B (女性), ja-JP-Neural2-C (男性),
+                                    ja-JP-Neural2-D (男性),
+                                    ja-JP-Wavenet-A〜D (Wavenet 世代)
+    - GOOGLE_TTS_SPEAKING_RATE (default: 0.97 — やや落ち着き)
+    - GOOGLE_TTS_PITCH         (default: 0.0)
+
+    料金: Neural2 voices は月 100 万字まで完全無料 (Always Free)。
+    1日 2,000字 × 30日 = 月 6万字なら永久に¥0。
+    """
+    voice = os.environ.get("GOOGLE_TTS_VOICE", "ja-JP-Neural2-B").strip() or "ja-JP-Neural2-B"
+    speaking_rate = float(os.environ.get("GOOGLE_TTS_SPEAKING_RATE", "0.97") or "0.97")
+    pitch_st = float(os.environ.get("GOOGLE_TTS_PITCH", "0.0") or "0.0")
+    # Google は1リクエスト 5,000 bytes 上限 (UTF-8 換算で日本語 約 1,600 字)。
+    safe_text = text[:1600]
+    log(f"google_tts: voice={voice} chars={len(safe_text)} rate={speaking_rate}")
+    try:
+        import urllib.request
+        import urllib.parse
+        import base64
+        url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={urllib.parse.quote(api_key)}"
+        body = {
+            "input": {"text": safe_text},
+            "voice": {"languageCode": "ja-JP", "name": voice},
+            "audioConfig": {
+                "audioEncoding": "MP3",
+                "speakingRate": speaking_rate,
+                "pitch": pitch_st,
+                "sampleRateHertz": 24000,
+            },
+        }
+        req = urllib.request.Request(
+            url, method="POST",
+            headers={"Content-Type": "application/json; charset=utf-8"},
+            data=json.dumps(body).encode("utf-8"),
+        )
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            payload = json.loads(resp.read())
+        audio_b64 = payload.get("audioContent")
+        if not audio_b64:
+            log("google_tts: empty audioContent in response")
+            return None
+        return base64.b64decode(audio_b64)
+    except Exception as e:
+        log(f"google tts error: {e}")
+        return None
 
 
 _VOICEVOX_LAST_ERROR: str | None = None  # 直近の VOICEVOX 失敗理由（debug.json 用）

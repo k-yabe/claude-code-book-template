@@ -1,1 +1,1 @@
-Trigger: 2026-05-02T23:50 JST - AivisSpeech 話者選択を Anneli固定→ 動的選択に変更（/speakers の中身に依存せず動く）
+Trigger: 2026-05-03T00:30 JST - Google Cloud TTS Neural2-B（プロナレーター）を最優先に追加
