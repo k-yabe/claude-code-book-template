@@ -47,26 +47,50 @@ jobs:
           sudo apt-get install -y -qq --no-install-recommends ffmpeg
           ffmpeg -version | head -1
 
-      - name: Start VOICEVOX engine (CPU)
+      - name: Start VOICEVOX engine (CPU) and warmup synthesis
         # 完全無料・登録不要の日本語ネイティブ TTS。
-        # scraper.py が http://127.0.0.1:50021 を叩いて音声合成する。
-        # Docker image はランナーキャッシュに乗ることが多く、初回 60-90s / 2回目 20-30s 程度。
+        # /version は速く返るがモデル loading は初回 synthesis で lazy に走るため
+        # ここで短文ウォームアップ合成までやってから次のステップに渡す。
         run: |
+          set -euxo pipefail
           docker run -d --rm \
             --name voicevox \
             -p 127.0.0.1:50021:50021 \
             voicevox/voicevox_engine:cpu-latest
-          # エンジンが /version を 200 で返すまで最大 90 秒待つ
-          for i in $(seq 1 45); do
+          # 1) /version が 200 を返すまで最大 180 秒待つ
+          ready=0
+          for i in $(seq 1 90); do
             if curl -fsS --max-time 2 http://127.0.0.1:50021/version >/dev/null 2>&1; then
-              echo "voicevox engine ready (after ${i}x2s)"
-              curl -s http://127.0.0.1:50021/version || true
-              echo
-              exit 0
+              echo "voicevox /version OK after ${i}x2s"
+              ready=1
+              break
             fi
             sleep 2
           done
-          echo "::warning::voicevox engine did not respond within 90s; scraper will fall back to Azure/ElevenLabs/OpenAI"
+          if [ "$ready" != "1" ]; then
+            echo "::warning::voicevox /version did not respond within 180s; falling back to other TTS"
+            docker logs voicevox 2>&1 | tail -30 || true
+            echo "VOICEVOX_OK=0" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          # 2) ウォームアップ合成（短文で青山龍星モデルをロード、これで以降の合成が速くなる）
+          echo "warming up voicevox (speaker=13, short text)..."
+          QUERY=$(curl -fsS --max-time 30 -X POST \
+            "http://127.0.0.1:50021/audio_query?speaker=13&text=%E3%83%86%E3%82%B9%E3%83%88") \
+            || { echo "::warning::audio_query failed"; echo "VOICEVOX_OK=0" >> "$GITHUB_ENV"; exit 0; }
+          curl -fsS --max-time 120 -X POST \
+            "http://127.0.0.1:50021/synthesis?speaker=13" \
+            -H "Content-Type: application/json" \
+            -d "$QUERY" \
+            -o /tmp/voicevox-warmup.wav \
+            || { echo "::warning::warmup synthesis failed"; echo "VOICEVOX_OK=0" >> "$GITHUB_ENV"; exit 0; }
+          if [ -s /tmp/voicevox-warmup.wav ]; then
+            echo "voicevox warmup OK ($(wc -c < /tmp/voicevox-warmup.wav) bytes WAV)"
+            echo "VOICEVOX_OK=1" >> "$GITHUB_ENV"
+          else
+            echo "::warning::warmup WAV is empty; falling back"
+            echo "VOICEVOX_OK=0" >> "$GITHUB_ENV"
+          fi
         continue-on-error: true
 
       - name: Collect & summarize & generate audio
@@ -76,8 +100,9 @@ jobs:
           AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
           AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
-          # scraper 側のデフォルトと揃える。空でも害はない。
-          VOICEVOX_BASE_URL: http://127.0.0.1:50021
+          # ウォームアップ済みの時だけ scraper が VOICEVOX を叩く。
+          # 失敗時は空文字なので scraper は Azure → ElevenLabs → OpenAI に自動フォールバック。
+          VOICEVOX_BASE_URL: ${{ env.VOICEVOX_OK == '1' && 'http://127.0.0.1:50021' || '' }}
         run: |
           echo "::group::Python scraper output"
           python -u apps/ai-news/scraper.py
