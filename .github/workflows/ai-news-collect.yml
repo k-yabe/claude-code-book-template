@@ -25,7 +25,7 @@ jobs:
     # [skip ci] が付いた scraper 自身のコミットでは実行しない（無限ループ防止）
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
