@@ -85,18 +85,51 @@ jobs:
           else:
               print("::warning::aivisspeech /version did not respond within 420s")
               sys.exit(2)
-          # /speakers でデフォルト話者 (Anneli) のスタイル ID を取得
+          # /speakers から使える話者を選択。優先: Anneli > 最初の話者の最初のスタイル
           try:
               speakers = json.loads(urllib.request.urlopen(base + "/speakers", timeout=30).read())
-              anneli = next((s for s in speakers if "Anneli" in s.get("name", "")), None)
-              if anneli and anneli.get("styles"):
-                  default_style_id = anneli["styles"][0]["id"]
-                  print(f"Anneli first style id = {default_style_id}, name = {anneli['styles'][0].get('name','?')}")
-                  with open("/tmp/aivis_speaker_id", "w") as f:
-                      f.write(str(default_style_id))
-              else:
-                  print(f"::warning::Anneli not found in speakers ({len(speakers)} entries)")
+              # 全 speaker / styles を一覧出力（diag log に残るので原因特定しやすい）
+              print(f"== /speakers returned {len(speakers)} entries ==")
+              for s in speakers:
+                  name = s.get("name", "?")
+                  styles = s.get("styles", [])
+                  print(f"  speaker '{name}': {len(styles)} styles")
+                  for st in styles:
+                      print(f"    style id={st.get('id')} name='{st.get('name')}'")
+              # 1) Anneli を探す（含まれていれば優先）
+              picked = next((s for s in speakers if "Anneli" in (s.get("name") or "")), None)
+              picked_label = "Anneli" if picked else None
+              # 2) 落ち着き系（"落ち着き" "ノーマル" "通常"）スタイルを持つ任意の speaker
+              if not picked:
+                  for s in speakers:
+                      for st in s.get("styles", []):
+                          if any(k in (st.get("name") or "") for k in ("ノーマル", "通常", "落ち着き", "Normal")):
+                              picked = s
+                              picked_label = f"{s.get('name')} (calm style preferred)"
+                              break
+                      if picked:
+                          break
+              # 3) それでも無ければ最初の speaker
+              if not picked and speakers:
+                  picked = speakers[0]
+                  picked_label = f"{picked.get('name')} (first available)"
+              if not picked or not picked.get("styles"):
+                  print(f"::warning::no usable speaker found in {len(speakers)} entries")
                   sys.exit(3)
+              # 落ち着き系 style 優先 → 無ければ先頭
+              styles = picked.get("styles", [])
+              chosen_style = next(
+                  (st for st in styles if any(
+                      k in (st.get("name") or "") for k in ("落ち着き", "ノーマル", "通常", "Normal"))
+                  ),
+                  styles[0],
+              )
+              default_style_id = chosen_style["id"]
+              print(f"chosen: {picked_label} / style='{chosen_style.get('name')}' / id={default_style_id}")
+              with open("/tmp/aivis_speaker_id", "w") as f:
+                  f.write(str(default_style_id))
+              with open("/tmp/aivis_speaker_label", "w") as f:
+                  f.write(f"{picked.get('name')} ({chosen_style.get('name')})")
           except Exception as e:
               print(f"::warning::failed to fetch /speakers: {e}")
               sys.exit(4)

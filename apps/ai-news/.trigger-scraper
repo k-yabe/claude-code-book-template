@@ -1,1 +1,1 @@
-Trigger: 2026-05-02T23:30 JST - AivisSpeech 起動失敗の診断ログを _aivis_diag.log に保存して commit
+Trigger: 2026-05-02T23:50 JST - AivisSpeech 話者選択を Anneli固定→ 動的選択に変更（/speakers の中身に依存せず動く）
