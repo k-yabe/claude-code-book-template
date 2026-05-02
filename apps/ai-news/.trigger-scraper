@@ -1,1 +1,1 @@
-Trigger: 2026-05-02T19:00 JST - VOICEVOX warmup synthesis 追加でモデル lazy loading 問題を解消
+Trigger: 2026-05-02T19:30 JST - VOICEVOX warmup を Python に書き直し + debug.json に audio 状態出力
