@@ -56,7 +56,7 @@ jobs:
           docker run -d --rm \
             --name aivisspeech \
             -p 127.0.0.1:10101:10101 \
-            ghcr.io/aivis-project/aivisspeech-engine:cpu-latest
+            ghcr.io/aivis-project/aivisspeech-engine:cpu-1.2.0
           python3 - <<'PY' || warmup_status=$?
           import json, sys, time, urllib.request
           base = "http://127.0.0.1:10101"

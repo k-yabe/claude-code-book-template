@@ -1,1 +1,1 @@
-Trigger: 2026-05-02T22:00 JST - VOICEVOX → AivisSpeech:Anneli（プロアナウンサー級）に切替
+Trigger: 2026-05-02T22:30 JST - AivisSpeech docker tag を cpu-latest → cpu-1.2.0 に修正
