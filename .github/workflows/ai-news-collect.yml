@@ -51,13 +51,27 @@ jobs:
         # 完全無料・登録不要・商用OK（クレジット表記不要）の日本語特化 TTS。
         # Style-Bert-VITS2 ベースで VOICEVOX よりプロアナウンサー級の自然さ。
         # 初回は default voice model (250MB) + BERT (650MB) を auto-download するため
-        # /version 応答まで最大 5 分ほどかかる。warmup synthesis でモデル loading も完了させる。
+        # /version 応答まで最大 7 分ほどかかる。warmup synthesis でモデル loading も完了させる。
+        # 失敗時は apps/ai-news/data/_aivis_diag.log に診断情報を残し、次回の commit で
+        # 内容を main に取り込んで原因特定を容易にする。
         run: |
+          mkdir -p apps/ai-news/data
+          DIAG="apps/ai-news/data/_aivis_diag.log"
+          echo "=== run started: $(date -u +%Y-%m-%dT%H:%M:%SZ) ===" > "$DIAG"
+          # Docker pull の状態を別途記録（失敗ならログ確認しやすい）
+          {
+            echo "--- docker pull ---"
+            docker pull ghcr.io/aivis-project/aivisspeech-engine:cpu-1.2.0 2>&1
+            echo "--- docker pull exit=$? ---"
+          } >> "$DIAG"
           docker run -d --rm \
             --name aivisspeech \
             -p 127.0.0.1:10101:10101 \
-            ghcr.io/aivis-project/aivisspeech-engine:cpu-1.2.0
-          python3 - <<'PY' || warmup_status=$?
+            ghcr.io/aivis-project/aivisspeech-engine:cpu-1.2.0 >> "$DIAG" 2>&1
+          echo "--- docker run exit=$? ---" >> "$DIAG"
+          {
+            echo "--- python warmup ---"
+            python3 - 2>&1 <<'PY'
           import json, sys, time, urllib.request
           base = "http://127.0.0.1:10101"
           # /version 待機（モデル DL 込みなので最大 7 分待つ）
@@ -74,7 +88,6 @@ jobs:
           # /speakers でデフォルト話者 (Anneli) のスタイル ID を取得
           try:
               speakers = json.loads(urllib.request.urlopen(base + "/speakers", timeout=30).read())
-              # Anneli の最初のスタイル ID を取得（通常はノーマル）
               anneli = next((s for s in speakers if "Anneli" in s.get("name", "")), None)
               if anneli and anneli.get("styles"):
                   default_style_id = anneli["styles"][0]["id"]
@@ -109,7 +122,14 @@ jobs:
               print(f"::warning::warmup synthesis failed: {e}")
               sys.exit(6)
           PY
-          warmup_status=${warmup_status:-0}
+            echo "--- python warmup exit=$? ---"
+          } >> "$DIAG" 2>&1
+          warmup_status=$?
+          {
+            echo "--- docker logs aivisspeech (last 60) ---"
+            docker logs aivisspeech 2>&1 | tail -60 || echo "(no docker logs)"
+            echo "--- end ---"
+          } >> "$DIAG" 2>&1
           if [ "$warmup_status" -eq 0 ]; then
             echo "AIVISSPEECH_OK=1" >> "$GITHUB_ENV"
             echo "AIVISSPEECH_SPEAKER_ID=$(cat /tmp/aivis_speaker_id 2>/dev/null)" >> "$GITHUB_ENV"
@@ -117,7 +137,6 @@ jobs:
           else
             echo "AIVISSPEECH_OK=0" >> "$GITHUB_ENV"
             echo "aivisspeech warmup failed (status=$warmup_status); will fall back"
-            docker logs aivisspeech 2>&1 | tail -40 || true
           fi
         continue-on-error: true
 
@@ -151,11 +170,12 @@ jobs:
           exit $EXIT_CODE
 
       - name: Commit if changed
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # 存在するファイルだけ add する（missing は silent skip）
-          for f in apps/ai-news/data/news.json apps/ai-news/data/debug.json; do
+          for f in apps/ai-news/data/news.json apps/ai-news/data/debug.json apps/ai-news/data/_aivis_diag.log; do
             [ -f "$f" ] && git add "$f" && echo "added: $f"
           done
           [ -d apps/ai-news/data/archives ] && git add apps/ai-news/data/archives/

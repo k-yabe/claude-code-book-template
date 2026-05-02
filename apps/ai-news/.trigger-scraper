@@ -1,1 +1,1 @@
-Trigger: 2026-05-02T23:00 JST - AivisSpeech timeout 20→30min + max_chars 2400→1500
+Trigger: 2026-05-02T23:30 JST - AivisSpeech 起動失敗の診断ログを _aivis_diag.log に保存して commit
