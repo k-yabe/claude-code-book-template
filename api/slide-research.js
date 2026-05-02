@@ -117,14 +117,14 @@ export default async function handler(req) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 8192,
+        max_tokens: 6000,
         temperature: 0.2,
         system: RESEARCH_SYSTEM_PROMPT,
         messages: [{ role: 'user', content: userMessage }],
         tools: [{
           type: 'web_search_20250305',
           name: 'web_search',
-          max_uses: 15,
+          max_uses: 5,
           user_location: { type: 'approximate', country: 'JP', timezone: 'Asia/Tokyo' },
         }],
         stream: true,

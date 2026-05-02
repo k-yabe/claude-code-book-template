@@ -493,7 +493,9 @@ async function handleGenerate(req, res) {
           model,
           max_tokens: 4096,
           temperature: 0.4,
-          system: systemPrompt,
+          // System prompt is large and reused across every chat turn — cache it
+          // so repeated calls only pay ~10% for the prefix.
+          system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
           messages,
           tools: [{
             type: 'web_search_20250305',
@@ -645,7 +647,9 @@ ${supplement ? `- 補足データ・根拠（グラフに使える場合は cont
         model,
         max_tokens: mode === 'refine' ? 6000 : 4096,
         temperature: mode === 'refine' ? 0.2 : 0.3,
-        system: systemPrompt,
+        // Cache the (large) system prompt so repeated generate / refine / free /
+        // url calls within 5min reuse the prefix at ~10% cost.
+        system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
         messages,
       }),
     });

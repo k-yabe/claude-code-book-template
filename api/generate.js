@@ -21,6 +21,13 @@ export default async function handler(req, res) {
       }).catch(() => {});
     }
 
+    // Server-side guardrail: cap max_tokens to bound spend even if a client
+    // requests a huge value. 8192 covers all current call sites.
+    const MAX_TOKENS_CAP = 8192;
+    if (typeof body.max_tokens !== 'number' || body.max_tokens > MAX_TOKENS_CAP) {
+      body.max_tokens = MAX_TOKENS_CAP;
+    }
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {

@@ -478,7 +478,9 @@ export default async function handler(req, res) {
           model,
           max_tokens: 2000,
           temperature: 0.4,
-          system: systemPrompt,
+          // CHAT_SYSTEM_PROMPT is large and reused across every chat turn — cache
+          // it so repeated calls only pay ~10% for the prefix.
+          system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
           messages,
         }),
       });
@@ -694,7 +696,9 @@ heading, subtext, cta-button, cta-with-note, hero-image, placeholder-image, icon
         model,
         max_tokens: mode === 'refine' ? 4000 : 4000,
         temperature: mode === 'variant' ? 0.7 : mode === 'refine' ? 0.2 : 0.3,
-        system: systemPrompt,
+        // SYSTEM_PROMPT is ~5K tokens and reused across template / free / generate /
+        // variant / url-import calls — caching it cuts repeat-call cost by ~90%.
+        system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
         messages,
       }),
     });
