@@ -2812,25 +2812,29 @@
   let preloadedAudioUrl = null;
   let preloadedDigest = null;
 
-  /** 静的 MP3（apps/ai-news/data/audio/<YYYY-MM-DD>.mp3 または latest.mp3）を優先取得。 */
+  /** 静的 MP3（apps/ai-news/data/audio/<YYYY-MM-DD>.mp3 または latest.mp3）を優先取得。
+   *  HTML 側の <link rel="preload" as="audio"> が同じ URL を先に取得しているので、
+   *  通常はこの fetch がそのプリロードを採用して即時 resolve する。
+   *  日付付き path は cache:'default' で revalidate、latest は同様に
+   *  日付クエリで CDN/ブラウザキャッシュをバイパス（古い mp3 が出続ける問題の対策）。 */
   async function tryStaticAudio() {
     const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
     const ymd = today.toISOString().slice(0, 10);
     // same-origin で試行（ページが /apps/ai-news/ から配信されている前提）
     const candidates = [
       `data/audio/${ymd}.mp3`,
-      `data/audio/latest.mp3`,
+      `data/audio/latest.mp3?v=${ymd}`,
     ];
     for (const path of candidates) {
       try {
-        const r = await fetch(path, { method: 'GET', cache: 'force-cache' });
+        const r = await fetch(path, { method: 'GET', cache: 'default' });
         if (!r.ok) continue;
         const blob = await r.blob();
         if (blob.size < 1000) continue;
         // 台本（txt）も取得を試みる（停止時の表示用、必須ではない）
         try {
-          const txtPath = path.replace('.mp3', '.txt');
-          const t = await fetch(txtPath, { cache: 'force-cache' });
+          const txtPath = path.replace(/\.mp3.*$/, '.txt') + (path.includes('?') ? `?v=${ymd}` : '');
+          const t = await fetch(txtPath, { cache: 'default' });
           if (t.ok) preloadedDigest = (await t.text()).trim();
         } catch {}
         return URL.createObjectURL(blob);

@@ -1,1 +1,1 @@
-Trigger: 2026-05-02T20:30 JST - VOICEVOX を句点単位で chunk 分割合成 + WAV 結合に変更（OOM kill 回避）
+Trigger: 2026-05-02T21:00 JST - 話者を WhiteCUL（女子アナ風）に変更 + MP3 preload 追加で「準備中」短縮
