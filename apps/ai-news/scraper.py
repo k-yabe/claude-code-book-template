@@ -1643,10 +1643,21 @@ def naturalize_japanese_tts_script(s: str) -> str:
 
 
 def generate_tts_mp3(text: str) -> bytes | None:
-    """日本語 MP3 を生成。優先順位: ElevenLabs（最高品質）→ OpenAI（フォールバック）。"""
+    """日本語 MP3 を生成。優先順位:
+    1. Azure AI Speech (ja-JP-NanamiNeural, customerservice style) — 完全日本語ネイティブで最も自然
+    2. ElevenLabs eleven_multilingual_v2 — 表現力高いが英語ネイティブ声優の多言語化なので英語訛り残る
+    3. OpenAI gpt-4o-mini-tts — フォールバック
+    """
     if not text:
         return None
     natural = naturalize_japanese_tts_script(text)
+    azure_key = os.environ.get("AZURE_SPEECH_KEY", "").strip()
+    azure_region = os.environ.get("AZURE_SPEECH_REGION", "").strip()
+    if azure_key and azure_region:
+        mp3 = _generate_tts_azure(natural, azure_key, azure_region)
+        if mp3:
+            return mp3
+        log("Azure TTS failed, falling back to ElevenLabs")
     eleven_key = os.environ.get("ELEVENLABS_API_KEY", "").strip()
     if eleven_key:
         mp3 = _generate_tts_elevenlabs(natural, eleven_key)
@@ -1654,6 +1665,50 @@ def generate_tts_mp3(text: str) -> bytes | None:
             return mp3
         log("ElevenLabs TTS failed, falling back to OpenAI")
     return _generate_tts_openai(natural)
+
+
+def _generate_tts_azure(text: str, api_key: str, region: str) -> bytes | None:
+    """Azure AI Speech で日本語ネイティブ女性アンカー声を生成。
+    デフォルト ja-JP-NanamiNeural × customerservice スタイル
+    （Nanami は newscast 非対応のため customerservice が最も formal で professional）。
+    Voice / style / rate は環境変数で上書き可:
+    - AZURE_SPEECH_VOICE  (default: ja-JP-NanamiNeural)
+    - AZURE_SPEECH_STYLE  (default: customerservice — chat / cheerful も選択可)
+    - AZURE_SPEECH_RATE   (default: -3% — ニュースとしてやや落ち着いた速度)
+    - AZURE_SPEECH_PITCH  (default: 0%)
+    """
+    voice = os.environ.get("AZURE_SPEECH_VOICE", "ja-JP-NanamiNeural").strip() or "ja-JP-NanamiNeural"
+    style = os.environ.get("AZURE_SPEECH_STYLE", "customerservice").strip() or "customerservice"
+    rate = os.environ.get("AZURE_SPEECH_RATE", "-3%").strip() or "-3%"
+    pitch = os.environ.get("AZURE_SPEECH_PITCH", "0%").strip() or "0%"
+    safe_text = (text[:4800] or "")
+    safe_text = safe_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    ssml = (
+        '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" '
+        'xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="ja-JP">'
+        f'<voice name="{voice}">'
+        f'<mstts:express-as style="{style}" styledegree="1.0">'
+        f'<prosody rate="{rate}" pitch="{pitch}">{safe_text}</prosody>'
+        '</mstts:express-as></voice></speak>'
+    )
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            f"https://{region}.tts.speech.microsoft.com/cognitiveservices/v1",
+            method="POST",
+            headers={
+                "Ocp-Apim-Subscription-Key": api_key,
+                "Content-Type": "application/ssml+xml",
+                "X-Microsoft-OutputFormat": "audio-24khz-96kbitrate-mono-mp3",
+                "User-Agent": "akkodis-ai-news",
+            },
+            data=ssml.encode("utf-8"),
+        )
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            return resp.read()
+    except Exception as e:
+        log(f"azure tts error: {e}")
+        return None
 
 
 def _generate_tts_elevenlabs(text: str, api_key: str) -> bytes | None:
@@ -1806,7 +1861,7 @@ def main() -> int:
         script = generate_digest_script(exec_summary, mustknow, thisweek)
         if script:
             log(f"digest script: {len(script)} chars")
-            log("generating TTS MP3 (OpenAI nova)...")
+            log("generating TTS MP3 (Azure Nanami → ElevenLabs → OpenAI fallback)...")
             mp3 = generate_tts_mp3(script)
             if mp3:
                 save_audio(mp3, script)
