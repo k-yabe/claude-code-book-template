@@ -226,7 +226,7 @@
         </div>
         <div class="dn-item">
           <div class="dn-label">音声ダイジェスト</div>
-          <div class="dn-value">AivisSpeech:Anneli（無料・登録不要・プロアナウンサー級）→ Azure Nanami → ElevenLabs → OpenAI フォールバック</div>
+          <div class="dn-value">Google Cloud TTS Neural2-B（女性プロナレーター・月100万字無料）→ AivisSpeech → Azure → ElevenLabs → OpenAI</div>
         </div>
         <div class="dn-item">
           <div class="dn-label">フォールバック</div>
@@ -235,7 +235,7 @@
       </div>
       <!-- Powered by / 更新タイムスタンプ / バージョン -->
       <div class="data-note-foot">
-        <span class="data-foot-brand">Powered by <strong>Anthropic Claude</strong> × <strong>AivisSpeech:Anneli</strong></span>
+        <span class="data-foot-brand">Powered by <strong>Anthropic Claude</strong> × <strong>Google Cloud TTS</strong></span>
         <span class="data-foot-sep" aria-hidden="true">·</span>
         <span class="data-foot-updated">最終更新 <span id="foot-updated">—</span></span>
         <span class="data-foot-sep" aria-hidden="true">·</span>
@@ -300,9 +300,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '05/02', text: '🎤 音声ダイジェストを AivisSpeech:Anneli（プロアナウンサー級）に切替：VOICEVOX のキャラ寄り音声から、Style-Bert-VITS2 ベースの日本語特化 TTS に変更。完全無料・登録不要・商用OK・クレジット表記不要。デフォルト話者 Anneli は感情豊かで自然な日本人女性声、ニュースブリーフィング朗読に最適。GitHub Actions ランナー上で aivisspeech-engine Docker コンテナを起動して合成、API は VOICEVOX 互換なので scraper コードはそのまま動く' },
-        { date: '05/02', text: '🎀 音声ダイジェストの声を女子アナ風 VOICEVOX:WhiteCUL（ノーマル）に変更（後に AivisSpeech に切替）：HTML に <link rel="preload" as="audio"> を追加して MP3 を JS 起動前から並列フェッチ、「準備中」表示を高速化' },
-        { date: '05/02', text: '📋 「今日の3行サマリー」の下に巨大な空きスペースが残るレイアウト崩れを修正：CLS 対策の min-height がそのまま残ってボックスが 450px 固定になっていたのを、空のとき限定の控えめな min-height に置き換え。PC グリッドにも align-items:start を追加して列の間延びを解消' }
+        { date: '05/02', text: '🎙 音声ダイジェストを Google Cloud TTS Neural2-B（女性プロナレーター）に切替：VOICEVOX/AivisSpeech 系のオープンソース TTS は構造的に声優・VTuber 収録のキャラ系モデルしか存在しないため、本物のニュースアナウンサー声には届かなかった。Google Cloud TTS の ja-JP-Neural2-B は完全プロナレーター収録、月100万字まで無料（Always Free）。1日 2,000字 × 30日 = 月6万字なので永久に¥0で運用可能' },
+        { date: '05/02', text: '🎤 中継: AivisSpeech:まお → 「アニメ声でアナウンサーと程遠い」フィードバック後に Google Cloud TTS に乗り換え。AivisSpeech のデフォルト同梱モデルは Anneli ではなく まお/コハク（声優ベース）だった' },
+        { date: '05/02', text: '📋 「今日の3行サマリー」の下に巨大な空きスペースが残るレイアウト崩れを修正：CLS 対策の min-height がそのまま残ってボックスが 450px 固定になっていたのを、空のとき限定の控えめな min-height に置き換え' }
       ]
     });
 
