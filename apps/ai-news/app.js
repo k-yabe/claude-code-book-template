@@ -1290,17 +1290,14 @@
     //   - セーフティ: 全部 drop で 0 件になる日はゆるめて matchesTool UGC も採択
     const allRest = sorted.filter(n => !usedIds.has(n.id));
     const STRICT_UGC_HATENA = 10; // UGC が fyi に入るための人気度閾値
-    // ヘッドライン (fyi) は「人気度シグナルあり」の記事のみ。
-    //  - メディア記事: はてブ>=1 OR matchesTool OR matchesAIBrand OR fresh(<24h)
-    //    → 人気がない / 古い / 業界無関係な記事を除外
+    // ヘッドライン (fyi) は「実際に注目されている記事のみ」。
+    //  - メディア記事: はてブ>=1 OR matchesTool OR matchesAIBrand
+    //    （新着救済は廃止 — 人気度のない B2C エンタメ的記事が混入する原因だった）
     //  - UGC: はてブ>=10 のみ救済
-    const ageHrs = (n) => ageHours(n);
-    const isFresh = (n) => ageHrs(n) < 24;
     const hasSignal = (n) => {
       const hatena = Number(n.hatenaCount) || 0;
       if (isUgc(n)) return hatena >= STRICT_UGC_HATENA;
-      // メディア記事: 人気度・ツール言及・AI ブランド・新着のいずれかが必要
-      return hatena >= 1 || matchesTool(n) || matchesAIBrand(n) || isFresh(n);
+      return hatena >= 1 || matchesTool(n) || matchesAIBrand(n);
     };
     // 人気度順で並べ替え (popularityScore 高い順、同点は新しい順)
     const fyiRaw = allRest.filter(hasSignal).sort((a, b) => {
