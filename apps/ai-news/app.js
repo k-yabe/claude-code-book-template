@@ -464,6 +464,19 @@
     '音声詐欺', '特殊詐欺', '振り込め詐欺', 'フィッシング注意',
     // ── 個人ブログの技術チュートリアル（B2B マーケ担当者向けではない） ──
     'obsidian', '育つ知識ベース',
+    // ── B2C 食品・飲料系 ──
+    'コーラ', '炭酸飲料', '清涼飲料', 'ミネラルウォーター', '新フレーバー',
+    'コンビニ新商品', 'スーパー新商品',
+    'ご当地グルメ', 'ご当地スイーツ', '新メニュー',
+    // ── 音楽・アニメ・エンタメタイアップ ──
+    '主題歌', 'オープニング曲', 'エンディング曲',
+    '音楽タイアップ', 'アニメタイアップ', 'コラボ楽曲',
+    'mvを公開', 'ミュージックビデオ',
+    'アニメ化', '実写化', 'ドラマ化',
+    'シーズン2',
+    // ── 飲食店・宿泊・観光プロモーション ──
+    '新店オープン', '新装オープン', 'リニューアルオープン',
+    'ホテル開業', 'リゾート開業',
   ];
   const OFFTOPIC_SOURCE_UGC_PATTERNS = [
     // 個人ブログ UGC — タイトルだけでは関連性判定しにくいが、
@@ -472,7 +485,13 @@
   ];
   function isOffTopic(n) {
     const title = (n.title || '').toLowerCase();
-    return OFFTOPIC_TITLE_PATTERNS.some(p => title.includes(p.toLowerCase()));
+    if (!OFFTOPIC_TITLE_PATTERNS.some(p => title.includes(p.toLowerCase()))) return false;
+    // 救済: B2C 寄りキーワードが含まれていても、AI / 業界シグナルがあれば残す
+    // （AI×アニメ生成、AI×音楽合成 などの正当な技術記事を弾かない）
+    if (matchesAIBrand(n) || matchesTool(n)) return false;
+    const hay = (n.title || '') + ' ' + (n.summary || '');
+    if (/AI|生成AI|エーアイ|人工知能|機械学習|ChatGPT|Claude|Gemini|GPT|LLM/i.test(hay)) return false;
+    return true;
   }
   /** 業界動向（AKKODiS の事業領域）を示すキーワード。特定の競合企業名が出てこなくても、
    *  SIer / IT サービス / エンジニア派遣 等の「業界マクロ動向」記事をここで拾う。
@@ -1277,10 +1296,25 @@
       const hatena = Number(n.hatenaCount) || 0;
       return hatena >= STRICT_UGC_HATENA; // UGC は高人気のみ救済
     };
-    let fyi = allRest.filter(hasSignal);
+    // ヘッドライン (fyi) も sameStory dedup を適用して同話題の重複を排除。
+    // mustKnow / thisWeek と被るもの + fyi 内同士で被るものを除外。
+    const fyiRaw = allRest.filter(hasSignal);
+    let fyi = [];
+    for (const n of fyiRaw) {
+      if (dedupAgainst(n, mustKnow)) continue;
+      if (dedupAgainst(n, thisWeek)) continue;
+      if (dedupAgainst(n, fyi)) continue;
+      fyi.push(n);
+    }
     // フォールバック: メディア記事が 0 件の日はゆるめる（matchesTool UGC を許可）
     if (!fyi.length) {
-      fyi = allRest.filter(n => !isUgc(n) || matchesTool(n) || (Number(n.hatenaCount) || 0) >= 1);
+      const looseRaw = allRest.filter(n => !isUgc(n) || matchesTool(n) || (Number(n.hatenaCount) || 0) >= 1);
+      for (const n of looseRaw) {
+        if (dedupAgainst(n, mustKnow)) continue;
+        if (dedupAgainst(n, thisWeek)) continue;
+        if (dedupAgainst(n, fyi)) continue;
+        fyi.push(n);
+      }
     }
     if (!fyi.length) fyi = allRest; // 最終セーフティ
     return { mustKnow, thisWeek, fyi };
