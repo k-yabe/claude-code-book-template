@@ -1535,6 +1535,77 @@
     }
     .star-btn.pop { animation: starPop 0.3s ease; }
 
+    /* ── PWA install プロモトバナー ── */
+    .pwa-install-prompt {
+      position: fixed; left: 12px; right: 12px; bottom: 16px;
+      max-width: 480px; margin: 0 auto;
+      background: var(--navy);
+      color: var(--white);
+      padding: 12px 14px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      border-left: 4px solid var(--gold);
+      z-index: 9990;
+      animation: pwaSlideUp 0.3s ease both;
+    }
+    @keyframes pwaSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .pwa-install-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .pwa-install-text { flex: 1; min-width: 0; }
+    .pwa-install-title { font-size: 0.86rem; font-weight: 700; }
+    .pwa-install-sub { font-size: 0.72rem; opacity: 0.75; margin-top: 2px; }
+    .pwa-install-yes {
+      background: var(--gold); color: var(--navy);
+      border: none; padding: 8px 14px;
+      font-weight: 700; font-size: 0.78rem;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .pwa-install-yes:hover { filter: brightness(1.1); }
+    .pwa-install-no {
+      background: transparent; color: rgba(255,255,255,0.55);
+      border: none; cursor: pointer;
+      font-size: 1.2rem; padding: 4px 8px;
+      flex-shrink: 0;
+    }
+    .pwa-install-no:hover { color: var(--white); }
+    @media (prefers-reduced-motion: reduce) {
+      .pwa-install-prompt { animation: none; }
+    }
+
+    /* ── 👍/👎 フィードバックボタン ── */
+    .fb-buttons {
+      display: inline-flex; gap: 4px; align-items: center;
+      margin-left: 4px;
+    }
+    .fb-btn {
+      background: transparent; border: 1px solid var(--navy-20);
+      cursor: pointer;
+      width: 28px; height: 28px;
+      font-size: 0.85rem; line-height: 1;
+      padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+      filter: grayscale(0.6);
+      opacity: 0.65;
+    }
+    .fb-btn:hover {
+      filter: grayscale(0); opacity: 1;
+      background: rgba(0,31,51,0.04);
+      transform: scale(1.08);
+    }
+    .fb-btn.active {
+      filter: grayscale(0); opacity: 1;
+      background: rgba(255,184,28,0.15);
+      border-color: var(--gold);
+    }
+    .fb-btn.fb-up.active { background: rgba(0,255,255,0.18); border-color: var(--cyan, #00ffff); }
+    /* タッチデバイス用に最低タップ領域 36px */
+    @media (max-width: 600px) {
+      .fb-btn { width: 36px; height: 36px; font-size: 0.95rem; }
+    }
+
     /* ── 𝕏 HIGHLIGHTS ── */
     .x-section {
       margin: 0 var(--sp-5);
