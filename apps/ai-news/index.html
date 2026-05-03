@@ -29,7 +29,7 @@
   <link rel="preload" as="audio" href="./data/audio/latest.mp3">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260503b">
+  <link rel="stylesheet" href="./styles.css?v=20260503c">
 </head>
 <body>
   <div class="scroll-progress" id="scroll-progress"></div>
@@ -282,8 +282,14 @@
       <div class="ap-meta"><span id="ap-elapsed">0:00</span> <span class="ap-sep">/</span> <span id="ap-total">0:00</span> <span class="ap-sep">·</span> 残り <span id="ap-remain">0:00</span></div>
     </div>
     <div class="ap-progress"><div class="ap-progress-fill" id="ap-progress-fill"></div></div>
-    <!-- 再生中の台本パネル（toggle で表示/非表示）。再生位置に応じて該当段落をハイライト。 -->
-    <div class="ap-transcript" id="ap-transcript" hidden aria-label="再生中の台本"></div>
+  </div>
+  <!-- 台本パネル（audio-player の上方に独立配置）。再生位置に応じて該当文をハイライト。 -->
+  <div class="ap-transcript" id="ap-transcript" hidden aria-label="再生中の台本">
+    <div class="ap-transcript-head">
+      <span class="ap-transcript-title">📜 台本（クリックで該当箇所へ）</span>
+      <button class="ap-transcript-close" id="ap-transcript-close" aria-label="台本を閉じる">×</button>
+    </div>
+    <div class="ap-transcript-body" id="ap-transcript-body"></div>
   </div>
 
   <button class="back-to-top" id="back-to-top" aria-label="トップに戻る">↑</button>
