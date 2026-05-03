@@ -282,11 +282,20 @@ function initOnboarding(config) {
   }
 
   // --- HTML 構築 ---
+  // updates / features の text には <select> など HTML 風文字列が混じることがあるので
+  // innerHTML 注入前にエスケープする（XSS 防止 + 表示崩れ防止）。icon は絵文字想定で素通し。
+  const _escHtml = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
   const items = config.features || config.steps || [];
   const featuresHtml = items.map(s => `
     <div class="ob-feature">
       <div class="ob-feature-icon">${s.icon}</div>
-      <div class="ob-feature-text">${s.text}</div>
+      <div class="ob-feature-text">${_escHtml(s.text)}</div>
     </div>
   `).join('');
 
@@ -296,8 +305,8 @@ function initOnboarding(config) {
       <div class="ob-updates-title">最近のアップデート</div>
       ${updates.map(u => `
         <div class="ob-update-item">
-          <span class="ob-update-date">${u.date}</span>
-          <span class="ob-update-text">${u.text}</span>
+          <span class="ob-update-date">${_escHtml(u.date)}</span>
+          <span class="ob-update-text">${_escHtml(u.text)}</span>
         </div>
       `).join('')}
     </div>
