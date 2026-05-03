@@ -570,6 +570,21 @@
   const STORE_KEY_STREAK = 'ai-news:streak:v1';
   const STORE_KEY_NIGHT  = 'ai-news:night:v1';
   const STORE_KEY_LAST_VISIT = 'ai-news:lastVisit:v1';
+  // フィードバック (👍/👎) を localStorage に蓄積。将来的に scraper 側で
+  // 「過去 N 日で 👎 が多かったジャンル」を input にして LLM プロンプトに食わせる
+  // 自動学習ループに繋げる（現状はクライアント側だけで完結）
+  const STORE_KEY_FEEDBACK = 'ai-news:feedback:v1';
+  function loadFeedback() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY_FEEDBACK);
+      if (!raw) return {};
+      const obj = JSON.parse(raw);
+      return obj && typeof obj === 'object' ? obj : {};
+    } catch { return {}; }
+  }
+  function saveFeedback(obj) {
+    try { localStorage.setItem(STORE_KEY_FEEDBACK, JSON.stringify(obj || {})); } catch {}
+  }
 
   /** 前回訪問のタイムスタンプ（unix ms）を取得して、今回の訪問時刻で上書き。
    *  「前回以降に追加された記事」をハイライトするために使う。 */
@@ -688,8 +703,30 @@
     unreadOnly: !!_prefs.unreadOnly,
     keyword: '',
     fav:  loadSet(STORE_KEY_FAV),
-    read: loadSet(STORE_KEY_READ)
+    read: loadSet(STORE_KEY_READ),
+    feedback: loadFeedback(),  // { id: 'up' | 'down' }
   };
+
+  /** フィードバック (👍/👎) を toggle。同じ方向を連続で押すと取消、逆方向で上書き。 */
+  function toggleFeedback(id, dir) {
+    if (!id) return;
+    const cur = state.feedback[id];
+    if (cur === dir) {
+      delete state.feedback[id];
+      showToast(dir === 'up' ? '👍 取消しました' : '👎 取消しました');
+    } else {
+      state.feedback[id] = dir;
+      showToast(dir === 'up' ? '👍 ご意見ありがとうございました' : '👎 ご意見ありがとうございました（次回の収集に反映）');
+    }
+    saveFeedback(state.feedback);
+    // 該当ボタンの状態を画面上で更新
+    document.querySelectorAll(`[data-fb-id="${id}"]`).forEach(btn => {
+      const isUp = btn.dataset.fbDir === 'up';
+      const active = state.feedback[id] === btn.dataset.fbDir;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', String(active));
+    });
+  }
 
   /* ────────── ⑤ ユーティリティ ──────────  */
   function escapeHtml(s) {
@@ -1689,6 +1726,7 @@
           <div class="top-foot">
             <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読' : '✓ 既読'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
+            ${feedbackButtonsHtml(n.id)}
             ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む →</a>` : ''}
           </div>
         </div>
@@ -1708,8 +1746,23 @@
           toggleRead(id, card);
           readBtn.textContent = state.read.has(id) ? '↩ 未読' : '✓ 既読';
         }
+        const fb = e.target.closest('.fb-btn');
+        if (fb && root.contains(fb)) {
+          e.stopPropagation();
+          toggleFeedback(fb.dataset.fbId, fb.dataset.fbDir);
+        }
       });
     }
+  }
+
+  /** 各カードに表示する 👍/👎 フィードバックボタン HTML を生成。 */
+  function feedbackButtonsHtml(id) {
+    if (!id) return '';
+    const fb = state.feedback[id];
+    return `<span class="fb-buttons" role="group" aria-label="この記事の評価">
+      <button class="fb-btn fb-up${fb === 'up' ? ' active' : ''}" data-fb-id="${escapeHtml(id)}" data-fb-dir="up" aria-label="役に立った" aria-pressed="${fb === 'up'}" title="役に立った">👍</button>
+      <button class="fb-btn fb-down${fb === 'down' ? ' active' : ''}" data-fb-id="${escapeHtml(id)}" data-fb-dir="down" aria-label="役に立たなかった" aria-pressed="${fb === 'down'}" title="役に立たなかった">👎</button>
+    </span>`;
   }
 
   function renderThisWeek(items) {
@@ -1764,6 +1817,7 @@
             <div class="brief-card-foot">
               <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
               <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
+              ${feedbackButtonsHtml(n.id)}
               ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
             </div>
           </div>
@@ -1782,6 +1836,12 @@
           const card = readBtn.closest('.brief-card');
           toggleRead(id, card);
           readBtn.textContent = state.read.has(id) ? '↩ 未読' : '✓ 既読';
+          return;
+        }
+        const fb = e.target.closest('.fb-btn');
+        if (fb && root.contains(fb)) {
+          e.stopPropagation();
+          toggleFeedback(fb.dataset.fbId, fb.dataset.fbDir);
           return;
         }
         const card = e.target.closest('.brief-card');
@@ -3579,6 +3639,64 @@
   // 音声プリロードは init() を待たずに即時キック（静的 MP3 の fetch を最速で並列実行）。
   // ダイジェストが重い日でも、ユーザーが「再生」ボタンを押す時点で ready になっている確率が上がる。
   try { preloadDigestAudio(); } catch {}
+
+  /* ── PWA install プロモト + 新着通知 ── */
+  const STORE_KEY_INSTALL_DISMISSED = 'ai-news:installDismissed:v1';
+  let _deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    _deferredInstallPrompt = e;
+    // 拒否済みの場合は表示しない
+    if (localStorage.getItem(STORE_KEY_INSTALL_DISMISSED) === '1') return;
+    showInstallPrompt();
+  });
+  function showInstallPrompt() {
+    if (document.getElementById('pwa-install-prompt')) return;
+    const banner = document.createElement('div');
+    banner.id = 'pwa-install-prompt';
+    banner.className = 'pwa-install-prompt';
+    banner.innerHTML = `
+      <span class="pwa-install-icon" aria-hidden="true">📱</span>
+      <div class="pwa-install-text">
+        <div class="pwa-install-title">アプリとしてインストール</div>
+        <div class="pwa-install-sub">ホーム画面から1タップで開ける</div>
+      </div>
+      <button class="pwa-install-yes" type="button">インストール</button>
+      <button class="pwa-install-no" type="button" aria-label="閉じる">×</button>`;
+    document.body.appendChild(banner);
+    banner.querySelector('.pwa-install-yes').addEventListener('click', async () => {
+      banner.remove();
+      if (_deferredInstallPrompt) {
+        try {
+          _deferredInstallPrompt.prompt();
+          const { outcome } = await _deferredInstallPrompt.userChoice;
+          if (outcome === 'dismissed') {
+            try { localStorage.setItem(STORE_KEY_INSTALL_DISMISSED, '1'); } catch {}
+          }
+        } catch {}
+        _deferredInstallPrompt = null;
+      }
+    });
+    banner.querySelector('.pwa-install-no').addEventListener('click', () => {
+      try { localStorage.setItem(STORE_KEY_INSTALL_DISMISSED, '1'); } catch {}
+      banner.remove();
+    });
+  }
+
+  /** 前回訪問以降に追加された記事を検出して toast 表示 */
+  function checkForNewArticles() {
+    if (!LAST_VISIT_AT) return; // 初回訪問はスキップ
+    if (!Array.isArray(NEWS_DATA) || !NEWS_DATA.length) return;
+    const newCount = NEWS_DATA.filter(n => {
+      const t = new Date(n.publishedAt || 0).getTime();
+      return t > LAST_VISIT_AT;
+    }).length;
+    if (newCount > 0) {
+      showToast(`📰 前回以降に新着 ${newCount} 件`);
+    }
+  }
+  // データロード後に新着チェック（init() の最後で実行されるよう setTimeout で延期）
+  setTimeout(() => { try { checkForNewArticles(); } catch {} }, 1500);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => { init(); wireScrollUI(); wireSectionNav(); });
