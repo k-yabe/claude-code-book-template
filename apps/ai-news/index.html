@@ -286,7 +286,7 @@
   <button class="back-to-top" id="back-to-top" aria-label="トップに戻る">↑</button>
   <div class="toast" id="toast"></div>
 
-  <script src="../../assets/onboarding.js?v=20260428"></script>
+  <script src="../../assets/onboarding.js?v=20260503"></script>
   <script src="./app.js"></script>
   <script>
     if (window.initOnboarding) initOnboarding({
@@ -300,10 +300,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '05/03', text: '✂ 音声ダイジェストが途中で切れる問題を修正：Google Cloud TTS の 1 リクエスト 5,000 bytes (≈1,600字) 上限のため末尾が切れていたのを、句点単位で 1,500 字チャンクに分割 → 順次 synthesis → ffmpeg concat で 1 つの MP3 に結合。2,000 字超の長尺ダイジェストでも全文読み上げ' },
-        { date: '05/03', text: '🎚 音声ダイジェストの再生速度デフォルトを 1.25 倍速に統一：speed key を v2→v3 にバンプ + HTML <select> の <option value="1.25" selected> 明示。誰が来ても初回は 1.25 倍速で再生' },
-        { date: '05/02', text: '🎙 音声ダイジェストを Google Cloud TTS Neural2-B（女性プロナレーター）に切替：VOICEVOX/AivisSpeech 系のオープンソース TTS は構造的に声優・VTuber 収録のキャラ系モデルしか存在しないため、本物のニュースアナウンサー声には届かなかった。Google Cloud TTS の ja-JP-Neural2-B は完全プロナレーター収録、月100万字まで無料（Always Free）' },
-        { date: '05/02', text: '📋 「今日の3行サマリー」の下に巨大な空きスペースが残るレイアウト崩れを修正：CLS 対策の min-height がそのまま残ってボックスが 450px 固定になっていたのを、空のとき限定の控えめな min-height に置き換え' }
+        { date: '05/03', text: '🐛 オンボーディングの「最近のアップデート」表示崩れを修正＋3行サマリーの「…」途中切れを根治＋音声を Chirp3-HD-Kore (新世代女性) に格上げ。3 つを一括投入' },
+        { date: '05/03', text: '✂ 音声ダイジェストが途中で切れる問題を修正：Google Cloud TTS の 1 リクエスト 5,000 bytes 上限のため末尾が切れていたのを、句点単位 1,500 字チャンクに分割 → 順次 synthesis → ffmpeg concat で 1 つの MP3 に結合' },
+        { date: '05/03', text: '🎚 音声ダイジェストの再生速度デフォルトを 1.25 倍速に統一：speed key を v2→v3 にバンプ + 速度セレクトのデフォルト選択を 1.25x に明示' }
       ]
     });
 

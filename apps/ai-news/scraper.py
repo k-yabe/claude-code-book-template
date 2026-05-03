@@ -961,8 +961,9 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         "- importance: 1=最重要1件のみ、2=押さえるべき5件、3=その他\n"
         "- readMin: 推定読了時間（1〜3分）\n\n"
         "## executiveSummary\n"
-        "全記事を俯瞰した3行サマリー。各行は「何が起きて、なぜ注目か」を平易な日本語で1文にまとめる。\n"
-        "**各行は必ず60字以内の短い1文**。専門用語は避け、マーケ部門の誰が読んでもすぐわかる表現にすること。\n"
+        "全記事を俯瞰した3行サマリー。各行は「何が起きて、なぜ注目か」を平易な日本語で**完結した1文**にまとめる。\n"
+        "**1文の目安は40〜90字**。途中で切れた文や「〜とは」「〜を…」のような体言止め未満は禁止、必ず句点で終わらせる。\n"
+        "専門用語は避け、マーケ部門の誰が読んでもすぐわかる表現にする。\n"
         "期限指示（「今日中に〜」等）は入れない。事実と影響のみ。説明や補足は書かない。\n\n"
         "煽りや推測は避け、事実ベースで。\n"
         "出力は厳密にJSONのみで、以下の形式に従ってください:\n"
@@ -1075,10 +1076,14 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         log(f"anthropic response was not usable: {_LAST_ANTHROPIC_ERROR}")
         return None
 
-    # executiveSummary を抽出（各行60字に強制カット：LLMが冗長な1文を返しても短く整える）
+    # executiveSummary を抽出。
+    # 以前は truncate(s, 60) で機械的にカットしていたが、句点の途中で切れて末尾に
+    # 「…」が付き「文章が途中で切れている」見た目になっていた。
+    # client 側 (tightenSummaryLine) が「文単位の sentence-aware トリミング」を
+    # するので、scraper 側では生の LLM 出力をそのまま渡す（120 字までは保険で許容）。
     exec_summary = parsed.get("executiveSummary") or []
     if isinstance(exec_summary, list):
-        exec_summary = [truncate(str(s).strip(), 60) for s in exec_summary if str(s).strip()][:5]
+        exec_summary = [str(s).strip() for s in exec_summary if str(s).strip()][:5]
     else:
         exec_summary = []
 
@@ -1702,10 +1707,27 @@ def _generate_tts_google(text: str, api_key: str) -> bytes | None:
     料金: Neural2 voices は月 100 万字まで完全無料 (Always Free)。
     1日 2,000字 × 30日 = 月 6万字なら永久に¥0。
     """
-    voice = os.environ.get("GOOGLE_TTS_VOICE", "ja-JP-Neural2-B").strip() or "ja-JP-Neural2-B"
+    # デフォルトは 2025/3 リリースの Chirp3-HD-Kore (女性、落ち着き、ニュース向き)。
+    # Chirp3-HD は API 制限で失敗する可能性があるので Neural2-B にもフォールバックする。
+    primary_voice = os.environ.get("GOOGLE_TTS_VOICE", "ja-JP-Chirp3-HD-Kore").strip() or "ja-JP-Chirp3-HD-Kore"
+    fallback_voice = os.environ.get("GOOGLE_TTS_FALLBACK_VOICE", "ja-JP-Neural2-B").strip() or "ja-JP-Neural2-B"
     speaking_rate = float(os.environ.get("GOOGLE_TTS_SPEAKING_RATE", "1.0") or "1.0")
     pitch_st = float(os.environ.get("GOOGLE_TTS_PITCH", "0.0") or "0.0")
     chunk_chars = int(os.environ.get("GOOGLE_TTS_CHUNK_CHARS", "1500") or "1500")
+    for voice in (primary_voice, fallback_voice):
+        if not voice:
+            continue
+        result = _google_tts_chunked(text, api_key, voice, speaking_rate, pitch_st, chunk_chars)
+        if result is not None:
+            return result
+        log(f"google_tts: voice={voice} failed; trying fallback")
+    return None
+
+
+def _google_tts_chunked(text: str, api_key: str, voice: str,
+                        speaking_rate: float, pitch_st: float,
+                        chunk_chars: int) -> bytes | None:
+    """1 voice で chunked synthesis を試み、成功時 MP3 を返す。失敗時 None。"""
     chunks = _split_text_for_tts(text, chunk_chars)
     if not chunks:
         return None
@@ -1717,7 +1739,7 @@ def _generate_tts_google(text: str, api_key: str) -> bytes | None:
         t0 = _time.time()
         mp3 = _google_tts_one(chunk, api_key, voice, speaking_rate, pitch_st)
         if not mp3:
-            log(f"google_tts: chunk {idx}/{len(chunks)} FAILED")
+            log(f"google_tts: chunk {idx}/{len(chunks)} FAILED for voice={voice}")
             return None
         log(f"google_tts: chunk {idx}/{len(chunks)} done in {_time.time()-t0:.1f}s ({len(chunk)}c → {len(mp3)/1024:.0f}KB)")
         mp3_parts.append(mp3)
@@ -1730,21 +1752,25 @@ def _generate_tts_google(text: str, api_key: str) -> bytes | None:
 def _google_tts_one(text: str, api_key: str, voice: str,
                     speaking_rate: float, pitch_st: float) -> bytes | None:
     """1 チャンクだけ Google Cloud TTS API を叩いて MP3 bytes を返す。
-    1 リクエスト 5,000 bytes (≈ 1,600 字) 上限あり。"""
+    1 リクエスト 5,000 bytes (≈ 1,600 字) 上限あり。
+    Chirp3-HD は pitch を完全サポートしないので、pitch=0 なら省略する。"""
     try:
         import urllib.request
         import urllib.parse
         import base64
         url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={urllib.parse.quote(api_key)}"
+        audio_config = {
+            "audioEncoding": "MP3",
+            "speakingRate": speaking_rate,
+            "sampleRateHertz": 24000,
+        }
+        # Chirp3-HD は pitch 非対応なので 0 のときは送らない
+        if abs(pitch_st) > 0.001:
+            audio_config["pitch"] = pitch_st
         body = {
             "input": {"text": text},
             "voice": {"languageCode": "ja-JP", "name": voice},
-            "audioConfig": {
-                "audioEncoding": "MP3",
-                "speakingRate": speaking_rate,
-                "pitch": pitch_st,
-                "sampleRateHertz": 24000,
-            },
+            "audioConfig": audio_config,
         }
         req = urllib.request.Request(
             url, method="POST",
@@ -1758,7 +1784,7 @@ def _google_tts_one(text: str, api_key: str, voice: str,
             return None
         return base64.b64decode(audio_b64)
     except Exception as e:
-        log(f"google_tts chunk error: {e}")
+        log(f"google_tts chunk error (voice={voice}): {e}")
         return None
 
 
