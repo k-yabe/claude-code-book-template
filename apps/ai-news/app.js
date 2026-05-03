@@ -1888,7 +1888,11 @@
         }
         const card = e.target.closest('.brief-card');
         if (card && root.contains(card)) {
+          // 内側に吸われるクリックは親カードの「元記事を開く」アクションを発火しない
           if (e.target.closest('.brief-ext-link') || e.target.closest('.meta-source-btn') || e.target.closest('.tag-btn')) return;
+          // 「詳しく読む」(intel-details / summary) や中の picker-comment / 元記事リンクは
+          // クリック時に展開だけしてページ遷移を起こさない
+          if (e.target.closest('.intel-details') || e.target.closest('.intel-toggle') || e.target.closest('.intel-source-link')) return;
           markRead(card.dataset.id, card);
           if (card.dataset.cat) recordClick(card.dataset.cat);
           openExternal(card.dataset.url);
@@ -2029,6 +2033,7 @@
         const card = e.target.closest('.fyi-card');
         if (card && root.contains(card)) {
           if (e.target.closest('.brief-ext-link')) return;
+          if (e.target.closest('.intel-details') || e.target.closest('.intel-toggle') || e.target.closest('.intel-source-link')) return;
           markRead(card.dataset.id, card);
           if (card.dataset.cat) recordClick(card.dataset.cat);
           openExternal(card.dataset.url);
@@ -3546,10 +3551,11 @@
           </div>
         </article>`;
     }).join('');
-    // カードクリックで記事を開く
+    // カードクリックで記事を開く（ただし内部の details / 元記事リンクは除外）
     list.querySelectorAll('.fyi-card').forEach(el => {
       el.addEventListener('click', e => {
         if (e.target.closest('.brief-ext-link')) return;
+        if (e.target.closest('.intel-details') || e.target.closest('.intel-toggle') || e.target.closest('.intel-source-link')) return;
         markRead(el.dataset.id, el);
         if (el.dataset.cat) recordClick(el.dataset.cat);
         openExternal(el.dataset.url);

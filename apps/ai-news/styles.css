@@ -942,8 +942,10 @@
       padding-top: var(--sp-3); margin-top: var(--sp-2);
       border-top: 1px solid var(--border-light); flex-wrap: wrap;
     }
-    .top-foot .star-btn { color: var(--navy-20); margin-left: auto; }
+    /* 「元記事を読む」リンクは右端に揃える（読む / ★ / 📚 / 👍👎 が左、外部リンクが右） */
+    .top-foot .star-btn { color: var(--navy-20); }
     .top-foot .star-btn.starred { color: var(--gold); }
+    .top-foot .ext-btn { margin-left: auto; }
     @media (max-width: 600px) {
       .top-card { margin: 0 var(--sp-3) var(--sp-4); }
       .top-content { padding: var(--sp-5) var(--sp-4); }
@@ -2371,10 +2373,12 @@
       display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
     }
     .brief-card-foot {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: var(--sp-2); padding-top: var(--sp-2);
+      display: flex; align-items: center; gap: var(--sp-2);
+      padding-top: var(--sp-2);
       border-top: 1px solid #f0f0f0; flex-wrap: wrap;
     }
+    /* 「元記事 →」リンクは右端に寄せる（top-card と並びを統一） */
+    .brief-card-foot .brief-ext-link { margin-left: auto; }
     .brief-card-tags { display: flex; gap: 3px; flex-wrap: wrap; }
     .brief-ext-link {
       font-size: 0.6rem; color: var(--text-faint); font-weight: 600;
