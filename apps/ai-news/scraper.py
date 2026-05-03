@@ -500,18 +500,24 @@ _B2C_FLUFF_WORDS = [
     # するリスクがあるため除外しない（is_consumer_noise の AI 救済も合わせて二重防御）
     "主題歌", "オープニング曲", "エンディング曲", "OP曲", "ED曲",
     "音楽タイアップ", "アニメタイアップ",
-    # VOCALOID / ボーカロイド / ボカロ系キャラクター（AI ボイス技術に分類されがちだが
-    # 「○○ライブ」「○○イベント」「○○ファンクラブ」等は B2C エンタメ）
-    # 例: 「バーチャルシンガー重音テトが TETO LIVE TOKYO で独占放送」
-    "VOCALOID", "ボーカロイド", "ボカロ", "重音テト", "初音ミク", "鏡音リン", "鏡音レン",
-    "MEIKO", "KAITO", "巡音ルカ", "GUMI", "ボカロP",
-    "バーチャルシンガー", "VTuber",
-    # ライブイベント / コンサート（B2C エンタメ集客）
-    "Zepp", "ライブ放送", "独占放送", "ライブ独占", "コンサート",
-    "アリーナツアー", "ホールツアー", "ファンミーティング",
+    # VOCALOID / ライブ独占放送系は _B2C_HARD_FLUFF_WORDS に分離 (AI 救済なし)
     # 飲食店・宿泊施設・観光プロモーション（地域限定 B2C）
     "新店オープン", "新装オープン", "リニューアルオープン",
     "ホテル開業", "リゾート開業",
+]
+
+# AI 救済なしの「強除外」B2C キーワード。
+# VOCALOID キャラ × ライブ独占放送系は title/summary に AI 関連 keyword が
+# 含まれていても "AI ボイス技術系" として誤救済される事例が多いため、
+# is_consumer_noise で AI 救済をスキップして無条件除外する。
+_B2C_HARD_FLUFF_WORDS = [
+    # VOCALOID / ボーカロイド / ボカロ系キャラクター
+    "VOCALOID", "ボーカロイド", "ボカロ", "重音テト", "初音ミク", "鏡音リン", "鏡音レン",
+    "MEIKO", "KAITO", "巡音ルカ", "GUMI", "ボカロP",
+    "バーチャルシンガー", "バーチャルアイドル",
+    # ライブイベント / コンサート（B2C エンタメ集客）
+    "Zepp", "ライブ放送", "独占放送", "ライブ独占", "コンサート",
+    "アリーナツアー", "ホールツアー", "ファンミーティング",
 ]
 
 
@@ -520,15 +526,18 @@ def is_consumer_noise(title: str, summary: str) -> bool:
     AKKODiS（B2B IT サービス／エンジニアリング）の朝のブリーフには不要なので
     scrape 段階で落とす。
 
-    救済条件: B2C 寄りキーワードが含まれていても、AI / 業界系の強いシグナル
-    （AI ツール名や生成 AI 言及）が同時にあれば「AI × アニメ生成」「AI × 音楽」
-    などの正当な技術記事として通す。"""
+    判定の優先順位:
+    1. _CONSUMER_NOISE_WORDS — EC セール・通販系。AI 救済なしの無条件除外。
+    2. _B2C_HARD_FLUFF_WORDS — VOCALOID キャラ × ライブ独占放送系。AI 関連
+       keyword が summary に含まれていても誤救済しないよう強除外。
+    3. _B2C_FLUFF_WORDS — 一般的な B2C シグナル。AI / 業界系の強いシグナルが
+       同時にあれば「AI × アニメ生成」「AI × 音楽」などの正当な技術記事として救済。"""
     hay = (title or "") + " " + (summary or "")
-    # _CONSUMER_NOISE_WORDS は EC セール・通販系で AI 文脈とほぼ排他なので無条件で除外
     if any(w in hay for w in _CONSUMER_NOISE_WORDS):
         return True
+    if any(w in hay for w in _B2C_HARD_FLUFF_WORDS):
+        return True  # AI 救済なしで強除外
     if any(w in hay for w in _B2C_FLUFF_WORDS):
-        # B2C 寄りでも AI / 業界系シグナルが強ければ救済
         if _AI_WORD_RE.search(hay) or any(kw in hay for kw in AI_KEYWORDS_CONTAIN):
             return False
         return True
