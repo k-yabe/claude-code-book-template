@@ -5,11 +5,15 @@ on:
     # 毎朝 JST 8:00（UTC 23:00）に実行。GitHub遅延込みで8:10前後を想定。
     - cron: '0 23 * * *'
   workflow_dispatch:
-  # トリガー用ファイルへの push で scraper を任意タイミングで起動
+  # main へのトリガーファイル更新でのみ scraper を起動する。
+  # 過去 claude/** branch でも起動していたが、auto-merge と workflow が並走する
+  # と audio commit が orphaned branch に残る race condition が発生していたため
+  # main only に絞った。claude/** で trigger-scraper を更新しても、auto-merge で
+  # main にマージされた瞬間に main 側の workflow が起動して main に audio を
+  # commit するので機能としては変わらない。
   push:
     branches:
       - main
-      - 'claude/**'
     paths:
       - 'apps/ai-news/.trigger-scraper'
 

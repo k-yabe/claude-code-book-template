@@ -115,11 +115,52 @@
       .audio-player { animation: none; }
       .ap-wave { animation: none; }
     }
+    /* 台本表示トグルボタン (📜) */
+    .ap-toggle-script {
+      background: transparent; color: var(--gold);
+      border: 1px solid rgba(255,184,28,0.30);
+      width: 36px; height: 36px;
+      font-size: 0.95rem; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.18s ease;
+    }
+    .ap-toggle-script:hover { background: rgba(255,184,28,0.10); }
+    .ap-toggle-script[aria-pressed="true"] {
+      background: var(--gold); color: var(--navy);
+    }
+    /* 台本パネル本体 — 再生中の段落を金色強調 */
+    .ap-transcript {
+      flex-basis: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: var(--sp-2);
+      padding: var(--sp-3) var(--sp-3);
+      background: rgba(0,0,0,0.25);
+      color: rgba(255,255,255,0.78);
+      font-size: 0.82rem; line-height: 1.7;
+      letter-spacing: 0.01em;
+    }
+    .ap-transcript[hidden] { display: none; }
+    .ap-transcript-line {
+      padding: 4px 8px;
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    }
+    .ap-transcript-line:hover { background: rgba(255,255,255,0.04); }
+    .ap-transcript-line.active {
+      background: rgba(255,184,28,0.12);
+      border-left-color: var(--gold);
+      color: rgba(255,255,255,1);
+      font-weight: 600;
+    }
     @media (max-width: 600px) {
       .audio-player {
         left: 12px; right: 12px; transform: none;
         max-width: none; min-width: 0;
       }
+      .ap-transcript { max-height: 160px; font-size: 0.78rem; }
       @keyframes apSlideUp {
         from { opacity: 0; transform: translateY(12px); }
         to   { opacity: 1; transform: translateY(0); }

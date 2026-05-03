@@ -29,7 +29,7 @@
   <link rel="preload" as="audio" href="./data/audio/latest.mp3">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260502">
+  <link rel="stylesheet" href="./styles.css?v=20260503">
 </head>
 <body>
   <div class="scroll-progress" id="scroll-progress"></div>
@@ -276,11 +276,14 @@
     <button class="ap-stop" id="ap-stop" aria-label="停止">⏸</button>
     <button class="ap-skip" id="ap-skip-back" aria-label="10秒戻す" title="10秒戻す">« 10</button>
     <button class="ap-skip" id="ap-skip-fwd" aria-label="10秒進める" title="10秒進める">10 »</button>
+    <button class="ap-toggle-script" id="ap-toggle-script" aria-label="台本を表示" aria-pressed="false" title="台本を表示/非表示">📜</button>
     <div class="ap-info">
       <div class="ap-title"><span class="ap-wave" aria-hidden="true">●</span> AI音声ダイジェスト再生中</div>
       <div class="ap-meta"><span id="ap-elapsed">0:00</span> <span class="ap-sep">/</span> <span id="ap-total">0:00</span> <span class="ap-sep">·</span> 残り <span id="ap-remain">0:00</span></div>
     </div>
     <div class="ap-progress"><div class="ap-progress-fill" id="ap-progress-fill"></div></div>
+    <!-- 再生中の台本パネル（toggle で表示/非表示）。再生位置に応じて該当段落をハイライト。 -->
+    <div class="ap-transcript" id="ap-transcript" hidden aria-label="再生中の台本"></div>
   </div>
 
   <button class="back-to-top" id="back-to-top" aria-label="トップに戻る">↑</button>
@@ -300,9 +303,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '05/03', text: '🎯 ニュース選定の B2C 商品マーケ流入を遮断 + ヘッドライン重複排除 + LLM プロンプトに B2B 視点を明示。3 行サマリーに「コーラ新発売」「アニメ主題歌タイアップ」など AKKODiS 業務に無関係な記事が混入していた問題を根治' },
-        { date: '05/03', text: '🐛 オンボーディングの「最近のアップデート」表示崩れを修正＋3行サマリーの「…」途中切れを根治＋音声を Chirp3-HD-Kore (新世代女性) に格上げ' },
-        { date: '05/03', text: '✂ 音声ダイジェストが途中で切れる問題を修正：Google Cloud TTS の 1 リクエスト 5,000 bytes 上限のため末尾が切れていたのを、句点単位 1,500 字チャンクに分割 → 順次 synthesis → ffmpeg concat で 1 つの MP3 に結合' }
+        { date: '05/03', text: '📜 音声プレイヤーに台本ハイライト表示を追加：再生中に「📜」ボタンで台本パネルを開閉、再生位置に応じて該当文を金色強調 + 自動スクロール、文をクリックすると該当箇所へ seek。通勤中の「今読まれた箇所を確認したい」が叶う' },
+        { date: '05/03', text: '🎯 ニュース選定の B2C 商品マーケ流入を遮断 + ヘッドライン重複排除 + LLM プロンプトに B2B 視点を明示' },
+        { date: '05/03', text: '🐛 オンボーディングの「最近のアップデート」表示崩れを修正＋3行サマリーの「…」途中切れを根治＋音声を Chirp3-HD-Kore (新世代女性) に格上げ' }
       ]
     });
 

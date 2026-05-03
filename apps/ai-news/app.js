@@ -2832,6 +2832,66 @@
     if (total) total.textContent = fmtMMSS(d);
     if (remain) remain.textContent = fmtMMSS(rem);
     if (fill) fill.style.width = d > 0 ? (c / d * 100) + '%' : '0%';
+    // 台本ハイライト：再生位置 / 総時間 から該当行を計算
+    updateTranscriptHighlight(d > 0 ? c / d : 0);
+  }
+
+  /* ── 台本パネル（preloadedDigest ベース） ── */
+  // 句点で文に分割して、各文を1行として描画。
+  // duration 全体に対して文の文字数比例で「この文が再生される位置」を推定し、
+  // 再生位置 ratio (0..1) に対応する文をハイライト。
+  let _transcriptLines = [];   // [{el, start, end}] each line's playback ratio range
+  let _transcriptActiveIdx = -1;
+
+  function buildTranscript(digest) {
+    const root = document.getElementById('ap-transcript');
+    if (!root) return;
+    _transcriptLines = [];
+    _transcriptActiveIdx = -1;
+    const text = String(digest || '').trim();
+    if (!text) { root.innerHTML = ''; return; }
+    // 句点 / 改行 で分割
+    const sentences = text.split(/(?<=[。！？\n])/).map(s => s.trim()).filter(Boolean);
+    const totalChars = sentences.reduce((a, b) => a + b.length, 0) || 1;
+    let acc = 0;
+    const html = sentences.map((s, i) => {
+      const start = acc / totalChars;
+      acc += s.length;
+      const end = acc / totalChars;
+      _transcriptLines.push({ start, end, idx: i });
+      return `<div class="ap-transcript-line" data-idx="${i}" data-start="${start.toFixed(4)}">${escapeHtml(s)}</div>`;
+    }).join('');
+    root.innerHTML = html;
+    // 行クリックで該当箇所へ seek
+    root.querySelectorAll('.ap-transcript-line').forEach(el => {
+      el.addEventListener('click', () => {
+        const startRatio = parseFloat(el.dataset.start || '0');
+        if (!speechState.audio) return;
+        const dur = speechState.audio.duration || 0;
+        if (dur > 0) speechState.audio.currentTime = startRatio * dur;
+      });
+    });
+  }
+
+  function updateTranscriptHighlight(ratio) {
+    if (!_transcriptLines.length) return;
+    let idx = _transcriptLines.findIndex(l => ratio >= l.start && ratio < l.end);
+    if (idx < 0 && ratio >= 1 - 0.0001) idx = _transcriptLines.length - 1;
+    if (idx === _transcriptActiveIdx) return;
+    const root = document.getElementById('ap-transcript');
+    if (!root) return;
+    root.querySelectorAll('.ap-transcript-line.active').forEach(el => el.classList.remove('active'));
+    if (idx >= 0) {
+      const target = root.querySelector(`.ap-transcript-line[data-idx="${idx}"]`);
+      if (target) {
+        target.classList.add('active');
+        // パネル開いてる時だけスクロール
+        if (!root.hasAttribute('hidden')) {
+          target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+      }
+    }
+    _transcriptActiveIdx = idx;
   }
 
   async function tryOpenAITTS(text) {
@@ -3118,6 +3178,26 @@
     }
     if (apSkipBack) apSkipBack.addEventListener('click', () => skip(-10));
     if (apSkipFwd) apSkipFwd.addEventListener('click', () => skip(10));
+    // 台本表示トグル
+    const apToggleScript = document.getElementById('ap-toggle-script');
+    const apTranscript = document.getElementById('ap-transcript');
+    if (apToggleScript && apTranscript) {
+      apToggleScript.addEventListener('click', () => {
+        const opening = apTranscript.hasAttribute('hidden');
+        if (opening) {
+          // 直近の preloadedDigest を使って台本を構築
+          if (preloadedDigest) buildTranscript(preloadedDigest);
+          apTranscript.removeAttribute('hidden');
+          apToggleScript.setAttribute('aria-pressed', 'true');
+          // 現在のハイライト位置にスクロール
+          const active = apTranscript.querySelector('.ap-transcript-line.active');
+          if (active) active.scrollIntoView({ block: 'nearest' });
+        } else {
+          apTranscript.setAttribute('hidden', '');
+          apToggleScript.setAttribute('aria-pressed', 'false');
+        }
+      });
+    }
     // 起動時にバックグラウンドで音声を事前生成（ネットワーク待機なしで即再生できる）。
     // 待ち時間を最小化するため、500ms 遅延をやめて即座にプリロード開始。
     // MP3 バイトも prewarmAudio でブラウザキャッシュに乗せるので、click → play がほぼ遅延ゼロに。
