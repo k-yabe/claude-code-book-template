@@ -136,7 +136,7 @@
           <label class="speed-select-wrap" title="再生速度">
             <select class="speed-select" id="speed-select" aria-label="再生速度">
               <option value="1">1.0x</option>
-              <option value="1.25">1.25x</option>
+              <option value="1.25" selected>1.25x</option>
               <option value="1.5">1.5x</option>
               <option value="1.75">1.75x</option>
               <option value="2">2.0x</option>
@@ -300,8 +300,8 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '05/02', text: '🎙 音声ダイジェストを Google Cloud TTS Neural2-B（女性プロナレーター）に切替：VOICEVOX/AivisSpeech 系のオープンソース TTS は構造的に声優・VTuber 収録のキャラ系モデルしか存在しないため、本物のニュースアナウンサー声には届かなかった。Google Cloud TTS の ja-JP-Neural2-B は完全プロナレーター収録、月100万字まで無料（Always Free）。1日 2,000字 × 30日 = 月6万字なので永久に¥0で運用可能' },
-        { date: '05/02', text: '🎤 中継: AivisSpeech:まお → 「アニメ声でアナウンサーと程遠い」フィードバック後に Google Cloud TTS に乗り換え。AivisSpeech のデフォルト同梱モデルは Anneli ではなく まお/コハク（声優ベース）だった' },
+        { date: '05/03', text: '🎚 音声ダイジェストの再生速度デフォルトを 1.25 倍速に統一：以前から DEFAULT_SPEED=1.25 で実装はあったが、過去に再生したユーザーの localStorage に古い値が残るケース対策で speed key を v2→v3 にバンプ。HTML の <select> も <option value="1.25" selected> に明示。これで誰が来ても初回は 1.25 倍で再生されて時短。モバイル対応 (44px タップ領域 / safe-area-inset / playsInline / playbackRate を play() 後に設定する iOS 対策) は既に実装済みのまま継続' },
+        { date: '05/02', text: '🎙 音声ダイジェストを Google Cloud TTS Neural2-B（女性プロナレーター）に切替：VOICEVOX/AivisSpeech 系のオープンソース TTS は構造的に声優・VTuber 収録のキャラ系モデルしか存在しないため、本物のニュースアナウンサー声には届かなかった。Google Cloud TTS の ja-JP-Neural2-B は完全プロナレーター収録、月100万字まで無料（Always Free）' },
         { date: '05/02', text: '📋 「今日の3行サマリー」の下に巨大な空きスペースが残るレイアウト崩れを修正：CLS 対策の min-height がそのまま残ってボックスが 450px 固定になっていたのを、空のとき限定の控えめな min-height に置き換え' }
       ]
     });
