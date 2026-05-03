@@ -1686,30 +1686,58 @@ def _generate_tts_google(text: str, api_key: str) -> bytes | None:
     """Google Cloud TTS Neural2 で日本語ネイティブ女性ナレーター声を生成。
     デフォルト ja-JP-Neural2-B（女性、ニュース朗読向き、プロアナウンサー収録）。
 
+    Google API は 1 req 5,000 bytes (≈ 1,600 字) 上限。長文は句点単位で
+    分割して順次 synthesis → ffmpeg concat で 1 つの MP3 に結合する。
+    これで 2,000 字超のスクリプトでも途中で切れない。
+
     環境変数で上書き可:
     - GOOGLE_TTS_VOICE         (default: ja-JP-Neural2-B)
                                候補: ja-JP-Neural2-B (女性), ja-JP-Neural2-C (男性),
                                     ja-JP-Neural2-D (男性),
-                                    ja-JP-Wavenet-A〜D (Wavenet 世代)
-    - GOOGLE_TTS_SPEAKING_RATE (default: 0.97 — やや落ち着き)
+                                    ja-JP-Chirp3-HD-* (新世代, 利用可能なら最高品質)
+    - GOOGLE_TTS_SPEAKING_RATE (default: 1.0 — 等速。クライアント側で 1.25 倍速再生)
     - GOOGLE_TTS_PITCH         (default: 0.0)
+    - GOOGLE_TTS_CHUNK_CHARS   (default: 1500 — 5,000 bytes 上限の安全マージン)
 
     料金: Neural2 voices は月 100 万字まで完全無料 (Always Free)。
     1日 2,000字 × 30日 = 月 6万字なら永久に¥0。
     """
     voice = os.environ.get("GOOGLE_TTS_VOICE", "ja-JP-Neural2-B").strip() or "ja-JP-Neural2-B"
-    speaking_rate = float(os.environ.get("GOOGLE_TTS_SPEAKING_RATE", "0.97") or "0.97")
+    speaking_rate = float(os.environ.get("GOOGLE_TTS_SPEAKING_RATE", "1.0") or "1.0")
     pitch_st = float(os.environ.get("GOOGLE_TTS_PITCH", "0.0") or "0.0")
-    # Google は1リクエスト 5,000 bytes 上限 (UTF-8 換算で日本語 約 1,600 字)。
-    safe_text = text[:1600]
-    log(f"google_tts: voice={voice} chars={len(safe_text)} rate={speaking_rate}")
+    chunk_chars = int(os.environ.get("GOOGLE_TTS_CHUNK_CHARS", "1500") or "1500")
+    chunks = _split_text_for_tts(text, chunk_chars)
+    if not chunks:
+        return None
+    log(f"google_tts: voice={voice} total_chars={len(text)} chunks={len(chunks)} (max {chunk_chars}/chunk) rate={speaking_rate}")
+    import time as _time
+    mp3_parts: list[bytes] = []
+    t_total = _time.time()
+    for idx, chunk in enumerate(chunks, 1):
+        t0 = _time.time()
+        mp3 = _google_tts_one(chunk, api_key, voice, speaking_rate, pitch_st)
+        if not mp3:
+            log(f"google_tts: chunk {idx}/{len(chunks)} FAILED")
+            return None
+        log(f"google_tts: chunk {idx}/{len(chunks)} done in {_time.time()-t0:.1f}s ({len(chunk)}c → {len(mp3)/1024:.0f}KB)")
+        mp3_parts.append(mp3)
+    log(f"google_tts: all {len(chunks)} chunks done in {_time.time()-t_total:.1f}s")
+    if len(mp3_parts) == 1:
+        return mp3_parts[0]
+    return _concat_mp3(mp3_parts)
+
+
+def _google_tts_one(text: str, api_key: str, voice: str,
+                    speaking_rate: float, pitch_st: float) -> bytes | None:
+    """1 チャンクだけ Google Cloud TTS API を叩いて MP3 bytes を返す。
+    1 リクエスト 5,000 bytes (≈ 1,600 字) 上限あり。"""
     try:
         import urllib.request
         import urllib.parse
         import base64
         url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={urllib.parse.quote(api_key)}"
         body = {
-            "input": {"text": safe_text},
+            "input": {"text": text},
             "voice": {"languageCode": "ja-JP", "name": voice},
             "audioConfig": {
                 "audioEncoding": "MP3",
@@ -1727,11 +1755,54 @@ def _generate_tts_google(text: str, api_key: str) -> bytes | None:
             payload = json.loads(resp.read())
         audio_b64 = payload.get("audioContent")
         if not audio_b64:
-            log("google_tts: empty audioContent in response")
             return None
         return base64.b64decode(audio_b64)
     except Exception as e:
-        log(f"google tts error: {e}")
+        log(f"google_tts chunk error: {e}")
+        return None
+
+
+def _concat_mp3(mp3_parts: list[bytes]) -> bytes | None:
+    """複数の MP3 bytes を ffmpeg concat demuxer で 1 つに結合。
+    GitHub Actions の workflow で ffmpeg は apt install 済み。"""
+    if not mp3_parts:
+        return None
+    if len(mp3_parts) == 1:
+        return mp3_parts[0]
+    try:
+        import subprocess
+        import tempfile
+        import os as _os
+        with tempfile.TemporaryDirectory(prefix="mp3concat-") as td:
+            list_path = _os.path.join(td, "list.txt")
+            with open(list_path, "w", encoding="utf-8") as f:
+                for i, b in enumerate(mp3_parts):
+                    p = _os.path.join(td, f"part{i}.mp3")
+                    with open(p, "wb") as g:
+                        g.write(b)
+                    # ffmpeg concat demuxer フォーマット: file 'path'
+                    f.write(f"file '{p}'\n")
+            out_path = _os.path.join(td, "out.mp3")
+            subprocess.run(
+                [
+                    "ffmpeg", "-loglevel", "error",
+                    "-f", "concat", "-safe", "0",
+                    "-i", list_path,
+                    "-c", "copy",
+                    out_path,
+                ],
+                capture_output=True, timeout=120, check=True,
+            )
+            with open(out_path, "rb") as f:
+                return f.read()
+    except FileNotFoundError:
+        log("ffmpeg not found; cannot concat MP3 chunks")
+        return None
+    except subprocess.CalledProcessError as e:
+        log(f"ffmpeg concat failed: exit={e.returncode} stderr={(e.stderr or b'')[:200]!r}")
+        return None
+    except Exception as e:
+        log(f"mp3 concat error: {e}")
         return None
 
 
