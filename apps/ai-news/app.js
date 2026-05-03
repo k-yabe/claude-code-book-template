@@ -468,12 +468,11 @@
     'コーラ', '炭酸飲料', '清涼飲料', 'ミネラルウォーター', '新フレーバー',
     'コンビニ新商品', 'スーパー新商品',
     'ご当地グルメ', 'ご当地スイーツ', '新メニュー',
-    // ── 音楽・アニメ・エンタメタイアップ ──
+    // ── 音楽・エンタメタイアップ ──
+    // 注: アニメ化 / 実写化 / シーズン2 は AI×コンテンツ生成記事を巻き込み除外
+    // するリスクがあるため除外しない（isOffTopic の AI 救済も合わせて二重防御）
     '主題歌', 'オープニング曲', 'エンディング曲',
-    '音楽タイアップ', 'アニメタイアップ', 'コラボ楽曲',
-    'mvを公開', 'ミュージックビデオ',
-    'アニメ化', '実写化', 'ドラマ化',
-    'シーズン2',
+    '音楽タイアップ', 'アニメタイアップ',
     // ── 飲食店・宿泊・観光プロモーション ──
     '新店オープン', '新装オープン', 'リニューアルオープン',
     'ホテル開業', 'リゾート開業',
@@ -1291,14 +1290,24 @@
     //   - セーフティ: 全部 drop で 0 件になる日はゆるめて matchesTool UGC も採択
     const allRest = sorted.filter(n => !usedIds.has(n.id));
     const STRICT_UGC_HATENA = 10; // UGC が fyi に入るための人気度閾値
+    // ヘッドライン (fyi) は「人気度シグナルあり」の記事のみ。
+    //  - メディア記事: はてブ>=1 OR matchesTool OR matchesAIBrand OR fresh(<24h)
+    //    → 人気がない / 古い / 業界無関係な記事を除外
+    //  - UGC: はてブ>=10 のみ救済
+    const ageHrs = (n) => ageHours(n);
+    const isFresh = (n) => ageHrs(n) < 24;
     const hasSignal = (n) => {
-      if (!isUgc(n)) return true; // メディア記事は LLM の判断を尊重して基本採択
       const hatena = Number(n.hatenaCount) || 0;
-      return hatena >= STRICT_UGC_HATENA; // UGC は高人気のみ救済
+      if (isUgc(n)) return hatena >= STRICT_UGC_HATENA;
+      // メディア記事: 人気度・ツール言及・AI ブランド・新着のいずれかが必要
+      return hatena >= 1 || matchesTool(n) || matchesAIBrand(n) || isFresh(n);
     };
-    // ヘッドライン (fyi) も sameStory dedup を適用して同話題の重複を排除。
-    // mustKnow / thisWeek と被るもの + fyi 内同士で被るものを除外。
-    const fyiRaw = allRest.filter(hasSignal);
+    // 人気度順で並べ替え (popularityScore 高い順、同点は新しい順)
+    const fyiRaw = allRest.filter(hasSignal).sort((a, b) => {
+      const sa = popularityScore(a), sb = popularityScore(b);
+      if (sa !== sb) return sb - sa;
+      return new Date(b.publishedAt) - new Date(a.publishedAt);
+    });
     let fyi = [];
     for (const n of fyiRaw) {
       if (dedupAgainst(n, mustKnow)) continue;
@@ -1306,10 +1315,11 @@
       if (dedupAgainst(n, fyi)) continue;
       fyi.push(n);
     }
-    // フォールバック: メディア記事が 0 件の日はゆるめる（matchesTool UGC を許可）
-    if (!fyi.length) {
-      const looseRaw = allRest.filter(n => !isUgc(n) || matchesTool(n) || (Number(n.hatenaCount) || 0) >= 1);
-      for (const n of looseRaw) {
+    // フォールバック: hasSignal で 0 件の日は人気度シグナルを緩めて補充
+    if (fyi.length < 3) {
+      for (const n of allRest) {
+        if (fyi.length >= 6) break;
+        if (isUgc(n) && (Number(n.hatenaCount) || 0) < 1 && !matchesTool(n)) continue;
         if (dedupAgainst(n, mustKnow)) continue;
         if (dedupAgainst(n, thisWeek)) continue;
         if (dedupAgainst(n, fyi)) continue;
