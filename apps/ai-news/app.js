@@ -2603,7 +2603,9 @@
   /* ────────── ⑪b 音声ダイジェスト（AI要約 → TTS読み上げ） ──────────  */
   const SPEED_OPTIONS = [1, 1.25, 1.5, 1.75, 2];
   const DEFAULT_SPEED = 1.25;
-  const STORE_KEY_SPEED = 'ai-news:speed:v2';
+  // v3: デフォルト速度を 1.25 に統一。v2 のユーザー（過去に 1.0 で localStorage に
+  //     書かれている人）も新しいデフォルトを採用させるため key を bump。
+  const STORE_KEY_SPEED = 'ai-news:speed:v3';
   function loadSpeed() {
     const v = parseFloat(localStorage.getItem(STORE_KEY_SPEED) || String(DEFAULT_SPEED));
     return SPEED_OPTIONS.includes(v) ? v : DEFAULT_SPEED;
