@@ -1593,6 +1593,23 @@
     }
     .star-btn.pop { animation: starPop 0.3s ease; }
 
+    /* ── 📚 後で読むボタン ── */
+    .later-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 0.92rem;
+      padding: 0; line-height: 1;
+      filter: grayscale(0.7);
+      opacity: 0.55;
+      transition: filter 0.18s ease, opacity 0.18s ease, transform 0.15s ease;
+    }
+    .later-btn:hover {
+      filter: grayscale(0); opacity: 1;
+      transform: scale(1.15);
+    }
+    .later-btn.saved {
+      filter: grayscale(0); opacity: 1;
+    }
+
     /* ── PWA install プロモトバナー ── */
     /* audio-player(998, bottom 24px) と被らないよう bottom 90px 配置 */
     .pwa-install-prompt {
@@ -1953,7 +1970,12 @@
     .top-card[data-cat="market"]:hover { box-shadow: 0 16px 48px rgba(0,31,51,0.22), inset 4px 0 0 var(--navy); }
 
     /* ── 日付ナビゲーション ── */
-    .date-nav { display: flex; align-items: center; gap: 6px; }
+    .date-nav { display: flex; align-items: center; gap: 6px; position: relative; }
+    /* ネイティブ <input type="date"> は picker を呼び出すためだけに保持。視覚的には非表示。 */
+    .date-picker-input {
+      position: absolute; opacity: 0; pointer-events: none;
+      width: 0; height: 0; padding: 0; border: 0;
+    }
 
     /* ── アクションバー ──
        スクロール時 navbar (56px ネイビー) のすぐ下に貼り付く。違和感の原因は

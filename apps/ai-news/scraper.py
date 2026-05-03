@@ -116,6 +116,13 @@ SOURCES: list[dict[str, object]] = [
     {"name": "Google News (SIer業界)",    "url": "https://news.google.com/rss/search?q=SIer+業界+(AI+OR+M%26A+OR+業務提携)&hl=ja&gl=JP&ceid=JP:ja",                   "category": "market", "tier": "media", "max": 3},
     {"name": "Google News (エンジニア派遣)","url": "https://news.google.com/rss/search?q=エンジニア派遣+OR+技術者派遣+(業界+OR+市場+OR+トレンド)&hl=ja&gl=JP&ceid=JP:ja",   "category": "market", "tier": "media", "max": 3},
     {"name": "Google News (IT人材市場)",  "url": "https://news.google.com/rss/search?q=IT人材+(不足+OR+採用市場+OR+リスキリング)&hl=ja&gl=JP&ceid=JP:ja",                "category": "market", "tier": "media", "max": 3},
+    # ── 業界 M&A / 業務提携 / 受託案件（横断検索） ──
+    # ユーザー FB「競合動向セクションが少ない」を受けて追加。特定企業ではなく
+    # 業界横断的な大型案件・提携ニュースを拾う。
+    {"name": "Google News (IT業界M&A)",   "url": "https://news.google.com/rss/search?q=(IT業界+OR+SI業界)+(M%26A+OR+買収+OR+業務提携)&hl=ja&gl=JP&ceid=JP:ja",         "category": "market", "tier": "media", "max": 3},
+    {"name": "Google News (DX大型受託)",  "url": "https://news.google.com/rss/search?q=DX+(大型受注+OR+大型案件+OR+業務委託+OR+受託開発)&hl=ja&gl=JP&ceid=JP:ja",      "category": "market", "tier": "media", "max": 3},
+    {"name": "Google News (人材業界動向)","url": "https://news.google.com/rss/search?q=人材業界+(M%26A+OR+業績+OR+トレンド+OR+業界動向)&hl=ja&gl=JP&ceid=JP:ja",         "category": "market", "tier": "media", "max": 3},
+    {"name": "Google News (生成AI企業導入)","url": "https://news.google.com/rss/search?q=生成AI+(企業+導入事例+OR+業務活用+OR+業務提携)&hl=ja&gl=JP&ceid=JP:ja",          "category": "market", "tier": "media", "max": 3},
     # ── PR TIMES カテゴリ別フィード（プレスリリース横断） ──
     # `index.rdf` だけは生きており、IT・通信全体のプレスを引いて競合キーワードで救済できるので残す。
     # 会社別 freeword feed (`/main/rdf/freeword/<company>/0/1`) は2026/4/22以降ずっと0件のため削除済。
