@@ -755,13 +755,19 @@
       .top-story-ribbon { animation: none; }
     }
 
-    /* ── 🔥 重要ニュース ヒーローカード（NewsPicks風） ── */
+    /* ── 🔥 重要ニュース ヒーローカード（NewsPicks風） ──
+       ユーザーから「主要ニュースよりも注目ニュースの方が大きい」FB を受けて
+       視覚階層を強化。金色の top accent + 大きめ shadow + 内側 padding 拡大で
+       「これが今日一番のニュース」感を出す。 */
     .top-card {
       background: var(--white);
       color: var(--navy);
       cursor: default;
       position: relative;
-      box-shadow: 0 8px 32px rgba(0,31,51,0.15), 0 2px 6px rgba(0,31,51,0.08);
+      /* 金色 top accent で「主要」感を出す。color: gold は border-color として扱い、
+         box の枠として視認できるが他のカードと差別化 */
+      border-top: 4px solid var(--gold);
+      box-shadow: 0 12px 40px rgba(0,31,51,0.20), 0 4px 12px rgba(0,31,51,0.10);
       margin: 0 var(--sp-5) var(--sp-6);
       overflow: hidden;
       transition: box-shadow 0.25s ease, transform 0.25s ease, opacity 0.3s ease;
@@ -912,24 +918,24 @@
       color: rgba(255,255,255,0.75); letter-spacing: 0.02em;
     }
     /* コンテンツ */
-    .top-content { padding: var(--sp-6) var(--sp-6) var(--sp-5); border-left: 6px solid var(--gold); }
+    .top-content { padding: var(--sp-7) var(--sp-7) var(--sp-6); border-left: 6px solid var(--gold); }
     .top-title {
-      font-size: 1.55rem; font-weight: 900; color: var(--navy);
-      line-height: 1.35; letter-spacing: -0.015em;
+      font-size: 1.7rem; font-weight: 900; color: var(--navy);
+      line-height: 1.32; letter-spacing: -0.02em;
       margin-bottom: var(--sp-3);
     }
     @media (max-width: 600px) {
-      .top-content { padding: var(--sp-4); border-left-width: 4px; }
-      .top-title { font-size: 1.2rem; }
-    }
-    /* PC 2列レイアウトでは少し小さく（読みやすさと密度を両立） */
-    @media (min-width: 1024px) {
+      .top-content { padding: var(--sp-5) var(--sp-4); border-left-width: 4px; }
       .top-title { font-size: 1.3rem; }
-      .top-summary { font-size: 0.88rem; }
+    }
+    /* PC: 主要ニュースを brief-card より明確に大きく見せる */
+    @media (min-width: 1024px) {
+      .top-title { font-size: 1.85rem; }
+      .top-summary { font-size: 1rem; }
     }
     .top-summary {
-      font-size: 0.9rem; color: var(--text-secondary);
-      line-height: 1.75; margin-bottom: var(--sp-3);
+      font-size: 0.96rem; color: var(--text-secondary);
+      line-height: 1.78; margin-bottom: var(--sp-3);
     }
     .top-foot {
       display: flex; align-items: center; gap: var(--sp-3);
@@ -939,10 +945,10 @@
     .top-foot .star-btn { color: var(--navy-20); margin-left: auto; }
     .top-foot .star-btn.starred { color: var(--gold); }
     @media (max-width: 600px) {
-      .top-card { margin: 0 var(--sp-3) var(--sp-3); }
-      .top-content { padding: var(--sp-4); }
-      .top-title { font-size: 1.15rem; }
-      .top-summary { font-size: 0.85rem; line-height: 1.7; }
+      .top-card { margin: 0 var(--sp-3) var(--sp-4); }
+      .top-content { padding: var(--sp-5) var(--sp-4); }
+      .top-title { font-size: 1.25rem; }
+      .top-summary { font-size: 0.9rem; line-height: 1.75; }
     }
 
     /* ── 折りたたみ詳細（詳しく見る）── */
@@ -2207,10 +2213,20 @@
        1 項目 = 1 列、2 項目 = 2 列、3 項目以上 = 3 列まで広がる minmax レイアウトに変更。 */
     .brief-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      /* 1 件しかない時に幅いっぱいに伸びると主要ニュースより大きく見えるので
+         minmax を抑えめ + max-width でカードを single column 時に限定。
+         複数件の時は auto-fit で 2-3 column に */
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: var(--sp-4); padding: 0 var(--sp-5);
       content-visibility: auto; /* オフスクリーンのカードはレンダリング省略 → 初期描画を高速化 */
       contain-intrinsic-size: auto 800px; /* 高さの目安: スクロールバーの安定性確保 */
+    }
+    /* 単一カードのみで grid auto-fit が full-width に伸びる退化を防ぐ：
+       brief-card は max-width を持って中央寄せに。これで「注目ニュースが
+       主要ニュースより大きい」見え方を回避。 */
+    .brief-grid:has(.brief-card:only-child) {
+      grid-template-columns: minmax(260px, 480px);
+      justify-content: center;
     }
     .x-grid {
       content-visibility: auto;
