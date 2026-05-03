@@ -29,7 +29,7 @@
   <link rel="preload" as="audio" href="./data/audio/latest.mp3">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260503d">
+  <link rel="stylesheet" href="./styles.css?v=20260503e">
 </head>
 <body>
   <div class="scroll-progress" id="scroll-progress"></div>
@@ -117,6 +117,8 @@
         <button class="cmd-btn icon" id="btn-prev-date" title="前日" aria-label="前日のブリーフ">◀</button>
         <span class="cmd-updated" id="cmd-updated">—</span>
         <button class="cmd-btn icon" id="btn-next-date" title="翌日" aria-label="翌日のブリーフ">▶</button>
+        <button class="cmd-btn icon" id="btn-pick-date" title="日付を選択" aria-label="過去のブリーフを日付で選択">📅</button>
+        <input type="date" id="date-picker-input" class="date-picker-input" tabindex="-1" aria-hidden="true">
       </div>
       <div class="cmd-actions">
         <div class="read-progress">
@@ -309,9 +311,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '05/03', text: '🥇 視覚階層を立て直し：主要ニュースを注目ニュースより明確に大きく。金色 top accent + 強化 shadow + フォント拡大 (PC 1.85rem)、注目ニュース 1 件のみの日も full-width に伸びないよう grid 制限。「主要 > 注目」の階層が常に成立' },
-        { date: '05/03', text: '👍 記事フィードバック (👍/👎) + PWA インストールバナー + 新着通知を追加' },
-        { date: '05/03', text: '📜 音声プレイヤーに台本ハイライト表示を追加：再生中に「📜」ボタンで台本パネルを開閉、再生位置に応じて該当文を金色強調 + 自動スクロール、文クリックで seek' }
+        { date: '05/03', text: '🚀 競合動向ソース 4 個追加 (IT M&A・DX 大型受託・人材業界動向・生成 AI 企業導入) + 📅 アーカイブ日付ピッカー + 📚 後で読むリスト。日付ナビ右の📅で過去日付選択、各カードに📚で短期 read-later' },
+        { date: '05/03', text: '🥇 視覚階層を立て直し：主要ニュースを注目ニュースより明確に大きく。金色 top accent + 強化 shadow + フォント拡大 (PC 1.85rem)、注目ニュース 1 件のみの日も full-width に伸びないよう grid 制限' },
+        { date: '05/03', text: '👍 記事フィードバック (👍/👎) + PWA インストールバナー + 新着通知 + 台本ハイライト表示 (📜) を追加' }
       ]
     });
 

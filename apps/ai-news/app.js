@@ -567,6 +567,7 @@
 
   const STORE_KEY_FAV    = 'ai-news:fav:v1';
   const STORE_KEY_READ   = 'ai-news:read:v1';
+  const STORE_KEY_LATER  = 'ai-news:later:v1';  // ★ とは別の「📚 後で読む」リスト
   const STORE_KEY_STREAK = 'ai-news:streak:v1';
   const STORE_KEY_NIGHT  = 'ai-news:night:v1';
   const STORE_KEY_LAST_VISIT = 'ai-news:lastVisit:v1';
@@ -704,8 +705,27 @@
     keyword: '',
     fav:  loadSet(STORE_KEY_FAV),
     read: loadSet(STORE_KEY_READ),
+    later: loadSet(STORE_KEY_LATER),  // 📚 後で読む（既読化で自動的に外す運用）
     feedback: loadFeedback(),  // { id: 'up' | 'down' }
   };
+
+  /** 📚 後で読むトグル */
+  function toggleLater(id, btn) {
+    if (!id) return;
+    if (state.later.has(id)) {
+      state.later.delete(id);
+      showToast('📚 後で読むから外しました');
+    } else {
+      state.later.add(id);
+      showToast('📚 後で読むに追加しました');
+    }
+    saveSet(STORE_KEY_LATER, state.later);
+    document.querySelectorAll(`[data-later="${id}"]`).forEach(el => {
+      const on = state.later.has(id);
+      el.classList.toggle('saved', on);
+      el.setAttribute('aria-pressed', String(on));
+    });
+  }
 
   /** フィードバック (👍/👎) を toggle。同じ方向を連続で押すと取消、逆方向で上書き。 */
   function toggleFeedback(id, dir) {
@@ -1735,6 +1755,7 @@
           <div class="top-foot">
             <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読' : '✓ 既読'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
+            <button class="later-btn${state.later.has(n.id) ? ' saved' : ''}" data-later="${n.id}" aria-label="後で読む" aria-pressed="${state.later.has(n.id)}" title="後で読むに追加">📚</button>
             ${feedbackButtonsHtml(n.id)}
             ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む →</a>` : ''}
           </div>
@@ -1759,6 +1780,11 @@
         if (fb && root.contains(fb)) {
           e.stopPropagation();
           toggleFeedback(fb.dataset.fbId, fb.dataset.fbDir);
+        }
+        const laterBtn = e.target.closest('.later-btn');
+        if (laterBtn && root.contains(laterBtn)) {
+          e.stopPropagation();
+          toggleLater(laterBtn.dataset.later, laterBtn);
         }
       });
     }
@@ -1826,6 +1852,7 @@
             <div class="brief-card-foot">
               <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
               <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
+              <button class="later-btn${state.later.has(n.id) ? ' saved' : ''}" data-later="${n.id}" aria-label="後で読む" aria-pressed="${state.later.has(n.id)}" title="後で読むに追加">📚</button>
               ${feedbackButtonsHtml(n.id)}
               ${hasUrl ? `<a class="brief-ext-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事 →</a>` : ''}
             </div>
@@ -1851,6 +1878,12 @@
         if (fb && root.contains(fb)) {
           e.stopPropagation();
           toggleFeedback(fb.dataset.fbId, fb.dataset.fbDir);
+          return;
+        }
+        const laterBtn = e.target.closest('.later-btn');
+        if (laterBtn && root.contains(laterBtn)) {
+          e.stopPropagation();
+          toggleLater(laterBtn.dataset.later, laterBtn);
           return;
         }
         const card = e.target.closest('.brief-card');
@@ -2576,6 +2609,24 @@
       next.disabled = true; // 初期状態は最新なので翌日は無効
     }
     if (today) today.addEventListener('click', () => loadArchive(fmtISODate(new Date())));
+    // 日付ピッカー (📅 アイコン → ネイティブ <input type="date"> を呼び出す)
+    const pickBtn = document.getElementById('btn-pick-date');
+    const pickInput = document.getElementById('date-picker-input');
+    if (pickBtn && pickInput) {
+      const todayStr = fmtISODate(new Date());
+      pickInput.max = todayStr;  // 未来は選べない
+      pickInput.min = '2026-04-17'; // 既存アーカイブの最古日（必要に応じて調整）
+      pickBtn.addEventListener('click', () => {
+        // 現在表示中の日付をピッカーに反映
+        pickInput.value = currentViewDate || todayStr;
+        // モバイルでもネイティブ datepicker が開くよう showPicker / focus を試行
+        try { pickInput.showPicker(); } catch { pickInput.focus(); pickInput.click(); }
+      });
+      pickInput.addEventListener('change', () => {
+        const v = pickInput.value;
+        if (v && /^\d{4}-\d{2}-\d{2}$/.test(v)) loadArchive(v);
+      });
+    }
   }
 
   /* ────────── ⑩ 進捗 / 全部既読 / 次の未読 ──────────  */
