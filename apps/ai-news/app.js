@@ -1278,7 +1278,9 @@
     //  ③画像が無い記事（Google News リダイレクター起源など）は見た目が揃わないので基本的に fyi に回し、
     //     足りない時だけ拾う（画像優先 → 画像なし補填の 2 段階）。
     //  主要ニュースと同じ話題の記事もここでは除外して重複表示を防ぐ。
-    const THIS_WEEK_MAX = 6;
+    //  記事数が極端に少ない日は thisWeek を絞って fyi に余裕を作る
+    //  （ヘッドライン 0 件問題の構造的予防）。
+    const THIS_WEEK_MAX = base.length <= 4 ? 1 : (base.length <= 6 ? 2 : (base.length <= 10 ? 4 : 6));
     const dedupAgainst = (candidate, existing) => existing.some(p => sameStory(p.title, candidate.title));
     const ugcHasSignal = (n) => (Number(n.hatenaCount) || 0) >= 1 || matchesTool(n) || matchesAIBrand(n);
     let thisWeek = [];
@@ -1361,6 +1363,13 @@
       }
     }
     if (!fyi.length) fyi = allRest; // 最終セーフティ
+    // それでも 0 件 (=allRest 自体が空 = mustKnow + thisWeek で全部使い切った)
+    // 場合は thisWeek の末尾 1-2 件を fyi に降ろして必ず表示があるようにする。
+    if (!fyi.length && thisWeek.length > 1) {
+      const movable = thisWeek.slice(-Math.min(2, Math.max(1, thisWeek.length - 1)));
+      thisWeek = thisWeek.slice(0, thisWeek.length - movable.length);
+      fyi = movable;
+    }
     return { mustKnow, thisWeek, fyi };
   }
 
@@ -2904,12 +2913,12 @@
   let _transcriptActiveIdx = -1;
 
   function buildTranscript(digest) {
-    const root = document.getElementById('ap-transcript');
-    if (!root) return;
+    const body = document.getElementById('ap-transcript-body');
+    if (!body) return;
     _transcriptLines = [];
     _transcriptActiveIdx = -1;
     const text = String(digest || '').trim();
-    if (!text) { root.innerHTML = ''; return; }
+    if (!text) { body.innerHTML = ''; return; }
     // 句点 / 改行 で分割
     const sentences = text.split(/(?<=[。！？\n])/).map(s => s.trim()).filter(Boolean);
     const totalChars = sentences.reduce((a, b) => a + b.length, 0) || 1;
@@ -2921,9 +2930,9 @@
       _transcriptLines.push({ start, end, idx: i });
       return `<div class="ap-transcript-line" data-idx="${i}" data-start="${start.toFixed(4)}">${escapeHtml(s)}</div>`;
     }).join('');
-    root.innerHTML = html;
+    body.innerHTML = html;
     // 行クリックで該当箇所へ seek
-    root.querySelectorAll('.ap-transcript-line').forEach(el => {
+    body.querySelectorAll('.ap-transcript-line').forEach(el => {
       el.addEventListener('click', () => {
         const startRatio = parseFloat(el.dataset.start || '0');
         if (!speechState.audio) return;
@@ -2939,14 +2948,15 @@
     if (idx < 0 && ratio >= 1 - 0.0001) idx = _transcriptLines.length - 1;
     if (idx === _transcriptActiveIdx) return;
     const root = document.getElementById('ap-transcript');
-    if (!root) return;
-    root.querySelectorAll('.ap-transcript-line.active').forEach(el => el.classList.remove('active'));
+    const body = document.getElementById('ap-transcript-body');
+    if (!body) return;
+    body.querySelectorAll('.ap-transcript-line.active').forEach(el => el.classList.remove('active'));
     if (idx >= 0) {
-      const target = root.querySelector(`.ap-transcript-line[data-idx="${idx}"]`);
+      const target = body.querySelector(`.ap-transcript-line[data-idx="${idx}"]`);
       if (target) {
         target.classList.add('active');
         // パネル開いてる時だけスクロール
-        if (!root.hasAttribute('hidden')) {
+        if (root && !root.hasAttribute('hidden')) {
           target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
       }
@@ -3241,23 +3251,30 @@
     // 台本表示トグル
     const apToggleScript = document.getElementById('ap-toggle-script');
     const apTranscript = document.getElementById('ap-transcript');
+    const apTranscriptClose = document.getElementById('ap-transcript-close');
+    function closeTranscript() {
+      if (!apTranscript) return;
+      apTranscript.setAttribute('hidden', '');
+      if (apToggleScript) apToggleScript.setAttribute('aria-pressed', 'false');
+    }
+    function openTranscript() {
+      if (!apTranscript) return;
+      if (preloadedDigest) buildTranscript(preloadedDigest);
+      apTranscript.removeAttribute('hidden');
+      if (apToggleScript) apToggleScript.setAttribute('aria-pressed', 'true');
+      const body = document.getElementById('ap-transcript-body');
+      const active = body && body.querySelector('.ap-transcript-line.active');
+      if (active) active.scrollIntoView({ block: 'nearest' });
+    }
     if (apToggleScript && apTranscript) {
       apToggleScript.addEventListener('click', () => {
-        const opening = apTranscript.hasAttribute('hidden');
-        if (opening) {
-          // 直近の preloadedDigest を使って台本を構築
-          if (preloadedDigest) buildTranscript(preloadedDigest);
-          apTranscript.removeAttribute('hidden');
-          apToggleScript.setAttribute('aria-pressed', 'true');
-          // 現在のハイライト位置にスクロール
-          const active = apTranscript.querySelector('.ap-transcript-line.active');
-          if (active) active.scrollIntoView({ block: 'nearest' });
-        } else {
-          apTranscript.setAttribute('hidden', '');
-          apToggleScript.setAttribute('aria-pressed', 'false');
-        }
+        if (apTranscript.hasAttribute('hidden')) openTranscript();
+        else closeTranscript();
       });
     }
+    if (apTranscriptClose) apTranscriptClose.addEventListener('click', closeTranscript);
+    // 停止ボタン押下時にも台本パネルを閉じる
+    if (apStop) apStop.addEventListener('click', closeTranscript);
     // 起動時にバックグラウンドで音声を事前生成（ネットワーク待機なしで即再生できる）。
     // 待ち時間を最小化するため、500ms 遅延をやめて即座にプリロード開始。
     // MP3 バイトも prewarmAudio でブラウザキャッシュに乗せるので、click → play がほぼ遅延ゼロに。
