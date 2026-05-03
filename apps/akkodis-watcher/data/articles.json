@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-05-02T23:35:33Z",
+  "last_scraped": "2026-05-03T23:35:32Z",
   "articles": [
     {
       "id": "aerospace-defense-digital-engineering",
@@ -40,16 +40,6 @@
       "first_seen": "2026-04-14T23:34:52Z",
       "published_date": "2026-04-09T00:00:00Z",
       "summary_ja": "航空機の外観は変わらなくても内部システムは継続的に進化しており、新しい航空規制への対応と航空宇宙技術の急速な発展が機体の改修や最新化を推し進めています。アッコディスは欧州の大手航空機製造業者と長期的な協力関係を構築し、次世代の航法システムやデジタル飛行制御などの最新技術を統合し、炭素排出削減や運用効率の向上に取り組んでいます。航空機の安全性と信頼性を確保するため、厳密なテスト検証を実施して全世界の航空規制に適合させるとともに、現場での保守支援や異常分析を通じて機体の継続的な性能向上を支援しています。"
-    },
-    {
-      "id": "improving-the-acoustic-footprint-of-submarines",
-      "title": "Absolute Stealth: Mastering the Acoustic Signature of Submarines",
-      "url": "https://www.akkodis.com/blog/articles/improving-the-acoustic-footprint-of-submarines",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-04-08T23:29:48Z",
-      "published_date": "2026-04-03T00:00:00Z",
-      "summary_ja": "潜水艦の音響特性を常時監視し、エンジンやポンプなどから発生する騒音の位置特定と低減を行うAIシステムを開発しており、このプラットフォームにより潜水艦の発見可能性を大幅に低下させることができます。開発したシステムは複雑なデータ分析を行いながらも、操作画面はシンプルで直感的に設計されており、現場のオペレーターが素早く対応判断できるようになっています。音響データの分析機能は機器の摩耗や故障の兆候を早期に検出することで、予防的なメンテナンスを可能にし、潜水艦の運用効率と信頼性を高めています。"
     },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
