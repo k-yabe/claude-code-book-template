@@ -2314,7 +2314,8 @@
   /** 初回ロード時にサーバ側 API（Claude + web_search）から最新 X トレンドを取る。
    *  返り値: true なら X_HIGHLIGHTS を更新した（renderX を呼び直すべき）。
    *  v2: キャッシュは日付でバケット化し「日が変わったら必ず再取得」。同日内は 1 時間 TTL。 */
-  const X_TRENDS_CACHE_KEY = 'ai-news:xtrends:v2';
+  // v3: API レスポンスに lang / textJa を含めるよう拡張（v2 までは英語投稿に翻訳が付いていなかった）
+  const X_TRENDS_CACHE_KEY = 'ai-news:xtrends:v3';
   const X_TRENDS_TTL_MS = 60 * 60 * 1000; // 1 時間（同日内の複数アクセスを節約）
   function todayKey() {
     const d = new Date();
