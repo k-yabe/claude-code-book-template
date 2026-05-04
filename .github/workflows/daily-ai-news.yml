@@ -1,11 +1,10 @@
 name: AI日報 自動生成・送信
 
 on:
-  schedule:
-    # 毎朝日本時間6:30（UTC 21:30）に実行 → GitHub Actions遅延込みで7時頃に届く
-    # プロンプトは「前日のニュースまとめ」を指示
-    - cron: "30 21 * * *"
-  workflow_dispatch: # 手動実行も可能
+  # 自動配信は停止中。再開する場合は schedule ブロックのコメントアウトを解除する。
+  # schedule:
+  #   - cron: "30 21 * * *"  # 毎朝 JST 6:30 配信（UTC 21:30）
+  workflow_dispatch: # 手動実行のみ
 
 permissions:
   contents: write  # アーカイブのコミットに必要
