@@ -8,223 +8,517 @@
   <title>Marketing Radar</title>
   <link rel="stylesheet" href="../../assets/app-styles.css">
   <style>
-    body { min-height: 100vh; padding: 0 0 60px; background: var(--bg); }
+    body { min-height: 100vh; padding: 0; background: var(--bg); }
 
-    .page-header {
-      max-width: 1180px;
-      margin: var(--sp-8) auto 0;
-      padding: 0 var(--sp-5) var(--sp-3);
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: var(--sp-2);
-    }
-    .page-title-wrap { display: flex; align-items: center; gap: 12px; }
-    .page-title-wrap h1 { margin: 0; font-size: 1.6rem; color: var(--navy); letter-spacing: 0.01em; }
-    .page-subtitle { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
-    .meta-text { font-size: 0.72rem; color: var(--text-faint); }
-
-    .wrap {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: var(--sp-2) var(--sp-5) 0;
-    }
-
-    /* ── Hero: 前日ハイライト ── */
-    .hero {
-      background: linear-gradient(135deg, var(--navy) 0%, #002d4a 60%, #003d66 100%);
+    /* ── Masthead (Navy全幅ヘッダー) ── */
+    .masthead {
+      background: var(--navy);
       color: #fff;
-      padding: 22px 24px 24px;
-      margin-bottom: var(--sp-4);
+      padding: 0 0 32px;
       position: relative;
       overflow: hidden;
     }
-    .hero::after {
+    .masthead::before {
       content: "";
-      position: absolute; right: -40px; top: -40px;
-      width: 180px; height: 180px;
-      background: var(--gold); opacity: 0.08;
-      border-radius: 50%;
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(circle at 90% 20%, rgba(255,184,28,0.07) 0%, transparent 50%),
+        radial-gradient(circle at 10% 80%, rgba(0,255,255,0.05) 0%, transparent 40%);
       pointer-events: none;
     }
-    .hero-kicker {
-      display: inline-block;
-      background: var(--gold); color: var(--navy);
-      font-size: 0.7rem; font-weight: 800;
-      padding: 3px 10px; letter-spacing: 0.08em;
-      margin-bottom: 8px;
-    }
-    .hero-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 14px; opacity: 0.95; }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-    @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } }
-    .hero-item {
-      background: rgba(255,255,255,0.06);
-      border-left: 3px solid var(--gold);
-      padding: 12px 14px;
-      text-decoration: none; color: #fff;
-      transition: background var(--ease-fast);
-    }
-    .hero-item:hover { background: rgba(255,255,255,0.12); }
-    .hero-item-source { font-size: 0.7rem; color: var(--gold); font-weight: 700; margin-bottom: 4px; }
-    .hero-item-title {
-      font-size: 0.9rem; font-weight: 600; line-height: 1.45;
-      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-    }
-    .hero-empty {
-      grid-column: 1 / -1;
-      text-align: center; padding: 18px 0;
-      color: rgba(255,255,255,0.7); font-size: 0.85rem;
+    .mast-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--sp-5);
+      position: relative;
     }
 
-    /* ── Filters bar ── */
-    .filters {
+    /* ── Greeting row ── */
+    .greeting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 28px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .greeting {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.6);
+      font-weight: 500;
+    }
+    .greeting strong {
+      color: var(--gold);
+      font-weight: 700;
+    }
+    .mast-date {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.45);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Title block ── */
+    .mast-title-block { margin-bottom: 24px; }
+    .mast-kicker {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .mast-title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+      margin: 0;
+    }
+    .mast-title .accent { color: var(--gold); }
+    .mast-sub {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.55);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    /* ── Stats strip ── */
+    .stats-strip {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 28px;
+    }
+    .stat-box {
+      flex: 1;
+      background: rgba(255,255,255,0.06);
+      padding: 12px 16px;
+      text-align: center;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .stat-box:hover { border-bottom-color: var(--gold); }
+    .stat-num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .stat-num.gold { color: var(--gold); }
+    .stat-label {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.45);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Hero (非対称グリッド: 1 featured + 2 sub) ── */
+    .hero-section-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-section-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 10px;
+    }
+    @media (max-width: 760px) {
+      .hero-grid { grid-template-columns: 1fr; }
+    }
+    .hero-card {
+      background: rgba(255,255,255,0.05);
+      border-left: 3px solid var(--gold);
+      padding: 16px 18px;
+      text-decoration: none;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      transition: background 0.2s;
+    }
+    .hero-card:hover { background: rgba(255,255,255,0.1); }
+    .hero-card.featured {
+      grid-row: 1 / 3;
+      padding: 24px;
+      border-left-width: 4px;
+    }
+    .hero-card.featured .hero-card-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      line-height: 1.35;
+      -webkit-line-clamp: 4;
+    }
+    .hero-card.featured .hero-card-summary {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+    .hero-card-source {
+      font-size: 0.68rem;
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+    .hero-card-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .hero-card-summary { display: none; }
+    .hero-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 32px 20px;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    /* ── Content area ── */
+    .content-area {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--sp-4) var(--sp-5) 60px;
+    }
+
+    /* ── Sticky filter bar ── */
+    .filter-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg);
+      padding: 14px 0 12px;
+      margin-bottom: var(--sp-3);
+      border-bottom: 1.5px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: var(--sp-3);
     }
-    .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip-group { display: flex; flex-wrap: wrap; gap: 5px; }
     .chip {
       background: var(--surface);
       border: 1.5px solid var(--border);
       color: var(--text-muted);
-      font-size: 0.78rem; font-weight: 600;
-      padding: 7px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 6px 11px;
       cursor: pointer;
-      transition: all var(--ease-fast);
+      transition: all 0.15s;
     }
     .chip:hover { border-color: var(--navy); color: var(--navy); }
     .chip.is-active {
-      background: var(--navy); border-color: var(--navy); color: #fff;
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
     }
-    .chip .count { opacity: 0.7; margin-left: 4px; font-weight: 500; }
+    .chip .cnt {
+      display: inline-block;
+      min-width: 18px;
+      text-align: center;
+      background: rgba(0,0,0,0.08);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      margin-left: 5px;
+      font-variant-numeric: tabular-nums;
+    }
+    .chip.is-active .cnt {
+      background: rgba(255,255,255,0.2);
+    }
+    .date-chips .chip.is-active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--navy);
+    }
+    .date-chips .chip.is-active .cnt { background: rgba(0,31,51,0.15); }
 
-    .date-filter { display: flex; gap: 6px; }
-    .date-filter .chip.is-active {
-      background: var(--gold); border-color: var(--gold); color: var(--navy);
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .search-box input {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      color: var(--navy);
+      width: 180px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .search-box input:focus { border-color: var(--navy); }
+    .search-box input::placeholder { color: var(--text-faint); }
+
+    /* ── Section header ── */
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: var(--sp-3);
+    }
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--navy);
+      position: relative;
+      padding-bottom: 4px;
+    }
+    .section-title::after {
+      content: "";
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--gold);
+    }
+    .section-count {
+      font-size: 0.72rem;
+      color: var(--text-faint);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
     }
 
     /* ── News grid ── */
     .news-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 12px;
     }
+
+    /* ── News card ── */
     .news-card {
       background: var(--surface);
       border: 1.5px solid var(--border);
-      border-top: 4px solid var(--border);
-      padding: 14px 16px 14px;
-      display: flex; flex-direction: column;
-      text-decoration: none; color: inherit;
-      transition: all var(--ease-fast);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s;
       position: relative;
+      overflow: hidden;
+      opacity: 0;
+      animation: cardIn 0.35s ease forwards;
     }
     .news-card:hover {
-      border-color: var(--navy);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 31, 51, 0.08);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,31,51,0.1);
     }
-    .news-card[data-cat="marketing_jp"]     { border-top-color: var(--gold); }
-    .news-card[data-cat="marketing_global"] { border-top-color: var(--cyan); }
-    .news-card[data-cat="business"]         { border-top-color: var(--navy); }
-    .news-card[data-cat="tech"]             { border-top-color: #9966cc; }
-    .news-card[data-cat="sns"]              { border-top-color: #1da1f2; }
 
-    .news-meta {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 0.7rem; color: var(--text-faint);
-      margin-bottom: 8px;
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    .news-source {
-      font-weight: 700; color: var(--navy);
-      font-size: 0.7rem;
-    }
-    .news-cat {
-      font-size: 0.65rem; font-weight: 700;
-      padding: 2px 7px;
-      background: var(--surface-alt); color: var(--text-muted);
-      letter-spacing: 0.04em;
-    }
-    .news-card[data-cat="marketing_jp"]     .news-cat { background: #fff4d6; color: #7a5a00; }
-    .news-card[data-cat="marketing_global"] .news-cat { background: #ccffff; color: #006666; }
-    .news-card[data-cat="business"]         .news-cat { background: #cce0ee; color: var(--navy); }
-    .news-card[data-cat="tech"]             .news-cat { background: #ece0f5; color: #5b2d91; }
-    .news-card[data-cat="sns"]              .news-cat { background: #d4edfb; color: #0d5a8c; }
 
-    .news-title {
-      font-size: 0.92rem; font-weight: 700; color: var(--navy);
-      line-height: 1.4;
-      margin-bottom: 8px;
-      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    .card-accent {
+      height: 3px;
+      width: 100%;
     }
-    .news-summary {
-      font-size: 0.78rem; color: var(--text-muted);
-      line-height: 1.55;
-      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-      flex-grow: 1;
+    .news-card[data-cat="marketing_jp"]     .card-accent { background: var(--gold); }
+    .news-card[data-cat="marketing_global"] .card-accent { background: var(--cyan); }
+    .news-card[data-cat="business"]         .card-accent { background: var(--navy); }
+    .news-card[data-cat="tech"]             .card-accent { background: var(--navy-60); }
+    .news-card[data-cat="sns"]              .card-accent { background: var(--gold-60); }
+
+    .card-body {
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    /* Source avatar + meta */
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       margin-bottom: 10px;
     }
-    .news-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 0.68rem; color: var(--text-faint);
-      padding-top: 8px;
+    .src-avatar {
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--gold);
+      background: var(--navy);
+      flex-shrink: 0;
+    }
+    .src-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .src-name {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--navy);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .src-time {
+      font-size: 0.65rem;
+      color: var(--text-faint);
+      font-variant-numeric: tabular-nums;
+    }
+    .card-cat-badge {
+      margin-left: auto;
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+      border: 1.5px solid var(--border);
+      color: var(--text-muted);
+      background: var(--surface-alt);
+    }
+    .news-card[data-cat="marketing_jp"]     .card-cat-badge { border-color: var(--gold-40); color: var(--navy); background: var(--gold-20); }
+    .news-card[data-cat="marketing_global"] .card-cat-badge { border-color: rgba(0,255,255,0.25); color: var(--navy); background: rgba(0,255,255,0.08); }
+    .news-card[data-cat="business"]         .card-cat-badge { border-color: var(--navy-20); color: var(--navy); background: rgba(0,31,51,0.05); }
+    .news-card[data-cat="tech"]             .card-cat-badge { border-color: var(--navy-40); color: var(--navy-80); background: rgba(0,31,51,0.04); }
+    .news-card[data-cat="sns"]              .card-cat-badge { border-color: var(--gold-40); color: var(--navy); background: var(--gold-20); }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.45;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-summary {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex-grow: 1;
+    }
+    .card-footer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 10px 16px;
       border-top: 1px solid var(--border-light);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--navy);
+      gap: 4px;
     }
-    .news-footer .arrow { color: var(--navy); font-weight: 700; }
+    .card-footer .arr { transition: transform 0.15s; }
+    .news-card:hover .card-footer .arr { transform: translateX(3px); }
 
-    .news-card.is-yesterday { background: #fffdf5; }
-    .news-card.is-yesterday::before {
-      content: "前日";
-      position: absolute; top: 0; right: 0;
-      background: var(--gold); color: var(--navy);
-      font-size: 0.62rem; font-weight: 800;
-      padding: 2px 7px;
-      letter-spacing: 0.05em;
+    /* Yesterday badge */
+    .news-card.is-yesterday .card-accent {
+      background: var(--gold);
+      height: 4px;
+    }
+    .ystd-badge {
+      position: absolute;
+      top: 3px;
+      right: 0;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 0.58rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      letter-spacing: 0.06em;
     }
 
-    /* ── Empty state ── */
+    /* ── Empty / skeleton ── */
     .empty-state {
       text-align: center;
       padding: 60px 20px;
       color: var(--text-faint);
     }
-    .empty-state .icon { font-size: 3rem; margin-bottom: 8px; opacity: 0.5; }
-    .empty-state .msg { font-size: 0.9rem; }
+    .empty-state .e-icon { font-size: 2.5rem; opacity: 0.4; margin-bottom: 10px; }
+    .empty-state .e-msg { font-size: 0.88rem; line-height: 1.6; }
 
-    /* ── Loading skeleton ── */
     .skeleton-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 12px;
     }
     .sk-card {
       background: var(--surface);
       border: 1.5px solid var(--border);
-      padding: 14px 16px;
-      height: 170px;
+      padding: 16px;
+      height: 180px;
     }
     .sk-line {
-      background: linear-gradient(90deg, #eef0f3 0%, #f8f9fb 50%, #eef0f3 100%);
+      background: linear-gradient(90deg, var(--border-light) 0%, var(--surface-alt) 50%, var(--border-light) 100%);
       background-size: 200% 100%;
-      animation: sk 1.2s ease-in-out infinite;
-      height: 10px; margin-bottom: 8px;
+      animation: sk 1.4s ease-in-out infinite;
+      height: 10px;
+      margin-bottom: 10px;
     }
     .sk-line.w60 { width: 60%; } .sk-line.w80 { width: 80%; } .sk-line.w40 { width: 40%; }
+    .sk-line.w30 { width: 30%; }
     @keyframes sk { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
 
+    /* ── Refresh button ── */
+    .refresh-btn {
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .refresh-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── Responsive ── */
     @media (max-width: 480px) {
-      .page-header { margin-top: var(--sp-5); }
-      .page-title-wrap h1 { font-size: 1.3rem; }
-      .hero { padding: 16px 14px 18px; }
-      .hero-title { font-size: 0.9rem; }
+      .mast-title { font-size: 1.4rem; }
+      .stats-strip { flex-wrap: wrap; }
+      .stat-box { flex: 1 1 45%; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-card.featured { grid-row: auto; padding: 16px; }
+      .hero-card.featured .hero-card-title { font-size: 1rem; }
+      .search-box input { width: 130px; }
+      .news-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-card.featured { grid-row: auto; }
     }
   </style>
 </head>
@@ -232,53 +526,77 @@
 
   <nav class="navbar">
     <div class="navbar-brand">
-      <a href="../../" class="back-btn">← アプリ一覧へ</a>
+      <a href="../../" class="back-btn">&larr; アプリ一覧へ</a>
       <div class="navbar-divider"></div>
       <span class="navbar-title">Marketing Radar</span>
     </div>
   </nav>
 
-  <div class="page-header">
-    <div class="page-title-wrap">
-      <h1>📰 Marketing Radar</h1>
-    </div>
-    <div class="header-right" style="display:flex;align-items:center;gap:10px;">
-      <span class="meta-text" id="meta-generated"></span>
-      <button class="chip" id="refresh-btn" title="再読み込み" aria-label="再読み込み">↻ 更新</button>
-    </div>
-  </div>
-  <div class="wrap">
-    <p class="page-subtitle" style="margin-bottom: var(--sp-3);">マーケ・市場・テックの最新ニュースを日次で集約。前日のハイライトを一目でキャッチアップ。</p>
-  </div>
-
-  <div class="wrap">
-    <section class="hero" aria-label="前日のハイライト">
-      <span class="hero-kicker" id="hero-kicker">YESTERDAY'S HIGHLIGHTS</span>
-      <div class="hero-title" id="hero-title">前日のハイライトを読み込み中…</div>
-      <div class="hero-grid" id="hero-grid"></div>
-    </section>
-
-    <div class="filters">
-      <div class="chip-group" id="cat-chips" role="tablist" aria-label="カテゴリ"></div>
-      <div class="date-filter chip-group" role="tablist" aria-label="期間">
-        <button class="chip" data-range="today">今日</button>
-        <button class="chip is-active" data-range="yesterday">前日</button>
-        <button class="chip" data-range="7d">7日間</button>
-        <button class="chip" data-range="all">全期間</button>
+  <!-- ── Masthead ── -->
+  <header class="masthead">
+    <div class="mast-inner">
+      <div class="greeting-row">
+        <div class="greeting" id="greeting"></div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="mast-date" id="mast-date"></span>
+          <button class="refresh-btn" id="refresh-btn" aria-label="データ再読み込み">&#x21bb; 更新</button>
+        </div>
       </div>
+
+      <div class="mast-title-block">
+        <span class="mast-kicker">DAILY MARKETING INTELLIGENCE</span>
+        <h1 class="mast-title">Marketing <span class="accent">Radar</span></h1>
+        <p class="mast-sub">国内外マーケ・市場・テックの主要ニュースを12媒体から日次収集</p>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="stats-strip" id="stats-strip">
+        <div class="stat-box"><div class="stat-num" id="st-today">—</div><div class="stat-label">今日</div></div>
+        <div class="stat-box"><div class="stat-num gold" id="st-yesterday">—</div><div class="stat-label">前日</div></div>
+        <div class="stat-box"><div class="stat-num" id="st-week">—</div><div class="stat-label">7日間</div></div>
+        <div class="stat-box"><div class="stat-num" id="st-sources">12</div><div class="stat-label">ソース数</div></div>
+      </div>
+
+      <!-- Hero -->
+      <div class="hero-section-title">YESTERDAY'S HIGHLIGHTS</div>
+      <div class="hero-grid" id="hero-grid"></div>
+    </div>
+  </header>
+
+  <!-- ── Content ── -->
+  <main class="content-area">
+    <div class="filter-bar">
+      <div class="chip-group" id="cat-chips" role="tablist" aria-label="カテゴリ"></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <div class="chip-group date-chips" role="tablist" aria-label="期間">
+          <button class="chip" data-range="today">今日</button>
+          <button class="chip is-active" data-range="yesterday">前日</button>
+          <button class="chip" data-range="7d">7日間</button>
+          <button class="chip" data-range="all">全期間</button>
+        </div>
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="キーワード検索…" aria-label="キーワード検索" />
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <div class="section-title" id="section-title">ニュース一覧</div>
+      <span class="section-count" id="section-count"></span>
     </div>
 
     <div id="news-area">
       <div class="skeleton-grid" id="skeleton">
-        <div class="sk-card"><div class="sk-line w40"></div><div class="sk-line w80"></div><div class="sk-line w60"></div><div class="sk-line w80"></div></div>
-        <div class="sk-card"><div class="sk-line w40"></div><div class="sk-line w80"></div><div class="sk-line w60"></div><div class="sk-line w80"></div></div>
-        <div class="sk-card"><div class="sk-line w40"></div><div class="sk-line w80"></div><div class="sk-line w60"></div><div class="sk-line w80"></div></div>
+        <div class="sk-card"><div class="sk-line w30"></div><div class="sk-line w80"></div><div class="sk-line w60"></div><div class="sk-line w80"></div><div class="sk-line w40"></div></div>
+        <div class="sk-card"><div class="sk-line w30"></div><div class="sk-line w80"></div><div class="sk-line w60"></div><div class="sk-line w80"></div><div class="sk-line w40"></div></div>
+        <div class="sk-card"><div class="sk-line w30"></div><div class="sk-line w80"></div><div class="sk-line w60"></div><div class="sk-line w80"></div><div class="sk-line w40"></div></div>
+        <div class="sk-card"><div class="sk-line w30"></div><div class="sk-line w80"></div><div class="sk-line w60"></div><div class="sk-line w80"></div><div class="sk-line w40"></div></div>
       </div>
     </div>
-  </div>
+  </main>
 
   <footer class="app-footer">
-    <span class="app-footer-text">⚠️ 外部メディアの記事タイトル・要約はRSSから取得しています。各記事の権利は発行元に帰属します。</span>
+    <span class="app-footer-text">&copy; RSSから取得した記事タイトル・要約の権利は各発行元に帰属します</span>
   </footer>
 
   <script>
@@ -287,46 +605,59 @@
       categories: {},
       activeCategory: 'all',
       activeRange: 'yesterday',
+      searchQuery: '',
       generatedAt: '',
     };
 
-    // ── 日付ユーティリティ ──
-    function startOfDay(d) {
-      const x = new Date(d); x.setHours(0, 0, 0, 0); return x;
-    }
-    function daysAgoStart(n) {
-      const x = startOfDay(new Date()); x.setDate(x.getDate() - n); return x;
-    }
+    /* ── Utilities ── */
+    function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
+    function daysAgoStart(n) { const x = startOfDay(new Date()); x.setDate(x.getDate() - n); return x; }
+
     function formatRelative(iso) {
       if (!iso) return '';
       const d = new Date(iso);
       if (isNaN(d)) return '';
-      const diffMs = Date.now() - d.getTime();
-      const h = Math.floor(diffMs / 3600000);
+      const h = Math.floor((Date.now() - d.getTime()) / 3600000);
       if (h < 1) return 'たった今';
-      if (h < 24) return `${h}時間前`;
+      if (h < 24) return h + '時間前';
       const day = Math.floor(h / 24);
-      if (day < 7) return `${day}日前`;
+      if (day < 7) return day + '日前';
       return d.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
     }
+
     function isYesterday(iso) {
       if (!iso) return false;
       const d = new Date(iso);
-      const start = daysAgoStart(1);
-      const end   = startOfDay(new Date());
-      return d >= start && d < end;
+      return d >= daysAgoStart(1) && d < startOfDay(new Date());
     }
 
-    // ── HTMLエスケープ ──
     function esc(s) {
-      return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
 
-    // ── データ読み込み ──
+    function sourceInitial(label) {
+      if (!label) return '?';
+      return label.charAt(0).toUpperCase();
+    }
+
+    /* ── Greeting ── */
+    function setGreeting() {
+      const h = new Date().getHours();
+      let g = 'こんばんは';
+      if (h < 12) g = 'おはようございます';
+      else if (h < 18) g = 'こんにちは';
+      document.getElementById('greeting').innerHTML = g + '。<strong>今日のマーケインテル</strong>をチェック';
+      const now = new Date();
+      const wd = ['日','月','火','水','木','金','土'][now.getDay()];
+      document.getElementById('mast-date').textContent =
+        now.getFullYear() + '/' + (now.getMonth()+1) + '/' + now.getDate() + '(' + wd + ')';
+    }
+
+    /* ── Data loading ── */
     async function loadData() {
       try {
-        const res = await fetch(`data/news.json?t=${Date.now()}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await fetch('data/news.json?t=' + Date.now(), { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         state.items = Array.isArray(data.items) ? data.items : [];
         state.categories = data.categories || {};
@@ -335,44 +666,85 @@
       } catch (e) {
         console.error(e);
         document.getElementById('news-area').innerHTML =
-          `<div class="empty-state"><div class="icon">⚠️</div><div class="msg">ニュースデータを読み込めませんでした（${esc(e.message)}）</div></div>`;
+          '<div class="empty-state"><div class="e-icon">&#x26A0;&#xFE0F;</div><div class="e-msg">データを読み込めませんでした (' + esc(e.message) + ')</div></div>';
       }
     }
 
-    // ── カテゴリチップ ──
-    function renderCategoryChips() {
-      const counts = { all: state.items.length };
-      for (const it of state.items) {
-        counts[it.category] = (counts[it.category] || 0) + 1;
+    /* ── Stats ── */
+    function countByRange(items, range) {
+      const now = new Date();
+      const endToday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      const startToday = startOfDay(now);
+      const startYstd = daysAgoStart(1);
+      const start7d = daysAgoStart(7);
+      return items.filter(it => {
+        if (!it.published_at) return false;
+        const d = new Date(it.published_at);
+        if (range === 'today')     return d >= startToday && d < endToday;
+        if (range === 'yesterday') return d >= startYstd  && d < startToday;
+        if (range === '7d')        return d >= start7d    && d < endToday;
+        return true;
+      }).length;
+    }
+
+    function renderStats() {
+      document.getElementById('st-today').textContent     = countByRange(state.items, 'today');
+      document.getElementById('st-yesterday').textContent  = countByRange(state.items, 'yesterday');
+      document.getElementById('st-week').textContent       = countByRange(state.items, '7d');
+    }
+
+    /* ── Hero ── */
+    function renderHero() {
+      const ystd = state.items.filter(it => isYesterday(it.published_at));
+      const grid = document.getElementById('hero-grid');
+      if (ystd.length === 0) {
+        grid.innerHTML = '<div class="hero-empty">前日のニュースはまだありません。<br>GitHub Actions が毎日 JST 7:00 に自動収集します。</div>';
+        return;
       }
-      const order = ['all', 'marketing_jp', 'marketing_global', 'business', 'tech', 'sns'];
+      const top = ystd.slice(0, 3);
+      grid.innerHTML = top.map((it, i) => {
+        const cls = i === 0 ? 'hero-card featured' : 'hero-card';
+        const summary = i === 0 && it.summary
+          ? '<div class="hero-card-summary">' + esc(it.summary) + '</div>' : '';
+        return '<a class="' + cls + '" href="' + esc(it.url) + '" target="_blank" rel="noopener noreferrer">'
+          + '<div class="hero-card-source">' + esc(it.source_label || '') + '</div>'
+          + '<div class="hero-card-title">' + esc(it.title) + '</div>'
+          + summary + '</a>';
+      }).join('');
+    }
+
+    /* ── Category chips ── */
+    function renderCatChips() {
+      const counts = { all: state.items.length };
+      state.items.forEach(it => { counts[it.category] = (counts[it.category] || 0) + 1; });
+      const order = ['all','marketing_jp','marketing_global','business','tech','sns'];
       const labels = { all: 'すべて', ...state.categories };
       const el = document.getElementById('cat-chips');
       el.innerHTML = order
         .filter(k => k === 'all' || labels[k])
-        .map(k => `
-          <button class="chip ${k === state.activeCategory ? 'is-active' : ''}"
-                  data-cat="${esc(k)}" role="tab"
-                  aria-selected="${k === state.activeCategory}">
-            ${esc(labels[k] || k)}<span class="count">${counts[k] || 0}</span>
-          </button>
-        `).join('');
+        .map(k => '<button class="chip' + (k === state.activeCategory ? ' is-active' : '')
+          + '" data-cat="' + esc(k) + '" role="tab" aria-selected="' + (k === state.activeCategory) + '">'
+          + esc(labels[k] || k) + '<span class="cnt">' + (counts[k] || 0) + '</span></button>').join('');
       el.querySelectorAll('.chip').forEach(btn => {
-        btn.addEventListener('click', () => {
-          state.activeCategory = btn.dataset.cat;
+        btn.addEventListener('click', function() {
+          state.activeCategory = this.dataset.cat;
           render();
         });
       });
     }
 
-    // ── 期間フィルタ ──
-    function filterByRange(items) {
+    /* ── Filter ── */
+    function filterItems() {
+      let items = state.items;
+      if (state.activeCategory !== 'all') {
+        items = items.filter(it => it.category === state.activeCategory);
+      }
       const now = new Date();
-      const endToday     = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-      const startToday   = startOfDay(now);
-      const startYstd    = daysAgoStart(1);
-      const start7d      = daysAgoStart(7);
-      return items.filter(it => {
+      const endToday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      const startToday = startOfDay(now);
+      const startYstd = daysAgoStart(1);
+      const start7d = daysAgoStart(7);
+      items = items.filter(it => {
         if (!it.published_at) return state.activeRange === 'all';
         const d = new Date(it.published_at);
         if (state.activeRange === 'today')     return d >= startToday && d < endToday;
@@ -380,93 +752,83 @@
         if (state.activeRange === '7d')        return d >= start7d    && d < endToday;
         return true;
       });
-    }
-
-    // ── ヒーロー描画（前日ハイライト top3） ──
-    function renderHero() {
-      const ystd = state.items.filter(it => isYesterday(it.published_at));
-      const top = ystd.slice(0, 3);
-      const grid = document.getElementById('hero-grid');
-      const title = document.getElementById('hero-title');
-      if (top.length === 0) {
-        title.textContent = '前日のニュースはまだありません';
-        grid.innerHTML = '<div class="hero-empty">GitHub Actionsが次回走ると自動的にここに表示されます。</div>';
-        return;
+      if (state.searchQuery) {
+        const q = state.searchQuery.toLowerCase();
+        items = items.filter(it =>
+          (it.title || '').toLowerCase().includes(q)
+          || (it.summary || '').toLowerCase().includes(q)
+          || (it.source_label || '').toLowerCase().includes(q)
+        );
       }
-      title.textContent = `前日のマーケティング重要ニュース（${ystd.length}件）`;
-      grid.innerHTML = top.map(it => `
-        <a class="hero-item" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">
-          <div class="hero-item-source">${esc(it.source_label || '')}</div>
-          <div class="hero-item-title">${esc(it.title)}</div>
-        </a>
-      `).join('');
+      return items;
     }
 
-    // ── カード一覧 ──
+    /* ── Card list ── */
     function renderList() {
-      let items = state.items;
-      if (state.activeCategory !== 'all') {
-        items = items.filter(it => it.category === state.activeCategory);
-      }
-      items = filterByRange(items);
-
+      const items = filterItems();
       const area = document.getElementById('news-area');
+      document.getElementById('section-count').textContent = items.length + '件';
+
       if (items.length === 0) {
-        area.innerHTML = `
-          <div class="empty-state">
-            <div class="icon">📭</div>
-            <div class="msg">この条件のニュースはありません。期間やカテゴリを変えて再検索してください。</div>
-          </div>`;
+        area.innerHTML = '<div class="empty-state"><div class="e-icon">&#x1F4ED;</div><div class="e-msg">この条件のニュースはありません。<br>期間やカテゴリを変えてみてください。</div></div>';
         return;
       }
+
       const catLabels = state.categories;
-      area.innerHTML = `<div class="news-grid">` + items.map(it => {
-        const yesterday = isYesterday(it.published_at);
-        return `
-          <a class="news-card ${yesterday ? 'is-yesterday' : ''}" data-cat="${esc(it.category)}"
-             href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">
-            <div class="news-meta">
-              <span class="news-source">${esc(it.source_label || '')}</span>
-              <span class="news-cat">${esc(catLabels[it.category] || it.category)}</span>
-            </div>
-            <div class="news-title">${esc(it.title)}</div>
-            <div class="news-summary">${esc(it.summary || '')}</div>
-            <div class="news-footer">
-              <span>${esc(formatRelative(it.published_at))}</span>
-              <span class="arrow">読む →</span>
-            </div>
-          </a>`;
-      }).join('') + `</div>`;
+      area.innerHTML = '<div class="news-grid">' + items.map(function(it, idx) {
+        var yesterday = isYesterday(it.published_at);
+        var delay = Math.min(idx * 40, 600);
+        return '<a class="news-card' + (yesterday ? ' is-yesterday' : '') + '" data-cat="' + esc(it.category) + '"'
+          + ' href="' + esc(it.url) + '" target="_blank" rel="noopener noreferrer"'
+          + ' style="animation-delay:' + delay + 'ms">'
+          + '<div class="card-accent"></div>'
+          + (yesterday ? '<div class="ystd-badge">前日</div>' : '')
+          + '<div class="card-body">'
+          + '<div class="card-meta">'
+          + '<div class="src-avatar">' + esc(sourceInitial(it.source_label)) + '</div>'
+          + '<div class="src-info"><span class="src-name">' + esc(it.source_label || '') + '</span>'
+          + '<span class="src-time">' + esc(formatRelative(it.published_at)) + '</span></div>'
+          + '<span class="card-cat-badge">' + esc(catLabels[it.category] || it.category) + '</span>'
+          + '</div>'
+          + '<div class="card-title">' + esc(it.title) + '</div>'
+          + '<div class="card-summary">' + esc(it.summary || '') + '</div>'
+          + '</div>'
+          + '<div class="card-footer">記事を読む <span class="arr">&rarr;</span></div>'
+          + '</a>';
+      }).join('') + '</div>';
     }
 
-    // ── メタ情報 ──
-    function renderMeta() {
-      const el = document.getElementById('meta-generated');
-      if (!state.generatedAt) { el.textContent = ''; return; }
-      const d = new Date(state.generatedAt);
-      if (isNaN(d)) { el.textContent = ''; return; }
-      el.textContent = `最終更新: ${d.toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
-    }
-
+    /* ── Master render ── */
     function render() {
-      renderMeta();
-      renderCategoryChips();
+      renderStats();
+      renderCatChips();
       renderHero();
       renderList();
     }
 
-    // ── イベント ──
-    document.querySelectorAll('.date-filter .chip').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.date-filter .chip').forEach(b => b.classList.remove('is-active'));
+    /* ── Events ── */
+    document.querySelectorAll('.date-chips .chip').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.date-chips .chip').forEach(function(b) { b.classList.remove('is-active'); });
         btn.classList.add('is-active');
         state.activeRange = btn.dataset.range;
         renderList();
       });
     });
+
+    var searchTimer;
+    document.getElementById('search-input').addEventListener('input', function(e) {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function() {
+        state.searchQuery = e.target.value.trim();
+        renderList();
+      }, 250);
+    });
+
     document.getElementById('refresh-btn').addEventListener('click', loadData);
 
-    // 初期読み込み
+    /* ── Init ── */
+    setGreeting();
     loadData();
   </script>
 
@@ -474,15 +836,16 @@
   <script>
     initOnboarding({
       appName: 'marketing-radar',
-      title: '📰 Marketing Radar',
-      description: 'マーケ・市場・テックのニュースを日次アグリゲート。前日のハイライトで朝のキャッチアップを効率化。',
+      title: 'Marketing Radar',
+      description: 'マーケ・市場・テックのニュースを12媒体から毎日自動収集。前日ハイライトで朝のキャッチアップを効率化。',
       features: [
-        { icon: '🗓️', text: '前日／今日／7日間の期間フィルタで情報を絞り込み' },
-        { icon: '🏷️', text: 'カテゴリタブ（国内マーケ／海外マーケ／市場／テック）で切替' },
-        { icon: '🔄', text: 'GitHub Actionsが毎日JST 7:00に主要メディアのRSSを自動収集' }
+        { icon: '📊', text: '統計ダッシュボード（今日/前日/7日間の記事数を一目で把握）' },
+        { icon: '🏷️', text: 'カテゴリタブ（国内マーケ/海外マーケ/市場/テック）+ 期間フィルタ' },
+        { icon: '🔍', text: 'キーワード検索でタイトル・要約・ソース名を横断検索' },
+        { icon: '🔄', text: 'GitHub Actions が毎日 JST 7:00 に主要メディアのRSSを自動収集' }
       ],
       updates: [
-        { date: '04/15', text: '初版公開：12媒体のRSSアグリゲート＋前日ハイライト＋カテゴリタブ' }
+        { date: '04/15', text: '初版公開：12媒体RSS + 前日ハイライト + カテゴリ/期間フィルタ + 検索' }
       ]
     });
   </script>
