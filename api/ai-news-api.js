@@ -284,8 +284,8 @@ async function handleXTrends(_req, res) {
   }
   const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
   const dateLabel = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
-  const prompt = `${dateLabel}に「日本語の X（旧 Twitter）で生成AI関連でバズっている投稿」を 24 件、` +
-    `**実在する URL 付きで** 全力で集めてください。著者の偏りは気にしなくて良い。トレンドこそが基準。\n\n` +
+  const prompt = `${dateLabel}に「X（旧 Twitter）で生成AI関連でバズっている投稿」を 24 件、` +
+    `**実在する URL 付きで** 全力で集めてください。日本語投稿でも英語投稿でも構わない。著者の偏りは気にしなくて良い。トレンドこそが基準。\n\n` +
     `## 検索アプローチ（必ず複数の web_search クエリを実行）\n` +
     `1. "Claude" OR "Anthropic" のバズ投稿（キーワード: "Claude site:x.com", "Anthropic site:x.com"）\n` +
     `2. "ChatGPT" OR "OpenAI" OR "GPT" のバズ投稿\n` +
@@ -301,8 +301,20 @@ async function handleXTrends(_req, res) {
     `- 投稿内容が確認できなかったら "items": [] を返す。無理に埋めない。\n` +
     `- **著者の偏りは気にしない**：トレンドが基準。同じ著者が 2-3 件入っても OK（バズっているなら）。\n` +
     `- 著名人だけでなく、現場のエンジニア / PM / マーケター / デザイナー / 経営者 / 学生 / 起業家など、多様な立場から幅広く拾う。\n\n` +
+    `## 翻訳ルール（必須・厳格）\n` +
+    `- \`text\` には**投稿の原文**をそのまま入れる（言語変換しない）。\n` +
+    `- \`lang\` には原文の言語コードを入れる: 日本語なら "ja"、英語なら "en"、その他なら ISO 639-1 コード。\n` +
+    `- \`lang\` が "ja" でない場合は **\`textJa\` フィールドに完璧な日本語訳** を入れる:\n` +
+    `  - 専門用語（LLM／RAG／エージェント／推論モデル等）は適切な日本語で\n` +
+    `  - 固有名詞（人名・サービス名・モデル名）はそのまま英字で残す\n` +
+    `  - 直訳調を避け、日本語として自然な表現に\n` +
+    `  - 絵文字や顔文字も意味を保って訳す or 適切に残す\n` +
+    `  - URL／@メンション／#ハッシュタグは原文のまま残す\n` +
+    `  - 200 字以内、改行は \\\\n でエスケープ\n` +
+    `- \`lang\` が "ja" の場合は \`textJa\` は空文字列でよい。\n\n` +
     `## 出力フォーマット（JSON のみ、説明文なし、コードフェンス無し）\n` +
-    `{"items":[{"author":"表示名","handle":"@xxxx","text":"本文（200字以内に整形可）",` +
+    `{"items":[{"author":"表示名","handle":"@xxxx","text":"原文（200字以内に整形可）",` +
+    `"lang":"ja|en|...","textJa":"日本語訳（原文がjaの場合は空文字）",` +
     `"url":"https://x.com/<handle>/status/<id>","tag":"短いトピック名"}, ...]}`;
 
   try {
@@ -315,7 +327,7 @@ async function handleXTrends(_req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 3000,
+        max_tokens: 6000, // 翻訳併記で 1 投稿あたりのトークンが増えたため余裕を確保
         tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }],
         messages: [{ role: 'user', content: prompt }],
       }),
@@ -360,12 +372,18 @@ async function handleXTrends(_req, res) {
       const c = handleCount.get(h) || 0;
       if (c >= MAX_PER_AUTHOR) continue;
       handleCount.set(h, c + 1);
+      // lang / textJa を保持（英語等の非日本語投稿はクライアント側で原文＋日本語訳を併記表示）
+      const lang = String(it.lang || 'ja').toLowerCase().slice(0, 8) || 'ja';
+      const textJaRaw = String(it.textJa || '').trim();
+      const textJa = textJaRaw.length > 280 ? textJaRaw.slice(0, 279) + '…' : textJaRaw;
       items.push({
         id: 'xt_' + simpleHash(url),
         author: author.slice(0, 40),
         handle: handle.startsWith('@') ? handle.slice(0, 40) : ('@' + h).slice(0, 40),
         avatar: `https://unavatar.io/x/${h}`,
         text: body.length > 240 ? body.slice(0, 239) + '…' : body,
+        lang,
+        textJa: (lang !== 'ja' && lang !== 'jp') ? textJa : '',
         tag: String(it.tag || 'AI').slice(0, 20),
         url,
         likes: 3000,   // 「注目されている」と判定済みの前提で client 閾値を通す最低値
