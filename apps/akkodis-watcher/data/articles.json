@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-05-04T23:44:48Z",
+  "last_scraped": "2026-05-05T23:41:47Z",
   "articles": [
     {
       "id": "aerospace-defense-digital-engineering",
@@ -276,6 +276,16 @@
       "summary_ja": "アッコディスは、文書処理の自動化を手がけるフランス企業向けにセールスフォースの脱炭素クラウドソリューションを導入し、企業全体の9つの事業部門から排出量データを一元管理できるようにしました。廃棄物管理の専用モジュールを開発して正確な炭素排出量の指標を数値化し、リアルタイムで監視できるダッシュボードを構築することで、サステナビリティ報告書の信頼性を高めました。多言語・多通貨対応による複雑な制約を排除しながら、カーボンフットプリントを削減し財務報告をより効率的に行える仕組みを整備しました。"
     },
     {
+      "id": "zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
+      "title": "View\nkeyboard_arrow_right",
+      "url": "https://www.akkodis.com/en/blog/client-success/zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-05-05T23:40:38Z",
+      "published_date": null,
+      "summary_ja": "Akkodisは世界40か国以上に4万人以上のエンジニアと専門家を擁するデジタルエンジニアリング企業であり、AI駆動のイノベーションとオートメーションを活用して企業の事業変革を支援しています。医療診断やデジタルトレーニング、エンタープライズAI導入など、多様な業界での実績を通じて、テクノロジーと人間の能力を組み合わせた問題解決に取り組んでいます。自動車、航空宇宙、エネルギーなど主要業界での専門知識を持ち、クライアント、候補者、パートナーに対して測定可能な成果をもたらすことに注力しています。"
+    },
+    {
       "id": "automotive-company-speeds-up-education-programs-adoption",
       "title": "Automotive Company’s Speeds Up Education Programs Adoption",
       "url": "https://www.akkodis.com/en/blog/client-success/automotive-company-speeds-up-education-programs-adoption",
@@ -386,6 +396,16 @@
       "summary_ja": "BMWグループは経験豊富な退職者の知識が失われるのを防ぐため、シニア・エキスパート・プログラムを立ち上げ、元従業員が短期プロジェクトで若い世代に知識を伝承する仕組みを構築しました。アコディスは従業員管理プラットフォーム「BEEPLE」をBMWグループの要件に合わせてカスタマイズし、プールの設計から契約管理、面接調整まで一貫してサポートしました。プログラム開始以来50以上のプロジェクトが実施され、アコディスの人材採用経験とプラットフォームの柔軟性により、BMWグループは100年間培った従業員の経験と専門知識を次世代に確実に引き継ぐことができるようになりました。"
     },
     {
+      "id": "personal-rekrutierung-fur-value-added-reseller",
+      "title": "View\nkeyboard_arrow_right",
+      "url": "https://www.akkodis.com/en/blog/client-success/personal-rekrutierung-fur-value-added-reseller",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-05-05T23:41:11Z",
+      "published_date": null,
+      "summary_ja": "Akkodis Japanのマーケティング担当者向け要約\n\nAkkodisは40カ国以上に配置された4万人以上のエンジニアと20年以上の業界経験を持つデジタルエンジニアリング企業で、AIやデータ自動化を活用して企業のデジタル変革をサポートしています。ISGデジタルエンジニアリング2026でリーダー企業に選定されており、自動車・航空宇宙・金融・ライフサイエンスなど多様な産業で専門的なソリューションを提供しています。同社は技術力と人材育成を組み合わせた「Akkodis Intelligence」というコンセプトの下、戦略を実行可能な成果に変える支援を行っており、医療診断やAI導入などの具体的なプロジェクトを通じて企業の変革を加速させています。"
+    },
+    {
       "id": "akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
       "title": "Akkodis Delivers Cost Efficiencies in EE’s SD Management",
       "url": "https://www.akkodis.com/en/blog/client-success/akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
@@ -434,36 +454,6 @@
       "first_seen": "2026-03-14T12:21:47Z",
       "published_date": null,
       "summary_ja": "フランス国立保健医学研究機構（INSERM）は、複数のシステムがセキュリティ要件を満たせず、採用評価や競争プロセスの管理が複雑になっていた課題を抱えていました。AKKODiSはINSERM保有の5つのアプリケーションを1つのソリューションに統合し、ウェブポータル2つ、業務プロセス管理ツール、エンタープライズデータ管理ソフトウェア2つを組み込みました。2,500人日の開発を費やしてシステムを構築した結果、ユーザーの利便性が大幅に向上し、サービスへのアクセスが格段にシンプルになりました。"
-    },
-    {
-      "id": "akkodis-sustains-adecco-app-project",
-      "title": "Akkodis Sustains Adecco' App Project",
-      "url": "https://www.akkodis.com/en/blog/client-success/akkodis-sustains-adecco-app-project",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-05-04T23:44:16Z",
-      "published_date": null,
-      "summary_ja": "Adeccoの求職者向けモバイルアプリプロジェクトで、Akkodisは人員不足に対応するため20名以上の専門家チームを組成し、適切な採用プロセスと技術的サポートにより短期間でプロジェクトを完成させました。Akkodisは候補者に対してプロジェクトの価値を丁寧に説明し、高度なスキルを持つ適切な人材を確保することに成功しました。このプロジェクトの成功により、Akkodisは企業グループ内での認知度を高め、自社の従業員にキャリアと事業機会の拡大をもたらしました。"
-    },
-    {
-      "id": "british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
-      "title": "British Airways Transforms Its IT Function",
-      "url": "https://www.akkodis.com/en/blog/client-success/british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-05-04T23:44:26Z",
-      "published_date": null,
-      "summary_ja": "ブリティッシュ・エアウェイズは世界中の空港運営に対応するため、ニューカッスルに新たなIT支援センターを開設しましたが、急増する問い合わせと人員不足という課題を抱えていました。アッコディスは50人以上のIT専門人材を配置し、24時間体制で150以上の空港をサポートする体制を構築するとともに、採用や人材管理の負担を引き取ることで、同社の運営効率を大幅に改善しました。この取り組みにより、サービス品質を維持しながら全体コストを削減し、ブリティッシュ・エアウェイズはグループ全体のIT機能の変革に経営資源を集中できるようになりました。"
-    },
-    {
-      "id": "rbc-railway",
-      "title": "Ensuring Rail Software Safety: Akkodis Validation Services",
-      "url": "https://www.akkodis.com/en/blog/client-success/rbc-railway",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-05-04T23:44:37Z",
-      "published_date": null,
-      "summary_ja": "フランスの鉄道インフラメーカーが開発する欧州統一の列車制御システム「ERTMS/ETCS Level 2」について、アッコディスのチームが包括的なソフトウェア検証を実施しました。テスト環境でさまざまな運行シナリオを再現し、システムの安全性と信頼性を徹底的に評価することで、列車の高速運行と安全な間隔での運用を可能にしました。複数の市場向けの異なるバージョンを同時に検証する体制により、グローバルな規制要件に対応しながら予定通りのソフトウェア納品を実現し、2019年から顧客の信頼を得ています。"
     }
   ]
 }
