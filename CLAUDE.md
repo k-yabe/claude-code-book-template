@@ -10,6 +10,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 「どうしますか？」と聞く前に、まず実行可能な手段を全て試す
 - **Vercel 自動デプロイを前提にする**: 作業が一段落したら、常に `main` までマージして Vercel の自動デプロイをトリガーする（PR を作り自動マージ。feature ブランチで止めない）。ユーザーが「Vercelに上げて」「本番にして」と明示しなくても、完了フローにマージ＆デプロイを含めること。
 
+## クレジット節約ルール（必須）
+
+MAX プランの使用枠を無駄に消費しないため、以下を厳守する。
+
+- **巨大ファイルは部分読み**: `apps/wireframe-maker/index.html`（404KB）, `apps/prompt-maker/index.html`（132KB）, `apps/slide-maker/index.html`（116KB）, ルート `index.html`（232KB）などを Read する場合は、まず `Glob`/`Grep` で対象範囲を特定し、`Read` は `offset`/`limit` で必要箇所のみ読む。丸ごと読むのは禁止。
+- **サブエージェントは慎重に**: `Agent` ツール（Explore / Plan / general-purpose 等）は本当に必要なときだけ。1〜2 ファイルの確認や単純な検索は直接 `Read`/`Grep` で済ませる。並列起動はさらに重いので「明確に独立した複数調査」が必要なときに限る。
+- **PR 自動監視は明示要求時のみ**: `subscribe_pr_activity` は「監視して」「ウォッチして」等の明示指示があった時だけ ON にする。PR 作成後に自動で勧めない。
+- **WebFetch / WebSearch も最小限**: 推測で済む内容や手元で確認できる内容は外部取得しない。
+- **ToolSearch は必要なときだけ**: 既に呼べるツールで足りるなら deferred ツールのスキーマを引かない。
+
 ## ナレッジ参照ルール（AI Daily）
 
 ユーザーの Mac では、毎朝 07:00 (JST) に launchd 経由で `daily-watch` スキルが走り、AI 関連サイト（Anthropic News / Engineering Blog / Claude Code Release Notes / Docs Map 等）の新着差分要約が `~/Documents/AI_Daily/YYYY-MM-DD.md` に蓄積されている（Obsidian 移行後は `~/Obsidian/<Vault>/AI_Daily/`）。
