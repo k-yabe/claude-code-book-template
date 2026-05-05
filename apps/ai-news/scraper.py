@@ -1433,8 +1433,8 @@ def fetch_x_trends_via_claude() -> list[dict]:
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
         msg = client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=6000,  # 翻訳併記で 1 投稿あたりのトークンが増えたため余裕を確保
-            tools=[{"type": "web_search_20250305", "name": "web_search"}],
+            max_tokens=3000,
+            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
             messages=[{"role": "user", "content": prompt}],
         )
         # tool_use の応答を含む可能性あり。最後のテキストブロックを使う。

@@ -285,7 +285,7 @@ def generate_news_json(today_str: str, dt: datetime) -> dict:
 
     def api_call():
         return client.messages.create(
-            model="claude-haiku-4-5-20251001",
+            model="claude-sonnet-4-6",
             max_tokens=4096,
             tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
             messages=[{"role": "user", "content": prompt}],
@@ -304,8 +304,8 @@ def generate_news_json(today_str: str, dt: datetime) -> dict:
             u = message.usage
             input_t = getattr(u, "input_tokens", 0)
             output_t = getattr(u, "output_tokens", 0)
-            # Haiku 4.5: input $0.8/1M, output $4/1M
-            est_cost = (input_t * 0.8 + output_t * 4) / 1_000_000
+            # Sonnet 4.6: input $3/1M, output $15/1M
+            est_cost = (input_t * 3 + output_t * 15) / 1_000_000
             print(f"[INFO] トークン使用量: input={input_t}, output={output_t}, "
                   f"推定コスト=${est_cost:.4f}")
 
