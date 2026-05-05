@@ -715,8 +715,8 @@
           <div class="card-desc">画像フォーマット変換・軽量化</div>
           <div class="card-tag card-tag-web">Web App</div>
         </a>
-        <a class="card" href="apps/wireframe-maker/">
-          <div class="card-update-badge">UPDATE</div>
+        <a class="card card-paused" aria-disabled="true" tabindex="-1" title="API利用枠の都合により一時停止中です">
+          <div class="card-paused-badge">準備中</div>
           <div class="card-icon-wrap">🎨</div>
           <div class="card-name">Wireframe Maker</div>
           <div class="card-desc">LP構成のAI自動生成・プレビュー</div>
@@ -766,6 +766,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '⏸', app: 'Wireframe Maker / Slide Maker', badge: 'UPDATE', date: '2026-05-05(火)', desc: '【API利用枠の都合により Wireframe Maker と Slide Maker を一時停止】Anthropic API の月額コストが想定を超えて膨らんでいたため、消費の大きい 2 アプリをホーム画面で「準備中」表示に切替。card-paused スタイルで非クリック化（`aria-disabled="true" tabindex="-1"`）。Slide Maker は既に準備中だったため、Wireframe Maker も同パターンに統一。背景: AI NEWS scraper の `web_search` 上限なし設定 / 自動UIレビューフック / 高額モデル使用などの要因を切り分け中で、月予算が安定するまでの暫定措置。再開時期は API クレジット消費の安定化後に判断。' },
       { icon: '🌐', app: 'AI NEWS', badge: 'UPDATE', date: '2026-05-04(月)', desc: '【X（Twitter）ハイライトの英語投稿に日本語訳を併記】X の生成AIトレンド投稿が英語のまま表示されて読みづらいユーザー FB を受けて翻訳併記を実装。原因は `/api/ai-news-api?action=xtrends` のオンデマンド取得 API が Claude へのプロンプトに `lang` / `textJa` フィールドを要求しておらず、初回ロード時に `news.json` の翻訳済み xHighlights をクライアントが上書きしてしまうこと。修正: ①プロンプトに「日本語投稿でも英語投稿でも構わない」「翻訳ルール（必須・厳格）」セクションを追加し、`lang`（ISO 639-1 コード）と `textJa`（日本語訳）を出力 JSON フィールドに加える。②API レスポンスマッピング側で `lang` / `textJa` を保持して返却するよう拡張、`max_tokens` を 3000 → 6000 に拡張して翻訳併記の token 増加に対応。③クライアント側 sessionStorage キャッシュキーを `ai-news:xtrends:v2` → `v3` に bump して、過去キャッシュに残った翻訳なし投稿を強制無効化。これで英語ポストでも日本語訳バッジ + 原文バッジの 2 段表示になる。' },
       { icon: '🐛', app: 'AI NEWS', badge: 'UPDATE', date: '2026-05-03(日)', desc: '【「詳しく読む」クリックでページ遷移してしまう不具合を修正 + foot ボタン整列の統一】①brief-card / fyi-card / 競合カードの click 委譲ハンドラに `intel-details` / `intel-toggle` / `intel-source-link` を除外条件として追加。これまで「▼ 詳しく読む」を押すと `<details>` の展開と同時に親カードの `openExternal()` が発火してページ遷移してしまう不具合があった。タグ展開だけしたいユーザーの意図と動作が一致するように修正。②top-card / brief-card foot 行のボタン並びを「既読切替 / ★ / 📚 / 👍 / 👎 ... [元記事リンクは右端]」で統一。`.top-foot .ext-btn { margin-left: auto }` と `.brief-card-foot .brief-ext-link { margin-left: auto }` を追加して、左 = 内部アクション、右 = 外部遷移リンクという視覚分離を確立。styles.css?v=20260503f にバンプ。' },
       { icon: '🚀', app: 'AI NEWS', badge: 'UPDATE', date: '2026-05-03(日)', desc: '【3 つの強化を一括投入: 競合動向ソース拡張 + アーカイブ日付ピッカー + 後で読むリスト】ユーザー FB「他に改善できるところはない？」→ Top 3 を順次実装。①scraper の競合動向 RSS source を 4 個追加: `Google News (IT業界 M&A)`, `(DX 大型受託)`, `(人材業界動向)`, `(生成AI 企業導入)`。これまで 1-2 件しか拾えなかった「競合動向」セクションに、業界横断 M&A や DX 大型案件、人材業界マクロ動向、生成 AI の業務導入事例が追加される。②cmd-bar の日付ナビ (◀ 5/3 ▶) の右に 📅 ボタンを追加して、ネイティブ `<input type="date">` を呼び出す UI に。任意の過去日付を選んで `loadArchive()` でアーカイブ表示できる（既に loadArchive 自体は実装済みだったが、UI 経路がなかった）。③★お気に入り (永続) と別に 📚 後で読むボタンを各カードに追加。state.later (`localStorage ai-news:later:v1`) で別 entity 管理、トースト「📚 後で読むに追加しました / 外しました」で意図フィードバック。「読みきれない記事の救済」用途に特化（★ は永続ブックマーク、📚 は短期 read-later の使い分け）。styles.css?v=20260503e にバンプ。' },
