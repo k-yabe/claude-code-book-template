@@ -224,8 +224,25 @@ jobs:
           git diff --cached --name-only
           if git diff --cached --quiet; then
             echo "no changes to commit"
-          else
-            git commit -m "chore: update ai-news data [skip ci]"
-            git push
-            echo "pushed"
+            exit 0
           fi
+          git commit -m "chore: update ai-news data [skip ci]"
+          # akkodis-watcher.yml が同じ cron '0 23 * * *' で並走して main に push するため、
+          # 単純な git push では non-fast-forward で fail することがある（1日 1ジョブ失敗の主因）。
+          # pull --rebase でリモートを取り込んで再 push をリトライする。
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:main; then
+              echo "pushed (attempt $attempt)"
+              exit 0
+            fi
+            echo "push failed (attempt $attempt); fetching & rebasing onto origin/main..."
+            git fetch origin main
+            git rebase origin/main || {
+              echo "::error::rebase failed; aborting"
+              git rebase --abort || true
+              exit 1
+            }
+            sleep $((attempt * 2))
+          done
+          echo "::error::push failed after 5 attempts"
+          exit 1
