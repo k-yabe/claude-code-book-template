@@ -1,4 +1,4 @@
-=== run started: 2026-05-07T09:51:42Z ===
+=== run started: 2026-05-07T23:48:10Z ===
 --- docker pull ---
 cpu-1.2.0: Pulling from aivis-project/aivisspeech-engine
 f63eb04151bc: Pulling fs layer
@@ -15,18 +15,18 @@ e39eb6482b1a: Pulling fs layer
 083b638b9a1f: Pulling fs layer
 028fc28095d3: Pulling fs layer
 ca8649090c90: Pulling fs layer
-297d5110f49e: Waiting
 1df653e93324: Pulling fs layer
-4d6881450eb7: Waiting
-bccbeedc1e47: Waiting
 1cbdc67c2091: Waiting
 2a13eb4c7f0e: Waiting
-7223b7582e31: Waiting
 e39eb6482b1a: Waiting
 083b638b9a1f: Waiting
 028fc28095d3: Waiting
 ca8649090c90: Waiting
 1df653e93324: Waiting
+297d5110f49e: Waiting
+bccbeedc1e47: Waiting
+4d6881450eb7: Waiting
+7223b7582e31: Waiting
 90cb7e5b83fb: Waiting
 60ee495033f4: Verifying Checksum
 60ee495033f4: Download complete
@@ -38,14 +38,12 @@ f63eb04151bc: Download complete
 297d5110f49e: Download complete
 7223b7582e31: Verifying Checksum
 7223b7582e31: Download complete
-f63eb04151bc: Pull complete
 90cb7e5b83fb: Verifying Checksum
 90cb7e5b83fb: Download complete
-30b475829855: Verifying Checksum
-30b475829855: Download complete
 1cbdc67c2091: Verifying Checksum
 1cbdc67c2091: Download complete
-60ee495033f4: Pull complete
+30b475829855: Verifying Checksum
+30b475829855: Download complete
 e39eb6482b1a: Verifying Checksum
 e39eb6482b1a: Download complete
 083b638b9a1f: Verifying Checksum
@@ -54,10 +52,12 @@ e39eb6482b1a: Download complete
 028fc28095d3: Download complete
 2a13eb4c7f0e: Verifying Checksum
 2a13eb4c7f0e: Download complete
+f63eb04151bc: Pull complete
 ca8649090c90: Verifying Checksum
 ca8649090c90: Download complete
 1df653e93324: Verifying Checksum
 1df653e93324: Download complete
+60ee495033f4: Pull complete
 bccbeedc1e47: Verifying Checksum
 bccbeedc1e47: Download complete
 30b475829855: Pull complete
@@ -77,10 +77,10 @@ Digest: sha256:5799c94c3594501be80eeda62106f15439a858c1630d25d1385576581433b192
 Status: Downloaded newer image for ghcr.io/aivis-project/aivisspeech-engine:cpu-1.2.0
 ghcr.io/aivis-project/aivisspeech-engine:cpu-1.2.0
 --- docker pull exit=0 ---
-a6a8c35f976002fab11ac2c8f4d70c3bbe3b1423684314700409c85397ccc9d1
+70add8aa4a727db268a2a37fa197fecaaab07fafbb9bc99a7202c9489fe60ba3
 --- docker run exit=0 ---
 --- python warmup ---
-aivisspeech /version OK after 22s
+aivisspeech /version OK after 24s
 == /speakers returned 2 entries ==
   speaker 'まお': 6 styles
     style id=888753760 name='ノーマル'
@@ -96,62 +96,62 @@ aivisspeech /version OK after 22s
     style id=1878365379 name='ねむたい'
 chosen: まお (calm style preferred) / style='ノーマル' / id=888753760
 warming up Anneli (id=888753760, text='テスト')...
-aivisspeech warmup OK: 76052 bytes WAV in 3.0s
+aivisspeech warmup OK: 73094 bytes WAV in 3.1s
 --- python warmup exit=0 ---
 --- docker logs aivisspeech (last 60) ---
 + exec gosu user .venv/bin/python ./run.py --host 0.0.0.0
-[0;93m2026-05-07 09:52:28.921249219 [W:onnxruntime:Default, device_discovery.cc:132 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename ""5620e0c7-8062-4dce-aeb7-520c7ef76171"" dit not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
-[2026/05/07 09:52:31.838] INFO:     AivisSpeech Engine version 1.2.0
-[2026/05/07 09:52:31.839] INFO:     Engine root directory: /opt/aivisspeech-engine
-[2026/05/07 09:52:31.839] INFO:     User data directory: /home/user/.local/share/AivisSpeech-Engine-Dev
-[2026/05/07 09:52:31.839] INFO:     Models directory: /home/user/.local/share/AivisSpeech-Engine-Dev/Models
-[2026/05/07 09:52:31.839] INFO:     Cache file not found, will load models directly.
-[2026/05/07 09:52:31.839] INFO:     Scanning installed models ...
-[2026/05/07 09:52:31.840] INFO:     Scanned 0 installed models. (0.00s)
-[2026/05/07 09:52:31.840] INFO:     Updated latest version information.
-[2026/05/07 09:52:33.111] INFO:     Installing default model 22e8ed77-94fe-4ef2-871f-a86f94e9a579 (v1.1.0) specified by AivisHub.
-[2026/05/07 09:52:33.111] INFO:     Downloading AIVMX file from https://api.aivis-project.com/v1/aivm-models/22e8ed77-94fe-4ef2-871f-a86f94e9a579/download?model_type=AIVMX (Attempt 1/3)...
-[2026/05/07 09:52:36.002] INFO:     Downloaded AIVMX file.
-[2026/05/07 09:52:36.087] INFO:     Installing AIVMX file ...
-[2026/05/07 09:52:36.167] INFO:     Installed AIVMX file to /home/user/.local/share/AivisSpeech-Engine-Dev/Models/22e8ed77-94fe-4ef2-871f-a86f94e9a579.aivmx.
-[2026/05/07 09:52:36.805] INFO:     Updated latest version information.
-[2026/05/07 09:52:36.829] INFO:     Installing default model a59cb814-0083-4369-8542-f51a29e72af7 (v1.2.0) specified by AivisHub.
-[2026/05/07 09:52:36.830] INFO:     Downloading AIVMX file from https://api.aivis-project.com/v1/aivm-models/a59cb814-0083-4369-8542-f51a29e72af7/download?model_type=AIVMX (Attempt 1/3)...
-[2026/05/07 09:52:40.253] INFO:     Downloaded AIVMX file.
-[2026/05/07 09:52:40.328] INFO:     Installing AIVMX file ...
-[2026/05/07 09:52:40.404] INFO:     Installed AIVMX file to /home/user/.local/share/AivisSpeech-Engine-Dev/Models/a59cb814-0083-4369-8542-f51a29e72af7.aivmx.
-[2026/05/07 09:52:41.170] INFO:     Updated latest version information.
-[2026/05/07 09:52:41.291] INFO:     Installed models:
-[2026/05/07 09:52:41.291] INFO:     - コハク (22e8ed77-94fe-4ef2-871f-a86f94e9a579) (default)
-[2026/05/07 09:52:41.291] INFO:     - まお (a59cb814-0083-4369-8542-f51a29e72af7) (default)
-[2026/05/07 09:52:42.124] INFO:     Using CPU for inference.
-[2026/05/07 09:52:42.125] INFO:     Loading BERT model and tokenizer...
-[2026/05/07 09:52:47.685] INFO:     BERT model and tokenizer loaded. (5.56s)
-[2026/05/07 09:52:47.713] INFO:     Current user dictionary (CSV format):
-[2026/05/07 09:52:47.713] INFO:     - 担々麺,1348,1348,8609,名詞,固有名詞,一般,*,*,*,担々麺,タンタンメン,タンタンメン,3/6,*
-reading /home/user/.local/share/AivisSpeech-Engine-Dev/user.dict_csv-8d4d0ba4-c789-47a1-b033-2f770e851e0d.tmp ... 1
+[0;93m2026-05-07 23:49:05.179274748 [W:onnxruntime:Default, device_discovery.cc:132 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename ""5620e0c7-8062-4dce-aeb7-520c7ef76171"" dit not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+[2026/05/07 23:49:08.420] INFO:     AivisSpeech Engine version 1.2.0
+[2026/05/07 23:49:08.421] INFO:     Engine root directory: /opt/aivisspeech-engine
+[2026/05/07 23:49:08.421] INFO:     User data directory: /home/user/.local/share/AivisSpeech-Engine-Dev
+[2026/05/07 23:49:08.421] INFO:     Models directory: /home/user/.local/share/AivisSpeech-Engine-Dev/Models
+[2026/05/07 23:49:08.421] INFO:     Cache file not found, will load models directly.
+[2026/05/07 23:49:08.422] INFO:     Scanning installed models ...
+[2026/05/07 23:49:08.422] INFO:     Scanned 0 installed models. (0.00s)
+[2026/05/07 23:49:08.422] INFO:     Updated latest version information.
+[2026/05/07 23:49:09.739] INFO:     Installing default model 22e8ed77-94fe-4ef2-871f-a86f94e9a579 (v1.1.0) specified by AivisHub.
+[2026/05/07 23:49:09.740] INFO:     Downloading AIVMX file from https://api.aivis-project.com/v1/aivm-models/22e8ed77-94fe-4ef2-871f-a86f94e9a579/download?model_type=AIVMX (Attempt 1/3)...
+[2026/05/07 23:49:12.980] INFO:     Downloaded AIVMX file.
+[2026/05/07 23:49:13.059] INFO:     Installing AIVMX file ...
+[2026/05/07 23:49:13.118] INFO:     Installed AIVMX file to /home/user/.local/share/AivisSpeech-Engine-Dev/Models/22e8ed77-94fe-4ef2-871f-a86f94e9a579.aivmx.
+[2026/05/07 23:49:13.764] INFO:     Updated latest version information.
+[2026/05/07 23:49:13.787] INFO:     Installing default model a59cb814-0083-4369-8542-f51a29e72af7 (v1.2.0) specified by AivisHub.
+[2026/05/07 23:49:13.788] INFO:     Downloading AIVMX file from https://api.aivis-project.com/v1/aivm-models/a59cb814-0083-4369-8542-f51a29e72af7/download?model_type=AIVMX (Attempt 1/3)...
+[2026/05/07 23:49:17.467] INFO:     Downloaded AIVMX file.
+[2026/05/07 23:49:17.524] INFO:     Installing AIVMX file ...
+[2026/05/07 23:49:17.584] INFO:     Installed AIVMX file to /home/user/.local/share/AivisSpeech-Engine-Dev/Models/a59cb814-0083-4369-8542-f51a29e72af7.aivmx.
+[2026/05/07 23:49:18.461] INFO:     Updated latest version information.
+[2026/05/07 23:49:18.575] INFO:     Installed models:
+[2026/05/07 23:49:18.576] INFO:     - コハク (22e8ed77-94fe-4ef2-871f-a86f94e9a579) (default)
+[2026/05/07 23:49:18.576] INFO:     - まお (a59cb814-0083-4369-8542-f51a29e72af7) (default)
+[2026/05/07 23:49:19.564] INFO:     Using CPU for inference.
+[2026/05/07 23:49:19.565] INFO:     Loading BERT model and tokenizer...
+[2026/05/07 23:49:24.553] INFO:     BERT model and tokenizer loaded. (4.99s)
+[2026/05/07 23:49:24.589] INFO:     Current user dictionary (CSV format):
+[2026/05/07 23:49:24.589] INFO:     - 担々麺,1348,1348,8609,名詞,固有名詞,一般,*,*,*,担々麺,タンタンメン,タンタンメン,3/6,*
+reading /home/user/.local/share/AivisSpeech-Engine-Dev/user.dict_csv-16ba2614-deca-4452-9f74-c18436c7f011.tmp ... 1
 emitting double-array: 100% |###########################################| 
-[2026/05/07 09:52:47.715] INFO:     User dictionary applied. (0.00s)
-[2026/05/07 09:52:48.615] INFO:     Started server process [1]
-[2026/05/07 09:52:48.615] INFO:     Waiting for application startup.
-[2026/05/07 09:52:48.616] INFO:     Application startup complete.
-[2026/05/07 09:52:48.616] INFO:     Uvicorn running on http://0.0.0.0:10101 (Press CTRL+C to quit)
-[2026/05/07 09:52:49.090] INFO:     172.17.0.1:35896 - "GET /version HTTP/1.1" 200 OK
-[2026/05/07 09:52:49.095] INFO:     172.17.0.1:35900 - "GET /speakers HTTP/1.1" 200 OK
-[2026/05/07 09:52:49.100] INFO:     172.17.0.1:35916 - "POST /audio_query?speaker=888753760&text=%E3%83%86%E3%82%B9%E3%83%88 HTTP/1.1" 200 OK
-[2026/05/07 09:52:49.305] INFO:     Loading まお (a59cb814-0083-4369-8542-f51a29e72af7) ...
-[2026/05/07 09:52:51.556] INFO:     まお (a59cb814-0083-4369-8542-f51a29e72af7) loaded. (2.25s)
-[2026/05/07 09:52:51.557] INFO:     Model: まお / Version 1.2.0
-[2026/05/07 09:52:51.557] INFO:     Speaker: まお / Style: ノーマル
-[2026/05/07 09:52:51.557] INFO:     Running inference...
-[2026/05/07 09:52:51.557] INFO:     Text: テスト
-[2026/05/07 09:52:51.557] INFO:              Speed: 1.00 (Input: 1.00)
-[2026/05/07 09:52:51.557] INFO:       Style Weight: 1.00 (Input: 1.00)
-[2026/05/07 09:52:51.557] INFO:     Tempo Dynamics: 0.20 (Input: 1.00)
-[2026/05/07 09:52:51.557] INFO:              Pitch: 1.00 (Input: 0.00)
-[2026/05/07 09:52:51.558] INFO:             Volume: 1.00
-[2026/05/07 09:52:51.558] INFO:        Pre-Silence: 0.10
-[2026/05/07 09:52:51.558] INFO:       Post-Silence: 0.10
-[2026/05/07 09:52:52.066] INFO:     Inference done. Elapsed time: 0.51 sec.
-[2026/05/07 09:52:52.067] INFO:     172.17.0.1:35930 - "POST /synthesis?speaker=888753760 HTTP/1.1" 200 OK
+[2026/05/07 23:49:24.593] INFO:     User dictionary applied. (0.00s)
+[2026/05/07 23:49:25.546] INFO:     Started server process [1]
+[2026/05/07 23:49:25.546] INFO:     Waiting for application startup.
+[2026/05/07 23:49:25.546] INFO:     Application startup complete.
+[2026/05/07 23:49:25.546] INFO:     Uvicorn running on http://0.0.0.0:10101 (Press CTRL+C to quit)
+[2026/05/07 23:49:27.076] INFO:     172.17.0.1:57258 - "GET /version HTTP/1.1" 200 OK
+[2026/05/07 23:49:27.081] INFO:     172.17.0.1:57270 - "GET /speakers HTTP/1.1" 200 OK
+[2026/05/07 23:49:27.087] INFO:     172.17.0.1:57272 - "POST /audio_query?speaker=888753760&text=%E3%83%86%E3%82%B9%E3%83%88 HTTP/1.1" 200 OK
+[2026/05/07 23:49:27.278] INFO:     Loading まお (a59cb814-0083-4369-8542-f51a29e72af7) ...
+[2026/05/07 23:49:29.622] INFO:     まお (a59cb814-0083-4369-8542-f51a29e72af7) loaded. (2.34s)
+[2026/05/07 23:49:29.623] INFO:     Model: まお / Version 1.2.0
+[2026/05/07 23:49:29.623] INFO:     Speaker: まお / Style: ノーマル
+[2026/05/07 23:49:29.623] INFO:     Running inference...
+[2026/05/07 23:49:29.624] INFO:     Text: テスト
+[2026/05/07 23:49:29.624] INFO:              Speed: 1.00 (Input: 1.00)
+[2026/05/07 23:49:29.624] INFO:       Style Weight: 1.00 (Input: 1.00)
+[2026/05/07 23:49:29.624] INFO:     Tempo Dynamics: 0.20 (Input: 1.00)
+[2026/05/07 23:49:29.624] INFO:              Pitch: 1.00 (Input: 0.00)
+[2026/05/07 23:49:29.624] INFO:             Volume: 1.00
+[2026/05/07 23:49:29.624] INFO:        Pre-Silence: 0.10
+[2026/05/07 23:49:29.625] INFO:       Post-Silence: 0.10
+[2026/05/07 23:49:30.163] INFO:     Inference done. Elapsed time: 0.54 sec.
+[2026/05/07 23:49:30.165] INFO:     172.17.0.1:57286 - "POST /synthesis?speaker=888753760 HTTP/1.1" 200 OK
 --- end ---

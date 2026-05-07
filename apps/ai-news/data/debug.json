@@ -1,7 +1,20 @@
 {
-  "ranAt": "2026-05-07T09:52:52.230104+00:00",
+  "ranAt": "2026-05-07T23:49:30.445801+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": false,
   "sources": 67,
-  "phase": "start"
+  "phase": "start",
+  "fetched_items": 35,
+  "summarizer": "anthropic_haiku",
+  "final_items": 35,
+  "competitor_items": 7,
+  "x_highlights": 6,
+  "audio": {
+    "voicevoxBaseUrl": "http://127.0.0.1:10101",
+    "azureKeySet": false,
+    "elevenKeySet": false,
+    "scriptChars": 2000,
+    "mp3Bytes": 1239405
+  },
+  "durationSec": 294.6
 }
