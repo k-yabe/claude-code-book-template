@@ -1,6 +1,15 @@
 {
-  "last_scraped": "2026-05-10T23:42:27Z",
+  "last_scraped": "2026-05-11T23:47:50Z",
   "articles": [
+    {
+      "id": "how-knowledge-graphs-power-agentic-it-operations",
+      "title": "How Knowledge Graphs Power Agentic IT Operations and Automation Infrastructure",
+      "url": "https://www.akkodis.com/blog/articles/how-knowledge-graphs-power-agentic-it-operations",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-05-11T23:45:55Z",
+      "published_date": "2026-05-11T00:00:00Z"
+    },
     {
       "id": "sap-commerce-cloud-jdk21-upgrade-guide",
       "title": "The Clock Is Running Out on Your Java 17 Commerce Platform",
