@@ -1,15 +1,6 @@
 {
-  "last_scraped": "2026-05-11T23:47:50Z",
+  "last_scraped": "2026-05-12T23:54:36Z",
   "articles": [
-    {
-      "id": "how-knowledge-graphs-power-agentic-it-operations",
-      "title": "How Knowledge Graphs Power Agentic IT Operations and Automation Infrastructure",
-      "url": "https://www.akkodis.com/blog/articles/how-knowledge-graphs-power-agentic-it-operations",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-05-11T23:45:55Z",
-      "published_date": "2026-05-11T00:00:00Z"
-    },
     {
       "id": "sap-commerce-cloud-jdk21-upgrade-guide",
       "title": "The Clock Is Running Out on Your Java 17 Commerce Platform",
@@ -19,6 +10,15 @@
       "first_seen": "2026-05-07T23:42:46Z",
       "published_date": "2026-05-06T00:00:00Z",
       "summary_ja": "SAP Commerce Cloudがプラットフォーム全体をJava 21とSpring 6へ移行する大規模アップデートを実施しており、2026年8月31日以降はJava 17での新規ビルドが永久にブロックされるため、企業は迅速な対応が必須となります。このアップデートはセキュリティパッチの終了、新機能へのアクセス制限、デプロイメント機能の喪失など、対応しない場合のビジネスリスクが極めて大きいものです。Akkodisでは迅速な現状把握から自動化ツールの活用、カスタムコード対応、テスト、本番環境への移行まで、段階的で管理された移行プロセスを提供し、顧客企業が確実にアップデートを完了できるよう支援しています。"
+    },
+    {
+      "id": "how-knowledge-graphs-power-agentic-it-operations",
+      "title": "How Knowledge Graphs Power Agentic IT Operations and Automation Infrastructure",
+      "url": "https://www.akkodis.com/blog/articles/how-knowledge-graphs-power-agentic-it-operations",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-05-11T23:45:55Z",
+      "published_date": "2026-05-11T00:00:00Z"
     },
     {
       "id": "aerospace-defense-digital-engineering",
