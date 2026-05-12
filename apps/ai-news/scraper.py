@@ -1577,32 +1577,71 @@ The listener should think: "ああ、いつものアナウンサーだな。" No
 If you sound robotic on a single sentence, the whole credibility breaks. Be 100% natural."""
 
 
+def _build_template_digest_script(exec_summary: list[str], mustknow: list[dict], thisweek: list[dict]) -> str:
+    """Claude API 不使用のテンプレート台本生成。API使用量上限時などのフォールバック用。"""
+    today_jst = datetime.now(JST)
+    date_label = f"{today_jst.month}月{today_jst.day}日"
+    all_items = list(mustknow) + list(thisweek)
+    count = min(len(all_items), 5)
+    count_ja = ["", "ひとつ", "ふたつ", "みっつ", "よっつ", "いつつ"]
+
+    parts: list[str] = []
+    parts.append(f"おはようございます。{date_label}のマーケティング・ニュースダイジェストです。")
+    if exec_summary:
+        parts.append("今日の全体像をお伝えします。" + "。また、".join(exec_summary[:3]) + "。")
+    if count > 0:
+        parts.append(f"今日は{count_ja[count]}のトピックをお届けします。")
+
+    connectors = ["まず", "次に", "続いて", "そして", "最後に"]
+    for i, item in enumerate(all_items[:5]):
+        title = item.get("title", "")
+        summary = item.get("summary", "") or title
+        why = item.get("whyItMatters", "")
+        action = item.get("actionItem", "")
+        conn = connectors[i] if i < len(connectors) else "また"
+        parts.append(f"{conn}、{title}です。")
+        if summary and summary != title:
+            parts.append(summary + ("。" if not summary.endswith("。") else ""))
+        if why:
+            parts.append(f"この点が重要な理由は、{why}" + ("。" if not why.endswith("。") else ""))
+        if action:
+            parts.append(f"取るべきアクションとしては、{action}" + ("。" if not action.endswith("。") else ""))
+
+    parts.append("最後にまとめです。")
+    for item in all_items[:3]:
+        t = item.get("title", "")
+        if t:
+            parts.append(f"「{t}」。")
+    parts.append("以上、本日のマーケティング・ニュースダイジェストでした。今日も一日頑張っていきましょう。")
+
+    return "\n".join(parts)
+
+
 def generate_digest_script(exec_summary: list[str], mustknow: list[dict], thisweek: list[dict]) -> str | None:
-    """Claude Haiku で5分ダイジェスト台本を生成。失敗時は None。"""
-    if not ANTHROPIC_API_KEY:
-        return None
+    """Claude Haiku で5分ダイジェスト台本を生成。失敗時はテンプレート台本にフォールバック。"""
     today_jst = datetime.now(JST)
     date_label = f"{today_jst.month}月{today_jst.day}日"
 
-    lines = []
-    if exec_summary:
-        lines.append("【今日の全体像】")
-        for s in exec_summary:
-            lines.append(f"・{s}")
-    if mustknow:
-        lines.append("\n【本日の主要ニュース】")
-        for n in mustknow:
-            lines.append(f"■ {n.get('title','')}")
-            if n.get("summary"): lines.append(f"  {n['summary']}")
-            if n.get("whyItMatters"): lines.append(f"  影響: {n['whyItMatters']}")
-            if n.get("actionItem"): lines.append(f"  アクション: {n['actionItem']}")
-    if thisweek:
-        lines.append("\n【注目ニュース】")
-        for n in thisweek:
-            lines.append(f"■ {n.get('title','')}")
-            if n.get("summary"): lines.append(f"  {n['summary']}")
+    if ANTHROPIC_API_KEY:
+        lines = []
+        if exec_summary:
+            lines.append("【今日の全体像】")
+            for s in exec_summary:
+                lines.append(f"・{s}")
+        if mustknow:
+            lines.append("\n【本日の主要ニュース】")
+            for n in mustknow:
+                lines.append(f"■ {n.get('title','')}")
+                if n.get("summary"): lines.append(f"  {n['summary']}")
+                if n.get("whyItMatters"): lines.append(f"  影響: {n['whyItMatters']}")
+                if n.get("actionItem"): lines.append(f"  アクション: {n['actionItem']}")
+        if thisweek:
+            lines.append("\n【注目ニュース】")
+            for n in thisweek:
+                lines.append(f"■ {n.get('title','')}")
+                if n.get("summary"): lines.append(f"  {n['summary']}")
 
-    system_prompt = f"""あなたはマーケティングチーム向けの朝の社内ラジオのパーソナリティです。毎朝5分で、最新ニュースをわかりやすくダイジェストで伝えます。
+        system_prompt = f"""あなたはマーケティングチーム向けの朝の社内ラジオのパーソナリティです。毎朝5分で、最新ニュースをわかりやすくダイジェストで伝えます。
 
 ## 絶対ルール
 - 日本語のみ。英単語は原則使わない。避けられない固有名詞はカタカナ表記（ChatGPT→チャットジーピーティー、Claude→クロード、Google→グーグル、AI→エーアイ、GPT→ジーピーティー、LLM→エルエルエム、SNS→エスエヌエス、LP→ランディングページ）
@@ -1632,32 +1671,41 @@ def generate_digest_script(exec_summary: list[str], mustknow: list[dict], thiswe
 
 出力は本文のみ。英単語は一切使わない。"""
 
-    user_prompt = f"以下は本日（{date_label}）のニュースです。5分ダイジェスト台本を日本語のみで作成してください。英単語はすべてカタカナに。\n\n" + "\n".join(lines)
+        user_prompt = f"以下は本日（{date_label}）のニュースです。5分ダイジェスト台本を日本語のみで作成してください。英単語はすべてカタカナに。\n\n" + "\n".join(lines)
 
-    try:
-        import urllib.request
-        req = urllib.request.Request(
-            "https://api.anthropic.com/v1/messages",
-            method="POST",
-            headers={
-                "Content-Type": "application/json",
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-            },
-            data=json.dumps({
-                "model": DIGEST_MODEL,
-                "max_tokens": 3000,
-                "system": system_prompt,
-                "messages": [{"role": "user", "content": user_prompt}],
-            }).encode("utf-8"),
-        )
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = json.loads(resp.read())
-        parts = [b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"]
-        return "".join(parts).strip() or None
-    except Exception as e:
-        log(f"digest script error: {e}")
+        try:
+            import urllib.request
+            req = urllib.request.Request(
+                "https://api.anthropic.com/v1/messages",
+                method="POST",
+                headers={
+                    "Content-Type": "application/json",
+                    "x-api-key": ANTHROPIC_API_KEY,
+                    "anthropic-version": "2023-06-01",
+                },
+                data=json.dumps({
+                    "model": DIGEST_MODEL,
+                    "max_tokens": 3000,
+                    "system": system_prompt,
+                    "messages": [{"role": "user", "content": user_prompt}],
+                }).encode("utf-8"),
+            )
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                data = json.loads(resp.read())
+            parts = [b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"]
+            result = "".join(parts).strip()
+            if result:
+                return result
+            log("digest script: empty response from Claude, falling back to template")
+        except Exception as e:
+            log(f"digest script Claude error: {e}; falling back to template")
+
+    if not (mustknow or thisweek):
+        log("digest script: no news items available, skipping audio")
         return None
+
+    log("digest script: using template fallback (no Claude API)")
+    return _build_template_digest_script(exec_summary, mustknow, thisweek)
 
 
 TTS_KATAKANA_MAP = {
@@ -2282,6 +2330,7 @@ def main() -> int:
         if script:
             log(f"digest script: {len(script)} chars")
             debug_stats["audio"]["scriptChars"] = len(script)
+            debug_stats["audio"]["scriptSource"] = "claude" if ANTHROPIC_API_KEY and not _LAST_ANTHROPIC_ERROR else "template_fallback"
             log("generating TTS MP3 (AivisSpeech/VOICEVOX → Azure → ElevenLabs → OpenAI fallback)...")
             mp3 = generate_tts_mp3(script)
             if mp3:
