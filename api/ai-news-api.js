@@ -406,14 +406,20 @@ function simpleHash(s) {
 }
 
 /* ── TTS 音声生成 ──
-   優先順位: ElevenLabs（最高品質、ELEVENLABS_API_KEY 設定時）→ OpenAI（フォールバック）
-   ElevenLabs の eleven_multilingual_v2 は日本語の自然さで業界トップクラス。
-   未設定なら OpenAI gpt-4o-mini-tts に自動フォールバック。 */
+   優先順位:
+   ① Azure AI Speech ja-JP-NanamiNeural（日本語ネイティブのアナウンサー声・第1優先）
+   ② ElevenLabs eleven_multilingual_v2（多言語の最高品質・第2優先）
+   ③ OpenAI gpt-4o-mini-tts（最終フォールバック）
+   ElevenLabs / OpenAI は英語ネイティブ声優の多言語化で日本語に微妙な訛り（いわゆる
+   「アニメ声」っぽさ）が残るため、AZURE_SPEECH_KEY + AZURE_SPEECH_REGION が
+   設定されている時は Azure Nanami を必ず優先する。 */
 async function handleTTS(req, res) {
-  const elevenKey = process.env.ELEVENLABS_API_KEY;
-  const openaiKey = process.env.OPENAI_API_KEY;
-  if (!elevenKey && !openaiKey) {
-    return res.status(501).json({ error: 'TTS APIキーが未設定です（ELEVENLABS_API_KEY または OPENAI_API_KEY）' });
+  const azureKey    = process.env.AZURE_SPEECH_KEY;
+  const azureRegion = process.env.AZURE_SPEECH_REGION;
+  const elevenKey   = process.env.ELEVENLABS_API_KEY;
+  const openaiKey   = process.env.OPENAI_API_KEY;
+  if (!azureKey && !elevenKey && !openaiKey) {
+    return res.status(501).json({ error: 'TTS APIキーが未設定です（AZURE_SPEECH_KEY / ELEVENLABS_API_KEY / OPENAI_API_KEY）' });
   }
 
   const { text } = req.body || {};
@@ -424,16 +430,76 @@ async function handleTTS(req, res) {
   // スクリプトを前処理: 自然な息継ぎ／間を入れる（人間っぽさ向上）
   const naturalText = naturalizeJapaneseTtsScript(text);
 
-  // ElevenLabs 優先（よりナチュラル）
+  // ① Azure Nanami 優先（日本語ネイティブのアナウンサー声）
+  if (azureKey && azureRegion) {
+    const ok = await tryAzureTTS(naturalText, azureKey, azureRegion, res);
+    if (ok) return;
+    // 失敗時は ElevenLabs / OpenAI にフォールバック
+  }
+  // ② ElevenLabs
   if (elevenKey) {
     const ok = await tryElevenLabsTTS(naturalText, elevenKey, res);
-    if (ok) return; // 成功時は send 済み
-    // 失敗時は OpenAI にフォールバック
+    if (ok) return;
   }
+  // ③ OpenAI 最終フォールバック
   if (!openaiKey) {
     return res.status(502).json({ error: 'TTS生成に失敗しました（フォールバック先なし）' });
   }
   return tryOpenAITTS(naturalText, openaiKey, res);
+}
+
+/** Azure AI Speech TTS（日本語ネイティブ「アナウンサー声」）。
+ *  Nanami は newscast 非対応のため、formal かつ professional な customerservice を採用。
+ *  F0 (Free) tier で Neural voices 月50万文字まで¥0、F0 でも customerservice スタイルは利用可能。
+ *  全パラメータは環境変数で上書き可能:
+ *    AZURE_SPEECH_VOICE  (default: ja-JP-NanamiNeural)
+ *    AZURE_SPEECH_STYLE  (default: customerservice)
+ *    AZURE_SPEECH_RATE   (default: -3%)
+ *    AZURE_SPEECH_PITCH  (default: 0%)
+ *  成功時 true を返して MP3 を res に送信済み。 */
+async function tryAzureTTS(text, apiKey, region, res) {
+  const voice = (process.env.AZURE_SPEECH_VOICE || 'ja-JP-NanamiNeural').trim();
+  const style = (process.env.AZURE_SPEECH_STYLE || 'customerservice').trim();
+  const rate  = (process.env.AZURE_SPEECH_RATE  || '-3%').trim();
+  const pitch = (process.env.AZURE_SPEECH_PITCH || '0%').trim();
+  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="ja-JP"><voice name="${voice}"><mstts:express-as style="${style}"><prosody rate="${rate}" pitch="${pitch}">${escapeXml(text)}</prosody></mstts:express-as></voice></speak>`;
+  try {
+    const response = await fetch(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+      method: 'POST',
+      headers: {
+        'Ocp-Apim-Subscription-Key': apiKey,
+        'Content-Type': 'application/ssml+xml',
+        'X-Microsoft-OutputFormat': 'audio-24khz-96kbitrate-mono-mp3',
+        'User-Agent': 'ai-news-app',
+      },
+      body: ssml,
+    });
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      console.error('[ai-news-api:tts] Azure error:', response.status, errText.slice(0, 300));
+      return false;
+    }
+    const buffer = Buffer.from(await response.arrayBuffer());
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Content-Length', buffer.length);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('X-TTS-Provider', 'azure');
+    res.setHeader('X-TTS-Voice', voice);
+    res.status(200).send(buffer);
+    return true;
+  } catch (err) {
+    console.error('[ai-news-api:tts] Azure error:', err.message);
+    return false;
+  }
+}
+
+function escapeXml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
 /** 英字頭字語 → カタカナ読み変換マップ。
