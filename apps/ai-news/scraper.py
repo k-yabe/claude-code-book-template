@@ -1753,11 +1753,16 @@ def naturalize_japanese_tts_script(s: str) -> str:
 
 
 def generate_tts_mp3(text: str) -> bytes | None:
-    """日本語 MP3 を生成。優先順位:
-    1. Google Cloud TTS (ja-JP-Neural2-B) — 月100万字まで完全無料、プロアナウンサー級。
-       要 GOOGLE_TTS_API_KEY 環境変数（GCP コンソールで作成）。最優先。
-    2. AivisSpeech / VOICEVOX (engine が動いた場合) — 完全無料・登録不要だが声優キャラ系。
-    3. Azure AI Speech (ja-JP-NanamiNeural, customerservice style) — F0 無料 tier で月50万字無料。
+    """日本語 MP3 を生成。優先順位（"アナウンサー声" を最優先する設計）:
+    1. Google Cloud TTS (ja-JP-Chirp3-HD-Kore / Neural2-B) — 月100万字無料、プロアナウンサー級。
+       要 GOOGLE_TTS_API_KEY 環境変数。最優先。
+    2. Azure AI Speech (ja-JP-NanamiNeural, customerservice style) — 日本語ネイティブ
+       アナウンサー声。F0 無料 tier で月50万字無料。**VOICEVOX/AivisSpeech より前** に
+       置くことで、`GOOGLE_TTS_API_KEY` 未設定 + `AZURE_SPEECH_KEY` 設定済みの環境で
+       "アニメ声系" のキャラ TTS にフォールバックしないようにする。
+    3. AivisSpeech / VOICEVOX (engine が動いた場合) — 完全無料・登録不要だが声優キャラ系で
+       ニュース朗読には不向き（"アニメ声" と評されることがある）。Azure / Google が
+       全滅した時の最終手段に近い位置に降格。
     4. ElevenLabs eleven_multilingual_v2 — 表現力高いが英語声優の多言語化なので英語訛り残る。
     5. OpenAI gpt-4o-mini-tts — 最後のフォールバック。
     """
@@ -1769,20 +1774,20 @@ def generate_tts_mp3(text: str) -> bytes | None:
         mp3 = _generate_tts_google(natural, google_key)
         if mp3:
             return mp3
-        log("Google TTS failed, falling back to VOICEVOX/AivisSpeech")
-    voicevox_url = os.environ.get("VOICEVOX_BASE_URL", "").strip()
-    if voicevox_url:
-        mp3 = _generate_tts_voicevox(natural, voicevox_url)
-        if mp3:
-            return mp3
-        log("VOICEVOX TTS failed, falling back to Azure")
+        log("Google TTS failed, falling back to Azure")
     azure_key = os.environ.get("AZURE_SPEECH_KEY", "").strip()
     azure_region = os.environ.get("AZURE_SPEECH_REGION", "").strip()
     if azure_key and azure_region:
         mp3 = _generate_tts_azure(natural, azure_key, azure_region)
         if mp3:
             return mp3
-        log("Azure TTS failed, falling back to ElevenLabs")
+        log("Azure TTS failed, falling back to VOICEVOX/AivisSpeech")
+    voicevox_url = os.environ.get("VOICEVOX_BASE_URL", "").strip()
+    if voicevox_url:
+        mp3 = _generate_tts_voicevox(natural, voicevox_url)
+        if mp3:
+            return mp3
+        log("VOICEVOX TTS failed, falling back to ElevenLabs")
     eleven_key = os.environ.get("ELEVENLABS_API_KEY", "").strip()
     if eleven_key:
         mp3 = _generate_tts_elevenlabs(natural, eleven_key)
