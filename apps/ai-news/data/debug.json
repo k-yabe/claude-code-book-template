@@ -1,21 +1,22 @@
 {
-  "ranAt": "2026-05-12T01:51:46.437979+00:00",
+  "ranAt": "2026-05-12T23:55:59.553732+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": false,
   "sources": 67,
   "phase": "start",
-  "fetched_items": 17,
-  "summarizer": "anthropic_haiku",
-  "final_items": 17,
-  "competitor_items": 4,
+  "fetched_items": 42,
+  "summarizer": "fallback",
+  "anthropicError": "tool_use returned empty / JSON parse failed: None (raw len=0)",
+  "final_items": 42,
+  "competitor_items": 16,
   "x_highlights": 0,
   "audio": {
     "voicevoxBaseUrl": "http://127.0.0.1:10101",
     "azureKeySet": false,
     "elevenKeySet": false,
-    "scriptChars": 2220,
-    "scriptSource": "claude",
-    "mp3Bytes": 1251513
+    "scriptChars": 1625,
+    "scriptSource": "template_fallback",
+    "mp3Bytes": 1230165
   },
-  "durationSec": 326.4
+  "durationSec": 412.2
 }
