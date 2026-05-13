@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-05-12T23:54:36Z",
+  "last_scraped": "2026-05-13T23:51:05Z",
   "articles": [
+    {
+      "id": "how-prebuilt-ai-agents-drive-enterprise-ai-roi",
+      "title": "How Prebuilt AI Agents Drive Enterprise AI ROI",
+      "url": "https://www.akkodis.com/blog/articles/how-prebuilt-ai-agents-drive-enterprise-ai-roi",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-05-13T23:48:41Z",
+      "published_date": "2026-05-13T00:00:00Z",
+      "summary_ja": "エンタープライズ企業は個人の生産性を高めるコパイロットの導入は進めているものの、部門全体の業務フローそのものは依然として手作業のままで、コスト削減や処理速度の改善につながっていません。人事や財務、調達、営業などの部門に特化した専用のAIエージェントを既存ワークフローに組み込むことで、これらの業務を自動化し、承認プロセスの効率化や処理時間の短縮を実現できます。Akkodis Japanは営業業務の自動化により年間15,000時間の削減に成功しており、こうした手法は顧客サポートやサプライチェーン業務など多くの部門に応用可能です。"
+    },
     {
       "id": "sap-commerce-cloud-jdk21-upgrade-guide",
       "title": "The Clock Is Running Out on Your Java 17 Commerce Platform",
