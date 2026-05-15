@@ -1766,17 +1766,12 @@ def naturalize_japanese_tts_script(s: str) -> str:
 
 
 def generate_tts_mp3(text: str) -> bytes | None:
-    """日本語 MP3 を生成。優先順位（"アナウンサー声" を最優先する設計）:
-    1. Google Cloud TTS (ja-JP-Chirp3-HD-Kore / Neural2-B) — 月100万字無料、プロアナウンサー級。
-       要 GOOGLE_TTS_API_KEY 環境変数。最優先。
-    2. Azure AI Speech (ja-JP-NanamiNeural, customerservice style) — 日本語ネイティブ
-       アナウンサー声。F0 無料 tier で月50万字無料。
-    3. ElevenLabs eleven_multilingual_v2 — 表現力高い。英語訛りはあるが日本語ニュースとして
-       十分自然。AivisSpeech より明らかにアナウンサーらしい声質。
-    4. OpenAI gpt-4o-mini-tts — shimmer + TTS_INSTRUCTIONS でプロ朗読指示を渡す。
-       instruction following が強力なため AivisSpeech より高品質。
-    5. AivisSpeech / VOICEVOX (engine が動いた場合) — 完全無料・登録不要だが声優キャラ系で
-       ニュース朗読には不向き（"アニメ声" と評されることがある）。最終手段。
+    """日本語 MP3 を生成。プロアナウンサー声のみ使用。
+    1. Google Cloud TTS (ja-JP-Chirp3-HD-Kore / Neural2-B) — 最高品質。要 GOOGLE_TTS_API_KEY。
+    2. Azure AI Speech (ja-JP-NanamiNeural) — 日本語ネイティブアナウンサー声。要 AZURE_SPEECH_KEY。
+    3. ElevenLabs eleven_multilingual_v2 — 高表現力。要 ELEVENLABS_API_KEY。
+    4. OpenAI gpt-4o-mini-tts (shimmer) — TTS_INSTRUCTIONS でアナウンサー指示。要 OPENAI_API_KEY。
+    いずれも未設定の場合は None を返して音声生成をスキップ（アニメ声より無音を優先）。
     """
     if not text:
         return None
@@ -1803,10 +1798,7 @@ def generate_tts_mp3(text: str) -> bytes | None:
     mp3 = _generate_tts_openai(natural)
     if mp3:
         return mp3
-    log("OpenAI TTS failed, falling back to VOICEVOX/AivisSpeech (last resort)")
-    voicevox_url = os.environ.get("VOICEVOX_BASE_URL", "").strip()
-    if voicevox_url:
-        return _generate_tts_voicevox(natural, voicevox_url)
+    log("All pro TTS services unavailable — skipping audio (no anime voice fallback)")
     return None
 
 

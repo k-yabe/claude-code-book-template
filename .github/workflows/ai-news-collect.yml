@@ -51,93 +51,10 @@ jobs:
           sudo apt-get install -y -qq --no-install-recommends ffmpeg
           ffmpeg -version | head -1
 
-      - name: Start AivisSpeech engine (CPU) and warmup synthesis
-        # Google/Azure/ElevenLabs/OpenAI のいずれかが設定されていれば AivisSpeech は不要。
-        # いずれも未設定の場合（ローカル無料運用）の最終手段として起動する。
-        # Anneli（アニメ声）は除外し、ニュース/落ち着き系スタイルを優先選択する。
-        run: |
-          # いずれかの外部 TTS キーがあれば AivisSpeech をスキップして時間節約
-          if [ -n "$GOOGLE_TTS_API_KEY" ] || [ -n "$AZURE_SPEECH_KEY" ] || \
-             [ -n "$ELEVENLABS_API_KEY" ] || [ -n "$OPENAI_API_KEY" ]; then
-            echo "AIVISSPEECH_OK=0" >> "$GITHUB_ENV"
-            echo "External TTS key found — skipping AivisSpeech warmup"
-            exit 0
-          fi
-          echo "No external TTS keys — starting AivisSpeech as fallback"
-          mkdir -p apps/ai-news/data
-          DIAG="apps/ai-news/data/_aivis_diag.log"
-          echo "=== run started: $(date -u +%Y-%m-%dT%H:%M:%SZ) ===" > "$DIAG"
-          docker pull ghcr.io/aivis-project/aivisspeech-engine:cpu-1.2.0 >> "$DIAG" 2>&1
-          docker run -d --rm --name aivisspeech \
-            -p 127.0.0.1:10101:10101 \
-            ghcr.io/aivis-project/aivisspeech-engine:cpu-1.2.0 >> "$DIAG" 2>&1
-          python3 - >> "$DIAG" 2>&1 <<'PY'
-          import json, sys, time, urllib.request
-          base = "http://127.0.0.1:10101"
-          for i in range(210):
-              try:
-                  urllib.request.urlopen(base + "/version", timeout=2).read()
-                  print(f"aivisspeech /version OK after {i*2}s"); break
-              except Exception:
-                  time.sleep(2)
-          else:
-              print("::warning::aivisspeech /version timeout"); sys.exit(2)
-          try:
-              speakers = json.loads(urllib.request.urlopen(base + "/speakers", timeout=30).read())
-              ANIME = ("Anneli","ずんだもん","四国めたん","春日部つむぎ","波音リツ",
-                       "玄野武宏","白上虎太郎","青山龍星","冥鳴ひまり","九州そら")
-              def is_anime(n): return any(k in (n or "") for k in ANIME)
-              picked = None
-              for s in speakers:
-                  if is_anime(s.get("name","")): continue
-                  for st in s.get("styles",[]):
-                      if any(k in (st.get("name") or "") for k in ("ニュース","アナウンサー","newscast")):
-                          picked = s; break
-                  if picked: break
-              if not picked:
-                  for s in speakers:
-                      if is_anime(s.get("name","")): continue
-                      for st in s.get("styles",[]):
-                          if any(k in (st.get("name") or "") for k in ("ノーマル","通常","落ち着き","Normal")):
-                              picked = s; break
-                      if picked: break
-              if not picked:
-                  picked = next((s for s in speakers if not is_anime(s.get("name",""))), speakers[0] if speakers else None)
-              if not picked or not picked.get("styles"):
-                  print("::warning::no usable speaker"); sys.exit(3)
-              styles = picked["styles"]
-              st = next((x for x in styles if any(k in (x.get("name") or "") for k in ("ニュース","アナウンサー","newscast"))),
-                        next((x for x in styles if any(k in (x.get("name") or "") for k in ("ノーマル","通常","落ち着き","Normal"))),
-                        styles[0]))
-              sid = st["id"]
-              print(f"chosen: {picked.get('name')} / {st.get('name')} / id={sid}")
-              with open("/tmp/aivis_speaker_id","w") as f: f.write(str(sid))
-          except Exception as e:
-              print(f"::warning::speakers error: {e}"); sys.exit(4)
-          try:
-              q = json.loads(urllib.request.urlopen(urllib.request.Request(
-                  base+f"/audio_query?speaker={sid}&text=%E3%83%86%E3%82%B9%E3%83%88",method="POST"),timeout=120).read())
-              wav = urllib.request.urlopen(urllib.request.Request(
-                  base+f"/synthesis?speaker={sid}",method="POST",
-                  headers={"Content-Type":"application/json","Accept":"audio/wav"},
-                  data=json.dumps(q).encode()),timeout=300).read()
-              print(f"warmup OK: {len(wav)} bytes"); sys.exit(0)
-          except Exception as e:
-              print(f"::warning::warmup failed: {e}"); sys.exit(6)
-          PY
-          warmup_status=$?
-          if [ "$warmup_status" -eq 0 ]; then
-            echo "AIVISSPEECH_OK=1" >> "$GITHUB_ENV"
-            echo "AIVISSPEECH_SPEAKER_ID=$(cat /tmp/aivis_speaker_id 2>/dev/null)" >> "$GITHUB_ENV"
-          else
-            echo "AIVISSPEECH_OK=0" >> "$GITHUB_ENV"
-          fi
-        env:
-          GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
-          AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
-          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        continue-on-error: true
+      - name: Skip AivisSpeech (anime voice — not used)
+        # プロアナウンサー声のみ使用。AivisSpeech はアニメキャラ系のため完全除外。
+        # Google / Azure / ElevenLabs / OpenAI のいずれかのキーが必要。
+        run: echo "AIVISSPEECH_OK=0" >> "$GITHUB_ENV"
 
       - name: Collect & summarize & generate audio
         env:
