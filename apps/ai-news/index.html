@@ -39,6 +39,10 @@
       <div class="navbar-divider"></div>
       <span class="navbar-title">📰 AI NEWS <span class="nav-live-dot" aria-hidden="true"></span></span>
     </div>
+    <div class="lang-toggle" role="group" aria-label="表示言語">
+      <button class="lang-btn active" data-lang="ja" aria-pressed="true">JA</button>
+      <button class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+    </div>
   </nav>
 
   <div class="news-shell">
@@ -311,9 +315,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '05/13', text: '🎙 音声ダイジェストが「アニメ声」になっていた不具合を修正。Azure Nanami（日本語ネイティブのアナウンサー声）が VOICEVOX/AivisSpeech より優先されるように TTS チェーンを並べ替え、Nanami が呼ばれない環境でも on-demand API 経由でアナウンサー調に' },
-        { date: '05/06', text: '🔧 毎朝届く「AI NEWS 自動収集: All jobs have failed」エラーを修正。akkodis-watcher と同時刻 cron で並走して main への push が non-fast-forward で失敗する race を、pull --rebase + 5 回リトライで根治' },
-        { date: '05/04', text: '🌐 X（Twitter）ハイライトの英語投稿に日本語訳を併記。on-demand API のプロンプトに翻訳ルールを追加し、原文バッジ + 日本語訳バッジの 2 段表示で読みやすく' }
+        { date: '05/15', text: '🌐 英語対応。ナビバーの JA/EN トグルでコンテンツ全体（タイトル・サマリー・影響分析・推奨アクション）を切り替え可能に。Claude Haiku が毎朝英語翻訳を生成して保存、表示遅延ゼロ' },
+        { date: '05/15', text: '🎙 音声ダイジェストをプロアナウンサー声（Google Cloud TTS ja-JP-Chirp3-HD-Kore）に変更。アニメ声の AivisSpeech を完全除外' },
+        { date: '05/06', text: '🔧 毎朝届く「AI NEWS 自動収集: All jobs have failed」エラーを修正。akkodis-watcher と同時刻 cron で並走して main への push が non-fast-forward で失敗する race を、pull --rebase + 5 回リトライで根治' }
       ]
     });
 

@@ -1,3 +1,43 @@
+    /* ── JA / EN 言語トグル ── */
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+      gap: 0;
+      flex-shrink: 0;
+    }
+    .lang-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 28px;
+      background: transparent;
+      border: 1px solid rgba(255, 184, 28, 0.35);
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+      position: relative;
+    }
+    .lang-btn:first-child {
+      border-right: none;
+    }
+    .lang-btn:hover {
+      background: rgba(255, 184, 28, 0.12);
+      color: rgba(255, 255, 255, 0.85);
+    }
+    .lang-btn.active {
+      background: var(--gold, #ffb81c);
+      border-color: var(--gold, #ffb81c);
+      color: var(--navy, #001f33);
+    }
+    .lang-btn.active + .lang-btn {
+      border-left-color: var(--gold, #ffb81c);
+    }
+
     /* ── PC セクションナビゲーション（≥1280px で表示） ── */
     .section-nav { display: none; }
     @media (min-width: 1280px) {

@@ -1337,9 +1337,98 @@ def extract_json(text: str) -> dict | None:
     return None
 
 
+# ── 英語翻訳 ─────────────────────────────────────
+def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> dict:
+    """Haiku でニュース記事を英語翻訳。titleEn/summaryEn/whyItMattersEn/actionItemEn を返す。
+    失敗時は空 dict を返す（英語フィールドなしで graceful degradation）。"""
+    if not ANTHROPIC_API_KEY:
+        return {}
+    try:
+        import anthropic  # type: ignore
+    except ImportError:
+        return {}
+
+    payload = [
+        {
+            "i": idx,
+            "title": it.get("title", ""),
+            "summary": it.get("summary", ""),
+            "whyItMatters": it.get("whyItMatters", ""),
+            "actionItem": it.get("actionItem", ""),
+        }
+        for idx, it in enumerate(items)
+    ]
+
+    TRANSLATE_TOOL = {
+        "name": "translate_to_english",
+        "description": "Translate Japanese AI/marketing news items to natural English",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "execSummaryEn": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Executive summary lines translated to English",
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "i": {"type": "integer"},
+                            "titleEn": {"type": "string", "description": "Title in English (concise)"},
+                            "summaryEn": {"type": "string", "description": "Summary in English (1-2 sentences)"},
+                            "whyItMattersEn": {"type": "string", "description": "Why it matters, in English (1 sentence)"},
+                            "actionItemEn": {"type": "string", "description": "Action item in English (1 sentence)"},
+                        },
+                        "required": ["i", "titleEn", "summaryEn"],
+                    },
+                },
+            },
+            "required": ["execSummaryEn", "items"],
+        },
+    }
+
+    system = (
+        "You are a professional translator specializing in AI and marketing news. "
+        "Translate Japanese text to natural, concise English. "
+        "Keep proper nouns, brand names, and technical terms as-is. "
+        "Do not add explanations—translate only."
+    )
+    user = (
+        f"Translate the following Japanese AI/marketing news items and executive summary to English.\n\n"
+        f"Executive summary:\n{json.dumps(exec_summary, ensure_ascii=False)}\n\n"
+        f"Items:\n{json.dumps(payload, ensure_ascii=False)}"
+    )
+
+    try:
+        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        msg = client.messages.create(
+            model=HAIKU_MODEL,
+            max_tokens=8000,
+            system=system,
+            messages=[{"role": "user", "content": user}],
+            tools=[TRANSLATE_TOOL],
+            tool_choice={"type": "tool", "name": "translate_to_english"},
+        )
+        for block in msg.content:
+            if getattr(block, "type", None) == "tool_use" and block.name == "translate_to_english":
+                result = block.input
+                # items リストを index→item の dict に変換して返す
+                translated_by_idx = {o["i"]: o for o in (result.get("items") or []) if "i" in o}
+                return {
+                    "execSummaryEn": result.get("execSummaryEn") or [],
+                    "byIdx": translated_by_idx,
+                }
+    except Exception as e:
+        log(f"translate_items_to_english failed: {e}")
+    return {}
+
+
 # ── 保存 ──────────────────────────────────────────
 def save(items: list[dict], executive_summary: list[str] | None = None,
-         x_highlights: list[dict] | None = None) -> None:
+         x_highlights: list[dict] | None = None,
+         exec_summary_en: list[str] | None = None) -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     ARCH_DIR.mkdir(parents=True, exist_ok=True)
     today_jst = datetime.now(JST).strftime("%Y-%m-%d")
@@ -1347,6 +1436,7 @@ def save(items: list[dict], executive_summary: list[str] | None = None,
         "updatedAt": datetime.now(UTC).isoformat(),
         "generatedFor": today_jst,
         "executiveSummary": executive_summary or [],
+        "executiveSummaryEn": exec_summary_en or [],
         "count": len(items),
         "items": items,
         "xHighlights": x_highlights or [],
@@ -2391,11 +2481,28 @@ def main() -> int:
         debug_stats["summarizer"] = "anthropic_haiku"
     debug_stats["final_items"] = len(items)
     debug_stats["competitor_items"] = sum(1 for x in items if x.get("isCompetitor"))
+
+    # 英語翻訳（フィールドを in-place でマージ）
+    log("translating items to English...")
+    en = translate_items_to_english(items, exec_summary)
+    if en:
+        for idx, it in enumerate(items):
+            t = en["byIdx"].get(idx, {})
+            if t.get("titleEn"):        it["titleEn"]        = t["titleEn"]
+            if t.get("summaryEn"):      it["summaryEn"]      = t["summaryEn"]
+            if t.get("whyItMattersEn"): it["whyItMattersEn"] = t["whyItMattersEn"]
+            if t.get("actionItemEn"):   it["actionItemEn"]   = t["actionItemEn"]
+        exec_summary_en: list[str] = en.get("execSummaryEn") or []
+        log(f"translated {len(en['byIdx'])} items to English")
+    else:
+        exec_summary_en = []
+        log("English translation skipped or failed")
+
     # X トレンド取得（Claude + web_search）。失敗時は空配列で client 側のシードに任せる。
     log("fetching x trends via claude + web_search...")
     x_highlights = fetch_x_trends_via_claude()
     debug_stats["x_highlights"] = len(x_highlights)
-    save(items, exec_summary, x_highlights=x_highlights)
+    save(items, exec_summary, x_highlights=x_highlights, exec_summary_en=exec_summary_en)
 
     # ── 音声ダイジェストを事前生成（GitHub Actions 実行時のみ） ──
     if os.environ.get("SKIP_AUDIO", "").strip() != "1":

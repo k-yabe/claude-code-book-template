@@ -19,6 +19,7 @@
   /* ── Executive Summary（シードデータ） ──
      実データが提供されない場合は deriveSummaryLines() が記事タイトルから自動生成する。 */
   let EXEC_SUMMARY = [];
+  let EXEC_SUMMARY_EN = [];
 
   const NEWS_DATA = [
     {
@@ -571,6 +572,7 @@
   const STORE_KEY_STREAK = 'ai-news:streak:v1';
   const STORE_KEY_NIGHT  = 'ai-news:night:v1';
   const STORE_KEY_LAST_VISIT = 'ai-news:lastVisit:v1';
+  const STORE_KEY_LANG   = 'ai-news:lang:v1';
   // フィードバック (👍/👎) を localStorage に蓄積。将来的に scraper 側で
   // 「過去 N 日で 👎 が多かったジャンル」を input にして LLM プロンプトに食わせる
   // 自動学習ループに繋げる（現状はクライアント側だけで完結）
@@ -707,7 +709,29 @@
     read: loadSet(STORE_KEY_READ),
     later: loadSet(STORE_KEY_LATER),  // 📚 後で読む（既読化で自動的に外す運用）
     feedback: loadFeedback(),  // { id: 'up' | 'down' }
+    lang: localStorage.getItem(STORE_KEY_LANG) === 'en' ? 'en' : 'ja',
   };
+
+  /** 言語に応じたフィールドを返す。EN モードで EnSuffix フィールドがなければ JA にフォールバック */
+  function T(item, field) {
+    if (state.lang === 'en') {
+      const enVal = item[field + 'En'];
+      if (enVal) return enVal;
+    }
+    return item[field] || '';
+  }
+
+  /** 言語切り替えを適用し、全セクションを再レンダリングする */
+  function applyLang(lang) {
+    state.lang = lang;
+    try { localStorage.setItem(STORE_KEY_LANG, lang); } catch {}
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+    // fullRender は後で定義されるのでこの時点では呼べない。
+    // ボタンのクリックは必ず DOM 構築後なので fullRender は存在する。
+    if (typeof fullRender === 'function') fullRender();
+  }
 
   /** 📚 後で読むトグル */
   function toggleLater(id, btn) {
@@ -1651,8 +1675,12 @@
   function renderExecSummary() {
     const root = document.getElementById('exec-summary');
     if (!root) return;
+    // EN モード: executiveSummaryEn を優先、なければ日本語にフォールバック
+    const rawLines = (state.lang === 'en' && EXEC_SUMMARY_EN && EXEC_SUMMARY_EN.length)
+      ? EXEC_SUMMARY_EN
+      : (EXEC_SUMMARY || []);
     // まず LLM 生成の EXEC_SUMMARY を試す（個別行が「…」で終わっていたり空なら採用しない）
-    let lines = (EXEC_SUMMARY || []).map(tightenSummaryLine).filter(Boolean);
+    let lines = rawLines.map(tightenSummaryLine).filter(Boolean);
     // 空行・truncated 行で埋まっている / 不足している場合は deriveSummaryLines で補完
     if (lines.length < 3) {
       const derived = deriveSummaryLines().map(tightenSummaryLine).filter(Boolean);
@@ -1706,13 +1734,18 @@
       const hasUrl = !!n.url;
       const isTopStory = idx === 0;
       const imgSrc = pickImage(n);
+      const itemTitle = T(n, 'title');
       const titleHtml = hasUrl
-        ? `<a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a>`
-        : escapeHtml(n.title);
+        ? `<a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(itemTitle)}</a>`
+        : escapeHtml(itemTitle);
       const favicon = sourceFavicon(n.url) || '';
       const initials = (n.source || '').substring(0, 2).toUpperCase();
+      const whyLabel = state.lang === 'en' ? '⚡ Why it matters' : '⚡ なぜ重要か（マーケ視点）';
+      const actionLabel = state.lang === 'en' ? '🎯 What to do' : '🎯 マーケとして何をすべきか';
+      const whyText = state.lang === 'en' ? (n.whyItMattersEn || n.whyItMatters) : n.whyItMatters;
+      const actionText = state.lang === 'en' ? (n.actionItemEn || n.actionItem) : n.actionItem;
       return `
-      <article class="top-card${isRead ? ' read' : ''}${isTopStory ? ' top-story' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" aria-label="${escapeHtml(n.title)}">
+      <article class="top-card${isRead ? ' read' : ''}${isTopStory ? ' top-story' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" aria-label="${escapeHtml(itemTitle)}">
         ${isTopStory ? '<div class="top-story-ribbon" aria-hidden="true" title="大手ニュースメディアの最重要 AI×マーケ速報"><span class="top-story-ribbon-num">#1</span><span class="top-story-ribbon-label">本日の主要ニュース</span></div>' : ''}
         ${imgSrc ? `
         <div class="top-hero">
@@ -1740,9 +1773,9 @@
         </div>`}
         <div class="top-content">
           <h2 class="top-title">${titleHtml}</h2>
-          <p class="top-summary">${escapeHtml(n.summary)}</p>
-          ${(() => { const w = meaningfulWhyItMatters(n); return w ? `<div class="top-impact"><span class="top-impact-label">⚡ なぜ重要か（マーケ視点）</span><span class="top-impact-text">${escapeHtml(w)}</span></div>` : ''; })()}
-          ${n.actionItem ? `<div class="top-action"><span class="top-action-label">🎯 マーケとして何をすべきか</span><span class="top-action-text">${escapeHtml(n.actionItem)}</span></div>` : ''}
+          <p class="top-summary">${escapeHtml(T(n, 'summary'))}</p>
+          ${(() => { const w = whyText && whyText.trim(); return w ? `<div class="top-impact"><span class="top-impact-label">${whyLabel}</span><span class="top-impact-text">${escapeHtml(w)}</span></div>` : ''; })()}
+          ${actionText ? `<div class="top-action"><span class="top-action-label">${actionLabel}</span><span class="top-action-text">${escapeHtml(actionText)}</span></div>` : ''}
           ${n.pickerComment || (n.tags && n.tags.length) ? `
           <details class="intel-details">
             <summary class="intel-toggle">▼ 専門家の視点を読む</summary>
@@ -1816,7 +1849,7 @@
       const bFavicon = sourceFavicon(n.url) || '';
       const bInitials = (n.source || '').substring(0, 2).toUpperCase();
       return `
-        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
+        <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(T(n, 'title'))}">
           ${imgSrc ? `
           <div class="brief-card-thumb">
             <img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
@@ -1836,10 +1869,10 @@
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
             </div>
-            <div class="brief-card-title">${escapeHtml(n.title)}</div>
-            <div class="brief-card-summary">${escapeHtml(n.summary)}</div>
-            ${(() => { const w = meaningfulWhyItMatters(n); return w ? `<div class="brief-card-impact">⚡ ${escapeHtml(w)}</div>` : ''; })()}
-            ${n.actionItem ? `<div class="brief-card-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
+            <div class="brief-card-title">${escapeHtml(T(n, 'title'))}</div>
+            <div class="brief-card-summary">${escapeHtml(T(n, 'summary'))}</div>
+            ${(() => { const w = (state.lang === 'en' ? (n.whyItMattersEn || n.whyItMatters) : n.whyItMatters) || ''; return w.trim() ? `<div class="brief-card-impact">⚡ ${escapeHtml(w)}</div>` : ''; })()}
+            ${(state.lang === 'en' ? (n.actionItemEn || n.actionItem) : n.actionItem) ? `<div class="brief-card-action">→ ${escapeHtml(state.lang === 'en' ? (n.actionItemEn || n.actionItem) : n.actionItem)}</div>` : ''}
             ${(n.pickerComment || (n.tags && n.tags.length)) ? `
             <details class="intel-details brief">
               <summary class="intel-toggle">▼ 詳しく読む</summary>
@@ -1960,8 +1993,8 @@
       const hasUrl = !!n.url;
       const imgSrc = pickImage(n);
       return `
-        <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}"><span class="fyi-visual-headline">${escapeHtml(n.title)}</span><span class="fyi-visual-source">${escapeHtml(n.source).replace(/^Google News \((.+)\)$/, '$1')}</span></div>`}
+        <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(T(n, 'title'))}">
+          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}"><span class="fyi-visual-headline">${escapeHtml(T(n, 'title'))}</span><span class="fyi-visual-source">${escapeHtml(n.source).replace(/^Google News \((.+)\)$/, '$1')}</span></div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
@@ -1970,9 +2003,9 @@
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
             </div>
-            <div class="fyi-title">${escapeHtml(n.title)}</div>
-            ${(() => { const w = meaningfulWhyItMatters(n); if (w) return `<div class="fyi-why">${escapeHtml(w)}</div>`; if (n.summary) return `<div class="fyi-why">${escapeHtml(n.summary)}</div>`; return ''; })()}
-            ${n.actionItem ? `<div class="fyi-action">→ ${escapeHtml(n.actionItem)}</div>` : ''}
+            <div class="fyi-title">${escapeHtml(T(n, 'title'))}</div>
+            ${(() => { const w = (state.lang === 'en' ? (n.whyItMattersEn || n.whyItMatters) : n.whyItMatters) || ''; const s = T(n, 'summary'); if (w.trim()) return `<div class="fyi-why">${escapeHtml(w)}</div>`; if (s) return `<div class="fyi-why">${escapeHtml(s)}</div>`; return ''; })()}
+            ${(state.lang === 'en' ? (n.actionItemEn || n.actionItem) : n.actionItem) ? `<div class="fyi-action">→ ${escapeHtml(state.lang === 'en' ? (n.actionItemEn || n.actionItem) : n.actionItem)}</div>` : ''}
             <div class="fyi-foot">
               <div class="fyi-tags">${(n.tags||[]).map(t => `<button class="tag tag-btn" type="button" data-tag-filter="${escapeHtml(t)}" title="#${escapeHtml(t)} で絞り込み">#${escapeHtml(t)}</button>`).join('')}</div>
               <div style="display:flex;align-items:center;gap:8px;">
@@ -2417,6 +2450,9 @@
       if (Array.isArray(json.executiveSummary) && json.executiveSummary.length) {
         EXEC_SUMMARY = json.executiveSummary.map(String);
       }
+      if (Array.isArray(json.executiveSummaryEn) && json.executiveSummaryEn.length) {
+        EXEC_SUMMARY_EN = json.executiveSummaryEn.map(String);
+      }
       // X Highlights を更新（scraper が収集した実データで上書き）
       // likes/retweets は renderX のバズ閾値判定で必要（無いと弾かれる）
       if (Array.isArray(json.xHighlights) && json.xHighlights.length) {
@@ -2562,6 +2598,9 @@
       if (NEWS_DATA.length === 0) throw new Error('no items with valid URL');
       if (Array.isArray(json.executiveSummary) && json.executiveSummary.length) {
         EXEC_SUMMARY = json.executiveSummary.map(String);
+      }
+      if (Array.isArray(json.executiveSummaryEn) && json.executiveSummaryEn.length) {
+        EXEC_SUMMARY_EN = json.executiveSummaryEn.map(String);
       }
       // アーカイブ表示時にも当日の X Highlights を反映する
       if (Array.isArray(json.xHighlights) && json.xHighlights.length) {
@@ -3405,6 +3444,11 @@
     const btnNight = document.getElementById('btn-night-mode');
     if (btnNight) btnNight.addEventListener('click', toggleNightMode);
     applyNightMode();
+    // 言語トグル
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === state.lang);
+      btn.addEventListener('click', () => applyLang(btn.dataset.lang));
+    });
     // hero の★stat クリックで favOnly フィルタを ON にして more-list にスクロール
     const heroFavBtn = document.getElementById('hero-stat-fav');
     if (heroFavBtn) {
@@ -3531,8 +3575,8 @@
       // 画像なし時は「記事タイトル + ソース名」を主役にしたタイポグラフィ・ビジュアルに。
       // 同じソースでもタイトルが違えば視覚的にユニークになり「同じ画像ばかり」問題を解消。
       return `
-        <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(n.title)}">
-          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}"><span class="fyi-visual-headline">${escapeHtml(n.title)}</span><span class="fyi-visual-source">${escapeHtml(prettyCompetitorSource(n.source))}</span></div>`}
+        <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(T(n, 'title'))}">
+          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}"><span class="fyi-visual-headline">${escapeHtml(T(n, 'title'))}</span><span class="fyi-visual-source">${escapeHtml(prettyCompetitorSource(n.source))}</span></div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
@@ -3541,8 +3585,8 @@
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
               ${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
             </div>
-            <div class="fyi-title">${escapeHtml(n.title)}</div>
-            ${(() => { const w = meaningfulWhyItMatters(n); if (w) return `<div class="fyi-why">${escapeHtml(w)}</div>`; if (n.summary) return `<div class="fyi-why">${escapeHtml(n.summary)}</div>`; return ''; })()}
+            <div class="fyi-title">${escapeHtml(T(n, 'title'))}</div>
+            ${(() => { const w = (state.lang === 'en' ? (n.whyItMattersEn || n.whyItMatters) : n.whyItMatters) || ''; const s = T(n, 'summary'); if (w.trim()) return `<div class="fyi-why">${escapeHtml(w)}</div>`; if (s) return `<div class="fyi-why">${escapeHtml(s)}</div>`; return ''; })()}
             <div class="fyi-foot">
               <div class="fyi-tags"></div>
               <div style="display:flex;align-items:center;gap:8px;">
