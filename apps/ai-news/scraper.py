@@ -1375,11 +1375,11 @@ def fetch_x_trends_via_claude() -> list[dict]:
     today_jst = datetime.now(JST)
     date_label = today_jst.strftime("%Y年%m月%d日")
     # 直近 N 日間のアーカイブから既出の handle を集めて、プロンプトで重複回避させる。
-    # これで「毎日同じ人が出る」現象を緩和する。
+    # 14日間に拡大し「毎日同じ人が出る」現象をより強く抑制する。
     recent_handles: set[str] = set()
     try:
         today_d = today_jst.date()
-        for i in range(7):  # 過去 7 日
+        for i in range(14):  # 過去 14 日
             day = today_d - timedelta(days=i)
             arch = ARCH_DIR / f"{day.strftime('%Y-%m-%d')}.json"
             if not arch.exists():
@@ -1393,24 +1393,31 @@ def fetch_x_trends_via_claude() -> list[dict]:
         pass
     avoid_block = ""
     if recent_handles:
-        sample = sorted(recent_handles)[:25]
+        sample = sorted(recent_handles)
         avoid_block = (
-            "\n## 多様性制約（重要）\n"
-            "- 過去 7 日間で既に出した以下の handle は**極力避けて**新しい著者を選ぶ:\n"
+            "\n## 多様性制約（最重要・厳守）\n"
+            f"- 過去 14 日間で既に出した以下の handle は**絶対に採用しない**。新しい著者のみ:\n"
             "  " + ", ".join(f"@{h}" for h in sample) + "\n"
-            "- 同一 handle は 1 件まで。3 件以上の枠は別人にすること\n"
+            "- 同一 handle は 1 件まで。上記に含まれる handle を 1 件でも出したら失格\n"
+            "- 著名人・大手アカウントに頼らず、バズった新鮮な投稿を探すこと\n"
         )
     prompt = (
-        f"今日（{date_label}）または直近 48 時間以内に、X（旧Twitter）で"
-        "「いいね・リポスト・引用が多く付いて注目されている、生成AI関連の投稿」を"
-        "**実在する URL 付きで** 6 件挙げてください。日本語投稿でも英語投稿でも構いません。\n\n"
+        f"今日（{date_label}）または直近 48 時間以内に X（旧Twitter）で"
+        "バズっている（いいね・リポスト・引用が相対的に多い）生成AI関連の投稿を"
+        "**実在する URL 付きで** 6 件挙げてください。\n\n"
+        "## 検索手順（必ず実行）\n"
+        "1. web_search で「生成AI site:x.com since:yesterday」「AI announcement twitter viral」等を検索\n"
+        "2. 検索結果から実際のいいね数・RT数が確認できる投稿を優先してピックアップ\n"
+        "3. 同じ著者が重複しないよう、毎回別の検索クエリで探すこと\n"
+        "4. 特定の著名人アカウントに偏らず、実際のエンゲージメント数で判断すること\n\n"
         "## 厳守ルール\n"
         "- web_search を使って実在を確認すること。架空の URL や著者名は絶対に作らない\n"
         "- URL は https://x.com/<handle>/status/<id> または https://twitter.com/... の形式のみ\n"
         "- 投稿が確認できなかった場合は「無し」と返す（無理に埋めない）\n"
-        "- 著者は誰でも良い（著名人/一般ユーザー問わず、エンゲージメントが多いもの）\n"
+        "- 著者は誰でも良い（著名人/一般ユーザー問わず、エンゲージメントが相対的に多いもの）\n"
         "- **同じ著者から 2 件以上は採用しない**（多様性のため）\n"
         "- B2B マーケ／生成AI 実務／競合動向に関係する話題を優先\n"
+        + avoid_block +
         "\n## 翻訳ルール（必須・厳格）\n"
         "- `text` には**投稿の原文**をそのまま入れる（言語変換しない）\n"
         "- `lang` には原文の言語コードを入れる: 日本語なら \"ja\"、英語なら \"en\"、その他なら ISO 639-1 コード\n"
@@ -1422,7 +1429,6 @@ def fetch_x_trends_via_claude() -> list[dict]:
         "  - URL／@メンション／#ハッシュタグは原文のまま残す\n"
         "  - 200 字以内、改行は \\\\n でエスケープ\n"
         "- `lang` が \"ja\" の場合は `textJa` は空文字列でよい\n"
-        + avoid_block +
         "\n## 出力フォーマット（JSON のみ、説明文なし、コードフェンス不要）\n"
         "{\"items\":[{\"author\":\"表示名\",\"handle\":\"@xxxx\","
         "\"text\":\"原文（200字以内、改行は \\\\n でエスケープ）\","
@@ -1434,7 +1440,7 @@ def fetch_x_trends_via_claude() -> list[dict]:
         msg = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=3000,
-            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
+            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 8}],
             messages=[{"role": "user", "content": prompt}],
         )
         # tool_use の応答を含む可能性あり。最後のテキストブロックを使う。
@@ -1757,14 +1763,13 @@ def generate_tts_mp3(text: str) -> bytes | None:
     1. Google Cloud TTS (ja-JP-Chirp3-HD-Kore / Neural2-B) — 月100万字無料、プロアナウンサー級。
        要 GOOGLE_TTS_API_KEY 環境変数。最優先。
     2. Azure AI Speech (ja-JP-NanamiNeural, customerservice style) — 日本語ネイティブ
-       アナウンサー声。F0 無料 tier で月50万字無料。**VOICEVOX/AivisSpeech より前** に
-       置くことで、`GOOGLE_TTS_API_KEY` 未設定 + `AZURE_SPEECH_KEY` 設定済みの環境で
-       "アニメ声系" のキャラ TTS にフォールバックしないようにする。
-    3. AivisSpeech / VOICEVOX (engine が動いた場合) — 完全無料・登録不要だが声優キャラ系で
-       ニュース朗読には不向き（"アニメ声" と評されることがある）。Azure / Google が
-       全滅した時の最終手段に近い位置に降格。
-    4. ElevenLabs eleven_multilingual_v2 — 表現力高いが英語声優の多言語化なので英語訛り残る。
-    5. OpenAI gpt-4o-mini-tts — 最後のフォールバック。
+       アナウンサー声。F0 無料 tier で月50万字無料。
+    3. ElevenLabs eleven_multilingual_v2 — 表現力高い。英語訛りはあるが日本語ニュースとして
+       十分自然。AivisSpeech より明らかにアナウンサーらしい声質。
+    4. OpenAI gpt-4o-mini-tts — shimmer + TTS_INSTRUCTIONS でプロ朗読指示を渡す。
+       instruction following が強力なため AivisSpeech より高品質。
+    5. AivisSpeech / VOICEVOX (engine が動いた場合) — 完全無料・登録不要だが声優キャラ系で
+       ニュース朗読には不向き（"アニメ声" と評されることがある）。最終手段。
     """
     if not text:
         return None
@@ -1781,20 +1786,21 @@ def generate_tts_mp3(text: str) -> bytes | None:
         mp3 = _generate_tts_azure(natural, azure_key, azure_region)
         if mp3:
             return mp3
-        log("Azure TTS failed, falling back to VOICEVOX/AivisSpeech")
-    voicevox_url = os.environ.get("VOICEVOX_BASE_URL", "").strip()
-    if voicevox_url:
-        mp3 = _generate_tts_voicevox(natural, voicevox_url)
-        if mp3:
-            return mp3
-        log("VOICEVOX TTS failed, falling back to ElevenLabs")
+        log("Azure TTS failed, falling back to ElevenLabs")
     eleven_key = os.environ.get("ELEVENLABS_API_KEY", "").strip()
     if eleven_key:
         mp3 = _generate_tts_elevenlabs(natural, eleven_key)
         if mp3:
             return mp3
         log("ElevenLabs TTS failed, falling back to OpenAI")
-    return _generate_tts_openai(natural)
+    mp3 = _generate_tts_openai(natural)
+    if mp3:
+        return mp3
+    log("OpenAI TTS failed, falling back to VOICEVOX/AivisSpeech (last resort)")
+    voicevox_url = os.environ.get("VOICEVOX_BASE_URL", "").strip()
+    if voicevox_url:
+        return _generate_tts_voicevox(natural, voicevox_url)
+    return None
 
 
 def _generate_tts_google(text: str, api_key: str) -> bytes | None:

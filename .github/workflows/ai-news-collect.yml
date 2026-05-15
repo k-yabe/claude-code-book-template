@@ -89,7 +89,10 @@ jobs:
           else:
               print("::warning::aivisspeech /version did not respond within 420s")
               sys.exit(2)
-          # /speakers から使える話者を選択。優先: Anneli > 最初の話者の最初のスタイル
+          # /speakers から使える話者を選択。
+          # アニメキャラ系（Anneli 等）は意図的にスキップ。ニュース朗読向きの
+          # 落ち着いた声質を持つ話者を優先する。
+          # 優先順: ニュース系スタイル > 落ち着き系スタイル > アニメ系以外の先頭
           try:
               speakers = json.loads(urllib.request.urlopen(base + "/speakers", timeout=30).read())
               # 全 speaker / styles を一覧出力（diag log に残るので原因特定しやすい）
@@ -100,33 +103,65 @@ jobs:
                   print(f"  speaker '{name}': {len(styles)} styles")
                   for st in styles:
                       print(f"    style id={st.get('id')} name='{st.get('name')}'")
-              # 1) Anneli を探す（含まれていれば優先）
-              picked = next((s for s in speakers if "Anneli" in (s.get("name") or "")), None)
-              picked_label = "Anneli" if picked else None
-              # 2) 落ち着き系（"落ち着き" "ノーマル" "通常"）スタイルを持つ任意の speaker
+              # アニメキャラ系として除外する名前キーワード（声優キャラ・アイドル系）
+              ANIME_KEYWORDS = ("Anneli", "ずんだもん", "四国めたん", "春日部つむぎ",
+                                "波音リツ", "玄野武宏", "白上虎太郎", "青山龍星",
+                                "冥鳴ひまり", "九州そら")
+              def is_anime_like(name):
+                  return any(k in (name or "") for k in ANIME_KEYWORDS)
+              # 1) ニュース・アナウンサー系スタイルを明示的に持つ話者
+              picked = None
+              picked_label = None
+              for s in speakers:
+                  if is_anime_like(s.get("name", "")):
+                      continue
+                  for st in s.get("styles", []):
+                      if any(k in (st.get("name") or "") for k in
+                             ("ニュース", "アナウンサー", "newscast", "news")):
+                          picked = s
+                          picked_label = f"{s.get('name')} (newscast style)"
+                          break
+                  if picked:
+                      break
+              # 2) 落ち着き系スタイルを持つ非アニメ話者
               if not picked:
                   for s in speakers:
+                      if is_anime_like(s.get("name", "")):
+                          continue
                       for st in s.get("styles", []):
-                          if any(k in (st.get("name") or "") for k in ("ノーマル", "通常", "落ち着き", "Normal")):
+                          if any(k in (st.get("name") or "") for k in
+                                 ("ノーマル", "通常", "落ち着き", "Normal")):
                               picked = s
-                              picked_label = f"{s.get('name')} (calm style preferred)"
+                              picked_label = f"{s.get('name')} (calm style)"
                               break
                       if picked:
                           break
-              # 3) それでも無ければ最初の speaker
+              # 3) アニメ系以外の最初の話者
+              if not picked:
+                  for s in speakers:
+                      if not is_anime_like(s.get("name", "")):
+                          picked = s
+                          picked_label = f"{s.get('name')} (first non-anime)"
+                          break
+              # 4) それでも無ければ最初の speaker（諦め）
               if not picked and speakers:
                   picked = speakers[0]
                   picked_label = f"{picked.get('name')} (first available)"
               if not picked or not picked.get("styles"):
                   print(f"::warning::no usable speaker found in {len(speakers)} entries")
                   sys.exit(3)
-              # 落ち着き系 style 優先 → 無ければ先頭
+              # ニュース/アナウンサー系 > 落ち着き系 > 先頭の優先でスタイル選択
               styles = picked.get("styles", [])
               chosen_style = next(
                   (st for st in styles if any(
-                      k in (st.get("name") or "") for k in ("落ち着き", "ノーマル", "通常", "Normal"))
+                      k in (st.get("name") or "") for k in ("ニュース", "アナウンサー", "newscast"))
                   ),
-                  styles[0],
+                  next(
+                      (st for st in styles if any(
+                          k in (st.get("name") or "") for k in ("落ち着き", "ノーマル", "通常", "Normal"))
+                      ),
+                      styles[0],
+                  ),
               )
               default_style_id = chosen_style["id"]
               print(f"chosen: {picked_label} / style='{chosen_style.get('name')}' / id={default_style_id}")
@@ -138,7 +173,7 @@ jobs:
               print(f"::warning::failed to fetch /speakers: {e}")
               sys.exit(4)
           # ウォームアップ合成（短文でモデルを load）
-          print(f"warming up Anneli (id={default_style_id}, text='テスト')...")
+          print(f"warming up speaker id={default_style_id} (text='テスト')...")
           t0 = time.time()
           try:
               q_url = base + f"/audio_query?speaker={default_style_id}&text=%E3%83%86%E3%82%B9%E3%83%88"
