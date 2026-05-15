@@ -1843,6 +1843,7 @@ def _google_tts_chunked(text: str, api_key: str, voice: str,
                         speaking_rate: float, pitch_st: float,
                         chunk_chars: int) -> bytes | None:
     """1 voice で chunked synthesis を試み、成功時 MP3 を返す。失敗時 None。"""
+    global _GOOGLE_TTS_LAST_ERROR
     chunks = _split_text_for_tts(text, chunk_chars)
     if not chunks:
         return None
@@ -1859,6 +1860,8 @@ def _google_tts_chunked(text: str, api_key: str, voice: str,
             log(f"google_tts: chunk {idx}/{len(chunks)} EXCEPTION: {_GOOGLE_TTS_LAST_ERROR}")
             return None
         if not mp3:
+            if not _GOOGLE_TTS_LAST_ERROR:
+                _GOOGLE_TTS_LAST_ERROR = f"voice={voice} chunk {idx}/{len(chunks)} returned empty (no audio content)"
             log(f"google_tts: chunk {idx}/{len(chunks)} FAILED for voice={voice}")
             return None
         log(f"google_tts: chunk {idx}/{len(chunks)} done in {_time.time()-t0:.1f}s ({len(chunk)}c → {len(mp3)/1024:.0f}KB)")
@@ -1909,7 +1912,7 @@ def _google_tts_one(text: str, api_key: str, voice: str,
         raise  # 上位の _google_tts_chunked でキャッチして記録
     except Exception as e:
         log(f"google_tts chunk error (voice={voice}): {e}")
-        return None
+        raise  # 上位の _google_tts_chunked でキャッチして _GOOGLE_TTS_LAST_ERROR に記録
 
 
 def _concat_mp3(mp3_parts: list[bytes]) -> bytes | None:
