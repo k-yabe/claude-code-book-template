@@ -1,7 +1,21 @@
 {
-  "ranAt": "2026-05-15T06:29:04.250225+00:00",
+  "ranAt": "2026-05-15T06:36:41.468129+00:00",
   "anthropicKeySet": true,
-  "openaiKeySet": false,
+  "openaiKeySet": true,
   "sources": 67,
-  "phase": "start"
+  "phase": "start",
+  "fetched_items": 31,
+  "summarizer": "anthropic_haiku",
+  "final_items": 31,
+  "competitor_items": 12,
+  "x_highlights": 6,
+  "audio": {
+    "voicevoxBaseUrl": "",
+    "azureKeySet": false,
+    "elevenKeySet": false,
+    "scriptChars": 2154,
+    "scriptSource": "claude",
+    "error": "all_tts_paths_failed"
+  },
+  "durationSec": 255.2
 }
