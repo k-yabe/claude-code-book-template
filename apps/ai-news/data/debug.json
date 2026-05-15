@@ -1,22 +1,22 @@
 {
-  "ranAt": "2026-05-15T06:51:53.493892+00:00",
+  "ranAt": "2026-05-15T06:58:39.847870+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": true,
   "sources": 67,
   "phase": "start",
-  "fetched_items": 25,
+  "fetched_items": 16,
   "summarizer": "anthropic_haiku",
-  "final_items": 25,
-  "competitor_items": 11,
-  "x_highlights": 3,
+  "final_items": 16,
+  "competitor_items": 5,
+  "x_highlights": 5,
   "audio": {
     "voicevoxBaseUrl": "",
     "azureKeySet": false,
     "elevenKeySet": false,
-    "scriptChars": 2346,
+    "scriptChars": 1666,
     "scriptSource": "claude",
     "openaiError": "HTTP 429 Too Many Requests: b'{\\n    \"error\": {\\n        \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\\n        \"type\": \"insufficient_quota\",\\n        \"param\": null,\\n        '",
     "error": "all_tts_paths_failed"
   },
-  "durationSec": 173.9
+  "durationSec": 214.1
 }
