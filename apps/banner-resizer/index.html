@@ -606,7 +606,9 @@
       baseH = safeH;
       baseW = baseH * srcRatio;
     }
-    const z = Math.max(1, zoom || 1);
+    // 横長画像の上下letterboxをゼロにする最小zoom（safeH/baseH ≈ 1.067 for 16:9）
+    const minFillZoom = srcRatio > safeRatio ? safeH / baseH : 1;
+    const z = Math.max(minFillZoom, Math.max(1, zoom || 1));
     const dispW = baseW * z;
     const dispH = baseH * z;
     const ox = cropOffset ? cropOffset.x : 0.5;
