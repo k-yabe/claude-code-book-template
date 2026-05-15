@@ -1,7 +1,24 @@
 {
-  "ranAt": "2026-05-15T07:25:08.836924+00:00",
+  "ranAt": "2026-05-15T07:34:23.573151+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": true,
   "sources": 67,
-  "phase": "start"
+  "phase": "start",
+  "fetched_items": 31,
+  "summarizer": "anthropic_haiku",
+  "final_items": 31,
+  "competitor_items": 12,
+  "x_highlights": 0,
+  "audio": {
+    "googleKeySet": true,
+    "azureKeySet": false,
+    "elevenKeySet": false,
+    "openaiKeySet": true,
+    "scriptChars": 1436,
+    "scriptSource": "claude",
+    "googleError": "HTTPError: HTTP Error 403: Forbidden",
+    "openaiError": "HTTP 429 Too Many Requests: b'{\\n    \"error\": {\\n        \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\\n        \"type\": \"insufficient_quota\",\\n        \"param\": null,\\n        '",
+    "error": "all_tts_paths_failed"
+  },
+  "durationSec": 183.6
 }
