@@ -1,6 +1,26 @@
 {
-  "last_scraped": "2026-05-14T23:47:40Z",
+  "last_scraped": "2026-05-15T23:46:39Z",
   "articles": [
+    {
+      "id": "why-patient-centricity-is-reshaping-life-sciences",
+      "title": "Why Patient Centricity Is Reshaping Life Sciences",
+      "url": "https://www.akkodis.com/blog/articles/why-patient-centricity-is-reshaping-life-sciences",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-05-15T23:44:13Z",
+      "published_date": "2026-04-28T00:00:00Z",
+      "summary_ja": "医薬品業界では患者データや実生活での治療効果などが経営判断に直結する運営方法へシフトしており、研究開発から製造、品質管理まで全ての部門で患者中心の意思決定が求められるようになっています。これまで製品の完成が成功の終点だったのに対し、現在では患者が実際に治療を受ける環境での信頼性や供給の安定性が治療成功を左右する重要な要素として認識され始めています。このような変化に対応するため、組織内の異なるシステム間でデータを統合し、継続的に患者への影響を監視できる体制づくりが急務となっています。"
+    },
+    {
+      "id": "ai-redefining-human-potential-workplace",
+      "title": "AI Isn’t Replacing People. It’s Redefining Human Potential at Work.",
+      "url": "https://www.akkodis.com/blog/articles/ai-redefining-human-potential-workplace",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-05-15T23:44:26Z",
+      "published_date": "2026-05-06T00:00:00Z",
+      "summary_ja": "AIは数十年前から企業システムに組み込まれていましたが、最近になって誰でも使えるインターフェースとして表面化し、企業全体で理解と活用が求められるようになりました。生成機能は簡単になった一方で、ビジネスコンテキストに合わせた有用な出力を作成することの重要性が増し、単なるスピード重視では実際の成果には結びつかないという課題が生まれています。AIは人の仕事を奪うのではなく、データ分析や意思決定を強化し、人間にしかできない複雑で創造的な業務に時間を充てられるようにすることで、組織全体の働き方を再構築しています。"
+    },
     {
       "id": "how-prebuilt-ai-agents-drive-enterprise-ai-roi",
       "title": "How Prebuilt AI Agents Drive Enterprise AI ROI",
