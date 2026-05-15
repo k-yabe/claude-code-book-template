@@ -2238,55 +2238,67 @@ def _generate_tts_elevenlabs(text: str, api_key: str) -> bytes | None:
     return _concat_mp3(mp3_parts)
 
 
-def _generate_tts_openai_one(text: str, api_key: str) -> bytes | None:
-    """1チャンクだけ OpenAI TTS を叩いて MP3 bytes を返す。"""
+def _openai_tts_request(text: str, api_key: str, model: str, voice: str,
+                        instructions: str | None = None) -> bytes | None:
+    """OpenAI TTS API を1リクエスト叩く。失敗時は None とエラー文字列を返す。"""
     try:
         import urllib.request
+        body: dict = {
+            "model": model,
+            "voice": voice,
+            "input": text,
+            "response_format": "mp3",
+            "speed": 0.97,
+        }
+        if instructions:
+            body["instructions"] = instructions
         req = urllib.request.Request(
             "https://api.openai.com/v1/audio/speech",
             method="POST",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            },
-            data=json.dumps({
-                "model": "gpt-4o-mini-tts",
-                "voice": "shimmer",
-                "input": text,
-                "instructions": TTS_INSTRUCTIONS,
-                "response_format": "mp3",
-                "speed": 0.97,
-            }).encode("utf-8"),
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            data=json.dumps(body).encode("utf-8"),
         )
         with urllib.request.urlopen(req, timeout=120) as resp:
             return resp.read()
     except Exception as e:
-        log(f"openai tts chunk error: {e}")
+        log(f"openai tts [{model}/{voice}] error: {e}")
         return None
 
 
 def _generate_tts_openai(text: str) -> bytes | None:
-    """OpenAI gpt-4o-mini-tts。長文は句点で分割して順次合成→MP3結合。
-    API の入力上限は約4096字。スクリプトが長くなっても途中で切れないよう
-    1800字単位でチャンク分割する。"""
+    """OpenAI TTS。長文は1800字チャンク分割→MP3結合。
+    試行順:
+      1. gpt-4o-mini-tts / shimmer + TTS_INSTRUCTIONS（最高品質・instruction following）
+      2. tts-1-hd / shimmer（gpt-4o-mini-tts が使えないアカウント向けフォールバック）
+      3. tts-1 / shimmer（最低限の品質保証）
+    """
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if not api_key:
         return None
     chunks = _split_text_for_tts(text, 1800)
     if not chunks:
         return None
-    log(f"openai tts: total_chars={len(text)} chunks={len(chunks)}")
-    mp3_parts: list[bytes] = []
-    for idx, chunk in enumerate(chunks, 1):
-        mp3 = _generate_tts_openai_one(chunk, api_key)
-        if not mp3:
-            log(f"openai tts: chunk {idx}/{len(chunks)} FAILED")
-            return None
-        log(f"openai tts: chunk {idx}/{len(chunks)} done ({len(chunk)}c → {len(mp3)//1024}KB)")
-        mp3_parts.append(mp3)
-    if len(mp3_parts) == 1:
-        return mp3_parts[0]
-    return _concat_mp3(mp3_parts)
+
+    candidates = [
+        ("gpt-4o-mini-tts", "shimmer", TTS_INSTRUCTIONS),
+        ("tts-1-hd",        "shimmer", None),
+        ("tts-1",           "shimmer", None),
+    ]
+    for model, voice, instructions in candidates:
+        log(f"openai tts: trying {model}/{voice} total_chars={len(text)} chunks={len(chunks)}")
+        mp3_parts: list[bytes] = []
+        ok = True
+        for idx, chunk in enumerate(chunks, 1):
+            mp3 = _openai_tts_request(chunk, api_key, model, voice, instructions)
+            if not mp3:
+                log(f"openai tts [{model}]: chunk {idx}/{len(chunks)} FAILED — trying next model")
+                ok = False
+                break
+            log(f"openai tts [{model}]: chunk {idx}/{len(chunks)} done ({len(chunk)}c → {len(mp3)//1024}KB)")
+            mp3_parts.append(mp3)
+        if ok and mp3_parts:
+            return mp3_parts[0] if len(mp3_parts) == 1 else _concat_mp3(mp3_parts)
+    return None
 
 
 def save_audio(mp3: bytes, script: str) -> None:
