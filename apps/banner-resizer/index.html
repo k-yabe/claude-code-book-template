@@ -622,10 +622,11 @@
       ? thumbTrim.top - (dispH - safeH) * oy
       : thumbTrim.top + (safeH - dispH) / 2;
 
-    // セーフエリア外をクリップ（背景のぼかしを上書きしないため）
+    // minFillZoomで左右にはみ出す分はCMSマージン内（±100px）に収まるため
+    // 横方向クリップをキャンバス全体に緩め、左右トリミングを防ぐ
     ctx.save();
     ctx.beginPath();
-    ctx.rect(thumbTrim.left, thumbTrim.top, safeW, safeH);
+    ctx.rect(0, thumbTrim.top, targetW, safeH);
     ctx.clip();
     ctx.drawImage(img, fgX, fgY, dispW, dispH);
     ctx.restore();
