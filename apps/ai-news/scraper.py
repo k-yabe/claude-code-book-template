@@ -2192,10 +2192,8 @@ def _generate_tts_azure(text: str, api_key: str, region: str) -> bytes | None:
         return None
 
 
-def _generate_tts_elevenlabs(text: str, api_key: str) -> bytes | None:
-    """ElevenLabs eleven_multilingual_v2 で日本語 MP3 を生成。失敗時 None。
-    Voice ID は環境変数 ELEVENLABS_VOICE_ID で上書き可（デフォルト Sarah）。"""
-    voice_id = os.environ.get("ELEVENLABS_VOICE_ID", "EXAVITQu4vr4xnSDxMaL").strip() or "EXAVITQu4vr4xnSDxMaL"
+def _generate_tts_elevenlabs_one(text: str, api_key: str, voice_id: str) -> bytes | None:
+    """1チャンクだけ ElevenLabs TTS を叩いて MP3 bytes を返す。"""
     try:
         import urllib.request
         req = urllib.request.Request(
@@ -2207,12 +2205,8 @@ def _generate_tts_elevenlabs(text: str, api_key: str) -> bytes | None:
                 "Accept": "audio/mpeg",
             },
             data=json.dumps({
-                "text": text[:4800],
+                "text": text,
                 "model_id": "eleven_multilingual_v2",
-                # 日本語ニュースアンカーらしい上質さを出す調整。
-                # stability=0.50 で自然な揺らぎを残しつつ朗読として安定、
-                # similarity_boost=0.90 で声質を強く保持、
-                # style=0.50 でプロのアンカーらしい起伏を出す。
                 "voice_settings": {
                     "stability": 0.50,
                     "similarity_boost": 0.90,
@@ -2225,15 +2219,35 @@ def _generate_tts_elevenlabs(text: str, api_key: str) -> bytes | None:
         with urllib.request.urlopen(req, timeout=180) as resp:
             return resp.read()
     except Exception as e:
-        log(f"elevenlabs tts error: {e}")
+        log(f"elevenlabs tts chunk error: {e}")
         return None
 
 
-def _generate_tts_openai(text: str) -> bytes | None:
-    """OpenAI gpt-4o-mini-tts フォールバック。"""
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
-    if not api_key:
+def _generate_tts_elevenlabs(text: str, api_key: str) -> bytes | None:
+    """ElevenLabs eleven_multilingual_v2 で日本語 MP3 を生成。
+    ElevenLabs の入力上限は約5000字。長文は2000字単位でチャンク分割して
+    MP3 を結合することで音声切れを防ぐ。
+    Voice ID は環境変数 ELEVENLABS_VOICE_ID で上書き可（デフォルト Sarah）。"""
+    voice_id = os.environ.get("ELEVENLABS_VOICE_ID", "EXAVITQu4vr4xnSDxMaL").strip() or "EXAVITQu4vr4xnSDxMaL"
+    chunks = _split_text_for_tts(text, 2000)
+    if not chunks:
         return None
+    log(f"elevenlabs tts: total_chars={len(text)} chunks={len(chunks)}")
+    mp3_parts: list[bytes] = []
+    for idx, chunk in enumerate(chunks, 1):
+        mp3 = _generate_tts_elevenlabs_one(chunk, api_key, voice_id)
+        if not mp3:
+            log(f"elevenlabs tts: chunk {idx}/{len(chunks)} FAILED")
+            return None
+        log(f"elevenlabs tts: chunk {idx}/{len(chunks)} done ({len(chunk)}c → {len(mp3)//1024}KB)")
+        mp3_parts.append(mp3)
+    if len(mp3_parts) == 1:
+        return mp3_parts[0]
+    return _concat_mp3(mp3_parts)
+
+
+def _generate_tts_openai_one(text: str, api_key: str) -> bytes | None:
+    """1チャンクだけ OpenAI TTS を叩いて MP3 bytes を返す。"""
     try:
         import urllib.request
         req = urllib.request.Request(
@@ -2245,20 +2259,42 @@ def _generate_tts_openai(text: str) -> bytes | None:
             },
             data=json.dumps({
                 "model": "gpt-4o-mini-tts",
-                # 日本語のナチュラル発声で評価が高い shimmer
                 "voice": "shimmer",
-                "input": text[:4800],
+                "input": text,
                 "instructions": TTS_INSTRUCTIONS,
                 "response_format": "mp3",
-                # ほんのわずかに遅らせる（速いと AI 感が出やすい）
                 "speed": 0.97,
             }).encode("utf-8"),
         )
         with urllib.request.urlopen(req, timeout=120) as resp:
             return resp.read()
     except Exception as e:
-        log(f"openai tts error: {e}")
+        log(f"openai tts chunk error: {e}")
         return None
+
+
+def _generate_tts_openai(text: str) -> bytes | None:
+    """OpenAI gpt-4o-mini-tts。長文は句点で分割して順次合成→MP3結合。
+    API の入力上限は約4096字。スクリプトが長くなっても途中で切れないよう
+    1800字単位でチャンク分割する。"""
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        return None
+    chunks = _split_text_for_tts(text, 1800)
+    if not chunks:
+        return None
+    log(f"openai tts: total_chars={len(text)} chunks={len(chunks)}")
+    mp3_parts: list[bytes] = []
+    for idx, chunk in enumerate(chunks, 1):
+        mp3 = _generate_tts_openai_one(chunk, api_key)
+        if not mp3:
+            log(f"openai tts: chunk {idx}/{len(chunks)} FAILED")
+            return None
+        log(f"openai tts: chunk {idx}/{len(chunks)} done ({len(chunk)}c → {len(mp3)//1024}KB)")
+        mp3_parts.append(mp3)
+    if len(mp3_parts) == 1:
+        return mp3_parts[0]
+    return _concat_mp3(mp3_parts)
 
 
 def save_audio(mp3: bytes, script: str) -> None:
