@@ -325,7 +325,7 @@
           <label class="option-check" title="要素を端まで配置していてもCMSで切れないよう、元画像をセーフエリア（${size.w - (size.thumbTrim.left + size.thumbTrim.right)}×${size.h - (size.thumbTrim.top + size.thumbTrim.bottom)}px）内に縮小し、外周はぼかし背景で自動生成します">
             <input type="checkbox" id="safearea-check-${size.id}"
               onchange="toggleSafeAreaFit('${group.id}', '${size.id}', this.checked)">
-            セーフエリア内にトリミングして周囲を自動生成（カット対策）
+            セーフエリア内に収めて周囲を自動生成（カット対策）
           </label>` : ''}
           <div class="file-size-info" id="filesize-${size.id}"></div>
           <button class="dl-btn" id="dl-btn-${size.id}" onclick="downloadSingle('${group.id}', '${size.id}')" disabled>ダウンロード</button>
@@ -553,8 +553,8 @@
   }
 
   // ── Safe-area fit with auto-generated blurred margins ──
-  // 元画像をセーフエリア(targetW - L - R, targetH - T - B)にcoverで配置し（隙間なく埋める）、
-  // 外周は同画像の拡大ぼかしで埋める。セーフエリアからはみ出す部分はクリップ。
+  // 元画像をセーフエリア(targetW - L - R, targetH - T - B)にcontainで配置し（画像全体を収める）、
+  // 外周は同画像の拡大ぼかしで埋める。
   // cropOffset でパン位置を調整（0〜1）、zoom > 1 でさらにズームイン。
   function createWithSafeAreaFit(img, targetW, targetH, thumbTrim, cropOffset, zoom) {
     const canvas = document.createElement('canvas');
@@ -595,16 +595,16 @@
     const safeW = targetW - thumbTrim.left - thumbTrim.right;
     const safeH = targetH - thumbTrim.top - thumbTrim.bottom;
     const safeRatio = safeW / safeH;
-    // ベースは cover（zoom=1 でセーフエリアを隙間なく埋める；はみ出す部分はクリップ）
+    // ベースは contain（zoom=1 で画像全体がセーフエリア内に収まる）
     let baseW, baseH;
     if (srcRatio > safeRatio) {
-      // 横長画像 → 高さをセーフエリアに合わせ、横にはみ出す部分はクリップ
-      baseH = safeH;
-      baseW = baseH * srcRatio;
-    } else {
-      // 縦長画像 → 幅をセーフエリアに合わせ、縦にはみ出す部分はクリップ
+      // 横長画像 → 幅をセーフエリアに合わせる
       baseW = safeW;
       baseH = baseW / srcRatio;
+    } else {
+      // 縦長画像 → 高さをセーフエリアに合わせる
+      baseH = safeH;
+      baseW = baseH * srcRatio;
     }
     const z = Math.max(1, zoom || 1);
     const dispW = baseW * z;
@@ -1100,7 +1100,7 @@
       { icon: '🖼️', text: 'サムネイルのカット領域も事前に確認できる' }
     ],
     updates: [
-      { date: '05/15', text: 'セーフエリアfitをcoverに変更。画像がセーフエリアを隙間なく埋めるようになり、上部余白が解消。ドラッグで切り取り位置を調整可能' },
+      { date: '05/15', text: '「セーフエリア内に収めて周囲を自動生成」モードの上部余白を修正。ぼかし背景のオーバースキャンを1.3倍に拡大し、透明エッジを画面外に追い出した' },
       { date: '04/15', text: 'サムネ「セーフエリア内に収めて周囲を自動生成」モード追加。要素を端まで配置していてもCMSの自動カット（上下24px・左右100px）で切れなくなる' },
       { date: '04/09', text: 'クロップズームイン機能追加（1x〜3x）・OGP PNG8画質改善' }
     ]
