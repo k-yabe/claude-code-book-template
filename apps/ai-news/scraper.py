@@ -1852,7 +1852,12 @@ def _google_tts_chunked(text: str, api_key: str, voice: str,
     t_total = _time.time()
     for idx, chunk in enumerate(chunks, 1):
         t0 = _time.time()
-        mp3 = _google_tts_one(chunk, api_key, voice, speaking_rate, pitch_st)
+        try:
+            mp3 = _google_tts_one(chunk, api_key, voice, speaking_rate, pitch_st)
+        except Exception as e:
+            _GOOGLE_TTS_LAST_ERROR = f"{type(e).__name__}: {e}"
+            log(f"google_tts: chunk {idx}/{len(chunks)} EXCEPTION: {_GOOGLE_TTS_LAST_ERROR}")
+            return None
         if not mp3:
             log(f"google_tts: chunk {idx}/{len(chunks)} FAILED for voice={voice}")
             return None
@@ -1898,6 +1903,10 @@ def _google_tts_one(text: str, api_key: str, voice: str,
         if not audio_b64:
             return None
         return base64.b64decode(audio_b64)
+    except urllib.error.HTTPError as e:
+        body_bytes = e.read()[:300]
+        log(f"google_tts HTTP error (voice={voice}): {e.code} {body_bytes!r}")
+        raise  # 上位の _google_tts_chunked でキャッチして記録
     except Exception as e:
         log(f"google_tts chunk error (voice={voice}): {e}")
         return None
@@ -1948,6 +1957,7 @@ def _concat_mp3(mp3_parts: list[bytes]) -> bytes | None:
 
 
 _VOICEVOX_LAST_ERROR: str | None = None  # 直近の VOICEVOX 失敗理由（debug.json 用）
+_GOOGLE_TTS_LAST_ERROR: str = ""  # 直近の Google TTS 失敗理由（debug.json 用）
 
 
 def _split_text_for_tts(text: str, max_chunk_chars: int) -> list[str]:
@@ -2387,9 +2397,10 @@ def main() -> int:
     # ── 音声ダイジェストを事前生成（GitHub Actions 実行時のみ） ──
     if os.environ.get("SKIP_AUDIO", "").strip() != "1":
         debug_stats["audio"] = {
-            "voicevoxBaseUrl": os.environ.get("VOICEVOX_BASE_URL", ""),
+            "googleKeySet": bool(os.environ.get("GOOGLE_TTS_API_KEY", "").strip()),
             "azureKeySet": bool(os.environ.get("AZURE_SPEECH_KEY", "").strip()),
             "elevenKeySet": bool(os.environ.get("ELEVENLABS_API_KEY", "").strip()),
+            "openaiKeySet": bool(os.environ.get("OPENAI_API_KEY", "").strip()),
         }
         mustknow = [x for x in items if x.get("urgency") == "must_know"][:2]
         thisweek = [x for x in items if x.get("urgency") == "this_week"][:6]
@@ -2406,6 +2417,8 @@ def main() -> int:
                 debug_stats["audio"]["mp3Bytes"] = len(mp3)
             else:
                 log("tts generation failed; static audio not saved")
+                if _GOOGLE_TTS_LAST_ERROR:
+                    debug_stats["audio"]["googleError"] = _GOOGLE_TTS_LAST_ERROR
                 if _OPENAI_TTS_LAST_ERROR:
                     debug_stats["audio"]["openaiError"] = _OPENAI_TTS_LAST_ERROR
                 debug_stats["audio"]["error"] = "all_tts_paths_failed"
