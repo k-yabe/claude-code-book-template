@@ -606,9 +606,7 @@
       baseH = safeH;
       baseW = baseH * srcRatio;
     }
-    // 横長画像の上下letterboxをゼロにする最小zoom（safeH/baseH ≈ 1.067 for 16:9）
-    const minFillZoom = srcRatio > safeRatio ? safeH / baseH : 1;
-    const z = Math.max(minFillZoom, Math.max(1, zoom || 1));
+    const z = Math.max(1, zoom || 1);
     const dispW = baseW * z;
     const dispH = baseH * z;
     const ox = cropOffset ? cropOffset.x : 0.5;
@@ -622,14 +620,24 @@
       ? thumbTrim.top - (dispH - safeH) * oy
       : thumbTrim.top + (safeH - dispH) / 2;
 
-    // minFillZoomで左右にはみ出す分はCMSマージン内（±100px）に収まるため
-    // 横方向クリップをキャンバス全体に緩め、左右トリミングを防ぐ
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, thumbTrim.top, targetW, safeH);
-    ctx.clip();
+    // 横長画像(srcRatio > safeRatio)で上下にgapが生じる場合:
+    // gap部分を「画像のぼかし版」で埋めて余白感をなくす（主画像はcontain=トリミングなし）
+    if (srcRatio > safeRatio && dispH < safeH) {
+      const fillW = safeH * srcRatio;
+      const fillH = safeH;
+      const fillX = thumbTrim.left + (safeW - fillW) / 2;
+      const fillY = thumbTrim.top;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(thumbTrim.left, thumbTrim.top, safeW, safeH);
+      ctx.clip();
+      ctx.filter = 'blur(8px)';
+      ctx.drawImage(img, fillX, fillY, fillW, fillH);
+      ctx.restore();
+    }
+
+    // 前景: contain（全体表示、クリップなし）
     ctx.drawImage(img, fgX, fgY, dispW, dispH);
-    ctx.restore();
 
     return canvas;
   }
