@@ -2238,11 +2238,15 @@ def _generate_tts_elevenlabs(text: str, api_key: str) -> bytes | None:
     return _concat_mp3(mp3_parts)
 
 
+_OPENAI_TTS_LAST_ERROR: str = ""
+
+
 def _openai_tts_request(text: str, api_key: str, model: str, voice: str,
                         instructions: str | None = None) -> bytes | None:
-    """OpenAI TTS API を1リクエスト叩く。失敗時は None とエラー文字列を返す。"""
+    """OpenAI TTS API を1リクエスト叩く。失敗時は None を返しエラーをグローバルに記録。"""
+    global _OPENAI_TTS_LAST_ERROR
     try:
-        import urllib.request
+        import urllib.request, urllib.error
         body: dict = {
             "model": model,
             "voice": voice,
@@ -2260,8 +2264,14 @@ def _openai_tts_request(text: str, api_key: str, model: str, voice: str,
         )
         with urllib.request.urlopen(req, timeout=120) as resp:
             return resp.read()
+    except urllib.error.HTTPError as e:
+        body_bytes = e.read()[:300]
+        _OPENAI_TTS_LAST_ERROR = f"HTTP {e.code} {e.reason}: {body_bytes!r}"
+        log(f"openai tts [{model}/{voice}] HTTP error: {_OPENAI_TTS_LAST_ERROR}")
+        return None
     except Exception as e:
-        log(f"openai tts [{model}/{voice}] error: {e}")
+        _OPENAI_TTS_LAST_ERROR = f"{type(e).__name__}: {e}"
+        log(f"openai tts [{model}/{voice}] error: {_OPENAI_TTS_LAST_ERROR}")
         return None
 
 
@@ -2389,13 +2399,15 @@ def main() -> int:
             log(f"digest script: {len(script)} chars")
             debug_stats["audio"]["scriptChars"] = len(script)
             debug_stats["audio"]["scriptSource"] = "claude" if ANTHROPIC_API_KEY and not _LAST_ANTHROPIC_ERROR else "template_fallback"
-            log("generating TTS MP3 (AivisSpeech/VOICEVOX → Azure → ElevenLabs → OpenAI fallback)...")
+            log("generating TTS MP3 (Google → Azure → ElevenLabs → OpenAI fallback)...")
             mp3 = generate_tts_mp3(script)
             if mp3:
                 save_audio(mp3, script)
                 debug_stats["audio"]["mp3Bytes"] = len(mp3)
             else:
                 log("tts generation failed; static audio not saved")
+                if _OPENAI_TTS_LAST_ERROR:
+                    debug_stats["audio"]["openaiError"] = _OPENAI_TTS_LAST_ERROR
                 debug_stats["audio"]["error"] = "all_tts_paths_failed"
                 if _VOICEVOX_LAST_ERROR:
                     debug_stats["audio"]["voicevoxError"] = _VOICEVOX_LAST_ERROR
