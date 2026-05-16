@@ -1,0 +1,121 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-05-16T00:00:00Z",
+  "tasks": [
+    {
+      "id": "T001",
+      "title": "文脈エンジンの整備：visual-design.md の作成",
+      "description": "context/context/ 配下に visual-design.md を作成する。カラーパレット・タイポグラフィ・コンポーネントパターン・アニメーション原則を定義し、全エージェントがデザイン判断の基準として参照できる状態にする。",
+      "status": "done",
+      "priority": "P1",
+      "assignee": "tech-lead",
+      "assigneeType": "ai",
+      "team": "engineering",
+      "createdAt": "2026-05-16T08:00:00Z",
+      "updatedAt": "2026-05-16T10:30:00Z",
+      "comments": [
+        {
+          "author": "task-dispatcher",
+          "content": "inbox/2026-05-16-setup-notes.md から抽出。デザインシステムの欠如が複数エージェントの判断ブロックになっているため P1 で登録。",
+          "timestamp": "2026-05-16T08:00:00Z"
+        },
+        {
+          "author": "tech-lead",
+          "content": "visual-design.md を作成完了。カラーパレット（Navy/Gold）・タイポグラフィ・アニメーション原則を定義。全エージェントへの参照指示も記載した。",
+          "timestamp": "2026-05-16T10:30:00Z"
+        }
+      ],
+      "blockedReason": "",
+      "tags": ["context-engine", "design-system", "setup"]
+    },
+    {
+      "id": "T002",
+      "title": "エージェント設定ファイルの初期レビュー",
+      "description": "agents/ 配下に作成した全エージェント定義ファイル（tech-lead / qa-engineer / content-director / task-dispatcher）を QA Engineer がレビューし、定義の不整合・抜け漏れ・矛盾を洗い出す。特に自律判断範囲とエスカレーション先の整合性を確認する。",
+      "status": "new-assigned",
+      "priority": "P1",
+      "assignee": "qa-engineer",
+      "assigneeType": "ai",
+      "team": "engineering",
+      "createdAt": "2026-05-16T10:31:00Z",
+      "updatedAt": "2026-05-16T10:31:00Z",
+      "comments": [
+        {
+          "author": "task-dispatcher",
+          "content": "エージェント定義の初期セットアップ完了後に自動登録。定義の整合性チェックは QA が適切と判断。",
+          "timestamp": "2026-05-16T10:31:00Z"
+        }
+      ],
+      "blockedReason": "",
+      "tags": ["agent-review", "quality", "setup"]
+    },
+    {
+      "id": "T003",
+      "title": "タスクボードの動作テスト：タスク作成〜完了フローの検証",
+      "description": "tasks/tasks.json を使ったタスク管理フローを実際に検証する。inbox にメモを書き → Task Dispatcher がタスクを作成 → Tech Lead がアサイン → 実行 → done に更新、という一連のフローが正しく機能するかを確認する。",
+      "status": "in-progress",
+      "priority": "P2",
+      "assignee": "task-dispatcher",
+      "assigneeType": "ai",
+      "team": "infrastructure",
+      "createdAt": "2026-05-16T09:00:00Z",
+      "updatedAt": "2026-05-16T11:00:00Z",
+      "comments": [
+        {
+          "author": "task-dispatcher",
+          "content": "テスト用のダミーノートを context/inbox/ に配置してフローを開始。T001・T002 の登録フローが正常に動作することを確認した。",
+          "timestamp": "2026-05-16T11:00:00Z"
+        }
+      ],
+      "blockedReason": "",
+      "tags": ["testing", "task-board", "infrastructure"]
+    },
+    {
+      "id": "T004",
+      "title": "コンテンツチーム：Brand Voice ガイドラインの初版作成",
+      "description": "brand-voice.md エージェントが参照するブランドボイスガイドラインを context/context/ または agents/content/ 配下に作成する。使用するトーン（カジュアル/フォーマル）・禁止ワード・推奨表現・ターゲット読者を定義する。",
+      "status": "new-assigned",
+      "priority": "P2",
+      "assignee": "content-director",
+      "assigneeType": "ai",
+      "team": "content",
+      "createdAt": "2026-05-16T10:00:00Z",
+      "updatedAt": "2026-05-16T10:00:00Z",
+      "comments": [
+        {
+          "author": "task-dispatcher",
+          "content": "コンテンツチームのセットアップタスクとして登録。brand-voice エージェントが機能するには参照ガイドラインが必要なため。",
+          "timestamp": "2026-05-16T10:00:00Z"
+        }
+      ],
+      "blockedReason": "",
+      "tags": ["content", "brand-voice", "setup", "documentation"]
+    },
+    {
+      "id": "T005",
+      "title": "朝のレポート自動生成スクリプトの設定",
+      "description": "Task Dispatcher が毎朝 07:00 に自動でデイリーレポートを生成する仕組みを構築する。GitHub Actions または launchd を使い、tasks.json のサマリーとブロック中タスク・P0/P1タスクを context/inbox/morning-report-YYYY-MM-DD.md に出力する。",
+      "status": "blocked",
+      "priority": "P2",
+      "assignee": "tech-lead",
+      "assigneeType": "ai",
+      "team": "engineering",
+      "createdAt": "2026-05-16T08:30:00Z",
+      "updatedAt": "2026-05-16T12:00:00Z",
+      "comments": [
+        {
+          "author": "task-dispatcher",
+          "content": "自動化の仕組みはインフラ権限が必要。GitHub Actions の secrets 設定と Vercel 連携の承認待ち。",
+          "timestamp": "2026-05-16T08:30:00Z"
+        },
+        {
+          "author": "tech-lead",
+          "content": "GitHub Actions のワークフロー設計は完了。ANTHROPIC_API_KEY を GitHub Secrets に設定する権限が人間側にあるため、承認を待っている状態。",
+          "timestamp": "2026-05-16T12:00:00Z"
+        }
+      ],
+      "blockedReason": "GitHub Secrets への ANTHROPIC_API_KEY 設定が未完了。人間（プロジェクトオーナー）の承認と設定操作が必要。",
+      "tags": ["automation", "infrastructure", "github-actions", "daily-report"]
+    }
+  ]
+}
