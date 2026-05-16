@@ -272,6 +272,7 @@ select:focus, input[type="text"]:focus, textarea:focus {
     <button class="btn primary" onclick="openCreate()">＋ 新規タスク</button>
     <button class="btn" onclick="syncNow()">🔄 同期</button>
     <button class="btn" onclick="doExport()">📤 Export</button>
+    <button class="btn" onclick="promptPAT()" id="patBtn">🔑 トークン設定</button>
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="onFileImport(event)">
     <span id="syncStatus" style="font-size:11px;color:#8b949e;white-space:nowrap"></span>
   </div>
@@ -494,7 +495,8 @@ select:focus, input[type="text"]:focus, textarea:focus {
 
 <script>
 var STORAGE_KEY = 'ai-agent-tasks-v2';
-var GITHUB_TASKS_URL = 'https://raw.githubusercontent.com/k-yabe/claude-code-book-template/main/ai-agent-org/tasks/tasks.json';
+var PAT_KEY = 'ai-agent-github-pat';
+var GITHUB_API_URL = 'https://api.github.com/repos/k-yabe/claude-code-book-template/contents/ai-agent-org/tasks/tasks.json';
 var editingId = null;
 var tasks = [];
 var lastSynced = null;
@@ -634,17 +636,44 @@ function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 }
 
+function getPAT() { return localStorage.getItem(PAT_KEY) || ''; }
+
+function promptPAT() {
+  var current = getPAT();
+  var val = window.prompt('GitHub Personal Access Token を入力してください。\n（repo読み取り権限が必要。一度入力すればこのブラウザでは保存されます）\n\n現在: ' + (current ? '設定済み（変更する場合のみ入力）' : '未設定'), '');
+  if (val === null) return;
+  if (val.trim()) {
+    localStorage.setItem(PAT_KEY, val.trim());
+    setSyncStatus('トークンを保存しました', '#3fb950');
+    loadFromGitHub(false);
+  } else if (!current) {
+    setSyncStatus('トークン未設定', '#f85149');
+  }
+}
+
 function setSyncStatus(msg, color) {
   var el = document.getElementById('syncStatus');
   if (el) { el.textContent = msg; el.style.color = color || '#8b949e'; }
 }
 
 function loadFromGitHub(silent) {
+  var pat = getPAT();
+  if (!pat) {
+    setSyncStatus('🔑 トークン未設定 — 右上のボタンから設定してください', '#f85149');
+    load(); render(); return;
+  }
   if (!silent) setSyncStatus('同期中...', '#58a6ff');
-  return fetch(GITHUB_TASKS_URL + '?t=' + Date.now())
-    .then(function(r) { return r.json(); })
+  var headers = { 'Authorization': 'token ' + pat, 'Accept': 'application/vnd.github.v3+json' };
+  return fetch(GITHUB_API_URL + '?t=' + Date.now(), { headers: headers })
+    .then(function(r) {
+      if (r.status === 401) throw new Error('auth');
+      if (!r.ok) throw new Error('fetch');
+      return r.json();
+    })
     .then(function(data) {
-      var fetched = data.tasks || data;
+      var decoded = atob(data.content.replace(/\n/g, ''));
+      var parsed = JSON.parse(decoded);
+      var fetched = parsed.tasks || parsed;
       if (!Array.isArray(fetched)) throw new Error('invalid');
       tasks = fetched;
       save();
@@ -652,10 +681,13 @@ function loadFromGitHub(silent) {
       setSyncStatus('最終同期: ' + lastSynced.toLocaleTimeString('ja-JP'), '#3fb950');
       render();
     })
-    .catch(function() {
-      setSyncStatus('GitHub取得失敗 — ローカルデータを使用', '#f85149');
-      load();
-      render();
+    .catch(function(e) {
+      if (e.message === 'auth') {
+        setSyncStatus('🔑 トークンが無効 — 再設定してください', '#f85149');
+      } else {
+        setSyncStatus('GitHub取得失敗 — ローカルデータを使用', '#f85149');
+        load(); render();
+      }
     });
 }
 
