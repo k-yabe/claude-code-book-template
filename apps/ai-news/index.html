@@ -29,7 +29,7 @@
   <link rel="preload" as="audio" href="./data/audio/latest.mp3">
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260516a">
+  <link rel="stylesheet" href="./styles.css?v=20260516b">
 </head>
 <body>
   <div class="scroll-progress" id="scroll-progress"></div>
@@ -50,8 +50,8 @@
     <!-- ヒーロー -->
     <section class="hero">
       <div class="hero-left">
-        <div class="hero-eyebrow" id="hero-greeting">マーケティング・インテリジェンス・ブリーフ</div>
-        <div class="hero-title"><span class="hero-pulse"></span>何が起きた？ なぜ重要？ 何をすべき？</div>
+        <div class="hero-eyebrow" id="hero-greeting" data-ja="マーケティング・インテリジェンス・ブリーフ" data-en="Marketing Intelligence Brief">マーケティング・インテリジェンス・ブリーフ</div>
+        <div class="hero-title"><span class="hero-pulse"></span><span data-ja="何が起きた？ なぜ重要？ 何をすべき？" data-en="What happened? Why it matters? What to do?">何が起きた？ なぜ重要？ 何をすべき？</span></div>
         <div class="hero-live-row" aria-label="最終更新">
           <span class="hero-live-dot" aria-hidden="true"></span>
           <span class="hero-live-label">LIVE</span>
@@ -62,18 +62,17 @@
             <span class="hero-streak-label" id="hero-streak-label">—</span>
           </span>
         </div>
-        <!-- ソース多様性バッジ（信頼シグナル）と今週のトピック chips（探索動線） -->
         <div class="hero-diversity" id="hero-diversity" style="display:none"></div>
         <div class="hero-trend-chips" id="hero-trend-chips" style="display:none"></div>
       </div>
       <div class="hero-meta">
         <div class="hero-stat">
           <span class="hero-stat-num accent" id="stat-date">—</span>
-          <span class="hero-stat-label">日付</span>
+          <span class="hero-stat-label" data-ja="日付" data-en="Date">日付</span>
         </div>
         <div class="hero-stat">
           <span class="hero-stat-num" id="stat-total">—</span>
-          <span class="hero-stat-label">記事</span>
+          <span class="hero-stat-label" data-ja="記事" data-en="Stories">記事</span>
           <span class="hero-stacked-bar" aria-hidden="true">
             <span class="hsb-seg hsb-must" id="hsb-must" style="flex:0"></span>
             <span class="hsb-seg hsb-week" id="hsb-week" style="flex:0"></span>
@@ -83,34 +82,34 @@
         </div>
         <div class="hero-stat">
           <span class="hero-stat-num" id="stat-read-progress">0/0</span>
-          <span class="hero-stat-label">既読</span>
+          <span class="hero-stat-label" data-ja="既読" data-en="Read">既読</span>
           <span class="hero-stat-bar" aria-hidden="true"><span class="hero-stat-bar-fill" id="hero-progress-fill"></span></span>
         </div>
         <div class="hero-stat">
           <span class="hero-stat-num" id="stat-read">—</span>
-          <span class="hero-stat-label">読了目安</span>
+          <span class="hero-stat-label" data-ja="読了目安" data-en="Est. read">読了目安</span>
         </div>
         <button class="hero-stat hero-stat-fav" id="hero-stat-fav" hidden title="お気に入り一覧を開く">
           <span class="hero-stat-num accent">★ <span id="stat-fav-count">0</span></span>
-          <span class="hero-stat-label">お気に入り</span>
+          <span class="hero-stat-label" data-ja="お気に入り" data-en="Saved">お気に入り</span>
         </button>
         <div class="hero-stat hero-stat-fresh" id="hero-stat-fresh" hidden title="直近3時間以内に配信された記事数">
           <span class="hero-stat-num accent"><span class="fresh-dot" aria-hidden="true">●</span> <span id="stat-fresh-count">0</span></span>
-          <span class="hero-stat-label">新着</span>
+          <span class="hero-stat-label" data-ja="新着" data-en="New">新着</span>
         </div>
         <div class="hero-stat hero-stat-week" id="hero-stat-week" hidden title="直近7日間の読了数">
           <span class="hero-stat-num" id="stat-week-total">0</span>
-          <span class="hero-stat-label">週間読了</span>
+          <span class="hero-stat-label" data-ja="週間読了" data-en="Weekly">週間読了</span>
           <span class="week-bars" id="week-bars" aria-hidden="true"></span>
         </div>
       </div>
     </section>
 
-    <!-- 📋 今日の要点 (Executive Summary) -->
+    <!-- 📋 Executive Summary -->
     <div class="sec-head">
       <span class="sec-icon gold">📋</span>
-      <span class="sec-title">今日の3行サマリー</span>
-      <span class="sec-sub">全体像をつかむ</span>
+      <span class="sec-title" data-ja="今日の3行サマリー" data-en="Today's Brief">今日の3行サマリー</span>
+      <span class="sec-sub" data-ja="全体像をつかむ" data-en="The big picture">全体像をつかむ</span>
       <span class="sec-line"></span>
     </div>
     <div class="exec-box" id="exec-summary" aria-live="polite" aria-atomic="true"></div>
@@ -129,18 +128,18 @@
           <span><span id="progress-read">0</span>/<span id="progress-total">0</span></span>
           <div class="read-progress-bar"><div class="read-progress-fill" id="progress-fill"></div></div>
         </div>
-        <button class="cmd-btn" id="btn-today" style="display:none;">今日に戻る</button>
-        <button class="cmd-btn" id="btn-next-unread" title="次の未読記事へジャンプ">↓ 次の未読</button>
-        <button class="cmd-btn" id="btn-all-read" title="全記事を既読にする">✓ 全部既読</button>
-        <button class="cmd-btn icon" id="btn-night-mode" title="読書モード切替（目に優しい配色）" aria-label="読書モード">🌙</button>
-        <div class="audio-cluster" role="group" aria-label="音声ダイジェスト">
-          <button class="audio-btn" id="btn-listen" title="AI音声ダイジェストを再生" aria-label="AI音声ダイジェストを再生">
+        <button class="cmd-btn" id="btn-today" style="display:none;" data-ja="今日に戻る" data-en="Back to Today">今日に戻る</button>
+        <button class="cmd-btn" id="btn-next-unread" data-ja="↓ 次の未読" data-en="↓ Next unread">↓ 次の未読</button>
+        <button class="cmd-btn" id="btn-all-read" data-ja="✓ 全部既読" data-en="✓ Mark all read">✓ 全部既読</button>
+        <button class="cmd-btn icon" id="btn-night-mode" title="読書モード切替" aria-label="読書モード">🌙</button>
+        <div class="audio-cluster" role="group" aria-label="Audio Digest">
+          <button class="audio-btn" id="btn-listen" title="Play AI Audio Digest" aria-label="Play AI Audio Digest">
             <span class="audio-btn-icon" aria-hidden="true">▶</span>
-            <span class="audio-btn-label">AI音声ダイジェスト</span>
-            <span class="audio-btn-meta">約5分</span>
+            <span class="audio-btn-label" data-ja="AI音声ダイジェスト" data-en="AI Audio Digest">AI音声ダイジェスト</span>
+            <span class="audio-btn-meta" data-ja="約5分" data-en="~5 min">約5分</span>
           </button>
-          <label class="speed-select-wrap" title="再生速度">
-            <select class="speed-select" id="speed-select" aria-label="再生速度">
+          <label class="speed-select-wrap" title="Speed">
+            <select class="speed-select" id="speed-select" aria-label="Playback speed">
               <option value="1">1.0x</option>
               <option value="1.25" selected>1.25x</option>
               <option value="1.5">1.5x</option>
@@ -149,36 +148,36 @@
             </select>
           </label>
         </div>
-        <button class="cmd-btn icon" id="btn-help" title="ショートカット (?)" aria-label="キーボードショートカット">?</button>
+        <button class="cmd-btn icon" id="btn-help" title="Shortcuts (?)" aria-label="Keyboard shortcuts">?</button>
       </div>
     </div>
     <div class="trend-bar" id="trend-bar">
       <span class="trend-label">HOT TOPICS</span>
     </div>
 
-    <!-- 🔥 今すぐ押さえる (MUST-KNOW) -->
+    <!-- 🔥 MUST-KNOW -->
     <div class="sec-head" id="sec-must-know">
       <span class="sec-icon gold">🔥</span>
-      <span class="sec-title">本日の主要ニュース <span class="sec-count" id="count-must-know">0</span></span>
-      <span class="sec-sub">今日最も重要な 1〜2 件。じっくり読む価値あり</span>
+      <span class="sec-title"><span data-ja="本日の主要ニュース" data-en="Top Stories">本日の主要ニュース</span> <span class="sec-count" id="count-must-know">0</span></span>
+      <span class="sec-sub" data-ja="今日最も重要な 1〜2 件。じっくり読む価値あり" data-en="The 1-2 most important stories today — worth reading in full">今日最も重要な 1〜2 件。じっくり読む価値あり</span>
       <span class="sec-line"></span>
     </div>
     <div id="must-know" aria-live="polite"></div>
 
-    <!-- ⚡ 今週チェック (THIS WEEK) -->
+    <!-- ⚡ THIS WEEK -->
     <div class="sec-head" id="sec-this-week">
       <span class="sec-icon cyan">⚡</span>
-      <span class="sec-title">注目ニュース <span class="sec-count" id="count-this-week">0</span></span>
-      <span class="sec-sub">分析・アクション付きでチェックしたい動き（3〜6 件）</span>
+      <span class="sec-title"><span data-ja="注目ニュース" data-en="Featured Stories">注目ニュース</span> <span class="sec-count" id="count-this-week">0</span></span>
+      <span class="sec-sub" data-ja="分析・アクション付きでチェックしたい動き（3〜6 件）" data-en="Stories worth checking with analysis and action items (3-6)">分析・アクション付きでチェックしたい動き（3〜6 件）</span>
       <span class="sec-line"></span>
     </div>
     <div class="brief-grid" id="this-week" aria-live="polite"></div>
 
-    <!-- 📑 ヘッドライン（FYI / コンパクト表示） -->
+    <!-- 📑 HEADLINES -->
     <div class="sec-head" id="sec-more">
       <span class="sec-icon">📑</span>
-      <span class="sec-title">ヘッドライン <span class="sec-count" id="count-more">0</span></span>
-      <span class="sec-sub">タイトル一覧でざっと確認（クリックで詳細）</span>
+      <span class="sec-title"><span data-ja="ヘッドライン" data-en="Headlines">ヘッドライン</span> <span class="sec-count" id="count-more">0</span></span>
+      <span class="sec-sub" data-ja="タイトル一覧でざっと確認（クリックで詳細）" data-en="Scan headlines at a glance — click for details">タイトル一覧でざっと確認（クリックで詳細）</span>
       <span class="sec-line"></span>
     </div>
     <div class="more-toolbar">
@@ -186,30 +185,30 @@
       <div class="more-actions">
         <div class="more-search">
           <span class="more-search-icon">🔍</span>
-          <input type="search" id="search" placeholder="検索" aria-label="キーワード検索" maxlength="100">
-          <button class="search-clear" id="search-clear" title="検索をクリア" aria-label="検索をクリア" hidden>×</button>
+          <input type="search" id="search" placeholder="検索" aria-label="Search" maxlength="100" data-ja-placeholder="検索" data-en-placeholder="Search">
+          <button class="search-clear" id="search-clear" title="Clear search" aria-label="Clear search" hidden>×</button>
         </div>
-        <button class="icon-toggle" id="toggle-unread" aria-pressed="false" title="未読のみ表示">未読</button>
-        <button class="icon-toggle" id="toggle-fav" aria-pressed="false" title="お気に入りのみ表示">★</button>
+        <button class="icon-toggle" id="toggle-unread" aria-pressed="false" data-ja="未読" data-en="Unread">未読</button>
+        <button class="icon-toggle" id="toggle-fav" aria-pressed="false" title="Saved only">★</button>
       </div>
     </div>
     <div class="more-list" id="more-list" aria-live="polite"></div>
-    <button class="more-expand-btn" id="more-expand-btn" hidden type="button">▼ もっと見る</button>
+    <button class="more-expand-btn" id="more-expand-btn" hidden type="button" data-ja="▼ もっと見る" data-en="▼ Show more">▼ もっと見る</button>
 
-    <!-- 🏢 競合動向（AKKODiS の主要競合企業に言及した記事） -->
+    <!-- 🏢 INDUSTRY WATCH -->
     <div class="sec-head" id="sec-competitor">
       <span class="sec-icon">🏢</span>
-      <span class="sec-title">競合動向 <span class="sec-count" id="count-competitor">0</span></span>
-      <span class="sec-sub">AKKODiS 主要競合（NTTデータ / 富士通 / アクセンチュア / テクノプロ / SHIFT 等の SIer・IT コンサル・エンジニアリング派遣 50+社）に言及された記事</span>
+      <span class="sec-title"><span data-ja="競合動向" data-en="Industry Watch">競合動向</span> <span class="sec-count" id="count-competitor">0</span></span>
+      <span class="sec-sub" data-ja="AKKODiS 主要競合（NTTデータ / 富士通 / アクセンチュア / テクノプロ / SHIFT 等の SIer・IT コンサル・エンジニアリング派遣 50+社）に言及された記事" data-en="Articles mentioning AKKODiS major competitors (NTT Data, Fujitsu, Accenture, Technopro, SHIFT, and 50+ SIer / IT consulting / engineering staffing firms)">AKKODiS 主要競合（NTTデータ / 富士通 / アクセンチュア / テクノプロ / SHIFT 等の SIer・IT コンサル・エンジニアリング派遣 50+社）に言及された記事</span>
       <span class="sec-line"></span>
     </div>
     <div class="competitor-list" id="competitor-list" aria-live="polite"></div>
 
-    <!-- 𝕏 HIGHLIGHTS -->
+    <!-- 𝕏 TRENDS -->
     <div class="sec-head" id="sec-x">
       <span class="sec-icon">𝕏</span>
-      <span class="sec-title">𝕏 生成AIトレンド <span class="sec-count" id="count-x">0</span></span>
-      <span class="sec-sub" id="x-source-label">エンゲージメントで抽出した話題のポスト（著者の知名度は問わず、実際にバズった投稿のみ）</span>
+      <span class="sec-title"><span data-ja="𝕏 生成AIトレンド" data-en="𝕏 Generative AI Trends">𝕏 生成AIトレンド</span> <span class="sec-count" id="count-x">0</span></span>
+      <span class="sec-sub" id="x-source-label" data-ja="エンゲージメントで抽出した話題のポスト（著者の知名度は問わず、実際にバズった投稿のみ）" data-en="Trending posts selected by engagement — virality over fame">エンゲージメントで抽出した話題のポスト（著者の知名度は問わず、実際にバズった投稿のみ）</span>
       <span class="sec-line"></span>
     </div>
     <section class="x-section">
@@ -223,20 +222,20 @@
       </div>
       <div class="data-note-grid">
         <div class="dn-item">
-          <div class="dn-label">収集</div>
-          <div class="dn-value">毎朝 8:00 JST / 大手ニュースメディア20+媒体横断</div>
+          <div class="dn-label" data-ja="収集" data-en="Collection">収集</div>
+          <div class="dn-value" data-ja="毎朝 8:00 JST / 大手ニュースメディア20+媒体横断" data-en="Daily 8:00 JST / 20+ major news media sources">毎朝 8:00 JST / 大手ニュースメディア20+媒体横断</div>
         </div>
         <div class="dn-item">
-          <div class="dn-label">要約・採点</div>
-          <div class="dn-value">Claude Haiku 4.5（マーケ視点）</div>
+          <div class="dn-label" data-ja="要約・採点" data-en="Summarization">要約・採点</div>
+          <div class="dn-value" data-ja="Claude Haiku 4.5（マーケ視点）" data-en="Claude Haiku 4.5 (marketing perspective)">Claude Haiku 4.5（マーケ視点）</div>
         </div>
         <div class="dn-item">
-          <div class="dn-label">音声ダイジェスト</div>
-          <div class="dn-value">Google Cloud TTS Neural2-B（女性プロナレーター・月100万字無料）→ AivisSpeech → Azure → ElevenLabs → OpenAI</div>
+          <div class="dn-label" data-ja="音声ダイジェスト" data-en="Audio Digest">音声ダイジェスト</div>
+          <div class="dn-value" data-ja="Google Cloud TTS Neural2-B（女性プロナレーター・月100万字無料）→ Azure → ElevenLabs → OpenAI" data-en="Google Cloud TTS (Chirp3-HD, pro announcer quality, 1M chars/month free) → Azure → ElevenLabs → OpenAI">Google Cloud TTS Neural2-B（女性プロナレーター・月100万字無料）→ AivisSpeech → Azure → ElevenLabs → OpenAI</div>
         </div>
         <div class="dn-item">
-          <div class="dn-label">フォールバック</div>
-          <div class="dn-value">シードデータ（手動キュレーション）</div>
+          <div class="dn-label" data-ja="フォールバック" data-en="Fallback">フォールバック</div>
+          <div class="dn-value" data-ja="シードデータ（手動キュレーション）" data-en="Seed data (manually curated)">シードデータ（手動キュレーション）</div>
         </div>
       </div>
       <!-- Powered by / 更新タイムスタンプ / バージョン -->
@@ -315,9 +314,9 @@
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '05/15', text: '🌐 英語対応。ナビバーの JA/EN トグルでコンテンツ全体（タイトル・サマリー・影響分析・推奨アクション）を切り替え可能に。Claude Haiku が毎朝英語翻訳を生成して保存、表示遅延ゼロ' },
-        { date: '05/15', text: '🎙 音声ダイジェストをプロアナウンサー声（Google Cloud TTS ja-JP-Chirp3-HD-Kore）に変更。アニメ声の AivisSpeech を完全除外' },
-        { date: '05/06', text: '🔧 毎朝届く「AI NEWS 自動収集: All jobs have failed」エラーを修正。akkodis-watcher と同時刻 cron で並走して main への push が non-fast-forward で失敗する race を、pull --rebase + 5 回リトライで根治' }
+        { date: '05/16', text: '🔗 ニュース参照元を修正。Google News RSS 経由で収集した記事の URL を実記事 URL へ解決し、媒体名も「Google News (X)」→ 実媒体名（ITmedia / 日経クロステック 等）に正規化。全セクションで「元記事を読む」が正しく動くように' },
+        { date: '05/16', text: '🌐 JA/EN 切り替えでページ内すべての静的テキストも即時翻訳。セクション見出し・ボタン・検索プレースホルダー・データパイプライン説明まで対応' },
+        { date: '05/15', text: '🎙 音声ダイジェストをプロアナウンサー声（Google Cloud TTS Chirp3-HD-Kore）に変更。JA/EN 両言語の音声ダイジェストを生成・切り替え対応' }
       ]
     });
 
