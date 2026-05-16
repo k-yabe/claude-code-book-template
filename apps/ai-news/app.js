@@ -541,6 +541,16 @@
   /** 競合動向セクション用のソース表示。長く事務的な「Google News (NTTデータ)」を
    *  「NTTデータ（第三者報道）」のように人間が読みやすい形式に変換する。
    *  competitor 以外のセクションには影響を与えない（呼び出し側でのみ適用）。 */
+  /** 全セクション共通: "Google News (X)" → "X"、"PR TIMES (X)" → "X" に正規化 */
+  function prettySource(source) {
+    if (!source) return '';
+    const s = String(source);
+    let m = s.match(/^Google News\s*\(([^)]+)\)\s*$/);
+    if (m) return m[1];
+    m = s.match(/^PR TIMES\s*\(([^)]+)\)\s*$/);
+    if (m) return m[1];
+    return s;
+  }
   function prettyCompetitorSource(source) {
     if (!source) return '';
     const s = String(source);
@@ -722,12 +732,27 @@
   }
 
   /** 言語切り替えを適用し、全セクションを再レンダリングする */
+  /** data-ja / data-en 属性を持つ静的テキスト要素を一括で切り替える */
+  function applyStaticStrings(lang) {
+    document.querySelectorAll('[data-ja],[data-en]').forEach(el => {
+      const text = el.dataset[lang];
+      if (text !== undefined) el.textContent = text;
+    });
+    // <input placeholder> も切り替え
+    document.querySelectorAll('[data-ja-placeholder],[data-en-placeholder]').forEach(el => {
+      const ph = el.dataset[lang + 'Placeholder'];
+      if (ph !== undefined) el.placeholder = ph;
+    });
+  }
+
   function applyLang(lang) {
     state.lang = lang;
     try { localStorage.setItem(STORE_KEY_LANG, lang); } catch {}
     document.querySelectorAll('.lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === lang);
+      btn.setAttribute('aria-pressed', btn.dataset.lang === lang ? 'true' : 'false');
     });
+    applyStaticStrings(lang);
     // fullRender は後で定義されるのでこの時点では呼べない。
     // ボタンのクリックは必ず DOM 構築後なので fullRender は存在する。
     if (typeof fullRender === 'function') fullRender();
@@ -1018,7 +1043,7 @@
         if (topVisual) {
           const hero = document.createElement('div');
           hero.className = 'top-hero';
-          hero.innerHTML = `<img src="${img}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"><div class="top-hero-overlay"><span class="hero-chip cat-${n.category}">${escapeHtml(CAT_LABEL[n.category] || n.category)}</span><span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span></div>`;
+          hero.innerHTML = `<img src="${img}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"><div class="top-hero-overlay"><span class="hero-chip cat-${n.category}">${escapeHtml(CAT_LABEL[n.category] || n.category)}</span><span class="hero-source">${escapeHtml(prettySource(n.source))} · ${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span></div>`;
           topVisual.replaceWith(hero);
         }
         const briefVisual = card.querySelector('.brief-card-visual');
@@ -1701,7 +1726,7 @@
       const n = refs[i];
       let sourceHtml = '';
       if (n) {
-        const src = escapeHtml(n.source || '');
+        const src = escapeHtml(prettySource(n.source || ''));
         if (n.url && /^https?:\/\//.test(n.url)) {
           sourceHtml = `<a class="exec-src" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${src} →</a>`;
         } else {
@@ -1739,7 +1764,7 @@
         ? `<a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(itemTitle)}</a>`
         : escapeHtml(itemTitle);
       const favicon = sourceFavicon(n.url) || '';
-      const initials = (n.source || '').substring(0, 2).toUpperCase();
+      const initials = prettySource(n.source || '').substring(0, 2).toUpperCase();
       const whyLabel = state.lang === 'en' ? '⚡ Why it matters' : '⚡ なぜ重要か（マーケ視点）';
       const actionLabel = state.lang === 'en' ? '🎯 What to do' : '🎯 マーケとして何をすべきか';
       const whyText = state.lang === 'en' ? (n.whyItMattersEn || n.whyItMatters) : n.whyItMatters;
@@ -1752,7 +1777,7 @@
           <img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
           <div class="top-hero-overlay">
             <span class="hero-chip ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-            <span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
+            <span class="hero-source">${escapeHtml(prettySource(n.source))} · ${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
           </div>
         </div>` : `
         <div class="top-visual ${'cat-' + cat}">
@@ -1765,7 +1790,7 @@
             <div class="top-visual-source">
               ${favicon ? `<img class="source-logo" src="${favicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials">${escapeHtml(initials)}</span>`}
               <div class="top-visual-source-text">
-                <div class="top-visual-source-name">${escapeHtml(n.source)}</div>
+                <div class="top-visual-source-name">${escapeHtml(prettySource(n.source))}</div>
                 <div class="top-visual-source-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</div>
               </div>
             </div>
@@ -1782,7 +1807,7 @@
             <div class="intel-body">
               ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
               ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-              ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(n.source)}） →</a>` : ''}
+              ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(prettySource(n.source))}） →</a>` : ''}
             </div>
           </details>` : ''}
           <div class="top-foot">
@@ -1847,7 +1872,7 @@
       const imgSrc = pickImage(n);
       const hasDetail = !!(n.whyItMatters || n.actionItem || n.pickerComment);
       const bFavicon = sourceFavicon(n.url) || '';
-      const bInitials = (n.source || '').substring(0, 2).toUpperCase();
+      const bInitials = prettySource(n.source || '').substring(0, 2).toUpperCase();
       return `
         <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(T(n, 'title'))}">
           ${imgSrc ? `
@@ -1858,13 +1883,13 @@
             <div class="brief-visual-bg">${escapeHtml(CAT_LABEL[cat] || cat).toUpperCase()}</div>
             <div class="brief-visual-source">
               ${bFavicon ? `<img class="source-logo-sm" src="${bFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-sm">${escapeHtml(bInitials)}</span>`}
-              <span class="brief-visual-source-name">${escapeHtml(n.source)}</span>
+              <span class="brief-visual-source-name">${escapeHtml(prettySource(n.source))}</span>
             </div>
           </div>`}
           <div class="brief-card-content">
             <div class="brief-card-head">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
+              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(prettySource(n.source))} の記事に絞り込み">${escapeHtml(prettySource(n.source))}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
               ${(() => { const c = getStoryCluster(n.id); return c && c.count >= 3 ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体報道</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
@@ -1879,7 +1904,7 @@
               <div class="intel-body">
                 ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
                 ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-                ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(n.source)}） →</a>` : ''}
+                ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(prettySource(n.source))}） →</a>` : ''}
               </div>
             </details>` : ''}
             <div class="brief-card-foot">
@@ -1994,11 +2019,11 @@
       const imgSrc = pickImage(n);
       return `
         <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(T(n, 'title'))}">
-          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}"><span class="fyi-visual-headline">${escapeHtml(T(n, 'title'))}</span><span class="fyi-visual-source">${escapeHtml(n.source).replace(/^Google News \((.+)\)$/, '$1')}</span></div>`}
+          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}"><span class="fyi-visual-headline">${escapeHtml(T(n, 'title'))}</span><span class="fyi-visual-source">${escapeHtml(prettySource(n.source))}</span></div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
+              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(prettySource(n.source))} の記事に絞り込み">${escapeHtml(prettySource(n.source))}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
               ${(() => { const c = getStoryCluster(n.id); return c && c.count >= 3 ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
@@ -3450,8 +3475,11 @@
     // 言語トグル
     document.querySelectorAll('.lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === state.lang);
+      btn.setAttribute('aria-pressed', btn.dataset.lang === state.lang ? 'true' : 'false');
       btn.addEventListener('click', () => applyLang(btn.dataset.lang));
     });
+    // 初期状態で静的テキストを適用（EN が保存されている場合に即座に切り替え）
+    applyStaticStrings(state.lang);
     // hero の★stat クリックで favOnly フィルタを ON にして more-list にスクロール
     const heroFavBtn = document.getElementById('hero-stat-fav');
     if (heroFavBtn) {

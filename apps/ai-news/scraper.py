@@ -632,13 +632,45 @@ _GNEWS_REAL_URL_RE = re.compile(r'<a[^>]+href=["\'](https?://[^"\']+)["\']', re.
 _META_REFRESH_RE = re.compile(r'<meta[^>]+http-equiv=["\']refresh["\'][^>]+url=([^"\'>\s]+)', re.IGNORECASE)
 _CANONICAL_RE = re.compile(r'<link[^>]+rel=["\']canonical["\'][^>]+href=["\'](https?://[^"\']+)["\']', re.IGNORECASE)
 
-def _fetch_gnews_real_url(link: str, timeout: int = 6) -> str | None:
+import base64 as _base64
+
+def _decode_gnews_url_b64(link: str) -> str | None:
+    """Google News RSS URL の base64 エンコード部分を純 Python でデコードして実記事 URL を取得。
+    HTTP リクエスト不要なので GitHub Actions 環境でも確実に動作する。
+    CBMi... 部分は protobuf 形式でエンコードされており、実 URL が http(s):// として含まれている。"""
+    import re as _re
+    m = _re.search(r'/rss/articles/([^?&\s]+)', link)
+    if not m:
+        return None
+    b64 = m.group(1)
+    # URL-safe base64 のパディングを補完
+    b64 += '=' * (-len(b64) % 4)
+    try:
+        data = _base64.urlsafe_b64decode(b64)
+        # protobuf バイト列の中から https:// または http:// を探す
+        for prefix in (b'https://', b'http://'):
+            idx = data.find(prefix)
+            if idx < 0:
+                continue
+            # 印刷可能 ASCII かつ空白なしの間だけ URL として抽出
+            end = idx
+            while end < len(data) and 0x21 <= data[end] <= 0x7e:
+                end += 1
+            url = data[idx:end].decode('ascii', errors='ignore')
+            if url.startswith('http') and '.' in url[8:] and len(url) > 15:
+                return url
+    except Exception:
+        pass
+    return None
+
+def _fetch_gnews_real_url(link: str, timeout: int = 8) -> str | None:
     """Google News URL を HTTP フォロー + HTML パースで実 URL に解決する（最後の手段）。"""
     try:
         req = Request(link, headers={
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "ja,en;q=0.8",
+            "Accept-Encoding": "gzip, deflate",
         })
         with urlopen(req, timeout=timeout) as resp:
             final = resp.geturl()
@@ -658,22 +690,77 @@ def _fetch_gnews_real_url(link: str, timeout: int = 6) -> str | None:
 
 def resolve_article_url(link: str, description: str | None) -> str:
     """Google News 等のリダイレクター URL を実記事 URL に解決。解決できなければ元の link を返す。
-    ①description 内の <a href> を最優先（軽量）
-    ②それでもダメなら HTTP フォローで実 URL を取得（重いが確実） """
+    ① base64 デコード（HTTP 不要・最速）
+    ② description 内の <a href>（軽量）
+    ③ HTTP フォロー（重いが最終手段） """
     if not link:
         return link
     if "news.google.com/" in link:
+        # ① protobuf base64 デコード（GitHub Actions でも確実に動く）
+        real0 = _decode_gnews_url_b64(link)
+        if real0 and "news.google.com" not in real0:
+            return real0
+        # ② description の <a href> を探す
         m = _GNEWS_REAL_URL_RE.search(description or "")
         if m:
             real = m.group(1)
             if "news.google.com" not in real:
                 return real
-        # description に <a href> が無いケース（Google News モダン RSS 形式）のため
-        # 実 URL を直接フォローして解決する
+        # ③ HTTP フォロー（ネットワーク環境依存）
         real2 = _fetch_gnews_real_url(link)
         if real2:
             return real2
     return link
+
+
+def extract_source_from_url(url: str, fallback: str) -> str:
+    """記事 URL のドメインから媒体名を推定して返す。
+    Google News (X) のような source 名をより人間らしい形式に変換するために使う。"""
+    _DOMAIN_MAP = {
+        "itmedia.co.jp": "ITmedia",
+        "nikkei.com": "日本経済新聞",
+        "xtech.nikkei.com": "日経クロステック",
+        "ascii.jp": "ASCII.jp",
+        "techcrunch.com": "TechCrunch",
+        "thenextweb.com": "TNW",
+        "venturebeat.com": "VentureBeat",
+        "wired.com": "WIRED",
+        "zdnet.com": "ZDNet",
+        "cnet.com": "CNET",
+        "reuters.com": "Reuters",
+        "bloomberg.com": "Bloomberg",
+        "tokyonp.co.jp": "東京新聞",
+        "asahi.com": "朝日新聞",
+        "mainichi.jp": "毎日新聞",
+        "yomiuri.co.jp": "読売新聞",
+        "sankei.com": "産経新聞",
+        "nhk.or.jp": "NHK",
+        "mynavi.jp": "マイナビ",
+        "impress.co.jp": "Impress",
+        "watch.impress.co.jp": "Impress Watch",
+        "pc.watch.impress.co.jp": "PC Watch",
+        "gigazine.net": "Gigazine",
+        "gizmodo.jp": "Gizmodo Japan",
+        "engadget.com": "Engadget",
+        "prtimes.jp": "PR TIMES",
+        "businessinsider.jp": "Business Insider Japan",
+        "toyo-keizai.net": "東洋経済",
+        "president.jp": "PRESIDENT Online",
+        "diamond.jp": "ダイヤモンド社",
+        "monoist.itmedia.co.jp": "MONOist",
+        "atmarkit.itmedia.co.jp": "@IT",
+        "mag.executive.itmedia.co.jp": "ITmedia エグゼクティブ",
+    }
+    try:
+        from urllib.parse import urlparse
+        host = urlparse(url).hostname or ""
+        host = host.lstrip("www.")
+        for domain, name in _DOMAIN_MAP.items():
+            if host == domain or host.endswith("." + domain):
+                return name
+    except Exception:
+        pass
+    return fallback
 
 
 # 過去アーカイブの URL を読み込む参照日数。直近 N 日間のアーカイブに含まれる
@@ -802,13 +889,24 @@ def fetch_all() -> list[dict]:
                 seen_urls.add(url)
                 # 人気度シグナル: はてなブックマーク数（無い/0 は低人気扱い）
                 hatena = fetch_hatena_count(url)
+                # Google News (X) ソース名を実記事ドメインから推定（URL が解決済みの場合）
+                display_source = src["name"]
+                if "news.google.com" not in url and src["name"].startswith("Google News ("):
+                    resolved_name = extract_source_from_url(url, "")
+                    if resolved_name:
+                        display_source = resolved_name
+                    else:
+                        # ドメインマップにない場合はカンパニー名だけ残す
+                        m_src = re.match(r'^Google News\s*\(([^)]+)\)\s*$', src["name"])
+                        if m_src:
+                            display_source = m_src.group(1)
                 all_items.append({
                     "id": make_id(url),
                     "title": truncate(title, 200),
                     "url": url,
                     "image": image,
                     "raw_summary": raw_summary,
-                    "source": src["name"],
+                    "source": display_source,
                     "sourceType": src_tier,
                     "category": src["category"],
                     "publishedAt": pub.isoformat(),
