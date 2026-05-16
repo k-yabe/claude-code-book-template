@@ -671,7 +671,11 @@ function loadFromGitHub(silent) {
       return r.json();
     })
     .then(function(data) {
-      var decoded = atob(data.content.replace(/\n/g, ''));
+      var b64 = data.content.replace(/\n/g, '');
+      var bytes = atob(b64);
+      var uint8 = new Uint8Array(bytes.length);
+      for (var i = 0; i < bytes.length; i++) uint8[i] = bytes.charCodeAt(i);
+      var decoded = new TextDecoder('utf-8').decode(uint8);
       var parsed = JSON.parse(decoded);
       var fetched = parsed.tasks || parsed;
       if (!Array.isArray(fetched)) throw new Error('invalid');
