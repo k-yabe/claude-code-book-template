@@ -238,6 +238,12 @@ async function handleDigest(req, res) {
   const userPrompt = `以下は本日（${dateLabel}）のニュースです。これを元に、5分ダイジェストの読み上げスクリプトを日本語のみで作成してください。英単語はすべてカタカナに置き換えること。\n\n${articleLines.join('\n')}`;
 
   try {
+    const budget = await checkBudget();
+    if (!budget.allowed) {
+      console.warn('[ai-news-api:digest] 月額予算上限に到達。スキップします。');
+      return res.status(429).json({ error: '月額API予算に達しました。翌月までお待ちください。' });
+    }
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -261,6 +267,7 @@ async function handleDigest(req, res) {
     }
 
     const data = await response.json();
+    if (data.usage) await recordCost('claude-haiku-4-5-20251001', data.usage);
     const script = (data.content || [])
       .filter(b => b.type === 'text')
       .map(b => b.text)
@@ -319,6 +326,12 @@ async function handleXTrends(_req, res) {
     `"url":"https://x.com/<handle>/status/<id>","tag":"短いトピック名"}, ...]}`;
 
   try {
+    const budget = await checkBudget();
+    if (!budget.allowed) {
+      console.warn('[ai-news-api:xtrends] 月額予算上限に到達。スキップします。');
+      return res.status(429).json({ error: '月額API予算に達しました。翌月までお待ちください。', items: [] });
+    }
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -340,6 +353,7 @@ async function handleXTrends(_req, res) {
       return res.status(status).json({ error: body.error.message, code: body.error.code, items: [] });
     }
     const data = await response.json();
+    if (data.usage) await recordCost('claude-sonnet-4-6', data.usage);
     const text = (data.content || [])
       .filter(b => b.type === 'text')
       .map(b => b.text)
