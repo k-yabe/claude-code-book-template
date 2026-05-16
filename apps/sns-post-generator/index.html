@@ -845,7 +845,7 @@ ${styleRule}
           const r = await fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ _user: sessionStorage.getItem('username') || 'unknown', _app: 'Post Generator', model: 'claude-sonnet-4-6', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] }),
+            body: JSON.stringify({ _user: sessionStorage.getItem('username') || 'unknown', _app: 'Post Generator', model: 'claude-haiku-4-5-20251001', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] }),
           });
           const txt = await r.text();
           let data;
@@ -936,8 +936,8 @@ ${styleRule}
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: platform === 'x' ? 1000 : platform === 'chatter' ? 3500 : 4000,
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: platform === 'x' ? 800 : platform === 'chatter' ? 2000 : 2000,
           messages,
         }),
       });

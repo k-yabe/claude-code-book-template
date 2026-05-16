@@ -1395,7 +1395,7 @@
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
-          model: 'claude-sonnet-4-6', max_tokens: 1000,
+          model: 'claude-haiku-4-5-20251001', max_tokens: 800,
           system: `あなたは複数のソースを横断分析する専門家です。以下の形式で分析結果を出力してください:
 
 【共通テーマ】
@@ -1752,7 +1752,7 @@
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
-          model: 'claude-sonnet-4-6', max_tokens: 1500,
+          model: 'claude-haiku-4-5-20251001', max_tokens: 1000,
           system: `ソースの内容からインフォグラフィック用のデータをJSON形式で抽出してください。JSON以外は出力しないでください。
 {
   "title": "インフォグラフィックのタイトル（15文字以内）",
@@ -2411,7 +2411,7 @@
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           _user: sessionStorage.getItem('username') || 'unknown', _app: 'Prompt Maker',
-          model: 'claude-sonnet-4-6', max_tokens: 4096,
+          model: 'claude-sonnet-4-6', max_tokens: 2048,
           system: SYSTEM_PROMPT + buildSourceContext(),
           messages: messages.map(m => ({ role: m.role, content: m.content })),
         }),
