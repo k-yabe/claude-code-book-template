@@ -270,9 +270,10 @@ select:focus, input[type="text"]:focus, textarea:focus {
       <option value="infrastructure">インフラ</option>
     </select>
     <button class="btn primary" onclick="openCreate()">＋ 新規タスク</button>
-    <button class="btn" onclick="doImport()">📥 Import JSON</button>
-    <button class="btn" onclick="doExport()">📤 Export JSON</button>
+    <button class="btn" onclick="syncNow()">🔄 同期</button>
+    <button class="btn" onclick="doExport()">📤 Export</button>
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="onFileImport(event)">
+    <span id="syncStatus" style="font-size:11px;color:#8b949e;white-space:nowrap"></span>
   </div>
 </div>
 
@@ -493,8 +494,10 @@ select:focus, input[type="text"]:focus, textarea:focus {
 
 <script>
 var STORAGE_KEY = 'ai-agent-tasks-v2';
+var GITHUB_TASKS_URL = 'https://raw.githubusercontent.com/k-yabe/claude-code-book-template/main/ai-agent-org/tasks/tasks.json';
 var editingId = null;
 var tasks = [];
+var lastSynced = null;
 
 var DEFAULT_TASKS = [
   {
@@ -621,10 +624,7 @@ function fmtDate(iso) {
 function load() {
   try {
     var raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      tasks = JSON.parse(raw);
-      return;
-    }
+    if (raw) { tasks = JSON.parse(raw); return; }
   } catch (e) {}
   tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
   save();
@@ -632,6 +632,37 @@ function load() {
 
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+function setSyncStatus(msg, color) {
+  var el = document.getElementById('syncStatus');
+  if (el) { el.textContent = msg; el.style.color = color || '#8b949e'; }
+}
+
+function loadFromGitHub(silent) {
+  if (!silent) setSyncStatus('同期中...', '#58a6ff');
+  return fetch(GITHUB_TASKS_URL + '?t=' + Date.now())
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var fetched = data.tasks || data;
+      if (!Array.isArray(fetched)) throw new Error('invalid');
+      tasks = fetched;
+      save();
+      lastSynced = new Date();
+      setSyncStatus('最終同期: ' + lastSynced.toLocaleTimeString('ja-JP'), '#3fb950');
+      render();
+    })
+    .catch(function() {
+      setSyncStatus('GitHub取得失敗 — ローカルデータを使用', '#f85149');
+      load();
+      render();
+    });
+}
+
+function syncNow() { loadFromGitHub(false); }
+
+function startAutoRefresh() {
+  setInterval(function() { loadFromGitHub(true); }, 60000);
 }
 
 function nextId() {
@@ -865,8 +896,8 @@ function onFileImport(e) {
   reader.readAsText(file);
 }
 
-load();
-render();
+loadFromGitHub(false);
+startAutoRefresh();
 </script>
 </body>
 </html>
