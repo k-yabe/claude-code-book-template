@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-05-16T00:00:00Z",
+  "lastUpdated": "2026-05-16T07:08:44.183Z",
   "tasks": [
     {
       "id": "T001",
@@ -26,7 +26,11 @@
         }
       ],
       "blockedReason": "",
-      "tags": ["context-engine", "design-system", "setup"]
+      "tags": [
+        "context-engine",
+        "design-system",
+        "setup"
+      ]
     },
     {
       "id": "T002",
@@ -47,7 +51,11 @@
         }
       ],
       "blockedReason": "",
-      "tags": ["agent-review", "quality", "setup"]
+      "tags": [
+        "agent-review",
+        "quality",
+        "setup"
+      ]
     },
     {
       "id": "T003",
@@ -68,7 +76,11 @@
         }
       ],
       "blockedReason": "",
-      "tags": ["testing", "task-board", "infrastructure"]
+      "tags": [
+        "testing",
+        "task-board",
+        "infrastructure"
+      ]
     },
     {
       "id": "T004",
@@ -89,7 +101,12 @@
         }
       ],
       "blockedReason": "",
-      "tags": ["content", "brand-voice", "setup", "documentation"]
+      "tags": [
+        "content",
+        "brand-voice",
+        "setup",
+        "documentation"
+      ]
     },
     {
       "id": "T005",
@@ -115,7 +132,34 @@
         }
       ],
       "blockedReason": "GitHub Secrets への ANTHROPIC_API_KEY 設定が未完了。人間（プロジェクトオーナー）の承認と設定操作が必要。",
-      "tags": ["automation", "infrastructure", "github-actions", "daily-report"]
+      "tags": [
+        "automation",
+        "infrastructure",
+        "github-actions",
+        "daily-report"
+      ]
+    },
+    {
+      "id": "T006",
+      "title": "来月のウェビナーに向けて、メール・LP・SNSのコンテンツを用意したい。",
+      "description": "ターゲットはB2BのITマネージャー層。",
+      "status": "new-assigned",
+      "priority": "P2",
+      "assignee": "content-director",
+      "assigneeType": "ai",
+      "team": "content",
+      "createdAt": "2026-05-16T07:08:44.175Z",
+      "updatedAt": "2026-05-16T07:08:44.175Z",
+      "comments": [
+        {
+          "author": "task-dispatcher",
+          "content": "inbox/ウェビナー集客のコンテンツを作りたい.md から自動生成",
+          "timestamp": "2026-05-16T07:08:44.175Z"
+        }
+      ],
+      "blockedReason": "",
+      "tags": [],
+      "sourceFile": "ウェビナー集客のコンテンツを作りたい.md"
     }
   ]
 }
