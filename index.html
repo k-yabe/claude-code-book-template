@@ -766,6 +766,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '🎯', app: 'AI NEWS', badge: 'UPDATE', date: '2026-05-16(金)', desc: '【コンテンツ方針を刷新 — BtoBマーケ→AKKODiS事業領域に特化】「AI NEWS」のコンテンツ方針をAKKODiSの実際の事業領域（ITコンサル・DX支援・エンジニアリング派遣・システム開発・BPO・技術者育成）に最適化。ニュースソースをEnterpriseZine/IT Leaders/ZDNet Japan等のDX・エンタープライズIT系メディアに刷新、キーワードをDX・ITコンサル・エンジニアリング派遣・BPO・クラウド・セキュリティ等に変更、AI要約プロンプトを「B2Bマーケ担当者向け」→「ITコンサル・DX・エンジニアリング派遣の事業担当者向け」に書き換え。競合は引き続き SIer・コンサルファーム・エンジニアリングサービス50+社を監視。' },
       { icon: '🔗', app: 'AI NEWS', badge: 'UPDATE', date: '2026-05-16(金)', desc: '【ニュース参照元（URL・媒体名）の誤りを修正】Google News RSS 経由で収集した記事で URL が「news.google.com/rss/articles/...」という Google のリダイレクト URL のまま保存されていた問題を根治。スクレイパー側で base64 デコード（HTTP 不要）→ HTML 解析→ HTTP フォローの 3 段階で実際の記事 URL に解決するロジックを追加。これにより「元記事を読む」リンクが正しい記事に飛ぶように。さらに媒体名も「Google News (NEC)」→「NEC」など実媒体名・会社名に正規化（app.js の prettySource() ヘルパーで既存データも即時補正）。' },
       { icon: '🌐', app: 'AI NEWS', badge: 'UPDATE', date: '2026-05-16(金)', desc: '【JA/EN 切り替えでページ全体の静的テキストも即時翻訳】セクション見出し・ボタン・ヘッダー・データパイプライン説明・検索プレースホルダーなど index.html の全静的テキストに data-ja/data-en 属性を付与し、EN ボタン押下で applyStaticStrings() が一括で textContent を差し替える実装を追加。動的コンテンツ（記事タイトル・サマリー等）の翻訳は引き続き app.js が担当。' },
       { icon: '🌐', app: 'AI NEWS', badge: 'NEW', date: '2026-05-15(金)', desc: '【英語対応 — ナビバーの JA/EN トグルでコンテンツ全体を切り替え】英語圏ユーザー向けに JA/EN 切り替えトグルを追加。ON にすると記事タイトル・サマリー・影響分析・推奨アクション・3行サマリーが全て英語表示に切り替わる。Claude Haiku が毎朝の記事をニュース調の自然な英語に翻訳して news.json に保存し、フロントエンドはフィールドをスワップするだけの実装なので表示遅延ゼロ。英語訳が未取得のアイテムは日本語にフォールバック。選択状態は localStorage に永続化。' },
