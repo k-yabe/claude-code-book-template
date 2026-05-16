@@ -1,9 +1,10 @@
-import { kv } from '@vercel/kv';
+// Upstash Redis REST API を fetch で直接呼ぶ（@vercel/kv 不要）
+// 必要な環境変数: UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN
+// どちらも未設定の場合は fail-open（サービスを止めない）
 
 export const MONTHLY_BUDGET_USD = 5.00;
 const HARD_LIMIT_USD = 4.80; // $0.20 バッファ
 
-// per-token costs in USD
 const MODEL_COSTS = {
   'claude-haiku-4-5-20251001': { input: 0.80e-6, output: 4.00e-6, cacheWrite: 1.00e-6, cacheRead: 0.08e-6 },
   'claude-sonnet-4-6':         { input: 3.00e-6, output: 15.00e-6, cacheWrite: 3.75e-6, cacheRead: 0.30e-6 },
@@ -13,6 +14,30 @@ const MODEL_COSTS = {
 function monthKey() {
   const d = new Date();
   return `anthropic_spend:${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function upstashHeaders() {
+  return { Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}` };
+}
+
+async function kvGet(key) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  if (!url) return null;
+  const r = await fetch(`${url}/get/${encodeURIComponent(key)}`, { headers: upstashHeaders() });
+  const { result } = await r.json();
+  return result;
+}
+
+async function kvIncrByFloat(key, value) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  if (!url) return;
+  await fetch(`${url}/incrbyfloat/${encodeURIComponent(key)}/${value}`, { headers: upstashHeaders() });
+}
+
+async function kvExpire(key, seconds) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  if (!url) return;
+  await fetch(`${url}/expire/${encodeURIComponent(key)}/${seconds}`, { headers: upstashHeaders() });
 }
 
 export function calcCost(model, usage = {}) {
@@ -31,10 +56,10 @@ export function calcCost(model, usage = {}) {
   );
 }
 
-// KV が未設定の場合は fail-open（デプロイ直後でもサービスを止めない）
 export async function checkBudget() {
   try {
-    const spend = parseFloat(await kv.get(monthKey()) || 0);
+    const raw = await kvGet(monthKey());
+    const spend = parseFloat(raw || 0);
     if (spend >= HARD_LIMIT_USD) {
       return { allowed: false, spend };
     }
@@ -49,14 +74,13 @@ export async function recordCost(model, usage) {
     const cost = calcCost(model, usage);
     if (cost <= 0) return;
     const key = monthKey();
-    await kv.incrbyfloat(key, cost);
-    await kv.expire(key, 40 * 24 * 3600);
+    await kvIncrByFloat(key, cost);
+    await kvExpire(key, 40 * 24 * 3600);
   } catch {
     // best-effort
   }
 }
 
-// ストリーミング用: max_tokens を使った保守的な上限見積もり
 export function estimateWorstCaseCost(model, maxTokens, estimatedInputTokens = 2000) {
   return calcCost(model, {
     input_tokens: estimatedInputTokens,
