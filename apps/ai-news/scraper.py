@@ -1381,7 +1381,7 @@ def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> di
                             "whyItMattersEn": {"type": "string", "description": "Why it matters, in English (1 sentence)"},
                             "actionItemEn": {"type": "string", "description": "Action item in English (1 sentence)"},
                         },
-                        "required": ["i", "titleEn", "summaryEn"],
+                        "required": ["i", "titleEn", "summaryEn", "whyItMattersEn", "actionItemEn"],
                     },
                 },
             },
@@ -1809,6 +1809,97 @@ def generate_digest_script(exec_summary: list[str], mustknow: list[dict], thiswe
 
     log("digest script: using template fallback (no Claude API)")
     return _build_template_digest_script(exec_summary, mustknow, thisweek)
+
+
+def generate_digest_script_en(exec_summary_en: list[str], mustknow: list[dict], thisweek: list[dict]) -> str | None:
+    """英語ダイジェスト台本を生成。Claude Haiku が英語 NHK World スタイルで原稿を書く。"""
+    if not ANTHROPIC_API_KEY:
+        return None
+    today_jst = datetime.now(JST)
+    date_label = today_jst.strftime("%B %-d, %Y")
+    lines = []
+    if exec_summary_en:
+        lines.append("[Today's Overview]")
+        for s in exec_summary_en:
+            lines.append(f"- {s}")
+    if mustknow:
+        lines.append("\n[Top Stories]")
+        for n in mustknow:
+            lines.append(f"■ {n.get('titleEn') or n.get('title','')}")
+            if n.get("summaryEn") or n.get("summary"): lines.append(f"  {n.get('summaryEn') or n.get('summary','')}")
+            if n.get("whyItMattersEn") or n.get("whyItMatters"): lines.append(f"  Impact: {n.get('whyItMattersEn') or n.get('whyItMatters','')}")
+            if n.get("actionItemEn") or n.get("actionItem"): lines.append(f"  Action: {n.get('actionItemEn') or n.get('actionItem','')}")
+    if thisweek:
+        lines.append("\n[Also in the News]")
+        for n in thisweek:
+            lines.append(f"■ {n.get('titleEn') or n.get('title','')}")
+            if n.get("summaryEn") or n.get("summary"): lines.append(f"  {n.get('summaryEn') or n.get('summary','')}")
+
+    system_prompt = f"""You are a professional news anchor for NHK World English, delivering a concise AI and marketing news digest.
+
+## Rules
+- English only. Natural broadcast English, no jargon without explanation.
+- Date is "{date_label}"
+- Numbers spoken naturally (50% → "half", $1B → "one billion dollars")
+- No markdown, bullet points, or headers in output
+- Each sentence under 20 words. Short, punchy broadcast style.
+
+## Structure (NHK World style)
+
+### Opening (20 seconds)
+- "Good morning. This is your AI and Marketing News Brief for {date_label}."
+- "We have [N] stories for you today." then preview the top story in one sentence.
+
+### Each Story (45-60 seconds each)
+For each story, follow these 3 steps:
+1. [Headline] One sentence: "Subject did/announced/released something."
+2. [Detail] 2-3 sentences with facts, figures, and context.
+3. [Impact] "For marketing and AI professionals, this means..."
+
+Transition phrases: "Next...", "Meanwhile...", "In related news...", "Turning to..."
+
+### Closing (20 seconds)
+- "That wraps up today's AI and Marketing News Brief."
+- Recap top 3 stories in one sentence each.
+- "I'm [anchor], have a great day."
+
+## Style
+- Formal broadcast tone. "said", "announced", "according to"
+- No emotional language ("stunning", "incredible", "wow")
+- No conversational filler ("you know", "basically", "actually")
+- Total: 900-1200 words (about 5 minutes at broadcast pace)
+
+Output the script text only."""
+
+    user_prompt = f"Here is today's ({date_label}) news material. Write a 5-minute English broadcast script in NHK World style.\n\n" + "\n".join(lines)
+
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            method="POST",
+            headers={
+                "Content-Type": "application/json",
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01",
+            },
+            data=json.dumps({
+                "model": DIGEST_MODEL,
+                "max_tokens": 3000,
+                "system": system_prompt,
+                "messages": [{"role": "user", "content": user_prompt}],
+            }).encode("utf-8"),
+        )
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = json.loads(resp.read())
+        parts = [b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"]
+        result = "".join(parts).strip()
+        if result:
+            return result
+        log("English digest script: empty response from Claude")
+    except Exception as e:
+        log(f"English digest script error: {e}")
+    return None
 
 
 TTS_KATAKANA_MAP = {
@@ -2414,20 +2505,21 @@ def _generate_tts_openai(text: str) -> bytes | None:
     return None
 
 
-def save_audio(mp3: bytes, script: str) -> None:
-    """MP3 と台本を apps/ai-news/data/audio/ に保存。"""
+def save_audio(mp3: bytes, script: str, lang: str = "ja") -> None:
+    """MP3 と台本を apps/ai-news/data/audio/ に保存。lang='en' で英語版ファイルに保存。"""
     audio_dir = DATA_DIR / "audio"
     audio_dir.mkdir(parents=True, exist_ok=True)
     today_jst = datetime.now(JST).strftime("%Y-%m-%d")
-    mp3_path = audio_dir / f"{today_jst}.mp3"
-    script_path = audio_dir / f"{today_jst}.txt"
-    latest_mp3 = audio_dir / "latest.mp3"
-    latest_script = audio_dir / "latest.txt"
+    suffix = f"-{lang}" if lang != "ja" else ""
+    mp3_path = audio_dir / f"{today_jst}{suffix}.mp3"
+    script_path = audio_dir / f"{today_jst}{suffix}.txt"
+    latest_mp3 = audio_dir / f"latest{suffix}.mp3"
+    latest_script = audio_dir / f"latest{suffix}.txt"
     mp3_path.write_bytes(mp3)
     latest_mp3.write_bytes(mp3)
     script_path.write_text(script, encoding="utf-8")
     latest_script.write_text(script, encoding="utf-8")
-    log(f"wrote audio: {mp3_path.relative_to(ROOT.parent.parent)} ({len(mp3)/1024:.0f} KB)")
+    log(f"wrote audio ({lang}): {mp3_path.relative_to(ROOT.parent.parent)} ({len(mp3)/1024:.0f} KB)")
 
 
 # ── エントリーポイント ──────────────────────────────────────────
@@ -2537,6 +2629,29 @@ def main() -> int:
         else:
             log("digest script generation failed; skipping audio")
             debug_stats["audio"]["error"] = "digest_script_empty"
+
+        # ── 英語音声ダイジェスト ──
+        google_key = os.environ.get("GOOGLE_TTS_API_KEY", "").strip()
+        if google_key and exec_summary_en:
+            log("generating English digest script...")
+            script_en = generate_digest_script_en(exec_summary_en, mustknow, thisweek)
+            if script_en:
+                log(f"English digest script: {len(script_en)} chars")
+                log("generating English TTS MP3 (Google en-US-Chirp3-HD-Aoede)...")
+                mp3_en = _google_tts_chunked(
+                    script_en, google_key,
+                    voice=os.environ.get("GOOGLE_TTS_EN_VOICE", "en-US-Chirp3-HD-Aoede"),
+                    speaking_rate=float(os.environ.get("GOOGLE_TTS_EN_RATE", "1.0")),
+                    pitch_st=0.0,
+                    chunk_chars=1500,
+                )
+                if mp3_en:
+                    save_audio(mp3_en, script_en, lang="en")
+                    debug_stats["audio"]["mp3EnBytes"] = len(mp3_en)
+                else:
+                    log("English TTS failed")
+            else:
+                log("English digest script generation failed; skipping EN audio")
 
     debug_stats["durationSec"] = round(time.time() - started, 1)
     _write_debug_stats(debug_stats)

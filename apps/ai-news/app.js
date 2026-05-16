@@ -3089,10 +3089,13 @@
   async function tryStaticAudio() {
     const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
     const ymd = today.toISOString().slice(0, 10);
+    const enSuffix = state.lang === 'en' ? '-en' : '';
     // same-origin で試行（ページが /apps/ai-news/ から配信されている前提）
     const candidates = [
-      `data/audio/${ymd}.mp3`,
-      `data/audio/latest.mp3?v=${ymd}`,
+      `data/audio/${ymd}${enSuffix}.mp3`,
+      `data/audio/latest${enSuffix}.mp3?v=${ymd}`,
+      // EN モードで英語ファイルなければ日本語にフォールバック
+      ...(enSuffix ? [`data/audio/${ymd}.mp3`, `data/audio/latest.mp3?v=${ymd}`] : []),
     ];
     for (const path of candidates) {
       try {
