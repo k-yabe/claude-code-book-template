@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Task Board</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --accent: #58a6ff;
+  --p0: #ff4444;
+  --p1: #ff8800;
+  --p2: #e3b341;
+  --p3: #4488ff;
+  --col-new: #6e7681;
+  --col-ip: #388bfd;
+  --col-bl: #f85149;
+  --col-done: #3fb950;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+/* ---- Header ---- */
+.header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.header h1 { font-size: 16px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.header-right { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-left: auto; }
+
+select, input[type="text"], textarea {
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 13px;
+  font-family: inherit;
+}
+select:focus, input[type="text"]:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.btn {
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--bg2); border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: #0d1117; border-color: var(--accent); font-weight: 600; }
+.btn.primary:hover { opacity: 0.85; }
+.btn.danger { color: #f85149; border-color: #f85149; }
+
+/* ---- Stats ---- */
+.stats {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 16px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text2);
+}
+.stat-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+.stat-num { font-weight: 700; color: var(--text); }
+
+/* ---- Board ---- */
+.board {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  overflow-x: auto;
+  align-items: flex-start;
+  min-height: calc(100vh - 100px);
+}
+
+.column {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  flex: 1;
+  min-width: 220px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+}
+.col-header {
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.col-dot { width: 10px; height: 10px; border-radius: 50%; }
+.col-count {
+  margin-left: auto;
+  background: var(--bg3);
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.card-list { padding: 8px; display: flex; flex-direction: column; gap: 6px; min-height: 60px; }
+.empty-col { text-align: center; color: var(--text2); font-size: 12px; padding: 16px 0; }
+
+/* ---- Card ---- */
+.card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.card:hover { border-color: var(--accent); }
+
+.card-top { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.card-id { font-size: 11px; color: var(--text2); font-family: monospace; }
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #fff;
+}
+.badge.P0 { background: var(--p0); }
+.badge.P1 { background: var(--p1); }
+.badge.P2 { background: var(--p2); color: #0d1117; }
+.badge.P3 { background: var(--p3); }
+
+.card-title { font-size: 13px; font-weight: 500; line-height: 1.4; margin-bottom: 6px; }
+.card-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.card-assignee { font-size: 11px; color: var(--text2); }
+.team-tag {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+.team-engineering { background: #0d419d33; color: #58a6ff; border: 1px solid #58a6ff44; }
+.team-content     { background: #6e40c933; color: #b687f7; border: 1px solid #b687f744; }
+.team-business    { background: #9e6a0333; color: #e3b341; border: 1px solid #e3b34144; }
+.team-infrastructure { background: #1a7f3733; color: #3fb950; border: 1px solid #3fb95044; }
+
+.blocked-badge { font-size: 11px; color: var(--p0); margin-top: 4px; }
+.comment-count { font-size: 11px; color: var(--text2); margin-left: auto; }
+
+/* ---- Modal overlay ---- */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+.overlay.hidden { display: none; }
+
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.modal-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.modal-id { font-size: 12px; color: var(--text2); font-family: monospace; }
+.modal-title { font-size: 15px; font-weight: 600; flex: 1; }
+.modal-close {
+  background: none; border: none; color: var(--text2);
+  font-size: 18px; cursor: pointer; padding: 0 4px;
+}
+.modal-close:hover { color: var(--text); }
+
+.modal-body { padding: 14px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.modal-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+
+.field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+.field select, .field input, .field textarea { width: 100%; }
+.field textarea { resize: vertical; min-height: 70px; }
+.row { display: flex; gap: 10px; }
+.row .field { flex: 1; }
+
+.comments-section { border-top: 1px solid var(--border); padding-top: 10px; }
+.section-label { font-size: 12px; color: var(--text2); font-weight: 600; margin-bottom: 8px; }
+.comment-item { margin-bottom: 8px; padding: 8px; background: var(--bg3); border-radius: 6px; }
+.comment-meta { display: flex; gap: 8px; font-size: 11px; color: var(--text2); margin-bottom: 3px; }
+.comment-author { font-weight: 600; }
+.comment-text { font-size: 12px; line-height: 1.5; }
+.comment-form { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.comment-form textarea { min-height: 50px; font-size: 13px; }
+.comment-form-bottom { display: flex; gap: 6px; align-items: center; }
+.comment-form-bottom select { flex: 1; }
+
+@media (max-width: 700px) {
+  .board { flex-direction: column; }
+  .column { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🤖 AI Agent Task Board</h1>
+  <div class="header-right">
+    <select id="filterAssignee" onchange="render()">
+      <option value="">担当者: 全て</option>
+      <option value="human">👤 human</option>
+      <option value="tech-lead">🔧 tech-lead</option>
+      <option value="frontend-engineer">🎨 frontend-engineer</option>
+      <option value="backend-engineer">⚙️ backend-engineer</option>
+      <option value="qa-engineer">🧪 qa-engineer</option>
+      <option value="content-director">📝 content-director</option>
+      <option value="brand-voice">🎙️ brand-voice</option>
+      <option value="root-cause">🔍 root-cause</option>
+      <option value="anti-ai-slop">🚫 anti-ai-slop</option>
+      <option value="marketing-director">📣 marketing-director</option>
+      <option value="business-strategist">💼 business-strategist</option>
+      <option value="partnership-manager">🤝 partnership-manager</option>
+      <option value="legal-review">⚖️ legal-review</option>
+      <option value="task-dispatcher">📬 task-dispatcher</option>
+      <option value="local-support">🖥️ local-support</option>
+    </select>
+    <select id="filterTeam" onchange="render()">
+      <option value="">チーム: 全て</option>
+      <option value="engineering">エンジニア</option>
+      <option value="content">コンテンツ</option>
+      <option value="business">ビジネス</option>
+      <option value="infrastructure">インフラ</option>
+    </select>
+    <button class="btn primary" onclick="openCreate()">＋ 新規タスク</button>
+    <button class="btn" onclick="doImport()">📥 Import JSON</button>
+    <button class="btn" onclick="doExport()">📤 Export JSON</button>
+    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="onFileImport(event)">
+  </div>
+</div>
+
+<div class="stats" id="statsBar"></div>
+
+<div class="board" id="board">
+  <div class="column" id="col-new-assigned">
+    <div class="col-header">
+      <span class="col-dot" style="background:var(--col-new)"></span>
+      New Assigned（未着手）
+      <span class="col-count" id="cnt-new-assigned">0</span>
+    </div>
+    <div class="card-list" id="list-new-assigned"></div>
+  </div>
+  <div class="column" id="col-in-progress">
+    <div class="col-header">
+      <span class="col-dot" style="background:var(--col-ip)"></span>
+      In Progress（進行中）
+      <span class="col-count" id="cnt-in-progress">0</span>
+    </div>
+    <div class="card-list" id="list-in-progress"></div>
+  </div>
+  <div class="column" id="col-blocked">
+    <div class="col-header">
+      <span class="col-dot" style="background:var(--col-bl)"></span>
+      Blocked（ブロック）
+      <span class="col-count" id="cnt-blocked">0</span>
+    </div>
+    <div class="card-list" id="list-blocked"></div>
+  </div>
+  <div class="column" id="col-done">
+    <div class="col-header">
+      <span class="col-dot" style="background:var(--col-done)"></span>
+      Done（完了）
+      <span class="col-count" id="cnt-done">0</span>
+    </div>
+    <div class="card-list" id="list-done"></div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="overlay hidden" id="detailOverlay" onclick="closeDetailIfBg(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-id" id="dId"></span>
+      <span class="modal-title" id="dTitle"></span>
+      <button class="modal-close" onclick="closeDetail()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="field">
+          <label>ステータス</label>
+          <select id="dStatus" onchange="updateField('status',this.value);syncBlockedField()">
+            <option value="new-assigned">New Assigned</option>
+            <option value="in-progress">In Progress</option>
+            <option value="blocked">Blocked</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>優先度</label>
+          <select id="dPriority" onchange="updateField('priority',this.value)">
+            <option value="P0">P0 🔴 緊急</option>
+            <option value="P1">P1 🟠 高</option>
+            <option value="P2">P2 🟡 中</option>
+            <option value="P3">P3 🔵 低</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>担当者</label>
+          <select id="dAssignee" onchange="updateField('assignee',this.value)">
+            <option value="human">👤 human</option>
+            <option value="tech-lead">🔧 tech-lead</option>
+            <option value="frontend-engineer">🎨 frontend-engineer</option>
+            <option value="backend-engineer">⚙️ backend-engineer</option>
+            <option value="qa-engineer">🧪 qa-engineer</option>
+            <option value="content-director">📝 content-director</option>
+            <option value="brand-voice">🎙️ brand-voice</option>
+            <option value="root-cause">🔍 root-cause</option>
+            <option value="anti-ai-slop">🚫 anti-ai-slop</option>
+            <option value="marketing-director">📣 marketing-director</option>
+            <option value="business-strategist">💼 business-strategist</option>
+            <option value="partnership-manager">🤝 partnership-manager</option>
+            <option value="legal-review">⚖️ legal-review</option>
+            <option value="task-dispatcher">📬 task-dispatcher</option>
+            <option value="local-support">🖥️ local-support</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>チーム</label>
+          <select id="dTeam" onchange="updateField('team',this.value)">
+            <option value="engineering">エンジニア</option>
+            <option value="content">コンテンツ</option>
+            <option value="business">ビジネス</option>
+            <option value="infrastructure">インフラ</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>説明</label>
+        <textarea id="dDesc" onblur="updateField('description',this.value)"></textarea>
+      </div>
+      <div class="field" id="dBlockedWrap">
+        <label>ブロック理由</label>
+        <input type="text" id="dBlockedReason" onblur="updateField('blockedReason',this.value)" placeholder="ブロックされている理由">
+      </div>
+      <div class="comments-section">
+        <div class="section-label">コメント</div>
+        <div id="dComments"></div>
+        <div class="comment-form">
+          <textarea id="cInput" placeholder="コメントを追加..."></textarea>
+          <div class="comment-form-bottom">
+            <select id="cAuthor">
+              <option value="human">👤 human</option>
+              <option value="tech-lead">🔧 tech-lead</option>
+              <option value="frontend-engineer">🎨 frontend-engineer</option>
+              <option value="backend-engineer">⚙️ backend-engineer</option>
+              <option value="qa-engineer">🧪 qa-engineer</option>
+              <option value="content-director">📝 content-director</option>
+              <option value="brand-voice">🎙️ brand-voice</option>
+              <option value="root-cause">🔍 root-cause</option>
+              <option value="anti-ai-slop">🚫 anti-ai-slop</option>
+              <option value="marketing-director">📣 marketing-director</option>
+              <option value="business-strategist">💼 business-strategist</option>
+              <option value="partnership-manager">🤝 partnership-manager</option>
+              <option value="legal-review">⚖️ legal-review</option>
+              <option value="task-dispatcher">📬 task-dispatcher</option>
+              <option value="local-support">🖥️ local-support</option>
+            </select>
+            <button class="btn primary" onclick="addComment()">送信</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn danger" onclick="deleteTask()">🗑 削除</button>
+      <button class="btn primary" onclick="closeDetail()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Modal -->
+<div class="overlay hidden" id="createOverlay" onclick="closeCreateIfBg(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">新規タスク作成</span>
+      <button class="modal-close" onclick="closeCreate()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>タイトル *</label>
+        <input type="text" id="cTitle" placeholder="タスクのタイトル">
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>優先度</label>
+          <select id="cPriority">
+            <option value="P1">P1 🟠 高</option>
+            <option value="P0">P0 🔴 緊急</option>
+            <option value="P2">P2 🟡 中</option>
+            <option value="P3">P3 🔵 低</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ステータス</label>
+          <select id="cStatus">
+            <option value="new-assigned">New Assigned</option>
+            <option value="in-progress">In Progress</option>
+            <option value="blocked">Blocked</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>担当者</label>
+          <select id="cAssignee">
+            <option value="human">👤 human</option>
+            <option value="tech-lead">🔧 tech-lead</option>
+            <option value="frontend-engineer">🎨 frontend-engineer</option>
+            <option value="backend-engineer">⚙️ backend-engineer</option>
+            <option value="qa-engineer">🧪 qa-engineer</option>
+            <option value="content-director">📝 content-director</option>
+            <option value="brand-voice">🎙️ brand-voice</option>
+            <option value="root-cause">🔍 root-cause</option>
+            <option value="anti-ai-slop">🚫 anti-ai-slop</option>
+            <option value="marketing-director">📣 marketing-director</option>
+            <option value="business-strategist">💼 business-strategist</option>
+            <option value="partnership-manager">🤝 partnership-manager</option>
+            <option value="legal-review">⚖️ legal-review</option>
+            <option value="task-dispatcher">📬 task-dispatcher</option>
+            <option value="local-support">🖥️ local-support</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>チーム</label>
+          <select id="cTeam">
+            <option value="engineering">エンジニア</option>
+            <option value="content">コンテンツ</option>
+            <option value="business">ビジネス</option>
+            <option value="infrastructure">インフラ</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>説明</label>
+        <textarea id="cDesc" placeholder="詳細説明（任意）"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeCreate()">キャンセル</button>
+      <button class="btn primary" onclick="createTask()">作成</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var STORAGE_KEY = 'ai-agent-tasks-v2';
+var editingId = null;
+var tasks = [];
+
+var DEFAULT_TASKS = [
+  {
+    id: 'T001',
+    title: '動画台本のレビューとブランドボイスチェック',
+    description: '今週公開予定の動画台本について、ブランドガイドラインへの準拠チェックと最終レビューを行う。',
+    status: 'in-progress',
+    priority: 'P1',
+    assignee: 'content-director',
+    assigneeType: 'ai',
+    team: 'content',
+    createdAt: '2026-05-14T09:00:00Z',
+    updatedAt: '2026-05-15T11:00:00Z',
+    comments: [{ author: 'brand-voice', content: 'トーンがやや硬い。カジュアルに調整してほしい。', timestamp: '2026-05-15T10:30:00Z' }],
+    blockedReason: '',
+    tags: []
+  },
+  {
+    id: 'T002',
+    title: 'タスクボードAPIの設計と実装',
+    description: 'AIエージェント間でタスクを共有するためのREST APIを設計・実装する。',
+    status: 'new-assigned',
+    priority: 'P0',
+    assignee: 'tech-lead',
+    assigneeType: 'ai',
+    team: 'engineering',
+    createdAt: '2026-05-15T08:00:00Z',
+    updatedAt: '2026-05-15T08:00:00Z',
+    comments: [],
+    blockedReason: '',
+    tags: []
+  },
+  {
+    id: 'T003',
+    title: '来月のマーケ戦略策定',
+    description: '6月のキャンペーン施策と予算配分計画を策定する。競合他社の動向も踏まえること。',
+    status: 'blocked',
+    priority: 'P1',
+    assignee: 'business-strategist',
+    assigneeType: 'ai',
+    team: 'business',
+    createdAt: '2026-05-13T10:00:00Z',
+    updatedAt: '2026-05-16T09:00:00Z',
+    comments: [{ author: 'human', content: '競合分析を外部ベンダーに依頼中。今週末には届く予定。', timestamp: '2026-05-16T09:00:00Z' }],
+    blockedReason: '競合分析データが未入手',
+    tags: []
+  },
+  {
+    id: 'T004',
+    title: 'inboxの初期セットアップ',
+    description: 'AIエージェントのタスク受信インフラとして、inboxの設定を完了させた。',
+    status: 'done',
+    priority: 'P2',
+    assignee: 'task-dispatcher',
+    assigneeType: 'ai',
+    team: 'infrastructure',
+    createdAt: '2026-05-10T08:00:00Z',
+    updatedAt: '2026-05-12T17:00:00Z',
+    comments: [{ author: 'task-dispatcher', content: 'セットアップ完了。全エージェントに通知済み。', timestamp: '2026-05-12T17:00:00Z' }],
+    blockedReason: '',
+    tags: []
+  },
+  {
+    id: 'T005',
+    title: '夜間QAスクリプトのテスト',
+    description: '毎晩自動実行されるQAスクリプトの動作確認。エッジケースのカバレッジを高める。',
+    status: 'in-progress',
+    priority: 'P2',
+    assignee: 'qa-engineer',
+    assigneeType: 'ai',
+    team: 'engineering',
+    createdAt: '2026-05-14T14:00:00Z',
+    updatedAt: '2026-05-15T20:00:00Z',
+    comments: [],
+    blockedReason: '',
+    tags: []
+  }
+];
+
+var ASSIGNEE_LABELS = {
+  'human': '👤 human',
+  'tech-lead': '🔧 tech-lead',
+  'frontend-engineer': '🎨 frontend-engineer',
+  'backend-engineer': '⚙️ backend-engineer',
+  'qa-engineer': '🧪 qa-engineer',
+  'content-director': '📝 content-director',
+  'brand-voice': '🎙️ brand-voice',
+  'root-cause': '🔍 root-cause',
+  'anti-ai-slop': '🚫 anti-ai-slop',
+  'marketing-director': '📣 marketing-director',
+  'business-strategist': '💼 business-strategist',
+  'partnership-manager': '🤝 partnership-manager',
+  'legal-review': '⚖️ legal-review',
+  'task-dispatcher': '📬 task-dispatcher',
+  'local-support': '🖥️ local-support'
+};
+
+var TEAM_LABELS = {
+  'engineering': 'エンジニア',
+  'content': 'コンテンツ',
+  'business': 'ビジネス',
+  'infrastructure': 'インフラ'
+};
+
+var TEAM_COLORS = {
+  'engineering': '#388bfd',
+  'content': '#b687f7',
+  'business': '#e3b341',
+  'infrastructure': '#3fb950'
+};
+
+function h(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  try {
+    var d = new Date(iso);
+    return d.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch (e) { return iso; }
+}
+
+function load() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      tasks = JSON.parse(raw);
+      return;
+    }
+  } catch (e) {}
+  tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+  save();
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+function nextId() {
+  if (!tasks.length) return 'T001';
+  var max = 0;
+  tasks.forEach(function(t) {
+    var n = parseInt(t.id.replace('T', ''), 10);
+    if (n > max) max = n;
+  });
+  var s = String(max + 1);
+  while (s.length < 3) s = '0' + s;
+  return 'T' + s;
+}
+
+function filtered() {
+  var fa = document.getElementById('filterAssignee').value;
+  var ft = document.getElementById('filterTeam').value;
+  return tasks.filter(function(t) {
+    return (!fa || t.assignee === fa) && (!ft || t.team === ft);
+  });
+}
+
+function render() {
+  var ft = filtered();
+  var cols = ['new-assigned', 'in-progress', 'blocked', 'done'];
+  cols.forEach(function(col) {
+    var list = document.getElementById('list-' + col);
+    var cnt = document.getElementById('cnt-' + col);
+    var colTasks = ft.filter(function(t) { return t.status === col; });
+    cnt.textContent = colTasks.length;
+    if (!colTasks.length) {
+      list.innerHTML = '<div class="empty-col">タスクなし</div>';
+      return;
+    }
+    list.innerHTML = colTasks.map(function(t) { return cardHTML(t); }).join('');
+  });
+  renderStats();
+}
+
+function cardHTML(t) {
+  var blocked = (t.status === 'blocked' && t.blockedReason)
+    ? '<div class="blocked-badge">⛔ ' + h(t.blockedReason) + '</div>' : '';
+  var cc = (t.comments && t.comments.length)
+    ? '<span class="comment-count">💬 ' + t.comments.length + '</span>' : '';
+  var teamLabel = TEAM_LABELS[t.team] || t.team;
+  var assigneeLabel = ASSIGNEE_LABELS[t.assignee] || t.assignee;
+  return '<div class="card" onclick="openDetail(\'' + h(t.id) + '\')">'
+    + '<div class="card-top">'
+    + '<span class="card-id">' + h(t.id) + '</span>'
+    + '<span class="badge ' + h(t.priority) + '">' + h(t.priority) + '</span>'
+    + cc
+    + '</div>'
+    + '<div class="card-title">' + h(t.title) + '</div>'
+    + '<div class="card-meta">'
+    + '<span class="card-assignee">' + h(assigneeLabel) + '</span>'
+    + '<span class="team-tag team-' + h(t.team) + '">' + h(teamLabel) + '</span>'
+    + '</div>'
+    + blocked
+    + '</div>';
+}
+
+function renderStats() {
+  var all = tasks;
+  var bar = document.getElementById('statsBar');
+  var teams = ['engineering', 'content', 'business', 'infrastructure'];
+  var html = '<span>📋 総タスク: <span class="stat-num">' + all.length + '</span></span>';
+  teams.forEach(function(t) {
+    var cnt = all.filter(function(x) { return x.team === t; }).length;
+    var color = TEAM_COLORS[t] || '#888';
+    html += '<span><span class="stat-dot" style="background:' + color + '"></span>'
+      + (TEAM_LABELS[t] || t) + ': <span class="stat-num">' + cnt + '</span></span>';
+  });
+  bar.innerHTML = html;
+}
+
+function openDetail(id) {
+  var t = tasks.find(function(x) { return x.id === id; });
+  if (!t) return;
+  editingId = id;
+  document.getElementById('dId').textContent = t.id;
+  document.getElementById('dTitle').textContent = t.title;
+  document.getElementById('dStatus').value = t.status;
+  document.getElementById('dPriority').value = t.priority;
+  document.getElementById('dAssignee').value = t.assignee;
+  document.getElementById('dTeam').value = t.team;
+  document.getElementById('dDesc').value = t.description || '';
+  document.getElementById('dBlockedReason').value = t.blockedReason || '';
+  syncBlockedField();
+  renderComments(t);
+  document.getElementById('cInput').value = '';
+  document.getElementById('detailOverlay').classList.remove('hidden');
+}
+
+function syncBlockedField() {
+  var status = document.getElementById('dStatus').value;
+  document.getElementById('dBlockedWrap').style.display = status === 'blocked' ? '' : 'none';
+}
+
+function renderComments(t) {
+  var el = document.getElementById('dComments');
+  if (!t.comments || !t.comments.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--text2);padding:4px 0">コメントはまだありません</div>';
+    return;
+  }
+  el.innerHTML = t.comments.map(function(c) {
+    return '<div class="comment-item">'
+      + '<div class="comment-meta">'
+      + '<span class="comment-author">' + h(ASSIGNEE_LABELS[c.author] || c.author) + '</span>'
+      + '<span>' + h(fmtDate(c.timestamp)) + '</span>'
+      + '</div>'
+      + '<div class="comment-text">' + h(c.content) + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function updateField(field, value) {
+  var t = tasks.find(function(x) { return x.id === editingId; });
+  if (!t) return;
+  t[field] = value;
+  t.updatedAt = new Date().toISOString();
+  if (field === 'assignee') t.assigneeType = value === 'human' ? 'human' : 'ai';
+  save();
+  render();
+}
+
+function addComment() {
+  var t = tasks.find(function(x) { return x.id === editingId; });
+  if (!t) return;
+  var content = document.getElementById('cInput').value.trim();
+  if (!content) return;
+  var author = document.getElementById('cAuthor').value;
+  if (!t.comments) t.comments = [];
+  t.comments.push({ author: author, content: content, timestamp: new Date().toISOString() });
+  t.updatedAt = new Date().toISOString();
+  save();
+  renderComments(t);
+  document.getElementById('cInput').value = '';
+  render();
+}
+
+function deleteTask() {
+  if (!confirm('タスク ' + editingId + ' を削除しますか？')) return;
+  tasks = tasks.filter(function(t) { return t.id !== editingId; });
+  save();
+  render();
+  closeDetail();
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.add('hidden');
+  editingId = null;
+}
+
+function closeDetailIfBg(e) {
+  if (e.target === document.getElementById('detailOverlay')) closeDetail();
+}
+
+function openCreate() {
+  document.getElementById('cTitle').value = '';
+  document.getElementById('cDesc').value = '';
+  document.getElementById('createOverlay').classList.remove('hidden');
+  setTimeout(function() { document.getElementById('cTitle').focus(); }, 50);
+}
+
+function closeCreate() {
+  document.getElementById('createOverlay').classList.add('hidden');
+}
+
+function closeCreateIfBg(e) {
+  if (e.target === document.getElementById('createOverlay')) closeCreate();
+}
+
+function createTask() {
+  var title = document.getElementById('cTitle').value.trim();
+  if (!title) { alert('タイトルは必須です'); return; }
+  var now = new Date().toISOString();
+  var assignee = document.getElementById('cAssignee').value;
+  var t = {
+    id: nextId(),
+    title: title,
+    description: document.getElementById('cDesc').value.trim(),
+    status: document.getElementById('cStatus').value,
+    priority: document.getElementById('cPriority').value,
+    assignee: assignee,
+    assigneeType: assignee === 'human' ? 'human' : 'ai',
+    team: document.getElementById('cTeam').value,
+    createdAt: now,
+    updatedAt: now,
+    comments: [],
+    blockedReason: '',
+    tags: []
+  };
+  tasks.unshift(t);
+  save();
+  render();
+  closeCreate();
+}
+
+function doExport() {
+  var data = { version: '1.0', lastUpdated: new Date().toISOString(), tasks: tasks };
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'tasks.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function doImport() {
+  document.getElementById('fileInput').value = '';
+  document.getElementById('fileInput').click();
+}
+
+function onFileImport(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      var data = JSON.parse(ev.target.result);
+      var imported = data.tasks || data;
+      if (!Array.isArray(imported)) throw new Error('tasks配列が見つかりません');
+      tasks = imported;
+      save();
+      render();
+      alert(tasks.length + '件のタスクをインポートしました');
+    } catch (err) {
+      alert('読み込みエラー: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+load();
+render();
+</script>
+</body>
+</html>
