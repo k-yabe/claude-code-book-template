@@ -19,6 +19,21 @@ const HANDOFFS_DIR = path.join(ROOT, 'context', 'context', 'ai-handoffs');
 
 const DRY_RUN = process.argv.includes('--dry-run');
 
+// Organization routing rules: keyword → organization
+const ORG_RULES = [
+  { keywords: ['SHIFT AI', 'ShiftAI', 'シフトAI', '法人事業部'], org: 'shift-ai' },
+  { keywords: ['OTSUNAGI', 'オツナギ', 'カンファレンス事業', 'オンラインカンファレンス'], org: 'otsunagi' },
+  { keywords: ['AKKODiS', 'AKKOiS', 'アッコディス', 'アッコイス', '外資系', '本業'], org: 'akkodis' },
+  { keywords: ['プライベート', 'private', '個人', '私用'], org: 'private' },
+];
+
+function detectOrganization(content) {
+  for (const rule of ORG_RULES) {
+    if (rule.keywords.some(k => content.includes(k))) return rule.org;
+  }
+  return 'akkodis';
+}
+
 // Agent routing rules: keyword → assignee + team
 const ROUTING_RULES = [
   { keywords: ['コード', 'バグ', '実装', 'エラー', 'テスト', 'デプロイ', 'API'], assignee: 'tech-lead', team: 'engineering' },
@@ -99,6 +114,7 @@ function processInbox() {
       const id = nextTaskId(data.tasks);
       const now = new Date().toISOString();
 
+      const organization = detectOrganization(raw);
       const task = {
         id,
         title,
@@ -108,6 +124,7 @@ function processInbox() {
         assignee,
         assigneeType: 'ai',
         team,
+        organization,
         createdAt: now,
         updatedAt: now,
         comments: [{

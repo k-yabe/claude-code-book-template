@@ -269,6 +269,13 @@ select:focus, input[type="text"]:focus, textarea:focus {
       <option value="business">ビジネス</option>
       <option value="infrastructure">インフラ</option>
     </select>
+    <select id="filterOrg" onchange="render()">
+      <option value="">組織: 全て</option>
+      <option value="akkodis">AKKODiS</option>
+      <option value="shift-ai">SHIFT AI</option>
+      <option value="otsunagi">OTSUNAGI</option>
+      <option value="private">プライベート</option>
+    </select>
     <button class="btn primary" onclick="openCreate()">＋ 新規タスク</button>
     <button class="btn" onclick="syncNow()">🔄 同期</button>
     <button class="btn" onclick="doExport()">📤 Export</button>
@@ -716,8 +723,9 @@ function nextId() {
 function filtered() {
   var fa = document.getElementById('filterAssignee').value;
   var ft = document.getElementById('filterTeam').value;
+  var fo = document.getElementById('filterOrg').value;
   return tasks.filter(function(t) {
-    return (!fa || t.assignee === fa) && (!ft || t.team === ft);
+    return (!fa || t.assignee === fa) && (!ft || t.team === ft) && (!fo || t.organization === fo);
   });
 }
 
