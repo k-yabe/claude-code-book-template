@@ -494,8 +494,8 @@
         body: JSON.stringify({
           _user: sessionStorage.getItem('username') || 'unknown',
           _app: 'YouTube Generator',
-          model: 'claude-opus-4-6',
-          max_tokens: 2048,
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1024,
           system: `あなたはAKKODiS JapanのYouTube担当アシスタントです。
 提供された台本・原稿をもとに、YouTube用のタイトル・説明文・ハッシュタグを日本語で生成してください。
 

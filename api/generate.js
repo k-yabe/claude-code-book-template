@@ -22,8 +22,8 @@ export default async function handler(req, res) {
     }
 
     // Server-side guardrail: cap max_tokens to bound spend even if a client
-    // requests a huge value. 8192 covers all current call sites.
-    const MAX_TOKENS_CAP = 8192;
+    // requests a huge value.
+    const MAX_TOKENS_CAP = 4096;
     if (typeof body.max_tokens !== 'number' || body.max_tokens > MAX_TOKENS_CAP) {
       body.max_tokens = MAX_TOKENS_CAP;
     }
