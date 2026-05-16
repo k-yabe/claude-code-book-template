@@ -2,7 +2,8 @@
 """
 AI NEWS 収集スクリプト
 
-複数のRSSフィード（マーケ／市場・業界／AI）を横断取得し、
+AKKODiS コンサルティングの事業領域（ITコンサル・DX支援・エンジニアリング派遣・
+システム開発・技術者育成）に関するRSSフィードを横断取得し、
 Anthropic Claude Haiku で日本語サマリー + タグを生成して
 apps/ai-news/data/news.json と apps/ai-news/data/archives/YYYY-MM-DD.json に保存する。
 
@@ -11,6 +12,7 @@ apps/ai-news/data/news.json と apps/ai-news/data/archives/YYYY-MM-DD.json に�
 - 1ソース失敗で全体を止めない
 - 重複は URL で排除
 - 結果は publishedAt 降順
+- Anthropic API コスト: 月 $5 以内で運用（Claude Haiku 4.5 使用）
 """
 
 from __future__ import annotations
@@ -35,34 +37,29 @@ JST = timezone(timedelta(hours=9))
 UTC = timezone.utc
 
 # ── 監視対象 RSS フィード ──────────────────────────────────────────
-# category: marketing | market | ai
+# category: dx | market | ai
+# AKKODiS コンサルティングの事業領域: ITコンサル・DX支援・エンジニアリング派遣・
+# システム開発・BPO・技術者育成
 SOURCES: list[dict[str, object]] = [
-    # マーケティング系（正統派ニュースメディア優先）
-    {"name": "MarkeZine",                "url": "https://markezine.jp/rt/new.rdf",                            "category": "marketing", "tier": "media", "max": 8},
-    {"name": "Web担当者Forum",            "url": "https://webtan.impress.co.jp/rss/all",                       "category": "marketing", "tier": "media", "max": 8},
-    {"name": "ferret",                   "url": "https://ferret-plus.com/feed",                               "category": "marketing", "tier": "media", "max": 6},
-    {"name": "AdverTimes",               "url": "https://www.advertimes.com/feed/",                            "category": "marketing", "tier": "media", "max": 6},
-    {"name": "DIGIDAY[日本版]",           "url": "https://digiday.jp/feed/",                                    "category": "marketing", "tier": "media", "max": 6},
-    {"name": "AdTech Tokyo (Web担)",      "url": "https://webtan.impress.co.jp/rss/category/37",                "category": "marketing", "tier": "media", "max": 4},
-    # 市場・業界（正統派ニュースメディア）
-    {"name": "電通報",                    "url": "https://dentsu-ho.com/articles.atom",                         "category": "market",    "tier": "media", "max": 6},
-    {"name": "ITmedia マーケティング",    "url": "https://rss.itmedia.co.jp/rss/2.0/marketing.xml",            "category": "market",    "tier": "media", "max": 6},
-    # AI 総合（正統派ニュースメディア）
-    {"name": "ITmedia AI+",              "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",               "category": "ai",        "tier": "media", "max": 8},
-    {"name": "ITmedia NEWS",             "url": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",          "category": "ai",        "tier": "media", "max": 6},
-    {"name": "ASCII.jp",                 "url": "https://ascii.jp/rss.xml",                                    "category": "ai",        "tier": "media", "max": 5},
-    {"name": "Ledge.ai",                 "url": "https://ledge.ai/feed",                                       "category": "ai",        "tier": "media", "max": 6},
-    {"name": "AI-SCHOLAR",               "url": "https://ai-scholar.tech/feed",                                "category": "ai",        "tier": "media", "max": 4},
-    {"name": "日経クロステック AI",        "url": "https://xtech.nikkei.com/rss/xtech-it.rdf",                    "category": "ai",        "tier": "media", "max": 5},
-    {"name": "TECH+ AI",                 "url": "https://news.mynavi.jp/techplus/rss/ai/",                     "category": "ai",        "tier": "media", "max": 4},
-    # テック総合メディア
-    {"name": "Publickey",                "url": "https://www.publickey1.jp/atom.xml",                          "category": "ai",        "tier": "media", "max": 4},
-    {"name": "gihyo.jp",                 "url": "https://gihyo.jp/feed/rss2",                                  "category": "ai",        "tier": "media", "max": 3},
+    # ── AI / 生成AI 総合（コア領域） ──
+    {"name": "ITmedia AI+",              "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",               "category": "ai",  "tier": "media", "max": 8},
+    {"name": "ITmedia NEWS",             "url": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",          "category": "ai",  "tier": "media", "max": 6},
+    {"name": "日経クロステック",           "url": "https://xtech.nikkei.com/rss/xtech-it.rdf",                  "category": "ai",  "tier": "media", "max": 6},
+    {"name": "ASCII.jp",                 "url": "https://ascii.jp/rss.xml",                                    "category": "ai",  "tier": "media", "max": 4},
+    {"name": "Ledge.ai",                 "url": "https://ledge.ai/feed",                                       "category": "ai",  "tier": "media", "max": 5},
+    {"name": "TECH+",                    "url": "https://news.mynavi.jp/techplus/rss/ai/",                     "category": "ai",  "tier": "media", "max": 4},
+    {"name": "Publickey",                "url": "https://www.publickey1.jp/atom.xml",                          "category": "ai",  "tier": "media", "max": 5},
+    # ── DX・ITコンサル・エンタープライズIT（AKKODiS コア事業領域） ──
+    {"name": "EnterpriseZine",           "url": "https://enterprisezine.jp/rss/all",                           "category": "dx",  "tier": "media", "max": 6},
+    {"name": "IT Leaders",               "url": "https://it.impress.co.jp/rss/",                               "category": "dx",  "tier": "media", "max": 5},
+    {"name": "ZDNet Japan",              "url": "https://japan.zdnet.com/rss/index.rdf",                        "category": "dx",  "tier": "media", "max": 5},
+    {"name": "ITmedia エンタープライズ",  "url": "https://rss.itmedia.co.jp/rss/2.0/enterprise.xml",           "category": "dx",  "tier": "media", "max": 5},
+    {"name": "日経コンピュータ",          "url": "https://xtech.nikkei.com/rss/xtech-nc.rdf",                   "category": "dx",  "tier": "media", "max": 4},
+    {"name": "gihyo.jp",                 "url": "https://gihyo.jp/feed/rss2",                                  "category": "dx",  "tier": "media", "max": 3},
     # コミュニティ（各1〜2件のみ採用 → ニュースメディアを圧倒しないように）
-    {"name": "Zenn (生成AI)",             "url": "https://zenn.dev/topics/生成ai/feed",                         "category": "ai",        "tier": "ugc",   "max": 2},
-    {"name": "Zenn (Claude)",            "url": "https://zenn.dev/topics/claude/feed",                         "category": "ai",        "tier": "ugc",   "max": 2},
-    {"name": "Qiita (AI)",               "url": "https://qiita.com/tags/ai/feed",                              "category": "ai",        "tier": "ugc",   "max": 1},
-    {"name": "note (AI)",                "url": "https://note.com/hashtag/AI/rss",                             "category": "ai",        "tier": "ugc",   "max": 1},
+    {"name": "Zenn (生成AI)",             "url": "https://zenn.dev/topics/生成ai/feed",                         "category": "ai",  "tier": "ugc",   "max": 2},
+    {"name": "Zenn (Claude)",            "url": "https://zenn.dev/topics/claude/feed",                         "category": "ai",  "tier": "ugc",   "max": 2},
+    {"name": "Qiita (AI)",               "url": "https://qiita.com/tags/ai/feed",                              "category": "ai",  "tier": "ugc",   "max": 1},
     # ── 競合モニタリング ─────────────────────────────────────────
     # 【経緯】PR TIMES の `freeword/<company>/0/1` は2026/4/22以降、過去 7 日間の
     # 全ログで 0 件。URL パターン廃止 or feed 形式変更が原因と推定。コーポレート公式 RSS
@@ -305,34 +302,49 @@ AI_KEYWORDS_CONTAIN = [
     "バイブコーディング", "AIコーディング", "AIペアプログラミング",
     "AIエディタ", "AI補完",
 ]
-# マーケティング関連キーワード（AI と並んで受け入れる対象）
-MARKETING_KEYWORDS_WORD = [
-    "SEO", "SEM", "CVR", "CTR", "CPA", "CPC", "CPM", "ROAS", "LTV",
-    "CRM", "CDP", "DMP",
-    "MarTech", "AdTech", "HRTech",
-    "ATS",  # Applicant Tracking System（人材業界専門用語）
+# AKKODiS 事業領域キーワード（AI と並んで受け入れる対象）
+# AKKODiS コンサルティングの事業: ITコンサル・DX支援・エンジニアリング派遣・
+# システム開発・BPO・技術者育成（採用支援・採用マーケティングは事業対象外）
+INDUSTRY_KEYWORDS_WORD = [
+    "DX", "BPO", "SES", "RPA",
+    "DevOps", "MLOps", "FinOps",
+    "ERP", "CRM", "SaaS", "IaaS", "PaaS",
+    "SAP", "Salesforce", "ServiceNow",
+    "AWS", "Azure", "GCP",
+    "ITSM", "ITIL",
+    "PMO", "PMP",
 ]
-MARKETING_KEYWORDS_CONTAIN = [
-    # マーケティング専門用語（「ブランド」「配信」「キャンペーン」「プロモーション」等の
-    # generic 語は通信プラン・SIM 契約・家電セールに誤マッチするので含めない。
-    # B2B マーケ視点で意味のある専門用語のみに絞る）
-    "マーケティング", "マーケ",
-    "ブランディング", "コンテンツマーケ", "コンテンツマーケティング",
-    "コンバージョン", "リターゲティング", "リターゲ", "リタゲ",
-    "インフルエンサー", "アフィリエイト",
-    "動画広告", "ディスプレイ広告", "運用型広告", "検索連動",
-    "メルマガ", "ニュースレター",
-    "リード獲得", "リードナーチャ",
-    # Candidate marketing（人材・採用）— AKKODiS のコア
-    "採用広告", "採用マーケ", "採用マーケティング", "リクルート広告",
-    "求人", "人材紹介", "転職", "新卒採用", "中途採用",
-    "エンジニア採用", "タレントマネジメント", "スカウト",
-    "候補者体験", "候補者", "内定",
-    "パーソル", "マイナビ", "エン・ジャパン",
-    "Indeed", "LinkedIn",
+INDUSTRY_KEYWORDS_CONTAIN = [
+    # DX・デジタル変革
+    "デジタルトランスフォーメーション", "デジタル変革", "DX推進", "DX支援",
+    "デジタル化", "デジタル戦略", "デジタル投資",
+    # ITコンサルティング・システム開発
+    "ITコンサル", "ITコンサルティング", "システム開発", "システム構築",
+    "基幹システム", "レガシーシステム", "システム刷新", "システム移行",
+    "SIer", "SI事業", "受託開発", "オフショア開発",
+    "アジャイル開発", "スクラム", "ウォーターフォール",
+    # エンジニアリング派遣・技術者
+    "エンジニアリング派遣", "技術者派遣", "エンジニア派遣",
+    "技術者育成", "エンジニア育成", "技術研修",
+    "リスキリング", "スキルアップ", "スキルトランスフォーメーション",
+    # クラウド・インフラ
+    "クラウド移行", "クラウド活用", "クラウドネイティブ", "マルチクラウド",
+    "クラウドインフラ", "オンプレミス", "ハイブリッドクラウド",
+    # セキュリティ
+    "サイバーセキュリティ", "情報セキュリティ", "セキュリティ対策",
+    "ゼロトラスト", "SIEM", "SOC", "脆弱性",
+    # 業務改革・BPO
+    "業務効率化", "業務改革", "業務自動化", "業務委託",
+    "BPO事業", "アウトソーシング", "シェアードサービス",
+    # IT人材・労働市場
+    "IT人材", "IT人材不足", "技術者不足", "エンジニア不足",
+    "人材市場", "技術者市場", "エンジニア市場",
+    # 業界動向・M&A
+    "IT業界", "SI業界", "ITサービス", "ITソリューション",
+    "M&A", "業務提携", "資本提携", "ジョイントベンチャー",
 ]
 _AI_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in AI_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
-_MKT_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in MARKETING_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
+_IND_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in INDUSTRY_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
 
 # ── AKKODiS 競合モニタリング ──────────────────────────────────────
 # AKKODiS は Adecco Group 傘下の IT サービス / エンジニアリング企業。
@@ -444,7 +456,7 @@ _COMPETITOR_NOISE_URL_PATTERNS = [
     "minkabu.jp/stock",
 ]
 
-# B2B マーケ担当者のインテリジェンス・ブリーフには不要な消費者向け商品記事を
+# AKKODiS 事業部門のインテリジェンス・ブリーフには不要な消費者向け商品記事を
 # 全体からハード除外するためのワード。scrape 段階でフィードから落とす。
 _CONSUMER_NOISE_WORDS = [
     "お買い得", "キャンセル品", "セール品", "値下げ", "値引き", "特価",
@@ -452,7 +464,7 @@ _CONSUMER_NOISE_WORDS = [
     "予約受付中", "予約開始", "新発売", "発売日決定", "開封レビュー",
     "WEB MART", "Direct Shop", "アウトレット",
     "円引き", "円OFF", "割引セール", "期間限定セール",
-    # 消費者向け通信プラン・SIM・端末プロモは B2B マーケ視点で不要
+    # 消費者向け通信プラン・SIM・端末プロモは AKKODiS 事業視点で不要
     "半額キャンペーン", "半額セール", "半額プラン",
     "格安SIM", "MVNO", "格安スマホ", "格安プラン",
     "ガラケー", "パカパカケータイ", "二つ折り携帯", "フィーチャーフォン",
@@ -463,8 +475,7 @@ _CONSUMER_NOISE_WORDS = [
 ]
 
 # B2C インフルエンサー / 芸能 / 化粧品 / 観光 / スポーツ消費者文脈の
-# 「マーケ用語は出るが AKKODiS B2B 案件には無関係」記事を弾くワード。
-# 「インフルエンサー」「ブランディング」自体は B2B 文脈でも使うため、ここでは
+# 「AKKODiS 事業には無関係」な記事を弾くワード。
 # B2C 限定の強いシグナル（ファンダム／推し／化粧品ブランド名／消費者ブランド／
 # スポーツビッグイベント／芸能人不祥事）に絞る。
 _B2C_FLUFF_WORDS = [
@@ -574,29 +585,32 @@ def is_competitor_mention(title: str, summary: str, url: str = "") -> bool:
     return bool(_COMPETITOR_RE.search(hay))
 
 
-def is_ai_related(title: str, summary: str) -> bool:
-    """タイトル + 要約に AI or マーケティング キーワードが含まれているかを判定。
-    「AI NEWS」は AI + マーケ視点でマーケ担当者が毎朝読むメディアなので、
-    両方のトピックを受け入れる。純粋なエンタメ/ガジェット/スポーツは除外。
+def is_relevant(title: str, summary: str) -> bool:
+    """タイトル + 要約に AI or AKKODiS 事業領域キーワードが含まれているかを判定。
+    AKKODiS 事業領域: ITコンサル・DX支援・エンジニアリング派遣・システム開発・BPO・技術者育成。
+    純粋なエンタメ/ガジェット/スポーツは除外。
     """
     hay = (title or "") + " " + (summary or "")
     if _AI_WORD_RE.search(hay):
         return True
     if any(kw in hay for kw in AI_KEYWORDS_CONTAIN):
         return True
-    if _MKT_WORD_RE.search(hay):
+    if _IND_WORD_RE.search(hay):
         return True
-    if any(kw in hay for kw in MARKETING_KEYWORDS_CONTAIN):
+    if any(kw in hay for kw in INDUSTRY_KEYWORDS_CONTAIN):
         return True
     return False
 
+# 後方互換エイリアス（fetch_all 内で参照）
+is_ai_related = is_relevant
+
 
 def relevance_score(title: str, summary: str) -> int:
-    """AI + マーケ両方マッチなら優先（score=2）、片方なら score=1、なしは 0。並び替え用。"""
+    """AI + 業界キーワード両方マッチなら優先（score=2）、片方なら score=1、なしは 0。並び替え用。"""
     hay = (title or "") + " " + (summary or "")
     ai = bool(_AI_WORD_RE.search(hay)) or any(kw in hay for kw in AI_KEYWORDS_CONTAIN)
-    mkt = bool(_MKT_WORD_RE.search(hay)) or any(kw in hay for kw in MARKETING_KEYWORDS_CONTAIN)
-    return (1 if ai else 0) + (1 if mkt else 0)
+    ind = bool(_IND_WORD_RE.search(hay)) or any(kw in hay for kw in INDUSTRY_KEYWORDS_CONTAIN)
+    return (1 if ai else 0) + (1 if ind else 0)
 
 
 def parse_pub(entry: Any) -> datetime | None:
@@ -1083,26 +1097,28 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
     ]
 
     system_prompt = (
-        "あなたはAKKODiS（人材サービス・ITソリューション企業）のB2Bマーケティング担当者向けニュース・インテリジェンス・キュレーターです。"
-        "単なる記事要約ではなく「マーケ担当が明日から何をすべきか」がわかるブリーフを作成します。\n\n"
+        "あなたはAKKODiS コンサルティング（ITコンサル・DX支援・エンジニアリング派遣・システム開発・BPO・技術者育成を手掛けるITサービス企業）の"
+        "事業部門向けニュース・インテリジェンス・キュレーターです。"
+        "単なる記事要約ではなく「AKKODiS の事業担当者が明日から何をすべきか」がわかるブリーフを作成します。\n\n"
         "## 読者コンテキスト\n"
-        "- AKKODiS Japan：採用マーケティング（新卒・中途エンジニア）とB2Bマーケティング（ITソリューション販売）が主業務\n"
-        "- 人材業界・IT業界・同業他社（パーソル、リクルート、ランスタッド等）の動向は特に重要\n"
-        "- AI一般論よりも、マーケ実務に直結するAI活用ニュースを優先\n\n"
+        "- AKKODiS コンサルティング Japan：ITコンサルティング・DX支援・エンジニアリング派遣・システム開発・BPO・技術者育成が主事業\n"
+        "- SIer・ITコンサル・エンジニアリングサービス（テクノプロ、メイテック等）・コンサルファーム（アクセンチュア、NRI等）の動向は特に重要\n"
+        "- AI一般論よりも、DX推進・クラウド・セキュリティ・システム開発に直結するAI活用ニュースを優先\n"
+        "- IT人材市場・リスキリング・技術者育成に関する動向も重要\n\n"
         "## urgency判定の優先基準\n"
-        "1. 採用マーケ・B2Bマーケに直接影響するニュース → must_know候補\n"
-        "2. 人材業界・IT業界・競合の動き → must_know〜this_week\n"
-        "3. マーケツール・広告プラットフォームの重要アップデート → this_week\n"
+        "1. DX・システム開発・エンジニアリング派遣に直接影響するニュース → must_know候補\n"
+        "2. SIer・ITコンサル・競合他社（テクノプロ、アクセンチュア等）の動き → must_know〜this_week\n"
+        "3. AI・クラウド・セキュリティの重要アップデート（企業の意思決定に影響） → this_week\n"
         "4. AI一般論・テック業界の大きな動き → this_week〜fyi\n\n"
         "## 各記事について以下を日本語で生成してください:\n"
         "- summary: 何が起きたかの事実要約（100〜140字）。主語・数値・固有名詞を明記。\n"
-        "- whyItMatters: AKKODiSのマーケ担当にとって具体的に何が変わるか（1文）。"
+        "- whyItMatters: AKKODiSの事業担当者にとって具体的に何が変わるか（1文）。"
         "※summaryの言い換えは禁止。「だから自分たちはどうなるのか」を書く。\n"
         "- actionItem: 推奨アクション（1文、具体的に。誰が・何を・いつまでにの要素を含む）\n"
         "- urgency: must_know（重要ニュース、最大2件）/ this_week（注目ニュース、最大5件）/ fyi（その他）\n"
         "- tags: 3〜5個の日本語タグ\n"
         "- pickerComment: 専門家の視点コメント（1〜2文）。"
-        "マーケ戦略コンサルタントやCMO経験者の立場で、この記事への洞察・補足・注意点を書く。"
+        "ITコンサルタントやDX推進担当のCXO経験者の立場で、この記事への洞察・補足・注意点を書く。"
         "「〜に注目」「〜が鍵」のような定型は避け、具体的な業界知識に基づくコメントにする。\n"
         "- importance: 1=最重要1件のみ、2=押さえるべき5件、3=その他\n"
         "- readMin: 推定読了時間（1〜3分）\n\n"
@@ -1110,15 +1126,15 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         "全記事を俯瞰した**ちょうど3行のサマリー**。**必ず3行生成すること**（この制約は最優先）。\n"
         "各行は「何が起きて、なぜ注目か」を平易な日本語で**完結した1文**にまとめる。\n"
         "**1文の目安は40〜90字**。途中で切れた文や「〜とは」「〜を…」のような体言止め未満は禁止、必ず句点で終わらせる。\n"
-        "専門用語は避け、マーケ部門の誰が読んでもすぐわかる表現にする。\n"
+        "専門用語は避け、事業部門の誰が読んでもすぐわかる表現にする。\n"
         "期限指示（「今日中に〜」等）は入れない。事実と影響のみ。説明や補足は書かない。\n"
-        "**取り上げる対象**: AI / 生成AI / B2B マーケティング / 採用マーケ / "
-        "競合企業（パーソル・リクルート・SIer・コンサル等）の動向。\n"
+        "**取り上げる対象**: AI / 生成AI / DX推進 / ITコンサル / システム開発 / エンジニアリング派遣 / "
+        "競合企業（SIer・コンサルファーム・エンジニアリングサービス等）の動向。\n"
         "**取り上げない**: B2C 商品（飲料・コーラ・コンビニ新商品）、エンタメ（音楽タイアップ・芸能人）、"
         "グルメ・観光・スポーツの新商品ニュース。\n"
         "**3行未満になりそうな時の補い方**: 該当する記事が少なくても 3行は必ず埋める。"
         "個別記事に直接書かれていなくても、本日の記事群から推測できる「AI / IT業界全体の動向」"
-        "「AI ツール導入トレンド」「人材市場の構造変化」など、**抽象度を一段上げた業界マクロ"
+        "「DXトレンド」「IT人材市場の構造変化」など、**抽象度を一段上げた業界マクロ"
         "コメント**で 3 行目（または 2-3 行目）を補ってよい（事実ベースで、推測表現は避ける）。\n\n"
         "煽りや推測は避け、事実ベースで。\n"
         "出力は厳密にJSONのみで、以下の形式に従ってください:\n"
@@ -1138,7 +1154,7 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
     # 失敗時は従来のテキスト JSON フォールバックも残して二重防御。
     BRIEF_TOOL = {
         "name": "produce_brief",
-        "description": "AKKODiS マーケ担当者向けの今日のインテリジェンス・ブリーフを構造化して返す",
+        "description": "AKKODiS 事業部門向けの今日のインテリジェンス・ブリーフを構造化して返す",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -1155,7 +1171,7 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
                         "properties": {
                             "i": {"type": "integer", "description": "入力ペイロードの index"},
                             "summary": {"type": "string", "description": "事実要約（100〜140字）"},
-                            "whyItMatters": {"type": "string", "description": "AKKODiS マーケ担当者にとって何が変わるか（1文）"},
+                            "whyItMatters": {"type": "string", "description": "AKKODiS の事業担当者にとって何が変わるか（1文）"},
                             "actionItem": {"type": "string", "description": "推奨アクション（誰が・何を・いつまでに、を含む1文）"},
                             "pickerComment": {"type": "string", "description": "専門家視点の洞察コメント（1〜2文）"},
                             "urgency": {"type": "string", "enum": ["must_know", "this_week", "fyi"]},

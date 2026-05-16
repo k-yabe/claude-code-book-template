@@ -12,15 +12,15 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AI NEWS">
   <!-- OGP / Twitter Card（社内シェア時のプレビュー用） -->
-  <meta property="og:title" content="AI NEWS — マーケティング・インテリジェンス・ブリーフ">
-  <meta property="og:description" content="毎朝の AI × マーケ最重要ニュースを「何が起きた？なぜ重要？何をすべき？」まで5分で把握。音声ダイジェスト対応。">
+  <meta property="og:title" content="AI NEWS — AKKODiS インテリジェンス・ブリーフ">
+  <meta property="og:description" content="毎朝の AI × DX・ITコンサル・エンジニアリング派遣に関する最重要ニュースを「何が起きた？なぜ重要？何をすべき？」まで5分で把握。音声ダイジェスト対応。">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="AKKODiS マーケティングアプリ">
+  <meta property="og:site_name" content="AKKODiS インテリジェンス">
   <meta property="og:locale" content="ja_JP">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AI NEWS — マーケティング・インテリジェンス・ブリーフ">
-  <meta name="twitter:description" content="AI × マーケ最重要ニュースを毎朝 5分で。音声ダイジェスト対応。">
-  <meta name="description" content="AI × マーケの最重要ニュースを毎朝 5分で把握。「何が起きた？なぜ重要？何をすべき？」で意思決定を加速。音声ダイジェスト対応。">
+  <meta name="twitter:title" content="AI NEWS — AKKODiS インテリジェンス・ブリーフ">
+  <meta name="twitter:description" content="AI × DX・ITコンサル・エンジニアリング派遣の最重要ニュースを毎朝 5分で。音声ダイジェスト対応。">
+  <meta name="description" content="AI × DX・ITコンサル・エンジニアリング派遣の最重要ニュースを毎朝 5分で把握。「何が起きた？なぜ重要？何をすべき？」で意思決定を加速。音声ダイジェスト対応。">
   <link rel="stylesheet" href="../../assets/app-styles.css?v=20260501">
   <!-- LCP/TBT 改善: news.json をプリフェッチして JS の loadRemote() が即座に解決するようにする -->
   <link rel="preload" as="fetch" href="./data/news.json" crossorigin="anonymous">
@@ -50,7 +50,7 @@
     <!-- ヒーロー -->
     <section class="hero">
       <div class="hero-left">
-        <div class="hero-eyebrow" id="hero-greeting" data-ja="マーケティング・インテリジェンス・ブリーフ" data-en="Marketing Intelligence Brief">マーケティング・インテリジェンス・ブリーフ</div>
+        <div class="hero-eyebrow" id="hero-greeting" data-ja="AKKODiS インテリジェンス・ブリーフ" data-en="AKKODiS Intelligence Brief">AKKODiS インテリジェンス・ブリーフ</div>
         <div class="hero-title"><span class="hero-pulse"></span><span data-ja="何が起きた？ なぜ重要？ 何をすべき？" data-en="What happened? Why it matters? What to do?">何が起きた？ なぜ重要？ 何をすべき？</span></div>
         <div class="hero-live-row" aria-label="最終更新">
           <span class="hero-live-dot" aria-hidden="true"></span>
@@ -227,7 +227,7 @@
         </div>
         <div class="dn-item">
           <div class="dn-label" data-ja="要約・採点" data-en="Summarization">要約・採点</div>
-          <div class="dn-value" data-ja="Claude Haiku 4.5（マーケ視点）" data-en="Claude Haiku 4.5 (marketing perspective)">Claude Haiku 4.5（マーケ視点）</div>
+          <div class="dn-value" data-ja="Claude Haiku 4.5（DX・ITコンサル視点）" data-en="Claude Haiku 4.5 (DX &amp; IT consulting perspective)">Claude Haiku 4.5（DX・ITコンサル視点）</div>
         </div>
         <div class="dn-item">
           <div class="dn-label" data-ja="音声ダイジェスト" data-en="Audio Digest">音声ダイジェスト</div>
@@ -305,18 +305,18 @@
   <script>
     if (window.initOnboarding) initOnboarding({
       appName: 'ai-news',
-      title: 'AI NEWS — マーケティング・インテリジェンス・ブリーフ',
+      title: 'AI NEWS — AKKODiS インテリジェンス・ブリーフ',
       description: 'ニュースを届けるのではなく、判断材料を届ける。「何が起きた？」「なぜ重要？」「何をすべき？」まで一気通貫',
       features: [
         { icon: '📋', text: '今日の3行サマリー：毎朝3行で全体像をつかめる' },
-        { icon: '🔥', text: '本日の主要ニュース：大手メディア発の AI×マーケ最重要トピックをマーケ視点の影響＋推奨アクションと共に提示' },
+        { icon: '🔥', text: '本日の主要ニュース：AI・DX・ITコンサル・エンジニアリング派遣の最重要トピックを事業担当者視点の影響＋推奨アクションと共に提示' },
         { icon: '⚡', text: '注目ニュース：チェックしておきたいトピックをカード形式で' },
         { icon: '🏢', text: '競合動向：AKKODiS 主要競合 50+社（NTTデータ/富士通/アクセンチュア/テクノプロ/SHIFT 等の SIer・IT コンサル・エンジニアリング派遣）のプレスリリース・関連記事を自動抽出' }
       ],
       updates: [
-        { date: '05/16', text: '🔗 ニュース参照元を修正。Google News RSS 経由で収集した記事の URL を実記事 URL へ解決し、媒体名も「Google News (X)」→ 実媒体名（ITmedia / 日経クロステック 等）に正規化。全セクションで「元記事を読む」が正しく動くように' },
-        { date: '05/16', text: '🌐 JA/EN 切り替えでページ内すべての静的テキストも即時翻訳。セクション見出し・ボタン・検索プレースホルダー・データパイプライン説明まで対応' },
-        { date: '05/15', text: '🎙 音声ダイジェストをプロアナウンサー声（Google Cloud TTS Chirp3-HD-Kore）に変更。JA/EN 両言語の音声ダイジェストを生成・切り替え対応' }
+        { date: '05/16', text: '🎯 コンテンツ方針を刷新。BtoBマーケ→AKKODiS事業領域（DX・ITコンサル・エンジニアリング派遣・システム開発・BPO・技術者育成）に特化。ニュースソース・キーワード・AI要約の観点をすべて事業視点に最適化' },
+        { date: '05/16', text: '🔗 ニュース参照元を修正。Google News RSS 経由で収集した記事の URL を実記事 URL へ解決し、媒体名も「Google News (X)」→ 実媒体名（ITmedia / 日経クロステック 等）に正規化' },
+        { date: '05/16', text: '🌐 JA/EN 切り替えでページ内すべての静的テキストも即時翻訳。セクション見出し・ボタン・検索プレースホルダー・データパイプライン説明まで対応' }
       ]
     });
 
