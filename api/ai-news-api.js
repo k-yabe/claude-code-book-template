@@ -19,6 +19,7 @@
  * GET /api/ai-news-api?action=xtrends にも対応（GET キャッシュで 1 時間）
  */
 import { mapAnthropicError } from './_anthropic-error.js';
+import { checkBudget, recordCost } from './_budget.js';
 
 export default async function handler(req, res) {
   // xtrends は GET/POST 両方受ける（GET なら CDN キャッシュが効きやすい）

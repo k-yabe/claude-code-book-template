@@ -1,4 +1,5 @@
 import { mapAnthropicError } from './_anthropic-error.js';
+import { checkBudget, recordCost, MONTHLY_BUDGET_USD } from './_budget.js';
 
 // Multi-turn chat helper: stamp cache_control on the last user message so the
 // growing conversation prefix is read at ~10% cost on subsequent turns.
@@ -472,6 +473,11 @@ export default async function handler(req, res) {
   }
 
   try {
+    const budget = await checkBudget();
+    if (!budget.allowed) {
+      return res.status(429).json({ error: `月額API予算（$${MONTHLY_BUDGET_USD}）に達しました。翌月までお待ちください。` });
+    }
+
     let messages;
     let model;
     let systemPrompt;
@@ -518,6 +524,7 @@ export default async function handler(req, res) {
       }
 
       const data = await response.json();
+      if (data.usage) await recordCost(model, data.usage);
       const rawText = data.content?.[0]?.text || '';
 
       // ##SUGGESTIONS## と ##CONTEXT_READY## マーカーを解析
@@ -736,6 +743,7 @@ heading, subtext, cta-button, cta-with-note, hero-image, placeholder-image, icon
     }
 
     const data = await response.json();
+    if (data.usage) await recordCost(model, data.usage);
     const rawText = data.content?.[0]?.text || '';
 
     const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/) || rawText.match(/(\{[\s\S]*\})/);
