@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-05-16T00:00:00Z",
+  "lastUpdated": "2026-05-16T08:00:00Z",
   "tasks": [
     {
       "id": "T001",
@@ -11,6 +11,7 @@
       "assignee": "tech-lead",
       "assigneeType": "ai",
       "team": "engineering",
+      "organization": "akkodis",
       "createdAt": "2026-05-16T08:00:00Z",
       "updatedAt": "2026-05-16T10:30:00Z",
       "comments": [
@@ -31,18 +32,19 @@
     {
       "id": "T002",
       "title": "エージェント設定ファイルの初期レビュー",
-      "description": "agents/ 配下に作成した全エージェント定義ファイル（tech-lead / qa-engineer / content-director / task-dispatcher）を QA Engineer がレビューし、定義の不整合・抜け漏れ・矛盾を洗い出す。特に自律判断範囲とエスカレーション先の整合性を確認する。",
+      "description": "agents/ 配下に作成した全エージェント定義ファイルをQA Engineerがレビューし、定義の不整合・抜け漏れ・矛盾を洗い出す。",
       "status": "new-assigned",
       "priority": "P1",
       "assignee": "qa-engineer",
       "assigneeType": "ai",
       "team": "engineering",
+      "organization": "akkodis",
       "createdAt": "2026-05-16T10:31:00Z",
       "updatedAt": "2026-05-16T10:31:00Z",
       "comments": [
         {
           "author": "task-dispatcher",
-          "content": "エージェント定義の初期セットアップ完了後に自動登録。定義の整合性チェックは QA が適切と判断。",
+          "content": "エージェント定義の初期セットアップ完了後に自動登録。",
           "timestamp": "2026-05-16T10:31:00Z"
         }
       ],
@@ -52,12 +54,13 @@
     {
       "id": "T003",
       "title": "タスクボードの動作テスト：タスク作成〜完了フローの検証",
-      "description": "tasks/tasks.json を使ったタスク管理フローを実際に検証する。inbox にメモを書き → Task Dispatcher がタスクを作成 → Tech Lead がアサイン → 実行 → done に更新、という一連のフローが正しく機能するかを確認する。",
+      "description": "inbox にメモを書き → Task Dispatcher がタスクを作成 → 実行 → done に更新、という一連のフローが正しく機能するかを確認する。",
       "status": "in-progress",
       "priority": "P2",
       "assignee": "task-dispatcher",
       "assigneeType": "ai",
       "team": "infrastructure",
+      "organization": "akkodis",
       "createdAt": "2026-05-16T09:00:00Z",
       "updatedAt": "2026-05-16T11:00:00Z",
       "comments": [
@@ -73,41 +76,38 @@
     {
       "id": "T004",
       "title": "コンテンツチーム：Brand Voice ガイドラインの初版作成",
-      "description": "brand-voice.md エージェントが参照するブランドボイスガイドラインを context/context/ または agents/content/ 配下に作成する。使用するトーン（カジュアル/フォーマル）・禁止ワード・推奨表現・ターゲット読者を定義する。",
+      "description": "brand-voice エージェントが参照するブランドボイスガイドラインを作成する。使用するトーン・禁止ワード・推奨表現・ターゲット読者を定義する。",
       "status": "new-assigned",
       "priority": "P2",
       "assignee": "content-director",
       "assigneeType": "ai",
       "team": "content",
+      "organization": "akkodis",
       "createdAt": "2026-05-16T10:00:00Z",
       "updatedAt": "2026-05-16T10:00:00Z",
       "comments": [
         {
           "author": "task-dispatcher",
-          "content": "コンテンツチームのセットアップタスクとして登録。brand-voice エージェントが機能するには参照ガイドラインが必要なため。",
+          "content": "コンテンツチームのセットアップタスクとして登録。",
           "timestamp": "2026-05-16T10:00:00Z"
         }
       ],
       "blockedReason": "",
-      "tags": ["content", "brand-voice", "setup", "documentation"]
+      "tags": ["content", "brand-voice", "setup"]
     },
     {
       "id": "T005",
       "title": "朝のレポート自動生成スクリプトの設定",
-      "description": "Task Dispatcher が毎朝 07:00 に自動でデイリーレポートを生成する仕組みを構築する。GitHub Actions または launchd を使い、tasks.json のサマリーとブロック中タスク・P0/P1タスクを context/inbox/morning-report-YYYY-MM-DD.md に出力する。",
+      "description": "毎朝自動でデイリーレポートを生成する仕組みを構築する。",
       "status": "blocked",
       "priority": "P2",
       "assignee": "tech-lead",
       "assigneeType": "ai",
       "team": "engineering",
+      "organization": "akkodis",
       "createdAt": "2026-05-16T08:30:00Z",
       "updatedAt": "2026-05-16T12:00:00Z",
       "comments": [
-        {
-          "author": "task-dispatcher",
-          "content": "自動化の仕組みはインフラ権限が必要。GitHub Actions の secrets 設定と Vercel 連携の承認待ち。",
-          "timestamp": "2026-05-16T08:30:00Z"
-        },
         {
           "author": "tech-lead",
           "content": "GitHub Actions のワークフロー設計は完了。ANTHROPIC_API_KEY を GitHub Secrets に設定する権限が人間側にあるため、承認を待っている状態。",
@@ -115,7 +115,29 @@
         }
       ],
       "blockedReason": "GitHub Secrets への ANTHROPIC_API_KEY 設定が未完了。人間（プロジェクトオーナー）の承認と設定操作が必要。",
-      "tags": ["automation", "infrastructure", "github-actions", "daily-report"]
+      "tags": ["automation", "infrastructure", "daily-report"]
+    },
+    {
+      "id": "T006",
+      "title": "来月のウェビナーに向けて、メール・LP・SNSのコンテンツを用意したい。",
+      "description": "来月のウェビナーに向けて、メール・LP・SNSのコンテンツを用意したい。\nターゲットはB2BのITマネージャー層。",
+      "status": "new-assigned",
+      "priority": "P2",
+      "assignee": "content-director",
+      "assigneeType": "ai",
+      "team": "content",
+      "organization": "akkodis",
+      "createdAt": "2026-05-16T07:07:00Z",
+      "updatedAt": "2026-05-16T07:07:00Z",
+      "comments": [
+        {
+          "author": "task-dispatcher",
+          "content": "inbox/ウェビナー集客のコンテンツを作りたい.md から自動生成",
+          "timestamp": "2026-05-16T07:07:00Z"
+        }
+      ],
+      "blockedReason": "",
+      "tags": []
     }
   ]
 }
