@@ -281,6 +281,7 @@ select:focus, input[type="text"]:focus, textarea:focus {
     <button class="btn" onclick="syncNow()">🔄 同期</button>
     <button class="btn" onclick="doExport()">📤 エクスポート</button>
     <button class="btn" onclick="promptPAT()" id="patBtn">🔑 トークン設定</button>
+    <button class="btn" onclick="openHelp()">❓ 使い方</button>
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="onFileImport(event)">
     <span id="syncStatus" style="font-size:11px;color:#8b949e;white-space:nowrap"></span>
   </div>
@@ -497,6 +498,126 @@ select:focus, input[type="text"]:focus, textarea:focus {
     <div class="modal-footer">
       <button class="btn" onclick="closeCreate()">キャンセル</button>
       <button class="btn primary" onclick="createTask()">作成</button>
+    </div>
+  </div>
+</div>
+
+<!-- Help Modal -->
+<div class="overlay hidden" id="helpOverlay" onclick="closeHelpIfBg(event)">
+  <div class="modal" style="max-width:640px;max-height:85vh;overflow-y:auto">
+    <div class="modal-header">
+      <span class="modal-title">❓ タスクボードの使い方</span>
+      <button class="modal-close" onclick="closeHelp()">&#x2715;</button>
+    </div>
+    <div class="modal-body" style="font-size:13px;line-height:1.8">
+
+      <div style="background:#1a2332;border-radius:8px;padding:14px;margin-bottom:16px">
+        <div style="font-weight:700;color:#58a6ff;margin-bottom:8px">🤖 このボードとは？</div>
+        <div>AIエージェント（AIスタッフ）と自分のタスクを一覧で管理するカンバンボードです。<br>
+        Obsidianのinboxにメモを書くと、自動でここにタスクが追加されます。</div>
+      </div>
+
+      <div style="font-weight:700;color:#e6edf3;margin-bottom:10px">📋 カラムの意味</div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+        <tr style="background:#1a2332">
+          <td style="padding:8px 10px;border-bottom:1px solid #30363d;white-space:nowrap">📬 <b>未着手</b></td>
+          <td style="padding:8px 10px;border-bottom:1px solid #30363d">タスクが割り振られたが、まだ誰も着手していない状態</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 10px;border-bottom:1px solid #30363d;white-space:nowrap">🔄 <b>進行中</b></td>
+          <td style="padding:8px 10px;border-bottom:1px solid #30363d">AIまたは自分が今作業している状態</td>
+        </tr>
+        <tr style="background:#1a2332">
+          <td style="padding:8px 10px;border-bottom:1px solid #30363d;white-space:nowrap">🚨 <b>要確認</b></td>
+          <td style="padding:8px 10px;border-bottom:1px solid #30363d"><b>AIが判断できず止まっている状態。ここに溜まったら要対応！</b><br>カードを開いて理由を確認し、指示や判断をコメントに追記してください</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 10px;white-space:nowrap">✅ <b>完了</b></td>
+          <td style="padding:8px 10px">タスクが完了した状態</td>
+        </tr>
+      </table>
+
+      <div style="font-weight:700;color:#e6edf3;margin-bottom:10px">🚀 基本の使い方（3ステップ）</div>
+      <div style="background:#1a2332;border-radius:8px;padding:14px;margin-bottom:16px">
+        <div style="margin-bottom:10px">
+          <span style="background:#58a6ff;color:#000;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;margin-right:6px">1</span>
+          <b>Obsidian の inbox にメモを書く</b>
+        </div>
+        <div style="color:#8b949e;padding-left:26px;margin-bottom:10px">
+          左サイドバーの <code style="background:#30363d;padding:1px 5px;border-radius:3px">inbox/</code> フォルダを右クリック → 新規ノート → タイトルにやりたいことを一言で書く
+        </div>
+        <div style="margin-bottom:10px">
+          <span style="background:#58a6ff;color:#000;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;margin-right:6px">2</span>
+          <b>5分待つ（MacBookが起動中の場合）</b>
+        </div>
+        <div style="color:#8b949e;padding-left:26px;margin-bottom:10px">
+          自動でタスクが生成されてここに表示されます。すぐ確認したい場合は 🔄 同期 ボタンを押してください
+        </div>
+        <div style="margin-bottom:6px">
+          <span style="background:#58a6ff;color:#000;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;margin-right:6px">3</span>
+          <b>このボードで進捗を確認する</b>
+        </div>
+        <div style="color:#8b949e;padding-left:26px">
+          カードをクリックするとステータス変更・コメント追記ができます
+        </div>
+      </div>
+
+      <div style="font-weight:700;color:#e6edf3;margin-bottom:10px">🔤 担当の自動振り分けルール</div>
+      <div style="color:#8b949e;margin-bottom:8px">メモにキーワードを入れると担当AIスタッフが自動で決まります：</div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px">
+        <tr style="background:#1a2332">
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d">記事・ブログ・動画・台本・コンテンツ</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d;white-space:nowrap">✍️ コンテンツチーム</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d">マーケ・マーケティング・SNS・プロモ</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d;white-space:nowrap">📣 マーケチーム</td>
+        </tr>
+        <tr style="background:#1a2332">
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d">戦略・事業・ビジネス・収益</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d;white-space:nowrap">💡 ビジネスチーム</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d">契約・法的・リーガル・規約</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d;white-space:nowrap">⚖️ 法務</td>
+        </tr>
+        <tr style="background:#1a2332">
+          <td style="padding:6px 10px">コード・バグ・実装・API・UI・デザイン</td>
+          <td style="padding:6px 10px;white-space:nowrap">🛠️ エンジニアチーム</td>
+        </tr>
+      </table>
+
+      <div style="font-weight:700;color:#e6edf3;margin-bottom:10px">⚙️ ボタンの説明</div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px">
+        <tr style="background:#1a2332">
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d;white-space:nowrap">＋ 新規タスク</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d">手動でタスクを作成する</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d;white-space:nowrap">🔄 同期</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d">GitHubから最新タスクを今すぐ読み込む</td>
+        </tr>
+        <tr style="background:#1a2332">
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d;white-space:nowrap">📤 エクスポート</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #30363d">タスクデータをJSONファイルで保存する</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 10px;white-space:nowrap">🔑 トークン設定</td>
+          <td style="padding:6px 10px">GitHubのPersonal Access Tokenを設定する（初回のみ必要）</td>
+        </tr>
+      </table>
+
+      <div style="background:#1a2332;border-radius:8px;padding:14px">
+        <div style="font-weight:700;color:#f85149;margin-bottom:6px">⚠️ 注意事項</div>
+        <ul style="padding-left:16px;color:#8b949e;font-size:12px">
+          <li>MacBookがスリープ・電源オフの場合、自動タスク化は動きません</li>
+          <li>このボードはどのデバイスからでも閲覧できます（GitHub PATが必要）</li>
+          <li>60秒ごとに自動で最新データを読み込みます</li>
+        </ul>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn primary" onclick="closeHelp()">閉じる</button>
     </div>
   </div>
 </div>
@@ -874,6 +995,16 @@ function openCreate() {
 
 function closeCreate() {
   document.getElementById('createOverlay').classList.add('hidden');
+}
+
+function openHelp() {
+  document.getElementById('helpOverlay').classList.remove('hidden');
+}
+function closeHelp() {
+  document.getElementById('helpOverlay').classList.add('hidden');
+}
+function closeHelpIfBg(e) {
+  if (e.target === document.getElementById('helpOverlay')) closeHelp();
 }
 
 function closeCreateIfBg(e) {
