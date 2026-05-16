@@ -2,6 +2,7 @@
 // Routed by ?action= query parameter
 
 import { mapAnthropicError } from './_anthropic-error.js';
+import { checkBudget, recordCost, MONTHLY_BUDGET_USD } from './_budget.js';
 
 // Multi-turn chat helper: stamp cache_control on the last user message so the
 // growing conversation prefix is read at ~10% cost on subsequent turns.
@@ -130,6 +131,11 @@ async function handleFactcheck(req, res) {
   const slideText = parts.join('\n');
 
   try {
+    const budget = await checkBudget();
+    if (!budget.allowed) {
+      return res.status(429).json({ error: `月額API予算（$${MONTHLY_BUDGET_USD}）に達しました。翌月までお待ちください。` });
+    }
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -162,6 +168,7 @@ async function handleFactcheck(req, res) {
     }
 
     const data = await response.json();
+    if (data.usage) await recordCost('claude-haiku-4-5-20251001', data.usage);
     const textBlocks = (data.content || []).filter(b => b.type === 'text');
     const rawText = textBlocks.map(b => b.text).join('');
 
@@ -488,6 +495,11 @@ async function handleGenerate(req, res) {
   }
 
   try {
+    const budget = await checkBudget();
+    if (!budget.allowed) {
+      return res.status(429).json({ error: `月額API予算（$${MONTHLY_BUDGET_USD}）に達しました。翌月までお待ちください。` });
+    }
+
     let messages;
     let model;
     let systemPrompt;
@@ -539,6 +551,7 @@ async function handleGenerate(req, res) {
       }
 
       const data = await response.json();
+      if (data.usage) await recordCost(model, data.usage);
       const textBlocks = (data.content || []).filter(b => b.type === 'text');
       const rawText = textBlocks.map(b => b.text).join('');
       const citations = textBlocks
@@ -687,6 +700,7 @@ ${supplement ? `- 補足データ・根拠（グラフに使える場合は cont
     }
 
     const data = await response.json();
+    if (data.usage) await recordCost(model, data.usage);
     const rawText = data.content?.[0]?.text || '';
 
     const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/) || rawText.match(/(\{[\s\S]*\})/);
