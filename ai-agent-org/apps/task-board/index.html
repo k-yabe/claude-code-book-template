@@ -678,7 +678,7 @@ function cardHTML(t) {
     ? '<span class="comment-count">💬 ' + t.comments.length + '</span>' : '';
   var teamLabel = TEAM_LABELS[t.team] || t.team;
   var assigneeLabel = ASSIGNEE_LABELS[t.assignee] || t.assignee;
-  return '<div class="card" onclick="openDetail(\'' + h(t.id) + '\')">'
+  return '<div class="card" onclick="openDetail(\'' + h(t.id) + '\')">' 
     + '<div class="card-top">'
     + '<span class="card-id">' + h(t.id) + '</span>'
     + '<span class="badge ' + h(t.priority) + '">' + h(t.priority) + '</span>'
