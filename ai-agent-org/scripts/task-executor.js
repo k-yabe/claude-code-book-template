@@ -19,7 +19,6 @@ const ROOT = path.join(__dirname, '..');
 const TASKS_FILE = path.join(ROOT, 'tasks', 'tasks.json');
 const CONTEXT_DIR = path.join(ROOT, 'context', 'context');
 const PROJECTS_DIR = path.join(ROOT, 'context', 'projects');
-const HANDOFFS_DIR = path.join(CONTEXT_DIR, 'ai-handoffs');
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const LIMIT = (() => {
@@ -45,6 +44,15 @@ const AGENT_MODELS = {
   'legal-review': 'claude-haiku-4-5-20251001',
   'task-dispatcher': 'claude-haiku-4-5-20251001',
 };
+
+// Web検索が有用なエージェント（調査・リサーチ系）
+const WEB_SEARCH_AGENTS = new Set([
+  'content-director',
+  'marketing-director',
+  'business-strategist',
+  'tech-lead',
+  'legal-review',
+]);
 
 function loadTasks() {
   return JSON.parse(fs.readFileSync(TASKS_FILE, 'utf-8'));
@@ -100,15 +108,6 @@ ${designGuide}
 `;
 }
 
-// Web検索が有用なエージェント（調査・リサーチ系）
-const WEB_SEARCH_AGENTS = new Set([
-  'content-director',
-  'marketing-director',
-  'business-strategist',
-  'tech-lead',
-  'legal-review',
-]);
-
 async function processTask(task) {
   const model = AGENT_MODELS[task.assignee] || 'claude-sonnet-4-6';
   const systemPrompt = buildSystemPrompt(task);
@@ -129,18 +128,18 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
 
 タスクを実行し、成果物または実行結果を日本語でまとめてください。
 成果物がある場合（文章・コード・資料など）は全文を出力してください。
-判断が必要で人間の確認が必要な場合は、その旨と理由を明記してください。
-${useWebSearch ? '\n最新情報が必要な場合は積極的にweb_searchツールを使って検索してください。' : ''}`;
+判断が必要で人間の確認が必要な場合は、その旨と理由を明記してください。${useWebSearch ? '\n最新情報が必要な場合は積極的にweb_searchツールを使って調査してください。' : ''}`;
 
   console.log(`\n処理中: ${task.id} "${task.title}" → ${task.assignee} (${model})${useWebSearch ? ' [Web検索有効]' : ''}`);
 
-  const tools = useWebSearch ? [{ type: 'web_search_20260209', name: 'web_search', allowed_callers: ['direct'] }] : undefined;
+  const tools = useWebSearch
+    ? [{ type: 'web_search_20260209', name: 'web_search', allowed_callers: ['direct'] }]
+    : undefined;
   const betas = useWebSearch ? ['web-search-2025-03-05'] : undefined;
 
   const messages = [{ role: 'user', content: userMessage }];
   let result = '';
 
-  // tool_use ループ（Web検索が発生する場合に対応）
   for (let i = 0; i < 10; i++) {
     const reqParams = {
       model,
@@ -154,40 +153,55 @@ ${useWebSearch ? '\n最新情報が必要な場合は積極的にweb_searchツ�
       ? client.beta.messages.create({ ...reqParams, betas })
       : client.messages.create(reqParams));
 
+    console.log(`  ターン${i + 1}: stop_reason=${response.stop_reason}, blocks=${response.content.map(b => b.type).join(',')}`);
+
+    // 全ターンのテキストを蓄積
+    const textBlocks = response.content.filter(b => b.type === 'text');
+    if (textBlocks.length > 0) {
+      const newText = textBlocks.map(b => b.text).join('\n\n');
+      result = result ? result + '\n\n' + newText : newText;
+    }
+
     messages.push({ role: 'assistant', content: response.content });
 
     if (response.stop_reason === 'end_turn') {
-      const textBlocks = response.content.filter(b => b.type === 'text');
-      result = textBlocks.map(b => b.text).join('\n\n');
       break;
     }
 
     if (response.stop_reason === 'tool_use') {
       const toolUseBlocks = response.content.filter(b => b.type === 'tool_use');
-      console.log(`  → tool_use: ${toolUseBlocks.map(b => b.name).join(', ')} (ターン${i + 1})`);
       const hasWebSearch = toolUseBlocks.some(b => b.name === 'web_search');
-      const hasServerResults = response.content.some(b => b.type === 'web_search_result');
+
       if (hasWebSearch) {
-        // web_search はサーバーサイド実行: tool_result なしで次のターンへ
-        if (!hasServerResults) {
-          // 結果がまだない → assistantメッセージを追加して次のAPIコールで結果が来る
-          // ただしAPIにはassistantメッセージで終わらせられないので空のuser messageを追加
-          messages.push({ role: 'user', content: [{ type: 'tool_result', tool_use_id: toolUseBlocks[0].id, content: '検索を実行してください。' }] });
+        // web_search はサーバーサイド実行
+        // web_search_result が既にレスポンスに含まれていれば継続
+        const hasResults = response.content.some(b => b.type === 'web_search_result');
+        if (hasResults) {
+          // 結果あり → 次のAPIコールでモデルが最終回答を生成
+          messages.push({ role: 'user', content: 'search_resultを踏まえて最終的な回答を日本語でまとめてください。' });
+        } else {
+          // 結果なし → tool_resultを返してサーバーに検索させる
+          const toolResults = toolUseBlocks
+            .filter(b => b.name === 'web_search')
+            .map(b => ({ type: 'tool_result', tool_use_id: b.id, content: '' }));
+          messages.push({ role: 'user', content: toolResults });
         }
         continue;
       }
-      continue;
+
+      // web_search 以外のツール（現在は使用しないが念のため）
+      break;
     }
 
-    // その他の stop_reason (max_tokens など)
-    const textBlocks = response.content.filter(b => b.type === 'text');
-    result = textBlocks.map(b => b.text).join('\n\n');
+    // max_tokens などその他の stop_reason
     break;
   }
 
-  // 人間の確認が必要かどうか判定
-  const needsHuman = /人間の確認|判断が必要|承認が必要|確認をお願い|ブロック/.test(result);
+  if (!result) {
+    throw new Error('AIからの応答が空でした');
+  }
 
+  const needsHuman = /人間の確認|判断が必要|承認が必要|確認をお願い|ブロック/.test(result);
   return { result, needsHuman };
 }
 
@@ -195,9 +209,10 @@ function saveOutput(task, result) {
   if (DRY_RUN) return null;
   if (!fs.existsSync(PROJECTS_DIR)) fs.mkdirSync(PROJECTS_DIR, { recursive: true });
   const dateStr = new Date().toISOString().split('T')[0];
+  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
   const filename = `${task.id}-${dateStr}-output.md`;
   const outputPath = path.join(PROJECTS_DIR, filename);
-  const content = `# ${task.title}\n\n**タスクID:** ${task.id}  \n**実行日:** ${dateStr}  \n**担当:** ${task.assignee}\n\n---\n\n${result}\n`;
+  const content = `# ${task.title}\n\n**タスクID:** ${task.id}  \n**実行日:** ${dateStr} ${ts}  \n**担当:** ${task.assignee}\n\n---\n\n${result}\n`;
   fs.writeFileSync(outputPath, content, 'utf-8');
   return filename;
 }
@@ -207,7 +222,13 @@ function gitPushChanges(taskIds) {
   try {
     execSync('git add tasks/tasks.json context/projects/', { cwd: ROOT });
     execSync(`git commit -m "bot: タスク自動実行 [${taskIds.join(', ')}]"`, { cwd: ROOT });
-    execSync('git push', { cwd: ROOT });
+    // push失敗時はpullしてリトライ
+    try {
+      execSync('git push', { cwd: ROOT });
+    } catch {
+      execSync('git pull --rebase --autostash', { cwd: ROOT });
+      execSync('git push', { cwd: ROOT });
+    }
     console.log('\n✓ GitHubへのプッシュ完了');
   } catch (err) {
     console.error('git push 失敗:', err.message);
@@ -221,9 +242,9 @@ async function main() {
     process.exit(1);
   }
 
-  // 最新のtasks.jsonを取得してから処理
+  // 最新のtasks.jsonを取得（autostashで未コミット変更を保護）
   try {
-    execSync('git pull --rebase', { cwd: ROOT });
+    execSync('git pull --rebase --autostash', { cwd: ROOT });
     console.log('✓ GitHubから最新データを取得');
   } catch (err) {
     console.error('git pull 失敗（続行）:', err.message);
@@ -249,20 +270,16 @@ async function main() {
     try {
       const now = new Date().toISOString();
 
-      // ステータスを in-progress に変更
       const taskRef = data.tasks.find(t => t.id === task.id);
       taskRef.status = 'in-progress';
       taskRef.updatedAt = now;
       taskRef.comments.push({ author: task.assignee, content: 'タスクを開始しました。', timestamp: now });
       saveTasks(data);
 
-      // AI処理
       const { result, needsHuman } = await processTask(task);
 
-      // 出力ファイルを保存
       const outputFile = saveOutput(task, result);
 
-      // タスクを更新
       const snippet = result.length > 300 ? result.slice(0, 300) + '…（続きは projects/ フォルダを確認）' : result;
       const commentContent = outputFile
         ? `${snippet}\n\n📄 出力ファイル: context/projects/${outputFile}`
