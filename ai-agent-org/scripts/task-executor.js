@@ -156,8 +156,8 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
     messages.push({ role: 'assistant', content: response.content });
 
     if (response.stop_reason === 'end_turn') {
-      const textBlock = response.content.find(b => b.type === 'text');
-      result = textBlock ? textBlock.text : '';
+      const textBlocks = response.content.filter(b => b.type === 'text');
+      result = textBlocks.map(b => b.text).join('\n\n');
       break;
     }
 
@@ -184,8 +184,8 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
     }
 
     // その他の stop_reason (max_tokens など)
-    const textBlock = response.content.find(b => b.type === 'text');
-    result = textBlock ? textBlock.text : '';
+    const textBlocks = response.content.filter(b => b.type === 'text');
+    result = textBlocks.map(b => b.text).join('\n\n');
     break;
   }
 
