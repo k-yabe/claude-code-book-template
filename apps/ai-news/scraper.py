@@ -1273,9 +1273,9 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         "**fyi**: その他のAI製品リリース・調査レポート・一般業界ニュース\n\n"
         "## 各記事のフィールド（日本語で生成）\n"
         "- summary: **事実のみ**（80〜120字）。「誰が・何を・いくらで・いつ」を明記。解釈・予測・感想は一切禁止。タイトルのコピーも禁止\n"
-        "- whyItMatters: AKKODiS事業への影響（1文）。summaryの言い換え禁止。ここのみ解釈・推測を許可する\n"
+        "- whyItMatters: **事実のみ**（1文）。AKKODiS事業に直接関係する客観的事実（例：「競合X社がY市場に参入」「政府がZ規制を施行」）。解釈・推測・感想は一切禁止。summaryの言い換え禁止\n"
         "- actionItem: 誰が・何を・いつまでにの要素を含む具体的推奨アクション（1文）\n"
-        "- pickerComment: ITコンサル/DX推進CXO視点の業界洞察（1〜2文）。解釈・補足OK。「〜に注目」「〜が鍵」の定型表現禁止\n"
+        "- pickerComment: ITコンサル/DX推進CXO視点の業界洞察（1〜2文）。解釈・補足OK。ここのみ解釈・推測を許可する。「〜に注目」「〜が鍵」の定型表現禁止\n"
         "- urgency: must_know / this_week / fyi\n"
         "- tags: 日本語タグ2〜4個\n"
         "- importance: **1は全記事中の最重要1件のみ**（0件でも可）。AKKODiS事業に直撃する競合M&A・大型受注・法改正のみ。迷ったら2にする\n"
@@ -1319,7 +1319,7 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
                         "properties": {
                             "i": {"type": "integer", "description": "入力ペイロードの index"},
                             "summary": {"type": "string", "description": "事実要約（100〜140字）"},
-                            "whyItMatters": {"type": "string", "description": "AKKODiS の事業担当者にとって何が変わるか（1文）"},
+                            "whyItMatters": {"type": "string", "description": "AKKODiS 事業に関わる客観的事実（1文、解釈・推測禁止）"},
                             "actionItem": {"type": "string", "description": "推奨アクション（誰が・何を・いつまでに、を含む1文）"},
                             "pickerComment": {"type": "string", "description": "専門家視点の洞察コメント（1〜2文）"},
                             "urgency": {"type": "string", "enum": ["must_know", "this_week", "fyi"]},
