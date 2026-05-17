@@ -179,9 +179,7 @@ OGP_IMAGE_RE_REV = re.compile(
 
 
 def validate_url(url: str, timeout: int = 4) -> bool:
-    """URL が到達可能か HEAD (fallback GET) で確認。200-399 のみ有効とする。
-    失敗した URL は記事ごと除外して「リンク間違いが絶対に無い」状態を担保する。
-    """
+    """URL が到達可能か HEAD (fallback GET) で確認。200-399 のみ有効とする。"""
     if not url or not url.startswith(("http://", "https://")):
         return False
     for method in ("HEAD", "GET"):
@@ -191,14 +189,31 @@ def validate_url(url: str, timeout: int = 4) -> bool:
                 "Accept": "text/html,application/xhtml+xml",
             })
             with urlopen(req, timeout=timeout) as resp:
-                status = resp.status
-                if 200 <= status < 400:
+                if 200 <= resp.status < 400:
                     return True
-                # 3xx はリダイレクト先まで到達できれば OK（urlopen 自動追跡）
                 return False
         except Exception:
             continue
     return False
+
+
+def resolve_final_url(url: str, timeout: int = 6) -> str:
+    """Google News URL が残っている場合のみ HTTP フォローで実記事 URL に解決する。
+    通常の記事 URL はそのまま返す（validate_url と分離して余分な HTTP を避ける）。"""
+    if "news.google.com" not in url:
+        return url
+    try:
+        req = Request(url, headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+            "Accept": "text/html,application/xhtml+xml",
+        })
+        with urlopen(req, timeout=timeout) as resp:
+            final = resp.geturl()
+            if final and "news.google.com" not in final:
+                return final
+    except Exception:
+        pass
+    return url
 
 
 def fetch_hatena_count(url: str, timeout: int = 4) -> int:
@@ -456,6 +471,26 @@ _COMPETITOR_NOISE_URL_PATTERNS = [
     "minkabu.jp/stock",
 ]
 
+# 競合企業が「主語」として記事の主役になっていることを示すアクション語。
+# これらがタイトルに含まれる場合、企業が言及されているだけでなく当事者として記事化されている。
+_COMPETITOR_ACTION_RE = re.compile(
+    r'発表|受注|受賞|契約|締結|連携|協業|パートナーシップ|参入|撤退|設立|買収|合併|分社|再編|'
+    r'開始|提供|展開|導入|リリース|ローンチ|新サービス|新機能|新製品|新事業|新会社|'
+    r'決算|業績|四半期|通期|上方修正|下方修正|増益|減益|黒字|赤字|売上|純利益|'
+    r'IR|プレスリリース|プレス|採用|増員|削減|人員|リストラ|組織|戦略|方針|計画|目標|'
+    r'獲得|選定|採択|認定|資格|表彰|IPO|上場|増資|出資|投資|M&A'
+)
+
+# 記事の表記ゆれを正規化：株式会社・（株）などの法人格表記を除去してマッチしやすくする。
+_CORP_SUFFIX_RE = re.compile(
+    r'(?:株式会社|合同会社|有限会社|（株）|\(株\)|㈱|・ホールディングス|ホールディングス|HD)\s*'
+)
+
+def _normalize_corp_text(text: str) -> str:
+    """社名表記の法人格部分を除去して競合マッチの取りこぼしを防ぐ。
+    例: 「富士通株式会社」→「富士通」、「テクノプロHD」→「テクノプロ」"""
+    return _CORP_SUFFIX_RE.sub('', text)
+
 # AKKODiS 事業部門のインテリジェンス・ブリーフには不要な消費者向け商品記事を
 # 全体からハード除外するためのワード。scrape 段階でフィードから落とす。
 _CONSUMER_NOISE_WORDS = [
@@ -575,14 +610,56 @@ def is_reprint(title: str, summary: str) -> bool:
 
 
 def is_competitor_mention(title: str, summary: str, url: str = "") -> bool:
-    """記事タイトル or 要約が AKKODiS 競合企業に言及しているか判定。
-    ただし製品販売・値下げ・株価情報等の「競合動向ではない」文脈は除外する。"""
-    hay = (title or "") + " " + (summary or "")
-    if any(w in hay for w in _COMPETITOR_NOISE_WORDS):
+    """競合企業が記事の「主役」として掲載されているかを判定。
+    単なる言及・引用・列挙は除外し、IR/プレスリリース/発表/決算など
+    企業が主語として行動している記事のみを拾う。
+
+    判定ルール（いずれかを満たすこと）:
+    1. タイトルに競合名 + 主語助詞（が/は）が続く
+    2. タイトルの先頭35字以内に競合名が登場 + タイトルにアクション語
+    3. タイトルで競合名の直後に読点（、）が続く（日本語見出しの主語パターン）
+    4. タイトルに競合名 + 「の」+ アクション語（例: NTTデータの決算発表）
+
+    ノイズ除外:
+    - 製品販売・値下げ・株価ページは除外（既存 NOISE_WORDS/URL_PATTERNS）
+    - タイトルに競合名がなく要約だけの場合は「通過言及」として除外
+    """
+    title_n = _normalize_corp_text(title or "")
+    hay_n   = _normalize_corp_text((title or "") + " " + (summary or ""))
+
+    # ノイズフィルタ（旧来のまま維持）
+    if any(w in hay_n for w in _COMPETITOR_NOISE_WORDS):
         return False
     if url and any(p in url for p in _COMPETITOR_NOISE_URL_PATTERNS):
         return False
-    return bool(_COMPETITOR_RE.search(hay))
+
+    # 競合名がタイトルに存在するか（正規化済みテキストで検索）
+    title_match = _COMPETITOR_RE.search(title_n)
+    if not title_match:
+        # タイトルに競合名がない = 要約中の通過言及 → 除外
+        return False
+
+    matched_name = title_match.group(0)
+    pos = title_match.start()
+
+    # ルール1: 競合名の直後に主語助詞「が」「は」
+    after = title_n[title_match.end():]
+    if re.match(r'\s*[がは]', after):
+        return True
+
+    # ルール2: 競合名の直後に読点（日本語見出しパターン「NTTデータ、〜を発表」）
+    if re.match(r'\s*[、,]', after):
+        return True
+
+    # ルール3: タイトル先頭35字以内に登場 + アクション語がタイトルにある
+    if pos <= 35 and _COMPETITOR_ACTION_RE.search(title_n):
+        return True
+
+    # ルール4: 競合名 + 「の」+ アクション語（例: 富士通の決算、アクセンチュアのIR）
+    if re.match(r'\s*の', after) and _COMPETITOR_ACTION_RE.search(title_n):
+        return True
+
+    return False
 
 
 def is_relevant(title: str, summary: str) -> bool:
@@ -873,9 +950,19 @@ def fetch_all() -> list[dict]:
                 # （競合プレスリリースは AI キーワード含まないケースが多いので救済）
                 if not is_ai_related(title, raw_summary) and not is_competitor_mention(title, raw_summary, url):
                     continue
-                # URL 到達性チェック（404 / dead link を事前に除外して「リンク間違い」を根絶）
+                # Google News URL が残っていた場合は HTTP フォローで実記事 URL に解決。
+                # 通常の記事 URL は validate_url だけで十分（余分な HTTP を避ける）。
+                if "news.google.com" in url:
+                    resolved = resolve_final_url(url)
+                    if resolved != url:
+                        log(f"  http-resolved: {url[:50]} -> {resolved[:50]}")
+                        url = resolved
+                    if "news.google.com" in url:
+                        log(f"  skip (google url unresolved): {url[:60]}")
+                        continue
+                # URL 到達性チェック（404/dead link を除外）
                 if not validate_url(url):
-                    log(f"  skip (unreachable): {url}")
+                    log(f"  skip (unreachable): {url[:60]}")
                     continue
                 # 画像抽出（media:content / enclosure / media:thumbnail）
                 image = None
@@ -932,35 +1019,12 @@ def fetch_all() -> list[dict]:
         except Exception as ex:
             log(f"  ! error {src['name']}: {ex}")
 
-    # 人気度フィルタ: 「バズ」基準（緩め）。
-    # はてなブックマークのインデックスは遅く、新着記事に反映されるまで
-    # 最大 1〜2日かかる。厳しくすると記事がゼロになるので、フィルタは
-    # 「確実に無価値な古い記事だけ落とす」発想に変更:
-    #  - 24時間以内は全件通過（ブクマ数に関係なく）
-    #  - 24〜72時間: hatena>=1 で通過
-    #  - 72時間以降: hatena>=3 必須
-    #  - ツール系キーワード（Claude Code/Copilot 等）は常に救済
-    TOOL_RE = re.compile(
-        r"Claude\s*Code|GitHub\s*Copilot|Copilot|Cursor|Devin|Windsurf|Cline|"
-        r"バイブコーディング|AIコーディング|AIペアプロ|AIエディタ|AI補完|プロンプト",
-        re.IGNORECASE,
-    )
-    def _is_tool(it: dict) -> bool:
-        hay = (it.get("title", "") or "") + " " + (it.get("raw_summary", "") or "")
-        return bool(TOOL_RE.search(hay))
-    def _buzz_pass(it: dict) -> bool:
-        if _is_tool(it):
-            return True  # ツール系は常に救済
-        h = (it.get("hatenaCount") or 0)
-        age_h = (datetime.now(UTC) - datetime.fromisoformat(it["publishedAt"].replace("Z","+00:00"))).total_seconds() / 3600
-        if age_h < 24:
-            return True      # 24h 以内は無条件通過（はてブのインデックスが追いつかないため）
-        if age_h < 72:
-            return h >= 1    # 1〜3日経過: ブクマ1以上
-        return h >= 3        # 3日以降: ブクマ3以上
-    before = len(all_items)
-    all_items = [it for it in all_items if _buzz_pass(it)]
-    log(f"filtered by buzz threshold: {before} -> {len(all_items)}")
+    # はてブ数ベースのバズフィルタは廃止。
+    # EnterpriseZine/IT Leaders 等のエンタープライズIT系メディアははてブが
+    # ほぼつかないため、30%未満のケースで buzzActive=false となり全件通過して
+    # いた（フィルタが機能していなかった）。
+    # 代わりに Claude の importance/urgency 判定（call_anthropic）に品質管理を
+    # 完全委任する。スクレイパー段階では件数上限のみ適用。
     # 並び順: メディア優先 × 人気度(はてブ数)降順 × 新着降順
     all_items.sort(key=lambda x: (
         1 if x.get("sourceType") == "ugc" else 0,        # メディア先行
@@ -1105,11 +1169,33 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         "- SIer・ITコンサル・エンジニアリングサービス（テクノプロ、メイテック等）・コンサルファーム（アクセンチュア、NRI等）の動向は特に重要\n"
         "- AI一般論よりも、DX推進・クラウド・セキュリティ・システム開発に直結するAI活用ニュースを優先\n"
         "- IT人材市場・リスキリング・技術者育成に関する動向も重要\n\n"
-        "## urgency判定の優先基準\n"
-        "1. DX・システム開発・エンジニアリング派遣に直接影響するニュース → must_know候補\n"
-        "2. SIer・ITコンサル・競合他社（テクノプロ、アクセンチュア等）の動き → must_know〜this_week\n"
-        "3. AI・クラウド・セキュリティの重要アップデート（企業の意思決定に影響） → this_week\n"
-        "4. AI一般論・テック業界の大きな動き → this_week〜fyi\n\n"
+        "## 記事選定の大前提（最優先）\n"
+        "**国内（日本）で注目されている記事**かつ**AKKODiSの事業領域（ITコンサル・DX・エンジニアリング派遣・"
+        "システム開発・BPO・技術者育成）に関係する記事**のみを選ぶ。\n"
+        "- 国内注目の目安: 日本のIT系大手メディア（ITmedia・日経XTECH・ZDNet Japan・EnterpriseZine等）が"
+        "取り上げた事実・数値・固有名詞のある具体的な記事。タイトルと内容が一致していること\n"
+        "- AKKODiS関連の目安: 競合他社動向/IT人材市場/DX案件/エンジニア需給/生成AI業務活用のいずれかに"
+        "直接関わる記事。B2C商品・海外のみの話題・AI一般論は選ばない\n\n"
+        "## urgency判定の基準（厳守）\n"
+        "### must_know（1〜2件・厳選）\n"
+        "以下のいずれかに**直接**該当する場合のみ:\n"
+        "- AKKODiS主要競合（NTTデータ/富士通/アクセンチュア/テクノプロ/メイテック等）の"
+        "新サービス発表・大型受注・決算・M&A・組織再編\n"
+        "- IT人材派遣・エンジニアリング派遣市場に直撃する法改正・制度変更\n"
+        "- 大手企業の大規模DX発注・システム刷新（AKKODiSが直接商談できる案件規模）\n"
+        "- 生成AIの業務適用で現場エンジニアの働き方・単価・需給が変わるニュース\n"
+        "⚠️ 「AIが何かに使われた」「製品がAI対応になった」程度では must_know にしない\n"
+        "⚠️ バックアップ/ストレージ/インフラ製品ベンダーのAI発表は fyi\n"
+        "⚠️ 海外のAIニュースまとめ・週次ダイジェスト記事は fyi\n"
+        "⚠️ 該当がなければ must_know は 0件でよい（無理に入れない）\n\n"
+        "### this_week（3〜5件）\n"
+        "- 記事が十分ある場合は必ず3〜5件選ぶこと（1件のみは品質問題のサイン）\n"
+        "- AI・クラウド・セキュリティで企業の意思決定に影響する重要アップデート\n"
+        "- IT業界の採用・人材・リスキリング動向（日本国内の話題に限る）\n"
+        "- 準競合・パートナー企業の動向\n"
+        "- 競合企業の重要ではあるが must_know 未満のニュース\n\n"
+        "### fyi\n"
+        "- 上記に当てはまらないAI一般論・製品リリース・調査レポート\n\n"
         "## 各記事について以下を日本語で生成してください:\n"
         "- summary: 何が起きたかの事実要約（100〜140字）。主語・数値・固有名詞を明記。\n"
         "- whyItMatters: AKKODiSの事業担当者にとって具体的に何が変わるか（1文）。"
@@ -1453,7 +1539,7 @@ def extract_json(text: str) -> dict | None:
 
 # ── 英語翻訳 ─────────────────────────────────────
 def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> dict:
-    """Haiku でニュース記事を英語翻訳。titleEn/summaryEn/whyItMattersEn/actionItemEn を返す。
+    """Haiku でニュース記事を英語翻訳。titleEn/summaryEn/whyItMattersEn/actionItemEn/pickerCommentEn を返す。
     失敗時は空 dict を返す（英語フィールドなしで graceful degradation）。"""
     if not ANTHROPIC_API_KEY:
         return {}
@@ -1469,13 +1555,14 @@ def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> di
             "summary": it.get("summary", ""),
             "whyItMatters": it.get("whyItMatters", ""),
             "actionItem": it.get("actionItem", ""),
+            "pickerComment": it.get("pickerComment", ""),
         }
         for idx, it in enumerate(items)
     ]
 
     TRANSLATE_TOOL = {
         "name": "translate_to_english",
-        "description": "Translate Japanese AI/marketing news items to natural English",
+        "description": "Translate Japanese AI/IT news items to natural English",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -1494,8 +1581,9 @@ def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> di
                             "summaryEn": {"type": "string", "description": "Summary in English (1-2 sentences)"},
                             "whyItMattersEn": {"type": "string", "description": "Why it matters, in English (1 sentence)"},
                             "actionItemEn": {"type": "string", "description": "Action item in English (1 sentence)"},
+                            "pickerCommentEn": {"type": "string", "description": "Expert insight comment in English (1-2 sentences)"},
                         },
-                        "required": ["i", "titleEn", "summaryEn", "whyItMattersEn", "actionItemEn"],
+                        "required": ["i", "titleEn", "summaryEn", "whyItMattersEn", "actionItemEn", "pickerCommentEn"],
                     },
                 },
             },
@@ -1504,13 +1592,13 @@ def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> di
     }
 
     system = (
-        "You are a professional translator specializing in AI and marketing news. "
+        "You are a professional translator specializing in AI, DX, and IT consulting news. "
         "Translate Japanese text to natural, concise English. "
         "Keep proper nouns, brand names, and technical terms as-is. "
         "Do not add explanations—translate only."
     )
     user = (
-        f"Translate the following Japanese AI/marketing news items and executive summary to English.\n\n"
+        f"Translate the following Japanese AI/IT news items and executive summary to English.\n\n"
         f"Executive summary:\n{json.dumps(exec_summary, ensure_ascii=False)}\n\n"
         f"Items:\n{json.dumps(payload, ensure_ascii=False)}"
     )
@@ -1528,7 +1616,6 @@ def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> di
         for block in msg.content:
             if getattr(block, "type", None) == "tool_use" and block.name == "translate_to_english":
                 result = block.input
-                # items リストを index→item の dict に変換して返す
                 translated_by_idx = {o["i"]: o for o in (result.get("items") or []) if "i" in o}
                 return {
                     "execSummaryEn": result.get("execSummaryEn") or [],
@@ -1606,31 +1693,33 @@ def fetch_x_trends_via_claude() -> list[dict]:
             "- 著名人・大手アカウントに頼らず、バズった新鮮な投稿を探すこと\n"
         )
     prompt = (
-        f"今日（{date_label}）または直近 48 時間以内に X（旧Twitter）で"
-        "バズっている（いいね・リポスト・引用が相対的に多い）生成AI関連の**日本語投稿**を"
-        "**実在する URL 付きで** 6 件挙げてください。\n\n"
-        "## 検索手順（必ず実行）\n"
-        "1. web_search で「生成AI site:x.com since:yesterday」「ChatGPT OR Claude OR Gemini site:x.com lang:ja」等の**日本語専用クエリ**で検索\n"
-        "2. 検索結果から実際のいいね数・RT数が確認できる投稿を優先してピックアップ\n"
-        "3. 同じ著者が重複しないよう、毎回別の検索クエリで探すこと\n"
-        "4. 特定の著名人アカウントに偏らず、実際のエンゲージメント数で判断すること\n\n"
+        f"今日（{date_label}）または直近 48 時間以内に、**ニュースメディアや技術ブログが"
+        "引用・紹介・埋め込みしている**生成AI関連の X（旧Twitter）投稿を 10 件探してください。\n\n"
+        "## なぜ「メディア引用」を重視するか\n"
+        "- X API なしで実際のいいね数を取得できないため、**複数のメディアに取り上げられた投稿 = バイラル済み**を基準にします。\n"
+        "- メディアが引用するほど注目度が高い投稿を優先することで、品質を担保します。\n\n"
+        "## 検索手順（必ず全ステップ実行）\n"
+        "1. 「生成AI x.com 話題」「AIエージェント 引用 x.com」「Claude OR ChatGPT OR Gemini ツイート 注目」等で**ニュース・ブログ記事から引用されている投稿**を探す\n"
+        "2. 「生成AI site:x.com」「DX site:x.com lang:ja」等でX内の投稿も直接検索\n"
+        "3. 見つけた各投稿について「その URL が何件の記事・ページから参照されているか」を確認し `buzz` に記入（1=単独発見、3=複数ソースで言及、5=大手メディアが特集）\n"
+        "4. 同一著者が重複しないよう複数クエリで探す\n\n"
         "## 厳守ルール\n"
-        "- **日本語の投稿のみ**を採用する。英語投稿は原則不可\n"
-        "- やむを得ず日本語投稿が 6 件揃わない場合のみ、英語投稿で補完（最大 1 件）\n"
-        "- web_search を使って実在を確認すること。架空の URL や著者名は絶対に作らない\n"
-        "- URL は https://x.com/<handle>/status/<id> または https://twitter.com/... の形式のみ\n"
-        "- 投稿が確認できなかった場合は「無し」と返す（無理に埋めない）\n"
-        "- 著者は誰でも良い（著名人/一般ユーザー問わず、エンゲージメントが相対的に多いもの）\n"
+        "- **日本語の投稿のみ**採用する。英語投稿は一切不可\n"
+        "- web_search で実在を確認すること。架空の URL・著者名は絶対に作らない\n"
+        "- URL は https://x.com/<handle>/status/<id> 形式のみ\n"
+        "- 確認できなかった場合は採用しない（無理に埋めない）\n"
         "- **同じ著者から 2 件以上は採用しない**（多様性のため）\n"
-        "- B2B マーケ／生成AI 実務／競合動向に関係する話題を優先\n"
+        "- 生成AI／DX／ITコンサル／クラウド／エンジニアリングに関係する話題を優先\n"
         + avoid_block +
         "\n## 言語フィールド\n"
-        "- 日本語投稿は `lang: \"ja\"`、`textJa` は空文字列でよい\n"
-        "- 例外的に英語投稿を含む場合は `lang: \"en\"` で `textJa` に完璧な日本語訳を入れる\n"
+        "- 日本語投稿: `lang: \"ja\"`, `textJa` は空文字, `textEn` に自然な英語訳\n"
+        "- 英語投稿: `lang: \"en\"`, `textJa` に自然な日本語訳, `textEn` は原文\n"
         "\n## 出力フォーマット（JSON のみ、説明文なし、コードフェンス不要）\n"
         "{\"items\":[{\"author\":\"表示名\",\"handle\":\"@xxxx\","
         "\"text\":\"原文（200字以内、改行は \\\\n でエスケープ）\","
         "\"lang\":\"ja|en|...\",\"textJa\":\"日本語訳（原文がjaの場合は空文字）\","
+        "\"textEn\":\"英語訳（原文が英語の場合は原文をそのまま）\","
+        "\"buzz\":3,"
         "\"url\":\"https://x.com/.../status/...\",\"tag\":\"短いトピック名\"}, ...]}"
     )
     try:
@@ -1638,7 +1727,7 @@ def fetch_x_trends_via_claude() -> list[dict]:
         msg = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=3000,
-            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 8}],
+            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 12}],
             messages=[{"role": "user", "content": prompt}],
         )
         # tool_use の応答を含む可能性あり。最後のテキストブロックを使う。
@@ -1662,7 +1751,7 @@ def fetch_x_trends_via_claude() -> list[dict]:
     raw_items = parsed.get("items") or []
     out: list[dict] = []
     seen_handles: set[str] = set()  # 同一 handle 重複排除（多様性確保）
-    for it in raw_items[:12]:  # 候補は多めに見て、handle 重複でスキップしながら 6 件まで
+    for it in raw_items[:16]:  # 候補は多めに見て、handle 重複でスキップしながら 10 件まで
         url = (it.get("url") or "").strip()
         if not url or not re.match(r"^https://(?:x|twitter)\.com/[^/]+/status/\d+", url):
             continue
@@ -1676,6 +1765,7 @@ def fetch_x_trends_via_claude() -> list[dict]:
         tag = (it.get("tag") or "AI").strip()[:20]
         lang = (it.get("lang") or "").strip().lower()[:8] or "ja"
         text_ja = (it.get("textJa") or "").strip()
+        text_en = (it.get("textEn") or "").strip()
         if not author or not handle or not text_body:
             continue
         # 同一 handle 排除（プロンプトでも指示しているが二重防御）
@@ -1684,11 +1774,13 @@ def fetch_x_trends_via_claude() -> list[dict]:
             log(f"x trends skip duplicate handle: @{h_key}")
             continue
         seen_handles.add(h_key)
-        # アバターは unavatar.io 経由で X handle から自動取得
+        # buzz_score: メディア引用数ベースのバイラル指標（1〜5）。
+        # X API なしで取得できる唯一の現実的な指標。
+        buzz_score = max(1, min(5, int(it.get("buzz") or 1)))
+        # likes フィールドには buzz_score を 1000 倍してフロントの閾値と互換させる
+        likes_equiv = buzz_score * 1000
         h = handle.lstrip("@")
         avatar = f"https://unavatar.io/x/{h}"
-        # 日本語以外で textJa が空の場合は表示側で「翻訳バッジを出さない」とする
-        # （Claude が訳をサボった場合の保険。原文だけは表示される）
         out.append({
             "id": f"xt_{hashlib.sha1(url.encode()).hexdigest()[:10]}",
             "author": author,
@@ -1697,14 +1789,14 @@ def fetch_x_trends_via_claude() -> list[dict]:
             "text": truncate(text_body, 240),
             "lang": lang,
             "textJa": truncate(text_ja, 280) if text_ja else "",
+            "textEn": truncate(text_en, 280) if text_en else "",
             "tag": tag,
             "url": url,
-            # likes/retweets は web_search では取得困難。0 で通すと client の閾値で弾かれるため
-            # 「注目されている」と判定された前提で BUZZ_MIN を満たす最低値を入れておく。
-            "likes": 3000,
+            "buzz": buzz_score,   # 1=単独発見 〜 5=大手メディア特集
+            "likes": likes_equiv,  # フロント閾値互換（buzz×1000）
             "retweets": 0,
         })
-        if len(out) >= 6:
+        if len(out) >= 10:
             break
     log(f"x trends: collected {len(out)} valid posts (unique authors)")
     return out
@@ -2694,10 +2786,11 @@ def main() -> int:
     if en:
         for idx, it in enumerate(items):
             t = en["byIdx"].get(idx, {})
-            if t.get("titleEn"):        it["titleEn"]        = t["titleEn"]
-            if t.get("summaryEn"):      it["summaryEn"]      = t["summaryEn"]
-            if t.get("whyItMattersEn"): it["whyItMattersEn"] = t["whyItMattersEn"]
-            if t.get("actionItemEn"):   it["actionItemEn"]   = t["actionItemEn"]
+            if t.get("titleEn"):          it["titleEn"]          = t["titleEn"]
+            if t.get("summaryEn"):        it["summaryEn"]        = t["summaryEn"]
+            if t.get("whyItMattersEn"):   it["whyItMattersEn"]   = t["whyItMattersEn"]
+            if t.get("actionItemEn"):     it["actionItemEn"]     = t["actionItemEn"]
+            if t.get("pickerCommentEn"):  it["pickerCommentEn"]  = t["pickerCommentEn"]
         exec_summary_en: list[str] = en.get("execSummaryEn") or []
         log(f"translated {len(en['byIdx'])} items to English")
     else:
@@ -2744,26 +2837,66 @@ def main() -> int:
             log("digest script generation failed; skipping audio")
             debug_stats["audio"]["error"] = "digest_script_empty"
 
-        # ── 英語音声ダイジェスト ──
-        google_key = os.environ.get("GOOGLE_TTS_API_KEY", "").strip()
-        if google_key and exec_summary_en:
+        # ── 英語音声ダイジェスト（Google → Azure en-US → OpenAI shimmer） ──
+        if exec_summary_en:
             log("generating English digest script...")
             script_en = generate_digest_script_en(exec_summary_en, mustknow, thisweek)
             if script_en:
                 log(f"English digest script: {len(script_en)} chars")
-                log("generating English TTS MP3 (Google en-US-Chirp3-HD-Aoede)...")
-                mp3_en = _google_tts_chunked(
-                    script_en, google_key,
-                    voice=os.environ.get("GOOGLE_TTS_EN_VOICE", "en-US-Chirp3-HD-Aoede"),
-                    speaking_rate=float(os.environ.get("GOOGLE_TTS_EN_RATE", "1.0")),
-                    pitch_st=0.0,
-                    chunk_chars=1500,
-                )
+                mp3_en: bytes | None = None
+                google_key = os.environ.get("GOOGLE_TTS_API_KEY", "").strip()
+                if google_key:
+                    log("EN TTS: trying Google en-US-Chirp3-HD-Aoede...")
+                    mp3_en = _google_tts_chunked(
+                        script_en, google_key,
+                        voice=os.environ.get("GOOGLE_TTS_EN_VOICE", "en-US-Chirp3-HD-Aoede"),
+                        speaking_rate=float(os.environ.get("GOOGLE_TTS_EN_RATE", "1.0")),
+                        pitch_st=0.0,
+                        chunk_chars=1500,
+                    )
+                azure_key = os.environ.get("AZURE_SPEECH_KEY", "").strip()
+                azure_region = os.environ.get("AZURE_SPEECH_REGION", "").strip()
+                if not mp3_en and azure_key and azure_region:
+                    log("EN TTS: trying Azure en-US-JennyNeural...")
+                    import re as _re
+                    safe_en = script_en[:4800].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                    ssml_en = (
+                        '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" '
+                        'xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="en-US">'
+                        '<voice name="en-US-JennyNeural">'
+                        '<mstts:express-as style="newscast">'
+                        '<prosody rate="-3%">' + safe_en + '</prosody>'
+                        '</mstts:express-as></voice></speak>'
+                    )
+                    try:
+                        import urllib.request as _req
+                        token_url = f"https://{azure_region}.api.cognitive.microsoft.com/sts/v1.0/issueToken"
+                        token_req = _req.Request(token_url, data=b"", headers={"Ocp-Apim-Subscription-Key": azure_key}, method="POST")
+                        with _req.urlopen(token_req, timeout=10) as r:
+                            token = r.read().decode()
+                        tts_url = f"https://{azure_region}.tts.speech.microsoft.com/cognitiveservices/v1"
+                        tts_req = _req.Request(tts_url, data=ssml_en.encode("utf-8"), headers={
+                            "Authorization": f"Bearer {token}",
+                            "Content-Type": "application/ssml+xml",
+                            "X-Microsoft-OutputFormat": "audio-24khz-96kbitrate-mono-mp3",
+                        }, method="POST")
+                        with _req.urlopen(tts_req, timeout=30) as r:
+                            mp3_en = r.read()
+                        if mp3_en:
+                            log(f"EN TTS Azure: {len(mp3_en)//1024}KB")
+                    except Exception as e:
+                        log(f"EN TTS Azure failed: {e}")
+                        mp3_en = None
+                if not mp3_en:
+                    log("EN TTS: trying OpenAI shimmer...")
+                    openai_key = os.environ.get("OPENAI_API_KEY", "").strip()
+                    if openai_key:
+                        mp3_en = _openai_tts_request(script_en[:4800], openai_key, "tts-1-hd", "shimmer", None)
                 if mp3_en:
                     save_audio(mp3_en, script_en, lang="en")
                     debug_stats["audio"]["mp3EnBytes"] = len(mp3_en)
                 else:
-                    log("English TTS failed")
+                    log("English TTS: all paths failed")
             else:
                 log("English digest script generation failed; skipping EN audio")
 

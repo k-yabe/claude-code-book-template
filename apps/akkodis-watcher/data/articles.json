@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-05-15T23:46:39Z",
+  "last_scraped": "2026-05-16T23:42:18Z",
   "articles": [
     {
       "id": "why-patient-centricity-is-reshaping-life-sciences",
@@ -49,16 +49,6 @@
       "source_label": "Akkodis Blog",
       "first_seen": "2026-05-11T23:45:55Z",
       "published_date": "2026-05-11T00:00:00Z"
-    },
-    {
-      "id": "aerospace-defense-digital-engineering",
-      "title": "From Hangar to Horizon How Akkodis Engineers Aerospace Future",
-      "url": "https://www.akkodis.com/blog/articles/aerospace-defense-digital-engineering",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-04-18T23:24:55Z",
-      "published_date": "2026-04-16T00:00:00Z",
-      "summary_ja": "Akkodisは航空宇宙産業の複雑化する課題に対応するため、モデルベースシステムズエンジニアリングやデジタルツイン、組み込みソフトウェア開発を組み合わせたエンジニアリングサービスを提供しており、製品開発から保守まで機体プログラム全体のライフサイクルをサポートしています。デジタルツインとAI技術により、実際の運用状況を仮想環境でシミュレーションし、異常検知や予測保全が可能になることで、従来の対応型保守から予測型保守への転換を実現しています。防衛システムのソフトウェア化に対応するコンサルティングやメンテナンス部門のデジタル改革を支援することで、顧客の運用効率の向上とコスト最適化を促進しており、北米・欧州・アジア太平洋に配置されたエンジニアリングチームにより24時間体制でグローバルな対応を実現しています。"
     },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",

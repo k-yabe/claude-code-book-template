@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.kyabe.ai-agent-executor</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/node</string>
+    <string>/Users/kunizou_macbook_air/Documents/ai-agent-workspace/ai-agent-org/scripts/task-executor.js</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>ANTHROPIC_API_KEY</key>
+    <string>ここにAPIキーを入れる</string>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+  </dict>
+
+  <key>StartInterval</key>
+  <integer>3600</integer>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/kunizou_macbook_air/Documents/ai-agent-workspace/ai-agent-org</string>
+
+  <key>StandardOutPath</key>
+  <string>/Users/kunizou_macbook_air/Library/Logs/ai-agent-executor.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/kunizou_macbook_air/Library/Logs/ai-agent-executor-error.log</string>
+
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>

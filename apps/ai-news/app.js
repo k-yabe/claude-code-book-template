@@ -809,6 +809,15 @@
     const now = new Date();
     const diff = Math.floor((now - d) / 1000);
     const wd = WEEKDAYS[d.getDay()];
+    if (state.lang === 'en') {
+      const EN_WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const wdEn = EN_WD[d.getDay()];
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+      if (diff < 172800) return `yesterday (${wdEn})`;
+      return `${d.getMonth()+1}/${d.getDate()} (${wdEn})`;
+    }
     if (diff < 60) return 'たった今';
     if (diff < 3600) return `${Math.floor(diff / 60)}分前`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}時間前`;
@@ -1271,12 +1280,10 @@
       return true;
     });
     const hasImage = (n) => !!(n.image && /^https?:\/\//.test(n.image));
-    const buzzActive = (() => {
-      if (!base.length) return false;
-      const withBuzz = base.filter(n => (Number(n.hatenaCount) || 0) > 0).length;
-      return (withBuzz / base.length) >= 0.3;
-    })();
-    const passes = (n, kind) => !buzzActive || (Number(n.hatenaCount) || 0) >= minBuzzFor(n, kind) || matchesTool(n);
+    // はてブ数ベースのバズフィルタを廃止。
+    // エンタープライズITメディアははてブが付かずフィルタが機能しなかったため、
+    // Claude の urgency/importance 判定のみで品質管理する。
+    const passes = () => true;
 
     const sorted = [...base].sort((a, b) => {
       const ua = (URG_ORDER[a.urgency] ?? 2) + (isUgc(a) ? 1 : 0);
@@ -1431,6 +1438,16 @@
     const isMidday  = h >= 11 && h < 17;
     const isEvening = h >= 17 && h < 22;
     // 曜日アクセント
+    if (state.lang === 'en') {
+      if (dow === 1 && isMorning) return 'Start the week right — AI & DX intelligence brief';
+      if (dow === 5 && isEvening) return 'Week wrap-up. Key topics before the weekend';
+      if ((dow === 0 || dow === 6) && isMorning) return 'Weekend read. This week in AI & DX';
+      if (dow === 5 && isMidday)  return 'Friday midday. Trends to watch this weekend';
+      if (isMorning) return 'Morning intelligence brief — AI & DX';
+      if (isMidday)  return "Today's curation. 5 minutes well spent";
+      if (isEvening) return 'Evening roundup. Insights for tomorrow';
+      return 'Daily summary — updated 8:00 JST';
+    }
     if (dow === 1 && isMorning) return '今週のスタートに押さえておきたい AI×マーケ動向';
     if (dow === 5 && isEvening) return '週末入り前に。今週の重要トピックを総括';
     if ((dow === 0 || dow === 6) && isMorning) return '週末の朝に。今週の AI×マーケ振り返り';
@@ -1551,7 +1568,9 @@
       const ts = dataMeta.updatedAt || dataMeta.generatedFor || new Date().toISOString();
       const ageH = Math.max(0, (Date.now() - new Date(ts).getTime()) / 3.6e6);
       const isStale = ageH > 12;
-      live.textContent = isStale ? `更新 ${fmtRelative(ts)}` : `最終更新 ${fmtRelative(ts)}`;
+      live.textContent = isStale
+        ? (state.lang === 'en' ? `Updated ${fmtRelative(ts)}` : `更新 ${fmtRelative(ts)}`)
+        : (state.lang === 'en' ? `Last updated ${fmtRelative(ts)}` : `最終更新 ${fmtRelative(ts)}`);
       if (liveLabel) liveLabel.style.display = isStale ? 'none' : '';
       if (liveDot) liveDot.style.display = isStale ? 'none' : '';
       if (liveSep) liveSep.style.display = isStale ? 'none' : '';
@@ -1678,7 +1697,9 @@
       }
     }
     if (!lines || !lines.length) {
-      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">📋</div><div class="empty-text">本日のサマリーは準備中です。<br>明朝 8:00 JST の定期更新までお待ちください。</div></div>';
+      root.innerHTML = state.lang === 'en'
+        ? '<div class="empty" style="border:none;"><div class="empty-icon">📋</div><div class="empty-text">Summary is being prepared.<br>Next update at 8:00 JST tomorrow morning.</div></div>'
+        : '<div class="empty" style="border:none;"><div class="empty-icon">📋</div><div class="empty-text">本日のサマリーは準備中です。<br>明朝 8:00 JST の定期更新までお待ちください。</div></div>';
       return;
     }
     // 各サマリー行に対応する記事（must-know → this-week の順でフラット化）を推定してソース表記を付ける
@@ -1711,7 +1732,9 @@
   function renderMustKnow(items) {
     const root = document.getElementById('must-know');
     if (!items.length) {
-      root.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">本日は主要メディア（ITmedia / 日経 / ASCII / Publickey 等）から該当する重要ニュースが届いていません。<br>明朝 8:00 JST の定期更新をお待ちください。</div></div>';
+      root.innerHTML = state.lang === 'en'
+        ? '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No matching top stories today from major outlets.<br>Check back at the next update at 8:00 JST.</div></div>'
+        : '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">本日は主要メディア（ITmedia / 日経 / ASCII / Publickey 等）から該当する重要ニュースが届いていません。<br>明朝 8:00 JST の定期更新をお待ちください。</div></div>';
       return;
     }
     root.innerHTML = items.map((n, idx) => {
@@ -1727,8 +1750,8 @@
         : escapeHtml(itemTitle);
       const favicon = sourceFavicon(n.url) || '';
       const initials = prettySource(n.source || '').substring(0, 2).toUpperCase();
-      const whyLabel = state.lang === 'en' ? '⚡ Why it matters' : '⚡ なぜ重要か（マーケ視点）';
-      const actionLabel = state.lang === 'en' ? '🎯 What to do' : '🎯 マーケとして何をすべきか';
+      const whyLabel = state.lang === 'en' ? '⚡ Why it matters' : '⚡ なぜ重要か（AKKODiS 視点）';
+      const actionLabel = state.lang === 'en' ? '🎯 What to do' : '🎯 今週何をすべきか';
       const whyText = state.lang === 'en' ? (n.whyItMattersEn || n.whyItMatters) : n.whyItMatters;
       const actionText = state.lang === 'en' ? (n.actionItemEn || n.actionItem) : n.actionItem;
       return `
@@ -1763,21 +1786,21 @@
           <p class="top-summary">${escapeHtml(T(n, 'summary'))}</p>
           ${(() => { const w = whyText && whyText.trim(); return w ? `<div class="top-impact"><span class="top-impact-label">${whyLabel}</span><span class="top-impact-text">${escapeHtml(w)}</span></div>` : ''; })()}
           ${actionText ? `<div class="top-action"><span class="top-action-label">${actionLabel}</span><span class="top-action-text">${escapeHtml(actionText)}</span></div>` : ''}
-          ${n.pickerComment || (n.tags && n.tags.length) ? `
+          ${(() => { const pc = state.lang === 'en' ? (n.pickerCommentEn || n.pickerComment) : n.pickerComment; return (pc || (n.tags && n.tags.length)) ? `
           <details class="intel-details">
-            <summary class="intel-toggle">▼ 専門家の視点を読む</summary>
+            <summary class="intel-toggle">▼ ${state.lang === 'en' ? 'Expert insight' : '専門家の視点を読む'}</summary>
             <div class="intel-body">
-              ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
+              ${pc ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">${state.lang === 'en' ? 'Expert insight' : '専門家の視点'}</div><div class="picker-text">${escapeHtml(pc)}</div></div></div>` : ''}
               ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-              ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(prettySource(n.source))}） →</a>` : ''}
+              ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${state.lang === 'en' ? 'Read full article' : '元記事を読む'}（${escapeHtml(prettySource(n.source))}） →</a>` : ''}
             </div>
-          </details>` : ''}
+          </details>` : ''; })()}
           <div class="top-foot">
             <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読' : '✓ 既読'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
             <button class="later-btn${state.later.has(n.id) ? ' saved' : ''}" data-later="${n.id}" aria-label="後で読む" aria-pressed="${state.later.has(n.id)}" title="後で読むに追加">📚</button>
             ${feedbackButtonsHtml(n.id)}
-            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む →</a>` : ''}
+            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${state.lang === 'en' ? 'Read article →' : '元記事を読む →'}</a>` : ''}
           </div>
         </div>
       </article>`;
@@ -1860,15 +1883,15 @@
             <div class="brief-card-summary">${escapeHtml(T(n, 'summary'))}</div>
             ${(() => { const w = (state.lang === 'en' ? (n.whyItMattersEn || n.whyItMatters) : n.whyItMatters) || ''; return w.trim() ? `<div class="brief-card-impact">⚡ ${escapeHtml(w)}</div>` : ''; })()}
             ${(state.lang === 'en' ? (n.actionItemEn || n.actionItem) : n.actionItem) ? `<div class="brief-card-action">→ ${escapeHtml(state.lang === 'en' ? (n.actionItemEn || n.actionItem) : n.actionItem)}</div>` : ''}
-            ${(n.pickerComment || (n.tags && n.tags.length)) ? `
+            ${(() => { const pc = state.lang === 'en' ? (n.pickerCommentEn || n.pickerComment) : n.pickerComment; return (pc || (n.tags && n.tags.length)) ? `
             <details class="intel-details brief">
-              <summary class="intel-toggle">▼ 詳しく読む</summary>
+              <summary class="intel-toggle">▼ ${state.lang === 'en' ? 'More details' : '詳しく読む'}</summary>
               <div class="intel-body">
-                ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
+                ${pc ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">${state.lang === 'en' ? 'Expert insight' : '専門家の視点'}</div><div class="picker-text">${escapeHtml(pc)}</div></div></div>` : ''}
                 ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-                ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(prettySource(n.source))}） →</a>` : ''}
+                ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${state.lang === 'en' ? 'Read full article' : '元記事を読む'}（${escapeHtml(prettySource(n.source))}） →</a>` : ''}
               </div>
-            </details>` : ''}
+            </details>` : ''; })()}
             <div class="brief-card-foot">
               <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
               <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
@@ -2067,7 +2090,9 @@
       const hiddenCount = sortedAll.length - sorted.length;
       if (!filterActive && !_moreExpanded && hiddenCount > 0) {
         expandBtn.removeAttribute('hidden');
-        expandBtn.textContent = `▼ もっと見る（残り ${hiddenCount} 件）`;
+        expandBtn.textContent = state.lang === 'en'
+          ? `▼ Show more (${hiddenCount} remaining)`
+          : `▼ もっと見る（残り ${hiddenCount} 件）`;
       } else {
         expandBtn.setAttribute('hidden', '');
       }
@@ -2079,17 +2104,18 @@
     const sectionHead = section ? section.previousElementSibling : null; // sec-head
     const root = document.getElementById('x-grid');
     // 実ツイートURL があり、かつ「バズっている」ものだけ表示。
-    // バズ閾値: likes + retweets × 3 >= 3000（引用・共有が多い = 実際に話題）。
-    // engagement データが無い / 閾値未満のポストは「トレンド」と呼べないので除外。件数上限はなし。
-    // バズ閾値: likes + retweets×3 >= 1500（数を倍に増やしたいので少し緩和）。
-    const X_BUZZ_MIN = 1500;
-    const score = x => (Number(x.likes) || 0) + (Number(x.retweets) || 0) * 3;
+    // バズ閾値: likes + retweets×3 >= 500
+    // buzz: メディア引用数ベースのバイラル指標（1〜5）。likes は buzz×1000 に変換済み。
+    // buzz>=1（= likes>=1000）を下限にして全投稿を表示対象に。
+    const X_BUZZ_MIN = 1000;
+    const score = x => (Number(x.buzz) || 0) * 1000 || (Number(x.likes) || 0);
     // 「人で絞る」のではなく「トレンドが高い記事」を素直にスコア順で並べる方針。
     // 同じ著者が複数本トレンドに入っていれば、それは実際にバズっているので表示してよい。
     // ただし 1 人だけが画面を独占する極端なケースを避けるため、ソフトキャップ（最大 3 件/著者）を入れる。
     const X_SOFT_CAP_PER_AUTHOR = 3;
     const sortedByScore = X_HIGHLIGHTS
-      .filter(x => x && x.url && /^https?:\/\//.test(x.url) && score(x) >= X_BUZZ_MIN)
+      .filter(x => x && x.url && /^https?:\/\//.test(x.url) && score(x) >= X_BUZZ_MIN
+                && (x.lang || 'ja').toLowerCase() === 'ja')  // 日本語投稿のみ
       .sort((a, b) => score(b) - score(a));
     const handleCount = new Map();
     const validItems = [];
@@ -2140,7 +2166,10 @@
       // 翻訳が空のときは原文のみ表示（「(翻訳)」と書きながら空欄を出さない）。
       const lang = String(x.lang || 'ja').toLowerCase();
       const isForeign = lang && lang !== 'ja' && lang !== 'jp';
-      const hasTranslation = isForeign && x.textJa && x.textJa.trim().length > 0;
+      const isJa = !isForeign;
+      const uiLang = state.lang; // 'ja' or 'en'
+      const hasTranslationJa = isForeign && x.textJa && x.textJa.trim().length > 0;
+      const hasTranslationEn = isJa && x.textEn && x.textEn.trim().length > 0;
       const langLabel = (
         lang === 'en' ? '英語' :
         lang === 'zh' || lang === 'zh-cn' || lang === 'zh-tw' ? '中国語' :
@@ -2150,10 +2179,26 @@
         lang === 'de' ? 'ドイツ語' :
         isForeign ? lang.toUpperCase() : ''
       );
-      const textHtml = hasTranslation
-        ? `<div class="x-text x-text-ja"><span class="x-trans-badge" title="${escapeHtml(langLabel)}原文を AI が日本語訳">日本語訳</span>${escapeHtml(x.textJa)}</div>
-           <div class="x-text x-text-orig" lang="${escapeHtml(lang)}"><span class="x-orig-badge">${escapeHtml(langLabel || '原文')}</span>${escapeHtml(x.text)}</div>`
-        : `<div class="x-text"${isForeign ? ` lang="${escapeHtml(lang)}"` : ''}>${escapeHtml(x.text)}</div>`;
+      let textHtml;
+      if (uiLang === 'en') {
+        // EN UI: 英語テキストを優先。日本語投稿は textEn に英訳を表示、その下に原文
+        if (isJa && hasTranslationEn) {
+          textHtml = `<div class="x-text x-text-ja"><span class="x-trans-badge" title="AI translated from Japanese">EN</span>${escapeHtml(x.textEn)}</div>
+           <div class="x-text x-text-orig" lang="ja"><span class="x-orig-badge">原文</span>${escapeHtml(x.text)}</div>`;
+        } else if (isForeign && hasTranslationJa) {
+          textHtml = `<div class="x-text"${isForeign ? ` lang="${escapeHtml(lang)}"` : ''}>${escapeHtml(x.text)}</div>`;
+        } else {
+          textHtml = `<div class="x-text"${isForeign ? ` lang="${escapeHtml(lang)}"` : ''}>${escapeHtml(x.text)}</div>`;
+        }
+      } else {
+        // JA UI: 日本語テキストを優先。英語投稿は textJa に日本語訳を表示
+        if (hasTranslationJa) {
+          textHtml = `<div class="x-text x-text-ja"><span class="x-trans-badge" title="${escapeHtml(langLabel)}原文を AI が日本語訳">日本語訳</span>${escapeHtml(x.textJa)}</div>
+           <div class="x-text x-text-orig" lang="${escapeHtml(lang)}"><span class="x-orig-badge">${escapeHtml(langLabel || '原文')}</span>${escapeHtml(x.text)}</div>`;
+        } else {
+          textHtml = `<div class="x-text"${isForeign ? ` lang="${escapeHtml(lang)}"` : ''}>${escapeHtml(x.text)}</div>`;
+        }
+      }
       return `
       <a class="x-item linked" href="${escapeHtml(x.url)}" target="_blank" rel="noopener noreferrer">
         <div class="x-head">
@@ -2379,7 +2424,8 @@
         textJa: String(x.textJa || ''),
         tag: String(x.tag || ''),
         url: String(x.url || ''),
-        likes: Number(x.likes) || 3000,
+        buzz: Number(x.buzz) || 1,
+        likes: Number(x.likes) || 1000,
         retweets: Number(x.retweets) || 0,
       }));
       try {
@@ -2416,14 +2462,19 @@
           importance: imp,
           readMin:    Number(it.readMin) || 1,
           title:      String(it.title || '').trim(),
-          summary:    stripBoilerplate(it.summary),
-          whyItMatters: stripBoilerplate(it.whyItMatters),
-          actionItem:   String(it.actionItem || '').trim(),
-          pickerComment: String(it.pickerComment || '').trim(),
+          summary:         stripBoilerplate(it.summary),
+          summaryEn:       String(it.summaryEn || '').trim(),
+          whyItMatters:    stripBoilerplate(it.whyItMatters),
+          whyItMattersEn:  String(it.whyItMattersEn || '').trim(),
+          actionItem:      String(it.actionItem || '').trim(),
+          actionItemEn:    String(it.actionItemEn || '').trim(),
+          pickerComment:   String(it.pickerComment || '').trim(),
+          pickerCommentEn: String(it.pickerCommentEn || '').trim(),
+          titleEn:         String(it.titleEn || '').trim(),
           urgency:    urg,
           source:     String(it.source || '').trim(),
           sourceType: it.sourceType || 'media',
-          category:   ['marketing','market','ai'].includes(it.category) ? it.category : 'marketing',
+          category:   ['marketing','dx','market','ai'].includes(it.category) ? it.category : 'dx',
           url:        safeUrl,
           image:      safeImgUrl(it.image) || null,
           publishedAt: it.publishedAt || new Date().toISOString(),
@@ -2451,8 +2502,10 @@
           text: String(x.text || ''),
           lang: String(x.lang || 'ja').toLowerCase(),
           textJa: String(x.textJa || ''),
+          textEn: String(x.textEn || ''),
           tag: String(x.tag || ''),
           url: String(x.url || ''),
+          buzz: Number(x.buzz) || 0,
           likes: Number(x.likes) || 0,
           retweets: Number(x.retweets) || 0,
         }));
@@ -2599,8 +2652,10 @@
           text: String(x.text || ''),
           lang: String(x.lang || 'ja').toLowerCase(),
           textJa: String(x.textJa || ''),
+          textEn: String(x.textEn || ''),
           tag: String(x.tag || ''),
           url: String(x.url || ''),
+          buzz: Number(x.buzz) || 0,
           likes: Number(x.likes) || 0,
           retweets: Number(x.retweets) || 0,
         }));
@@ -2927,27 +2982,29 @@
     const iconEl = btn.querySelector('.audio-btn-icon');
     const labelEl = btn.querySelector('.audio-btn-label');
     const metaEl = btn.querySelector('.audio-btn-meta');
+    const isEn = state.lang === 'en';
     if (iconEl && labelEl && metaEl) {
-      // label のパース: "⏹ 残り 2:34" / "▶ 今日のダイジェスト（約5分 · 準備完了）" / "🔊 聴く（約5分）"
       if (playing) {
         iconEl.textContent = '■';
-        labelEl.textContent = '停止';
+        labelEl.textContent = isEn ? 'Stop' : '停止';
         const m = label.match(/残り\s*([0-9:]+)/);
-        metaEl.textContent = m ? `残り ${m[1]}` : label;
-      } else if (/準備完了/.test(label)) {
+        metaEl.textContent = m ? (isEn ? `${m[1]} left` : `残り ${m[1]}`) : label;
+      } else if (/準備完了|ready/.test(label)) {
         iconEl.textContent = '▶';
-        labelEl.textContent = 'AI音声ダイジェスト';
-        const m = label.match(/約(\d+)分/);
-        metaEl.textContent = m ? `約${m[1]}分 · 準備完了` : '準備完了';
-      } else if (/ダイジェスト生成中|音声変換中/.test(label)) {
+        labelEl.textContent = isEn ? 'AI Audio Digest' : 'AI音声ダイジェスト';
+        const m = label.match(/約(\d+)分|(\d+)min/);
+        const min = m ? (m[1] || m[2]) : null;
+        metaEl.textContent = min ? (isEn ? `~${min} min · ready` : `約${min}分 · 準備完了`) : (isEn ? 'ready' : '準備完了');
+      } else if (/ダイジェスト生成中|音声変換中|generating/.test(label)) {
         iconEl.textContent = '…';
-        labelEl.textContent = '準備中';
-        metaEl.textContent = '少々お待ちください';
+        labelEl.textContent = isEn ? 'Preparing' : '準備中';
+        metaEl.textContent = isEn ? 'Please wait…' : '少々お待ちください';
       } else {
         iconEl.textContent = '▶';
-        labelEl.textContent = 'AI音声ダイジェスト';
-        const m = label.match(/約(\d+)分/);
-        metaEl.textContent = m ? `約${m[1]}分` : '約5分';
+        labelEl.textContent = isEn ? 'AI Audio Digest' : 'AI音声ダイジェスト';
+        const m = label.match(/約(\d+)分|(\d+)min/);
+        const min = m ? (m[1] || m[2]) : null;
+        metaEl.textContent = min ? (isEn ? `~${min} min` : `約${min}分`) : (isEn ? '~5 min' : '約5分');
       }
     } else {
       btn.textContent = label;
@@ -3157,34 +3214,35 @@
   let _prewarmedAudio = null;
 
   /** 音声プリロードの UI 状態を btn-listen に反映する。 */
-  function updatePreloadUI(state) {
+  function updatePreloadUI(uiState) {
     const btn = document.getElementById('btn-listen');
     if (!btn) return;
     const iconEl = btn.querySelector('.audio-btn-icon');
     const labelEl = btn.querySelector('.audio-btn-label');
     const metaEl = btn.querySelector('.audio-btn-meta');
-    if (speechState.playing) return; // 再生中は上書きしない
-    if (state === 'preparing') {
+    if (speechState.playing) return;
+    const isEn = state.lang === 'en';
+    if (uiState === 'preparing') {
       if (iconEl) iconEl.textContent = '⏳';
-      if (labelEl) labelEl.textContent = 'ダイジェスト準備中';
-      if (metaEl) metaEl.textContent = '音声を取得中…';
+      if (labelEl) labelEl.textContent = isEn ? 'Preparing digest' : 'ダイジェスト準備中';
+      if (metaEl) metaEl.textContent = isEn ? 'Fetching audio…' : '音声を取得中…';
       btn.classList.remove('ready');
       btn.classList.add('preparing');
-    } else if (state === 'generating-script') {
-      if (metaEl) metaEl.textContent = 'AI が台本を執筆中…';
-    } else if (state === 'generating-audio') {
-      if (metaEl) metaEl.textContent = 'ナレーション生成中…';
-    } else if (state === 'ready') {
+    } else if (uiState === 'generating-script') {
+      if (metaEl) metaEl.textContent = isEn ? 'AI writing script…' : 'AI が台本を執筆中…';
+    } else if (uiState === 'generating-audio') {
+      if (metaEl) metaEl.textContent = isEn ? 'Generating narration…' : 'ナレーション生成中…';
+    } else if (uiState === 'ready') {
       if (iconEl) iconEl.textContent = '▶';
-      if (labelEl) labelEl.textContent = 'AI音声ダイジェスト';
+      if (labelEl) labelEl.textContent = isEn ? 'AI Audio Digest' : 'AI音声ダイジェスト';
       const estMin = Math.max(3, Math.ceil((preloadedDigest || '').length / 320) || 5);
-      if (metaEl) metaEl.textContent = `約${estMin}分 · 準備完了`;
+      if (metaEl) metaEl.textContent = isEn ? `~${estMin} min · ready` : `約${estMin}分 · 準備完了`;
       btn.classList.remove('preparing');
       btn.classList.add('ready');
-    } else if (state === 'failed') {
+    } else if (uiState === 'failed') {
       if (iconEl) iconEl.textContent = '▶';
-      if (labelEl) labelEl.textContent = 'AI音声ダイジェスト';
-      if (metaEl) metaEl.textContent = '押して生成';
+      if (labelEl) labelEl.textContent = isEn ? 'AI Audio Digest' : 'AI音声ダイジェスト';
+      if (metaEl) metaEl.textContent = isEn ? 'Tap to generate' : '押して生成';
       btn.classList.remove('preparing', 'ready');
     }
   }
@@ -3198,7 +3256,7 @@
       // 以降は「await を一切挟まず」に play() まで到達させる。
       const audio = buildMobileSafeAudio(preloadedAudioUrl);
       speechState.audio = audio;
-      setBtnState(`⏹ 再生中`, true);
+      setBtnState(state.lang === 'en' ? `⏹ Playing` : `⏹ 再生中`, true);
       showAudioPlayer();
       audio.ontimeupdate = () => {
         if (!speechState.playing) return;
@@ -3207,7 +3265,7 @@
         const c = audio.currentTime || 0;
         const remSec = Math.max(0, Math.ceil((d - c) / (audio.playbackRate || 1)));
         const btn = document.getElementById('btn-listen');
-        if (btn) btn.textContent = `⏹ 残り ${fmtMMSS(remSec)}`;
+        if (btn) btn.textContent = state.lang === 'en' ? `⏹ ${fmtMMSS(remSec)} left` : `⏹ 残り ${fmtMMSS(remSec)}`;
       };
       audio.onended = () => stopSpeech();
       audio.onerror = () => { fallbackWebSpeech((preloadedDigest || '').split(/[。\n]+/).filter(Boolean)); };
@@ -3218,7 +3276,7 @@
       return;
     }
 
-    setBtnState('⏳ ダイジェスト生成中…', true);
+    setBtnState(state.lang === 'en' ? '⏳ Generating digest…' : '⏳ ダイジェスト生成中…', true);
     // プリロード進行中ならそれを待つ
     if (preloadPromise) {
       await preloadPromise;
@@ -3231,7 +3289,7 @@
     if (!speechState.playing) return;
 
     if (digest) {
-      setBtnState('⏳ 音声変換中…', true);
+      setBtnState(state.lang === 'en' ? '⏳ Converting to audio…' : '⏳ 音声変換中…', true);
       const audioUrl = await tryOpenAITTS(digest);
       if (!speechState.playing) return;
 
@@ -3242,7 +3300,7 @@
         // その場合は catch で fallbackWebSpeech に流れるので致命的ではない。
         const audio = buildMobileSafeAudio(audioUrl);
         speechState.audio = audio;
-        setBtnState(`⏹ 再生中`, true);
+        setBtnState(state.lang === 'en' ? `⏹ Playing` : `⏹ 再生中`, true);
         showAudioPlayer();
         audio.ontimeupdate = () => {
           if (!speechState.playing) return;
@@ -3251,7 +3309,7 @@
           const c = audio.currentTime || 0;
           const remSec = Math.max(0, Math.ceil((d - c) / (audio.playbackRate || 1)));
           const btn = document.getElementById('btn-listen');
-          if (btn) btn.textContent = `⏹ 残り ${fmtMMSS(remSec)}`;
+          if (btn) btn.textContent = state.lang === 'en' ? `⏹ ${fmtMMSS(remSec)} left` : `⏹ 残り ${fmtMMSS(remSec)}`;
         };
         audio.onended = () => stopSpeech();
         audio.onerror = () => { fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean)); };
@@ -3280,7 +3338,7 @@
   function fallbackWebSpeech(lines) {
     if (!('speechSynthesis' in window) || !speechState.playing) { stopSpeech(); return; }
     const estMin = Math.ceil(lines.join('').length / 300);
-    setBtnState(`⏹ 停止（約${estMin}分）`, true);
+    setBtnState(state.lang === 'en' ? `⏹ Stop (~${estMin} min)` : `⏹ 停止（約${estMin}分）`, true);
     let idx = 0;
     const voice = findBestJapaneseVoice();
     function speakNext() {
@@ -3306,7 +3364,7 @@
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     hideAudioPlayer();
     const estMin = preloadedDigest ? Math.ceil(preloadedDigest.length / 300) : 5;
-    setBtnState(`🔊 聴く（約${estMin}分）`, false);
+    setBtnState(state.lang === 'en' ? `🔊 Listen (~${estMin} min)` : `🔊 聴く（約${estMin}分）`, false);
   }
 
   function wireSpeech() {

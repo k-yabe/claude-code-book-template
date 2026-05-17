@@ -1,0 +1,14 @@
+{
+  "name": "ai-agent-org",
+  "version": "1.0.0",
+  "description": "AI Agent Organization scripts",
+  "type": "commonjs",
+  "scripts": {
+    "dispatch": "node scripts/task-dispatcher.js",
+    "execute": "node scripts/task-executor.js",
+    "standup": "node scripts/morning-standup.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0"
+  }
+}

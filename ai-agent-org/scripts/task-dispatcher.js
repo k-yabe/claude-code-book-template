@@ -31,7 +31,7 @@ function detectOrganization(content) {
   for (const rule of ORG_RULES) {
     if (rule.keywords.some(k => content.includes(k))) return rule.org;
   }
-  return 'akkodis';
+  return 'private';
 }
 
 // Agent routing rules: keyword → assignee + team
