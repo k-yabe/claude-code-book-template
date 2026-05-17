@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "inbox/_テンプレート.md",
+                "file": "📝 inboxの使い方.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "_テンプレート"
+              "title": "📝 inboxの使い方"
             }
           }
         ]
@@ -193,9 +193,9 @@
   },
   "active": "e762e3a8d151b50c",
   "lastOpenFiles": [
-    "inbox/20250517_副業案件.md",
-    "inbox/_テンプレート.md",
     "00_使い方.md",
+    "📝 inboxの使い方.md",
+    "inbox/20250517_副業案件.md",
     "context/ai-handoffs/dispatch-2026-05-16.md",
     "inbox/ウェビナー集客のコンテンツを作りたい.md",
     "context/professional-identity.md",
