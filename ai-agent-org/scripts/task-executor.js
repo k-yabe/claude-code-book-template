@@ -129,7 +129,8 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
 
 タスクを実行し、成果物または実行結果を日本語でまとめてください。
 成果物がある場合（文章・コード・資料など）は全文を出力してください。
-判断が必要で人間の確認が必要な場合は、その旨と理由を明記してください。`;
+判断が必要で人間の確認が必要な場合は、その旨と理由を明記してください。
+${useWebSearch ? '\n最新情報が必要な場合は積極的にweb_searchツールを使って検索してください。' : ''}`;
 
   console.log(`\n処理中: ${task.id} "${task.title}" → ${task.assignee} (${model})${useWebSearch ? ' [Web検索有効]' : ''}`);
 
@@ -163,23 +164,18 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
 
     if (response.stop_reason === 'tool_use') {
       const toolUseBlocks = response.content.filter(b => b.type === 'tool_use');
-      const toolResults = toolUseBlocks.map(block => ({
-        type: 'tool_result',
-        tool_use_id: block.id,
-        content: JSON.stringify(block.input), // SDK handles actual execution
-      }));
-      // web_search は Anthropic サーバーサイドで実行される（tool_result 不要）
-      // stop_reason が tool_use でも、Anthropic の web_search はサーバーが結果を注入するため
-      // 次のターンは assistant → user の tool_result なしに続ける
-      // → しかし SDK の仕様上 tool_result を返す必要があるケースもあるため
-      //    レスポンス内に web_search_result ブロックがあれば、そのまま続行
-      const hasServerResults = response.content.some(b => b.type === 'web_search_result' || b.type === 'tool_result');
-      if (hasServerResults || toolUseBlocks.length === 0) {
-        // サーバーが既に結果を注入済み → ループを継続してfinal responseを取得
+      console.log(`  → tool_use: ${toolUseBlocks.map(b => b.name).join(', ')} (ターン${i + 1})`);
+      const hasWebSearch = toolUseBlocks.some(b => b.name === 'web_search');
+      const hasServerResults = response.content.some(b => b.type === 'web_search_result');
+      if (hasWebSearch) {
+        // web_search はサーバーサイド実行: tool_result なしで次のターンへ
+        if (!hasServerResults) {
+          // 結果がまだない → assistantメッセージを追加して次のAPIコールで結果が来る
+          // ただしAPIにはassistantメッセージで終わらせられないので空のuser messageを追加
+          messages.push({ role: 'user', content: [{ type: 'tool_result', tool_use_id: toolUseBlocks[0].id, content: '検索を実行してください。' }] });
+        }
         continue;
       }
-      // フォールバック: tool_result を返す
-      messages.push({ role: 'user', content: toolResults });
       continue;
     }
 
