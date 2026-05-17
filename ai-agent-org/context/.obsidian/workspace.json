@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "inbox/20250517_副業案件.md",
+                "file": "00_使い方.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "20250517_副業案件"
+              "title": "00_使い方"
             }
           }
         ]
@@ -193,10 +193,10 @@
   },
   "active": "e762e3a8d151b50c",
   "lastOpenFiles": [
-    "00_使い方.md",
-    "inbox/20250517_副業案件.md",
-    "inbox/_テンプレート.md",
     "inbox/ウェビナー集客のコンテンツを作りたい.md",
+    "inbox/20250517_副業案件.md",
+    "00_使い方.md",
+    "inbox/_テンプレート.md",
     "conflict-files-obsidian-git.md",
     "使い方.md",
     "context/visual-design.md",
