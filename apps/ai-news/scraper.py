@@ -456,6 +456,26 @@ _COMPETITOR_NOISE_URL_PATTERNS = [
     "minkabu.jp/stock",
 ]
 
+# 競合企業が「主語」として記事の主役になっていることを示すアクション語。
+# これらがタイトルに含まれる場合、企業が言及されているだけでなく当事者として記事化されている。
+_COMPETITOR_ACTION_RE = re.compile(
+    r'発表|受注|受賞|契約|締結|連携|協業|パートナーシップ|参入|撤退|設立|買収|合併|分社|再編|'
+    r'開始|提供|展開|導入|リリース|ローンチ|新サービス|新機能|新製品|新事業|新会社|'
+    r'決算|業績|四半期|通期|上方修正|下方修正|増益|減益|黒字|赤字|売上|純利益|'
+    r'IR|プレスリリース|プレス|採用|増員|削減|人員|リストラ|組織|戦略|方針|計画|目標|'
+    r'獲得|選定|採択|認定|資格|表彰|IPO|上場|増資|出資|投資|M&A'
+)
+
+# 記事の表記ゆれを正規化：株式会社・（株）などの法人格表記を除去してマッチしやすくする。
+_CORP_SUFFIX_RE = re.compile(
+    r'(?:株式会社|合同会社|有限会社|（株）|\(株\)|㈱|・ホールディングス|ホールディングス|HD)\s*'
+)
+
+def _normalize_corp_text(text: str) -> str:
+    """社名表記の法人格部分を除去して競合マッチの取りこぼしを防ぐ。
+    例: 「富士通株式会社」→「富士通」、「テクノプロHD」→「テクノプロ」"""
+    return _CORP_SUFFIX_RE.sub('', text)
+
 # AKKODiS 事業部門のインテリジェンス・ブリーフには不要な消費者向け商品記事を
 # 全体からハード除外するためのワード。scrape 段階でフィードから落とす。
 _CONSUMER_NOISE_WORDS = [
@@ -575,14 +595,56 @@ def is_reprint(title: str, summary: str) -> bool:
 
 
 def is_competitor_mention(title: str, summary: str, url: str = "") -> bool:
-    """記事タイトル or 要約が AKKODiS 競合企業に言及しているか判定。
-    ただし製品販売・値下げ・株価情報等の「競合動向ではない」文脈は除外する。"""
-    hay = (title or "") + " " + (summary or "")
-    if any(w in hay for w in _COMPETITOR_NOISE_WORDS):
+    """競合企業が記事の「主役」として掲載されているかを判定。
+    単なる言及・引用・列挙は除外し、IR/プレスリリース/発表/決算など
+    企業が主語として行動している記事のみを拾う。
+
+    判定ルール（いずれかを満たすこと）:
+    1. タイトルに競合名 + 主語助詞（が/は）が続く
+    2. タイトルの先頭35字以内に競合名が登場 + タイトルにアクション語
+    3. タイトルで競合名の直後に読点（、）が続く（日本語見出しの主語パターン）
+    4. タイトルに競合名 + 「の」+ アクション語（例: NTTデータの決算発表）
+
+    ノイズ除外:
+    - 製品販売・値下げ・株価ページは除外（既存 NOISE_WORDS/URL_PATTERNS）
+    - タイトルに競合名がなく要約だけの場合は「通過言及」として除外
+    """
+    title_n = _normalize_corp_text(title or "")
+    hay_n   = _normalize_corp_text((title or "") + " " + (summary or ""))
+
+    # ノイズフィルタ（旧来のまま維持）
+    if any(w in hay_n for w in _COMPETITOR_NOISE_WORDS):
         return False
     if url and any(p in url for p in _COMPETITOR_NOISE_URL_PATTERNS):
         return False
-    return bool(_COMPETITOR_RE.search(hay))
+
+    # 競合名がタイトルに存在するか（正規化済みテキストで検索）
+    title_match = _COMPETITOR_RE.search(title_n)
+    if not title_match:
+        # タイトルに競合名がない = 要約中の通過言及 → 除外
+        return False
+
+    matched_name = title_match.group(0)
+    pos = title_match.start()
+
+    # ルール1: 競合名の直後に主語助詞「が」「は」
+    after = title_n[title_match.end():]
+    if re.match(r'\s*[がは]', after):
+        return True
+
+    # ルール2: 競合名の直後に読点（日本語見出しパターン「NTTデータ、〜を発表」）
+    if re.match(r'\s*[、,]', after):
+        return True
+
+    # ルール3: タイトル先頭35字以内に登場 + アクション語がタイトルにある
+    if pos <= 35 and _COMPETITOR_ACTION_RE.search(title_n):
+        return True
+
+    # ルール4: 競合名 + 「の」+ アクション語（例: 富士通の決算、アクセンチュアのIR）
+    if re.match(r'\s*の', after) and _COMPETITOR_ACTION_RE.search(title_n):
+        return True
+
+    return False
 
 
 def is_relevant(title: str, summary: str) -> bool:
