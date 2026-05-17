@@ -1126,7 +1126,7 @@ def fetch_all() -> list[dict]:
             if not seen:
                 continue
             overlap = len(tok & seen) / max(len(tok), len(seen))
-            if overlap >= 0.6:  # 60%以上一致 → 重複とみなす
+            if overlap >= 0.5:  # 50%以上一致 → 重複とみなす
                 is_dup = True
                 break
         if is_dup:
@@ -1761,33 +1761,38 @@ def fetch_x_trends_via_claude() -> list[dict]:
         sample = sorted(recent_handles)[:15]
         avoid_handles = f"\n既出ハンドル（除外）: {', '.join(f'@{h}' for h in sample)}\n"
 
-    prompt = f"""今日（{date_label}）または直近48時間以内に、日本のAI・DX・エンジニアコミュニティで話題になっているSNSコンテンツを6〜8件探してください。
+    prompt = f"""今日（{date_label}）または直近48時間以内にX（Twitter）で話題になった生成AI・DX・エンジニアリング関連の日本語ツイートを6件探してください。
 
-## 検索対象プラットフォーム（この順で検索）
+## 検索手順
 
-**① Togetter（最優先・最も確実）**
-- 検索クエリ例: 「togetter 生成AI まとめ {ym_label}」「togetter ChatGPT 話題」「togetter Claude AI」
-- URL形式: https://togetter.com/li/数字
-- Togetterは X/Twitter の話題投稿をまとめたサイト。見つかりやすく実在確認しやすい
+**ステップ1: Togetter でまとめを見つける**
+- 「togetter 生成AI {ym_label}」「togetter ChatGPT 話題」「togetter Claude AI エンジニア」などで検索
+- Togetterまとめページを開き、まとめ内の個別ツイートを読む
 
-**② note.com（技術・ビジネス記事）**
-- 検索クエリ例: 「note 生成AI 活用 {ym_label}」「note ChatGPT 業務 話題」
-- URL形式: https://note.com/ユーザー名/n/英数字
+**ステップ2: まとめ内のツイートを抽出する**
+- まとめの中から いいね数・RT数が多い個別ツイートを選ぶ
+- そのツイートの**原文テキスト**（本文そのまま）を取得する
+- 投稿者の表示名と @handle を取得する
+- ツイートの URL（https://x.com/handle/status/数字）を取得する
+- URLが取得できない場合はTogetterのURLを使う
 
-**③ X/Twitter直接投稿（見つかれば）**
-- 検索クエリ例: 「生成AI 使ってみた x.com 日本語」「ChatGPT 活用法 x.com」
-- URL形式: https://x.com/handle/status/数字
+**ステップ3: 直接 X を検索する（補完）**
+- 「生成AI 使ってみた site:x.com」「ChatGPT 活用 site:x.com」でも探す
 
 ## 採用基準
-- いいね・ブックマーク・RT が多いもの（buzz 2以上 = 100件以上相当）
-- 生成AI・DX・ITエンジニアリング・クラウドに関するもの
-- 日本語コンテンツのみ
-- **実在確認できたURLのみ採用**（架空URL・推測URLは絶対禁止）
+- **buzz 2以上（いいね100+相当）のみ**
+- 日本語ツイートのみ
+- 生成AI・DX・IT・エンジニアリング関連
+- **架空のURL・著者名は絶対に生成しない**
 {avoid_handles}
 ## 出力（JSONのみ・説明文なし）
 {{"items":[
-  {{"author":"著者名またはまとめタイトル", "handle":"@handle", "text":"内容要約（180字以内）", "lang":"ja", "textJa":"", "textEn":"English summary", "buzz":3, "url":"https://...", "tag":"トピック名"}},
-  ...
+  {{"author":"ツイート投稿者の表示名", "handle":"@handle",
+   "text":"ツイートの原文テキストそのまま（要約・改変禁止・200字以内）",
+   "lang":"ja", "textJa":"", "textEn":"英語訳",
+   "buzz":3,
+   "url":"https://x.com/handle/status/数字 またはtogetterのURL",
+   "tag":"トピック名"}}
 ]}}
 
 見つからない場合は items を空配列にする。"""
@@ -1857,18 +1862,13 @@ def fetch_x_trends_via_claude() -> list[dict]:
         buzz_score = max(1, min(5, int(it.get("buzz") or 2)))
         likes_equiv = buzz_score * 1000
 
-        # プラットフォーム別アバター
-        if "togetter.com" in url:
-            avatar = "https://togetter.com/assets/apple-touch-icon.png"
-        elif "note.com" in url:
-            h = handle.lstrip("@") if handle else ""
-            avatar = f"https://note.com/{h}/icon" if h else "https://note.com/favicon.ico"
-        elif "qiita.com" in url:
-            h = handle.lstrip("@") if handle else ""
-            avatar = f"https://avatars.githubusercontent.com/{h}" if h else "https://qiita.com/favicon.ico"
+        # アバター: X は unavatar.io で取得、それ以外はデフォルト画像
+        h = handle.lstrip("@") if handle else ""
+        if "togetter.com" in url or "note.com" in url or "qiita.com" in url or "zenn.dev" in url:
+            # 非X URLの場合もhandleがあれば unavatar で試みる（Twitterと同名のことが多い）
+            avatar = f"https://unavatar.io/x/{h}" if h else "https://pbs.twimg.com/profile_images/default_profile_400x400.png"
         else:
-            h = handle.lstrip("@") if handle else ""
-            avatar = f"https://unavatar.io/x/{h}" if h else ""
+            avatar = f"https://unavatar.io/x/{h}" if h else "https://pbs.twimg.com/profile_images/default_profile_400x400.png"
 
         out.append({
             "id": f"xt_{hashlib.sha1(url.encode()).hexdigest()[:10]}",
