@@ -168,6 +168,14 @@ async function main() {
     process.exit(1);
   }
 
+  // 最新のtasks.jsonを取得してから処理
+  try {
+    execSync('git pull --rebase', { cwd: ROOT });
+    console.log('✓ GitHubから最新データを取得');
+  } catch (err) {
+    console.error('git pull 失敗（続行）:', err.message);
+  }
+
   const data = loadTasks();
   const pending = data.tasks
     .filter(t => t.status === 'new-assigned' && t.assigneeType === 'ai')
