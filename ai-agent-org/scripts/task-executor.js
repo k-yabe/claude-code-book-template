@@ -133,7 +133,7 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
 
   console.log(`\n処理中: ${task.id} "${task.title}" → ${task.assignee} (${model})${useWebSearch ? ' [Web検索有効]' : ''}`);
 
-  const tools = useWebSearch ? [{ type: 'web_search_20260209', name: 'web_search' }] : undefined;
+  const tools = useWebSearch ? [{ type: 'web_search_20260209', name: 'web_search', allowed_callers: ['direct'] }] : undefined;
   const betas = useWebSearch ? ['web-search-2025-03-05'] : undefined;
 
   const messages = [{ role: 'user', content: userMessage }];
