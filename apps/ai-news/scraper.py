@@ -134,7 +134,7 @@ SOURCES: list[dict[str, object]] = [
 ]
 
 # 取得上限・要約上限
-RECENT_HOURS    = 36
+RECENT_HOURS    = 48
 PER_SOURCE_MAX  = 8
 SUMMARIZE_MAX   = 20      # Claude に渡す件数上限
 TIMEOUT_SEC     = 15      # feedparser には直接効かないため socket で設定
@@ -1761,37 +1761,38 @@ def fetch_x_trends_via_claude() -> list[dict]:
         sample = sorted(recent_handles)[:15]
         avoid_handles = f"\n既出ハンドル（除外）: {', '.join(f'@{h}' for h in sample)}\n"
 
-    prompt = f"""今日（{date_label}）または直近48時間以内にX（Twitter）で話題になった生成AI・DX・エンジニアリング関連の日本語ツイートを6件探してください。
+    prompt = f"""今日（{date_label}）または直近48時間以内に日本語SNSで話題になった生成AI・DX・エンジニアリング関連コンテンツを6件探してください。
 
-## 検索手順
+## 検索方法（この順で試す）
 
-**ステップ1: Togetter でまとめを見つける**
-- 「togetter 生成AI {ym_label}」「togetter ChatGPT 話題」「togetter Claude AI エンジニア」などで検索
-- Togetterまとめページを開き、まとめ内の個別ツイートを読む
+**① Togetter でAI関連まとめを検索**
+- 「togetter 生成AI {ym_label}」「togetter ChatGPT 話題」などで検索
+- まとめページを取得し、そのまとめ内で引用されている**個別ツイートの本文**を読む
+- 最もいいね・RTが多そうなツイートの本文・投稿者名・handleを返す
+- URLは実際のツイートURL（https://x.com/handle/status/数字）。取れない場合はTogetterのURL
 
-**ステップ2: まとめ内のツイートを抽出する**
-- まとめの中から いいね数・RT数が多い個別ツイートを選ぶ
-- そのツイートの**原文テキスト**（本文そのまま）を取得する
-- 投稿者の表示名と @handle を取得する
-- ツイートの URL（https://x.com/handle/status/数字）を取得する
-- URLが取得できない場合はTogetterのURLを使う
+**② X を直接検索**
+- 「生成AI 活用 site:x.com」「ChatGPT エンジニア site:x.com」などで検索
+- 見つかったツイート本文をそのまま返す
 
-**ステップ3: 直接 X を検索する（補完）**
-- 「生成AI 使ってみた site:x.com」「ChatGPT 活用 site:x.com」でも探す
+## textフィールドのルール（重要）
+- **ツイートの原文をそのまま記載**（要約・改変禁止）
+- まとめ記事のタイトルや説明文ではなく、実際のツイート投稿内容を書く
+- 例: 「ChatGPTで今日の業務が3時間→30分になった。具体的には…」のような実際の投稿文
 
 ## 採用基準
-- **buzz 2以上（いいね100+相当）のみ**
-- 日本語ツイートのみ
+- buzz 2以上（いいね100+相当）
+- 日本語のみ
 - 生成AI・DX・IT・エンジニアリング関連
-- **架空のURL・著者名は絶対に生成しない**
+- **架空URL・架空著者名は絶対禁止**
 {avoid_handles}
 ## 出力（JSONのみ・説明文なし）
 {{"items":[
   {{"author":"ツイート投稿者の表示名", "handle":"@handle",
-   "text":"ツイートの原文テキストそのまま（要約・改変禁止・200字以内）",
+   "text":"ツイート原文（200字以内）",
    "lang":"ja", "textJa":"", "textEn":"英語訳",
    "buzz":3,
-   "url":"https://x.com/handle/status/数字 またはtogetterのURL",
+   "url":"https://x.com/handle/status/数字 またはTogetter URL",
    "tag":"トピック名"}}
 ]}}
 
