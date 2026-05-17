@@ -370,9 +370,9 @@ INDUSTRY_KEYWORDS_CONTAIN = [
     "エンジニア", "技術者", "開発者", "プログラマー",
     "技術者育成", "エンジニア育成", "技術研修",
     "リスキリング", "スキルアップ", "スキルトランスフォーメーション",
-    # クラウド・インフラ（"クラウド" 単体を追加して広くカバー）
-    "クラウド", "クラウド移行", "クラウド活用", "クラウドネイティブ", "マルチクラウド",
-    "クラウドインフラ", "オンプレミス", "ハイブリッドクラウド",
+    # クラウド・インフラ（"クラウド" 単体は "クラウドファンディング" に誤マッチするため除外）
+    "クラウドサービス", "クラウド移行", "クラウド活用", "クラウドネイティブ", "マルチクラウド",
+    "クラウドインフラ", "クラウドコンピューティング", "オンプレミス", "ハイブリッドクラウド",
     "データセンター", "エンタープライズネットワーク", "ネットワークセキュリティ",
     # セキュリティ（脅威系キーワードを拡充）
     "サイバーセキュリティ", "情報セキュリティ", "セキュリティ対策",
@@ -545,6 +545,10 @@ _CONSUMER_NOISE_WORDS = [
     "楽天モバイルの", "ドコモの電波", "ソフトバンクの電波", "auの電波",
     "ふるさと納税", "ポイント還元キャンペーン", "増量キャンペーン",
     "プレゼントキャンペーン", "抽選キャンペーン",
+    # クラウドファンディング・映画・ライブ・音楽（エンタメ系）
+    "クラウドファンディング", "全力ライブ", "映画化プロジェクト", "映画撮影参加権",
+    "ライブ映像", "ライブBlu-ray", "ライブDVD",
+    "全力ライブ", "ライブ THE MOVIE", "伝説のコラボ",
 ]
 
 # B2C インフルエンサー / 芸能 / 化粧品 / 観光 / スポーツ消費者文脈の
@@ -1102,6 +1106,39 @@ def fetch_all() -> list[dict]:
     if dropped:
         log(f"per-source cap: dropped {dropped} items (cap={PER_SOURCE_HARD_CAP}/source)")
     all_items = capped
+
+    # タイトル類似度による重複排除（同一トピックを複数ソースが配信する場合）
+    def _title_tokens(t: str) -> set[str]:
+        # 2文字以上の単語で比較（助詞・記号除く）
+        return set(re.findall(r"[^\s　、。！，．「」【】『』\(\)（）、。！？\-\|・…]{2,}", t))
+
+    deduped: list[dict] = []
+    seen_tokens: list[set[str]] = []
+    dup_dropped = 0
+    for it in all_items:
+        tok = _title_tokens(it["title"])
+        if not tok:
+            deduped.append(it)
+            seen_tokens.append(tok)
+            continue
+        is_dup = False
+        for seen in seen_tokens:
+            if not seen:
+                continue
+            overlap = len(tok & seen) / max(len(tok), len(seen))
+            if overlap >= 0.6:  # 60%以上一致 → 重複とみなす
+                is_dup = True
+                break
+        if is_dup:
+            dup_dropped += 1
+            log(f"  dedup: {it['title'][:50]}")
+        else:
+            deduped.append(it)
+            seen_tokens.append(tok)
+    if dup_dropped:
+        log(f"title dedup: dropped {dup_dropped} duplicate-topic items")
+    all_items = deduped
+
     log(f"total collected (after filter): {len(all_items)}")
     return all_items
 
@@ -1235,17 +1272,18 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         "IT業界・人材・競合の国内動向（must_know未満のもの）\n\n"
         "**fyi**: その他のAI製品リリース・調査レポート・一般業界ニュース\n\n"
         "## 各記事のフィールド（日本語で生成）\n"
-        "- summary: 事実要約（80〜120字）。主語・数値・固有名詞を明記。タイトルのコピーは禁止\n"
-        "- whyItMatters: AKKODiS事業に何が変わるか（1文）。summaryの言い換え禁止。「だから自分たちはどうなるのか」を書く\n"
-        "- actionItem: 誰が・何を・いつまでにの要素を含む推奨アクション（1文）\n"
-        "- pickerComment: ITコンサル/DX推進CXO視点の業界洞察（1〜2文）。「〜に注目」「〜が鍵」の定型表現禁止\n"
+        "- summary: **事実のみ**（80〜120字）。「誰が・何を・いくらで・いつ」を明記。解釈・予測・感想は一切禁止。タイトルのコピーも禁止\n"
+        "- whyItMatters: AKKODiS事業への影響（1文）。summaryの言い換え禁止。ここのみ解釈・推測を許可する\n"
+        "- actionItem: 誰が・何を・いつまでにの要素を含む具体的推奨アクション（1文）\n"
+        "- pickerComment: ITコンサル/DX推進CXO視点の業界洞察（1〜2文）。解釈・補足OK。「〜に注目」「〜が鍵」の定型表現禁止\n"
         "- urgency: must_know / this_week / fyi\n"
         "- tags: 日本語タグ2〜4個\n"
-        "- importance: 1（must_know最重要1件）/ 2（this_week）/ 3（fyi）\n"
+        "- importance: **1は全記事中の最重要1件のみ**（0件でも可）。AKKODiS事業に直撃する競合M&A・大型受注・法改正のみ。迷ったら2にする\n"
+        "  2（this_week相当）/ 3（fyi）\n"
         "- readMin: 1〜3\n\n"
         "## executiveSummary\n"
-        "今日の記事群を俯瞰した2〜3行。各行は完結した1文（40〜80字・句点で終わる）。\n"
-        "AI/DX/競合動向で今日最も重要なことを書く。推測・煽り禁止。事実と影響のみ。\n\n"
+        "今日の記事群を俯瞰した2〜3行。各行は**事実ベース**の完結した1文（40〜80字・句点で終わる）。\n"
+        "推測・解釈・煽り禁止。「〜が発表」「〜が判明」など報道事実の列挙でよい。\n\n"
         "出力形式（JSONのみ）:\n"
         "{\"executiveSummary\":[\"...\",\"...\"],"
         "\"items\":[{\"i\":0,\"summary\":\"...\",\"whyItMatters\":\"...\",\"actionItem\":\"...\","
