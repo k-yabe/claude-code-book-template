@@ -3583,35 +3583,28 @@
       return true;
     });
     const byRecent = (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt);
-    // 競合動向セクションは AKKODiS の直接競合（50+社）への言及記事に絞る。
-    // 「IT人材不足」等の業界一般キーワードで拾うと無関係な企業（例: みずほ証券の Devin 導入）
-    // までマッチしてしまうため、INDUSTRY_KEYWORDS は競合動向には含めない。
+    // 競合動向セクションは AKKODiS の直接競合（50+社）への言及記事のみ。
+    // 業界一般キーワードでのフォールバックは廃止（関係ない記事が混入するため）。
     let items = base
       .filter(n => matchesCompetitor(n))
       .slice()
       .sort(byRecent);
-    // 0 件時のみ INDUSTRY_KEYWORDS（業界マクロ動向）でフォールバック救済
-    if (!items.length) {
-      items = base.filter(n => matchesIndustry(n)).slice().sort(byRecent);
-    }
-    // 元記事リンクがない記事は表示しない（ニュースアプリとしてリンク必須）
+    // 元記事リンクがない記事は表示しない
     const withUrl = items.filter(n => n.url && /^https?:\/\//.test(n.url));
-    // 画像必須 + 画像 URL の重複排除（同じ画像が並ぶのを防ぐ）
+    // 画像必須 + 画像 URL の重複排除
     const seenImages = new Set();
     const withImg = withUrl.filter(n => {
       const img = n.image;
       if (!img || !/^https?:\/\//.test(img)) return false;
-      // 画像 URL の末尾クエリ差を吸収してキー化
       const key = img.split('?')[0].split('#')[0].toLowerCase();
       if (seenImages.has(key)) return false;
       seenImages.add(key);
       return true;
     });
     if (!withImg.length) {
-      // OGP hydrate がまだ走っていないケースの「読み込み中」状態 / データ不足時のメッセージ
       list.removeAttribute('hidden');
       head.style.display = '';
-      list.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">🏢</div><div class="empty-text">競合ニュースの画像を取得中です…<br><small style="opacity:0.7">数秒で読み込まれます。更新がなければ明朝 8:00 JST の次回配信をお待ちください。</small></div></div>';
+      list.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">🏢</div><div class="empty-text">本日は競合企業（NTTデータ・富士通・アクセンチュア等）の新着ニュースはありません。<br><small style="opacity:0.7">明朝 8:00 JST の次回配信をお待ちください。</small></div></div>';
       return 0;
     }
     list.removeAttribute('hidden');
