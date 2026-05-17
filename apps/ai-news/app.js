@@ -2114,7 +2114,8 @@
     // ただし 1 人だけが画面を独占する極端なケースを避けるため、ソフトキャップ（最大 3 件/著者）を入れる。
     const X_SOFT_CAP_PER_AUTHOR = 3;
     const sortedByScore = X_HIGHLIGHTS
-      .filter(x => x && x.url && /^https?:\/\//.test(x.url) && score(x) >= X_BUZZ_MIN)
+      .filter(x => x && x.url && /^https?:\/\//.test(x.url) && score(x) >= X_BUZZ_MIN
+                && (x.lang || 'ja').toLowerCase() === 'ja')  // 日本語投稿のみ
       .sort((a, b) => score(b) - score(a));
     const handleCount = new Map();
     const validItems = [];
