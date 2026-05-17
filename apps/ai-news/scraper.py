@@ -2,7 +2,8 @@
 """
 AI NEWS 収集スクリプト
 
-複数のRSSフィード（マーケ／市場・業界／AI）を横断取得し、
+AKKODiS コンサルティングの事業領域（ITコンサル・DX支援・エンジニアリング派遣・
+システム開発・技術者育成）に関するRSSフィードを横断取得し、
 Anthropic Claude Haiku で日本語サマリー + タグを生成して
 apps/ai-news/data/news.json と apps/ai-news/data/archives/YYYY-MM-DD.json に保存する。
 
@@ -11,6 +12,7 @@ apps/ai-news/data/news.json と apps/ai-news/data/archives/YYYY-MM-DD.json に�
 - 1ソース失敗で全体を止めない
 - 重複は URL で排除
 - 結果は publishedAt 降順
+- Anthropic API コスト: 月 $5 以内で運用（Claude Haiku 4.5 使用）
 """
 
 from __future__ import annotations
@@ -35,34 +37,29 @@ JST = timezone(timedelta(hours=9))
 UTC = timezone.utc
 
 # ── 監視対象 RSS フィード ──────────────────────────────────────────
-# category: marketing | market | ai
+# category: dx | market | ai
+# AKKODiS コンサルティングの事業領域: ITコンサル・DX支援・エンジニアリング派遣・
+# システム開発・BPO・技術者育成
 SOURCES: list[dict[str, object]] = [
-    # マーケティング系（正統派ニュースメディア優先）
-    {"name": "MarkeZine",                "url": "https://markezine.jp/rt/new.rdf",                            "category": "marketing", "tier": "media", "max": 8},
-    {"name": "Web担当者Forum",            "url": "https://webtan.impress.co.jp/rss/all",                       "category": "marketing", "tier": "media", "max": 8},
-    {"name": "ferret",                   "url": "https://ferret-plus.com/feed",                               "category": "marketing", "tier": "media", "max": 6},
-    {"name": "AdverTimes",               "url": "https://www.advertimes.com/feed/",                            "category": "marketing", "tier": "media", "max": 6},
-    {"name": "DIGIDAY[日本版]",           "url": "https://digiday.jp/feed/",                                    "category": "marketing", "tier": "media", "max": 6},
-    {"name": "AdTech Tokyo (Web担)",      "url": "https://webtan.impress.co.jp/rss/category/37",                "category": "marketing", "tier": "media", "max": 4},
-    # 市場・業界（正統派ニュースメディア）
-    {"name": "電通報",                    "url": "https://dentsu-ho.com/articles.atom",                         "category": "market",    "tier": "media", "max": 6},
-    {"name": "ITmedia マーケティング",    "url": "https://rss.itmedia.co.jp/rss/2.0/marketing.xml",            "category": "market",    "tier": "media", "max": 6},
-    # AI 総合（正統派ニュースメディア）
-    {"name": "ITmedia AI+",              "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",               "category": "ai",        "tier": "media", "max": 8},
-    {"name": "ITmedia NEWS",             "url": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",          "category": "ai",        "tier": "media", "max": 6},
-    {"name": "ASCII.jp",                 "url": "https://ascii.jp/rss.xml",                                    "category": "ai",        "tier": "media", "max": 5},
-    {"name": "Ledge.ai",                 "url": "https://ledge.ai/feed",                                       "category": "ai",        "tier": "media", "max": 6},
-    {"name": "AI-SCHOLAR",               "url": "https://ai-scholar.tech/feed",                                "category": "ai",        "tier": "media", "max": 4},
-    {"name": "日経クロステック AI",        "url": "https://xtech.nikkei.com/rss/xtech-it.rdf",                    "category": "ai",        "tier": "media", "max": 5},
-    {"name": "TECH+ AI",                 "url": "https://news.mynavi.jp/techplus/rss/ai/",                     "category": "ai",        "tier": "media", "max": 4},
-    # テック総合メディア
-    {"name": "Publickey",                "url": "https://www.publickey1.jp/atom.xml",                          "category": "ai",        "tier": "media", "max": 4},
-    {"name": "gihyo.jp",                 "url": "https://gihyo.jp/feed/rss2",                                  "category": "ai",        "tier": "media", "max": 3},
+    # ── AI / 生成AI 総合（コア領域） ──
+    {"name": "ITmedia AI+",              "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",               "category": "ai",  "tier": "media", "max": 8},
+    {"name": "ITmedia NEWS",             "url": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",          "category": "ai",  "tier": "media", "max": 6},
+    {"name": "日経クロステック",           "url": "https://xtech.nikkei.com/rss/xtech-it.rdf",                  "category": "ai",  "tier": "media", "max": 6},
+    {"name": "ASCII.jp",                 "url": "https://ascii.jp/rss.xml",                                    "category": "ai",  "tier": "media", "max": 4},
+    {"name": "Ledge.ai",                 "url": "https://ledge.ai/feed",                                       "category": "ai",  "tier": "media", "max": 5},
+    {"name": "TECH+",                    "url": "https://news.mynavi.jp/techplus/rss/ai/",                     "category": "ai",  "tier": "media", "max": 4},
+    {"name": "Publickey",                "url": "https://www.publickey1.jp/atom.xml",                          "category": "ai",  "tier": "media", "max": 5},
+    # ── DX・ITコンサル・エンタープライズIT（AKKODiS コア事業領域） ──
+    {"name": "EnterpriseZine",           "url": "https://enterprisezine.jp/rss/all",                           "category": "dx",  "tier": "media", "max": 6},
+    {"name": "IT Leaders",               "url": "https://it.impress.co.jp/rss/",                               "category": "dx",  "tier": "media", "max": 5},
+    {"name": "ZDNet Japan",              "url": "https://japan.zdnet.com/rss/index.rdf",                        "category": "dx",  "tier": "media", "max": 5},
+    {"name": "ITmedia エンタープライズ",  "url": "https://rss.itmedia.co.jp/rss/2.0/enterprise.xml",           "category": "dx",  "tier": "media", "max": 5},
+    {"name": "日経コンピュータ",          "url": "https://xtech.nikkei.com/rss/xtech-nc.rdf",                   "category": "dx",  "tier": "media", "max": 4},
+    {"name": "gihyo.jp",                 "url": "https://gihyo.jp/feed/rss2",                                  "category": "dx",  "tier": "media", "max": 3},
     # コミュニティ（各1〜2件のみ採用 → ニュースメディアを圧倒しないように）
-    {"name": "Zenn (生成AI)",             "url": "https://zenn.dev/topics/生成ai/feed",                         "category": "ai",        "tier": "ugc",   "max": 2},
-    {"name": "Zenn (Claude)",            "url": "https://zenn.dev/topics/claude/feed",                         "category": "ai",        "tier": "ugc",   "max": 2},
-    {"name": "Qiita (AI)",               "url": "https://qiita.com/tags/ai/feed",                              "category": "ai",        "tier": "ugc",   "max": 1},
-    {"name": "note (AI)",                "url": "https://note.com/hashtag/AI/rss",                             "category": "ai",        "tier": "ugc",   "max": 1},
+    {"name": "Zenn (生成AI)",             "url": "https://zenn.dev/topics/生成ai/feed",                         "category": "ai",  "tier": "ugc",   "max": 2},
+    {"name": "Zenn (Claude)",            "url": "https://zenn.dev/topics/claude/feed",                         "category": "ai",  "tier": "ugc",   "max": 2},
+    {"name": "Qiita (AI)",               "url": "https://qiita.com/tags/ai/feed",                              "category": "ai",  "tier": "ugc",   "max": 1},
     # ── 競合モニタリング ─────────────────────────────────────────
     # 【経緯】PR TIMES の `freeword/<company>/0/1` は2026/4/22以降、過去 7 日間の
     # 全ログで 0 件。URL パターン廃止 or feed 形式変更が原因と推定。コーポレート公式 RSS
@@ -305,34 +302,49 @@ AI_KEYWORDS_CONTAIN = [
     "バイブコーディング", "AIコーディング", "AIペアプログラミング",
     "AIエディタ", "AI補完",
 ]
-# マーケティング関連キーワード（AI と並んで受け入れる対象）
-MARKETING_KEYWORDS_WORD = [
-    "SEO", "SEM", "CVR", "CTR", "CPA", "CPC", "CPM", "ROAS", "LTV",
-    "CRM", "CDP", "DMP",
-    "MarTech", "AdTech", "HRTech",
-    "ATS",  # Applicant Tracking System（人材業界専門用語）
+# AKKODiS 事業領域キーワード（AI と並んで受け入れる対象）
+# AKKODiS コンサルティングの事業: ITコンサル・DX支援・エンジニアリング派遣・
+# システム開発・BPO・技術者育成（採用支援・採用マーケティングは事業対象外）
+INDUSTRY_KEYWORDS_WORD = [
+    "DX", "BPO", "SES", "RPA",
+    "DevOps", "MLOps", "FinOps",
+    "ERP", "CRM", "SaaS", "IaaS", "PaaS",
+    "SAP", "Salesforce", "ServiceNow",
+    "AWS", "Azure", "GCP",
+    "ITSM", "ITIL",
+    "PMO", "PMP",
 ]
-MARKETING_KEYWORDS_CONTAIN = [
-    # マーケティング専門用語（「ブランド」「配信」「キャンペーン」「プロモーション」等の
-    # generic 語は通信プラン・SIM 契約・家電セールに誤マッチするので含めない。
-    # B2B マーケ視点で意味のある専門用語のみに絞る）
-    "マーケティング", "マーケ",
-    "ブランディング", "コンテンツマーケ", "コンテンツマーケティング",
-    "コンバージョン", "リターゲティング", "リターゲ", "リタゲ",
-    "インフルエンサー", "アフィリエイト",
-    "動画広告", "ディスプレイ広告", "運用型広告", "検索連動",
-    "メルマガ", "ニュースレター",
-    "リード獲得", "リードナーチャ",
-    # Candidate marketing（人材・採用）— AKKODiS のコア
-    "採用広告", "採用マーケ", "採用マーケティング", "リクルート広告",
-    "求人", "人材紹介", "転職", "新卒採用", "中途採用",
-    "エンジニア採用", "タレントマネジメント", "スカウト",
-    "候補者体験", "候補者", "内定",
-    "パーソル", "マイナビ", "エン・ジャパン",
-    "Indeed", "LinkedIn",
+INDUSTRY_KEYWORDS_CONTAIN = [
+    # DX・デジタル変革
+    "デジタルトランスフォーメーション", "デジタル変革", "DX推進", "DX支援",
+    "デジタル化", "デジタル戦略", "デジタル投資",
+    # ITコンサルティング・システム開発
+    "ITコンサル", "ITコンサルティング", "システム開発", "システム構築",
+    "基幹システム", "レガシーシステム", "システム刷新", "システム移行",
+    "SIer", "SI事業", "受託開発", "オフショア開発",
+    "アジャイル開発", "スクラム", "ウォーターフォール",
+    # エンジニアリング派遣・技術者
+    "エンジニアリング派遣", "技術者派遣", "エンジニア派遣",
+    "技術者育成", "エンジニア育成", "技術研修",
+    "リスキリング", "スキルアップ", "スキルトランスフォーメーション",
+    # クラウド・インフラ
+    "クラウド移行", "クラウド活用", "クラウドネイティブ", "マルチクラウド",
+    "クラウドインフラ", "オンプレミス", "ハイブリッドクラウド",
+    # セキュリティ
+    "サイバーセキュリティ", "情報セキュリティ", "セキュリティ対策",
+    "ゼロトラスト", "SIEM", "SOC", "脆弱性",
+    # 業務改革・BPO
+    "業務効率化", "業務改革", "業務自動化", "業務委託",
+    "BPO事業", "アウトソーシング", "シェアードサービス",
+    # IT人材・労働市場
+    "IT人材", "IT人材不足", "技術者不足", "エンジニア不足",
+    "人材市場", "技術者市場", "エンジニア市場",
+    # 業界動向・M&A
+    "IT業界", "SI業界", "ITサービス", "ITソリューション",
+    "M&A", "業務提携", "資本提携", "ジョイントベンチャー",
 ]
 _AI_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in AI_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
-_MKT_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in MARKETING_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
+_IND_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in INDUSTRY_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
 
 # ── AKKODiS 競合モニタリング ──────────────────────────────────────
 # AKKODiS は Adecco Group 傘下の IT サービス / エンジニアリング企業。
@@ -444,7 +456,7 @@ _COMPETITOR_NOISE_URL_PATTERNS = [
     "minkabu.jp/stock",
 ]
 
-# B2B マーケ担当者のインテリジェンス・ブリーフには不要な消費者向け商品記事を
+# AKKODiS 事業部門のインテリジェンス・ブリーフには不要な消費者向け商品記事を
 # 全体からハード除外するためのワード。scrape 段階でフィードから落とす。
 _CONSUMER_NOISE_WORDS = [
     "お買い得", "キャンセル品", "セール品", "値下げ", "値引き", "特価",
@@ -452,7 +464,7 @@ _CONSUMER_NOISE_WORDS = [
     "予約受付中", "予約開始", "新発売", "発売日決定", "開封レビュー",
     "WEB MART", "Direct Shop", "アウトレット",
     "円引き", "円OFF", "割引セール", "期間限定セール",
-    # 消費者向け通信プラン・SIM・端末プロモは B2B マーケ視点で不要
+    # 消費者向け通信プラン・SIM・端末プロモは AKKODiS 事業視点で不要
     "半額キャンペーン", "半額セール", "半額プラン",
     "格安SIM", "MVNO", "格安スマホ", "格安プラン",
     "ガラケー", "パカパカケータイ", "二つ折り携帯", "フィーチャーフォン",
@@ -463,8 +475,7 @@ _CONSUMER_NOISE_WORDS = [
 ]
 
 # B2C インフルエンサー / 芸能 / 化粧品 / 観光 / スポーツ消費者文脈の
-# 「マーケ用語は出るが AKKODiS B2B 案件には無関係」記事を弾くワード。
-# 「インフルエンサー」「ブランディング」自体は B2B 文脈でも使うため、ここでは
+# 「AKKODiS 事業には無関係」な記事を弾くワード。
 # B2C 限定の強いシグナル（ファンダム／推し／化粧品ブランド名／消費者ブランド／
 # スポーツビッグイベント／芸能人不祥事）に絞る。
 _B2C_FLUFF_WORDS = [
@@ -574,29 +585,32 @@ def is_competitor_mention(title: str, summary: str, url: str = "") -> bool:
     return bool(_COMPETITOR_RE.search(hay))
 
 
-def is_ai_related(title: str, summary: str) -> bool:
-    """タイトル + 要約に AI or マーケティング キーワードが含まれているかを判定。
-    「AI NEWS」は AI + マーケ視点でマーケ担当者が毎朝読むメディアなので、
-    両方のトピックを受け入れる。純粋なエンタメ/ガジェット/スポーツは除外。
+def is_relevant(title: str, summary: str) -> bool:
+    """タイトル + 要約に AI or AKKODiS 事業領域キーワードが含まれているかを判定。
+    AKKODiS 事業領域: ITコンサル・DX支援・エンジニアリング派遣・システム開発・BPO・技術者育成。
+    純粋なエンタメ/ガジェット/スポーツは除外。
     """
     hay = (title or "") + " " + (summary or "")
     if _AI_WORD_RE.search(hay):
         return True
     if any(kw in hay for kw in AI_KEYWORDS_CONTAIN):
         return True
-    if _MKT_WORD_RE.search(hay):
+    if _IND_WORD_RE.search(hay):
         return True
-    if any(kw in hay for kw in MARKETING_KEYWORDS_CONTAIN):
+    if any(kw in hay for kw in INDUSTRY_KEYWORDS_CONTAIN):
         return True
     return False
 
+# 後方互換エイリアス（fetch_all 内で参照）
+is_ai_related = is_relevant
+
 
 def relevance_score(title: str, summary: str) -> int:
-    """AI + マーケ両方マッチなら優先（score=2）、片方なら score=1、なしは 0。並び替え用。"""
+    """AI + 業界キーワード両方マッチなら優先（score=2）、片方なら score=1、なしは 0。並び替え用。"""
     hay = (title or "") + " " + (summary or "")
     ai = bool(_AI_WORD_RE.search(hay)) or any(kw in hay for kw in AI_KEYWORDS_CONTAIN)
-    mkt = bool(_MKT_WORD_RE.search(hay)) or any(kw in hay for kw in MARKETING_KEYWORDS_CONTAIN)
-    return (1 if ai else 0) + (1 if mkt else 0)
+    ind = bool(_IND_WORD_RE.search(hay)) or any(kw in hay for kw in INDUSTRY_KEYWORDS_CONTAIN)
+    return (1 if ai else 0) + (1 if ind else 0)
 
 
 def parse_pub(entry: Any) -> datetime | None:
@@ -632,13 +646,45 @@ _GNEWS_REAL_URL_RE = re.compile(r'<a[^>]+href=["\'](https?://[^"\']+)["\']', re.
 _META_REFRESH_RE = re.compile(r'<meta[^>]+http-equiv=["\']refresh["\'][^>]+url=([^"\'>\s]+)', re.IGNORECASE)
 _CANONICAL_RE = re.compile(r'<link[^>]+rel=["\']canonical["\'][^>]+href=["\'](https?://[^"\']+)["\']', re.IGNORECASE)
 
-def _fetch_gnews_real_url(link: str, timeout: int = 6) -> str | None:
+import base64 as _base64
+
+def _decode_gnews_url_b64(link: str) -> str | None:
+    """Google News RSS URL の base64 エンコード部分を純 Python でデコードして実記事 URL を取得。
+    HTTP リクエスト不要なので GitHub Actions 環境でも確実に動作する。
+    CBMi... 部分は protobuf 形式でエンコードされており、実 URL が http(s):// として含まれている。"""
+    import re as _re
+    m = _re.search(r'/rss/articles/([^?&\s]+)', link)
+    if not m:
+        return None
+    b64 = m.group(1)
+    # URL-safe base64 のパディングを補完
+    b64 += '=' * (-len(b64) % 4)
+    try:
+        data = _base64.urlsafe_b64decode(b64)
+        # protobuf バイト列の中から https:// または http:// を探す
+        for prefix in (b'https://', b'http://'):
+            idx = data.find(prefix)
+            if idx < 0:
+                continue
+            # 印刷可能 ASCII かつ空白なしの間だけ URL として抽出
+            end = idx
+            while end < len(data) and 0x21 <= data[end] <= 0x7e:
+                end += 1
+            url = data[idx:end].decode('ascii', errors='ignore')
+            if url.startswith('http') and '.' in url[8:] and len(url) > 15:
+                return url
+    except Exception:
+        pass
+    return None
+
+def _fetch_gnews_real_url(link: str, timeout: int = 8) -> str | None:
     """Google News URL を HTTP フォロー + HTML パースで実 URL に解決する（最後の手段）。"""
     try:
         req = Request(link, headers={
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "ja,en;q=0.8",
+            "Accept-Encoding": "gzip, deflate",
         })
         with urlopen(req, timeout=timeout) as resp:
             final = resp.geturl()
@@ -658,22 +704,77 @@ def _fetch_gnews_real_url(link: str, timeout: int = 6) -> str | None:
 
 def resolve_article_url(link: str, description: str | None) -> str:
     """Google News 等のリダイレクター URL を実記事 URL に解決。解決できなければ元の link を返す。
-    ①description 内の <a href> を最優先（軽量）
-    ②それでもダメなら HTTP フォローで実 URL を取得（重いが確実） """
+    ① base64 デコード（HTTP 不要・最速）
+    ② description 内の <a href>（軽量）
+    ③ HTTP フォロー（重いが最終手段） """
     if not link:
         return link
     if "news.google.com/" in link:
+        # ① protobuf base64 デコード（GitHub Actions でも確実に動く）
+        real0 = _decode_gnews_url_b64(link)
+        if real0 and "news.google.com" not in real0:
+            return real0
+        # ② description の <a href> を探す
         m = _GNEWS_REAL_URL_RE.search(description or "")
         if m:
             real = m.group(1)
             if "news.google.com" not in real:
                 return real
-        # description に <a href> が無いケース（Google News モダン RSS 形式）のため
-        # 実 URL を直接フォローして解決する
+        # ③ HTTP フォロー（ネットワーク環境依存）
         real2 = _fetch_gnews_real_url(link)
         if real2:
             return real2
     return link
+
+
+def extract_source_from_url(url: str, fallback: str) -> str:
+    """記事 URL のドメインから媒体名を推定して返す。
+    Google News (X) のような source 名をより人間らしい形式に変換するために使う。"""
+    _DOMAIN_MAP = {
+        "itmedia.co.jp": "ITmedia",
+        "nikkei.com": "日本経済新聞",
+        "xtech.nikkei.com": "日経クロステック",
+        "ascii.jp": "ASCII.jp",
+        "techcrunch.com": "TechCrunch",
+        "thenextweb.com": "TNW",
+        "venturebeat.com": "VentureBeat",
+        "wired.com": "WIRED",
+        "zdnet.com": "ZDNet",
+        "cnet.com": "CNET",
+        "reuters.com": "Reuters",
+        "bloomberg.com": "Bloomberg",
+        "tokyonp.co.jp": "東京新聞",
+        "asahi.com": "朝日新聞",
+        "mainichi.jp": "毎日新聞",
+        "yomiuri.co.jp": "読売新聞",
+        "sankei.com": "産経新聞",
+        "nhk.or.jp": "NHK",
+        "mynavi.jp": "マイナビ",
+        "impress.co.jp": "Impress",
+        "watch.impress.co.jp": "Impress Watch",
+        "pc.watch.impress.co.jp": "PC Watch",
+        "gigazine.net": "Gigazine",
+        "gizmodo.jp": "Gizmodo Japan",
+        "engadget.com": "Engadget",
+        "prtimes.jp": "PR TIMES",
+        "businessinsider.jp": "Business Insider Japan",
+        "toyo-keizai.net": "東洋経済",
+        "president.jp": "PRESIDENT Online",
+        "diamond.jp": "ダイヤモンド社",
+        "monoist.itmedia.co.jp": "MONOist",
+        "atmarkit.itmedia.co.jp": "@IT",
+        "mag.executive.itmedia.co.jp": "ITmedia エグゼクティブ",
+    }
+    try:
+        from urllib.parse import urlparse
+        host = urlparse(url).hostname or ""
+        host = host.lstrip("www.")
+        for domain, name in _DOMAIN_MAP.items():
+            if host == domain or host.endswith("." + domain):
+                return name
+    except Exception:
+        pass
+    return fallback
 
 
 # 過去アーカイブの URL を読み込む参照日数。直近 N 日間のアーカイブに含まれる
@@ -802,13 +903,24 @@ def fetch_all() -> list[dict]:
                 seen_urls.add(url)
                 # 人気度シグナル: はてなブックマーク数（無い/0 は低人気扱い）
                 hatena = fetch_hatena_count(url)
+                # Google News (X) ソース名を実記事ドメインから推定（URL が解決済みの場合）
+                display_source = src["name"]
+                if "news.google.com" not in url and src["name"].startswith("Google News ("):
+                    resolved_name = extract_source_from_url(url, "")
+                    if resolved_name:
+                        display_source = resolved_name
+                    else:
+                        # ドメインマップにない場合はカンパニー名だけ残す
+                        m_src = re.match(r'^Google News\s*\(([^)]+)\)\s*$', src["name"])
+                        if m_src:
+                            display_source = m_src.group(1)
                 all_items.append({
                     "id": make_id(url),
                     "title": truncate(title, 200),
                     "url": url,
                     "image": image,
                     "raw_summary": raw_summary,
-                    "source": src["name"],
+                    "source": display_source,
                     "sourceType": src_tier,
                     "category": src["category"],
                     "publishedAt": pub.isoformat(),
@@ -985,26 +1097,28 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
     ]
 
     system_prompt = (
-        "あなたはAKKODiS（人材サービス・ITソリューション企業）のB2Bマーケティング担当者向けニュース・インテリジェンス・キュレーターです。"
-        "単なる記事要約ではなく「マーケ担当が明日から何をすべきか」がわかるブリーフを作成します。\n\n"
+        "あなたはAKKODiS コンサルティング（ITコンサル・DX支援・エンジニアリング派遣・システム開発・BPO・技術者育成を手掛けるITサービス企業）の"
+        "事業部門向けニュース・インテリジェンス・キュレーターです。"
+        "単なる記事要約ではなく「AKKODiS の事業担当者が明日から何をすべきか」がわかるブリーフを作成します。\n\n"
         "## 読者コンテキスト\n"
-        "- AKKODiS Japan：採用マーケティング（新卒・中途エンジニア）とB2Bマーケティング（ITソリューション販売）が主業務\n"
-        "- 人材業界・IT業界・同業他社（パーソル、リクルート、ランスタッド等）の動向は特に重要\n"
-        "- AI一般論よりも、マーケ実務に直結するAI活用ニュースを優先\n\n"
+        "- AKKODiS コンサルティング Japan：ITコンサルティング・DX支援・エンジニアリング派遣・システム開発・BPO・技術者育成が主事業\n"
+        "- SIer・ITコンサル・エンジニアリングサービス（テクノプロ、メイテック等）・コンサルファーム（アクセンチュア、NRI等）の動向は特に重要\n"
+        "- AI一般論よりも、DX推進・クラウド・セキュリティ・システム開発に直結するAI活用ニュースを優先\n"
+        "- IT人材市場・リスキリング・技術者育成に関する動向も重要\n\n"
         "## urgency判定の優先基準\n"
-        "1. 採用マーケ・B2Bマーケに直接影響するニュース → must_know候補\n"
-        "2. 人材業界・IT業界・競合の動き → must_know〜this_week\n"
-        "3. マーケツール・広告プラットフォームの重要アップデート → this_week\n"
+        "1. DX・システム開発・エンジニアリング派遣に直接影響するニュース → must_know候補\n"
+        "2. SIer・ITコンサル・競合他社（テクノプロ、アクセンチュア等）の動き → must_know〜this_week\n"
+        "3. AI・クラウド・セキュリティの重要アップデート（企業の意思決定に影響） → this_week\n"
         "4. AI一般論・テック業界の大きな動き → this_week〜fyi\n\n"
         "## 各記事について以下を日本語で生成してください:\n"
         "- summary: 何が起きたかの事実要約（100〜140字）。主語・数値・固有名詞を明記。\n"
-        "- whyItMatters: AKKODiSのマーケ担当にとって具体的に何が変わるか（1文）。"
+        "- whyItMatters: AKKODiSの事業担当者にとって具体的に何が変わるか（1文）。"
         "※summaryの言い換えは禁止。「だから自分たちはどうなるのか」を書く。\n"
         "- actionItem: 推奨アクション（1文、具体的に。誰が・何を・いつまでにの要素を含む）\n"
         "- urgency: must_know（重要ニュース、最大2件）/ this_week（注目ニュース、最大5件）/ fyi（その他）\n"
         "- tags: 3〜5個の日本語タグ\n"
         "- pickerComment: 専門家の視点コメント（1〜2文）。"
-        "マーケ戦略コンサルタントやCMO経験者の立場で、この記事への洞察・補足・注意点を書く。"
+        "ITコンサルタントやDX推進担当のCXO経験者の立場で、この記事への洞察・補足・注意点を書く。"
         "「〜に注目」「〜が鍵」のような定型は避け、具体的な業界知識に基づくコメントにする。\n"
         "- importance: 1=最重要1件のみ、2=押さえるべき5件、3=その他\n"
         "- readMin: 推定読了時間（1〜3分）\n\n"
@@ -1012,15 +1126,15 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         "全記事を俯瞰した**ちょうど3行のサマリー**。**必ず3行生成すること**（この制約は最優先）。\n"
         "各行は「何が起きて、なぜ注目か」を平易な日本語で**完結した1文**にまとめる。\n"
         "**1文の目安は40〜90字**。途中で切れた文や「〜とは」「〜を…」のような体言止め未満は禁止、必ず句点で終わらせる。\n"
-        "専門用語は避け、マーケ部門の誰が読んでもすぐわかる表現にする。\n"
+        "専門用語は避け、事業部門の誰が読んでもすぐわかる表現にする。\n"
         "期限指示（「今日中に〜」等）は入れない。事実と影響のみ。説明や補足は書かない。\n"
-        "**取り上げる対象**: AI / 生成AI / B2B マーケティング / 採用マーケ / "
-        "競合企業（パーソル・リクルート・SIer・コンサル等）の動向。\n"
+        "**取り上げる対象**: AI / 生成AI / DX推進 / ITコンサル / システム開発 / エンジニアリング派遣 / "
+        "競合企業（SIer・コンサルファーム・エンジニアリングサービス等）の動向。\n"
         "**取り上げない**: B2C 商品（飲料・コーラ・コンビニ新商品）、エンタメ（音楽タイアップ・芸能人）、"
         "グルメ・観光・スポーツの新商品ニュース。\n"
         "**3行未満になりそうな時の補い方**: 該当する記事が少なくても 3行は必ず埋める。"
         "個別記事に直接書かれていなくても、本日の記事群から推測できる「AI / IT業界全体の動向」"
-        "「AI ツール導入トレンド」「人材市場の構造変化」など、**抽象度を一段上げた業界マクロ"
+        "「DXトレンド」「IT人材市場の構造変化」など、**抽象度を一段上げた業界マクロ"
         "コメント**で 3 行目（または 2-3 行目）を補ってよい（事実ベースで、推測表現は避ける）。\n\n"
         "煽りや推測は避け、事実ベースで。\n"
         "出力は厳密にJSONのみで、以下の形式に従ってください:\n"
@@ -1040,7 +1154,7 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
     # 失敗時は従来のテキスト JSON フォールバックも残して二重防御。
     BRIEF_TOOL = {
         "name": "produce_brief",
-        "description": "AKKODiS マーケ担当者向けの今日のインテリジェンス・ブリーフを構造化して返す",
+        "description": "AKKODiS 事業部門向けの今日のインテリジェンス・ブリーフを構造化して返す",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -1057,7 +1171,7 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
                         "properties": {
                             "i": {"type": "integer", "description": "入力ペイロードの index"},
                             "summary": {"type": "string", "description": "事実要約（100〜140字）"},
-                            "whyItMatters": {"type": "string", "description": "AKKODiS マーケ担当者にとって何が変わるか（1文）"},
+                            "whyItMatters": {"type": "string", "description": "AKKODiS の事業担当者にとって何が変わるか（1文）"},
                             "actionItem": {"type": "string", "description": "推奨アクション（誰が・何を・いつまでに、を含む1文）"},
                             "pickerComment": {"type": "string", "description": "専門家視点の洞察コメント（1〜2文）"},
                             "urgency": {"type": "string", "enum": ["must_know", "this_week", "fyi"]},
@@ -1381,7 +1495,7 @@ def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> di
                             "whyItMattersEn": {"type": "string", "description": "Why it matters, in English (1 sentence)"},
                             "actionItemEn": {"type": "string", "description": "Action item in English (1 sentence)"},
                         },
-                        "required": ["i", "titleEn", "summaryEn"],
+                        "required": ["i", "titleEn", "summaryEn", "whyItMattersEn", "actionItemEn"],
                     },
                 },
             },
@@ -1809,6 +1923,97 @@ def generate_digest_script(exec_summary: list[str], mustknow: list[dict], thiswe
 
     log("digest script: using template fallback (no Claude API)")
     return _build_template_digest_script(exec_summary, mustknow, thisweek)
+
+
+def generate_digest_script_en(exec_summary_en: list[str], mustknow: list[dict], thisweek: list[dict]) -> str | None:
+    """英語ダイジェスト台本を生成。Claude Haiku が英語 NHK World スタイルで原稿を書く。"""
+    if not ANTHROPIC_API_KEY:
+        return None
+    today_jst = datetime.now(JST)
+    date_label = today_jst.strftime("%B %-d, %Y")
+    lines = []
+    if exec_summary_en:
+        lines.append("[Today's Overview]")
+        for s in exec_summary_en:
+            lines.append(f"- {s}")
+    if mustknow:
+        lines.append("\n[Top Stories]")
+        for n in mustknow:
+            lines.append(f"■ {n.get('titleEn') or n.get('title','')}")
+            if n.get("summaryEn") or n.get("summary"): lines.append(f"  {n.get('summaryEn') or n.get('summary','')}")
+            if n.get("whyItMattersEn") or n.get("whyItMatters"): lines.append(f"  Impact: {n.get('whyItMattersEn') or n.get('whyItMatters','')}")
+            if n.get("actionItemEn") or n.get("actionItem"): lines.append(f"  Action: {n.get('actionItemEn') or n.get('actionItem','')}")
+    if thisweek:
+        lines.append("\n[Also in the News]")
+        for n in thisweek:
+            lines.append(f"■ {n.get('titleEn') or n.get('title','')}")
+            if n.get("summaryEn") or n.get("summary"): lines.append(f"  {n.get('summaryEn') or n.get('summary','')}")
+
+    system_prompt = f"""You are a professional news anchor for NHK World English, delivering a concise AI and marketing news digest.
+
+## Rules
+- English only. Natural broadcast English, no jargon without explanation.
+- Date is "{date_label}"
+- Numbers spoken naturally (50% → "half", $1B → "one billion dollars")
+- No markdown, bullet points, or headers in output
+- Each sentence under 20 words. Short, punchy broadcast style.
+
+## Structure (NHK World style)
+
+### Opening (20 seconds)
+- "Good morning. This is your AI and Marketing News Brief for {date_label}."
+- "We have [N] stories for you today." then preview the top story in one sentence.
+
+### Each Story (45-60 seconds each)
+For each story, follow these 3 steps:
+1. [Headline] One sentence: "Subject did/announced/released something."
+2. [Detail] 2-3 sentences with facts, figures, and context.
+3. [Impact] "For marketing and AI professionals, this means..."
+
+Transition phrases: "Next...", "Meanwhile...", "In related news...", "Turning to..."
+
+### Closing (20 seconds)
+- "That wraps up today's AI and Marketing News Brief."
+- Recap top 3 stories in one sentence each.
+- "I'm [anchor], have a great day."
+
+## Style
+- Formal broadcast tone. "said", "announced", "according to"
+- No emotional language ("stunning", "incredible", "wow")
+- No conversational filler ("you know", "basically", "actually")
+- Total: 900-1200 words (about 5 minutes at broadcast pace)
+
+Output the script text only."""
+
+    user_prompt = f"Here is today's ({date_label}) news material. Write a 5-minute English broadcast script in NHK World style.\n\n" + "\n".join(lines)
+
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            method="POST",
+            headers={
+                "Content-Type": "application/json",
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01",
+            },
+            data=json.dumps({
+                "model": DIGEST_MODEL,
+                "max_tokens": 3000,
+                "system": system_prompt,
+                "messages": [{"role": "user", "content": user_prompt}],
+            }).encode("utf-8"),
+        )
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = json.loads(resp.read())
+        parts = [b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"]
+        result = "".join(parts).strip()
+        if result:
+            return result
+        log("English digest script: empty response from Claude")
+    except Exception as e:
+        log(f"English digest script error: {e}")
+    return None
 
 
 TTS_KATAKANA_MAP = {
@@ -2414,20 +2619,21 @@ def _generate_tts_openai(text: str) -> bytes | None:
     return None
 
 
-def save_audio(mp3: bytes, script: str) -> None:
-    """MP3 と台本を apps/ai-news/data/audio/ に保存。"""
+def save_audio(mp3: bytes, script: str, lang: str = "ja") -> None:
+    """MP3 と台本を apps/ai-news/data/audio/ に保存。lang='en' で英語版ファイルに保存。"""
     audio_dir = DATA_DIR / "audio"
     audio_dir.mkdir(parents=True, exist_ok=True)
     today_jst = datetime.now(JST).strftime("%Y-%m-%d")
-    mp3_path = audio_dir / f"{today_jst}.mp3"
-    script_path = audio_dir / f"{today_jst}.txt"
-    latest_mp3 = audio_dir / "latest.mp3"
-    latest_script = audio_dir / "latest.txt"
+    suffix = f"-{lang}" if lang != "ja" else ""
+    mp3_path = audio_dir / f"{today_jst}{suffix}.mp3"
+    script_path = audio_dir / f"{today_jst}{suffix}.txt"
+    latest_mp3 = audio_dir / f"latest{suffix}.mp3"
+    latest_script = audio_dir / f"latest{suffix}.txt"
     mp3_path.write_bytes(mp3)
     latest_mp3.write_bytes(mp3)
     script_path.write_text(script, encoding="utf-8")
     latest_script.write_text(script, encoding="utf-8")
-    log(f"wrote audio: {mp3_path.relative_to(ROOT.parent.parent)} ({len(mp3)/1024:.0f} KB)")
+    log(f"wrote audio ({lang}): {mp3_path.relative_to(ROOT.parent.parent)} ({len(mp3)/1024:.0f} KB)")
 
 
 # ── エントリーポイント ──────────────────────────────────────────
@@ -2537,6 +2743,29 @@ def main() -> int:
         else:
             log("digest script generation failed; skipping audio")
             debug_stats["audio"]["error"] = "digest_script_empty"
+
+        # ── 英語音声ダイジェスト ──
+        google_key = os.environ.get("GOOGLE_TTS_API_KEY", "").strip()
+        if google_key and exec_summary_en:
+            log("generating English digest script...")
+            script_en = generate_digest_script_en(exec_summary_en, mustknow, thisweek)
+            if script_en:
+                log(f"English digest script: {len(script_en)} chars")
+                log("generating English TTS MP3 (Google en-US-Chirp3-HD-Aoede)...")
+                mp3_en = _google_tts_chunked(
+                    script_en, google_key,
+                    voice=os.environ.get("GOOGLE_TTS_EN_VOICE", "en-US-Chirp3-HD-Aoede"),
+                    speaking_rate=float(os.environ.get("GOOGLE_TTS_EN_RATE", "1.0")),
+                    pitch_st=0.0,
+                    chunk_chars=1500,
+                )
+                if mp3_en:
+                    save_audio(mp3_en, script_en, lang="en")
+                    debug_stats["audio"]["mp3EnBytes"] = len(mp3_en)
+                else:
+                    log("English TTS failed")
+            else:
+                log("English digest script generation failed; skipping EN audio")
 
     debug_stats["durationSec"] = round(time.time() - started, 1)
     _write_debug_stats(debug_stats)

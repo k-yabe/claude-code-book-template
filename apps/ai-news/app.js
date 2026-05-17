@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AI NEWS — 「10分で読める」マーケ動向ダッシュボード
+   AI NEWS — 「10分で読める」AKKODiS インテリジェンス・ブリーフ
    - 1ファイル完結 / no build / no framework
    - 優先度順レイアウト: TOP STORY (1) / BRIEFING (5) / MORE READS (残り)
    - シードデータ表示（将来は data/news.json から fetch）
@@ -23,199 +23,160 @@
 
   const NEWS_DATA = [
     {
-      id: 'm3', importance: 1, readMin: 2, urgency: 'must_know',
-      title: 'B2B購買行動調査2026：意思決定者の73%が「営業より先にAI検索を信頼」',
-      summary: 'Gartner調査。B2B購買の比較段階で主要情報源としてChatGPT/Perplexityが営業資料・営業面談を上回った。回答者の73%が「営業と会う前にAI検索で候補を絞る」と回答。',
-      whyItMatters: 'AKKODiSのサービスページがAI検索結果に出ていなければ、比較検討の土俵にすら乗れない。SEOとは別軸の対策が必要。',
-      actionItem: '来週の定例で自社コンテンツのGEO対策（ChatGPT/Perplexityでの自社表示確認）を議題に入れる。',
-      pickerComment: 'GEO（Generative Engine Optimization）はSEOの次の戦場。人材業界では「エンジニア 転職」等のキーワードでAI検索結果に表示されるかが採用数に直結する。早い者勝ちの領域。',
-      source: 'Gartner', sourceType: 'media', category: 'marketing',
+      id: 'd1', importance: 1, readMin: 2, urgency: 'must_know',
+      title: 'Gartner「2026年のDX投資、日本企業の58%がAI活用を最優先課題に」',
+      summary: 'Gartner調査。2026年のDX予算で日本企業の58%が生成AI・AIエージェント活用を最優先課題に設定。ITコンサル・SIer向けの「AIシステム構築支援」需要が急拡大する見込み。',
+      whyItMatters: 'AKKODiSが手掛けるDX支援・システム開発案件の引き合いが急増するフェーズに入った。顧客企業のAI導入計画を把握し提案タイミングを逃さないことが重要。',
+      actionItem: '担当顧客企業のDX予算・AI導入計画を今月中に確認し、AKKODiSの支援提案に組み込む。',
+      pickerComment: 'DX投資の「実行フェーズ」では戦略策定より実装支援の需要が大きい。AKKODiSの強みであるエンジニア派遣×ITコンサルの組み合わせが刺さるタイミングだ。',
+      source: 'Gartner', sourceType: 'media', category: 'dx',
       url: null,
       image: null,
       publishedAt: `${TODAY}T09:10:00+09:00`,
-      tags: ['B2B', 'GEO', '購買行動']
+      tags: ['DX', 'AI導入', '投資動向']
     },
     {
       id: 'a3', importance: 1, readMin: 2, urgency: 'must_know',
-      title: 'Google検索の「AI Overviews」、すべての日本語クエリで標準ON化',
-      summary: 'Google検索のAI Overviews（AI生成回答）が日本語クエリ全件で標準ON化。従来のオプトインから全面展開へ移行完了。',
-      whyItMatters: '自然検索のCTRが20〜40%下落する可能性あり。AKKODiSの採用LP・サービスページへの流入減に直結する。早急にAI Overviewsでの引用状況を確認すべき。',
-      actionItem: 'Search Consoleで主要キーワードのCTR変化をモニタリング開始。AI Overviewsに自社が表示されているか確認。',
-      pickerComment: 'SEO担当者は今すぐ「site:自社ドメイン」でAI Overviewsに引用されているか確認すべき。構造化データのFAQ・HowToマークアップが引用率を高める傾向がある。',
-      source: 'Google Search Central', sourceType: 'media', category: 'ai',
+      title: 'Anthropic、Claude 4.6でエンタープライズ向けシステム統合APIを正式リリース',
+      summary: 'AnthropicがClaude 4.6の企業向けAPI（Workbench）を正式リリース。既存の基幹システムやSaaSへの統合が容易になり、業務自動化・ドキュメント処理の実装コストが従来比50%低減。',
+      whyItMatters: 'AKKODiSが受託するシステム開発・DX支援案件でのAI統合コストが大幅に下がる。クライアント向けAI導入提案の競争力が高まる。',
+      actionItem: '技術部門と連携し、Claude 4.6 WorkbenchのPoC計画を来月の提案書に盛り込む。',
+      pickerComment: 'エンタープライズAI統合のボトルネックは「既存システムとの接続工数」。この部分が半減するなら、SIer・ITコンサルの受注単価と案件数の両方が伸びる。',
+      source: 'Anthropic', sourceType: 'media', category: 'ai',
       url: null,
       image: null,
       publishedAt: `${TODAY}T18:40:00+09:00`,
-      tags: ['SEO', 'GEO', 'Google']
+      tags: ['Claude', 'API', 'エンタープライズ']
     },
     {
-      id: 'mk2', importance: 2, readMin: 1, urgency: 'this_week',
-      title: 'Salesforce、Slack＋AgentforceでCMO向け「収益AIエージェント」発表',
-      summary: 'SalesforceがSlack統合のAIエージェント「Agentforce」をCMO向けに正式発表。案件・キャンペーンの優先度を自動再計算し予算配分まで提案。',
-      whyItMatters: '現在のMA/CRM契約更新時に「AIエージェント搭載か否か」が選定基準になる。Salesforce利用中なら追加費用なしで使える可能性あり。',
-      actionItem: '自社のSalesforce契約でAgentforce利用可否を営業担当に確認する。',
-      pickerComment: 'SalesforceのAIエージェント戦略はMarketing Cloud全体に波及する。既存ユーザーは追加費用なしで使える可能性が高いので、営業担当に確認するだけでROIが出る案件。',
-      source: 'Salesforce News', sourceType: 'media', category: 'market',
+      id: 'dx1', importance: 2, readMin: 1, urgency: 'this_week',
+      title: 'NTTデータ、生成AI活用の「業務プロセス自動化サービス」を全国展開',
+      summary: 'NTTデータが生成AI活用の業務プロセス自動化サービスを中小企業向けに全国展開。月額30万円から導入可能。文書処理・レポート生成・問い合わせ対応の3領域に対応。',
+      whyItMatters: '競合SIerが中小DX市場に本格参入。AKKODiSのDX支援・BPOサービスとの差別化点を明確にする必要がある。',
+      actionItem: '競合サービスの料金体系・機能範囲を分析し、AKKODiSのDX支援サービスとの差別化資料を今月中に更新する。',
+      pickerComment: '大手SIerが中小市場に標準パッケージで切り込む動きは、専門性・カスタマイズ力で戦うAKKODiSには逆にチャンス。「パッケージでは解決できない課題」を狙う戦略が有効だ。',
+      source: 'NTTデータ', sourceType: 'media', category: 'market',
       url: null,
       image: null,
       publishedAt: `${TODAY}T14:45:00+09:00`,
-      tags: ['SaaS', 'AIエージェント', 'CMO']
+      tags: ['NTTデータ', 'DX', '業務自動化']
     },
     {
       id: 'a1', importance: 2, readMin: 1, urgency: 'this_week',
       title: 'Anthropic、Claude 4.6 Opusの長文タスク性能を公開（200kコンテキスト維持）',
       summary: 'Anthropic がClaude 4.6 Opusを発表。200kコンテキストで100ページ超の資料を一括処理可能。レポート作成時間が平均1/4に短縮との事例。',
-      whyItMatters: '競合分析レポートや市場調査の工数が1/4になるなら、浮いた時間を施策立案に回せる。人材業界の競合レポートで試す価値あり。',
-      actionItem: '今抱えているレポート業務で試用し、時間短縮効果を検証する。',
-      pickerComment: '200kトークンは文庫本1冊分。競合分析で10社分のIR資料を一括投入して比較表を作れる。レポート業務の「素材集め→構造化」が自動化される。',
+      whyItMatters: 'ITコンサル・システム開発案件の提案書作成・競合分析の工数が大幅に削減できる。プロジェクト単位での生産性向上が見込める。',
+      actionItem: '社内でClaude 4.6 Opusの試用申請を行い、RFP対応や提案資料作成業務での効果を計測する。',
+      pickerComment: '200kトークンは10社分のIR資料を一括投入して比較表が作れる規模感。競合分析・業界調査の工数を半減できるなら、コンサル案件の利益率が直接改善する。',
       source: 'Anthropic', sourceType: 'media', category: 'ai',
       url: null,
       image: null,
       publishedAt: `${TODAY}T22:00:00+09:00`,
-      tags: ['Claude', 'LLM', '要約']
+      tags: ['Claude', 'LLM', '業務効率化']
     },
     {
-      id: 'm1', importance: 2, readMin: 1, urgency: 'this_week',
-      title: 'Google、Performance Max に「ブランド除外」レポート機能を正式追加',
-      summary: 'Google Ads Performance Maxに「ブランド除外レポート」が正式追加。ブランドKW除外の効果が配信レポート上で個別に可視化可能に。',
-      whyItMatters: 'PMax経由のCPAが高止まりしている場合、ブランドKW流入の混在が原因かもしれない。このレポートで切り分けて改善根拠を示せる。',
-      actionItem: 'Google Ads管理画面でブランド除外レポートを確認し、月次レポートに追加。',
-      pickerComment: 'PMaxはブラックボックスだった部分にようやく透明性が出てきた。特にBtoBはブランドKWの混在でCPAが歪みやすいので、この機能でROAS改善の根拠を示しやすくなる。',
-      source: 'Google Ads Help', sourceType: 'media', category: 'marketing',
+      id: 'dx2', importance: 2, readMin: 1, urgency: 'this_week',
+      title: 'IDC Japan、IT人材不足が2030年に79万人超に拡大と予測',
+      summary: 'IDC Japan調査。2030年の国内IT人材不足が79万人超に達する見込み。DX推進・クラウド移行・セキュリティ領域で特に深刻。エンジニアリング派遣市場の拡大が続く。',
+      whyItMatters: 'AKKODiSのエンジニアリング派遣・技術者育成事業の市場環境が中長期で追い風となる。顧客企業への訴求力が高まっている。',
+      actionItem: 'IT人材不足データを引用した顧客向け提案資料を作成し、エンジニアリング派遣・技術者育成の必要性を訴求する。',
+      pickerComment: 'IT人材不足は「量」だけでなく「質」の問題も深刻化している。リスキリング・技術者育成まで一気通貫で提供できるAKKODiSの強みを前面に出すべき局面だ。',
+      source: 'IDC Japan', sourceType: 'media', category: 'market',
       url: null,
       image: null,
       publishedAt: `${TODAY}T08:30:00+09:00`,
-      tags: ['広告', 'PMax', 'Google']
+      tags: ['IT人材', '技術者不足', '市場動向']
     },
     {
-      id: 'mk1', importance: 2, readMin: 1, urgency: 'this_week',
-      title: '日本のデジタル広告費、初の4兆円突破（電通報告）',
-      summary: '電通発表。2025年の日本デジタル広告費は4兆1,200億円（前年比+9.4%）。ネット広告がマス4媒体合計を再び大きく上回り、動画広告が成長を牽引。',
-      whyItMatters: '「動画に予算を寄せたい」と社内提案する際の決定的エビデンス。人材業界でも採用動画・サービス紹介動画の優先度を上げる根拠になる。',
-      actionItem: '次の予算策定で動画広告枠の比率増を提案する際のエビデンスとしてストック。',
-      pickerComment: '動画広告の伸びはショート動画が牽引。採用マーケでは30秒以内の「社員の1日」系コンテンツがCPV最安で成果が出ている企業が多い。',
-      source: '電通', sourceType: 'media', category: 'market',
+      id: 'dx3', importance: 2, readMin: 1, urgency: 'this_week',
+      title: '経産省、DX認定制度を強化——AI活用・セキュリティ要件を新基準に追加',
+      summary: '経済産業省がDX認定制度の審査基準を改定。生成AI活用計画とセキュリティ対策の具体性が新たに必須要件化。認定企業はIT補助金の優先採択対象となる。',
+      whyItMatters: 'クライアント企業のDX認定取得支援が新たなコンサル案件として浮上。AKKODiSのDX支援サービスとの親和性が高い。',
+      actionItem: '既存のDX支援クライアント企業に対して、新認定基準への対応支援を提案する機会を設ける。',
+      pickerComment: 'DX認定は「形式」から「実質的なAI活用・セキュリティ実装」を問う方向に進化している。要件定義から実装まで一貫して支援できるSIerへの需要が増える。',
+      source: '経済産業省', sourceType: 'media', category: 'dx',
       url: null,
       image: null,
       publishedAt: `${TODAY}T10:00:00+09:00`,
-      tags: ['広告費', '日本', '統計']
-    },
-    {
-      id: 'mk3', importance: 2, readMin: 1, urgency: 'this_week',
-      title: 'Cookieless時代のIDソリューション、UID2.0採用が前年比3倍に',
-      summary: 'The Trade Desk主導のUnified ID 2.0が国内DSP/SSPでも標準対応に。採用数は前年比3倍。Chrome 3rdパーティクッキー段階廃止を見据えた動き。',
-      whyItMatters: '現在のリターゲティング施策がクッキー依存なら、配信効率が半減するリスク。人材系のディスプレイ広告は特に影響大。',
-      actionItem: '利用中のDSP/SSPがUID2.0対応済みか確認し、未対応なら代替を検討。',
-      pickerComment: 'UID2.0はメールアドレスベースなので、会員登録フローを持つ採用サイトとは相性が良い。自社の1st Partyデータ活用戦略と合わせて検討する価値がある。',
-      source: 'AdExchanger', sourceType: 'media', category: 'market',
-      url: null,
-      image: null,
-      publishedAt: `${TODAY}T07:50:00+09:00`,
-      tags: ['Cookieless', 'AdTech']
-    },
-    {
-      id: 'm2', importance: 3, readMin: 1, urgency: 'fyi',
-      title: 'Marketo、生成AIによる「件名A/B自動最適化」を全プランで提供開始',
-      summary: 'Marketo Engageが生成AIによる「件名A/B自動最適化」を全プランで提供開始。送信30分のオープン率を学習し残りセグメントに最適件名を自動配信。',
-      whyItMatters: '設定をONにするだけでメール開封率+18%の可能性。ナーチャリング施策の費用対効果が設定変更だけで改善できる。',
-      actionItem: 'Marketo利用中なら設定画面でAI件名最適化をONにして次回配信でテスト。',
-      pickerComment: 'MA各社がAI件名最適化を投入中。設定ONだけで効果が出るので、使わない理由がない。ただし日本語の件名最適化精度は英語より低い傾向があるので、最初の数回は結果を注視すべき。',
-      source: 'Adobe Marketo Engage', sourceType: 'media', category: 'marketing',
-      url: null,
-      image: null,
-      publishedAt: `${TODAY}T11:05:00+09:00`,
-      tags: ['MA', 'メール', 'AI']
+      tags: ['DX認定', '政策', 'セキュリティ']
     },
     {
       id: 'a2', importance: 3, readMin: 1, urgency: 'fyi',
-      title: 'OpenAI、GPT-5系で「ブランドボイス制約」APIパラメータをβ提供',
-      summary: 'OpenAIがGPT-5系で「ブランドボイス制約」APIパラメータをβ提供開始。トーン＆マナーからの逸脱を確率でブロックする機能。',
-      whyItMatters: 'AI生成コンテンツで「AKKODiSのトーンと違う」事故を防げる。採用広報やメルマガでAIを使っているなら導入メリット大。',
-      actionItem: 'AI活用のコンテンツ制作フローがある場合、β申請を検討。',
-      pickerComment: '「ブランドボイス制約」はエンタープライズ向けAI利用の大きなペインポイントを解消する。採用広報でAI生成テキストを使っている企業は導入検討の価値あり。',
-      source: 'OpenAI', sourceType: 'media', category: 'ai',
+      title: 'OpenAI、企業向け「AI業務統合プラットフォーム」をAzureと共同展開',
+      summary: 'OpenAIとMicrosoftがAzure上で企業向けAI業務統合プラットフォームを共同展開。既存のMicrosoft 365・Teams・Dynamicsとシームレスに連携し、カスタムAIエージェントを構築可能。',
+      whyItMatters: 'Microsoft環境を利用している企業クライアントへのAI統合提案がより具体的になる。AKKODiSのシステム開発・IT導入支援案件での提案素材として活用できる。',
+      actionItem: 'Azure OpenAI Serviceの最新機能を確認し、Microsoft環境を持つクライアント向けのAI統合提案書を更新する。',
+      pickerComment: 'Azure×OpenAIの統合は「Microsoft環境を捨てずにAIを導入したい」企業へのハードルを大幅に下げる。SIerにとっては既存の導入実績がそのまま強みになる領域だ。',
+      source: 'Microsoft', sourceType: 'media', category: 'ai',
       url: null,
       image: null,
       publishedAt: `${TODAY}T20:15:00+09:00`,
-      tags: ['GPT-5', 'API', 'ブランドガバナンス']
+      tags: ['Azure', 'AI統合', 'エンタープライズ']
     },
     {
-      id: 'm5', importance: 3, readMin: 1, urgency: 'fyi',
-      title: 'TikTok、Search Adsを日本含む新規10カ国へ拡大',
-      summary: 'TikTokがSearch Ads（検索連動型広告）を日本含む新規10カ国で提供開始。検索結果画面に広告枠が新設される。',
-      whyItMatters: '新卒・第二新卒の採用ターゲットはTikTok検索が定着済み。採用マーケでのリーチ手段が1つ増える。',
-      actionItem: 'ターゲットにZ世代を含む場合、TikTok Search Adsのβ申請を検討。',
-      pickerComment: 'TikTok検索は「〇〇 転職」で実際に使われ始めている。新卒採用でTikTokを活用している企業は検索広告も試す価値がある。CPCはまだGoogleより安い。',
-      source: 'TikTok for Business', sourceType: 'media', category: 'marketing',
+      id: 'dx4', importance: 3, readMin: 1, urgency: 'fyi',
+      title: 'アクセンチュア、日本での「生成AI実装支援」売上が前年比2.8倍に',
+      summary: 'アクセンチュアの2025年度日本事業報告。生成AI実装支援サービスの売上が前年比2.8倍。製造業・金融・流通の大手企業からの引き合いが急増しており、専門人材の採用を加速中。',
+      whyItMatters: '大手コンサルの生成AI支援が急拡大している市場で、AKKODiSがどの細分市場・顧客層で差別化するかの戦略見直しが必要になる。',
+      actionItem: '競合のサービスライン・顧客層・価格帯を分析し、AKKODiSが取るべきポジショニングを今季中に整理する。',
+      pickerComment: '大手コンサルが取りに行くのは大企業の上流工程。中堅企業の実装・運用フェーズや技術者常駐型支援はまだブルーオーシャンで、AKKODiSが戦いやすい領域だ。',
+      source: 'アクセンチュア', sourceType: 'media', category: 'market',
+      url: null,
+      image: null,
+      publishedAt: `${TODAY}T11:05:00+09:00`,
+      tags: ['アクセンチュア', '競合', 'AI支援']
+    },
+    {
+      id: 'dx5', importance: 3, readMin: 1, urgency: 'fyi',
+      title: '富士通、AIを活用した「システム保守自動化」サービスを大手製造業5社に導入',
+      summary: '富士通が生成AI活用のシステム保守自動化サービスを大手製造業5社に導入。障害予兆検知・自動対応・ドキュメント自動更新の3機能をセット提供。保守工数30%削減を実現。',
+      whyItMatters: 'システム保守・運用管理領域でのAI活用が競合SIerの標準提案になりつつある。AKKODiSのBPO・システム開発サービスへの組み込みを検討する必要がある。',
+      actionItem: 'AI活用の保守自動化をAKKODiSのBPOサービスラインに追加するFSを来Q中に実施する。',
+      pickerComment: 'システム保守自動化は「人材不足×コスト削減」という顧客ニーズに直撃する提案だ。エンジニアリング派遣と組み合わせれば、人材供給と自動化の両面で顧客課題を解決できる。',
+      source: '富士通', sourceType: 'media', category: 'market',
       url: null,
       image: null,
       publishedAt: `${TODAY}T13:00:00+09:00`,
-      tags: ['SNS', '検索広告']
+      tags: ['富士通', 'システム保守', 'AI自動化']
     },
     {
-      id: 'm4', importance: 3, readMin: 1, urgency: 'fyi',
-      title: 'HubSpot、無料CRMに「会話インテリジェンス（録音文字起こし＋要約）」追加',
-      summary: 'HubSpot無料CRMに「会話インテリジェンス」追加。Zoom/Google Meetの商談を自動文字起こし・要約しCRMに紐付け。月25時間まで無料。',
-      whyItMatters: '商談で聞いた「お客様の課題」が自動でテキスト化される。コンテンツマーケのネタ出しや採用広報の声素材として転用できる。',
-      actionItem: 'HubSpot利用中ならZoom連携をONにして、商談要約のコンテンツ活用を試す。',
-      pickerComment: '商談の文字起こしをそのままコンテンツマーケのネタ帳にする発想が重要。「お客様がよく使うフレーズ」をLP・広告コピーに反映すると、共感率が上がる。',
-      source: 'HubSpot', sourceType: 'media', category: 'marketing',
+      id: 'dx6', importance: 3, readMin: 1, urgency: 'fyi',
+      title: 'Salesforce、「Agentforce for IT」でSIer向けAIエージェント構築ツールを提供',
+      summary: 'SalesforceがSIer・ITコンサル向けに「Agentforce for IT」を発表。顧客企業の社内システムをノーコードでAIエージェントに繋ぐツールキット。パートナー企業への販売支援も強化。',
+      whyItMatters: 'SalesforceパートナーであればAIエージェント提案が容易になる。AKKODiSのシステム開発・DX支援サービスの付加価値向上に直結する可能性がある。',
+      actionItem: 'Salesforceパートナー担当に「Agentforce for IT」の詳細と導入事例を確認し、提案テンプレートを準備する。',
+      pickerComment: 'SIerがAIエージェント提案をしやすくする仕組みを、SaaSベンダー自身が整えてきた。この流れに乗れるパートナーと乗れないパートナーで、2〜3年後の案件数に大きな差が出る。',
+      source: 'Salesforce', sourceType: 'media', category: 'dx',
       url: null,
       image: null,
       publishedAt: `${TODAY}T15:20:00+09:00`,
-      tags: ['CRM', 'セールス']
+      tags: ['Salesforce', 'AIエージェント', 'SIer']
     },
     {
-      id: 'mk4', importance: 3, readMin: 1, urgency: 'fyi',
-      title: 'Meta、Llama 4をオープンソース化。マーケ特化の軽量版も同時公開',
-      summary: 'MetaがLlama 4をオープンソース化。8B/70B/400Bの3サイズに加え、マーケ特化の軽量版（Llama 4 Marketing）も同時公開。自社サーバーでの運用が可能。',
-      whyItMatters: 'APIコストを気にせずAI活用できる選択肢が増える。特にコピー生成・キーワード抽出など定型業務の内製化が現実的になる。',
-      actionItem: '情シスと連携し、Llama 4 Marketingを社内GPUサーバーで試用できるか検討する。',
-      pickerComment: 'オープンソースLLMはコスト削減だけでなく、社内データを外部に出さずAI活用できるのが本質。ガバナンス要件が厳しいBtoBでは特に価値が高い。',
+      id: 'dx7', importance: 3, readMin: 1, urgency: 'fyi',
+      title: 'Meta、Llama 4をオープンソース化——エンタープライズ向け軽量版も同時公開',
+      summary: 'MetaがLlama 4をオープンソース化。8B/70B/400Bの3サイズに加え、企業向け業務特化の軽量版も同時公開。社内サーバーでの運用が可能で、データをクラウドに出さない運用に対応。',
+      whyItMatters: 'セキュリティ・ガバナンス要件が厳しい顧客企業でも、オンプレミス型AI導入の提案が現実的になる。システム開発・AI統合案件の裾野が広がる。',
+      actionItem: '情報セキュリティポリシーが厳格な顧客向けに、オンプレミスLLM活用の提案パターンを追加する。',
+      pickerComment: 'オープンソースLLMは「データを外に出せない」顧客への切り札になる。セキュリティ・コンプライアンス要件が厳しい金融・医療・製造分野でのDX提案に特に有効だ。',
       source: 'Meta AI', sourceType: 'media', category: 'ai',
       url: null,
       image: null,
       publishedAt: `${TODAY}T06:30:00+09:00`,
-      tags: ['Llama', 'オープンソース', 'LLM']
+      tags: ['Llama', 'オープンソース', 'オンプレAI']
     },
     {
-      id: 'm6', importance: 3, readMin: 1, urgency: 'fyi',
-      title: 'Instagram、Reelsの広告に「自動翻訳＋吹き替え」機能を追加',
-      summary: 'InstagramがReels広告で「自動翻訳＋AI吹き替え」機能を追加。1つの動画で多言語展開が可能に。英語→日本語の吹き替え品質が大幅向上。',
-      whyItMatters: 'グローバル採用動画を1本作れば多言語展開できる。海外エンジニア採用向けのリーチ手段として有効。',
-      actionItem: '海外採用を強化する部署向けに、Reels自動翻訳のPoC企画を提案。',
-      pickerComment: 'AI吹き替えは口の動きと声の同期まで処理される。採用動画で「日本人社員が英語を話す」違和感を減らせるので、海外向け発信のハードルが下がる。',
-      source: 'Meta Business', sourceType: 'media', category: 'marketing',
-      url: null,
-      image: null,
-      publishedAt: `${TODAY}T12:10:00+09:00`,
-      tags: ['SNS', '動画', '多言語']
-    },
-    {
-      id: 'mk5', importance: 3, readMin: 1, urgency: 'fyi',
-      title: 'Gartner「2026年のマーケ予算、AIツールへの配分が平均18%に」',
-      summary: 'Gartner調査。2026年のマーケ予算でAIツール関連の支出が平均18%（前年比+6pt）。特に「コンテンツ生成」「パーソナライズ」「分析自動化」の3領域で増加。',
-      whyItMatters: '予算策定時の「AIツールへの投資は同業他社はどれくらい？」への回答根拠になる。18%を目安にすれば業界水準。',
-      actionItem: '来期予算書で AI ツール関連の支出比率を算出し、18%との差分を明記。',
-      pickerComment: 'AI投資比率は業界で大きく差がつき始めている。採用領域は「マッチング精度」で直接成果が出やすいので、この18%より高めに寄せる判断も妥当。',
-      source: 'Gartner', sourceType: 'media', category: 'market',
-      url: null,
-      image: null,
-      publishedAt: `${TODAY}T09:45:00+09:00`,
-      tags: ['予算', '業界統計', 'AI投資']
-    },
-    {
-      id: 'a4', importance: 3, readMin: 1, urgency: 'fyi',
-      title: 'Perplexity、企業向け「Enterprise Pro」を日本でも提供開始',
-      summary: 'PerplexityがEnterprise Proを日本展開。社内ドキュメントを取り込んで「社内版AI検索」として利用可能。SSO/監査ログ対応。',
-      whyItMatters: '社内の過去資料・議事録・営業マニュアルをAI検索できるようになる。属人化した知識の共有コストが劇的に下がる。',
-      actionItem: '無料トライアルを申請し、直近1年の営業資料をインポートして検索精度を検証。',
-      pickerComment: 'ChatGPT Enterpriseより「社内文書検索」に特化している点が実用的。採用マーケなら「過去の採用資料」「候補者対応テンプレ」を全員が秒で引けるようになる。',
+      id: 'dx8', importance: 3, readMin: 1, urgency: 'fyi',
+      title: 'Perplexity、企業向け「社内ナレッジAI検索」を日本でも提供開始',
+      summary: 'PerplexityがEnterprise Proを日本展開。社内ドキュメントを取り込んで社内版AI検索として利用可能。SSO/監査ログ対応。月額ユーザー課金制で中規模企業でも導入しやすい価格設定。',
+      whyItMatters: '属人化した技術者の知識・ノウハウをAIで組織知に変換するツールとして、エンジニアリング派遣を活用する顧客企業への提案素材として活用できる。',
+      actionItem: '技術者の知識継承・ナレッジ共有に課題を持つ顧客企業に、AI検索ツール導入支援をセット提案する。',
+      pickerComment: 'ナレッジ管理の課題は技術者育成・BPO案件でも頻出の顧客ペイン。AI検索ツール導入からAKKODiSの支援サービス拡張につなげるアップセルの機会がある。',
       source: 'Perplexity AI', sourceType: 'media', category: 'ai',
       url: null,
       image: null,
       publishedAt: `${TODAY}T16:00:00+09:00`,
-      tags: ['AI検索', 'エンタープライズ', 'ナレッジ']
+      tags: ['AI検索', 'ナレッジ管理', 'エンタープライズ']
     }
   ];
 
@@ -344,10 +305,11 @@
     { key: 'all',       label: 'すべて' },
     { key: 'tool',      label: '🛠 ツール活用' },
     { key: 'ai',        label: 'AI' },
-    { key: 'marketing', label: 'マーケ' },
+    { key: 'dx',        label: 'DX' },
+    { key: 'marketing', label: 'DX' },
     { key: 'market',    label: '市場' }
   ];
-  const CAT_LABEL = { marketing: 'マーケ', market: '市場', ai: 'AI' };
+  const CAT_LABEL = { marketing: 'DX', dx: 'DX', market: '市場', ai: 'AI' };
   /** AI ツール活用記事の判定（Claude Code / Copilot / Cursor 等の使い方・Tips） */
   const TOOL_KEYWORDS = [
     'Claude Code', 'GitHub Copilot', 'Copilot', 'Cursor', 'Devin',
@@ -480,7 +442,7 @@
   ];
   const OFFTOPIC_SOURCE_UGC_PATTERNS = [
     // 個人ブログ UGC — タイトルだけでは関連性判定しにくいが、
-    // 読者（B2B マーケ担当）にフィットするのは大手メディアのAI/業界記事。
+    // 読者（AKKODiS 事業担当）にフィットするのは大手メディアのAI/業界記事。
     // ただし Qiita/Zenn の「ツール活用 Tips」系は keep したいので、個別判定は別途。
   ];
   function isOffTopic(n) {
@@ -541,6 +503,16 @@
   /** 競合動向セクション用のソース表示。長く事務的な「Google News (NTTデータ)」を
    *  「NTTデータ（第三者報道）」のように人間が読みやすい形式に変換する。
    *  competitor 以外のセクションには影響を与えない（呼び出し側でのみ適用）。 */
+  /** 全セクション共通: "Google News (X)" → "X"、"PR TIMES (X)" → "X" に正規化 */
+  function prettySource(source) {
+    if (!source) return '';
+    const s = String(source);
+    let m = s.match(/^Google News\s*\(([^)]+)\)\s*$/);
+    if (m) return m[1];
+    m = s.match(/^PR TIMES\s*\(([^)]+)\)\s*$/);
+    if (m) return m[1];
+    return s;
+  }
   function prettyCompetitorSource(source) {
     if (!source) return '';
     const s = String(source);
@@ -722,12 +694,27 @@
   }
 
   /** 言語切り替えを適用し、全セクションを再レンダリングする */
+  /** data-ja / data-en 属性を持つ静的テキスト要素を一括で切り替える */
+  function applyStaticStrings(lang) {
+    document.querySelectorAll('[data-ja],[data-en]').forEach(el => {
+      const text = el.dataset[lang];
+      if (text !== undefined) el.textContent = text;
+    });
+    // <input placeholder> も切り替え
+    document.querySelectorAll('[data-ja-placeholder],[data-en-placeholder]').forEach(el => {
+      const ph = el.dataset[lang + 'Placeholder'];
+      if (ph !== undefined) el.placeholder = ph;
+    });
+  }
+
   function applyLang(lang) {
     state.lang = lang;
     try { localStorage.setItem(STORE_KEY_LANG, lang); } catch {}
     document.querySelectorAll('.lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === lang);
+      btn.setAttribute('aria-pressed', btn.dataset.lang === lang ? 'true' : 'false');
     });
+    applyStaticStrings(lang);
     // fullRender は後で定義されるのでこの時点では呼べない。
     // ボタンのクリックは必ず DOM 構築後なので fullRender は存在する。
     if (typeof fullRender === 'function') fullRender();
@@ -1018,7 +1005,7 @@
         if (topVisual) {
           const hero = document.createElement('div');
           hero.className = 'top-hero';
-          hero.innerHTML = `<img src="${img}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"><div class="top-hero-overlay"><span class="hero-chip cat-${n.category}">${escapeHtml(CAT_LABEL[n.category] || n.category)}</span><span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span></div>`;
+          hero.innerHTML = `<img src="${img}" alt="" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"><div class="top-hero-overlay"><span class="hero-chip cat-${n.category}">${escapeHtml(CAT_LABEL[n.category] || n.category)}</span><span class="hero-source">${escapeHtml(prettySource(n.source))} · ${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span></div>`;
           topVisual.replaceWith(hero);
         }
         const briefVisual = card.querySelector('.brief-card-visual');
@@ -1271,7 +1258,7 @@
   }
 
   function partition() {
-    // ①消費者向け商品記事（PCセール・通販等）は B2B マーケ視点で不要
+    // ①消費者向け商品記事（PCセール・通販等）は AKKODiS 事業視点で不要
     // ②再掲／再配信記事は情報価値が低い
     // ③【絶対NG】画像のない記事は全セクションで非表示
     //    画像は scraper の OGP + hydrateMissingImages() で可能な限り補完済み
@@ -1279,7 +1266,7 @@
     const base = NEWS_DATA.filter(n => {
       if (isConsumerNoise(n)) return false;
       if (isReprint(n)) return false;
-      if (isOffTopic(n)) return false;  // AI/B2B/採用マーケ無関係な記事を除外
+      if (isOffTopic(n)) return false;  // AKKODiS 事業領域に無関係な記事を除外
       if (!n.image || !/^https?:\/\//.test(n.image)) return false;
       return true;
     });
@@ -1701,7 +1688,7 @@
       const n = refs[i];
       let sourceHtml = '';
       if (n) {
-        const src = escapeHtml(n.source || '');
+        const src = escapeHtml(prettySource(n.source || ''));
         if (n.url && /^https?:\/\//.test(n.url)) {
           sourceHtml = `<a class="exec-src" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${src} →</a>`;
         } else {
@@ -1739,7 +1726,7 @@
         ? `<a class="top-title-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(itemTitle)}</a>`
         : escapeHtml(itemTitle);
       const favicon = sourceFavicon(n.url) || '';
-      const initials = (n.source || '').substring(0, 2).toUpperCase();
+      const initials = prettySource(n.source || '').substring(0, 2).toUpperCase();
       const whyLabel = state.lang === 'en' ? '⚡ Why it matters' : '⚡ なぜ重要か（マーケ視点）';
       const actionLabel = state.lang === 'en' ? '🎯 What to do' : '🎯 マーケとして何をすべきか';
       const whyText = state.lang === 'en' ? (n.whyItMattersEn || n.whyItMatters) : n.whyItMatters;
@@ -1752,7 +1739,7 @@
           <img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}">
           <div class="top-hero-overlay">
             <span class="hero-chip ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-            <span class="hero-source">${escapeHtml(n.source)} · ${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
+            <span class="hero-source">${escapeHtml(prettySource(n.source))} · ${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
           </div>
         </div>` : `
         <div class="top-visual ${'cat-' + cat}">
@@ -1765,7 +1752,7 @@
             <div class="top-visual-source">
               ${favicon ? `<img class="source-logo" src="${favicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials">${escapeHtml(initials)}</span>`}
               <div class="top-visual-source-text">
-                <div class="top-visual-source-name">${escapeHtml(n.source)}</div>
+                <div class="top-visual-source-name">${escapeHtml(prettySource(n.source))}</div>
                 <div class="top-visual-source-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</div>
               </div>
             </div>
@@ -1782,7 +1769,7 @@
             <div class="intel-body">
               ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
               ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-              ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(n.source)}） →</a>` : ''}
+              ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(prettySource(n.source))}） →</a>` : ''}
             </div>
           </details>` : ''}
           <div class="top-foot">
@@ -1847,7 +1834,7 @@
       const imgSrc = pickImage(n);
       const hasDetail = !!(n.whyItMatters || n.actionItem || n.pickerComment);
       const bFavicon = sourceFavicon(n.url) || '';
-      const bInitials = (n.source || '').substring(0, 2).toUpperCase();
+      const bInitials = prettySource(n.source || '').substring(0, 2).toUpperCase();
       return `
         <div class="brief-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(T(n, 'title'))}">
           ${imgSrc ? `
@@ -1858,13 +1845,13 @@
             <div class="brief-visual-bg">${escapeHtml(CAT_LABEL[cat] || cat).toUpperCase()}</div>
             <div class="brief-visual-source">
               ${bFavicon ? `<img class="source-logo-sm" src="${bFavicon}" alt="" onerror="this.style.display='none';">` : `<span class="source-initials-sm">${escapeHtml(bInitials)}</span>`}
-              <span class="brief-visual-source-name">${escapeHtml(n.source)}</span>
+              <span class="brief-visual-source-name">${escapeHtml(prettySource(n.source))}</span>
             </div>
           </div>`}
           <div class="brief-card-content">
             <div class="brief-card-head">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
+              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(prettySource(n.source))} の記事に絞り込み">${escapeHtml(prettySource(n.source))}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
               ${(() => { const c = getStoryCluster(n.id); return c && c.count >= 3 ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体報道</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
@@ -1879,7 +1866,7 @@
               <div class="intel-body">
                 ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
                 ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-                ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(n.source)}） →</a>` : ''}
+                ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(prettySource(n.source))}） →</a>` : ''}
               </div>
             </details>` : ''}
             <div class="brief-card-foot">
@@ -1994,11 +1981,11 @@
       const imgSrc = pickImage(n);
       return `
         <article class="fyi-card${isRead ? ' read' : ''}" data-id="${n.id}" data-url="${hasUrl ? escapeHtml(n.url) : ''}" data-cat="${cat}" tabindex="0" role="button" aria-label="${escapeHtml(T(n, 'title'))}">
-          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}"><span class="fyi-visual-headline">${escapeHtml(T(n, 'title'))}</span><span class="fyi-visual-source">${escapeHtml(n.source).replace(/^Google News \((.+)\)$/, '$1')}</span></div>`}
+          ${imgSrc ? `<div class="fyi-thumb"><img src="${escapeHtml(imgSrc)}" alt="" data-seed="${escapeHtml(n.id)}" loading="lazy" onload="${IMG_ONLOAD}" onerror="${IMG_ONERROR}"></div>` : `<div class="fyi-visual ${'cat-' + cat}"><span class="fyi-visual-headline">${escapeHtml(T(n, 'title'))}</span><span class="fyi-visual-source">${escapeHtml(prettySource(n.source))}</span></div>`}
           <div class="fyi-body">
             <div class="fyi-meta">
               <span class="meta-pill ${'cat-' + cat}">${escapeHtml(CAT_LABEL[cat] || cat)}</span>
-              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(n.source)} の記事に絞り込み">${escapeHtml(n.source)}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
+              <button class="meta-source meta-source-btn" type="button" data-source-filter="${escapeHtml(n.source)}" title="${escapeHtml(prettySource(n.source))} の記事に絞り込み">${escapeHtml(prettySource(n.source))}</button>${isNewSinceLastVisit(n) ? '<span class="meta-new-since" title="前回訪問以降に追加">⭕ NEW</span>' : ''}
               ${(() => { const c = getStoryCluster(n.id); return c && c.count >= 3 ? `<span class="meta-multi" title="この話題は ${c.sources.join(' / ')} が報道">📰 ${c.count}媒体</span>` : ''; })()}
               <span class="meta-time">${escapeHtml(fmtRelative(n.publishedAt))}${isFresh(n.publishedAt) ? '<span class="fresh-dot" aria-label="新着">●</span>' : ''}</span>
               <span class="meta-read" title="推定読了時間">⏱ ${Number(n.readMin) || 1}分</span>
@@ -3089,10 +3076,13 @@
   async function tryStaticAudio() {
     const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
     const ymd = today.toISOString().slice(0, 10);
+    const enSuffix = state.lang === 'en' ? '-en' : '';
     // same-origin で試行（ページが /apps/ai-news/ から配信されている前提）
     const candidates = [
-      `data/audio/${ymd}.mp3`,
-      `data/audio/latest.mp3?v=${ymd}`,
+      `data/audio/${ymd}${enSuffix}.mp3`,
+      `data/audio/latest${enSuffix}.mp3?v=${ymd}`,
+      // EN モードで英語ファイルなければ日本語にフォールバック
+      ...(enSuffix ? [`data/audio/${ymd}.mp3`, `data/audio/latest.mp3?v=${ymd}`] : []),
     ];
     for (const path of candidates) {
       try {
@@ -3447,8 +3437,11 @@
     // 言語トグル
     document.querySelectorAll('.lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === state.lang);
+      btn.setAttribute('aria-pressed', btn.dataset.lang === state.lang ? 'true' : 'false');
       btn.addEventListener('click', () => applyLang(btn.dataset.lang));
     });
+    // 初期状態で静的テキストを適用（EN が保存されている場合に即座に切り替え）
+    applyStaticStrings(state.lang);
     // hero の★stat クリックで favOnly フィルタを ON にして more-list にスクロール
     const heroFavBtn = document.getElementById('hero-stat-fav');
     if (heroFavBtn) {

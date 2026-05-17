@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Agent Task Board</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1117'/%3E%3Crect x='4' y='8' width='6' height='18' rx='2' fill='%2358a6ff'/%3E%3Crect x='13' y='4' width='6' height='22' rx='2' fill='%233fb950'/%3E%3Crect x='22' y='11' width='6' height='15' rx='2' fill='%23f85149'/%3E%3C/svg%3E">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -268,6 +269,13 @@ select:focus, input[type="text"]:focus, textarea:focus {
       <option value="content">コンテンツ</option>
       <option value="business">ビジネス</option>
       <option value="infrastructure">インフラ</option>
+    </select>
+    <select id="filterOrg" onchange="render()">
+      <option value="">組織: 全て</option>
+      <option value="akkodis">AKKODiS</option>
+      <option value="shift-ai">SHIFT AI</option>
+      <option value="otsunagi">OTSUNAGI</option>
+      <option value="private">プライベート</option>
     </select>
     <button class="btn primary" onclick="openCreate()">＋ 新規タスク</button>
     <button class="btn" onclick="syncNow()">🔄 同期</button>
@@ -716,8 +724,9 @@ function nextId() {
 function filtered() {
   var fa = document.getElementById('filterAssignee').value;
   var ft = document.getElementById('filterTeam').value;
+  var fo = document.getElementById('filterOrg').value;
   return tasks.filter(function(t) {
-    return (!fa || t.assignee === fa) && (!ft || t.team === ft);
+    return (!fa || t.assignee === fa) && (!ft || t.team === ft) && (!fo || t.organization === fo);
   });
 }
 

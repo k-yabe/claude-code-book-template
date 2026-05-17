@@ -1,4 +1,5 @@
 import { mapAnthropicError } from './_anthropic-error.js';
+import { checkBudget, recordCost, MONTHLY_BUDGET_USD } from './_budget.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -22,8 +23,8 @@ export default async function handler(req, res) {
     }
 
     // Server-side guardrail: cap max_tokens to bound spend even if a client
-    // requests a huge value. 8192 covers all current call sites.
-    const MAX_TOKENS_CAP = 8192;
+    // requests a huge value.
+    const MAX_TOKENS_CAP = 4096;
     if (typeof body.max_tokens !== 'number' || body.max_tokens > MAX_TOKENS_CAP) {
       body.max_tokens = MAX_TOKENS_CAP;
     }
@@ -59,6 +60,11 @@ export default async function handler(req, res) {
       }
     }
 
+    const budget = await checkBudget();
+    if (!budget.allowed) {
+      return res.status(429).json({ error: { message: `月額API予算（$${MONTHLY_BUDGET_USD}）に達しました。翌月までお待ちください。` } });
+    }
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -80,6 +86,7 @@ export default async function handler(req, res) {
     try { data = JSON.parse(text); } catch {
       return res.status(500).json({ error: { message: 'APIエラーが発生しました。しばらく待ってから再試行してください。' } });
     }
+    if (data.usage && body.model) await recordCost(body.model, data.usage);
     return res.status(200).json(data);
   } catch (err) {
     return res.status(500).json({ error: { message: err.message } });

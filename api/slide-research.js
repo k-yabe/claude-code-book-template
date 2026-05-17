@@ -4,6 +4,7 @@
  */
 
 import { mapAnthropicError } from './_anthropic-error.js';
+import { checkBudget, recordCost } from './_budget.js';
 
 export const config = { runtime: 'edge' };
 
@@ -108,6 +109,22 @@ export default async function handler(req) {
     : `以下のトピックについて調査してください。\n\nトピック: ${topic}`;
 
   try {
+    const budget = await checkBudget();
+    if (!budget.allowed) {
+      const encoder = new TextEncoder();
+      const readable = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'error', message: '月額API予算に達しました。翌月までお待ちください。' })}\n\n`));
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+          controller.close();
+        },
+      });
+      return new Response(readable, {
+        status: 429,
+        headers: { 'Content-Type': 'text/event-stream', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -117,14 +134,14 @@ export default async function handler(req) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 6000,
+        max_tokens: 4000,
         temperature: 0.2,
-        system: RESEARCH_SYSTEM_PROMPT,
+        system: [{ type: 'text', text: RESEARCH_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
         messages: [{ role: 'user', content: userMessage }],
         tools: [{
           type: 'web_search_20250305',
           name: 'web_search',
-          max_uses: 5,
+          max_uses: 3,
           user_location: { type: 'approximate', country: 'JP', timezone: 'Asia/Tokyo' },
         }],
         stream: true,
@@ -149,6 +166,7 @@ export default async function handler(req) {
         let buffer = '';
         let fullText = '';
         let searchCount = 0;
+        const accUsage = { input_tokens: 0, output_tokens: 0, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 };
 
         try {
           while (true) {
@@ -167,6 +185,16 @@ export default async function handler(req) {
               try {
                 const event = JSON.parse(data);
 
+                // usage 集計
+                if (event.type === 'message_start' && event.message?.usage) {
+                  accUsage.input_tokens = event.message.usage.input_tokens || 0;
+                  accUsage.cache_creation_input_tokens = event.message.usage.cache_creation_input_tokens || 0;
+                  accUsage.cache_read_input_tokens = event.message.usage.cache_read_input_tokens || 0;
+                }
+                if (event.type === 'message_delta' && event.usage) {
+                  accUsage.output_tokens = event.usage.output_tokens || 0;
+                }
+
                 // Web検索ツール使用の検知
                 if (event.type === 'content_block_start' && event.content_block?.type === 'tool_use') {
                   searchCount++;
@@ -181,6 +209,8 @@ export default async function handler(req) {
 
                 // 完了
                 if (event.type === 'message_stop') {
+                  // コスト記録（best-effort）
+                  await recordCost('claude-sonnet-4-6', accUsage);
                   // JSONを抽出
                   const jsonMatch = fullText.match(/```(?:json)?\s*([\s\S]*?)```/) || fullText.match(/(\{[\s\S]*\})/);
                   if (jsonMatch) {
