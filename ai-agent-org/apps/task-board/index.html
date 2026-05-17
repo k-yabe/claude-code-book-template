@@ -492,7 +492,7 @@ select:focus, input[type="text"]:focus, textarea:focus {
     <div class="modal-body">
       <div class="field">
         <label>タイトル *</label>
-        <input type="text" id="cTitle" placeholder="タスクのタイトル">
+        <input type="text" id="cTitle" placeholder="タスクのタイトル" onkeydown="if(event.key==='Enter')createTask()">
       </div>
       <div class="row">
         <div class="field">
@@ -918,6 +918,13 @@ function startAutoRefresh() {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     closeDetail(); closeCreate(); closeHelp();
+  }
+  // N キーで新規タスク（モーダルが開いていない時のみ）
+  var anyOpen = !document.getElementById('detailOverlay').classList.contains('hidden')
+    || !document.getElementById('createOverlay').classList.contains('hidden')
+    || !document.getElementById('helpOverlay').classList.contains('hidden');
+  if ((e.key === 'n' || e.key === 'N') && !anyOpen && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+    openCreate();
   }
 });
 
