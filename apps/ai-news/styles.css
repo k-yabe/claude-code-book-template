@@ -1530,6 +1530,7 @@
       font-size: 1.02rem; font-weight: 800;
       color: var(--navy); line-height: 1.4; margin-bottom: 6px;
       letter-spacing: -0.005em;
+      overflow-wrap: break-word; word-break: break-word;
     }
     .fyi-why {
       font-size: 0.78rem; color: var(--text-secondary);
@@ -1796,8 +1797,8 @@
       box-shadow: 0 2px 6px rgba(0,31,51,0.16);
     }
     .x-head-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
-    .x-author { font-size: 0.8rem; font-weight: 800; color: var(--navy); letter-spacing: 0.01em; }
-    .x-handle { font-size: 0.66rem; color: var(--text-faint); font-weight: 600; }
+    .x-author { font-size: 0.8rem; font-weight: 800; color: var(--navy); letter-spacing: 0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .x-handle { font-size: 0.66rem; color: var(--text-faint); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     div.x-item { cursor: default; }
     div.x-item:hover { background: var(--white); transform: none; box-shadow: 0 2px 8px rgba(0,31,51,0.08); }
     .x-text {
@@ -1807,6 +1808,7 @@
       position: relative; z-index: 1;
       flex: 1;
       white-space: pre-wrap;
+      word-break: break-word; overflow-wrap: break-word;
     }
     /* 日本語訳付きの場合、翻訳ブロックと原文ブロックを縦に並べる */
     .x-text-ja {
@@ -2389,6 +2391,10 @@
     }
     .brief-card-head {
       display: flex; align-items: center; gap: var(--sp-2); margin-bottom: 8px;
+      flex-wrap: wrap; overflow: hidden;
+    }
+    .brief-card-head .meta-source-btn {
+      max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .brief-card-num {
       width: 20px; height: 20px;
@@ -2402,6 +2408,7 @@
       color: var(--navy); line-height: 1.4; margin-bottom: 8px;
       letter-spacing: -0.01em;
       transition: color 0.2s ease;
+      overflow-wrap: break-word; word-break: break-word;
     }
     .brief-card:hover .brief-card-title { color: #003f66; }
     /* 番号バッジのホバー連動 */

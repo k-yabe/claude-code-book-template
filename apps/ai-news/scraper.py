@@ -45,20 +45,27 @@ SOURCES: list[dict[str, object]] = [
     {"name": "ITmedia AI+",              "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",               "category": "ai",  "tier": "media", "max": 8},
     {"name": "ITmedia NEWS",             "url": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",          "category": "ai",  "tier": "media", "max": 6},
     {"name": "日経クロステック",           "url": "https://xtech.nikkei.com/rss/xtech-it.rdf",                  "category": "ai",  "tier": "media", "max": 6},
-    {"name": "ASCII.jp",                 "url": "https://ascii.jp/rss.xml",                                    "category": "ai",  "tier": "media", "max": 4},
+    {"name": "ASCII.jp",                 "url": "https://ascii.jp/rss.xml",                                    "category": "ai",  "tier": "media", "max": 5},
     {"name": "Ledge.ai",                 "url": "https://ledge.ai/feed",                                       "category": "ai",  "tier": "media", "max": 5},
-    {"name": "TECH+",                    "url": "https://news.mynavi.jp/techplus/rss/ai/",                     "category": "ai",  "tier": "media", "max": 4},
+    {"name": "TECH+",                    "url": "https://news.mynavi.jp/techplus/rss/ai/",                     "category": "ai",  "tier": "media", "max": 5},
     {"name": "Publickey",                "url": "https://www.publickey1.jp/atom.xml",                          "category": "ai",  "tier": "media", "max": 5},
+    {"name": "CNET Japan",               "url": "https://japan.cnet.com/rss/news.rdf",                         "category": "ai",  "tier": "media", "max": 5},
+    {"name": "マイナビニュース IT",        "url": "https://news.mynavi.jp/rss/index/tech/",                     "category": "ai",  "tier": "media", "max": 4},
+    {"name": "Impress Watch IT",         "url": "https://www.watch.impress.co.jp/docs/news/rss/rss.xml",       "category": "ai",  "tier": "media", "max": 4},
     # ── DX・ITコンサル・エンタープライズIT（AKKODiS コア事業領域） ──
     {"name": "EnterpriseZine",           "url": "https://enterprisezine.jp/rss/all",                           "category": "dx",  "tier": "media", "max": 6},
     {"name": "IT Leaders",               "url": "https://it.impress.co.jp/rss/",                               "category": "dx",  "tier": "media", "max": 5},
     {"name": "ZDNet Japan",              "url": "https://japan.zdnet.com/rss/index.rdf",                        "category": "dx",  "tier": "media", "max": 5},
     {"name": "ITmedia エンタープライズ",  "url": "https://rss.itmedia.co.jp/rss/2.0/enterprise.xml",           "category": "dx",  "tier": "media", "max": 5},
+    {"name": "ITmedia ビジネスオンライン","url": "https://rss.itmedia.co.jp/rss/2.0/business.xml",             "category": "dx",  "tier": "media", "max": 4},
     {"name": "日経コンピュータ",          "url": "https://xtech.nikkei.com/rss/xtech-nc.rdf",                   "category": "dx",  "tier": "media", "max": 4},
     {"name": "gihyo.jp",                 "url": "https://gihyo.jp/feed/rss2",                                  "category": "dx",  "tier": "media", "max": 3},
-    # コミュニティ（各1〜2件のみ採用 → ニュースメディアを圧倒しないように）
-    {"name": "Zenn (生成AI)",             "url": "https://zenn.dev/topics/生成ai/feed",                         "category": "ai",  "tier": "ugc",   "max": 2},
-    {"name": "Zenn (Claude)",            "url": "https://zenn.dev/topics/claude/feed",                         "category": "ai",  "tier": "ugc",   "max": 2},
+    # ── Google News 広域検索（業界横断トレンド） ──
+    {"name": "Google News (生成AI活用)",  "url": "https://news.google.com/rss/search?q=生成AI+(企業+OR+業務+OR+導入+OR+活用)+-個人&hl=ja&gl=JP&ceid=JP:ja",              "category": "ai",  "tier": "media", "max": 5},
+    {"name": "Google News (AI規制政策)", "url": "https://news.google.com/rss/search?q=AI+(規制+OR+政策+OR+ガイドライン+OR+法律)+日本&hl=ja&gl=JP&ceid=JP:ja",           "category": "ai",  "tier": "media", "max": 3},
+    {"name": "Google News (DX推進企業)", "url": "https://news.google.com/rss/search?q=DX+(推進+OR+デジタル変革+OR+システム刷新)+企業&hl=ja&gl=JP&ceid=JP:ja",           "category": "dx",  "tier": "media", "max": 4},
+    {"name": "Google News (IT人材育成)", "url": "https://news.google.com/rss/search?q=エンジニア+(育成+OR+リスキリング+OR+スキル)+IT&hl=ja&gl=JP&ceid=JP:ja",            "category": "dx",  "tier": "media", "max": 3},
+    # コミュニティ（Qiitaのみ: ニュースメディアを圧倒しないよう最小限）
     {"name": "Qiita (AI)",               "url": "https://qiita.com/tags/ai/feed",                              "category": "ai",  "tier": "ugc",   "max": 1},
     # ── 競合モニタリング ─────────────────────────────────────────
     # 【経緯】PR TIMES の `freeword/<company>/0/1` は2026/4/22以降、過去 7 日間の
