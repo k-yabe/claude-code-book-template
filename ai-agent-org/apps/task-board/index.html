@@ -327,10 +327,10 @@ select:focus, input[type="text"]:focus, textarea:focus {
     </select>
     <select id="filterOrg" onchange="render()">
       <option value="">組織: 全て</option>
-      <option value="akkodis">AKKODiS</option>
+      <option value="private">プライベート</option>
       <option value="shift-ai">SHIFT AI</option>
       <option value="otsunagi">OTSUNAGI</option>
-      <option value="private">プライベート</option>
+      <option value="akkodis">AKKODiS</option>
     </select>
     <button class="btn primary" onclick="openCreate()">＋ 新規タスク</button>
     <button class="btn" onclick="syncNow()">🔄 同期</button>
@@ -436,6 +436,15 @@ select:focus, input[type="text"]:focus, textarea:focus {
             <option value="content">コンテンツ</option>
             <option value="business">ビジネス</option>
             <option value="infrastructure">インフラ</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>組織</label>
+          <select id="dOrg" onchange="updateField('organization',this.value)">
+            <option value="private">プライベート</option>
+            <option value="shift-ai">SHIFT AI</option>
+            <option value="otsunagi">OTSUNAGI</option>
+            <option value="akkodis">AKKODiS</option>
           </select>
         </div>
       </div>
@@ -544,6 +553,15 @@ select:focus, input[type="text"]:focus, textarea:focus {
             <option value="infrastructure">インフラ</option>
           </select>
         </div>
+      </div>
+      <div class="field">
+        <label>組織</label>
+        <select id="cOrg">
+          <option value="private">プライベート</option>
+          <option value="shift-ai">SHIFT AI</option>
+          <option value="otsunagi">OTSUNAGI</option>
+          <option value="akkodis">AKKODiS</option>
+        </select>
       </div>
       <div class="field">
         <label>説明</label>
@@ -1034,6 +1052,7 @@ function openDetail(id) {
   document.getElementById('dPriority').value = t.priority;
   document.getElementById('dAssignee').value = t.assignee;
   document.getElementById('dTeam').value = t.team;
+  document.getElementById('dOrg').value = t.organization || 'private';
   document.getElementById('dDesc').value = t.description || '';
   document.getElementById('dBlockedReason').value = t.blockedReason || '';
   syncBlockedField();
@@ -1147,6 +1166,7 @@ function createTask() {
     assignee: assignee,
     assigneeType: assignee === 'human' ? 'human' : 'ai',
     team: document.getElementById('cTeam').value,
+    organization: document.getElementById('cOrg').value,
     createdAt: now,
     updatedAt: now,
     comments: [],
