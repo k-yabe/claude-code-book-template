@@ -720,12 +720,28 @@ def is_relevant(title: str, summary: str) -> bool:
 is_ai_related = is_relevant
 
 
-def relevance_score(title: str, summary: str) -> int:
-    """AI + 業界キーワード両方マッチなら優先（score=2）、片方なら score=1、なしは 0。並び替え用。"""
-    hay = (title or "") + " " + (summary or "")
-    ai = bool(_AI_WORD_RE.search(hay)) or any(kw in hay for kw in AI_KEYWORDS_CONTAIN)
-    ind = bool(_IND_WORD_RE.search(hay)) or any(kw in hay for kw in INDUSTRY_KEYWORDS_CONTAIN)
-    return (1 if ai else 0) + (1 if ind else 0)
+def relevance_score(title: str, summary: str, hatena_count: int = 0, is_competitor: bool = False) -> int:
+    """0〜5 スケールの関連度スコア。Claude への送信順位決定に使う。"""
+    title_hay = title or ""
+    hay = title_hay + " " + (summary or "")
+    score = 0
+    # AIキーワード: タイトルマッチは +2、本文のみは +1
+    ai_title = bool(_AI_WORD_RE.search(title_hay)) or any(kw in title_hay for kw in AI_KEYWORDS_CONTAIN)
+    ai_any = bool(_AI_WORD_RE.search(hay)) or any(kw in hay for kw in AI_KEYWORDS_CONTAIN)
+    if ai_title:
+        score += 2
+    elif ai_any:
+        score += 1
+    # 業界キーワード
+    if bool(_IND_WORD_RE.search(hay)) or any(kw in hay for kw in INDUSTRY_KEYWORDS_CONTAIN):
+        score += 1
+    # 競合言及は高優先
+    if is_competitor:
+        score += 2
+    # はてブ人気記事は底上げ
+    if hatena_count >= 5:
+        score += 1
+    return min(score, 5)
 
 
 def parse_pub(entry: Any) -> datetime | None:
@@ -1061,11 +1077,12 @@ def fetch_all() -> list[dict]:
     # いた（フィルタが機能していなかった）。
     # 代わりに Claude の importance/urgency 判定（call_anthropic）に品質管理を
     # 完全委任する。スクレイパー段階では件数上限のみ適用。
-    # 並び順: メディア優先 × 人気度(はてブ数)降順 × 新着降順
+    # 並び順: 関連度スコア降順 → メディア優先 → はてブ数 → 新着
     all_items.sort(key=lambda x: (
-        1 if x.get("sourceType") == "ugc" else 0,        # メディア先行
-        -int(x.get("hatenaCount") or 0),                  # 人気記事先行
-        -int(datetime.fromisoformat(x["publishedAt"].replace("Z","+00:00")).timestamp()),  # 新着先行
+        -relevance_score(x["title"], x.get("raw_summary", ""), int(x.get("hatenaCount") or 0), bool(x.get("isCompetitor"))),
+        1 if x.get("sourceType") == "ugc" else 0,
+        -int(x.get("hatenaCount") or 0),
+        -int(datetime.fromisoformat(x["publishedAt"].replace("Z","+00:00")).timestamp()),
     ))
     # 単一ソース独占の防止: 同一ソースは最大 5 件まで（ITmedia AI+ が単独で 8/29 = 28%
     # を占めてブリーフが「ITmedia ダイジェスト」化していた問題への対策）。
@@ -1197,75 +1214,42 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
     ]
 
     system_prompt = (
-        "あなたはAKKODiS コンサルティング（ITコンサル・DX支援・エンジニアリング派遣・システム開発・BPO・技術者育成を手掛けるITサービス企業）の"
-        "事業部門向けニュース・インテリジェンス・キュレーターです。"
-        "単なる記事要約ではなく「AKKODiS の事業担当者が明日から何をすべきか」がわかるブリーフを作成します。\n\n"
-        "## 読者コンテキスト\n"
-        "- AKKODiS コンサルティング Japan：ITコンサルティング・DX支援・エンジニアリング派遣・システム開発・BPO・技術者育成が主事業\n"
-        "- SIer・ITコンサル・エンジニアリングサービス（テクノプロ、メイテック等）・コンサルファーム（アクセンチュア、NRI等）の動向は特に重要\n"
-        "- AI一般論よりも、DX推進・クラウド・セキュリティ・システム開発に直結するAI活用ニュースを優先\n"
-        "- IT人材市場・リスキリング・技術者育成に関する動向も重要\n\n"
-        "## 記事選定の大前提（最優先）\n"
-        "**国内（日本）で注目されている記事**かつ**AKKODiSの事業領域（ITコンサル・DX・エンジニアリング派遣・"
-        "システム開発・BPO・技術者育成）に関係する記事**のみを選ぶ。\n"
-        "- 国内注目の目安: 日本のIT系大手メディア（ITmedia・日経XTECH・ZDNet Japan・EnterpriseZine等）が"
-        "取り上げた事実・数値・固有名詞のある具体的な記事。タイトルと内容が一致していること\n"
-        "- AKKODiS関連の目安: 競合他社動向/IT人材市場/DX案件/エンジニア需給/生成AI業務活用のいずれかに"
-        "直接関わる記事。B2C商品・海外のみの話題・AI一般論は選ばない\n\n"
-        "## urgency判定の基準（厳守）\n"
-        "### must_know（1〜2件・厳選）\n"
-        "以下のいずれかに**直接**該当する場合のみ:\n"
-        "- AKKODiS主要競合（NTTデータ/富士通/アクセンチュア/テクノプロ/メイテック等）の"
-        "新サービス発表・大型受注・決算・M&A・組織再編\n"
-        "- IT人材派遣・エンジニアリング派遣市場に直撃する法改正・制度変更\n"
-        "- 大手企業の大規模DX発注・システム刷新（AKKODiSが直接商談できる案件規模）\n"
-        "- 生成AIの業務適用で現場エンジニアの働き方・単価・需給が変わるニュース\n"
-        "⚠️ 「AIが何かに使われた」「製品がAI対応になった」程度では must_know にしない\n"
-        "⚠️ バックアップ/ストレージ/インフラ製品ベンダーのAI発表は fyi\n"
-        "⚠️ 海外のAIニュースまとめ・週次ダイジェスト記事は fyi\n"
-        "⚠️ 該当がなければ must_know は 0件でよい（無理に入れない）\n\n"
-        "### this_week（3〜5件）\n"
-        "- 記事が十分ある場合は必ず3〜5件選ぶこと（1件のみは品質問題のサイン）\n"
-        "- AI・クラウド・セキュリティで企業の意思決定に影響する重要アップデート\n"
-        "- IT業界の採用・人材・リスキリング動向（日本国内の話題に限る）\n"
-        "- 準競合・パートナー企業の動向\n"
-        "- 競合企業の重要ではあるが must_know 未満のニュース\n\n"
-        "### fyi\n"
-        "- 上記に当てはまらないAI一般論・製品リリース・調査レポート\n\n"
-        "## 各記事について以下を日本語で生成してください:\n"
-        "- summary: 何が起きたかの事実要約（100〜140字）。主語・数値・固有名詞を明記。\n"
-        "- whyItMatters: AKKODiSの事業担当者にとって具体的に何が変わるか（1文）。"
-        "※summaryの言い換えは禁止。「だから自分たちはどうなるのか」を書く。\n"
-        "- actionItem: 推奨アクション（1文、具体的に。誰が・何を・いつまでにの要素を含む）\n"
-        "- urgency: must_know（重要ニュース、最大2件）/ this_week（注目ニュース、最大5件）/ fyi（その他）\n"
-        "- tags: 3〜5個の日本語タグ\n"
-        "- pickerComment: 専門家の視点コメント（1〜2文）。"
-        "ITコンサルタントやDX推進担当のCXO経験者の立場で、この記事への洞察・補足・注意点を書く。"
-        "「〜に注目」「〜が鍵」のような定型は避け、具体的な業界知識に基づくコメントにする。\n"
-        "- importance: 1=最重要1件のみ、2=押さえるべき5件、3=その他\n"
-        "- readMin: 推定読了時間（1〜3分）\n\n"
+        "## 絶対ルール（最優先・厳守）\n"
+        "- **必ずJSONのみを出力。生成拒否・見送り・説明文は一切禁止。**\n"
+        "- AKKODiS関連外の記事も urgency='fyi' として必ずJSONに含める。\n"
+        "- 記事が0件でも executiveSummary + items を出力すること。\n\n"
+        "あなたはAKKODiS コンサルティング（ITコンサル・DX支援・エンジニアリング派遣・システム開発・BPO・技術者育成）の"
+        "事業部門向けニュースキュレーターです。「明日から何をすべきか」がわかるブリーフを作成します。\n\n"
+        "## AKKODiSのコンテキスト\n"
+        "- 主要競合: NTTデータ・富士通・アクセンチュア・NRI・テクノプロ・メイテック\n"
+        "- 重要テーマ: 生成AI業務活用・DX導入支援・IT人材派遣市場・技術者育成・リスキリング\n"
+        "- 読者: 事業部門マネージャー・DX推進担当・営業（B2B視点、消費者向けは不要）\n\n"
+        "## urgency 分類\n"
+        "**must_know**（最大2件）: 以下のみ該当\n"
+        "- 主要競合の新サービス・大型受注・M&A・決算・組織再編\n"
+        "- IT人材派遣市場に直撃する法改正・制度変更\n"
+        "- 大手企業の大規模DX・システム刷新案件（商談可能な規模）\n"
+        "- 生成AI適用でエンジニア需給・単価・働き方が変わるニュース\n"
+        "⚠️ 該当なければ0件でよい。「AIが何かに使われた」程度は must_know にしない\n\n"
+        "**this_week**（3〜5件）: AI・クラウド・セキュリティで企業意思決定に影響するアップデート、"
+        "IT業界・人材・競合の国内動向（must_know未満のもの）\n\n"
+        "**fyi**: その他のAI製品リリース・調査レポート・一般業界ニュース\n\n"
+        "## 各記事のフィールド（日本語で生成）\n"
+        "- summary: 事実要約（80〜120字）。主語・数値・固有名詞を明記。タイトルのコピーは禁止\n"
+        "- whyItMatters: AKKODiS事業に何が変わるか（1文）。summaryの言い換え禁止。「だから自分たちはどうなるのか」を書く\n"
+        "- actionItem: 誰が・何を・いつまでにの要素を含む推奨アクション（1文）\n"
+        "- pickerComment: ITコンサル/DX推進CXO視点の業界洞察（1〜2文）。「〜に注目」「〜が鍵」の定型表現禁止\n"
+        "- urgency: must_know / this_week / fyi\n"
+        "- tags: 日本語タグ2〜4個\n"
+        "- importance: 1（must_know最重要1件）/ 2（this_week）/ 3（fyi）\n"
+        "- readMin: 1〜3\n\n"
         "## executiveSummary\n"
-        "全記事を俯瞰した**ちょうど3行のサマリー**。**必ず3行生成すること**（この制約は最優先）。\n"
-        "各行は「何が起きて、なぜ注目か」を平易な日本語で**完結した1文**にまとめる。\n"
-        "**1文の目安は40〜90字**。途中で切れた文や「〜とは」「〜を…」のような体言止め未満は禁止、必ず句点で終わらせる。\n"
-        "専門用語は避け、事業部門の誰が読んでもすぐわかる表現にする。\n"
-        "期限指示（「今日中に〜」等）は入れない。事実と影響のみ。説明や補足は書かない。\n"
-        "**取り上げる対象**: AI / 生成AI / DX推進 / ITコンサル / システム開発 / エンジニアリング派遣 / "
-        "競合企業（SIer・コンサルファーム・エンジニアリングサービス等）の動向。\n"
-        "**取り上げない**: B2C 商品（飲料・コーラ・コンビニ新商品）、エンタメ（音楽タイアップ・芸能人）、"
-        "グルメ・観光・スポーツの新商品ニュース。\n"
-        "**3行未満になりそうな時の補い方**: 該当する記事が少なくても 3行は必ず埋める。"
-        "個別記事に直接書かれていなくても、本日の記事群から推測できる「AI / IT業界全体の動向」"
-        "「DXトレンド」「IT人材市場の構造変化」など、**抽象度を一段上げた業界マクロ"
-        "コメント**で 3 行目（または 2-3 行目）を補ってよい（事実ベースで、推測表現は避ける）。\n\n"
-        "煽りや推測は避け、事実ベースで。\n"
-        "## 絶対ルール（最優先）\n"
-        "- **必ずJSONのみを出力すること。いかなる理由があっても生成を拒否・見送り・説明文の出力は禁止。**\n"
-        "- AKKODiS関連外と判断した記事は urgency='fyi' として処理し、JSONに含めること。\n"
-        "- 記事が1件もAKKODiS関連でなくても、必ず executiveSummary 3行 + items を出力すること。\n\n"
-        "出力は厳密にJSONのみで、以下の形式に従ってください:\n"
-        "{\"executiveSummary\":[\"...\",\"...\",\"...\"],"
-        "\"items\":[{\"i\":0,\"summary\":\"...\",\"whyItMatters\":\"...\",\"actionItem\":\"...\",\"pickerComment\":\"...\",\"urgency\":\"must_know\",\"tags\":[\"...\"],\"importance\":1,\"readMin\":2}, ...]}"
+        "今日の記事群を俯瞰した2〜3行。各行は完結した1文（40〜80字・句点で終わる）。\n"
+        "AI/DX/競合動向で今日最も重要なことを書く。推測・煽り禁止。事実と影響のみ。\n\n"
+        "出力形式（JSONのみ）:\n"
+        "{\"executiveSummary\":[\"...\",\"...\"],"
+        "\"items\":[{\"i\":0,\"summary\":\"...\",\"whyItMatters\":\"...\",\"actionItem\":\"...\","
+        "\"pickerComment\":\"...\",\"urgency\":\"this_week\",\"tags\":[\"...\"],\"importance\":2,\"readMin\":2}]}"
     )
 
     user_prompt = (
@@ -1695,6 +1679,11 @@ def save(items: list[dict], executive_summary: list[str] | None = None,
 # - author/handle/text を構造化して xHighlights に流し込む
 # - 失敗・0件時はクライアント側のシードプール（日次ローテ）にフォールバックさせる
 def fetch_x_trends_via_claude() -> list[dict]:
+    """日本語SNSの生成AI・DX話題コンテンツを収集。
+
+    X直接投稿だけでなく Togetter（Xまとめ）・note.com・Qiita も対象にすることで
+    信頼性を大幅に向上させる。web_search で X 投稿 URL を直接探すのは失敗率が高い。
+    """
     if not ANTHROPIC_API_KEY:
         log("ANTHROPIC_API_KEY missing, skip x trends fetch")
         return []
@@ -1703,70 +1692,68 @@ def fetch_x_trends_via_claude() -> list[dict]:
     except ImportError as e:
         log(f"anthropic SDK not available for x trends: {e}")
         return []
+
     today_jst = datetime.now(JST)
     date_label = today_jst.strftime("%Y年%m月%d日")
-    # 直近 N 日間のアーカイブから既出の handle を集めて、プロンプトで重複回避させる。
-    # 14日間に拡大し「毎日同じ人が出る」現象をより強く抑制する。
+    ym_label = today_jst.strftime("%Y年%m月")
+
+    # 過去 7 日の既出 URL・handle を収集して多様性を確保
     recent_handles: set[str] = set()
+    recent_urls: set[str] = set()
     try:
         today_d = today_jst.date()
-        for i in range(14):  # 過去 14 日
+        for i in range(7):
             day = today_d - timedelta(days=i)
             arch = ARCH_DIR / f"{day.strftime('%Y-%m-%d')}.json"
             if not arch.exists():
                 continue
             data = json.loads(arch.read_text(encoding="utf-8"))
             for h in (data.get("xHighlights") or []):
-                handle = (h.get("handle") or "").strip().lstrip("@").lower()
-                if handle:
-                    recent_handles.add(handle)
+                hnd = (h.get("handle") or "").strip().lstrip("@").lower()
+                url = (h.get("url") or "").strip()
+                if hnd:
+                    recent_handles.add(hnd)
+                if url:
+                    recent_urls.add(url)
     except Exception:
         pass
-    avoid_block = ""
+
+    avoid_handles = ""
     if recent_handles:
-        sample = sorted(recent_handles)
-        avoid_block = (
-            "\n## 多様性制約（最重要・厳守）\n"
-            f"- 過去 14 日間で既に出した以下の handle は**絶対に採用しない**。新しい著者のみ:\n"
-            "  " + ", ".join(f"@{h}" for h in sample) + "\n"
-            "- 同一 handle は 1 件まで。上記に含まれる handle を 1 件でも出したら失格\n"
-            "- 著名人・大手アカウントに頼らず、バズった新鮮な投稿を探すこと\n"
-        )
-    prompt = (
-        f"今日（{date_label}）または直近 48 時間以内に、**一般ユーザー（著名人・大手アカウント以外）が投稿して"
-        "バズっている**生成AI・DX関連の X（旧Twitter）日本語投稿を 8 件探してください。\n\n"
-        "## 探す投稿のイメージ\n"
-        "- フォロワーが数千〜数万人規模の「普通のエンジニア・ビジネスパーソン」の投稿で、\n"
-        "  いいね数・RT数が多くコミュニティで話題になっているもの\n"
-        "- 有名インフルエンサー・企業公式・メディアアカウントの投稿は**除外**する\n"
-        "- 「使ってみた」「試した結果」「気づき」「こんな活用法があった」のような\n"
-        "  一般ユーザー目線のリアルな体験・発見がバズっている投稿を優先\n\n"
-        "## 検索手順\n"
-        "1. 「生成AI 使ってみた site:x.com」「ChatGPT 活用 site:x.com いいね」等で検索\n"
-        "2. 「Claude AI 試した site:x.com」「AIエージェント 実務 site:x.com」等も試す\n"
-        "3. 見つけた投稿のいいね数・RT数を確認し `buzz` に記入\n"
-        "   （2=いいね100以上、3=いいね500以上、4=いいね1000以上、5=いいね5000以上）\n\n"
-        "## 品質基準\n"
-        "- **buzz 2以上（いいね100+）のもののみ採用**\n"
-        "- 著名人・大手企業・メディアアカウントは除外（一般ユーザーの声を重視）\n"
-        "- 1件も見つからない場合は空にしてよい（無理に埋めない）\n\n"
-        "## 厳守ルール\n"
-        "- **日本語の投稿のみ**採用する。英語投稿は一切不可\n"
-        "- web_search で実在を確認すること。架空の URL・著者名は絶対に作らない\n"
-        "- URL は https://x.com/<handle>/status/<id> 形式のみ\n"
-        "- 確認できなかった場合は採用しない（無理に埋めない）\n"
-        "- **同じ著者から 2 件以上は採用しない**\n"
-        "- 生成AI／DX／ITコンサル／クラウド／エンジニアリングに関係する話題を優先\n"
-        + avoid_block +
-        "\n## 言語フィールド\n"
-        "- 日本語投稿: `lang: \"ja\"`, `textJa` は空文字, `textEn` に自然な英語訳\n"
-        "\n## 出力フォーマット（JSON のみ、説明文なし、コードフェンス不要）\n"
-        "{\"items\":[{\"author\":\"表示名\",\"handle\":\"@xxxx\","
-        "\"text\":\"原文（200字以内、改行は \\\\n でエスケープ）\","
-        "\"lang\":\"ja\",\"textJa\":\"\",\"textEn\":\"英語訳\","
-        "\"buzz\":3,"
-        "\"url\":\"https://x.com/.../status/...\",\"tag\":\"短いトピック名\"}, ...]}"
-    )
+        sample = sorted(recent_handles)[:15]
+        avoid_handles = f"\n既出ハンドル（除外）: {', '.join(f'@{h}' for h in sample)}\n"
+
+    prompt = f"""今日（{date_label}）または直近48時間以内に、日本のAI・DX・エンジニアコミュニティで話題になっているSNSコンテンツを6〜8件探してください。
+
+## 検索対象プラットフォーム（この順で検索）
+
+**① Togetter（最優先・最も確実）**
+- 検索クエリ例: 「togetter 生成AI まとめ {ym_label}」「togetter ChatGPT 話題」「togetter Claude AI」
+- URL形式: https://togetter.com/li/数字
+- Togetterは X/Twitter の話題投稿をまとめたサイト。見つかりやすく実在確認しやすい
+
+**② note.com（技術・ビジネス記事）**
+- 検索クエリ例: 「note 生成AI 活用 {ym_label}」「note ChatGPT 業務 話題」
+- URL形式: https://note.com/ユーザー名/n/英数字
+
+**③ X/Twitter直接投稿（見つかれば）**
+- 検索クエリ例: 「生成AI 使ってみた x.com 日本語」「ChatGPT 活用法 x.com」
+- URL形式: https://x.com/handle/status/数字
+
+## 採用基準
+- いいね・ブックマーク・RT が多いもの（buzz 2以上 = 100件以上相当）
+- 生成AI・DX・ITエンジニアリング・クラウドに関するもの
+- 日本語コンテンツのみ
+- **実在確認できたURLのみ採用**（架空URL・推測URLは絶対禁止）
+{avoid_handles}
+## 出力（JSONのみ・説明文なし）
+{{"items":[
+  {{"author":"著者名またはまとめタイトル", "handle":"@handle", "text":"内容要約（180字以内）", "lang":"ja", "textJa":"", "textEn":"English summary", "buzz":3, "url":"https://...", "tag":"トピック名"}},
+  ...
+]}}
+
+見つからない場合は items を空配列にする。"""
+
     try:
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
         msg = client.messages.create(
@@ -1775,75 +1762,95 @@ def fetch_x_trends_via_claude() -> list[dict]:
             tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 4}],
             messages=[{"role": "user", "content": prompt}],
         )
-        # tool_use の応答を含む可能性あり。最後のテキストブロックを使う。
         text_parts = [getattr(b, "text", "") for b in msg.content if getattr(b, "type", "") == "text"]
         text = "".join(text_parts)
     except Exception as e:
         log(f"x trends claude call failed: {type(e).__name__}: {e}")
         return []
+
     parsed = extract_json(text)
     if not parsed or "items" not in parsed:
-        # X トレンドも過去 7 日中 6 日で 0 件だった。原因追跡のため raw 出力を保存。
         try:
             DATA_DIR.mkdir(parents=True, exist_ok=True)
-            (DATA_DIR / "x-trends-last-failure.txt").write_text(
-                text or "(empty)", encoding="utf-8"
-            )
+            (DATA_DIR / "x-trends-last-failure.txt").write_text(text or "(empty)", encoding="utf-8")
         except Exception:
             pass
         log(f"x trends: no parseable JSON in claude response (raw len={len(text or '')})")
         return []
+
+    # X・Togetter・note・Qiita・Zenn のいずれかの URL を受け入れる
+    SOCIAL_URL_RE = re.compile(
+        r"^https://(?:x|twitter)\.com/[^/]+/status/\d+"
+        r"|^https://togetter\.com/li/\d+"
+        r"|^https://note\.com/[^/]+/n/[a-zA-Z0-9]+"
+        r"|^https://qiita\.com/[^/]+/items/[a-zA-Z0-9]+"
+        r"|^https://zenn\.dev/[^/]+/articles/[a-zA-Z0-9_-]+"
+    )
+
     raw_items = parsed.get("items") or []
     out: list[dict] = []
-    seen_handles: set[str] = set()  # 同一 handle 重複排除（多様性確保）
-    for it in raw_items[:16]:  # 候補は多めに見て、handle 重複でスキップしながら 10 件まで
+    seen_handles: set[str] = set()
+
+    for it in raw_items[:16]:
         url = (it.get("url") or "").strip()
-        if not url or not re.match(r"^https://(?:x|twitter)\.com/[^/]+/status/\d+", url):
+        if not url or not SOCIAL_URL_RE.match(url):
+            log(f"x trends skip invalid url: {url[:60]}")
             continue
-        # X / Twitter URL は HEAD/GET で 429 / 403 を返すケースが多く、bot UA 経由の
-        # validate_url でほぼ全件 unreachable 判定されてしまい x_highlights が 0 件に
-        # なる事故が発生していた。プロンプト側で「web_search で実在確認」を強制している
-        # ため、URL 形式チェックだけで採用する。
+        if url in recent_urls:
+            log(f"x trends skip seen url: {url[:60]}")
+            continue
+
         author = (it.get("author") or "").strip()[:40]
         handle = (it.get("handle") or "").strip()[:40]
         text_body = (it.get("text") or "").strip()
         tag = (it.get("tag") or "AI").strip()[:20]
-        lang = (it.get("lang") or "").strip().lower()[:8] or "ja"
-        text_ja = (it.get("textJa") or "").strip()
+        lang = (it.get("lang") or "ja").strip().lower()[:8]
         text_en = (it.get("textEn") or "").strip()
-        if not author or not handle or not text_body:
+
+        if not author or not text_body:
             continue
-        # 同一 handle 排除（プロンプトでも指示しているが二重防御）
-        h_key = handle.lstrip("@").lower()
+
+        h_key = handle.lstrip("@").lower() if handle else url
         if h_key in seen_handles:
-            log(f"x trends skip duplicate handle: @{h_key}")
+            log(f"x trends skip duplicate: {h_key}")
             continue
         seen_handles.add(h_key)
-        # buzz_score: メディア引用数ベースのバイラル指標（1〜5）。
-        # X API なしで取得できる唯一の現実的な指標。
-        buzz_score = max(1, min(5, int(it.get("buzz") or 1)))
-        # likes フィールドには buzz_score を 1000 倍してフロントの閾値と互換させる
+
+        buzz_score = max(1, min(5, int(it.get("buzz") or 2)))
         likes_equiv = buzz_score * 1000
-        h = handle.lstrip("@")
-        avatar = f"https://unavatar.io/x/{h}"
+
+        # プラットフォーム別アバター
+        if "togetter.com" in url:
+            avatar = "https://togetter.com/assets/apple-touch-icon.png"
+        elif "note.com" in url:
+            h = handle.lstrip("@") if handle else ""
+            avatar = f"https://note.com/{h}/icon" if h else "https://note.com/favicon.ico"
+        elif "qiita.com" in url:
+            h = handle.lstrip("@") if handle else ""
+            avatar = f"https://avatars.githubusercontent.com/{h}" if h else "https://qiita.com/favicon.ico"
+        else:
+            h = handle.lstrip("@") if handle else ""
+            avatar = f"https://unavatar.io/x/{h}" if h else ""
+
         out.append({
             "id": f"xt_{hashlib.sha1(url.encode()).hexdigest()[:10]}",
             "author": author,
-            "handle": handle if handle.startswith("@") else f"@{handle}",
+            "handle": handle if handle.startswith("@") else (f"@{handle}" if handle else ""),
             "avatar": avatar,
             "text": truncate(text_body, 240),
             "lang": lang,
-            "textJa": truncate(text_ja, 280) if text_ja else "",
+            "textJa": "",
             "textEn": truncate(text_en, 280) if text_en else "",
             "tag": tag,
             "url": url,
-            "buzz": buzz_score,   # 1=単独発見 〜 5=大手メディア特集
-            "likes": likes_equiv,  # フロント閾値互換（buzz×1000）
+            "buzz": buzz_score,
+            "likes": likes_equiv,
             "retweets": 0,
         })
-        if len(out) >= 10:
+        if len(out) >= 8:
             break
-    log(f"x trends: collected {len(out)} valid posts (unique authors)")
+
+    log(f"x trends: collected {len(out)} items (x/togetter/note)")
     return out
 
 
