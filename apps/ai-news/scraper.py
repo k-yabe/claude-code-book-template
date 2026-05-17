@@ -1453,7 +1453,7 @@ def extract_json(text: str) -> dict | None:
 
 # ── 英語翻訳 ─────────────────────────────────────
 def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> dict:
-    """Haiku でニュース記事を英語翻訳。titleEn/summaryEn/whyItMattersEn/actionItemEn を返す。
+    """Haiku でニュース記事を英語翻訳。titleEn/summaryEn/whyItMattersEn/actionItemEn/pickerCommentEn を返す。
     失敗時は空 dict を返す（英語フィールドなしで graceful degradation）。"""
     if not ANTHROPIC_API_KEY:
         return {}
@@ -1469,13 +1469,14 @@ def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> di
             "summary": it.get("summary", ""),
             "whyItMatters": it.get("whyItMatters", ""),
             "actionItem": it.get("actionItem", ""),
+            "pickerComment": it.get("pickerComment", ""),
         }
         for idx, it in enumerate(items)
     ]
 
     TRANSLATE_TOOL = {
         "name": "translate_to_english",
-        "description": "Translate Japanese AI/marketing news items to natural English",
+        "description": "Translate Japanese AI/IT news items to natural English",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -1494,8 +1495,9 @@ def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> di
                             "summaryEn": {"type": "string", "description": "Summary in English (1-2 sentences)"},
                             "whyItMattersEn": {"type": "string", "description": "Why it matters, in English (1 sentence)"},
                             "actionItemEn": {"type": "string", "description": "Action item in English (1 sentence)"},
+                            "pickerCommentEn": {"type": "string", "description": "Expert insight comment in English (1-2 sentences)"},
                         },
-                        "required": ["i", "titleEn", "summaryEn", "whyItMattersEn", "actionItemEn"],
+                        "required": ["i", "titleEn", "summaryEn", "whyItMattersEn", "actionItemEn", "pickerCommentEn"],
                     },
                 },
             },
@@ -1504,13 +1506,13 @@ def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> di
     }
 
     system = (
-        "You are a professional translator specializing in AI and marketing news. "
+        "You are a professional translator specializing in AI, DX, and IT consulting news. "
         "Translate Japanese text to natural, concise English. "
         "Keep proper nouns, brand names, and technical terms as-is. "
         "Do not add explanations—translate only."
     )
     user = (
-        f"Translate the following Japanese AI/marketing news items and executive summary to English.\n\n"
+        f"Translate the following Japanese AI/IT news items and executive summary to English.\n\n"
         f"Executive summary:\n{json.dumps(exec_summary, ensure_ascii=False)}\n\n"
         f"Items:\n{json.dumps(payload, ensure_ascii=False)}"
     )
@@ -1528,7 +1530,6 @@ def translate_items_to_english(items: list[dict], exec_summary: list[str]) -> di
         for block in msg.content:
             if getattr(block, "type", None) == "tool_use" and block.name == "translate_to_english":
                 result = block.input
-                # items リストを index→item の dict に変換して返す
                 translated_by_idx = {o["i"]: o for o in (result.get("items") or []) if "i" in o}
                 return {
                     "execSummaryEn": result.get("execSummaryEn") or [],
@@ -1608,29 +1609,30 @@ def fetch_x_trends_via_claude() -> list[dict]:
     prompt = (
         f"今日（{date_label}）または直近 48 時間以内に X（旧Twitter）で"
         "バズっている（いいね・リポスト・引用が相対的に多い）生成AI関連の**日本語投稿**を"
-        "**実在する URL 付きで** 6 件挙げてください。\n\n"
+        "**実在する URL 付きで** 10 件挙げてください。\n\n"
         "## 検索手順（必ず実行）\n"
-        "1. web_search で「生成AI site:x.com since:yesterday」「ChatGPT OR Claude OR Gemini site:x.com lang:ja」等の**日本語専用クエリ**で検索\n"
-        "2. 検索結果から実際のいいね数・RT数が確認できる投稿を優先してピックアップ\n"
-        "3. 同じ著者が重複しないよう、毎回別の検索クエリで探すこと\n"
-        "4. 特定の著名人アカウントに偏らず、実際のエンゲージメント数で判断すること\n\n"
+        "1. web_search で「生成AI site:x.com since:yesterday」「ChatGPT OR Claude OR Gemini site:x.com lang:ja」等の**日本語専用クエリ**を複数回実行\n"
+        "2. 「LLM x.com」「AIエージェント x.com」「DX x.com」など別クエリでも探して合計 10 件を確保する\n"
+        "3. 検索結果から実際のいいね数・RT数が確認できる投稿を優先してピックアップ\n"
+        "4. 同じ著者が重複しないよう、毎回別の検索クエリで探すこと\n"
+        "5. 特定の著名人アカウントに偏らず、実際のエンゲージメント数で判断すること\n\n"
         "## 厳守ルール\n"
-        "- **日本語の投稿のみ**を採用する。英語投稿は原則不可\n"
-        "- やむを得ず日本語投稿が 6 件揃わない場合のみ、英語投稿で補完（最大 1 件）\n"
+        "- **日本語の投稿を優先**する。英語投稿は最大 2 件まで補完可\n"
         "- web_search を使って実在を確認すること。架空の URL や著者名は絶対に作らない\n"
         "- URL は https://x.com/<handle>/status/<id> または https://twitter.com/... の形式のみ\n"
         "- 投稿が確認できなかった場合は「無し」と返す（無理に埋めない）\n"
         "- 著者は誰でも良い（著名人/一般ユーザー問わず、エンゲージメントが相対的に多いもの）\n"
         "- **同じ著者から 2 件以上は採用しない**（多様性のため）\n"
-        "- B2B マーケ／生成AI 実務／競合動向に関係する話題を優先\n"
+        "- 生成AI／DX／ITコンサル／クラウド／エンジニアリングに関係する話題を優先\n"
         + avoid_block +
         "\n## 言語フィールド\n"
-        "- 日本語投稿は `lang: \"ja\"`、`textJa` は空文字列でよい\n"
-        "- 例外的に英語投稿を含む場合は `lang: \"en\"` で `textJa` に完璧な日本語訳を入れる\n"
+        "- 日本語投稿は `lang: \"ja\"`、`textJa` は空文字列でよい、`textEn` に完璧な英語訳を入れる\n"
+        "- 英語投稿は `lang: \"en\"`、`textJa` に完璧な日本語訳を入れる、`textEn` は原文をそのまま入れる\n"
         "\n## 出力フォーマット（JSON のみ、説明文なし、コードフェンス不要）\n"
         "{\"items\":[{\"author\":\"表示名\",\"handle\":\"@xxxx\","
         "\"text\":\"原文（200字以内、改行は \\\\n でエスケープ）\","
         "\"lang\":\"ja|en|...\",\"textJa\":\"日本語訳（原文がjaの場合は空文字）\","
+        "\"textEn\":\"英語訳（原文が英語の場合は原文をそのまま）\","
         "\"url\":\"https://x.com/.../status/...\",\"tag\":\"短いトピック名\"}, ...]}"
     )
     try:
@@ -1638,7 +1640,7 @@ def fetch_x_trends_via_claude() -> list[dict]:
         msg = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=3000,
-            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 8}],
+            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 12}],
             messages=[{"role": "user", "content": prompt}],
         )
         # tool_use の応答を含む可能性あり。最後のテキストブロックを使う。
@@ -1662,7 +1664,7 @@ def fetch_x_trends_via_claude() -> list[dict]:
     raw_items = parsed.get("items") or []
     out: list[dict] = []
     seen_handles: set[str] = set()  # 同一 handle 重複排除（多様性確保）
-    for it in raw_items[:12]:  # 候補は多めに見て、handle 重複でスキップしながら 6 件まで
+    for it in raw_items[:16]:  # 候補は多めに見て、handle 重複でスキップしながら 10 件まで
         url = (it.get("url") or "").strip()
         if not url or not re.match(r"^https://(?:x|twitter)\.com/[^/]+/status/\d+", url):
             continue
@@ -1676,6 +1678,7 @@ def fetch_x_trends_via_claude() -> list[dict]:
         tag = (it.get("tag") or "AI").strip()[:20]
         lang = (it.get("lang") or "").strip().lower()[:8] or "ja"
         text_ja = (it.get("textJa") or "").strip()
+        text_en = (it.get("textEn") or "").strip()
         if not author or not handle or not text_body:
             continue
         # 同一 handle 排除（プロンプトでも指示しているが二重防御）
@@ -1687,8 +1690,6 @@ def fetch_x_trends_via_claude() -> list[dict]:
         # アバターは unavatar.io 経由で X handle から自動取得
         h = handle.lstrip("@")
         avatar = f"https://unavatar.io/x/{h}"
-        # 日本語以外で textJa が空の場合は表示側で「翻訳バッジを出さない」とする
-        # （Claude が訳をサボった場合の保険。原文だけは表示される）
         out.append({
             "id": f"xt_{hashlib.sha1(url.encode()).hexdigest()[:10]}",
             "author": author,
@@ -1697,14 +1698,15 @@ def fetch_x_trends_via_claude() -> list[dict]:
             "text": truncate(text_body, 240),
             "lang": lang,
             "textJa": truncate(text_ja, 280) if text_ja else "",
+            "textEn": truncate(text_en, 280) if text_en else "",
             "tag": tag,
             "url": url,
-            # likes/retweets は web_search では取得困難。0 で通すと client の閾値で弾かれるため
-            # 「注目されている」と判定された前提で BUZZ_MIN を満たす最低値を入れておく。
+            # likes/retweets は web_search では取得困難。
+            # 「注目されている」と判定された前提で client の閾値を超える値を入れる。
             "likes": 3000,
             "retweets": 0,
         })
-        if len(out) >= 6:
+        if len(out) >= 10:
             break
     log(f"x trends: collected {len(out)} valid posts (unique authors)")
     return out
@@ -2694,10 +2696,11 @@ def main() -> int:
     if en:
         for idx, it in enumerate(items):
             t = en["byIdx"].get(idx, {})
-            if t.get("titleEn"):        it["titleEn"]        = t["titleEn"]
-            if t.get("summaryEn"):      it["summaryEn"]      = t["summaryEn"]
-            if t.get("whyItMattersEn"): it["whyItMattersEn"] = t["whyItMattersEn"]
-            if t.get("actionItemEn"):   it["actionItemEn"]   = t["actionItemEn"]
+            if t.get("titleEn"):          it["titleEn"]          = t["titleEn"]
+            if t.get("summaryEn"):        it["summaryEn"]        = t["summaryEn"]
+            if t.get("whyItMattersEn"):   it["whyItMattersEn"]   = t["whyItMattersEn"]
+            if t.get("actionItemEn"):     it["actionItemEn"]     = t["actionItemEn"]
+            if t.get("pickerCommentEn"):  it["pickerCommentEn"]  = t["pickerCommentEn"]
         exec_summary_en: list[str] = en.get("execSummaryEn") or []
         log(f"translated {len(en['byIdx'])} items to English")
     else:

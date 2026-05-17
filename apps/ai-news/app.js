@@ -1727,8 +1727,8 @@
         : escapeHtml(itemTitle);
       const favicon = sourceFavicon(n.url) || '';
       const initials = prettySource(n.source || '').substring(0, 2).toUpperCase();
-      const whyLabel = state.lang === 'en' ? '⚡ Why it matters' : '⚡ なぜ重要か（マーケ視点）';
-      const actionLabel = state.lang === 'en' ? '🎯 What to do' : '🎯 マーケとして何をすべきか';
+      const whyLabel = state.lang === 'en' ? '⚡ Why it matters' : '⚡ なぜ重要か（AKKODiS 視点）';
+      const actionLabel = state.lang === 'en' ? '🎯 What to do' : '🎯 今週何をすべきか';
       const whyText = state.lang === 'en' ? (n.whyItMattersEn || n.whyItMatters) : n.whyItMatters;
       const actionText = state.lang === 'en' ? (n.actionItemEn || n.actionItem) : n.actionItem;
       return `
@@ -1763,21 +1763,21 @@
           <p class="top-summary">${escapeHtml(T(n, 'summary'))}</p>
           ${(() => { const w = whyText && whyText.trim(); return w ? `<div class="top-impact"><span class="top-impact-label">${whyLabel}</span><span class="top-impact-text">${escapeHtml(w)}</span></div>` : ''; })()}
           ${actionText ? `<div class="top-action"><span class="top-action-label">${actionLabel}</span><span class="top-action-text">${escapeHtml(actionText)}</span></div>` : ''}
-          ${n.pickerComment || (n.tags && n.tags.length) ? `
+          ${(() => { const pc = state.lang === 'en' ? (n.pickerCommentEn || n.pickerComment) : n.pickerComment; return (pc || (n.tags && n.tags.length)) ? `
           <details class="intel-details">
-            <summary class="intel-toggle">▼ 専門家の視点を読む</summary>
+            <summary class="intel-toggle">▼ ${state.lang === 'en' ? 'Expert insight' : '専門家の視点を読む'}</summary>
             <div class="intel-body">
-              ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
+              ${pc ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">${state.lang === 'en' ? 'Expert insight' : '専門家の視点'}</div><div class="picker-text">${escapeHtml(pc)}</div></div></div>` : ''}
               ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-              ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(prettySource(n.source))}） →</a>` : ''}
+              ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${state.lang === 'en' ? 'Read full article' : '元記事を読む'}（${escapeHtml(prettySource(n.source))}） →</a>` : ''}
             </div>
-          </details>` : ''}
+          </details>` : ''; })()}
           <div class="top-foot">
             <button class="read-toggle" data-read-id="${n.id}" title="既読/未読を切替">${isRead ? '↩ 未読' : '✓ 既読'}</button>
             <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
             <button class="later-btn${state.later.has(n.id) ? ' saved' : ''}" data-later="${n.id}" aria-label="後で読む" aria-pressed="${state.later.has(n.id)}" title="後で読むに追加">📚</button>
             ${feedbackButtonsHtml(n.id)}
-            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む →</a>` : ''}
+            ${hasUrl ? `<a class="ext-btn" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${state.lang === 'en' ? 'Read article →' : '元記事を読む →'}</a>` : ''}
           </div>
         </div>
       </article>`;
@@ -1860,15 +1860,15 @@
             <div class="brief-card-summary">${escapeHtml(T(n, 'summary'))}</div>
             ${(() => { const w = (state.lang === 'en' ? (n.whyItMattersEn || n.whyItMatters) : n.whyItMatters) || ''; return w.trim() ? `<div class="brief-card-impact">⚡ ${escapeHtml(w)}</div>` : ''; })()}
             ${(state.lang === 'en' ? (n.actionItemEn || n.actionItem) : n.actionItem) ? `<div class="brief-card-action">→ ${escapeHtml(state.lang === 'en' ? (n.actionItemEn || n.actionItem) : n.actionItem)}</div>` : ''}
-            ${(n.pickerComment || (n.tags && n.tags.length)) ? `
+            ${(() => { const pc = state.lang === 'en' ? (n.pickerCommentEn || n.pickerComment) : n.pickerComment; return (pc || (n.tags && n.tags.length)) ? `
             <details class="intel-details brief">
-              <summary class="intel-toggle">▼ 詳しく読む</summary>
+              <summary class="intel-toggle">▼ ${state.lang === 'en' ? 'More details' : '詳しく読む'}</summary>
               <div class="intel-body">
-                ${n.pickerComment ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">専門家の視点</div><div class="picker-text">${escapeHtml(n.pickerComment)}</div></div></div>` : ''}
+                ${pc ? `<div class="picker-comment"><span class="picker-icon">💡</span><div class="picker-content"><div class="picker-label">${state.lang === 'en' ? 'Expert insight' : '専門家の視点'}</div><div class="picker-text">${escapeHtml(pc)}</div></div></div>` : ''}
                 ${(n.tags && n.tags.length) ? `<div class="intel-tags">${n.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-                ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">元記事を読む（${escapeHtml(prettySource(n.source))}） →</a>` : ''}
+                ${hasUrl ? `<a class="intel-source-link" href="${escapeHtml(n.url)}" target="_blank" rel="noopener noreferrer">${state.lang === 'en' ? 'Read full article' : '元記事を読む'}（${escapeHtml(prettySource(n.source))}） →</a>` : ''}
               </div>
-            </details>` : ''}
+            </details>` : ''; })()}
             <div class="brief-card-foot">
               <button class="brief-read-toggle" data-read-id="${n.id}">${isRead ? '↩ 未読' : '✓ 既読'}</button>
               <button class="star-btn${isFav ? ' starred' : ''}" data-fav="${n.id}" aria-label="お気に入り" aria-pressed="${isFav}">★</button>
@@ -2079,10 +2079,10 @@
     const sectionHead = section ? section.previousElementSibling : null; // sec-head
     const root = document.getElementById('x-grid');
     // 実ツイートURL があり、かつ「バズっている」ものだけ表示。
-    // バズ閾値: likes + retweets × 3 >= 3000（引用・共有が多い = 実際に話題）。
-    // engagement データが無い / 閾値未満のポストは「トレンド」と呼べないので除外。件数上限はなし。
-    // バズ閾値: likes + retweets×3 >= 1500（数を倍に増やしたいので少し緩和）。
-    const X_BUZZ_MIN = 1500;
+    // バズ閾値: likes + retweets×3 >= 500
+    // scraper が取得する実データは likes=3000 固定なので実質的な下限。
+    // シードデータの低エンゲージメント投稿（980いいね等）も含めて表示するため緩めに設定。
+    const X_BUZZ_MIN = 500;
     const score = x => (Number(x.likes) || 0) + (Number(x.retweets) || 0) * 3;
     // 「人で絞る」のではなく「トレンドが高い記事」を素直にスコア順で並べる方針。
     // 同じ著者が複数本トレンドに入っていれば、それは実際にバズっているので表示してよい。
@@ -2140,7 +2140,10 @@
       // 翻訳が空のときは原文のみ表示（「(翻訳)」と書きながら空欄を出さない）。
       const lang = String(x.lang || 'ja').toLowerCase();
       const isForeign = lang && lang !== 'ja' && lang !== 'jp';
-      const hasTranslation = isForeign && x.textJa && x.textJa.trim().length > 0;
+      const isJa = !isForeign;
+      const uiLang = state.lang; // 'ja' or 'en'
+      const hasTranslationJa = isForeign && x.textJa && x.textJa.trim().length > 0;
+      const hasTranslationEn = isJa && x.textEn && x.textEn.trim().length > 0;
       const langLabel = (
         lang === 'en' ? '英語' :
         lang === 'zh' || lang === 'zh-cn' || lang === 'zh-tw' ? '中国語' :
@@ -2150,10 +2153,26 @@
         lang === 'de' ? 'ドイツ語' :
         isForeign ? lang.toUpperCase() : ''
       );
-      const textHtml = hasTranslation
-        ? `<div class="x-text x-text-ja"><span class="x-trans-badge" title="${escapeHtml(langLabel)}原文を AI が日本語訳">日本語訳</span>${escapeHtml(x.textJa)}</div>
-           <div class="x-text x-text-orig" lang="${escapeHtml(lang)}"><span class="x-orig-badge">${escapeHtml(langLabel || '原文')}</span>${escapeHtml(x.text)}</div>`
-        : `<div class="x-text"${isForeign ? ` lang="${escapeHtml(lang)}"` : ''}>${escapeHtml(x.text)}</div>`;
+      let textHtml;
+      if (uiLang === 'en') {
+        // EN UI: 英語テキストを優先。日本語投稿は textEn に英訳を表示、その下に原文
+        if (isJa && hasTranslationEn) {
+          textHtml = `<div class="x-text x-text-ja"><span class="x-trans-badge" title="AI translated from Japanese">EN</span>${escapeHtml(x.textEn)}</div>
+           <div class="x-text x-text-orig" lang="ja"><span class="x-orig-badge">原文</span>${escapeHtml(x.text)}</div>`;
+        } else if (isForeign && hasTranslationJa) {
+          textHtml = `<div class="x-text"${isForeign ? ` lang="${escapeHtml(lang)}"` : ''}>${escapeHtml(x.text)}</div>`;
+        } else {
+          textHtml = `<div class="x-text"${isForeign ? ` lang="${escapeHtml(lang)}"` : ''}>${escapeHtml(x.text)}</div>`;
+        }
+      } else {
+        // JA UI: 日本語テキストを優先。英語投稿は textJa に日本語訳を表示
+        if (hasTranslationJa) {
+          textHtml = `<div class="x-text x-text-ja"><span class="x-trans-badge" title="${escapeHtml(langLabel)}原文を AI が日本語訳">日本語訳</span>${escapeHtml(x.textJa)}</div>
+           <div class="x-text x-text-orig" lang="${escapeHtml(lang)}"><span class="x-orig-badge">${escapeHtml(langLabel || '原文')}</span>${escapeHtml(x.text)}</div>`;
+        } else {
+          textHtml = `<div class="x-text"${isForeign ? ` lang="${escapeHtml(lang)}"` : ''}>${escapeHtml(x.text)}</div>`;
+        }
+      }
       return `
       <a class="x-item linked" href="${escapeHtml(x.url)}" target="_blank" rel="noopener noreferrer">
         <div class="x-head">
@@ -2416,14 +2435,19 @@
           importance: imp,
           readMin:    Number(it.readMin) || 1,
           title:      String(it.title || '').trim(),
-          summary:    stripBoilerplate(it.summary),
-          whyItMatters: stripBoilerplate(it.whyItMatters),
-          actionItem:   String(it.actionItem || '').trim(),
-          pickerComment: String(it.pickerComment || '').trim(),
+          summary:         stripBoilerplate(it.summary),
+          summaryEn:       String(it.summaryEn || '').trim(),
+          whyItMatters:    stripBoilerplate(it.whyItMatters),
+          whyItMattersEn:  String(it.whyItMattersEn || '').trim(),
+          actionItem:      String(it.actionItem || '').trim(),
+          actionItemEn:    String(it.actionItemEn || '').trim(),
+          pickerComment:   String(it.pickerComment || '').trim(),
+          pickerCommentEn: String(it.pickerCommentEn || '').trim(),
+          titleEn:         String(it.titleEn || '').trim(),
           urgency:    urg,
           source:     String(it.source || '').trim(),
           sourceType: it.sourceType || 'media',
-          category:   ['marketing','market','ai'].includes(it.category) ? it.category : 'marketing',
+          category:   ['marketing','dx','market','ai'].includes(it.category) ? it.category : 'dx',
           url:        safeUrl,
           image:      safeImgUrl(it.image) || null,
           publishedAt: it.publishedAt || new Date().toISOString(),
@@ -2451,6 +2475,7 @@
           text: String(x.text || ''),
           lang: String(x.lang || 'ja').toLowerCase(),
           textJa: String(x.textJa || ''),
+          textEn: String(x.textEn || ''),
           tag: String(x.tag || ''),
           url: String(x.url || ''),
           likes: Number(x.likes) || 0,
@@ -2599,6 +2624,7 @@
           text: String(x.text || ''),
           lang: String(x.lang || 'ja').toLowerCase(),
           textJa: String(x.textJa || ''),
+          textEn: String(x.textEn || ''),
           tag: String(x.tag || ''),
           url: String(x.url || ''),
           likes: Number(x.likes) || 0,
