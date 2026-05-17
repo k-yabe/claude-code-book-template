@@ -136,7 +136,7 @@ SOURCES: list[dict[str, object]] = [
 # 取得上限・要約上限
 RECENT_HOURS    = 36
 PER_SOURCE_MAX  = 8
-SUMMARIZE_MAX   = 30      # Claude に渡す件数上限
+SUMMARIZE_MAX   = 20      # Claude に渡す件数上限
 TIMEOUT_SEC     = 15      # feedparser には直接効かないため socket で設定
 SUMMARY_CHARS   = 140
 
@@ -1764,7 +1764,7 @@ def fetch_x_trends_via_claude() -> list[dict]:
         msg = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=3000,
-            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 6}],
+            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 4}],
             messages=[{"role": "user", "content": prompt}],
         )
         # tool_use の応答を含む可能性あり。最後のテキストブロックを使う。

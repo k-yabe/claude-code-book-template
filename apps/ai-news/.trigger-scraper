@@ -1,1 +1,1 @@
-Trigger: 2026-05-17T15:30 JST - キーワードフィルタ修正・is_trusted_mediaバイパス撤廃
+Trigger: 2026-05-17T15:45 JST - APIコスト削減: SUMMARIZE_MAX 30→20, web_search 6→4
