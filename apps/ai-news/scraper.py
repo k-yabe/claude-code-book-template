@@ -179,19 +179,9 @@ OGP_IMAGE_RE_REV = re.compile(
 
 
 def validate_url(url: str, timeout: int = 4) -> bool:
-    """URL が到達可能か確認。resolve_and_validate_url() のラッパー（後方互換用）。"""
-    return resolve_and_validate_url(url, timeout) is not None
-
-
-def resolve_and_validate_url(url: str, timeout: int = 4) -> str | None:
-    """URL を検証しつつリダイレクト後の最終 URL を返す。
-    - Google News URL が残っていた場合、HTTP フォロー後の実記事 URL を返す。
-    - 到達不可・4xx/5xx の場合は None を返す（記事ごと除外）。
-    - これにより「news.google.com/rss/articles/... が記事 URL として保存される」
-      問題を根治する。
-    """
+    """URL が到達可能か HEAD (fallback GET) で確認。200-399 のみ有効とする。"""
     if not url or not url.startswith(("http://", "https://")):
-        return None
+        return False
     for method in ("HEAD", "GET"):
         try:
             req = Request(url, method=method, headers={
@@ -199,17 +189,31 @@ def resolve_and_validate_url(url: str, timeout: int = 4) -> str | None:
                 "Accept": "text/html,application/xhtml+xml",
             })
             with urlopen(req, timeout=timeout) as resp:
-                status = resp.status
-                if 200 <= status < 400:
-                    final = resp.geturl()
-                    # リダイレクト後が Google URL の場合は記事 URL として使えない
-                    if final and "news.google.com" in final:
-                        return None
-                    return final if final else url
-                return None
+                if 200 <= resp.status < 400:
+                    return True
+                return False
         except Exception:
             continue
-    return None
+    return False
+
+
+def resolve_final_url(url: str, timeout: int = 6) -> str:
+    """Google News URL が残っている場合のみ HTTP フォローで実記事 URL に解決する。
+    通常の記事 URL はそのまま返す（validate_url と分離して余分な HTTP を避ける）。"""
+    if "news.google.com" not in url:
+        return url
+    try:
+        req = Request(url, headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+            "Accept": "text/html,application/xhtml+xml",
+        })
+        with urlopen(req, timeout=timeout) as resp:
+            final = resp.geturl()
+            if final and "news.google.com" not in final:
+                return final
+    except Exception:
+        pass
+    return url
 
 
 def fetch_hatena_count(url: str, timeout: int = 4) -> int:
@@ -946,15 +950,20 @@ def fetch_all() -> list[dict]:
                 # （競合プレスリリースは AI キーワード含まないケースが多いので救済）
                 if not is_ai_related(title, raw_summary) and not is_competitor_mention(title, raw_summary, url):
                     continue
-                # URL 到達性チェック + リダイレクト後の最終 URL に上書き。
-                # Google News URL が残っていた場合も HTTP フォローで実記事 URL を取得。
-                final_url = resolve_and_validate_url(url)
-                if not final_url:
-                    log(f"  skip (unreachable or unresolved): {url[:80]}")
+                # Google News URL が残っていた場合は HTTP フォローで実記事 URL に解決。
+                # 通常の記事 URL は validate_url だけで十分（余分な HTTP を避ける）。
+                if "news.google.com" in url:
+                    resolved = resolve_final_url(url)
+                    if resolved != url:
+                        log(f"  http-resolved: {url[:50]} -> {resolved[:50]}")
+                        url = resolved
+                    if "news.google.com" in url:
+                        log(f"  skip (google url unresolved): {url[:60]}")
+                        continue
+                # URL 到達性チェック（404/dead link を除外）
+                if not validate_url(url):
+                    log(f"  skip (unreachable): {url[:60]}")
                     continue
-                if final_url != url:
-                    log(f"  resolved final URL: {url[:60]} -> {final_url[:60]}")
-                url = final_url  # 以降は実記事 URL を使う
                 # 画像抽出（media:content / enclosure / media:thumbnail）
                 image = None
                 for mc in getattr(e, "media_content", []) or []:
@@ -1160,8 +1169,15 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         "- SIer・ITコンサル・エンジニアリングサービス（テクノプロ、メイテック等）・コンサルファーム（アクセンチュア、NRI等）の動向は特に重要\n"
         "- AI一般論よりも、DX推進・クラウド・セキュリティ・システム開発に直結するAI活用ニュースを優先\n"
         "- IT人材市場・リスキリング・技術者育成に関する動向も重要\n\n"
+        "## 記事選定の大前提（最優先）\n"
+        "**国内（日本）で注目されている記事**かつ**AKKODiSの事業領域（ITコンサル・DX・エンジニアリング派遣・"
+        "システム開発・BPO・技術者育成）に関係する記事**のみを選ぶ。\n"
+        "- 国内注目の目安: 日本のIT系大手メディア（ITmedia・日経XTECH・ZDNet Japan・EnterpriseZine等）が"
+        "取り上げた事実・数値・固有名詞のある具体的な記事。タイトルと内容が一致していること\n"
+        "- AKKODiS関連の目安: 競合他社動向/IT人材市場/DX案件/エンジニア需給/生成AI業務活用のいずれかに"
+        "直接関わる記事。B2C商品・海外のみの話題・AI一般論は選ばない\n\n"
         "## urgency判定の基準（厳守）\n"
-        "### must_know（最大2件・厳選）\n"
+        "### must_know（1〜2件・厳選）\n"
         "以下のいずれかに**直接**該当する場合のみ:\n"
         "- AKKODiS主要競合（NTTデータ/富士通/アクセンチュア/テクノプロ/メイテック等）の"
         "新サービス発表・大型受注・決算・M&A・組織再編\n"
@@ -1170,11 +1186,14 @@ def call_anthropic(items: list[dict]) -> tuple[list[dict], list[str]] | None:
         "- 生成AIの業務適用で現場エンジニアの働き方・単価・需給が変わるニュース\n"
         "⚠️ 「AIが何かに使われた」「製品がAI対応になった」程度では must_know にしない\n"
         "⚠️ バックアップ/ストレージ/インフラ製品ベンダーのAI発表は fyi\n"
-        "⚠️ 海外のAIニュースまとめ・週次ダイジェスト記事は fyi\n\n"
-        "### this_week（最大5件）\n"
+        "⚠️ 海外のAIニュースまとめ・週次ダイジェスト記事は fyi\n"
+        "⚠️ 該当がなければ must_know は 0件でよい（無理に入れない）\n\n"
+        "### this_week（3〜5件）\n"
+        "- 記事が十分ある場合は必ず3〜5件選ぶこと（1件のみは品質問題のサイン）\n"
         "- AI・クラウド・セキュリティで企業の意思決定に影響する重要アップデート\n"
-        "- IT業界の採用・人材・リスキリング動向\n"
-        "- 準競合・パートナー企業の動向\n\n"
+        "- IT業界の採用・人材・リスキリング動向（日本国内の話題に限る）\n"
+        "- 準競合・パートナー企業の動向\n"
+        "- 競合企業の重要ではあるが must_know 未満のニュース\n\n"
         "### fyi\n"
         "- 上記に当てはまらないAI一般論・製品リリース・調査レポート\n\n"
         "## 各記事について以下を日本語で生成してください:\n"
