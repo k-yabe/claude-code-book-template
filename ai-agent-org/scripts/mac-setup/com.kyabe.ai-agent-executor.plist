@@ -19,8 +19,18 @@
     <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
   </dict>
 
-  <key>StartInterval</key>
-  <integer>3600</integer>
+  <!-- 9:00 と 21:00 の1日2回実行 -->
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict>
+      <key>Hour</key><integer>9</integer>
+      <key>Minute</key><integer>0</integer>
+    </dict>
+    <dict>
+      <key>Hour</key><integer>21</integer>
+      <key>Minute</key><integer>0</integer>
+    </dict>
+  </array>
 
   <key>WorkingDirectory</key>
   <string>/Users/kunizou_macbook_air/Documents/ai-agent-workspace/ai-agent-org</string>
