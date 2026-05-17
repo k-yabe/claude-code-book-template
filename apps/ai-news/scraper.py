@@ -179,11 +179,19 @@ OGP_IMAGE_RE_REV = re.compile(
 
 
 def validate_url(url: str, timeout: int = 4) -> bool:
-    """URL が到達可能か HEAD (fallback GET) で確認。200-399 のみ有効とする。
-    失敗した URL は記事ごと除外して「リンク間違いが絶対に無い」状態を担保する。
+    """URL が到達可能か確認。resolve_and_validate_url() のラッパー（後方互換用）。"""
+    return resolve_and_validate_url(url, timeout) is not None
+
+
+def resolve_and_validate_url(url: str, timeout: int = 4) -> str | None:
+    """URL を検証しつつリダイレクト後の最終 URL を返す。
+    - Google News URL が残っていた場合、HTTP フォロー後の実記事 URL を返す。
+    - 到達不可・4xx/5xx の場合は None を返す（記事ごと除外）。
+    - これにより「news.google.com/rss/articles/... が記事 URL として保存される」
+      問題を根治する。
     """
     if not url or not url.startswith(("http://", "https://")):
-        return False
+        return None
     for method in ("HEAD", "GET"):
         try:
             req = Request(url, method=method, headers={
@@ -193,12 +201,15 @@ def validate_url(url: str, timeout: int = 4) -> bool:
             with urlopen(req, timeout=timeout) as resp:
                 status = resp.status
                 if 200 <= status < 400:
-                    return True
-                # 3xx はリダイレクト先まで到達できれば OK（urlopen 自動追跡）
-                return False
+                    final = resp.geturl()
+                    # リダイレクト後が Google URL の場合は記事 URL として使えない
+                    if final and "news.google.com" in final:
+                        return None
+                    return final if final else url
+                return None
         except Exception:
             continue
-    return False
+    return None
 
 
 def fetch_hatena_count(url: str, timeout: int = 4) -> int:
@@ -935,10 +946,15 @@ def fetch_all() -> list[dict]:
                 # （競合プレスリリースは AI キーワード含まないケースが多いので救済）
                 if not is_ai_related(title, raw_summary) and not is_competitor_mention(title, raw_summary, url):
                     continue
-                # URL 到達性チェック（404 / dead link を事前に除外して「リンク間違い」を根絶）
-                if not validate_url(url):
-                    log(f"  skip (unreachable): {url}")
+                # URL 到達性チェック + リダイレクト後の最終 URL に上書き。
+                # Google News URL が残っていた場合も HTTP フォローで実記事 URL を取得。
+                final_url = resolve_and_validate_url(url)
+                if not final_url:
+                    log(f"  skip (unreachable or unresolved): {url[:80]}")
                     continue
+                if final_url != url:
+                    log(f"  resolved final URL: {url[:60]} -> {final_url[:60]}")
+                url = final_url  # 以降は実記事 URL を使う
                 # 画像抽出（media:content / enclosure / media:thumbnail）
                 image = None
                 for mc in getattr(e, "media_content", []) or []:
@@ -994,35 +1010,12 @@ def fetch_all() -> list[dict]:
         except Exception as ex:
             log(f"  ! error {src['name']}: {ex}")
 
-    # 人気度フィルタ: 「バズ」基準（緩め）。
-    # はてなブックマークのインデックスは遅く、新着記事に反映されるまで
-    # 最大 1〜2日かかる。厳しくすると記事がゼロになるので、フィルタは
-    # 「確実に無価値な古い記事だけ落とす」発想に変更:
-    #  - 24時間以内は全件通過（ブクマ数に関係なく）
-    #  - 24〜72時間: hatena>=1 で通過
-    #  - 72時間以降: hatena>=3 必須
-    #  - ツール系キーワード（Claude Code/Copilot 等）は常に救済
-    TOOL_RE = re.compile(
-        r"Claude\s*Code|GitHub\s*Copilot|Copilot|Cursor|Devin|Windsurf|Cline|"
-        r"バイブコーディング|AIコーディング|AIペアプロ|AIエディタ|AI補完|プロンプト",
-        re.IGNORECASE,
-    )
-    def _is_tool(it: dict) -> bool:
-        hay = (it.get("title", "") or "") + " " + (it.get("raw_summary", "") or "")
-        return bool(TOOL_RE.search(hay))
-    def _buzz_pass(it: dict) -> bool:
-        if _is_tool(it):
-            return True  # ツール系は常に救済
-        h = (it.get("hatenaCount") or 0)
-        age_h = (datetime.now(UTC) - datetime.fromisoformat(it["publishedAt"].replace("Z","+00:00"))).total_seconds() / 3600
-        if age_h < 24:
-            return True      # 24h 以内は無条件通過（はてブのインデックスが追いつかないため）
-        if age_h < 72:
-            return h >= 1    # 1〜3日経過: ブクマ1以上
-        return h >= 3        # 3日以降: ブクマ3以上
-    before = len(all_items)
-    all_items = [it for it in all_items if _buzz_pass(it)]
-    log(f"filtered by buzz threshold: {before} -> {len(all_items)}")
+    # はてブ数ベースのバズフィルタは廃止。
+    # EnterpriseZine/IT Leaders 等のエンタープライズIT系メディアははてブが
+    # ほぼつかないため、30%未満のケースで buzzActive=false となり全件通過して
+    # いた（フィルタが機能していなかった）。
+    # 代わりに Claude の importance/urgency 判定（call_anthropic）に品質管理を
+    # 完全委任する。スクレイパー段階では件数上限のみ適用。
     # 並び順: メディア優先 × 人気度(はてブ数)降順 × 新着降順
     all_items.sort(key=lambda x: (
         1 if x.get("sourceType") == "ugc" else 0,        # メディア先行
@@ -1669,32 +1662,33 @@ def fetch_x_trends_via_claude() -> list[dict]:
             "- 著名人・大手アカウントに頼らず、バズった新鮮な投稿を探すこと\n"
         )
     prompt = (
-        f"今日（{date_label}）または直近 48 時間以内に X（旧Twitter）で"
-        "バズっている（いいね・リポスト・引用が相対的に多い）生成AI関連の**日本語投稿**を"
-        "**実在する URL 付きで** 10 件挙げてください。\n\n"
-        "## 検索手順（必ず実行）\n"
-        "1. web_search で「生成AI site:x.com since:yesterday」「ChatGPT OR Claude OR Gemini site:x.com lang:ja」等の**日本語専用クエリ**を複数回実行\n"
-        "2. 「LLM x.com」「AIエージェント x.com」「DX x.com」など別クエリでも探して合計 10 件を確保する\n"
-        "3. 検索結果から実際のいいね数・RT数が確認できる投稿を優先してピックアップ\n"
-        "4. 同じ著者が重複しないよう、毎回別の検索クエリで探すこと\n"
-        "5. 特定の著名人アカウントに偏らず、実際のエンゲージメント数で判断すること\n\n"
+        f"今日（{date_label}）または直近 48 時間以内に、**ニュースメディアや技術ブログが"
+        "引用・紹介・埋め込みしている**生成AI関連の X（旧Twitter）投稿を 10 件探してください。\n\n"
+        "## なぜ「メディア引用」を重視するか\n"
+        "- X API なしで実際のいいね数を取得できないため、**複数のメディアに取り上げられた投稿 = バイラル済み**を基準にします。\n"
+        "- メディアが引用するほど注目度が高い投稿を優先することで、品質を担保します。\n\n"
+        "## 検索手順（必ず全ステップ実行）\n"
+        "1. 「生成AI x.com 話題」「AIエージェント 引用 x.com」「Claude OR ChatGPT OR Gemini ツイート 注目」等で**ニュース・ブログ記事から引用されている投稿**を探す\n"
+        "2. 「生成AI site:x.com」「DX site:x.com lang:ja」等でX内の投稿も直接検索\n"
+        "3. 見つけた各投稿について「その URL が何件の記事・ページから参照されているか」を確認し `buzz` に記入（1=単独発見、3=複数ソースで言及、5=大手メディアが特集）\n"
+        "4. 同一著者が重複しないよう複数クエリで探す\n\n"
         "## 厳守ルール\n"
         "- **日本語の投稿を優先**する。英語投稿は最大 2 件まで補完可\n"
-        "- web_search を使って実在を確認すること。架空の URL や著者名は絶対に作らない\n"
-        "- URL は https://x.com/<handle>/status/<id> または https://twitter.com/... の形式のみ\n"
-        "- 投稿が確認できなかった場合は「無し」と返す（無理に埋めない）\n"
-        "- 著者は誰でも良い（著名人/一般ユーザー問わず、エンゲージメントが相対的に多いもの）\n"
+        "- web_search で実在を確認すること。架空の URL・著者名は絶対に作らない\n"
+        "- URL は https://x.com/<handle>/status/<id> 形式のみ\n"
+        "- 確認できなかった場合は採用しない（無理に埋めない）\n"
         "- **同じ著者から 2 件以上は採用しない**（多様性のため）\n"
         "- 生成AI／DX／ITコンサル／クラウド／エンジニアリングに関係する話題を優先\n"
         + avoid_block +
         "\n## 言語フィールド\n"
-        "- 日本語投稿は `lang: \"ja\"`、`textJa` は空文字列でよい、`textEn` に完璧な英語訳を入れる\n"
-        "- 英語投稿は `lang: \"en\"`、`textJa` に完璧な日本語訳を入れる、`textEn` は原文をそのまま入れる\n"
+        "- 日本語投稿: `lang: \"ja\"`, `textJa` は空文字, `textEn` に自然な英語訳\n"
+        "- 英語投稿: `lang: \"en\"`, `textJa` に自然な日本語訳, `textEn` は原文\n"
         "\n## 出力フォーマット（JSON のみ、説明文なし、コードフェンス不要）\n"
         "{\"items\":[{\"author\":\"表示名\",\"handle\":\"@xxxx\","
         "\"text\":\"原文（200字以内、改行は \\\\n でエスケープ）\","
         "\"lang\":\"ja|en|...\",\"textJa\":\"日本語訳（原文がjaの場合は空文字）\","
         "\"textEn\":\"英語訳（原文が英語の場合は原文をそのまま）\","
+        "\"buzz\":3,"
         "\"url\":\"https://x.com/.../status/...\",\"tag\":\"短いトピック名\"}, ...]}"
     )
     try:
@@ -1749,7 +1743,11 @@ def fetch_x_trends_via_claude() -> list[dict]:
             log(f"x trends skip duplicate handle: @{h_key}")
             continue
         seen_handles.add(h_key)
-        # アバターは unavatar.io 経由で X handle から自動取得
+        # buzz_score: メディア引用数ベースのバイラル指標（1〜5）。
+        # X API なしで取得できる唯一の現実的な指標。
+        buzz_score = max(1, min(5, int(it.get("buzz") or 1)))
+        # likes フィールドには buzz_score を 1000 倍してフロントの閾値と互換させる
+        likes_equiv = buzz_score * 1000
         h = handle.lstrip("@")
         avatar = f"https://unavatar.io/x/{h}"
         out.append({
@@ -1763,9 +1761,8 @@ def fetch_x_trends_via_claude() -> list[dict]:
             "textEn": truncate(text_en, 280) if text_en else "",
             "tag": tag,
             "url": url,
-            # likes/retweets は web_search では取得困難。
-            # 「注目されている」と判定された前提で client の閾値を超える値を入れる。
-            "likes": 3000,
+            "buzz": buzz_score,   # 1=単独発見 〜 5=大手メディア特集
+            "likes": likes_equiv,  # フロント閾値互換（buzz×1000）
             "retweets": 0,
         })
         if len(out) >= 10:

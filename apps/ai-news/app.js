@@ -1280,12 +1280,10 @@
       return true;
     });
     const hasImage = (n) => !!(n.image && /^https?:\/\//.test(n.image));
-    const buzzActive = (() => {
-      if (!base.length) return false;
-      const withBuzz = base.filter(n => (Number(n.hatenaCount) || 0) > 0).length;
-      return (withBuzz / base.length) >= 0.3;
-    })();
-    const passes = (n, kind) => !buzzActive || (Number(n.hatenaCount) || 0) >= minBuzzFor(n, kind) || matchesTool(n);
+    // はてブ数ベースのバズフィルタを廃止。
+    // エンタープライズITメディアははてブが付かずフィルタが機能しなかったため、
+    // Claude の urgency/importance 判定のみで品質管理する。
+    const passes = () => true;
 
     const sorted = [...base].sort((a, b) => {
       const ua = (URG_ORDER[a.urgency] ?? 2) + (isUgc(a) ? 1 : 0);
@@ -2107,10 +2105,10 @@
     const root = document.getElementById('x-grid');
     // 実ツイートURL があり、かつ「バズっている」ものだけ表示。
     // バズ閾値: likes + retweets×3 >= 500
-    // scraper が取得する実データは likes=3000 固定なので実質的な下限。
-    // シードデータの低エンゲージメント投稿（980いいね等）も含めて表示するため緩めに設定。
-    const X_BUZZ_MIN = 500;
-    const score = x => (Number(x.likes) || 0) + (Number(x.retweets) || 0) * 3;
+    // buzz: メディア引用数ベースのバイラル指標（1〜5）。likes は buzz×1000 に変換済み。
+    // buzz>=1（= likes>=1000）を下限にして全投稿を表示対象に。
+    const X_BUZZ_MIN = 1000;
+    const score = x => (Number(x.buzz) || 0) * 1000 || (Number(x.likes) || 0);
     // 「人で絞る」のではなく「トレンドが高い記事」を素直にスコア順で並べる方針。
     // 同じ著者が複数本トレンドに入っていれば、それは実際にバズっているので表示してよい。
     // ただし 1 人だけが画面を独占する極端なケースを避けるため、ソフトキャップ（最大 3 件/著者）を入れる。
@@ -2425,7 +2423,8 @@
         textJa: String(x.textJa || ''),
         tag: String(x.tag || ''),
         url: String(x.url || ''),
-        likes: Number(x.likes) || 3000,
+        buzz: Number(x.buzz) || 1,
+        likes: Number(x.likes) || 1000,
         retweets: Number(x.retweets) || 0,
       }));
       try {
@@ -2505,6 +2504,7 @@
           textEn: String(x.textEn || ''),
           tag: String(x.tag || ''),
           url: String(x.url || ''),
+          buzz: Number(x.buzz) || 0,
           likes: Number(x.likes) || 0,
           retweets: Number(x.retweets) || 0,
         }));
@@ -2654,6 +2654,7 @@
           textEn: String(x.textEn || ''),
           tag: String(x.tag || ''),
           url: String(x.url || ''),
+          buzz: Number(x.buzz) || 0,
           likes: Number(x.likes) || 0,
           retweets: Number(x.retweets) || 0,
         }));
