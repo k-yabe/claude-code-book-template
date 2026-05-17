@@ -234,16 +234,71 @@ select:focus, input[type="text"]:focus, textarea:focus {
 .comment-form-bottom { display: flex; gap: 6px; align-items: center; }
 .comment-form-bottom select { flex: 1; }
 
+/* ---- Search ---- */
+.search-input {
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px 5px 28px;
+  font-size: 13px;
+  width: 160px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 8px center;
+}
+.search-input:focus { outline: none; border-color: var(--accent); }
+
+/* ---- P0 urgent card ---- */
+.card.urgent { border-left: 3px solid var(--p0); }
+
+/* ---- Blocked column warning ---- */
+.column.has-blocked { border-color: #f8514966; }
+.column.has-blocked .col-header { color: #f85149; }
+
+/* ---- Org badge ---- */
+.org-badge {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--bg3);
+  color: var(--text2);
+  border: 1px solid var(--border);
+  margin-left: auto;
+}
+
+/* ---- Toast ---- */
+#toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: #238636;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+  z-index: 999;
+  pointer-events: none;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
 @media (max-width: 700px) {
   .board { flex-direction: column; }
   .column { max-width: 100%; }
+  .search-input { width: 120px; }
 }
 </style>
 </head>
 <body>
 
+<div id="toast"></div>
+
 <div class="header">
   <h1>🤖 AI Agent Task Board</h1>
+  <input class="search-input" id="searchInput" type="text" placeholder="検索..." oninput="render()">
   <div class="header-right">
     <select id="filterAssignee" onchange="render()">
       <option value="">担当者: 全て</option>
@@ -752,6 +807,26 @@ function fmtDate(iso) {
   } catch (e) { return iso; }
 }
 
+function relTime(iso) {
+  if (!iso) return '';
+  var diff = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (diff < 60) return 'たった今';
+  if (diff < 3600) return Math.floor(diff / 60) + '分前';
+  if (diff < 86400) return Math.floor(diff / 3600) + '時間前';
+  if (diff < 86400 * 7) return Math.floor(diff / 86400) + '日前';
+  return fmtDate(iso);
+}
+
+var _toastTimer = null;
+function showToast(msg, color) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = color || '#238636';
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2000);
+}
+
 function load() {
   try {
     var raw = localStorage.getItem(STORAGE_KEY);
@@ -826,9 +901,25 @@ function loadFromGitHub(silent) {
 
 function syncNow() { loadFromGitHub(false); }
 
+var _nextRefreshIn = 60;
 function startAutoRefresh() {
-  setInterval(function() { loadFromGitHub(true); }, 60000);
+  setInterval(function() { loadFromGitHub(true); _nextRefreshIn = 60; }, 60000);
+  setInterval(function() {
+    _nextRefreshIn--;
+    if (_nextRefreshIn > 0 && lastSynced) {
+      var el = document.getElementById('syncStatus');
+      if (el && el.style.color !== '#f85149') {
+        el.textContent = '最終同期: ' + lastSynced.toLocaleTimeString('ja-JP') + '（次回: ' + _nextRefreshIn + '秒後）';
+      }
+    }
+  }, 1000);
 }
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeDetail(); closeCreate(); closeHelp();
+  }
+});
 
 function nextId() {
   if (!tasks.length) return 'T001';
@@ -846,10 +937,20 @@ function filtered() {
   var fa = document.getElementById('filterAssignee').value;
   var ft = document.getElementById('filterTeam').value;
   var fo = document.getElementById('filterOrg').value;
+  var fs = (document.getElementById('searchInput').value || '').toLowerCase();
   return tasks.filter(function(t) {
-    return (!fa || t.assignee === fa) && (!ft || t.team === ft) && (!fo || t.organization === fo);
+    var matchFilter = (!fa || t.assignee === fa) && (!ft || t.team === ft) && (!fo || t.organization === fo);
+    var matchSearch = !fs || (t.title && t.title.toLowerCase().includes(fs)) || (t.description && t.description.toLowerCase().includes(fs));
+    return matchFilter && matchSearch;
   });
 }
+
+var EMPTY_MSGS = {
+  'new-assigned': '新しいタスクはありません<br><small>inboxにメモを書くと自動生成されます</small>',
+  'in-progress': '進行中のタスクはありません',
+  'blocked': '要確認のタスクはありません ✅',
+  'done': '完了タスクはありません'
+};
 
 function render() {
   var ft = filtered();
@@ -857,16 +958,23 @@ function render() {
   cols.forEach(function(col) {
     var list = document.getElementById('list-' + col);
     var cnt = document.getElementById('cnt-' + col);
+    var colEl = document.getElementById('col-' + col);
     var colTasks = ft.filter(function(t) { return t.status === col; });
     cnt.textContent = colTasks.length;
+    if (col === 'blocked') {
+      if (colTasks.length > 0) colEl.classList.add('has-blocked');
+      else colEl.classList.remove('has-blocked');
+    }
     if (!colTasks.length) {
-      list.innerHTML = '<div class="empty-col">タスクなし</div>';
+      list.innerHTML = '<div class="empty-col">' + (EMPTY_MSGS[col] || 'タスクなし') + '</div>';
       return;
     }
     list.innerHTML = colTasks.map(function(t) { return cardHTML(t); }).join('');
   });
   renderStats();
 }
+
+var ORG_LABELS = { 'akkodis': 'AKKODiS', 'shift-ai': 'SHIFT AI', 'otsunagi': 'OTSUNAGI', 'private': '個人' };
 
 function cardHTML(t) {
   var blocked = (t.status === 'blocked' && t.blockedReason)
@@ -875,16 +983,21 @@ function cardHTML(t) {
     ? '<span class="comment-count">💬 ' + t.comments.length + '</span>' : '';
   var teamLabel = TEAM_LABELS[t.team] || t.team;
   var assigneeLabel = ASSIGNEE_LABELS[t.assignee] || t.assignee;
-  return '<div class="card" onclick="openDetail(\'' + h(t.id) + '\')">'
+  var orgLabel = t.organization ? ORG_LABELS[t.organization] || t.organization : '';
+  var urgentClass = (t.priority === 'P0') ? ' urgent' : '';
+  var dateStr = t.updatedAt ? '<span style="font-size:10px;color:var(--text2)">' + relTime(t.updatedAt) + '</span>' : '';
+  return '<div class="card' + urgentClass + '" onclick="openDetail(\'' + h(t.id) + '\')">'
     + '<div class="card-top">'
     + '<span class="card-id">' + h(t.id) + '</span>'
     + '<span class="badge ' + h(t.priority) + '">' + h(t.priority) + '</span>'
     + cc
+    + (orgLabel ? '<span class="org-badge">' + h(orgLabel) + '</span>' : '')
     + '</div>'
     + '<div class="card-title">' + h(t.title) + '</div>'
     + '<div class="card-meta">'
     + '<span class="card-assignee">' + h(assigneeLabel) + '</span>'
     + '<span class="team-tag team-' + h(t.team) + '">' + h(teamLabel) + '</span>'
+    + dateStr
     + '</div>'
     + blocked
     + '</div>';
@@ -952,6 +1065,7 @@ function updateField(field, value) {
   if (field === 'assignee') t.assigneeType = value === 'human' ? 'human' : 'ai';
   save();
   render();
+  showToast('✓ 保存しました');
 }
 
 function addComment() {
@@ -967,6 +1081,7 @@ function addComment() {
   renderComments(t);
   document.getElementById('cInput').value = '';
   render();
+  showToast('💬 コメントを追加しました');
 }
 
 function deleteTask() {
@@ -1035,6 +1150,7 @@ function createTask() {
   save();
   render();
   closeCreate();
+  showToast('✓ タスクを作成しました');
 }
 
 function doExport() {
