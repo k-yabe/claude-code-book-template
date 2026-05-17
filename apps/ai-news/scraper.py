@@ -971,10 +971,12 @@ def fetch_all() -> list[dict]:
                 if is_reprint(title, raw_summary):
                     log(f"  skip (reprint): {title[:40]}")
                     continue
-                # AI or マーケティング関連でない記事を除外（AI NEWS は AI + マーケ視点）
-                # AI/マーケ関連 or 競合企業言及のいずれか満たせば採用
-                # （競合プレスリリースは AI キーワード含まないケースが多いので救済）
-                if not is_ai_related(title, raw_summary) and not is_competitor_mention(title, raw_summary, url):
+                # AI・業界関連フィルタ:
+                # tier=media のソース（ITmedia/ZDNet/日経等）はすでに IT 専門媒体として
+                # 品質担保されているのでキーワードフィルタをスキップする。
+                # tier=ugc（Qiita等）と Google News 競合検索のみキーワードで精査する。
+                is_trusted_media = src_tier == "media"
+                if not is_trusted_media and not is_ai_related(title, raw_summary) and not is_competitor_mention(title, raw_summary, url):
                     continue
                 # Google News URL が残っていた場合は HTTP フォローで実記事 URL に解決。
                 # 通常の記事 URL は validate_url だけで十分（余分な HTTP を避ける）。
@@ -1757,7 +1759,7 @@ def fetch_x_trends_via_claude() -> list[dict]:
         msg = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=3000,
-            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 12}],
+            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 6}],
             messages=[{"role": "user", "content": prompt}],
         )
         # tool_use の応答を含む可能性あり。最後のテキストブロックを使う。
