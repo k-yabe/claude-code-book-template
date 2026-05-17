@@ -100,9 +100,19 @@ ${designGuide}
 `;
 }
 
+// Web検索が有用なエージェント（調査・リサーチ系）
+const WEB_SEARCH_AGENTS = new Set([
+  'content-director',
+  'marketing-director',
+  'business-strategist',
+  'tech-lead',
+  'legal-review',
+]);
+
 async function processTask(task) {
   const model = AGENT_MODELS[task.assignee] || 'claude-sonnet-4-6';
   const systemPrompt = buildSystemPrompt(task);
+  const useWebSearch = WEB_SEARCH_AGENTS.has(task.assignee);
 
   const userMessage = `以下のタスクを実行してください。
 
@@ -121,16 +131,63 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
 成果物がある場合（文章・コード・資料など）は全文を出力してください。
 判断が必要で人間の確認が必要な場合は、その旨と理由を明記してください。`;
 
-  console.log(`\n処理中: ${task.id} "${task.title}" → ${task.assignee} (${model})`);
+  console.log(`\n処理中: ${task.id} "${task.title}" → ${task.assignee} (${model})${useWebSearch ? ' [Web検索有効]' : ''}`);
 
-  const response = await client.messages.create({
-    model,
-    max_tokens: 2048,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userMessage }],
-  });
+  const tools = useWebSearch ? [{ type: 'web_search_20260209', name: 'web_search' }] : undefined;
+  const betas = useWebSearch ? ['web-search-2025-03-05'] : undefined;
 
-  const result = response.content[0].text;
+  const messages = [{ role: 'user', content: userMessage }];
+  let result = '';
+
+  // tool_use ループ（Web検索が発生する場合に対応）
+  for (let i = 0; i < 10; i++) {
+    const reqParams = {
+      model,
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages,
+      ...(tools ? { tools } : {}),
+    };
+
+    const response = await (betas
+      ? client.beta.messages.create({ ...reqParams, betas })
+      : client.messages.create(reqParams));
+
+    messages.push({ role: 'assistant', content: response.content });
+
+    if (response.stop_reason === 'end_turn') {
+      const textBlock = response.content.find(b => b.type === 'text');
+      result = textBlock ? textBlock.text : '';
+      break;
+    }
+
+    if (response.stop_reason === 'tool_use') {
+      const toolUseBlocks = response.content.filter(b => b.type === 'tool_use');
+      const toolResults = toolUseBlocks.map(block => ({
+        type: 'tool_result',
+        tool_use_id: block.id,
+        content: JSON.stringify(block.input), // SDK handles actual execution
+      }));
+      // web_search は Anthropic サーバーサイドで実行される（tool_result 不要）
+      // stop_reason が tool_use でも、Anthropic の web_search はサーバーが結果を注入するため
+      // 次のターンは assistant → user の tool_result なしに続ける
+      // → しかし SDK の仕様上 tool_result を返す必要があるケースもあるため
+      //    レスポンス内に web_search_result ブロックがあれば、そのまま続行
+      const hasServerResults = response.content.some(b => b.type === 'web_search_result' || b.type === 'tool_result');
+      if (hasServerResults || toolUseBlocks.length === 0) {
+        // サーバーが既に結果を注入済み → ループを継続してfinal responseを取得
+        continue;
+      }
+      // フォールバック: tool_result を返す
+      messages.push({ role: 'user', content: toolResults });
+      continue;
+    }
+
+    // その他の stop_reason (max_tokens など)
+    const textBlock = response.content.find(b => b.type === 'text');
+    result = textBlock ? textBlock.text : '';
+    break;
+  }
 
   // 人間の確認が必要かどうか判定
   const needsHuman = /人間の確認|判断が必要|承認が必要|確認をお願い|ブロック/.test(result);
