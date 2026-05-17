@@ -185,10 +185,29 @@ OGP_IMAGE_RE_REV = re.compile(
 )
 
 
-def validate_url(url: str, timeout: int = 4) -> bool:
-    """URL が到達可能か HEAD (fallback GET) で確認。200-399 のみ有効とする。"""
+# 信頼済みメディアドメイン: HTTP 到達性チェックをスキップして高速化。
+# GitHub Actions のネットワーク環境でタイムアウト/403 が多発するため。
+_TRUSTED_DOMAINS = {
+    "itmedia.co.jp", "nikkei.com", "xtech.nikkei.com", "ascii.jp",
+    "ledge.ai", "mynavi.jp", "publickey1.jp", "japan.cnet.com",
+    "watch.impress.co.jp", "it.impress.co.jp", "enterprisezine.jp",
+    "japan.zdnet.com", "gihyo.jp", "prtimes.jp", "qiita.com",
+    "techcrunch.com", "thenextweb.com",
+}
+
+
+def validate_url(url: str, timeout: int = 5) -> bool:
+    """URL が到達可能か HEAD (fallback GET) で確認。
+    信頼済みドメインはスキップして高速化（GitHub Actions でのタイムアウト対策）。"""
     if not url or not url.startswith(("http://", "https://")):
         return False
+    try:
+        from urllib.parse import urlparse
+        domain = urlparse(url).netloc.lower().lstrip("www.")
+        if any(domain == d or domain.endswith("." + d) for d in _TRUSTED_DOMAINS):
+            return True
+    except Exception:
+        pass
     for method in ("HEAD", "GET"):
         try:
             req = Request(url, method=method, headers={
@@ -863,7 +882,7 @@ def extract_source_from_url(url: str, fallback: str) -> str:
 
 # 過去アーカイブの URL を読み込む参照日数。直近 N 日間のアーカイブに含まれる
 # 記事 URL は「既出」として今日の収集からは除外する（前日との重複表示を防ぐ）。
-ARCHIVE_DEDUP_DAYS = 2
+ARCHIVE_DEDUP_DAYS = 1
 
 
 def load_recent_archive_urls(days: int = ARCHIVE_DEDUP_DAYS) -> set[str]:
@@ -1710,6 +1729,10 @@ def fetch_x_trends_via_claude() -> list[dict]:
         "2. 「生成AI site:x.com」「DX site:x.com lang:ja」等でX内の投稿も直接検索\n"
         "3. 見つけた各投稿について「その URL が何件の記事・ページから参照されているか」を確認し `buzz` に記入（1=単独発見、3=複数ソースで言及、5=大手メディアが特集）\n"
         "4. 同一著者が重複しないよう複数クエリで探す\n\n"
+        "## 品質基準（重要）\n"
+        "- **buzz は 2 以上のもののみ採用**（複数のメディア・ブログが引用・紹介した投稿）\n"
+        "- buzz=1（単独発見・ほぼ話題になっていない）は採用しない\n"
+        "- 1件も buzz>=2 が見つからない場合は結果を空にしてよい（無理に埋めない）\n\n"
         "## 厳守ルール\n"
         "- **日本語の投稿のみ**採用する。英語投稿は一切不可\n"
         "- web_search で実在を確認すること。架空の URL・著者名は絶対に作らない\n"
