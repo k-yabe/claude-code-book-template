@@ -1968,14 +1968,12 @@
       padding: 6px 8px; margin-bottom: 4px; line-height: 1.5;
       border-left: 3px solid var(--navy);
       background: rgba(0,31,51,0.03);
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
     .brief-card-action {
       font-size: 0.72rem; font-weight: 700; color: var(--navy);
       background: rgba(255,184,28,0.08); padding: 6px 8px;
       border-left: 3px solid var(--gold);
       margin-bottom: var(--sp-2); line-height: 1.5;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
 
     /* ── 重要ニュース: インラインで「なぜ重要か / 何をすべきか」を露出 ── */
