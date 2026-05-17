@@ -2747,26 +2747,66 @@ def main() -> int:
             log("digest script generation failed; skipping audio")
             debug_stats["audio"]["error"] = "digest_script_empty"
 
-        # ── 英語音声ダイジェスト ──
-        google_key = os.environ.get("GOOGLE_TTS_API_KEY", "").strip()
-        if google_key and exec_summary_en:
+        # ── 英語音声ダイジェスト（Google → Azure en-US → OpenAI shimmer） ──
+        if exec_summary_en:
             log("generating English digest script...")
             script_en = generate_digest_script_en(exec_summary_en, mustknow, thisweek)
             if script_en:
                 log(f"English digest script: {len(script_en)} chars")
-                log("generating English TTS MP3 (Google en-US-Chirp3-HD-Aoede)...")
-                mp3_en = _google_tts_chunked(
-                    script_en, google_key,
-                    voice=os.environ.get("GOOGLE_TTS_EN_VOICE", "en-US-Chirp3-HD-Aoede"),
-                    speaking_rate=float(os.environ.get("GOOGLE_TTS_EN_RATE", "1.0")),
-                    pitch_st=0.0,
-                    chunk_chars=1500,
-                )
+                mp3_en: bytes | None = None
+                google_key = os.environ.get("GOOGLE_TTS_API_KEY", "").strip()
+                if google_key:
+                    log("EN TTS: trying Google en-US-Chirp3-HD-Aoede...")
+                    mp3_en = _google_tts_chunked(
+                        script_en, google_key,
+                        voice=os.environ.get("GOOGLE_TTS_EN_VOICE", "en-US-Chirp3-HD-Aoede"),
+                        speaking_rate=float(os.environ.get("GOOGLE_TTS_EN_RATE", "1.0")),
+                        pitch_st=0.0,
+                        chunk_chars=1500,
+                    )
+                azure_key = os.environ.get("AZURE_SPEECH_KEY", "").strip()
+                azure_region = os.environ.get("AZURE_SPEECH_REGION", "").strip()
+                if not mp3_en and azure_key and azure_region:
+                    log("EN TTS: trying Azure en-US-JennyNeural...")
+                    import re as _re
+                    safe_en = script_en[:4800].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                    ssml_en = (
+                        '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" '
+                        'xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="en-US">'
+                        '<voice name="en-US-JennyNeural">'
+                        '<mstts:express-as style="newscast">'
+                        '<prosody rate="-3%">' + safe_en + '</prosody>'
+                        '</mstts:express-as></voice></speak>'
+                    )
+                    try:
+                        import urllib.request as _req
+                        token_url = f"https://{azure_region}.api.cognitive.microsoft.com/sts/v1.0/issueToken"
+                        token_req = _req.Request(token_url, data=b"", headers={"Ocp-Apim-Subscription-Key": azure_key}, method="POST")
+                        with _req.urlopen(token_req, timeout=10) as r:
+                            token = r.read().decode()
+                        tts_url = f"https://{azure_region}.tts.speech.microsoft.com/cognitiveservices/v1"
+                        tts_req = _req.Request(tts_url, data=ssml_en.encode("utf-8"), headers={
+                            "Authorization": f"Bearer {token}",
+                            "Content-Type": "application/ssml+xml",
+                            "X-Microsoft-OutputFormat": "audio-24khz-96kbitrate-mono-mp3",
+                        }, method="POST")
+                        with _req.urlopen(tts_req, timeout=30) as r:
+                            mp3_en = r.read()
+                        if mp3_en:
+                            log(f"EN TTS Azure: {len(mp3_en)//1024}KB")
+                    except Exception as e:
+                        log(f"EN TTS Azure failed: {e}")
+                        mp3_en = None
+                if not mp3_en:
+                    log("EN TTS: trying OpenAI shimmer...")
+                    openai_key = os.environ.get("OPENAI_API_KEY", "").strip()
+                    if openai_key:
+                        mp3_en = _openai_tts_request(script_en[:4800], openai_key, "tts-1-hd", "shimmer", None)
                 if mp3_en:
                     save_audio(mp3_en, script_en, lang="en")
                     debug_stats["audio"]["mp3EnBytes"] = len(mp3_en)
                 else:
-                    log("English TTS failed")
+                    log("English TTS: all paths failed")
             else:
                 log("English digest script generation failed; skipping EN audio")
 

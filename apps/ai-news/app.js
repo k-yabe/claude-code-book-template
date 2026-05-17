@@ -809,6 +809,15 @@
     const now = new Date();
     const diff = Math.floor((now - d) / 1000);
     const wd = WEEKDAYS[d.getDay()];
+    if (state.lang === 'en') {
+      const EN_WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const wdEn = EN_WD[d.getDay()];
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+      if (diff < 172800) return `yesterday (${wdEn})`;
+      return `${d.getMonth()+1}/${d.getDate()} (${wdEn})`;
+    }
     if (diff < 60) return 'たった今';
     if (diff < 3600) return `${Math.floor(diff / 60)}分前`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}時間前`;
@@ -1431,6 +1440,16 @@
     const isMidday  = h >= 11 && h < 17;
     const isEvening = h >= 17 && h < 22;
     // 曜日アクセント
+    if (state.lang === 'en') {
+      if (dow === 1 && isMorning) return 'Start the week right — AI & DX intelligence brief';
+      if (dow === 5 && isEvening) return 'Week wrap-up. Key topics before the weekend';
+      if ((dow === 0 || dow === 6) && isMorning) return 'Weekend read. This week in AI & DX';
+      if (dow === 5 && isMidday)  return 'Friday midday. Trends to watch this weekend';
+      if (isMorning) return 'Morning intelligence brief — AI & DX';
+      if (isMidday)  return "Today's curation. 5 minutes well spent";
+      if (isEvening) return 'Evening roundup. Insights for tomorrow';
+      return 'Daily summary — updated 8:00 JST';
+    }
     if (dow === 1 && isMorning) return '今週のスタートに押さえておきたい AI×マーケ動向';
     if (dow === 5 && isEvening) return '週末入り前に。今週の重要トピックを総括';
     if ((dow === 0 || dow === 6) && isMorning) return '週末の朝に。今週の AI×マーケ振り返り';
@@ -1551,7 +1570,9 @@
       const ts = dataMeta.updatedAt || dataMeta.generatedFor || new Date().toISOString();
       const ageH = Math.max(0, (Date.now() - new Date(ts).getTime()) / 3.6e6);
       const isStale = ageH > 12;
-      live.textContent = isStale ? `更新 ${fmtRelative(ts)}` : `最終更新 ${fmtRelative(ts)}`;
+      live.textContent = isStale
+        ? (state.lang === 'en' ? `Updated ${fmtRelative(ts)}` : `更新 ${fmtRelative(ts)}`)
+        : (state.lang === 'en' ? `Last updated ${fmtRelative(ts)}` : `最終更新 ${fmtRelative(ts)}`);
       if (liveLabel) liveLabel.style.display = isStale ? 'none' : '';
       if (liveDot) liveDot.style.display = isStale ? 'none' : '';
       if (liveSep) liveSep.style.display = isStale ? 'none' : '';
@@ -1678,7 +1699,9 @@
       }
     }
     if (!lines || !lines.length) {
-      root.innerHTML = '<div class="empty" style="border:none;"><div class="empty-icon">📋</div><div class="empty-text">本日のサマリーは準備中です。<br>明朝 8:00 JST の定期更新までお待ちください。</div></div>';
+      root.innerHTML = state.lang === 'en'
+        ? '<div class="empty" style="border:none;"><div class="empty-icon">📋</div><div class="empty-text">Summary is being prepared.<br>Next update at 8:00 JST tomorrow morning.</div></div>'
+        : '<div class="empty" style="border:none;"><div class="empty-icon">📋</div><div class="empty-text">本日のサマリーは準備中です。<br>明朝 8:00 JST の定期更新までお待ちください。</div></div>';
       return;
     }
     // 各サマリー行に対応する記事（must-know → this-week の順でフラット化）を推定してソース表記を付ける
@@ -1711,7 +1734,9 @@
   function renderMustKnow(items) {
     const root = document.getElementById('must-know');
     if (!items.length) {
-      root.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">本日は主要メディア（ITmedia / 日経 / ASCII / Publickey 等）から該当する重要ニュースが届いていません。<br>明朝 8:00 JST の定期更新をお待ちください。</div></div>';
+      root.innerHTML = state.lang === 'en'
+        ? '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No matching top stories today from major outlets.<br>Check back at the next update at 8:00 JST.</div></div>'
+        : '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">本日は主要メディア（ITmedia / 日経 / ASCII / Publickey 等）から該当する重要ニュースが届いていません。<br>明朝 8:00 JST の定期更新をお待ちください。</div></div>';
       return;
     }
     root.innerHTML = items.map((n, idx) => {
@@ -2067,7 +2092,9 @@
       const hiddenCount = sortedAll.length - sorted.length;
       if (!filterActive && !_moreExpanded && hiddenCount > 0) {
         expandBtn.removeAttribute('hidden');
-        expandBtn.textContent = `▼ もっと見る（残り ${hiddenCount} 件）`;
+        expandBtn.textContent = state.lang === 'en'
+          ? `▼ Show more (${hiddenCount} remaining)`
+          : `▼ もっと見る（残り ${hiddenCount} 件）`;
       } else {
         expandBtn.setAttribute('hidden', '');
       }
@@ -2953,27 +2980,29 @@
     const iconEl = btn.querySelector('.audio-btn-icon');
     const labelEl = btn.querySelector('.audio-btn-label');
     const metaEl = btn.querySelector('.audio-btn-meta');
+    const isEn = state.lang === 'en';
     if (iconEl && labelEl && metaEl) {
-      // label のパース: "⏹ 残り 2:34" / "▶ 今日のダイジェスト（約5分 · 準備完了）" / "🔊 聴く（約5分）"
       if (playing) {
         iconEl.textContent = '■';
-        labelEl.textContent = '停止';
+        labelEl.textContent = isEn ? 'Stop' : '停止';
         const m = label.match(/残り\s*([0-9:]+)/);
-        metaEl.textContent = m ? `残り ${m[1]}` : label;
-      } else if (/準備完了/.test(label)) {
+        metaEl.textContent = m ? (isEn ? `${m[1]} left` : `残り ${m[1]}`) : label;
+      } else if (/準備完了|ready/.test(label)) {
         iconEl.textContent = '▶';
-        labelEl.textContent = 'AI音声ダイジェスト';
-        const m = label.match(/約(\d+)分/);
-        metaEl.textContent = m ? `約${m[1]}分 · 準備完了` : '準備完了';
-      } else if (/ダイジェスト生成中|音声変換中/.test(label)) {
+        labelEl.textContent = isEn ? 'AI Audio Digest' : 'AI音声ダイジェスト';
+        const m = label.match(/約(\d+)分|(\d+)min/);
+        const min = m ? (m[1] || m[2]) : null;
+        metaEl.textContent = min ? (isEn ? `~${min} min · ready` : `約${min}分 · 準備完了`) : (isEn ? 'ready' : '準備完了');
+      } else if (/ダイジェスト生成中|音声変換中|generating/.test(label)) {
         iconEl.textContent = '…';
-        labelEl.textContent = '準備中';
-        metaEl.textContent = '少々お待ちください';
+        labelEl.textContent = isEn ? 'Preparing' : '準備中';
+        metaEl.textContent = isEn ? 'Please wait…' : '少々お待ちください';
       } else {
         iconEl.textContent = '▶';
-        labelEl.textContent = 'AI音声ダイジェスト';
-        const m = label.match(/約(\d+)分/);
-        metaEl.textContent = m ? `約${m[1]}分` : '約5分';
+        labelEl.textContent = isEn ? 'AI Audio Digest' : 'AI音声ダイジェスト';
+        const m = label.match(/約(\d+)分|(\d+)min/);
+        const min = m ? (m[1] || m[2]) : null;
+        metaEl.textContent = min ? (isEn ? `~${min} min` : `約${min}分`) : (isEn ? '~5 min' : '約5分');
       }
     } else {
       btn.textContent = label;
@@ -3183,34 +3212,35 @@
   let _prewarmedAudio = null;
 
   /** 音声プリロードの UI 状態を btn-listen に反映する。 */
-  function updatePreloadUI(state) {
+  function updatePreloadUI(uiState) {
     const btn = document.getElementById('btn-listen');
     if (!btn) return;
     const iconEl = btn.querySelector('.audio-btn-icon');
     const labelEl = btn.querySelector('.audio-btn-label');
     const metaEl = btn.querySelector('.audio-btn-meta');
-    if (speechState.playing) return; // 再生中は上書きしない
-    if (state === 'preparing') {
+    if (speechState.playing) return;
+    const isEn = state.lang === 'en';
+    if (uiState === 'preparing') {
       if (iconEl) iconEl.textContent = '⏳';
-      if (labelEl) labelEl.textContent = 'ダイジェスト準備中';
-      if (metaEl) metaEl.textContent = '音声を取得中…';
+      if (labelEl) labelEl.textContent = isEn ? 'Preparing digest' : 'ダイジェスト準備中';
+      if (metaEl) metaEl.textContent = isEn ? 'Fetching audio…' : '音声を取得中…';
       btn.classList.remove('ready');
       btn.classList.add('preparing');
-    } else if (state === 'generating-script') {
-      if (metaEl) metaEl.textContent = 'AI が台本を執筆中…';
-    } else if (state === 'generating-audio') {
-      if (metaEl) metaEl.textContent = 'ナレーション生成中…';
-    } else if (state === 'ready') {
+    } else if (uiState === 'generating-script') {
+      if (metaEl) metaEl.textContent = isEn ? 'AI writing script…' : 'AI が台本を執筆中…';
+    } else if (uiState === 'generating-audio') {
+      if (metaEl) metaEl.textContent = isEn ? 'Generating narration…' : 'ナレーション生成中…';
+    } else if (uiState === 'ready') {
       if (iconEl) iconEl.textContent = '▶';
-      if (labelEl) labelEl.textContent = 'AI音声ダイジェスト';
+      if (labelEl) labelEl.textContent = isEn ? 'AI Audio Digest' : 'AI音声ダイジェスト';
       const estMin = Math.max(3, Math.ceil((preloadedDigest || '').length / 320) || 5);
-      if (metaEl) metaEl.textContent = `約${estMin}分 · 準備完了`;
+      if (metaEl) metaEl.textContent = isEn ? `~${estMin} min · ready` : `約${estMin}分 · 準備完了`;
       btn.classList.remove('preparing');
       btn.classList.add('ready');
-    } else if (state === 'failed') {
+    } else if (uiState === 'failed') {
       if (iconEl) iconEl.textContent = '▶';
-      if (labelEl) labelEl.textContent = 'AI音声ダイジェスト';
-      if (metaEl) metaEl.textContent = '押して生成';
+      if (labelEl) labelEl.textContent = isEn ? 'AI Audio Digest' : 'AI音声ダイジェスト';
+      if (metaEl) metaEl.textContent = isEn ? 'Tap to generate' : '押して生成';
       btn.classList.remove('preparing', 'ready');
     }
   }
@@ -3224,7 +3254,7 @@
       // 以降は「await を一切挟まず」に play() まで到達させる。
       const audio = buildMobileSafeAudio(preloadedAudioUrl);
       speechState.audio = audio;
-      setBtnState(`⏹ 再生中`, true);
+      setBtnState(state.lang === 'en' ? `⏹ Playing` : `⏹ 再生中`, true);
       showAudioPlayer();
       audio.ontimeupdate = () => {
         if (!speechState.playing) return;
@@ -3233,7 +3263,7 @@
         const c = audio.currentTime || 0;
         const remSec = Math.max(0, Math.ceil((d - c) / (audio.playbackRate || 1)));
         const btn = document.getElementById('btn-listen');
-        if (btn) btn.textContent = `⏹ 残り ${fmtMMSS(remSec)}`;
+        if (btn) btn.textContent = state.lang === 'en' ? `⏹ ${fmtMMSS(remSec)} left` : `⏹ 残り ${fmtMMSS(remSec)}`;
       };
       audio.onended = () => stopSpeech();
       audio.onerror = () => { fallbackWebSpeech((preloadedDigest || '').split(/[。\n]+/).filter(Boolean)); };
@@ -3244,7 +3274,7 @@
       return;
     }
 
-    setBtnState('⏳ ダイジェスト生成中…', true);
+    setBtnState(state.lang === 'en' ? '⏳ Generating digest…' : '⏳ ダイジェスト生成中…', true);
     // プリロード進行中ならそれを待つ
     if (preloadPromise) {
       await preloadPromise;
@@ -3257,7 +3287,7 @@
     if (!speechState.playing) return;
 
     if (digest) {
-      setBtnState('⏳ 音声変換中…', true);
+      setBtnState(state.lang === 'en' ? '⏳ Converting to audio…' : '⏳ 音声変換中…', true);
       const audioUrl = await tryOpenAITTS(digest);
       if (!speechState.playing) return;
 
@@ -3268,7 +3298,7 @@
         // その場合は catch で fallbackWebSpeech に流れるので致命的ではない。
         const audio = buildMobileSafeAudio(audioUrl);
         speechState.audio = audio;
-        setBtnState(`⏹ 再生中`, true);
+        setBtnState(state.lang === 'en' ? `⏹ Playing` : `⏹ 再生中`, true);
         showAudioPlayer();
         audio.ontimeupdate = () => {
           if (!speechState.playing) return;
@@ -3277,7 +3307,7 @@
           const c = audio.currentTime || 0;
           const remSec = Math.max(0, Math.ceil((d - c) / (audio.playbackRate || 1)));
           const btn = document.getElementById('btn-listen');
-          if (btn) btn.textContent = `⏹ 残り ${fmtMMSS(remSec)}`;
+          if (btn) btn.textContent = state.lang === 'en' ? `⏹ ${fmtMMSS(remSec)} left` : `⏹ 残り ${fmtMMSS(remSec)}`;
         };
         audio.onended = () => stopSpeech();
         audio.onerror = () => { fallbackWebSpeech(digest.split(/[。\n]+/).filter(Boolean)); };
@@ -3306,7 +3336,7 @@
   function fallbackWebSpeech(lines) {
     if (!('speechSynthesis' in window) || !speechState.playing) { stopSpeech(); return; }
     const estMin = Math.ceil(lines.join('').length / 300);
-    setBtnState(`⏹ 停止（約${estMin}分）`, true);
+    setBtnState(state.lang === 'en' ? `⏹ Stop (~${estMin} min)` : `⏹ 停止（約${estMin}分）`, true);
     let idx = 0;
     const voice = findBestJapaneseVoice();
     function speakNext() {
@@ -3332,7 +3362,7 @@
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     hideAudioPlayer();
     const estMin = preloadedDigest ? Math.ceil(preloadedDigest.length / 300) : 5;
-    setBtnState(`🔊 聴く（約${estMin}分）`, false);
+    setBtnState(state.lang === 'en' ? `🔊 Listen (~${estMin} min)` : `🔊 聴く（約${estMin}分）`, false);
   }
 
   function wireSpeech() {
