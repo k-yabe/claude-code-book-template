@@ -347,13 +347,13 @@ AI_KEYWORDS_CONTAIN = [
 # AKKODiS コンサルティングの事業: ITコンサル・DX支援・エンジニアリング派遣・
 # システム開発・BPO・技術者育成（採用支援・採用マーケティングは事業対象外）
 INDUSTRY_KEYWORDS_WORD = [
-    "DX", "BPO", "SES", "RPA",
-    "DevOps", "MLOps", "FinOps",
+    "IT", "DX", "BPO", "SES", "RPA",
+    "DevOps", "MLOps", "FinOps", "LLMOps",
     "ERP", "CRM", "SaaS", "IaaS", "PaaS",
     "SAP", "Salesforce", "ServiceNow",
-    "AWS", "Azure", "GCP",
-    "ITSM", "ITIL",
-    "PMO", "PMP",
+    "AWS", "Azure", "GCP", "API",
+    "ITSM", "ITIL", "CISO",
+    "PMO", "PMP", "OSS",
 ]
 INDUSTRY_KEYWORDS_CONTAIN = [
     # DX・デジタル変革
@@ -364,16 +364,21 @@ INDUSTRY_KEYWORDS_CONTAIN = [
     "基幹システム", "レガシーシステム", "システム刷新", "システム移行",
     "SIer", "SI事業", "受託開発", "オフショア開発",
     "アジャイル開発", "スクラム", "ウォーターフォール",
-    # エンジニアリング派遣・技術者
+    "ソフトウェア開発", "オープンソース", "コンテナ技術", "マイクロサービス",
+    # エンジニアリング・技術者
     "エンジニアリング派遣", "技術者派遣", "エンジニア派遣",
+    "エンジニア", "技術者", "開発者", "プログラマー",
     "技術者育成", "エンジニア育成", "技術研修",
     "リスキリング", "スキルアップ", "スキルトランスフォーメーション",
-    # クラウド・インフラ
-    "クラウド移行", "クラウド活用", "クラウドネイティブ", "マルチクラウド",
+    # クラウド・インフラ（"クラウド" 単体を追加して広くカバー）
+    "クラウド", "クラウド移行", "クラウド活用", "クラウドネイティブ", "マルチクラウド",
     "クラウドインフラ", "オンプレミス", "ハイブリッドクラウド",
-    # セキュリティ
+    "データセンター", "サーバー", "ネットワーク",
+    # セキュリティ（脅威系キーワードを拡充）
     "サイバーセキュリティ", "情報セキュリティ", "セキュリティ対策",
     "ゼロトラスト", "SIEM", "SOC", "脆弱性",
+    "ランサムウェア", "マルウェア", "フィッシング", "サイバー攻撃",
+    "不正アクセス", "セキュリティインシデント", "インシデント対応",
     # 業務改革・BPO
     "業務効率化", "業務改革", "業務自動化", "業務委託",
     "BPO事業", "アウトソーシング", "シェアードサービス",
@@ -383,6 +388,9 @@ INDUSTRY_KEYWORDS_CONTAIN = [
     # 業界動向・M&A
     "IT業界", "SI業界", "ITサービス", "ITソリューション",
     "M&A", "業務提携", "資本提携", "ジョイントベンチャー",
+    # 開発プラットフォーム・ツール
+    "GitHub", "GitLab", "Kubernetes", "Docker", "Terraform",
+    "CI/CD", "DevSecOps",
 ]
 _AI_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in AI_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
 _IND_WORD_RE = re.compile(r"(?<![A-Za-z0-9])(" + "|".join(re.escape(k) for k in INDUSTRY_KEYWORDS_WORD) + r")(?![A-Za-z0-9])")
@@ -971,12 +979,8 @@ def fetch_all() -> list[dict]:
                 if is_reprint(title, raw_summary):
                     log(f"  skip (reprint): {title[:40]}")
                     continue
-                # AI・業界関連フィルタ:
-                # tier=media のソース（ITmedia/ZDNet/日経等）はすでに IT 専門媒体として
-                # 品質担保されているのでキーワードフィルタをスキップする。
-                # tier=ugc（Qiita等）と Google News 競合検索のみキーワードで精査する。
-                is_trusted_media = src_tier == "media"
-                if not is_trusted_media and not is_ai_related(title, raw_summary) and not is_competitor_mention(title, raw_summary, url):
+                # AI・業界関連フィルタ: 拡張キーワードリストで精査する
+                if not is_ai_related(title, raw_summary) and not is_competitor_mention(title, raw_summary, url):
                     continue
                 # Google News URL が残っていた場合は HTTP フォローで実記事 URL に解決。
                 # 通常の記事 URL は validate_url だけで十分（余分な HTTP を避ける）。
