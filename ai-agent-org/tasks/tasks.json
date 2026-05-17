@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-05-16T08:00:00Z",
+  "lastUpdated": "2026-05-17T00:00:00Z",
   "tasks": [
     {
       "id": "T001",
@@ -11,7 +11,7 @@
       "assignee": "tech-lead",
       "assigneeType": "ai",
       "team": "engineering",
-      "organization": "akkodis",
+      "organization": "private",
       "createdAt": "2026-05-16T08:00:00Z",
       "updatedAt": "2026-05-16T10:30:00Z",
       "comments": [
@@ -38,7 +38,7 @@
       "assignee": "qa-engineer",
       "assigneeType": "ai",
       "team": "engineering",
-      "organization": "akkodis",
+      "organization": "private",
       "createdAt": "2026-05-16T10:31:00Z",
       "updatedAt": "2026-05-16T10:31:00Z",
       "comments": [
@@ -60,7 +60,7 @@
       "assignee": "task-dispatcher",
       "assigneeType": "ai",
       "team": "infrastructure",
-      "organization": "akkodis",
+      "organization": "private",
       "createdAt": "2026-05-16T09:00:00Z",
       "updatedAt": "2026-05-16T11:00:00Z",
       "comments": [
@@ -82,7 +82,7 @@
       "assignee": "content-director",
       "assigneeType": "ai",
       "team": "content",
-      "organization": "akkodis",
+      "organization": "private",
       "createdAt": "2026-05-16T10:00:00Z",
       "updatedAt": "2026-05-16T10:00:00Z",
       "comments": [
@@ -104,7 +104,7 @@
       "assignee": "tech-lead",
       "assigneeType": "ai",
       "team": "engineering",
-      "organization": "akkodis",
+      "organization": "private",
       "createdAt": "2026-05-16T08:30:00Z",
       "updatedAt": "2026-05-16T12:00:00Z",
       "comments": [
@@ -126,7 +126,7 @@
       "assignee": "content-director",
       "assigneeType": "ai",
       "team": "content",
-      "organization": "akkodis",
+      "organization": "private",
       "createdAt": "2026-05-16T07:07:00Z",
       "updatedAt": "2026-05-16T07:07:00Z",
       "comments": [
