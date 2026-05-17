@@ -29,21 +29,21 @@ const LIMIT = (() => {
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-// エージェントごとのモデル
+// エージェントごとのモデル（コスト節約：基本Haiku、重要判断のみSonnet）
 const AGENT_MODELS = {
-  'tech-lead': 'claude-sonnet-4-6',
+  'tech-lead': 'claude-haiku-4-5-20251001',
   'frontend-engineer': 'claude-haiku-4-5-20251001',
   'backend-engineer': 'claude-haiku-4-5-20251001',
-  'qa-engineer': 'claude-sonnet-4-6',
-  'content-director': 'claude-sonnet-4-6',
+  'qa-engineer': 'claude-haiku-4-5-20251001',
+  'content-director': 'claude-haiku-4-5-20251001',
   'brand-voice': 'claude-haiku-4-5-20251001',
   'root-cause': 'claude-haiku-4-5-20251001',
   'anti-ai-slop': 'claude-haiku-4-5-20251001',
-  'marketing-director': 'claude-sonnet-4-6',
-  'business-strategist': 'claude-sonnet-4-6',
+  'marketing-director': 'claude-haiku-4-5-20251001',
+  'business-strategist': 'claude-sonnet-4-6', // 戦略判断のみSonnet
   'partnership-manager': 'claude-haiku-4-5-20251001',
-  'legal-review': 'claude-sonnet-4-6',
-  'task-dispatcher': 'claude-sonnet-4-6',
+  'legal-review': 'claude-haiku-4-5-20251001',
+  'task-dispatcher': 'claude-haiku-4-5-20251001',
 };
 
 function loadTasks() {
@@ -125,7 +125,7 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
 
   const response = await client.messages.create({
     model,
-    max_tokens: 4096,
+    max_tokens: 2048,
     system: systemPrompt,
     messages: [{ role: 'user', content: userMessage }],
   });
