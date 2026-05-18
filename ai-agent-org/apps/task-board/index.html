@@ -662,7 +662,11 @@ function loadFromGitHub(silent) {
 function syncNow() { loadFromGitHub(false); }
 
 function startAutoRefresh() {
-  setInterval(function() { loadFromGitHub(true); }, 60000);
+  setInterval(function() {
+    // モーダルが開いている間は上書きしない
+    if (editingId || !document.getElementById('createOverlay').classList.contains('hidden')) return;
+    loadFromGitHub(true);
+  }, 60000);
 }
 
 function nextId() {

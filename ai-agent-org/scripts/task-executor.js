@@ -110,7 +110,7 @@ ${designGuide}
 }
 
 async function processTask(task) {
-  const model = AGENT_MODELS[task.assignee] || 'claude-sonnet-4-6';
+  const model = AGENT_MODELS[task.assignee] || 'claude-haiku-4-5-20251001';
   const systemPrompt = buildSystemPrompt(task);
   const useWebSearch = WEB_SEARCH_AGENTS.has(task.assignee);
 
@@ -201,7 +201,7 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
   }
 
   if (!result) {
-    throw new Error('AIからの応答が空でした');
+    result = '（AIからのテキスト応答がありませんでした。タスク内容を確認して再実行してください。）';
   }
 
   // 「本当に先に進めない」場合のみ blocked にする（参考情報としての「確認事項」は除外）

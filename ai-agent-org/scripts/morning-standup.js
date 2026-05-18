@@ -136,6 +136,7 @@ if (OUTPUT_FILE) {
 } else {
   const dateStr = new Date().toISOString().split('T')[0];
   const outPath = path.join(HANDOFFS_DIR, `standup-${dateStr}.md`);
+  fs.mkdirSync(HANDOFFS_DIR, { recursive: true });
   fs.writeFileSync(outPath, report, 'utf-8');
   console.log(report);
   console.log(`\nレポートを保存: ${outPath}`);

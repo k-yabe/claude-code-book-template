@@ -198,9 +198,8 @@ if (results.passed.length > 0) {
 }
 reportLines.push('---', `_by overnight-qa.js_`);
 
-if (fs.existsSync(HANDOFFS_DIR)) {
-  fs.writeFileSync(reportPath, reportLines.join('\n'), 'utf-8');
-}
+fs.mkdirSync(HANDOFFS_DIR, { recursive: true });
+fs.writeFileSync(reportPath, reportLines.join('\n'), 'utf-8');
 
 console.log(`\n結果: ✅${results.passed.length} ⚠️${results.warnings.length} ❌${results.failed.length}`);
 
