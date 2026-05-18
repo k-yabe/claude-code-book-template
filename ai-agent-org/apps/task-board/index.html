@@ -244,6 +244,14 @@ select:focus, input[type="text"]:focus, textarea:focus {
 <div class="header">
   <h1>🤖 AI Agent Task Board</h1>
   <div class="header-right">
+    <input type="search" id="filterText" placeholder="🔍 タイトル・説明で検索" oninput="render()" style="padding:5px 8px;background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:13px;width:180px">
+    <select id="filterOrg" onchange="render()">
+      <option value="">組織: 全て</option>
+      <option value="shift-ai">SHIFT AI</option>
+      <option value="otsunagi">OTSUNAGI</option>
+      <option value="akkodis">AKKODiS</option>
+      <option value="private">プライベート</option>
+    </select>
     <select id="filterAssignee" onchange="render()">
       <option value="">担当者: 全て</option>
       <option value="human">👤 human</option>
@@ -272,6 +280,7 @@ select:focus, input[type="text"]:focus, textarea:focus {
     <button class="btn primary" onclick="openCreate()">＋ 新規タスク</button>
     <button class="btn" onclick="syncNow()">🔄 同期</button>
     <button class="btn" onclick="doExport()">📤 Export</button>
+    <button class="btn" onclick="doImport()">📥 Import</button>
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="onFileImport(event)">
     <span id="syncStatus" style="font-size:11px;color:#8b949e;white-space:nowrap"></span>
   </div>
@@ -412,6 +421,7 @@ select:focus, input[type="text"]:focus, textarea:focus {
     </div>
     <div class="modal-footer">
       <button class="btn danger" onclick="deleteTask()">🗑 削除</button>
+      <button class="btn" id="retryBtn" onclick="retryTask()" style="display:none">🔁 再実行</button>
       <button class="btn primary" onclick="closeDetail()">閉じる</button>
     </div>
   </div>
@@ -479,6 +489,15 @@ select:focus, input[type="text"]:focus, textarea:focus {
             <option value="infrastructure">インフラ</option>
           </select>
         </div>
+      </div>
+      <div class="field">
+        <label>組織</label>
+        <select id="cOrg">
+          <option value="private">プライベート</option>
+          <option value="shift-ai">SHIFT AI</option>
+          <option value="otsunagi">OTSUNAGI</option>
+          <option value="akkodis">AKKODiS</option>
+        </select>
       </div>
       <div class="field">
         <label>説明</label>
@@ -609,6 +628,18 @@ var TEAM_COLORS = {
   'infrastructure': '#3fb950'
 };
 
+var GITHUB_BASE = 'https://github.com/k-yabe/claude-code-book-template/blob/main/ai-agent-org/';
+
+function linkifyComment(text) {
+  var safe = h(text);
+  // context/projects/T001-xxx-output.md → GitHub リンク
+  safe = safe.replace(/(context\/projects\/[^\s<]+\.md)/g, function(m) {
+    return '<a href="' + GITHUB_BASE + m + '" target="_blank" style="color:#58a6ff">' + m + '</a>';
+  });
+  // 改行を <br> に
+  return safe.replace(/\n/g, '<br>');
+}
+
 function h(s) {
   return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
@@ -684,8 +715,17 @@ function nextId() {
 function filtered() {
   var fa = document.getElementById('filterAssignee').value;
   var ft = document.getElementById('filterTeam').value;
+  var fo = document.getElementById('filterOrg').value;
+  var fq = (document.getElementById('filterText').value || '').toLowerCase();
   return tasks.filter(function(t) {
-    return (!fa || t.assignee === fa) && (!ft || t.team === ft);
+    if (fa && t.assignee !== fa) return false;
+    if (ft && t.team !== ft) return false;
+    if (fo && t.organization !== fo) return false;
+    if (fq) {
+      var hay = ((t.title || '') + ' ' + (t.description || '') + ' ' + (t.id || '')).toLowerCase();
+      if (hay.indexOf(fq) === -1) return false;
+    }
+    return true;
   });
 }
 
@@ -763,6 +803,22 @@ function openDetail(id) {
 function syncBlockedField() {
   var status = document.getElementById('dStatus').value;
   document.getElementById('dBlockedWrap').style.display = status === 'blocked' ? '' : 'none';
+  document.getElementById('retryBtn').style.display = status === 'blocked' ? '' : 'none';
+}
+
+function retryTask() {
+  var t = tasks.find(function(x) { return x.id === editingId; });
+  if (!t) return;
+  t.status = 'new-assigned';
+  t.blockedReason = '';
+  t.updatedAt = new Date().toISOString();
+  t.comments.push({ author: 'human', content: '🔁 ブロック解除 — 再実行キューに戻しました', timestamp: new Date().toISOString() });
+  save();
+  document.getElementById('dStatus').value = 'new-assigned';
+  document.getElementById('dBlockedReason').value = '';
+  syncBlockedField();
+  renderComments(t);
+  render();
 }
 
 function renderComments(t) {
@@ -777,7 +833,7 @@ function renderComments(t) {
       + '<span class="comment-author">' + h(ASSIGNEE_LABELS[c.author] || c.author) + '</span>'
       + '<span>' + h(fmtDate(c.timestamp)) + '</span>'
       + '</div>'
-      + '<div class="comment-text">' + h(c.content) + '</div>'
+      + '<div class="comment-text">' + linkifyComment(c.content) + '</div>'
       + '</div>';
   }).join('');
 }
@@ -853,6 +909,7 @@ function createTask() {
     assignee: assignee,
     assigneeType: assignee === 'human' ? 'human' : 'ai',
     team: document.getElementById('cTeam').value,
+    organization: document.getElementById('cOrg').value,
     createdAt: now,
     updatedAt: now,
     comments: [],
