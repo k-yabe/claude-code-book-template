@@ -384,6 +384,15 @@ select:focus, input[type="text"]:focus, textarea:focus {
         </div>
       </div>
       <div class="field">
+        <label>組織</label>
+        <select id="dOrg" onchange="updateField('organization',this.value)">
+          <option value="private">プライベート</option>
+          <option value="shift-ai">SHIFT AI</option>
+          <option value="otsunagi">OTSUNAGI</option>
+          <option value="akkodis">AKKODiS</option>
+        </select>
+      </div>
+      <div class="field">
         <label>説明</label>
         <textarea id="dDesc" onblur="updateField('description',this.value)"></textarea>
       </div>
@@ -792,6 +801,7 @@ function openDetail(id) {
   document.getElementById('dPriority').value = t.priority;
   document.getElementById('dAssignee').value = t.assignee;
   document.getElementById('dTeam').value = t.team;
+  document.getElementById('dOrg').value = t.organization || 'private';
   document.getElementById('dDesc').value = t.description || '';
   document.getElementById('dBlockedReason').value = t.blockedReason || '';
   syncBlockedField();

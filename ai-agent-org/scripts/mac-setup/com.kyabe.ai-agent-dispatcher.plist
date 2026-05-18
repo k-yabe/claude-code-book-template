@@ -7,8 +7,8 @@
 
   <key>ProgramArguments</key>
   <array>
-    <string>/opt/homebrew/bin/node</string>
-    <string>/Users/kunito/Documents/ai-agent-workspace/ai-agent-org/ai-agent-org/scripts/task-dispatcher.js</string>
+    <string>REPLACE_WITH_NODE</string>
+    <string>REPLACE_WITH_REPO/scripts/task-dispatcher.js</string>
   </array>
 
   <key>EnvironmentVariables</key>
@@ -22,13 +22,13 @@
   <integer>3600</integer>
 
   <key>WorkingDirectory</key>
-  <string>/Users/kunito/Documents/ai-agent-workspace/ai-agent-org/ai-agent-org</string>
+  <string>REPLACE_WITH_REPO</string>
 
   <key>StandardOutPath</key>
-  <string>/Users/kunito/Library/Logs/ai-agent-dispatcher.log</string>
+  <string>REPLACE_WITH_HOME/Library/Logs/ai-agent-dispatcher.log</string>
 
   <key>StandardErrorPath</key>
-  <string>/Users/kunito/Library/Logs/ai-agent-dispatcher-error.log</string>
+  <string>REPLACE_WITH_HOME/Library/Logs/ai-agent-dispatcher-error.log</string>
 
   <key>RunAtLoad</key>
   <false/>
