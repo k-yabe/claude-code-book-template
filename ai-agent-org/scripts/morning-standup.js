@@ -130,4 +130,22 @@ if (OUTPUT_FILE) {
   fs.writeFileSync(outPath, report, 'utf-8');
   console.log(report);
   console.log(`\nレポートを保存: ${outPath}`);
+
+  // レポートをGitHubへ push
+  try {
+    execSync(`git add "${outPath}"`, { cwd: ROOT });
+    execSync(`git commit -m "bot: 朝会レポート ${dateStr}"`, { cwd: ROOT });
+    try {
+      execSync('git push', { cwd: ROOT });
+    } catch {
+      execSync('git fetch origin main', { cwd: ROOT });
+      execSync('git rebase origin/main', { cwd: ROOT });
+      execSync('git push', { cwd: ROOT });
+    }
+    console.log('✓ GitHubへのプッシュ完了');
+  } catch (err) {
+    if (!err.message.includes('nothing to commit')) {
+      console.error('git push 失敗:', err.message);
+    }
+  }
 }
