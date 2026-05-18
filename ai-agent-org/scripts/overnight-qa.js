@@ -146,7 +146,7 @@ function checkInbox() {
   const inboxDir = path.join(ROOT, 'context', 'inbox');
   if (!fs.existsSync(inboxDir)) { warn('context/inbox/ が存在しない'); return; }
 
-  const files = fs.readdirSync(inboxDir).filter(f => f.endsWith('.md'));
+  const files = fs.readdirSync(inboxDir).filter(f => f.endsWith('.md') && !f.startsWith('_'));
   if (files.length > 10) {
     warn(`inbox/ に${files.length}件の未処理ファイル — タスクディスパッチャーを実行してください`);
   } else if (files.length > 0) {

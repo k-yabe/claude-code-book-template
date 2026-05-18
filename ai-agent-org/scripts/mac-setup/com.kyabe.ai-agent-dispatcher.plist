@@ -2,25 +2,35 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>Label</key>
-    <string>com.kyabe.ai-agent-dispatcher</string>
+  <key>Label</key>
+  <string>com.kyabe.ai-agent-dispatcher</string>
 
-    <key>ProgramArguments</key>
-    <array>
-        <string>/usr/local/bin/node</string>
-        <string>REPLACE_WITH_REPO_PATH/ai-agent-org/scripts/task-dispatcher.js</string>
-    </array>
+  <key>ProgramArguments</key>
+  <array>
+    <string>REPLACE_WITH_NODE</string>
+    <string>REPLACE_WITH_REPO/scripts/task-dispatcher.js</string>
+  </array>
 
-    <key>StartInterval</key>
-    <integer>300</integer>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
 
-    <key>StandardOutPath</key>
-    <string>REPLACE_WITH_REPO_PATH/ai-agent-org/scripts/mac-setup/dispatcher.log</string>
+  <!-- 1時間ごとに実行 -->
+  <key>StartInterval</key>
+  <integer>3600</integer>
 
-    <key>StandardErrorPath</key>
-    <string>REPLACE_WITH_REPO_PATH/ai-agent-org/scripts/mac-setup/dispatcher.log</string>
+  <key>WorkingDirectory</key>
+  <string>REPLACE_WITH_REPO</string>
 
-    <key>RunAtLoad</key>
-    <true/>
+  <key>StandardOutPath</key>
+  <string>REPLACE_WITH_HOME/Library/Logs/ai-agent-dispatcher.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>REPLACE_WITH_HOME/Library/Logs/ai-agent-dispatcher-error.log</string>
+
+  <key>RunAtLoad</key>
+  <false/>
 </dict>
 </plist>
