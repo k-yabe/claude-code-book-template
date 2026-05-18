@@ -4,3 +4,7 @@ node_modules/
 tasks/archive/
 context/context/ai-handoffs/*.md
 !context/context/ai-handoffs/.gitkeep
+# Obsidian設定ファイル（2台のMacで競合するため除外）
+context/.obsidian/workspace.json
+context/.obsidian/plugins/obsidian-git/data.json
+context/.obsidian/plugins/obsidian-git/.git_credentials_input

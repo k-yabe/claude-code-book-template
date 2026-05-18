@@ -96,7 +96,7 @@ function processInbox() {
     return;
   }
 
-  const files = fs.readdirSync(INBOX_DIR).filter(f => f.endsWith('.md'));
+  const files = fs.readdirSync(INBOX_DIR).filter(f => f.endsWith('.md') && !f.startsWith('_'));
   if (files.length === 0) {
     console.log('inbox/ に処理するファイルはありません');
     return;
@@ -105,7 +105,14 @@ function processInbox() {
   const data = loadTasks();
   const report = { created: [], errors: [] };
 
+  // 既に処理済みのsourceFileを記録（重複防止）
+  const processedFiles = new Set(data.tasks.map(t => t.sourceFile).filter(Boolean));
+
   for (const file of files) {
+    if (processedFiles.has(file)) {
+      console.log(`スキップ: ${file} （処理済み）`);
+      continue;
+    }
     const filePath = path.join(INBOX_DIR, file);
     try {
       const { title, description, raw } = parseInboxFile(filePath);

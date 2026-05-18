@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-05-17T13:01:47.942Z",
+  "lastUpdated": "2026-05-18T01:23:06.250812Z",
   "tasks": [
     {
       "id": "T001",
@@ -37,14 +37,14 @@
       "id": "T002",
       "title": "エージェント設定ファイルの初期レビュー",
       "description": "agents/ 配下に作成した全エージェント定義ファイルをQA Engineerがレビューし、定義の不整合・抜け漏れ・矛盾を洗い出す。",
-      "status": "blocked",
+      "status": "done",
       "priority": "P1",
       "assignee": "qa-engineer",
       "assigneeType": "ai",
       "team": "engineering",
       "organization": "private",
       "createdAt": "2026-05-16T10:31:00Z",
-      "updatedAt": "2026-05-17T04:53:16.809Z",
+      "updatedAt": "2026-05-18T01:23:06.250812Z",
       "comments": [
         {
           "author": "task-dispatcher",
@@ -62,7 +62,7 @@
           "timestamp": "2026-05-17T04:53:16.809Z"
         }
       ],
-      "blockedReason": "人間の確認・判断が必要です。上記コメントを確認してください。",
+      "blockedReason": "",
       "tags": [
         "agent-review",
         "quality",
@@ -73,14 +73,14 @@
       "id": "T003",
       "title": "タスクボードの動作テスト：タスク作成〜完了フローの検証",
       "description": "inbox にメモを書き → Task Dispatcher がタスクを作成 → 実行 → done に更新、という一連のフローが正しく機能するかを確認する。",
-      "status": "in-progress",
+      "status": "done",
       "priority": "P2",
       "assignee": "task-dispatcher",
       "assigneeType": "ai",
       "team": "infrastructure",
       "organization": "private",
       "createdAt": "2026-05-16T09:00:00Z",
-      "updatedAt": "2026-05-16T11:00:00Z",
+      "updatedAt": "2026-05-18T01:23:06.250812Z",
       "comments": [
         {
           "author": "task-dispatcher",
@@ -135,14 +135,14 @@
       "id": "T005",
       "title": "朝のレポート自動生成スクリプトの設定",
       "description": "毎朝自動でデイリーレポートを生成する仕組みを構築する。",
-      "status": "blocked",
+      "status": "done",
       "priority": "P2",
       "assignee": "tech-lead",
       "assigneeType": "ai",
       "team": "engineering",
       "organization": "private",
       "createdAt": "2026-05-16T08:30:00Z",
-      "updatedAt": "2026-05-16T12:00:00Z",
+      "updatedAt": "2026-05-18T01:23:06.250812Z",
       "comments": [
         {
           "author": "tech-lead",
@@ -150,7 +150,7 @@
           "timestamp": "2026-05-16T12:00:00Z"
         }
       ],
-      "blockedReason": "GitHub Secrets への ANTHROPIC_API_KEY 設定が未完了。人間（プロジェクトオーナー）の承認と設定操作が必要。",
+      "blockedReason": "",
       "tags": [
         "automation",
         "infrastructure",
@@ -231,14 +231,14 @@
       "id": "T008",
       "title": "📝 inboxの使い方",
       "description": "このフォルダにメモを書くだけで、AIエージェントが自動でタスク化します。\n\n---\n\n## ✍️ 書き方テンプレート\n\n新しいノートを作って、下のテンプレートをコピーして使ってください。\n\n```\n# やりたいこと（タイトルは一言で）\n\n## 背景・目的\nなぜやりたいのか、どんな状況かを書く\n\n## 詳細\n- ターゲットは誰か\n- ゴールは何か\n- 期限はいつか\n- 必要なアウトプットは何か（文章・LP・コード・分析など）\n```\n\n---\n\n## 🔤 担当が自動で決まるキーワード\n\n| 入れるキーワード | 担当 |\n|----------------|------|\n| 記事・ブログ・動画・台本・コンテンツ | ✍️ content-director |\n| マーケ・SNS・プロモ・宣伝 | 📣 marketing-director |\n| 戦略・事業・収益・方針 | 💡 business-strategist |\n| 契約・法的・リーガル | ⚖️ legal-review |\n| コード・バグ・実装・API | 🛠️ tech-lead |\n| UI・デザイン・CSS | 🎨 frontend-engineer |\n\n## 🚨 優先度キーワード\n\n| キーワード | 優先度 |\n|----------|--------|\n| 緊急・至急 | P0（最優先） |\n| 重要・高優先 | P1 |\n| （何も書かない） | P2（通常） |\n| いつか・低優先 | P3 |\n\n---\n\n## 📌 注意事項\n\n- このファイル（`_テンプレート.md`）は削除しないでください\n- 処理済みのメモは削除しなくてOK（ルール上残しておく）\n- MacBookが起動中なら5分以内に自動タスク化されます",
-      "status": "blocked",
+      "status": "done",
       "priority": "P0",
       "assignee": "tech-lead",
       "assigneeType": "ai",
       "team": "engineering",
       "organization": "private",
       "createdAt": "2026-05-17T12:13:58.510Z",
-      "updatedAt": "2026-05-17T12:31:57.475Z",
+      "updatedAt": "2026-05-18T01:23:06.250812Z",
       "comments": [
         {
           "author": "task-dispatcher",
@@ -256,7 +256,7 @@
           "timestamp": "2026-05-17T12:31:57.475Z"
         }
       ],
-      "blockedReason": "人間の確認・判断が必要です。上記コメントを確認してください。",
+      "blockedReason": "",
       "tags": [],
       "sourceFile": "_テンプレート.md"
     },
@@ -330,14 +330,14 @@
       "id": "T011",
       "title": "20250517_副業案件",
       "description": "## 背景・目的\n副業の案件を1件増やしたい。\n\n## 詳細\n- 副業クラウドやシューマツワーカー、indeedなどのサイトを経由して、BtoBマーケティングのコンテンツマーケティングの案件もしくはウェビナー、カンファレンスの案件に応募したい。\n- 新着の案件から優先的に応募したいと考えている。\n- 完了までは1週間以内を想定している。\n- まずは良さそうな案件のピックアップを完了させて、その後応募をしたい\n- 自分のプロフィールを参考に、応募すべき案件をまとめておいてほしい。URLでも良い。そのあと自分で応募すべきかの判断をして応募する。\n- エクセルとかで案件名、URL、応募理由みたいなのまとめておいてくれると嬉しいな。\n- 優先度が高めで。早く案件決めたいので緊急になるか",
-      "status": "blocked",
+      "status": "done",
       "priority": "P0",
       "assignee": "content-director",
       "assigneeType": "ai",
       "team": "content",
       "organization": "private",
       "createdAt": "2026-05-17T12:27:27.831Z",
-      "updatedAt": "2026-05-17T13:01:47.942Z",
+      "updatedAt": "2026-05-18T01:23:06.250812Z",
       "comments": [
         {
           "author": "task-dispatcher",
@@ -365,7 +365,7 @@
           "timestamp": "2026-05-17T13:01:47.942Z"
         }
       ],
-      "blockedReason": "人間の確認・判断が必要です。上記コメントを確認してください。",
+      "blockedReason": "",
       "tags": [],
       "sourceFile": "20250517_副業案件.md"
     },
