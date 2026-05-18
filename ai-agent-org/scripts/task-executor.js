@@ -224,11 +224,12 @@ function gitPushChanges(taskIds) {
   try {
     execSync('git add tasks/tasks.json context/projects/', { cwd: ROOT });
     execSync(`git commit -m "bot: タスク自動実行 [${taskIds.join(', ')}]"`, { cwd: ROOT });
-    // push失敗時はpullしてリトライ
+    // push失敗時はremoteのtasks.json以外をrebaseしてリトライ
     try {
       execSync('git push', { cwd: ROOT });
     } catch {
-      execSync('git pull --rebase --autostash', { cwd: ROOT });
+      execSync('git fetch origin main', { cwd: ROOT });
+      execSync('git rebase origin/main', { cwd: ROOT });
       execSync('git push', { cwd: ROOT });
     }
     console.log('\n✓ GitHubへのプッシュ完了');
@@ -244,12 +245,13 @@ async function main() {
     process.exit(1);
   }
 
-  // 最新のtasks.jsonを取得（autostashで未コミット変更を保護）
+  // tasks.json を常に GitHub の最新版で上書き（競合を完全回避）
   try {
-    execSync('git pull --rebase --autostash', { cwd: ROOT });
+    execSync('git fetch origin main', { cwd: ROOT });
+    execSync('git checkout origin/main -- tasks/tasks.json', { cwd: ROOT });
     console.log('✓ GitHubから最新データを取得');
   } catch (err) {
-    console.error('git pull 失敗（続行）:', err.message);
+    console.error('git fetch 失敗（続行）:', err.message);
   }
 
   const data = loadTasks();

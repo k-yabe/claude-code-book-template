@@ -119,11 +119,12 @@ function generateReport(data) {
   return lines.join('\n');
 }
 
-// 最新データを取得
+// tasks.json を常に GitHub の最新版で上書き（競合を完全回避）
 try {
-  execSync('git pull --rebase --autostash', { cwd: ROOT });
+  execSync('git fetch origin main', { cwd: ROOT });
+  execSync('git checkout origin/main -- tasks/tasks.json', { cwd: ROOT });
 } catch (err) {
-  console.error('git pull 失敗（続行）:', err.message);
+  console.error('git fetch 失敗（続行）:', err.message);
 }
 
 const data = loadTasks();
