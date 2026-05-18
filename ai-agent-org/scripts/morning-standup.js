@@ -10,6 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 const TASKS_FILE = path.join(ROOT, 'tasks', 'tasks.json');
@@ -116,6 +117,13 @@ function generateReport(data) {
   lines.push(`_生成: ${now.toISOString()} by morning-standup.js_`);
 
   return lines.join('\n');
+}
+
+// 最新データを取得
+try {
+  execSync('git pull --rebase --autostash', { cwd: ROOT });
+} catch (err) {
+  console.error('git pull 失敗（続行）:', err.message);
 }
 
 const data = loadTasks();

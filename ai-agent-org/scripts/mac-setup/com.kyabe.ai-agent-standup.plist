@@ -7,16 +7,17 @@
 
   <key>ProgramArguments</key>
   <array>
-    <string>/usr/local/bin/node</string>
-    <string>/Users/kunizou_macbook_air/Documents/ai-agent-workspace/ai-agent-org/scripts/morning-standup.js</string>
+    <string>/opt/homebrew/bin/node</string>
+    <string>/Users/kunito/Documents/ai-agent-workspace/ai-agent-org/ai-agent-org/scripts/morning-standup.js</string>
   </array>
 
   <key>EnvironmentVariables</key>
   <dict>
     <key>PATH</key>
-    <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
   </dict>
 
+  <!-- 毎朝7時に実行 -->
   <key>StartCalendarInterval</key>
   <dict>
     <key>Hour</key>
@@ -26,12 +27,12 @@
   </dict>
 
   <key>WorkingDirectory</key>
-  <string>/Users/kunizou_macbook_air/Documents/ai-agent-workspace/ai-agent-org</string>
+  <string>/Users/kunito/Documents/ai-agent-workspace/ai-agent-org/ai-agent-org</string>
 
   <key>StandardOutPath</key>
-  <string>/Users/kunizou_macbook_air/Library/Logs/ai-agent-standup.log</string>
+  <string>/Users/kunito/Library/Logs/ai-agent-standup.log</string>
 
   <key>StandardErrorPath</key>
-  <string>/Users/kunizou_macbook_air/Library/Logs/ai-agent-standup-error.log</string>
+  <string>/Users/kunito/Library/Logs/ai-agent-standup-error.log</string>
 </dict>
 </plist>

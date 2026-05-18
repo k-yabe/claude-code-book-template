@@ -11,6 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 const INBOX_DIR = path.join(ROOT, 'context', 'inbox');
@@ -185,4 +186,30 @@ function writeDispatchReport(report) {
   console.log(`レポート: ${reportPath}`);
 }
 
+// 最新データを取得してから処理
+try {
+  execSync('git pull --rebase --autostash', { cwd: ROOT });
+} catch (err) {
+  console.error('git pull 失敗（続行）:', err.message);
+}
+
 processInbox();
+
+// 変更をpush
+if (!DRY_RUN) {
+  try {
+    execSync('git add tasks/tasks.json context/context/ai-handoffs/', { cwd: ROOT });
+    execSync('git commit -m "bot: inbox タスク自動生成"', { cwd: ROOT });
+    try {
+      execSync('git push', { cwd: ROOT });
+    } catch {
+      execSync('git pull --rebase --autostash', { cwd: ROOT });
+      execSync('git push', { cwd: ROOT });
+    }
+    console.log('✓ GitHubへのプッシュ完了');
+  } catch (err) {
+    if (!err.message.includes('nothing to commit')) {
+      console.error('git push 失敗:', err.message);
+    }
+  }
+}
