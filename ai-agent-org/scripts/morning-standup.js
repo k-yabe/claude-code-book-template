@@ -10,6 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 const TASKS_FILE = path.join(ROOT, 'tasks', 'tasks.json');
@@ -116,6 +117,14 @@ function generateReport(data) {
   lines.push(`_生成: ${now.toISOString()} by morning-standup.js_`);
 
   return lines.join('\n');
+}
+
+// GitHub 最新版を取得（scripts/ も自己更新 → 次回実行から反映）
+try {
+  execSync('git fetch origin main', { cwd: ROOT });
+  execSync('git checkout origin/main -- tasks/tasks.json scripts/', { cwd: ROOT });
+} catch (err) {
+  console.error('git fetch 失敗（続行）:', err.message);
 }
 
 const data = loadTasks();

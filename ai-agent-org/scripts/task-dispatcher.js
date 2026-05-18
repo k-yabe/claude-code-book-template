@@ -11,6 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 const INBOX_DIR = path.join(ROOT, 'context', 'inbox');
@@ -18,6 +19,21 @@ const TASKS_FILE = path.join(ROOT, 'tasks', 'tasks.json');
 const HANDOFFS_DIR = path.join(ROOT, 'context', 'context', 'ai-handoffs');
 
 const DRY_RUN = process.argv.includes('--dry-run');
+
+// Organization routing rules: keyword → organization
+const ORG_RULES = [
+  { keywords: ['SHIFT AI', 'ShiftAI', 'シフトAI', '法人事業部'], org: 'shift-ai' },
+  { keywords: ['OTSUNAGI', 'オツナギ', 'カンファレンス事業', 'オンラインカンファレンス'], org: 'otsunagi' },
+  { keywords: ['AKKODiS', 'AKKOiS', 'アッコディス', 'アッコイス', '外資系', '本業'], org: 'akkodis' },
+  { keywords: ['プライベート', 'private', '個人', '私用'], org: 'private' },
+];
+
+function detectOrganization(content) {
+  for (const rule of ORG_RULES) {
+    if (rule.keywords.some(k => content.includes(k))) return rule.org;
+  }
+  return 'private';
+}
 
 // Agent routing rules: keyword → assignee + team
 const ROUTING_RULES = [
@@ -81,7 +97,7 @@ function processInbox() {
     return;
   }
 
-  const files = fs.readdirSync(INBOX_DIR).filter(f => f.endsWith('.md'));
+  const files = fs.readdirSync(INBOX_DIR).filter(f => f.endsWith('.md') && !f.startsWith('_'));
   if (files.length === 0) {
     console.log('inbox/ に処理するファイルはありません');
     return;
@@ -90,7 +106,14 @@ function processInbox() {
   const data = loadTasks();
   const report = { created: [], errors: [] };
 
+  // 既に処理済みのsourceFileを記録（重複防止）
+  const processedFiles = new Set(data.tasks.map(t => t.sourceFile).filter(Boolean));
+
   for (const file of files) {
+    if (processedFiles.has(file)) {
+      console.log(`スキップ: ${file} （処理済み）`);
+      continue;
+    }
     const filePath = path.join(INBOX_DIR, file);
     try {
       const { title, description, raw } = parseInboxFile(filePath);
@@ -99,6 +122,7 @@ function processInbox() {
       const id = nextTaskId(data.tasks);
       const now = new Date().toISOString();
 
+      const organization = detectOrganization(raw);
       const task = {
         id,
         title,
@@ -108,6 +132,7 @@ function processInbox() {
         assignee,
         assigneeType: 'ai',
         team,
+        organization,
         createdAt: now,
         updatedAt: now,
         comments: [{
@@ -161,4 +186,32 @@ function writeDispatchReport(report) {
   console.log(`レポート: ${reportPath}`);
 }
 
+// tasks.json を常に GitHub の最新版で上書き（競合を完全回避）
+try {
+  execSync('git fetch origin main', { cwd: ROOT });
+  execSync('git checkout origin/main -- tasks/tasks.json scripts/', { cwd: ROOT });
+} catch (err) {
+  console.error('git fetch 失敗（続行）:', err.message);
+}
+
 processInbox();
+
+// 変更をpush
+if (!DRY_RUN) {
+  try {
+    execSync('git add tasks/tasks.json context/context/ai-handoffs/', { cwd: ROOT });
+    execSync('git commit -m "bot: inbox タスク自動生成"', { cwd: ROOT });
+    try {
+      execSync('git push', { cwd: ROOT });
+    } catch {
+      execSync('git fetch origin main', { cwd: ROOT });
+      execSync('git rebase origin/main', { cwd: ROOT });
+      execSync('git push', { cwd: ROOT });
+    }
+    console.log('✓ GitHubへのプッシュ完了');
+  } catch (err) {
+    if (!err.message.includes('nothing to commit')) {
+      console.error('git push 失敗:', err.message);
+    }
+  }
+}

@@ -250,7 +250,7 @@ async function main() {
   // tasks.json を常に GitHub の最新版で上書き（競合を完全回避）
   try {
     execSync('git fetch origin main', { cwd: ROOT });
-    execSync('git checkout origin/main -- tasks/tasks.json', { cwd: ROOT });
+    execSync('git checkout origin/main -- tasks/tasks.json scripts/', { cwd: ROOT });
     console.log('✓ GitHubから最新データを取得');
   } catch (err) {
     console.error('git fetch 失敗（続行）:', err.message);
