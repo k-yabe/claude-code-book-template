@@ -182,6 +182,7 @@ function writeDispatchReport(report) {
     lines.push('', '## エラー', '', ...report.errors.map(e => `- ${e.file}: ${e.error}`));
   }
 
+  fs.mkdirSync(HANDOFFS_DIR, { recursive: true });
   fs.writeFileSync(reportPath, lines.join('\n'), 'utf-8');
   console.log(`レポート: ${reportPath}`);
 }
