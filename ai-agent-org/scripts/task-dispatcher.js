@@ -182,6 +182,7 @@ function writeDispatchReport(report) {
     lines.push('', '## エラー', '', ...report.errors.map(e => `- ${e.file}: ${e.error}`));
   }
 
+  fs.mkdirSync(HANDOFFS_DIR, { recursive: true });
   fs.writeFileSync(reportPath, lines.join('\n'), 'utf-8');
   console.log(`レポート: ${reportPath}`);
 }
@@ -189,7 +190,7 @@ function writeDispatchReport(report) {
 // tasks.json を常に GitHub の最新版で上書き（競合を完全回避）
 try {
   execSync('git fetch origin main', { cwd: ROOT });
-  execSync('git checkout origin/main -- tasks/tasks.json', { cwd: ROOT });
+  execSync('git checkout origin/main -- tasks/tasks.json scripts/', { cwd: ROOT });
 } catch (err) {
   console.error('git fetch 失敗（続行）:', err.message);
 }

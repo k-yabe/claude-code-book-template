@@ -119,10 +119,10 @@ function generateReport(data) {
   return lines.join('\n');
 }
 
-// tasks.json を常に GitHub の最新版で上書き（競合を完全回避）
+// GitHub 最新版を取得（scripts/ も自己更新 → 次回実行から反映）
 try {
   execSync('git fetch origin main', { cwd: ROOT });
-  execSync('git checkout origin/main -- tasks/tasks.json', { cwd: ROOT });
+  execSync('git checkout origin/main -- tasks/tasks.json scripts/', { cwd: ROOT });
 } catch (err) {
   console.error('git fetch 失敗（続行）:', err.message);
 }
@@ -136,7 +136,26 @@ if (OUTPUT_FILE) {
 } else {
   const dateStr = new Date().toISOString().split('T')[0];
   const outPath = path.join(HANDOFFS_DIR, `standup-${dateStr}.md`);
+  fs.mkdirSync(HANDOFFS_DIR, { recursive: true });
   fs.writeFileSync(outPath, report, 'utf-8');
   console.log(report);
   console.log(`\nレポートを保存: ${outPath}`);
+
+  // レポートをGitHubへ push
+  try {
+    execSync(`git add "${outPath}"`, { cwd: ROOT });
+    execSync(`git commit -m "bot: 朝会レポート ${dateStr}"`, { cwd: ROOT });
+    try {
+      execSync('git push', { cwd: ROOT });
+    } catch {
+      execSync('git fetch origin main', { cwd: ROOT });
+      execSync('git rebase origin/main', { cwd: ROOT });
+      execSync('git push', { cwd: ROOT });
+    }
+    console.log('✓ GitHubへのプッシュ完了');
+  } catch (err) {
+    if (!err.message.includes('nothing to commit')) {
+      console.error('git push 失敗:', err.message);
+    }
+  }
 }

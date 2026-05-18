@@ -7,16 +7,16 @@
 
   <key>ProgramArguments</key>
   <array>
-    <string>/usr/local/bin/node</string>
-    <string>/Users/kunizou_macbook_air/Documents/ai-agent-workspace/ai-agent-org/scripts/task-executor.js</string>
+    <string>REPLACE_WITH_NODE</string>
+    <string>REPLACE_WITH_REPO/scripts/task-executor.js</string>
   </array>
 
   <key>EnvironmentVariables</key>
   <dict>
     <key>ANTHROPIC_API_KEY</key>
-    <string>ここにAPIキーを入れる</string>
+    <string>REPLACE_WITH_API_KEY</string>
     <key>PATH</key>
-    <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
   </dict>
 
   <!-- 1時間ごとに実行 -->
@@ -24,13 +24,13 @@
   <integer>3600</integer>
 
   <key>WorkingDirectory</key>
-  <string>/Users/kunizou_macbook_air/Documents/ai-agent-workspace/ai-agent-org</string>
+  <string>REPLACE_WITH_REPO</string>
 
   <key>StandardOutPath</key>
-  <string>/Users/kunizou_macbook_air/Library/Logs/ai-agent-executor.log</string>
+  <string>REPLACE_WITH_HOME/Library/Logs/ai-agent-executor.log</string>
 
   <key>StandardErrorPath</key>
-  <string>/Users/kunizou_macbook_air/Library/Logs/ai-agent-executor-error.log</string>
+  <string>REPLACE_WITH_HOME/Library/Logs/ai-agent-executor-error.log</string>
 
   <key>RunAtLoad</key>
   <false/>

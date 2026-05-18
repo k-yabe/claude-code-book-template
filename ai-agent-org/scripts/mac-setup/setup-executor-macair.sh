@@ -1,12 +1,13 @@
 #!/bin/bash
 # MacBook Air M3 用 task-executor セットアップスクリプト
-# 実行: bash setup-executor-macair.sh
+# 実行: bash scripts/mac-setup/setup-executor-macair.sh
 
 set -e
 
-REPO_DIR="$HOME/Documents/ai-agent-workspace/ai-agent-org"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PLIST_NAME="com.kyabe.ai-agent-executor.plist"
-PLIST_SRC="$REPO_DIR/scripts/mac-setup/$PLIST_NAME"
+PLIST_SRC="$SCRIPT_DIR/$PLIST_NAME"
 PLIST_DST="$HOME/Library/LaunchAgents/$PLIST_NAME"
 
 echo "=== AI Agent Executor セットアップ ==="
@@ -41,13 +42,18 @@ else
   echo "✓ ANTHROPIC_API_KEY: 設定済み"
 fi
 
-# 4. plist をコピーして APIキーと node パスを埋め込む
+# 4. plist をコピーしてプレースホルダを置換
 echo ""
 echo "⚙️  launchd 設定を作成中..."
-cp "$PLIST_SRC" "$PLIST_DST"
-sed -i '' "s|ここにAPIキーを入れる|$API_KEY|g" "$PLIST_DST"
-sed -i '' "s|/usr/local/bin/node|$NODE_PATH|g" "$PLIST_DST"
+sed \
+  -e "s|REPLACE_WITH_NODE|$NODE_PATH|g" \
+  -e "s|REPLACE_WITH_REPO|$REPO_DIR|g" \
+  -e "s|REPLACE_WITH_API_KEY|$API_KEY|g" \
+  -e "s|REPLACE_WITH_HOME|$HOME|g" \
+  "$PLIST_SRC" > "$PLIST_DST"
 echo "✓ plist を $PLIST_DST に配置"
+echo "  リポジトリ: $REPO_DIR"
+echo "  node: $NODE_PATH"
 
 # 5. launchctl に登録
 launchctl unload "$PLIST_DST" 2>/dev/null || true
@@ -64,4 +70,5 @@ echo "今すぐ実行："
 echo "  node $REPO_DIR/scripts/task-executor.js"
 echo ""
 echo "ログの確認："
-echo "  tail -f ~/Library/Logs/ai-agent-executor.log"
+echo "  tail -f $HOME/Library/Logs/ai-agent-executor.log"
+echo "停止する場合: launchctl unload $PLIST_DST"

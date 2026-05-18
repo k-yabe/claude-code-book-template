@@ -110,7 +110,7 @@ ${designGuide}
 }
 
 async function processTask(task) {
-  const model = AGENT_MODELS[task.assignee] || 'claude-sonnet-4-6';
+  const model = AGENT_MODELS[task.assignee] || 'claude-haiku-4-5-20251001';
   const systemPrompt = buildSystemPrompt(task);
   const useWebSearch = WEB_SEARCH_AGENTS.has(task.assignee);
 
@@ -175,10 +175,12 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
 
       if (hasWebSearch) {
         // web_search はサーバーサイド実行
-        // web_search_result が既にレスポンスに含まれていれば継続
         const hasResults = response.content.some(b => b.type === 'web_search_result');
         if (hasResults) {
-          // 結果あり → 次のAPIコールでモデルが最終回答を生成
+          // 結果あり & 既にテキスト回答もある場合は終了（余分なAPIコールを省く）
+          const hasText = response.content.some(b => b.type === 'text' && b.text.trim().length > 50);
+          if (hasText) break;
+          // 結果あり & テキスト未出力 → 最終回答を促す
           messages.push({ role: 'user', content: 'search_resultを踏まえて最終的な回答を日本語でまとめてください。' });
         } else {
           // 結果なし → tool_resultを返してサーバーに検索させる
@@ -199,7 +201,7 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
   }
 
   if (!result) {
-    throw new Error('AIからの応答が空でした');
+    result = '（AIからのテキスト応答がありませんでした。タスク内容を確認して再実行してください。）';
   }
 
   // 「本当に先に進めない」場合のみ blocked にする（参考情報としての「確認事項」は除外）
@@ -248,7 +250,7 @@ async function main() {
   // tasks.json を常に GitHub の最新版で上書き（競合を完全回避）
   try {
     execSync('git fetch origin main', { cwd: ROOT });
-    execSync('git checkout origin/main -- tasks/tasks.json', { cwd: ROOT });
+    execSync('git checkout origin/main -- tasks/tasks.json scripts/', { cwd: ROOT });
     console.log('✓ GitHubから最新データを取得');
   } catch (err) {
     console.error('git fetch 失敗（続行）:', err.message);

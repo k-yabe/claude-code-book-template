@@ -11,6 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 const TASKS_FILE = path.join(ROOT, 'tasks', 'tasks.json');
@@ -157,6 +158,14 @@ function checkInbox() {
 
 // --- Run all checks ---
 
+// tasks.json を常に GitHub の最新版で上書き（競合を完全回避）
+try {
+  execSync('git fetch origin main', { cwd: ROOT });
+  execSync('git checkout origin/main -- tasks/tasks.json scripts/', { cwd: ROOT });
+} catch (err) {
+  console.error('git fetch 失敗（続行）:', err.message);
+}
+
 console.log(`\n🌙 夜間QA実行 — ${new Date().toLocaleString('ja-JP')}\n`);
 
 checkTasksJson();
@@ -189,11 +198,29 @@ if (results.passed.length > 0) {
 }
 reportLines.push('---', `_by overnight-qa.js_`);
 
-if (fs.existsSync(HANDOFFS_DIR)) {
-  fs.writeFileSync(reportPath, reportLines.join('\n'), 'utf-8');
-}
+fs.mkdirSync(HANDOFFS_DIR, { recursive: true });
+fs.writeFileSync(reportPath, reportLines.join('\n'), 'utf-8');
 
 console.log(`\n結果: ✅${results.passed.length} ⚠️${results.warnings.length} ❌${results.failed.length}`);
+
+// レポートをGitHubへ push
+try {
+  execSync(`git add "${reportPath}"`, { cwd: ROOT });
+  execSync(`git commit -m "bot: 夜間QAレポート ${dateStr}"`, { cwd: ROOT });
+  try {
+    execSync('git push', { cwd: ROOT });
+  } catch {
+    execSync('git fetch origin main', { cwd: ROOT });
+    execSync('git rebase origin/main', { cwd: ROOT });
+    execSync('git push', { cwd: ROOT });
+  }
+  console.log('✓ GitHubへのプッシュ完了');
+} catch (err) {
+  if (!err.message.includes('nothing to commit')) {
+    console.error('git push 失敗:', err.message);
+  }
+}
+
 if (results.failed.length > 0) {
   console.error('要対応の問題があります。朝会レポートを確認してください。');
   process.exit(1);
