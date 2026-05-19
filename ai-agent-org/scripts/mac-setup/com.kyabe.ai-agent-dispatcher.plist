@@ -17,9 +17,9 @@
     <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
   </dict>
 
-  <!-- 1時間ごとに実行 -->
+  <!-- 5分ごとに実行 -->
   <key>StartInterval</key>
-  <integer>3600</integer>
+  <integer>300</integer>
 
   <key>WorkingDirectory</key>
   <string>REPLACE_WITH_REPO</string>
