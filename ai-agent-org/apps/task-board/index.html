@@ -128,7 +128,10 @@ select:focus, input[type="text"]:focus, textarea:focus {
   color: var(--text2);
 }
 
-.card-list { padding: 8px; display: flex; flex-direction: column; gap: 6px; min-height: 60px; }
+.card-list { padding: 8px; display: flex; flex-direction: column; gap: 6px; min-height: 60px; transition: background 0.15s; }
+.card-list.drag-over { background: rgba(88,166,255,0.08); outline: 2px dashed #58a6ff; outline-offset: -2px; }
+.card[draggable] { cursor: grab; }
+.card[draggable]:active { cursor: grabbing; opacity: 0.6; }
 .empty-col { text-align: center; color: var(--text2); font-size: 12px; padding: 16px 0; }
 
 /* ---- Card ---- */
@@ -281,6 +284,7 @@ select:focus, input[type="text"]:focus, textarea:focus {
     <button class="btn" onclick="syncNow()">🔄 同期</button>
     <button class="btn" onclick="doExport()">📤 Export</button>
     <button class="btn" onclick="doImport()">📥 Import</button>
+    <button class="btn" onclick="showPatDialog()" title="GitHubトークン設定">🔑</button>
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="onFileImport(event)">
     <span id="syncStatus" style="font-size:11px;color:#8b949e;white-space:nowrap"></span>
   </div>
@@ -295,7 +299,7 @@ select:focus, input[type="text"]:focus, textarea:focus {
       New Assigned（未着手）
       <span class="col-count" id="cnt-new-assigned">0</span>
     </div>
-    <div class="card-list" id="list-new-assigned"></div>
+    <div class="card-list" id="list-new-assigned" ondragover="onDragOver(event)" ondrop="onDrop(event,'new-assigned')" ondragleave="onDragLeave(event)"></div>
   </div>
   <div class="column" id="col-in-progress">
     <div class="col-header">
@@ -303,7 +307,7 @@ select:focus, input[type="text"]:focus, textarea:focus {
       In Progress（進行中）
       <span class="col-count" id="cnt-in-progress">0</span>
     </div>
-    <div class="card-list" id="list-in-progress"></div>
+    <div class="card-list" id="list-in-progress" ondragover="onDragOver(event)" ondrop="onDrop(event,'in-progress')" ondragleave="onDragLeave(event)"></div>
   </div>
   <div class="column" id="col-blocked">
     <div class="col-header">
@@ -311,7 +315,7 @@ select:focus, input[type="text"]:focus, textarea:focus {
       Blocked（ブロック）
       <span class="col-count" id="cnt-blocked">0</span>
     </div>
-    <div class="card-list" id="list-blocked"></div>
+    <div class="card-list" id="list-blocked" ondragover="onDragOver(event)" ondrop="onDrop(event,'blocked')" ondragleave="onDragLeave(event)"></div>
   </div>
   <div class="column" id="col-done">
     <div class="col-header">
@@ -319,7 +323,7 @@ select:focus, input[type="text"]:focus, textarea:focus {
       Done（完了）
       <span class="col-count" id="cnt-done">0</span>
     </div>
-    <div class="card-list" id="list-done"></div>
+    <div class="card-list" id="list-done" ondragover="onDragOver(event)" ondrop="onDrop(event,'done')" ondragleave="onDragLeave(event)"></div>
   </div>
 </div>
 
@@ -522,8 +526,11 @@ select:focus, input[type="text"]:focus, textarea:focus {
 
 <script>
 var STORAGE_KEY = 'ai-agent-tasks-v2';
+var PAT_KEY = 'ai-agent-github-pat';
 var GITHUB_TASKS_URL = 'https://raw.githubusercontent.com/k-yabe/claude-code-book-template/main/ai-agent-org/tasks/tasks.json';
+var GITHUB_API_URL = 'https://api.github.com/repos/k-yabe/claude-code-book-template/contents/ai-agent-org/tasks/tasks.json';
 var editingId = null;
+var dragId = null;
 var tasks = [];
 var lastSynced = null;
 
@@ -670,8 +677,44 @@ function load() {
   save();
 }
 
+function getPat() { return localStorage.getItem(PAT_KEY) || ''; }
+function setPat(t) { localStorage.setItem(PAT_KEY, t); }
+function showPatDialog() {
+  var cur = getPat();
+  var v = prompt('GitHub Personal Access Token を入力してください\n（Contents: Read and write 権限が必要です）', cur);
+  if (v === null) return;
+  setPat(v.trim());
+  setSyncStatus(v.trim() ? '🔑 トークン設定済み' : '🔑 トークン未設定', v.trim() ? '#3fb950' : '#f85149');
+}
+
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+function pushToGitHub() {
+  var pat = getPat();
+  if (!pat) return;
+  var payload = JSON.stringify({ version: '1.0', lastUpdated: new Date().toISOString(), tasks: tasks }, null, 2);
+  // まず現在のSHAを取得してからPUT
+  fetch(GITHUB_API_URL, { headers: { Authorization: 'token ' + pat, Accept: 'application/vnd.github.v3+json' } })
+    .then(function(r) { return r.json(); })
+    .then(function(meta) {
+      return fetch(GITHUB_API_URL, {
+        method: 'PUT',
+        headers: { Authorization: 'token ' + pat, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'bot: タスクボードから更新', content: btoa(unescape(encodeURIComponent(payload))), sha: meta.sha })
+      });
+    })
+    .then(function(r) {
+      if (r.ok) setSyncStatus('✅ GitHubに保存 ' + new Date().toLocaleTimeString('ja-JP'), '#3fb950');
+      else setSyncStatus('⚠️ GitHub保存失敗', '#f85149');
+    })
+    .catch(function() { setSyncStatus('⚠️ GitHub保存失敗', '#f85149'); });
+}
+
+function saveAndPush() {
+  save();
+  pushToGitHub();
 }
 
 function setSyncStatus(msg, color) {
@@ -762,7 +805,7 @@ function cardHTML(t) {
     ? '<span class="comment-count">💬 ' + t.comments.length + '</span>' : '';
   var teamLabel = TEAM_LABELS[t.team] || t.team;
   var assigneeLabel = ASSIGNEE_LABELS[t.assignee] || t.assignee;
-  return '<div class="card" onclick="openDetail(\'' + h(t.id) + '\')">'
+  return '<div class="card" draggable="true" ondragstart="onDragStart(event,\'' + h(t.id) + '\')" onclick="openDetail(\'' + h(t.id) + '\')">'
     + '<div class="card-top">'
     + '<span class="card-id">' + h(t.id) + '</span>'
     + '<span class="badge ' + h(t.priority) + '">' + h(t.priority) + '</span>'
@@ -823,7 +866,7 @@ function retryTask() {
   t.blockedReason = '';
   t.updatedAt = new Date().toISOString();
   t.comments.push({ author: 'human', content: '🔁 ブロック解除 — 再実行キューに戻しました', timestamp: new Date().toISOString() });
-  save();
+  saveAndPush();
   document.getElementById('dStatus').value = 'new-assigned';
   document.getElementById('dBlockedReason').value = '';
   syncBlockedField();
@@ -854,7 +897,7 @@ function updateField(field, value) {
   t[field] = value;
   t.updatedAt = new Date().toISOString();
   if (field === 'assignee') t.assigneeType = value === 'human' ? 'human' : 'ai';
-  save();
+  saveAndPush();
   render();
 }
 
@@ -867,7 +910,7 @@ function addComment() {
   if (!t.comments) t.comments = [];
   t.comments.push({ author: author, content: content, timestamp: new Date().toISOString() });
   t.updatedAt = new Date().toISOString();
-  save();
+  saveAndPush();
   renderComments(t);
   document.getElementById('cInput').value = '';
   render();
@@ -876,7 +919,7 @@ function addComment() {
 function deleteTask() {
   if (!confirm('タスク ' + editingId + ' を削除しますか？')) return;
   tasks = tasks.filter(function(t) { return t.id !== editingId; });
-  save();
+  saveAndPush();
   render();
   closeDetail();
 }
@@ -927,7 +970,7 @@ function createTask() {
     tags: []
   };
   tasks.unshift(t);
-  save();
+  saveAndPush();
   render();
   closeCreate();
 }
@@ -965,6 +1008,34 @@ function onFileImport(e) {
     }
   };
   reader.readAsText(file);
+}
+
+// --- Drag & Drop ---
+function onDragStart(e, id) {
+  dragId = id;
+  e.dataTransfer.effectAllowed = 'move';
+}
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+function onDrop(e, newStatus) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (!dragId) return;
+  var t = tasks.find(function(x) { return x.id === dragId; });
+  if (!t || t.status === newStatus) { dragId = null; return; }
+  t.status = newStatus;
+  t.updatedAt = new Date().toISOString();
+  t.comments = t.comments || [];
+  t.comments.push({ author: 'human', content: '📋 ステータスを「' + newStatus + '」に変更', timestamp: new Date().toISOString() });
+  dragId = null;
+  saveAndPush();
+  render();
 }
 
 loadFromGitHub(false);
