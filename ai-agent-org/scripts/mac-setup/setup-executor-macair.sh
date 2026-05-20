@@ -58,7 +58,7 @@ echo "  node: $NODE_PATH"
 # 5. launchctl に登録
 launchctl unload "$PLIST_DST" 2>/dev/null || true
 launchctl load "$PLIST_DST"
-echo "✓ launchd に登録完了（1時間ごとに自動実行）"
+echo "✓ launchd に登録完了（5分ごとに自動実行・起動時即時実行）"
 
 echo ""
 echo "=== セットアップ完了 ✅ ==="
