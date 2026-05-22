@@ -533,6 +533,9 @@ var editingId = null;
 var dragId = null;
 var tasks = [];
 var lastSynced = null;
+var pushTimer = null;
+var pushInFlight = false;
+var pushPending = false;
 
 var DEFAULT_TASKS = [
   {
@@ -695,11 +698,11 @@ function pushToGitHub() {
   var pat = getPat();
   if (!pat) {
     setSyncStatus('⚠️ GitHubに保存されていません — 🔑 ボタンでトークンを設定してください', '#f85149');
-    return;
+    return Promise.resolve();
   }
+  setSyncStatus('保存中...', '#58a6ff');
   var payload = JSON.stringify({ version: '1.0', lastUpdated: new Date().toISOString(), tasks: tasks }, null, 2);
-  // まず現在のSHAを取得してからPUT
-  fetch(GITHUB_API_URL, { headers: { Authorization: 'token ' + pat, Accept: 'application/vnd.github.v3+json' } })
+  return fetch(GITHUB_API_URL, { headers: { Authorization: 'token ' + pat, Accept: 'application/vnd.github.v3+json' } })
     .then(function(r) { return r.json(); })
     .then(function(meta) {
       return fetch(GITHUB_API_URL, {
@@ -717,7 +720,26 @@ function pushToGitHub() {
 
 function saveAndPush() {
   save();
-  pushToGitHub();
+  // debounce: 1秒以内の連続変更は1回のpushにまとめる
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(executePush, 1000);
+}
+
+function executePush() {
+  if (pushInFlight) {
+    // 別のpushが進行中なら完了後に再実行
+    pushPending = true;
+    return;
+  }
+  pushInFlight = true;
+  pushPending = false;
+  pushToGitHub().finally(function() {
+    pushInFlight = false;
+    if (pushPending) {
+      pushPending = false;
+      executePush();
+    }
+  });
 }
 
 function setSyncStatus(msg, color) {
