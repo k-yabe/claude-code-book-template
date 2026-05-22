@@ -3,26 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Agent Task Board</title>
+<title>AI Agent</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0d1117;
-  --bg2: #161b22;
-  --bg3: #21262d;
-  --border: #30363d;
-  --text: #e6edf3;
-  --text2: #8b949e;
-  --accent: #58a6ff;
-  --p0: #ff4444;
-  --p1: #ff8800;
-  --p2: #e3b341;
-  --p3: #4488ff;
-  --col-new: #6e7681;
-  --col-ip: #388bfd;
-  --col-bl: #f85149;
-  --col-done: #3fb950;
+  --bg:      #0d1117;
+  --bg2:     #161b22;
+  --bg3:     #21262d;
+  --border:  #30363d;
+  --text:    #e6edf3;
+  --text2:   #8b949e;
+  --accent:  #2f81f7;
+  --human:   #1f6feb;
+  --p0: #f85149; --p1: #fb8f44; --p2: #e3b341; --p3: #388bfd;
 }
 
 body {
@@ -30,493 +24,584 @@ body {
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Yu Gothic', sans-serif;
   font-size: 14px;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
-/* ---- Header ---- */
-.header {
+/* ── APP LAYOUT ── */
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-top {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sidebar-title h1 { font-size: 15px; font-weight: 700; color: var(--text); }
+
+.sync-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#syncStatus { font-size: 10px; color: var(--text2); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.task-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+.task-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.1s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.task-item:hover { background: var(--bg3); }
+.task-item.active { background: var(--bg3); border-left-color: var(--accent); }
+
+.task-item-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.task-item-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.task-item-right { flex: 1; min-width: 0; }
+.task-item-title {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.task-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text2);
+}
+.task-item-preview {
+  font-size: 11px;
+  color: var(--text2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-new    { background: #6e7681; }
+.dot-prog   { background: #388bfd; }
+.dot-block  { background: #f85149; }
+.dot-done   { background: #3fb950; }
+
+/* ── CHAT PANEL ── */
+.chat-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text2);
+  gap: 8px;
+}
+.empty-state .big { font-size: 48px; }
+.empty-state .hint { font-size: 13px; }
+
+.chat-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.chat-view.hidden { display: none; }
+
+/* ── CHAT HEADER ── */
+.chat-header {
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   padding: 10px 16px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
-.header h1 { font-size: 16px; font-weight: 700; color: var(--accent); white-space: nowrap; }
-.header-right { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-left: auto; }
+.chat-header-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.chat-header-info { flex: 1; min-width: 0; }
+.chat-header-title {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-header-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+.chat-header-actions { display: flex; gap: 6px; align-items: center; }
 
-select, input[type="text"], textarea {
+/* ── STATUS BADGE (clickable) ── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+.status-badge:hover { opacity: 0.8; }
+.badge-new   { background: #21262d; color: #8b949e; }
+.badge-prog  { background: #0d2d5e; color: #58a6ff; }
+.badge-block { background: #3d1212; color: #f85149; }
+.badge-done  { background: #0d3320; color: #3fb950; }
+
+.priority-chip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.chip-P0 { background: #f85149; color: #fff; }
+.chip-P1 { background: #fb8f44; color: #0d1117; }
+.chip-P2 { background: #e3b341; color: #0d1117; }
+.chip-P3 { background: #388bfd; color: #fff; }
+
+/* ── MESSAGES ── */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.msg-group { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
+
+/* System event (center) */
+.msg-system {
+  text-align: center;
+  color: var(--text2);
+  font-size: 11px;
+  padding: 4px 0;
+  margin: 6px 0;
+}
+
+/* AI message (left) */
+.msg-ai { display: flex; align-items: flex-end; gap: 8px; }
+.msg-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+.msg-ai-content { max-width: 72%; }
+.msg-sender-name {
+  font-size: 11px;
+  color: var(--text2);
+  margin-bottom: 3px;
+  padding-left: 2px;
+}
+.bubble-ai {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-radius: 0 12px 12px 12px;
+}
+.msg-time-ai {
+  font-size: 10px;
+  color: var(--text2);
+  margin-top: 3px;
+  padding-left: 2px;
+}
+
+/* Human message (right) */
+.msg-human { display: flex; flex-direction: column; align-items: flex-end; }
+.bubble-human {
+  background: var(--human);
+  color: #fff;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 72%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-radius: 12px 0 12px 12px;
+}
+.msg-time-human {
+  font-size: 10px;
+  color: var(--text2);
+  margin-top: 3px;
+  padding-right: 2px;
+}
+
+/* ── INPUT BAR ── */
+.input-bar {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+.input-bar textarea {
+  flex: 1;
   background: var(--bg3);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 5px 8px;
+  padding: 10px 14px;
   font-size: 13px;
   font-family: inherit;
-}
-select:focus, input[type="text"]:focus, textarea:focus {
+  resize: none;
+  min-height: 42px;
+  max-height: 120px;
+  border-radius: 22px;
   outline: none;
-  border-color: var(--accent);
+  line-height: 1.5;
 }
+.input-bar textarea:focus { border-color: var(--accent); }
+.send-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+.send-btn:hover { opacity: 0.85; }
 
+/* ── BUTTONS ── */
 .btn {
   background: var(--bg3);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-size: 13px;
+  padding: 5px 10px;
+  font-size: 12px;
   cursor: pointer;
+  border-radius: 6px;
   white-space: nowrap;
 }
-.btn:hover { background: var(--bg2); border-color: var(--accent); }
-.btn.primary { background: var(--accent); color: #0d1117; border-color: var(--accent); font-weight: 600; }
-.btn.primary:hover { opacity: 0.85; }
-.btn.danger { color: #f85149; border-color: #f85149; }
-
-/* ---- Stats ---- */
-.stats {
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-  padding: 8px 16px;
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  font-size: 12px;
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.btn.danger  { color: var(--p0); border-color: var(--p0); }
+.btn-icon {
+  background: none;
+  border: none;
   color: var(--text2);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex; align-items: center;
 }
-.stat-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
-.stat-num { font-weight: 700; color: var(--text); }
+.btn-icon:hover { color: var(--text); background: var(--bg3); }
 
-/* ---- Board ---- */
-.board {
-  display: flex;
-  gap: 12px;
-  padding: 16px;
-  overflow-x: auto;
-  align-items: flex-start;
-  min-height: calc(100vh - 100px);
-}
-
-.column {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  flex: 1;
-  min-width: 220px;
-  max-width: 320px;
-  display: flex;
-  flex-direction: column;
-}
-.col-header {
-  padding: 10px 12px;
-  font-weight: 600;
-  font-size: 13px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.col-dot { width: 10px; height: 10px; border-radius: 50%; }
-.col-count {
-  margin-left: auto;
+input[type="search"], input[type="text"], select, textarea {
   background: var(--bg3);
-  border-radius: 10px;
-  padding: 1px 7px;
-  font-size: 11px;
-  color: var(--text2);
-}
-
-.card-list { padding: 8px; display: flex; flex-direction: column; gap: 6px; min-height: 60px; transition: background 0.15s; }
-.card-list.drag-over { background: rgba(88,166,255,0.08); outline: 2px dashed #58a6ff; outline-offset: -2px; }
-.card[draggable] { cursor: grab; }
-.card[draggable]:active { cursor: grabbing; opacity: 0.6; }
-.empty-col { text-align: center; color: var(--text2); font-size: 12px; padding: 16px 0; }
-
-/* ---- Card ---- */
-.card {
-  background: var(--bg);
+  color: var(--text);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 10px;
-  cursor: pointer;
-  transition: border-color 0.15s;
+  padding: 5px 9px;
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;
 }
-.card:hover { border-color: var(--accent); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
 
-.card-top { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
-.card-id { font-size: 11px; color: var(--text2); font-family: monospace; }
-.badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 4px;
-  color: #fff;
-}
-.badge.P0 { background: var(--p0); }
-.badge.P1 { background: var(--p1); }
-.badge.P2 { background: var(--p2); color: #0d1117; }
-.badge.P3 { background: var(--p3); }
-
-.card-title { font-size: 13px; font-weight: 500; line-height: 1.4; margin-bottom: 6px; }
-.card-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-.card-assignee { font-size: 11px; color: var(--text2); }
-.team-tag {
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 10px;
-  font-weight: 500;
-}
-.team-research    { background: #00808033; color: #00d4aa; border: 1px solid #00d4aa44; }
-.team-personal    { background: #c0556033; color: #ff8fab; border: 1px solid #ff8fab44; }
-.team-engineering { background: #0d419d33; color: #58a6ff; border: 1px solid #58a6ff44; }
-.team-content     { background: #6e40c933; color: #b687f7; border: 1px solid #b687f744; }
-.team-business    { background: #9e6a0333; color: #e3b341; border: 1px solid #e3b34144; }
-.team-infrastructure { background: #1a7f3733; color: #3fb950; border: 1px solid #3fb95044; }
-
-.blocked-badge { font-size: 11px; color: var(--p0); margin-top: 4px; }
-.comment-count { font-size: 11px; color: var(--text2); margin-left: auto; }
-
-/* ---- Modal overlay ---- */
+/* ── MODAL ── */
 .overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.6);
   display: flex; align-items: center; justify-content: center;
-  z-index: 100;
+  z-index: 200;
   padding: 16px;
 }
 .overlay.hidden { display: none; }
-
 .modal {
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: 10px;
-  width: 100%;
-  max-width: 520px;
+  width: 100%; max-width: 480px;
   max-height: 90vh;
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
   overflow: hidden;
 }
 .modal-header {
   padding: 12px 16px;
   border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: flex; align-items: center; gap: 8px;
 }
-.modal-id { font-size: 12px; color: var(--text2); font-family: monospace; }
-.modal-title { font-size: 15px; font-weight: 600; flex: 1; }
-.modal-close {
-  background: none; border: none; color: var(--text2);
-  font-size: 18px; cursor: pointer; padding: 0 4px;
-}
-.modal-close:hover { color: var(--text); }
-
-.modal-body { padding: 14px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-.modal-footer {
-  padding: 10px 16px;
-  border-top: 1px solid var(--border);
-  display: flex; justify-content: flex-end; gap: 8px;
-}
-
-.field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
-.field select, .field input, .field textarea { width: 100%; }
-.field textarea { resize: vertical; min-height: 70px; }
+.modal-header h2 { font-size: 14px; font-weight: 600; flex: 1; }
+.modal-close { background: none; border: none; color: var(--text2); font-size: 18px; cursor: pointer; }
+.modal-body { padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.modal-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+.field label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 .row { display: flex; gap: 10px; }
 .row .field { flex: 1; }
 
-.comments-section { border-top: 1px solid var(--border); padding-top: 10px; }
-.section-label { font-size: 12px; color: var(--text2); font-weight: 600; margin-bottom: 8px; }
-.comment-item { margin-bottom: 8px; padding: 8px; background: var(--bg3); border-radius: 6px; }
-.comment-meta { display: flex; gap: 8px; font-size: 11px; color: var(--text2); margin-bottom: 3px; }
-.comment-author { font-weight: 600; }
-.comment-text { font-size: 12px; line-height: 1.5; }
-.comment-form { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-.comment-form textarea { min-height: 50px; font-size: 13px; }
-.comment-form-bottom { display: flex; gap: 6px; align-items: center; }
-.comment-form-bottom select { flex: 1; }
-
-@media (max-width: 700px) {
-  .board { flex-direction: column; }
-  .column { max-width: 100%; }
+/* ── STATUS PICKER DROPDOWN ── */
+.status-menu {
+  position: absolute;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 300;
+  min-width: 160px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
 }
+.status-menu-item {
+  padding: 9px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex; align-items: center; gap: 8px;
+}
+.status-menu-item:hover { background: var(--bg2); }
+
+/* ── DETAIL PANEL (right side, slides in) ── */
+.detail-panel {
+  width: 280px;
+  min-width: 280px;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.detail-panel.hidden { display: none; }
+.detail-section-title { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+
+/* ── MOBILE ── */
+@media (max-width: 700px) {
+  .sidebar { width: 100%; min-width: 0; position: absolute; inset: 0; z-index: 10; }
+  .sidebar.hidden { display: none; }
+  .chat-panel { width: 100%; }
+  .detail-panel { display: none; }
+}
+
+/* ── LINK in bubbles ── */
+.bubble-ai a, .bubble-human a { color: #58a6ff; text-decoration: underline; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>🤖 AI Agent Task Board</h1>
-  <div class="header-right">
-    <input type="search" id="filterText" placeholder="🔍 タイトル・説明で検索" oninput="render()" style="padding:5px 8px;background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:13px;width:180px">
-    <select id="filterOrg" onchange="render()">
-      <option value="">組織: 全て</option>
-      <option value="shift-ai">SHIFT AI</option>
-      <option value="otsunagi">OTSUNAGI</option>
-      <option value="akkodis">AKKODiS</option>
-      <option value="private">プライベート</option>
-    </select>
-    <select id="filterAssignee" onchange="render()">
-      <option value="">担当者: 全て</option>
-      <option value="human">👤 human</option>
-      <option value="research-analyst">🔎 research-analyst</option>
-      <option value="career-advisor">🧭 career-advisor</option>
-      <option value="tech-lead">🔧 tech-lead</option>
-      <option value="frontend-engineer">🎨 frontend-engineer</option>
-      <option value="backend-engineer">⚙️ backend-engineer</option>
-      <option value="qa-engineer">🧪 qa-engineer</option>
-      <option value="content-director">📝 content-director</option>
-      <option value="marketing-director">📣 marketing-director</option>
-      <option value="business-strategist">💼 business-strategist</option>
-      <option value="partnership-manager">🤝 partnership-manager</option>
-      <option value="legal-review">⚖️ legal-review</option>
-      <option value="task-dispatcher">📬 task-dispatcher</option>
-    </select>
-    <select id="filterTeam" onchange="render()">
-      <option value="">チーム: 全て</option>
-      <option value="research">リサーチ</option>
-      <option value="personal">パーソナル</option>
-      <option value="engineering">エンジニア</option>
-      <option value="content">コンテンツ</option>
-      <option value="business">ビジネス</option>
-      <option value="infrastructure">インフラ</option>
-    </select>
-    <button class="btn primary" onclick="openCreate()">＋ 新規タスク</button>
-    <button class="btn" onclick="syncNow()">🔄 同期</button>
-    <button class="btn" onclick="doExport()">📤 Export</button>
-    <button class="btn" onclick="doImport()">📥 Import</button>
-    <button class="btn" onclick="showPatDialog()" title="GitHubトークン設定">🔑</button>
-    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="onFileImport(event)">
-    <span id="syncStatus" style="font-size:11px;color:#8b949e;white-space:nowrap"></span>
-  </div>
-</div>
+<div class="app" id="app">
 
-<div class="stats" id="statsBar"></div>
-
-<div class="board" id="board">
-  <div class="column" id="col-new-assigned">
-    <div class="col-header">
-      <span class="col-dot" style="background:var(--col-new)"></span>
-      New Assigned（未着手）
-      <span class="col-count" id="cnt-new-assigned">0</span>
-    </div>
-    <div class="card-list" id="list-new-assigned" ondragover="onDragOver(event)" ondrop="onDrop(event,'new-assigned')" ondragleave="onDragLeave(event)"></div>
-  </div>
-  <div class="column" id="col-in-progress">
-    <div class="col-header">
-      <span class="col-dot" style="background:var(--col-ip)"></span>
-      In Progress（進行中）
-      <span class="col-count" id="cnt-in-progress">0</span>
-    </div>
-    <div class="card-list" id="list-in-progress" ondragover="onDragOver(event)" ondrop="onDrop(event,'in-progress')" ondragleave="onDragLeave(event)"></div>
-  </div>
-  <div class="column" id="col-blocked">
-    <div class="col-header">
-      <span class="col-dot" style="background:var(--col-bl)"></span>
-      Blocked（ブロック）
-      <span class="col-count" id="cnt-blocked">0</span>
-    </div>
-    <div class="card-list" id="list-blocked" ondragover="onDragOver(event)" ondrop="onDrop(event,'blocked')" ondragleave="onDragLeave(event)"></div>
-  </div>
-  <div class="column" id="col-done">
-    <div class="col-header">
-      <span class="col-dot" style="background:var(--col-done)"></span>
-      Done（完了）
-      <span class="col-count" id="cnt-done">0</span>
-    </div>
-    <div class="card-list" id="list-done" ondragover="onDragOver(event)" ondrop="onDrop(event,'done')" ondragleave="onDragLeave(event)"></div>
-  </div>
-</div>
-
-<!-- Detail Modal -->
-<div class="overlay hidden" id="detailOverlay" onclick="closeDetailIfBg(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-id" id="dId"></span>
-      <span class="modal-title" id="dTitle"></span>
-      <button class="modal-close" onclick="closeDetail()">&#x2715;</button>
-    </div>
-    <div class="modal-body">
-      <div class="row">
-        <div class="field">
-          <label>ステータス</label>
-          <select id="dStatus" onchange="updateField('status',this.value);syncBlockedField()">
-            <option value="new-assigned">New Assigned</option>
-            <option value="in-progress">In Progress</option>
-            <option value="blocked">Blocked</option>
-            <option value="done">Done</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>優先度</label>
-          <select id="dPriority" onchange="updateField('priority',this.value)">
-            <option value="P0">P0 🔴 緊急</option>
-            <option value="P1">P1 🟠 高</option>
-            <option value="P2">P2 🟡 中</option>
-            <option value="P3">P3 🔵 低</option>
-          </select>
+  <!-- ══ SIDEBAR ══ -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-title">
+        <h1>🤖 AI Agent</h1>
+        <div style="display:flex;gap:4px">
+          <button class="btn-icon" onclick="showPatDialog()" title="GitHubトークン設定">🔑</button>
+          <button class="btn-icon" onclick="syncNow()" title="同期">🔄</button>
+          <button class="btn primary" onclick="openCreate()" style="padding:4px 10px;font-size:12px">＋ 新規</button>
         </div>
       </div>
-      <div class="row">
-        <div class="field">
-          <label>担当者</label>
-          <select id="dAssignee" onchange="updateField('assignee',this.value)">
-            <option value="human">👤 human</option>
-            <option value="tech-lead">🔧 tech-lead</option>
-            <option value="frontend-engineer">🎨 frontend-engineer</option>
-            <option value="backend-engineer">⚙️ backend-engineer</option>
-            <option value="qa-engineer">🧪 qa-engineer</option>
-            <option value="content-director">📝 content-director</option>
-            <option value="brand-voice">🎙️ brand-voice</option>
-            <option value="root-cause">🔍 root-cause</option>
-            <option value="anti-ai-slop">🚫 anti-ai-slop</option>
-            <option value="marketing-director">📣 marketing-director</option>
-            <option value="business-strategist">💼 business-strategist</option>
-            <option value="partnership-manager">🤝 partnership-manager</option>
-            <option value="legal-review">⚖️ legal-review</option>
-            <option value="task-dispatcher">📬 task-dispatcher</option>
-            <option value="local-support">🖥️ local-support</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>チーム</label>
-          <select id="dTeam" onchange="updateField('team',this.value)">
-            <option value="engineering">エンジニア</option>
-            <option value="content">コンテンツ</option>
-            <option value="business">ビジネス</option>
-            <option value="infrastructure">インフラ</option>
-          </select>
-        </div>
-      </div>
-      <div class="field">
-        <label>組織</label>
-        <select id="dOrg" onchange="updateField('organization',this.value)">
-          <option value="private">プライベート</option>
+      <input type="search" id="filterText" placeholder="🔍 タスクを検索" oninput="render()">
+      <div class="row" style="gap:6px">
+        <select id="filterStatus" onchange="render()" style="font-size:12px">
+          <option value="">すべて</option>
+          <option value="new-assigned">未着手</option>
+          <option value="in-progress">進行中</option>
+          <option value="blocked">ブロック</option>
+          <option value="done">完了</option>
+        </select>
+        <select id="filterOrg" onchange="render()" style="font-size:12px">
+          <option value="">組織: 全て</option>
+          <option value="private">Private</option>
           <option value="shift-ai">SHIFT AI</option>
           <option value="otsunagi">OTSUNAGI</option>
           <option value="akkodis">AKKODiS</option>
         </select>
       </div>
-      <div class="field">
-        <label>説明</label>
-        <textarea id="dDesc" onblur="updateField('description',this.value)"></textarea>
-      </div>
-      <div class="field" id="dBlockedWrap">
-        <label>ブロック理由</label>
-        <input type="text" id="dBlockedReason" onblur="updateField('blockedReason',this.value)" placeholder="ブロックされている理由">
-      </div>
-      <div class="comments-section">
-        <div class="section-label">コメント</div>
-        <div id="dComments"></div>
-        <div class="comment-form">
-          <textarea id="cInput" placeholder="コメントを追加..."></textarea>
-          <div class="comment-form-bottom">
-            <select id="cAuthor">
-              <option value="human">👤 human</option>
-              <option value="tech-lead">🔧 tech-lead</option>
-              <option value="frontend-engineer">🎨 frontend-engineer</option>
-              <option value="backend-engineer">⚙️ backend-engineer</option>
-              <option value="qa-engineer">🧪 qa-engineer</option>
-              <option value="content-director">📝 content-director</option>
-              <option value="brand-voice">🎙️ brand-voice</option>
-              <option value="root-cause">🔍 root-cause</option>
-              <option value="anti-ai-slop">🚫 anti-ai-slop</option>
-              <option value="marketing-director">📣 marketing-director</option>
-              <option value="business-strategist">💼 business-strategist</option>
-              <option value="partnership-manager">🤝 partnership-manager</option>
-              <option value="legal-review">⚖️ legal-review</option>
-              <option value="task-dispatcher">📬 task-dispatcher</option>
-              <option value="local-support">🖥️ local-support</option>
-            </select>
-            <button class="btn primary" onclick="addComment()">送信</button>
-          </div>
-        </div>
+      <div class="sync-row">
+        <span id="syncStatus"></span>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn danger" onclick="deleteTask()">🗑 削除</button>
-      <button class="btn" id="retryBtn" onclick="retryTask()" style="display:none">🔁 再実行</button>
-      <button class="btn primary" onclick="closeDetail()">閉じる</button>
+    <div class="task-list" id="taskList"></div>
+  </div>
+
+  <!-- ══ CHAT PANEL ══ -->
+  <div class="chat-panel" id="chatPanel">
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="big">💬</div>
+      <div class="hint">左のタスクを選んでチャットを開始</div>
+    </div>
+
+    <!-- Chat view -->
+    <div class="chat-view hidden" id="chatView">
+
+      <!-- Header -->
+      <div class="chat-header" id="chatHeader">
+        <!-- rendered by renderChatHeader() -->
+      </div>
+
+      <!-- Messages -->
+      <div class="messages" id="messages"></div>
+
+      <!-- Input -->
+      <div class="input-bar">
+        <textarea id="msgInput" placeholder="メッセージを送信..." rows="1"
+          onkeydown="handleInputKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+
     </div>
   </div>
+
+  <!-- ══ DETAIL PANEL ══ -->
+  <div class="detail-panel hidden" id="detailPanel">
+    <!-- rendered by renderDetailPanel() -->
+  </div>
+
 </div>
 
-<!-- Create Modal -->
+<!-- ── STATUS MENU ── -->
+<div class="status-menu hidden" id="statusMenu">
+  <div class="status-menu-item" onclick="setStatus('new-assigned')"><span class="status-dot dot-new"></span> 未着手</div>
+  <div class="status-menu-item" onclick="setStatus('in-progress')"><span class="status-dot dot-prog"></span> 進行中</div>
+  <div class="status-menu-item" onclick="setStatus('blocked')"><span class="status-dot dot-block"></span> ブロック</div>
+  <div class="status-menu-item" onclick="setStatus('done')"><span class="status-dot dot-done"></span> 完了</div>
+</div>
+
+<!-- ── CREATE MODAL ── -->
 <div class="overlay hidden" id="createOverlay" onclick="closeCreateIfBg(event)">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">新規タスク作成</span>
+      <h2>＋ 新しいタスク</h2>
       <button class="modal-close" onclick="closeCreate()">&#x2715;</button>
     </div>
     <div class="modal-body">
       <div class="field">
         <label>タイトル *</label>
-        <input type="text" id="cTitle" placeholder="タスクのタイトル">
+        <input type="text" id="cTitle" placeholder="何をしたいか一言で">
       </div>
-      <div class="row">
-        <div class="field">
-          <label>優先度</label>
-          <select id="cPriority">
-            <option value="P1">P1 🟠 高</option>
-            <option value="P0">P0 🔴 緊急</option>
-            <option value="P2">P2 🟡 中</option>
-            <option value="P3">P3 🔵 低</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>ステータス</label>
-          <select id="cStatus">
-            <option value="new-assigned">New Assigned</option>
-            <option value="in-progress">In Progress</option>
-            <option value="blocked">Blocked</option>
-            <option value="done">Done</option>
-          </select>
-        </div>
+      <div class="field">
+        <label>説明</label>
+        <textarea id="cDesc" rows="4" placeholder="背景・詳細・ゴールなど"></textarea>
       </div>
       <div class="row">
         <div class="field">
           <label>担当者</label>
           <select id="cAssignee">
+            <option value="research-analyst">🔎 research-analyst</option>
+            <option value="career-advisor">🧭 career-advisor</option>
             <option value="human">👤 human</option>
             <option value="tech-lead">🔧 tech-lead</option>
             <option value="frontend-engineer">🎨 frontend-engineer</option>
             <option value="backend-engineer">⚙️ backend-engineer</option>
             <option value="qa-engineer">🧪 qa-engineer</option>
             <option value="content-director">📝 content-director</option>
-            <option value="brand-voice">🎙️ brand-voice</option>
-            <option value="root-cause">🔍 root-cause</option>
-            <option value="anti-ai-slop">🚫 anti-ai-slop</option>
             <option value="marketing-director">📣 marketing-director</option>
             <option value="business-strategist">💼 business-strategist</option>
             <option value="partnership-manager">🤝 partnership-manager</option>
             <option value="legal-review">⚖️ legal-review</option>
-            <option value="task-dispatcher">📬 task-dispatcher</option>
-            <option value="local-support">🖥️ local-support</option>
           </select>
         </div>
         <div class="field">
-          <label>チーム</label>
-          <select id="cTeam">
-            <option value="engineering">エンジニア</option>
-            <option value="content">コンテンツ</option>
-            <option value="business">ビジネス</option>
-            <option value="infrastructure">インフラ</option>
+          <label>優先度</label>
+          <select id="cPriority">
+            <option value="P0">P0 🔴 緊急</option>
+            <option value="P1">P1 🟠 高</option>
+            <option value="P2" selected>P2 🟡 中</option>
+            <option value="P3">P3 🔵 低</option>
           </select>
         </div>
       </div>
-      <div class="field">
-        <label>組織</label>
-        <select id="cOrg">
-          <option value="private">プライベート</option>
-          <option value="shift-ai">SHIFT AI</option>
-          <option value="otsunagi">OTSUNAGI</option>
-          <option value="akkodis">AKKODiS</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>説明</label>
-        <textarea id="cDesc" placeholder="詳細説明（任意）"></textarea>
+      <div class="row">
+        <div class="field">
+          <label>チーム</label>
+          <select id="cTeam">
+            <option value="research">リサーチ</option>
+            <option value="personal">パーソナル</option>
+            <option value="engineering">エンジニア</option>
+            <option value="content">コンテンツ</option>
+            <option value="business">ビジネス</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>組織</label>
+          <select id="cOrg">
+            <option value="private" selected>プライベート</option>
+            <option value="shift-ai">SHIFT AI</option>
+            <option value="otsunagi">OTSUNAGI</option>
+            <option value="akkodis">AKKODiS</option>
+          </select>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -526,201 +611,108 @@ select:focus, input[type="text"]:focus, textarea:focus {
   </div>
 </div>
 
+<input type="file" id="fileInput" accept=".json" style="display:none" onchange="onFileImport(event)">
+
 <script>
-var STORAGE_KEY = 'ai-agent-tasks-v2';
-var PAT_KEY = 'ai-agent-github-pat';
+
+// ── Constants ──
+var STORAGE_KEY  = 'ai-agent-tasks';
+var PAT_KEY      = 'ai-agent-github-pat';
 var GITHUB_TASKS_URL = 'https://raw.githubusercontent.com/k-yabe/claude-code-book-template/main/ai-agent-org/tasks/tasks.json';
-var GITHUB_API_URL = 'https://api.github.com/repos/k-yabe/claude-code-book-template/contents/ai-agent-org/tasks/tasks.json';
-var editingId = null;
-var dragId = null;
-var tasks = [];
+var GITHUB_API_URL   = 'https://api.github.com/repos/k-yabe/claude-code-book-template/contents/ai-agent-org/tasks/tasks.json';
+
+var tasks      = [];
+var activeId   = null;
 var lastSynced = null;
-var pushTimer = null;
 var pushInFlight = false;
-var pushPending = false;
+var pushPending  = false;
 
-var DEFAULT_TASKS = [
-  {
-    id: 'T001',
-    title: '動画台本のレビューとブランドボイスチェック',
-    description: '今週公開予定の動画台本について、ブランドガイドラインへの準拠チェックと最終レビューを行う。',
-    status: 'in-progress',
-    priority: 'P1',
-    assignee: 'content-director',
-    assigneeType: 'ai',
-    team: 'content',
-    createdAt: '2026-05-14T09:00:00Z',
-    updatedAt: '2026-05-15T11:00:00Z',
-    comments: [{ author: 'brand-voice', content: 'トーンがやや硬い。カジュアルに調整してほしい。', timestamp: '2026-05-15T10:30:00Z' }],
-    blockedReason: '',
-    tags: []
-  },
-  {
-    id: 'T002',
-    title: 'タスクボードAPIの設計と実装',
-    description: 'AIエージェント間でタスクを共有するためのREST APIを設計・実装する。',
-    status: 'new-assigned',
-    priority: 'P0',
-    assignee: 'tech-lead',
-    assigneeType: 'ai',
-    team: 'engineering',
-    createdAt: '2026-05-15T08:00:00Z',
-    updatedAt: '2026-05-15T08:00:00Z',
-    comments: [],
-    blockedReason: '',
-    tags: []
-  },
-  {
-    id: 'T003',
-    title: '来月のマーケ戦略策定',
-    description: '6月のキャンペーン施策と予算配分計画を策定する。競合他社の動向も踏まえること。',
-    status: 'blocked',
-    priority: 'P1',
-    assignee: 'business-strategist',
-    assigneeType: 'ai',
-    team: 'business',
-    createdAt: '2026-05-13T10:00:00Z',
-    updatedAt: '2026-05-16T09:00:00Z',
-    comments: [{ author: 'human', content: '競合分析を外部ベンダーに依頼中。今週末には届く予定。', timestamp: '2026-05-16T09:00:00Z' }],
-    blockedReason: '競合分析データが未入手',
-    tags: []
-  },
-  {
-    id: 'T004',
-    title: 'inboxの初期セットアップ',
-    description: 'AIエージェントのタスク受信インフラとして、inboxの設定を完了させた。',
-    status: 'done',
-    priority: 'P2',
-    assignee: 'task-dispatcher',
-    assigneeType: 'ai',
-    team: 'infrastructure',
-    createdAt: '2026-05-10T08:00:00Z',
-    updatedAt: '2026-05-12T17:00:00Z',
-    comments: [{ author: 'task-dispatcher', content: 'セットアップ完了。全エージェントに通知済み。', timestamp: '2026-05-12T17:00:00Z' }],
-    blockedReason: '',
-    tags: []
-  },
-  {
-    id: 'T005',
-    title: '夜間QAスクリプトのテスト',
-    description: '毎晩自動実行されるQAスクリプトの動作確認。エッジケースのカバレッジを高める。',
-    status: 'in-progress',
-    priority: 'P2',
-    assignee: 'qa-engineer',
-    assigneeType: 'ai',
-    team: 'engineering',
-    createdAt: '2026-05-14T14:00:00Z',
-    updatedAt: '2026-05-15T20:00:00Z',
-    comments: [],
-    blockedReason: '',
-    tags: []
-  }
-];
-
-var ASSIGNEE_LABELS = {
-  'human': '👤 human',
-  'research-analyst': '🔎 research-analyst',
-  'career-advisor': '🧭 career-advisor',
-  'tech-lead': '🔧 tech-lead',
-  'frontend-engineer': '🎨 frontend-engineer',
-  'backend-engineer': '⚙️ backend-engineer',
-  'qa-engineer': '🧪 qa-engineer',
-  'content-director': '📝 content-director',
-  'brand-voice': '🎙️ brand-voice',
-  'root-cause': '🔍 root-cause',
-  'anti-ai-slop': '🚫 anti-ai-slop',
-  'marketing-director': '📣 marketing-director',
-  'business-strategist': '💼 business-strategist',
-  'partnership-manager': '🤝 partnership-manager',
-  'legal-review': '⚖️ legal-review',
-  'task-dispatcher': '📬 task-dispatcher'
+// ── Agent config ──
+var AGENTS = {
+  'human':               { emoji: '👤', color: '#1f6feb' },
+  'research-analyst':    { emoji: '🔎', color: '#00897b' },
+  'career-advisor':      { emoji: '🧭', color: '#c2185b' },
+  'tech-lead':           { emoji: '🔧', color: '#1565c0' },
+  'frontend-engineer':   { emoji: '🎨', color: '#6a1b9a' },
+  'backend-engineer':    { emoji: '⚙️', color: '#0277bd' },
+  'qa-engineer':         { emoji: '🧪', color: '#2e7d32' },
+  'content-director':    { emoji: '📝', color: '#4527a0' },
+  'brand-voice':         { emoji: '🎙️', color: '#6d4c41' },
+  'root-cause':          { emoji: '🔍', color: '#37474f' },
+  'anti-ai-slop':        { emoji: '🚫', color: '#bf360c' },
+  'marketing-director':  { emoji: '📣', color: '#f57f17' },
+  'business-strategist': { emoji: '💼', color: '#004d40' },
+  'partnership-manager': { emoji: '🤝', color: '#558b2f' },
+  'legal-review':        { emoji: '⚖️', color: '#4e342e' },
+  'task-dispatcher':     { emoji: '📬', color: '#37474f' },
 };
 
 var TEAM_LABELS = {
-  'research': 'リサーチ',
-  'personal': 'パーソナル',
-  'engineering': 'エンジニア',
-  'content': 'コンテンツ',
-  'business': 'ビジネス',
-  'infrastructure': 'インフラ'
+  'research':'リサーチ', 'personal':'パーソナル',
+  'engineering':'エンジニア', 'content':'コンテンツ',
+  'business':'ビジネス', 'infrastructure':'インフラ'
 };
 
-var TEAM_COLORS = {
-  'engineering': '#388bfd',
-  'content': '#b687f7',
-  'business': '#e3b341',
-  'infrastructure': '#3fb950'
+var STATUS_CONFIG = {
+  'new-assigned': { label:'未着手',  dot:'dot-new',  badge:'badge-new',  icon:'○' },
+  'in-progress':  { label:'進行中',  dot:'dot-prog', badge:'badge-prog', icon:'◎' },
+  'blocked':      { label:'ブロック',dot:'dot-block',badge:'badge-block',icon:'⊗' },
+  'done':         { label:'完了',    dot:'dot-done', badge:'badge-done', icon:'✓' },
 };
 
-var GITHUB_BASE = 'https://github.com/k-yabe/claude-code-book-template/blob/main/ai-agent-org/';
-
-function linkifyComment(text) {
-  var safe = h(text);
-  // context/projects/T001-xxx-output.md → GitHub リンク
-  safe = safe.replace(/(context\/projects\/[^\s<]+\.md)/g, function(m) {
-    return '<a href="' + GITHUB_BASE + m + '" target="_blank" style="color:#58a6ff">' + m + '</a>';
-  });
-  // 改行を <br> に
-  return safe.replace(/\n/g, '<br>');
-}
-
+// ── Utility ──
 function h(s) {
-  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function agentEmoji(name) { return (AGENTS[name] || {emoji:'🤖'}).emoji; }
+function agentColor(name) { return (AGENTS[name] || {color:'#444'}).color; }
+function agentLabel(name) { return agentEmoji(name) + ' ' + name; }
+
+function fmtDate(ts) {
+  if (!ts) return '';
+  var d = new Date(ts);
+  var now = new Date();
+  var sameDay = d.toDateString() === now.toDateString();
+  if (sameDay) return d.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+  return (d.getMonth()+1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
 }
 
-function fmtDate(iso) {
-  if (!iso) return '';
-  try {
-    var d = new Date(iso);
-    return d.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-  } catch (e) { return iso; }
+function linkify(text) {
+  return h(text).replace(/(https?:\/\/[^\s<>"]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
 }
 
+function isSystemMsg(c) {
+  return c.content && (
+    c.content.includes('タスクを開始しました') ||
+    c.content.includes('📋 ステータスを') ||
+    c.content.includes('🔁 ブロック解除')
+  );
+}
+
+// ── Storage ──
 function load() {
-  try {
-    var raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) { tasks = JSON.parse(raw); return; }
-  } catch (e) {}
-  tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
-  save();
+  var raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) { try { tasks = JSON.parse(raw); } catch(e) {} }
 }
-
-function getPat() { return localStorage.getItem(PAT_KEY) || ''; }
-function setPat(t) { localStorage.setItem(PAT_KEY, t); }
-function showPatDialog() {
-  var cur = getPat();
-  var v = prompt('GitHub Personal Access Token を入力してください\n（Contents: Read and write 権限が必要です）', cur);
-  if (v === null) return;
-  setPat(v.trim());
-  setSyncStatus(v.trim() ? '🔑 トークン設定済み' : '🔑 トークン未設定', v.trim() ? '#3fb950' : '#f85149');
-}
-
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 }
 
-function pushToGitHub() {
-  var pat = getPat();
-  if (!pat) {
-    setSyncStatus('⚠️ GitHubに保存されていません — 🔑 ボタンでトークンを設定してください', '#f85149');
-    return Promise.resolve();
-  }
-  setSyncStatus('保存中...', '#58a6ff');
-  var payload = JSON.stringify({ version: '1.0', lastUpdated: new Date().toISOString(), tasks: tasks }, null, 2);
-  return fetch(GITHUB_API_URL, { headers: { Authorization: 'token ' + pat, Accept: 'application/vnd.github.v3+json' } })
-    .then(function(r) { return r.json(); })
-    .then(function(meta) {
-      return fetch(GITHUB_API_URL, {
-        method: 'PUT',
-        headers: { Authorization: 'token ' + pat, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: 'bot: タスクボードから更新', content: btoa(unescape(encodeURIComponent(payload))), sha: meta.sha })
-      });
-    })
-    .then(function(r) {
-      if (r.ok) setSyncStatus('✅ GitHubに保存 ' + new Date().toLocaleTimeString('ja-JP'), '#3fb950');
-      else setSyncStatus('⚠️ GitHub保存失敗', '#f85149');
-    })
-    .catch(function() { setSyncStatus('⚠️ GitHub保存失敗', '#f85149'); });
+// ── GitHub ──
+function getPat() { return localStorage.getItem(PAT_KEY) || ''; }
+function setPat(t) { localStorage.setItem(PAT_KEY, t); }
+
+function showPatDialog() {
+  var cur = getPat();
+  var v = prompt('GitHub Personal Access Token\n（Contents: Read and write 権限が必要です）', cur);
+  if (v === null) return;
+  setPat(v.trim());
+  setSyncStatus(v.trim() ? '🔑 トークン設定済み' : '🔑 未設定', v.trim() ? '#3fb950' : '#f85149');
+}
+
+function setSyncStatus(msg, color) {
+  var el = document.getElementById('syncStatus');
+  if (el) { el.textContent = msg; el.style.color = color || '#8b949e'; }
 }
 
 function saveAndPush() {
@@ -729,44 +721,56 @@ function saveAndPush() {
 }
 
 function executePush() {
-  if (pushInFlight) {
-    // pushが進行中なら完了後に最新状態で再実行
-    pushPending = true;
-    return;
-  }
+  if (pushInFlight) { pushPending = true; return; }
   pushInFlight = true;
   pushPending = false;
   pushToGitHub().finally(function() {
     pushInFlight = false;
-    if (pushPending) {
-      pushPending = false;
-      executePush();
-    }
+    if (pushPending) { pushPending = false; executePush(); }
   });
 }
 
-function setSyncStatus(msg, color) {
-  var el = document.getElementById('syncStatus');
-  if (el) { el.textContent = msg; el.style.color = color || '#8b949e'; }
+function pushToGitHub() {
+  var pat = getPat();
+  if (!pat) {
+    setSyncStatus('⚠️ 未保存 — 🔑でトークンを設定', '#f85149');
+    return Promise.resolve();
+  }
+  setSyncStatus('保存中...', '#58a6ff');
+  var payload = JSON.stringify({ version:'1.0', lastUpdated:new Date().toISOString(), tasks:tasks }, null, 2);
+  return fetch(GITHUB_API_URL, { headers:{ Authorization:'token '+pat, Accept:'application/vnd.github.v3+json' } })
+    .then(function(r){ return r.json(); })
+    .then(function(meta){
+      return fetch(GITHUB_API_URL, {
+        method:'PUT',
+        headers:{ Authorization:'token '+pat, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' },
+        body: JSON.stringify({ message:'bot: タスクボードから更新', content:btoa(unescape(encodeURIComponent(payload))), sha:meta.sha })
+      });
+    })
+    .then(function(r){
+      if (r.ok) setSyncStatus('✅ 保存済み ' + new Date().toLocaleTimeString('ja-JP'), '#3fb950');
+      else setSyncStatus('⚠️ 保存失敗', '#f85149');
+    })
+    .catch(function(){ setSyncStatus('⚠️ 保存失敗', '#f85149'); });
 }
 
 function loadFromGitHub(silent) {
   if (!silent) setSyncStatus('同期中...', '#58a6ff');
   return fetch(GITHUB_TASKS_URL + '?t=' + Date.now())
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
+    .then(function(r){ return r.json(); })
+    .then(function(data){
       var fetched = data.tasks || data;
       if (!Array.isArray(fetched)) throw new Error('invalid');
       tasks = fetched;
       save();
       lastSynced = new Date();
-      setSyncStatus('最終同期: ' + lastSynced.toLocaleTimeString('ja-JP'), '#3fb950');
+      setSyncStatus('同期済み ' + lastSynced.toLocaleTimeString('ja-JP'), '#3fb950');
       render();
+      if (activeId) renderChat();
     })
-    .catch(function() {
-      setSyncStatus('GitHub取得失敗 — ローカルデータを使用', '#f85149');
-      load();
-      render();
+    .catch(function(){
+      setSyncStatus('取得失敗 — ローカルを使用', '#f85149');
+      load(); render();
     });
 }
 
@@ -774,207 +778,314 @@ function syncNow() { loadFromGitHub(false); }
 
 function startAutoRefresh() {
   setInterval(function() {
-    // モーダルが開いている間は上書きしない
-    if (editingId || !document.getElementById('createOverlay').classList.contains('hidden')) return;
+    var menuOpen = !document.getElementById('statusMenu').classList.contains('hidden');
+    var createOpen = !document.getElementById('createOverlay').classList.contains('hidden');
+    if (menuOpen || createOpen) return;
     loadFromGitHub(true);
   }, 60000);
 }
 
+// ── ID ──
 function nextId() {
   if (!tasks.length) return 'T001';
   var max = 0;
-  tasks.forEach(function(t) {
-    var n = parseInt(t.id.replace('T', ''), 10);
-    if (n > max) max = n;
-  });
-  var s = String(max + 1);
-  while (s.length < 3) s = '0' + s;
-  return 'T' + s;
+  tasks.forEach(function(t){ var n=parseInt(t.id.replace('T',''),10); if(n>max) max=n; });
+  var s = String(max+1);
+  while(s.length<3) s='0'+s;
+  return 'T'+s;
 }
 
+// ── Filter ──
 function filtered() {
-  var fa = document.getElementById('filterAssignee').value;
-  var ft = document.getElementById('filterTeam').value;
+  var fq = (document.getElementById('filterText').value||'').toLowerCase();
+  var fs = document.getElementById('filterStatus').value;
   var fo = document.getElementById('filterOrg').value;
-  var fq = (document.getElementById('filterText').value || '').toLowerCase();
-  return tasks.filter(function(t) {
-    if (fa && t.assignee !== fa) return false;
-    if (ft && t.team !== ft) return false;
+  return tasks.filter(function(t){
+    if (fs && t.status !== fs) return false;
     if (fo && t.organization !== fo) return false;
     if (fq) {
-      var hay = ((t.title || '') + ' ' + (t.description || '') + ' ' + (t.id || '')).toLowerCase();
+      var hay = ((t.title||'') + ' ' + (t.id||'')).toLowerCase();
       if (hay.indexOf(fq) === -1) return false;
     }
     return true;
   });
 }
 
+// ── RENDER SIDEBAR ──
 function render() {
   var ft = filtered();
-  var cols = ['new-assigned', 'in-progress', 'blocked', 'done'];
-  cols.forEach(function(col) {
-    var list = document.getElementById('list-' + col);
-    var cnt = document.getElementById('cnt-' + col);
-    var colTasks = ft.filter(function(t) { return t.status === col; });
-    cnt.textContent = colTasks.length;
-    if (!colTasks.length) {
-      list.innerHTML = '<div class="empty-col">タスクなし</div>';
-      return;
-    }
-    list.innerHTML = colTasks.map(function(t) { return cardHTML(t); }).join('');
+  var list = document.getElementById('taskList');
+
+  // Sort: active statuses first, then done
+  var order = {'new-assigned':0,'in-progress':1,'blocked':2,'done':3};
+  ft.sort(function(a,b){
+    var sd = (order[a.status]||3) - (order[b.status]||3);
+    if (sd !== 0) return sd;
+    return new Date(b.updatedAt) - new Date(a.updatedAt);
   });
-  renderStats();
-}
 
-function cardHTML(t) {
-  var blocked = (t.status === 'blocked' && t.blockedReason)
-    ? '<div class="blocked-badge">⛔ ' + h(t.blockedReason) + '</div>' : '';
-  var cc = (t.comments && t.comments.length)
-    ? '<span class="comment-count">💬 ' + t.comments.length + '</span>' : '';
-  var teamLabel = TEAM_LABELS[t.team] || t.team;
-  var assigneeLabel = ASSIGNEE_LABELS[t.assignee] || t.assignee;
-  return '<div class="card" draggable="true" ondragstart="onDragStart(event,\'' + h(t.id) + '\')" onclick="openDetail(\'' + h(t.id) + '\')">'
-    + '<div class="card-top">'
-    + '<span class="card-id">' + h(t.id) + '</span>'
-    + '<span class="badge ' + h(t.priority) + '">' + h(t.priority) + '</span>'
-    + cc
-    + '</div>'
-    + '<div class="card-title">' + h(t.title) + '</div>'
-    + '<div class="card-meta">'
-    + '<span class="card-assignee">' + h(assigneeLabel) + '</span>'
-    + '<span class="team-tag team-' + h(t.team) + '">' + h(teamLabel) + '</span>'
-    + '</div>'
-    + blocked
-    + '</div>';
-}
-
-function renderStats() {
-  var all = tasks;
-  var bar = document.getElementById('statsBar');
-  var teams = ['engineering', 'content', 'business', 'infrastructure'];
-  var html = '<span>📋 総タスク: <span class="stat-num">' + all.length + '</span></span>';
-  teams.forEach(function(t) {
-    var cnt = all.filter(function(x) { return x.team === t; }).length;
-    var color = TEAM_COLORS[t] || '#888';
-    html += '<span><span class="stat-dot" style="background:' + color + '"></span>'
-      + (TEAM_LABELS[t] || t) + ': <span class="stat-num">' + cnt + '</span></span>';
-  });
-  bar.innerHTML = html;
-}
-
-function openDetail(id) {
-  var t = tasks.find(function(x) { return x.id === id; });
-  if (!t) return;
-  editingId = id;
-  document.getElementById('dId').textContent = t.id;
-  document.getElementById('dTitle').textContent = t.title;
-  document.getElementById('dStatus').value = t.status;
-  document.getElementById('dPriority').value = t.priority;
-  document.getElementById('dAssignee').value = t.assignee;
-  document.getElementById('dTeam').value = t.team;
-  document.getElementById('dOrg').value = t.organization || 'private';
-  document.getElementById('dDesc').value = t.description || '';
-  document.getElementById('dBlockedReason').value = t.blockedReason || '';
-  syncBlockedField();
-  renderComments(t);
-  document.getElementById('cInput').value = '';
-  document.getElementById('detailOverlay').classList.remove('hidden');
-}
-
-function syncBlockedField() {
-  var status = document.getElementById('dStatus').value;
-  document.getElementById('dBlockedWrap').style.display = status === 'blocked' ? '' : 'none';
-  document.getElementById('retryBtn').style.display = status === 'blocked' ? '' : 'none';
-}
-
-function retryTask() {
-  var t = tasks.find(function(x) { return x.id === editingId; });
-  if (!t) return;
-  t.status = 'new-assigned';
-  t.blockedReason = '';
-  t.updatedAt = new Date().toISOString();
-  t.comments.push({ author: 'human', content: '🔁 ブロック解除 — 再実行キューに戻しました', timestamp: new Date().toISOString() });
-  saveAndPush();
-  document.getElementById('dStatus').value = 'new-assigned';
-  document.getElementById('dBlockedReason').value = '';
-  syncBlockedField();
-  renderComments(t);
-  render();
-}
-
-function renderComments(t) {
-  var el = document.getElementById('dComments');
-  if (!t.comments || !t.comments.length) {
-    el.innerHTML = '<div style="font-size:12px;color:var(--text2);padding:4px 0">コメントはまだありません</div>';
+  if (!ft.length) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:12px">タスクはありません</div>';
     return;
   }
-  el.innerHTML = t.comments.map(function(c) {
-    return '<div class="comment-item">'
-      + '<div class="comment-meta">'
-      + '<span class="comment-author">' + h(ASSIGNEE_LABELS[c.author] || c.author) + '</span>'
-      + '<span>' + h(fmtDate(c.timestamp)) + '</span>'
+
+  list.innerHTML = ft.map(function(t){
+    var sc = STATUS_CONFIG[t.status] || STATUS_CONFIG['new-assigned'];
+    var ag = AGENTS[t.assignee] || {emoji:'🤖', color:'#444'};
+    var lastComment = t.comments && t.comments.length ? t.comments[t.comments.length-1] : null;
+    var preview = lastComment ? lastComment.content.replace(/\n/g,' ').slice(0,50) : (t.description||'').slice(0,50);
+    return '<div class="task-item' + (activeId===t.id?' active':'') + '" onclick="openChat(\''+h(t.id)+'\')">'
+      + '<div class="task-item-top">'
+      + '<div class="task-item-avatar" style="background:'+ag.color+'22;border:1.5px solid '+ag.color+'55">' + ag.emoji + '</div>'
+      + '<div class="task-item-right">'
+      + '<div class="task-item-title">' + h(t.title) + '</div>'
+      + '<div class="task-item-meta">'
+      + '<span class="status-dot ' + sc.dot + '"></span>'
+      + '<span>' + sc.label + '</span>'
+      + '<span style="color:var(--'+priorityColor(t.priority)+')">' + t.priority + '</span>'
       + '</div>'
-      + '<div class="comment-text">' + linkifyComment(c.content) + '</div>'
+      + '</div>'
+      + '</div>'
+      + (preview ? '<div class="task-item-preview">' + h(preview) + '</div>' : '')
       + '</div>';
   }).join('');
 }
 
-function updateField(field, value) {
-  var t = tasks.find(function(x) { return x.id === editingId; });
+function priorityColor(p) {
+  return {P0:'p0',P1:'p1',P2:'p2',P3:'p3'}[p]||'text2';
+}
+
+// ── OPEN CHAT ──
+function openChat(id) {
+  activeId = id;
+  render();
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('chatView').classList.remove('hidden');
+
+  renderChatHeader();
+  renderChat();
+
+  // Mobile: hide sidebar
+  if (window.innerWidth <= 700) {
+    document.getElementById('sidebar').classList.add('hidden');
+  }
+
+  // Scroll to bottom
+  setTimeout(function(){
+    var m = document.getElementById('messages');
+    m.scrollTop = m.scrollHeight;
+  }, 50);
+}
+
+// ── CHAT HEADER ──
+function renderChatHeader() {
+  var t = tasks.find(function(x){ return x.id===activeId; });
+  if (!t) return;
+  var sc = STATUS_CONFIG[t.status] || STATUS_CONFIG['new-assigned'];
+  var ag = AGENTS[t.assignee] || {emoji:'🤖', color:'#444'};
+  var el = document.getElementById('chatHeader');
+  el.innerHTML =
+    '<div class="chat-header-avatar" style="background:'+ag.color+'22;border:1.5px solid '+ag.color+'55">' + ag.emoji + '</div>'
+    + '<div class="chat-header-info">'
+    + '<div class="chat-header-title">' + h(t.title) + '</div>'
+    + '<div class="chat-header-sub">'
+    + '<span class="status-badge ' + sc.badge + '" onclick="toggleStatusMenu(event)">' + sc.icon + ' ' + sc.label + ' ▾</span>'
+    + '<span class="priority-chip chip-'+t.priority+'">' + t.priority + '</span>'
+    + '<span style="font-size:11px;color:var(--text2)">' + agentLabel(t.assignee) + '</span>'
+    + '</div>'
+    + '</div>'
+    + '<div class="chat-header-actions">'
+    + '<button class="btn-icon" onclick="toggleDetail()" title="詳細">⋯</button>'
+    + '<button class="btn-icon" style="color:var(--p0)" onclick="deleteActiveTask()" title="削除">🗑</button>'
+    + '</div>';
+}
+
+// ── STATUS MENU ──
+function toggleStatusMenu(e) {
+  e.stopPropagation();
+  var menu = document.getElementById('statusMenu');
+  if (menu.classList.contains('hidden')) {
+    var rect = e.target.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 4) + 'px';
+    menu.style.left = rect.left + 'px';
+    menu.classList.remove('hidden');
+  } else {
+    menu.classList.add('hidden');
+  }
+}
+
+document.addEventListener('click', function(){ document.getElementById('statusMenu').classList.add('hidden'); });
+
+function setStatus(newStatus) {
+  document.getElementById('statusMenu').classList.add('hidden');
+  var t = tasks.find(function(x){ return x.id===activeId; });
+  if (!t || t.status===newStatus) return;
+  var old = STATUS_CONFIG[t.status]||{label:t.status};
+  var nw  = STATUS_CONFIG[newStatus]||{label:newStatus};
+  t.status = newStatus;
+  t.updatedAt = new Date().toISOString();
+  t.comments = t.comments||[];
+  t.comments.push({ author:'system', content:'📋 ステータスを「'+old.label+'」→「'+nw.label+'」に変更', timestamp:new Date().toISOString() });
+  saveAndPush();
+  renderChatHeader();
+  renderChat();
+  render();
+}
+
+// ── RENDER MESSAGES ──
+function renderChat() {
+  var t = tasks.find(function(x){ return x.id===activeId; });
+  if (!t) return;
+  var msgs = document.getElementById('messages');
+
+  // Task description as first message if exists
+  var html = '';
+
+  if (t.description) {
+    html += '<div class="msg-system" style="font-size:12px;color:var(--text2);padding:8px 12px;background:var(--bg2);border-radius:8px;margin-bottom:8px;text-align:left;line-height:1.6">'
+      + '<span style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text2);display:block;margin-bottom:4px">📋 タスク概要</span>'
+      + h(t.description)
+      + '</div>';
+  }
+
+  var comments = t.comments || [];
+  comments.forEach(function(c) {
+    if (isSystemMsg(c)) {
+      html += '<div class="msg-system">' + h(c.content) + '<span style="margin-left:6px;font-size:10px">' + fmtDate(c.timestamp) + '</span></div>';
+    } else if (c.author === 'human') {
+      html += '<div class="msg-human">'
+        + '<div class="bubble-human">' + linkify(c.content) + '</div>'
+        + '<div class="msg-time-human">' + fmtDate(c.timestamp) + '</div>'
+        + '</div>';
+    } else {
+      var ag = AGENTS[c.author] || {emoji:'🤖', color:'#444'};
+      html += '<div class="msg-ai">'
+        + '<div class="msg-avatar" style="background:'+ag.color+'22;border:1.5px solid '+ag.color+'55">' + ag.emoji + '</div>'
+        + '<div class="msg-ai-content">'
+        + '<div class="msg-sender-name">' + h(c.author) + '</div>'
+        + '<div class="bubble-ai">' + linkify(c.content) + '</div>'
+        + '<div class="msg-time-ai">' + fmtDate(c.timestamp) + '</div>'
+        + '</div>'
+        + '</div>';
+    }
+  });
+
+  msgs.innerHTML = html;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ── SEND MESSAGE ──
+function sendMessage() {
+  var input = document.getElementById('msgInput');
+  var content = input.value.trim();
+  if (!content || !activeId) return;
+  var t = tasks.find(function(x){ return x.id===activeId; });
+  if (!t) return;
+  t.comments = t.comments||[];
+  t.comments.push({ author:'human', content:content, timestamp:new Date().toISOString() });
+  t.updatedAt = new Date().toISOString();
+  input.value = '';
+  input.style.height = '';
+  saveAndPush();
+  renderChat();
+  render();
+}
+
+function handleInputKey(e) {
+  if (e.key==='Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// ── DETAIL PANEL ──
+function toggleDetail() {
+  var p = document.getElementById('detailPanel');
+  if (p.classList.contains('hidden')) {
+    renderDetailPanel();
+    p.classList.remove('hidden');
+  } else {
+    p.classList.add('hidden');
+  }
+}
+
+function renderDetailPanel() {
+  var t = tasks.find(function(x){ return x.id===activeId; });
+  if (!t) return;
+  var p = document.getElementById('detailPanel');
+  p.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+    + '<span style="font-weight:600;font-size:13px">詳細</span>'
+    + '<button class="btn-icon" onclick="document.getElementById(\'detailPanel\').classList.add(\'hidden\')">✕</button>'
+    + '</div>'
+    + '<div class="field"><label>ステータス</label>'
+    + '<select onchange="updateActiveField(\'status\',this.value)" style="width:100%">'
+    + ['new-assigned','in-progress','blocked','done'].map(function(s){
+        return '<option value="'+s+'"'+(t.status===s?' selected':'')+'>'+STATUS_CONFIG[s].label+'</option>';
+      }).join('')
+    + '</select></div>'
+    + '<div class="field"><label>担当者</label>'
+    + '<select onchange="updateActiveField(\'assignee\',this.value)" style="width:100%">'
+    + Object.keys(AGENTS).map(function(a){
+        return '<option value="'+a+'"'+(t.assignee===a?' selected':'')+'>'+agentEmoji(a)+' '+a+'</option>';
+      }).join('')
+    + '</select></div>'
+    + '<div class="field"><label>優先度</label>'
+    + '<select onchange="updateActiveField(\'priority\',this.value)" style="width:100%">'
+    + ['P0','P1','P2','P3'].map(function(p){
+        return '<option value="'+p+'"'+(t.priority===p?' selected':'')+'>'+p+'</option>';
+      }).join('')
+    + '</select></div>'
+    + '<div class="field"><label>組織</label>'
+    + '<select onchange="updateActiveField(\'organization\',this.value)" style="width:100%">'
+    + ['private','shift-ai','otsunagi','akkodis'].map(function(o){
+        return '<option value="'+o+'"'+(t.organization===o?' selected':'')+'>'+o+'</option>';
+      }).join('')
+    + '</select></div>'
+    + (t.blockedReason ? '<div class="field"><label>ブロック理由</label><div style="font-size:12px;color:var(--p0)">'+h(t.blockedReason)+'</div></div>' : '')
+    + '<div style="margin-top:8px"><button class="btn" onclick="doExport()" style="width:100%;margin-bottom:6px">📤 Export</button>'
+    + '<button class="btn" onclick="doImport()" style="width:100%">📥 Import</button></div>';
+}
+
+function updateActiveField(field, value) {
+  var t = tasks.find(function(x){ return x.id===activeId; });
   if (!t) return;
   t[field] = value;
   t.updatedAt = new Date().toISOString();
-  if (field === 'assignee') t.assigneeType = value === 'human' ? 'human' : 'ai';
+  if (field==='assignee') t.assigneeType = value==='human'?'human':'ai';
   saveAndPush();
+  renderChatHeader();
   render();
 }
 
-function addComment() {
-  var t = tasks.find(function(x) { return x.id === editingId; });
-  if (!t) return;
-  var content = document.getElementById('cInput').value.trim();
-  if (!content) return;
-  var author = document.getElementById('cAuthor').value;
-  if (!t.comments) t.comments = [];
-  t.comments.push({ author: author, content: content, timestamp: new Date().toISOString() });
-  t.updatedAt = new Date().toISOString();
+// ── DELETE ──
+function deleteActiveTask() {
+  if (!activeId || !confirm('このタスクを削除しますか？')) return;
+  tasks = tasks.filter(function(t){ return t.id!==activeId; });
+  activeId = null;
   saveAndPush();
-  renderComments(t);
-  document.getElementById('cInput').value = '';
+  document.getElementById('emptyState').style.display = '';
+  document.getElementById('chatView').classList.add('hidden');
+  document.getElementById('detailPanel').classList.add('hidden');
   render();
 }
 
-function deleteTask() {
-  if (!confirm('タスク ' + editingId + ' を削除しますか？')) return;
-  tasks = tasks.filter(function(t) { return t.id !== editingId; });
-  saveAndPush();
-  render();
-  closeDetail();
-}
-
-function closeDetail() {
-  document.getElementById('detailOverlay').classList.add('hidden');
-  editingId = null;
-}
-
-function closeDetailIfBg(e) {
-  if (e.target === document.getElementById('detailOverlay')) closeDetail();
-}
-
+// ── CREATE ──
 function openCreate() {
   document.getElementById('cTitle').value = '';
   document.getElementById('cDesc').value = '';
   document.getElementById('createOverlay').classList.remove('hidden');
-  setTimeout(function() { document.getElementById('cTitle').focus(); }, 50);
+  setTimeout(function(){ document.getElementById('cTitle').focus(); }, 50);
 }
 
-function closeCreate() {
-  document.getElementById('createOverlay').classList.add('hidden');
-}
-
-function closeCreateIfBg(e) {
-  if (e.target === document.getElementById('createOverlay')) closeCreate();
-}
+function closeCreate() { document.getElementById('createOverlay').classList.add('hidden'); }
+function closeCreateIfBg(e) { if(e.target===document.getElementById('createOverlay')) closeCreate(); }
 
 function createTask() {
   var title = document.getElementById('cTitle').value.trim();
@@ -985,89 +1096,52 @@ function createTask() {
     id: nextId(),
     title: title,
     description: document.getElementById('cDesc').value.trim(),
-    status: document.getElementById('cStatus').value,
+    status: 'new-assigned',
     priority: document.getElementById('cPriority').value,
     assignee: assignee,
-    assigneeType: assignee === 'human' ? 'human' : 'ai',
+    assigneeType: assignee==='human'?'human':'ai',
     team: document.getElementById('cTeam').value,
     organization: document.getElementById('cOrg').value,
-    createdAt: now,
-    updatedAt: now,
-    comments: [],
-    blockedReason: '',
-    tags: []
+    createdAt: now, updatedAt: now,
+    comments: [], blockedReason: '', tags: []
   };
   tasks.unshift(t);
   saveAndPush();
-  render();
   closeCreate();
+  render();
+  openChat(t.id);
 }
 
+// ── EXPORT / IMPORT ──
 function doExport() {
-  var data = { version: '1.0', lastUpdated: new Date().toISOString(), tasks: tasks };
-  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  var data = { version:'1.0', lastUpdated:new Date().toISOString(), tasks:tasks };
+  var blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'tasks.json';
-  a.click();
+  a.download = 'tasks.json'; a.click();
   URL.revokeObjectURL(a.href);
 }
-
-function doImport() {
-  document.getElementById('fileInput').value = '';
-  document.getElementById('fileInput').click();
-}
-
+function doImport() { document.getElementById('fileInput').value=''; document.getElementById('fileInput').click(); }
 function onFileImport(e) {
-  var file = e.target.files[0];
-  if (!file) return;
+  var file = e.target.files[0]; if (!file) return;
   var reader = new FileReader();
   reader.onload = function(ev) {
     try {
       var data = JSON.parse(ev.target.result);
-      var imported = data.tasks || data;
-      if (!Array.isArray(imported)) throw new Error('tasks配列が見つかりません');
-      tasks = imported;
-      save();
-      render();
-      alert(tasks.length + '件のタスクをインポートしました');
-    } catch (err) {
-      alert('読み込みエラー: ' + err.message);
-    }
+      var imported = data.tasks||data;
+      if (!Array.isArray(imported)) throw new Error('tasks配列なし');
+      tasks = imported; save(); render();
+      alert(tasks.length+'件インポートしました');
+    } catch(err) { alert('エラー: '+err.message); }
   };
   reader.readAsText(file);
 }
 
-// --- Drag & Drop ---
-function onDragStart(e, id) {
-  dragId = id;
-  e.dataTransfer.effectAllowed = 'move';
-}
-function onDragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  e.currentTarget.classList.add('drag-over');
-}
-function onDragLeave(e) {
-  e.currentTarget.classList.remove('drag-over');
-}
-function onDrop(e, newStatus) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('drag-over');
-  if (!dragId) return;
-  var t = tasks.find(function(x) { return x.id === dragId; });
-  if (!t || t.status === newStatus) { dragId = null; return; }
-  t.status = newStatus;
-  t.updatedAt = new Date().toISOString();
-  t.comments = t.comments || [];
-  t.comments.push({ author: 'human', content: '📋 ステータスを「' + newStatus + '」に変更', timestamp: new Date().toISOString() });
-  dragId = null;
-  saveAndPush();
-  render();
-}
-
+// ── BOOT ──
+load();
 loadFromGitHub(false);
 startAutoRefresh();
+
 </script>
 </body>
 </html>
