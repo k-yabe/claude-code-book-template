@@ -69,8 +69,11 @@ const AGENT_MODELS = {
 // モデルごとのmax_tokens（コスト節約）
 const MAX_TOKENS = {
   [MODELS.HAIKU]:  2048,
-  [MODELS.SONNET]: 4096,
+  [MODELS.SONNET]: 3000,
 };
+
+// Web検索結果の最大文字数（コスト節約：1件あたり約1000トークン相当）
+const WEB_SEARCH_RESULT_MAX_CHARS = 3000;
 
 // Web検索が有用なエージェント
 const WEB_SEARCH_AGENTS = new Set([
@@ -187,7 +190,7 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
   console.log(`\n処理中: ${task.id} "${task.title}" → ${task.assignee} (${model})${feedbackFromCOO ? ' [COO差し戻し再試行]' : ''}${useWebSearch ? ' [Web検索有効]' : ''}`);
 
   const tools = useWebSearch
-    ? [{ type: 'web_search_20260209', name: 'web_search', allowed_callers: ['direct'] }]
+    ? [{ type: 'web_search_20260209', name: 'web_search', allowed_callers: ['direct'], max_uses: 3 }]
     : undefined;
   const betas = useWebSearch ? ['web-search-2025-03-05'] : undefined;
 
@@ -219,7 +222,17 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
       result = result ? result + '\n\n' + newText : newText;
     }
 
-    messages.push({ role: 'assistant', content: response.content });
+    // Web検索結果を切り詰めてトークン節約
+    const contentForHistory = response.content.map(b => {
+      if (b.type === 'web_search_result') {
+        const truncated = typeof b.content === 'string'
+          ? b.content.slice(0, WEB_SEARCH_RESULT_MAX_CHARS)
+          : b.content;
+        return { ...b, content: truncated };
+      }
+      return b;
+    });
+    messages.push({ role: 'assistant', content: contentForHistory });
 
     if (response.stop_reason === 'end_turn') break;
 
