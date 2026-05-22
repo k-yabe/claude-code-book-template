@@ -406,6 +406,31 @@ const GITHUB_REPO  = 'k-yabe/claude-code-book-template';
 const GITHUB_PATH  = 'ai-agent-org/tasks/tasks.json';
 const GITHUB_API   = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
 
+async function pushOutputFileToGitHub(filename, content) {
+  if (DRY_RUN) return null;
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return null;
+  try {
+    const filePath = `ai-agent-org/context/projects/${filename}`;
+    const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`;
+    const headers = { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' };
+    // 既存ファイルのSHAを取得（上書き時に必要）
+    let sha;
+    const getRes = await fetch(apiUrl, { headers });
+    if (getRes.ok) { const meta = await getRes.json(); sha = meta.sha; }
+    const body = { message: `bot: アウトプット保存 ${filename}`, content: Buffer.from(content).toString('base64'), ...(sha ? { sha } : {}) };
+    const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (putRes.ok) {
+      const url = `https://github.com/${GITHUB_REPO}/blob/main/${filePath}`;
+      console.log(`📎 GitHubに保存: ${url}`);
+      return url;
+    }
+  } catch (err) {
+    console.warn('⚠️  出力ファイルのGitHub保存失敗（スキップ）:', err.message);
+  }
+  return null;
+}
+
 async function pushViaGitHubAPI(data, taskIds) {
   if (DRY_RUN) return;
   const token = process.env.GITHUB_TOKEN;
@@ -581,8 +606,12 @@ async function main() {
 
       // ── COO承認 → done ──
       saveToObsidian(task, result, 'APPROVED');
-      saveOutput(task, result);
-      const snippet = result.length > 300 ? result.slice(0, 300) + '…（全文はObsidianのタスクログを確認）' : result;
+      const outputFile = saveOutput(task, result);
+      const githubUrl = outputFile ? await pushOutputFileToGitHub(outputFile, fs.readFileSync(path.join(PROJECTS_DIR, outputFile), 'utf-8')) : null;
+      const snippet = result.length > 300 ? result.slice(0, 300) + '…' : result;
+      const commentContent = githubUrl
+        ? `${snippet}\n\n📄 [全文レポートを見る](${githubUrl})`
+        : `${snippet}\n\n（全文はObsidianのタスクログを確認）`;
 
       taskRef.status = 'done';
       taskRef.blockedReason = '';
