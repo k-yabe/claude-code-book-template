@@ -26,6 +26,13 @@ const LIMIT = (() => {
   return idx !== -1 ? parseInt(process.argv[idx + 1], 10) : 3;
 })();
 
+// Node.js 18+ の fetch が必要
+if (typeof fetch === 'undefined') {
+  console.error('エラー: Node.js 18以上が必要です（fetch APIが未定義）。');
+  console.error('現在のバージョン:', process.version);
+  process.exit(1);
+}
+
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 // ── モデル定義 ──────────────────────────────────────────────
@@ -494,6 +501,7 @@ async function main() {
 
       taskRef.status = 'in-progress';
       taskRef.updatedAt = now;
+      taskRef.comments = taskRef.comments || [];
       taskRef.comments.push({ author: task.assignee, content: 'タスクを開始しました。', timestamp: now });
       saveTasks(data);
 
