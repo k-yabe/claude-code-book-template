@@ -719,6 +719,53 @@ html.dark .org-akkodis  { color:#ffa657; }
 }
 .delete-confirm.hidden { display: none; }
 
+/* ── AGENT PROFILE OVERLAY ── */
+.agent-profile-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 800; display: flex; align-items: center; justify-content: center;
+}
+.agent-profile-overlay.hidden { display: none; }
+.agent-profile-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  width: 480px; max-width: 95vw; max-height: 80vh;
+  overflow-y: auto; box-shadow: 0 24px 64px var(--shadow);
+  animation: fadeIn 0.12s ease;
+}
+.agent-profile-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+}
+.agent-profile-em { font-size: 36px; line-height: 1; }
+.agent-profile-title { flex: 1; }
+.agent-profile-fullname { font-size: 15px; font-weight: 700; }
+.agent-profile-model { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.agent-profile-close {
+  background: none; border: none; color: var(--text3); cursor: pointer;
+  font-size: 20px; padding: 4px 8px; line-height: 1;
+}
+.agent-profile-close:hover { color: var(--text); }
+.agent-profile-body { padding: 16px 20px 20px; }
+.agent-profile-desc { font-size: 13px; color: var(--text); line-height: 1.7; margin-bottom: 16px; }
+.agent-profile-section { margin-bottom: 14px; }
+.agent-profile-section-title {
+  font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase;
+  letter-spacing: 0.8px; margin-bottom: 6px;
+}
+.agent-profile-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.agent-profile-tag {
+  font-size: 11px; padding: 3px 8px; background: var(--bg3);
+  color: var(--text2); border: 1px solid var(--border);
+}
+.agent-profile-tag.can { background: #3fb95012; color: var(--col-done); border-color: #3fb95033; }
+.agent-profile-tag.cannot { background: #f8514912; color: var(--col-bl); border-color: #f8514933; }
+.agent-profile-wsearch { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 8px; background: #388bfd18; color: var(--col-ip); }
+.agent-profile-stats-row { display: flex; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.agent-profile-stat { text-align: center; flex: 1; }
+.agent-profile-stat-val { font-size: 22px; font-weight: 700; }
+.agent-profile-stat-label { font-size: 10px; color: var(--text2); margin-top: 2px; }
+.org-node { cursor: pointer; }
+.org-team-count { font-size: 9px; color: var(--text3); margin-left: 4px; font-weight: 400; }
+
 input, select {
   background: var(--bg3);
   color: var(--text);
@@ -988,6 +1035,36 @@ input:focus, select:focus { border-color: var(--accent); }
 
     <!-- Teams -->
     <div class="org-teams-row" id="orgTeamsRow"></div>
+  </div>
+</div>
+
+<!-- ── AGENT PROFILE OVERLAY ── -->
+<div class="agent-profile-overlay hidden" id="agentProfileOverlay" onclick="closeAgentProfile(event)">
+  <div class="agent-profile-card" id="agentProfileCard">
+    <div class="agent-profile-header">
+      <div class="agent-profile-em" id="apEmoji"></div>
+      <div class="agent-profile-title">
+        <div class="agent-profile-fullname" id="apFullname"></div>
+        <div class="agent-profile-model" id="apModel"></div>
+      </div>
+      <button class="agent-profile-close" onclick="document.getElementById('agentProfileOverlay').classList.add('hidden')" aria-label="閉じる">✕</button>
+    </div>
+    <div class="agent-profile-body">
+      <div class="agent-profile-desc" id="apDesc"></div>
+      <div class="agent-profile-section" id="apCanSection">
+        <div class="agent-profile-section-title">✅ できること</div>
+        <div class="agent-profile-tags" id="apCanTags"></div>
+      </div>
+      <div class="agent-profile-section" id="apCannotSection">
+        <div class="agent-profile-section-title">🚫 対象外（他のエージェントへ）</div>
+        <div class="agent-profile-tags" id="apCannotTags"></div>
+      </div>
+      <div class="agent-profile-section" id="apWebSection">
+        <div class="agent-profile-section-title">ツール</div>
+        <div id="apWebTag"></div>
+      </div>
+      <div class="agent-profile-stats-row" id="apStatsRow"></div>
+    </div>
   </div>
 </div>
 
@@ -1647,6 +1724,7 @@ document.addEventListener('keydown',function(e){
     return;
   }
   if(e.key==='Escape'){
+    if(!document.getElementById('agentProfileOverlay').classList.contains('hidden')){ document.getElementById('agentProfileOverlay').classList.add('hidden'); return; }
     if(!document.getElementById('createOverlay').classList.contains('hidden')){ closeCreate(); return; }
     if(!document.getElementById('detailPanel').classList.contains('hidden')){ closePanel(); return; }
   }
@@ -1796,6 +1874,156 @@ function showTab(tab){
 }
 
 // ── ORG CHART ──
+var AGENT_PROFILES = {
+  'coo': {
+    fullName: 'COO（最高執行責任者）',
+    desc: 'すべてのエージェントが生成したアウトプットを人間に届ける前に必ず確認します。品質基準を満たしていれば承認、問題があれば担当エージェントに差し戻して修正させます。',
+    canDo: ['全アウトプットの品質チェック（完成度・事実確認・論理整合）','差し戻しと改善指示の発行','エージェント間の作業順序調整'],
+    cannotDo: ['会社の方向性・ビジョンの判断','専門外の技術・法律判断（各担当に委任）'],
+    webSearch: false,
+  },
+  'research-analyst': {
+    fullName: 'Research Analyst（リサーチアナリスト）',
+    desc: '購入検討・ツール比較・市場調査・導入判断など「調べて比べて結論を出す」タスク全般を担当。最新Webも検索して根拠のある推奨を出します。',
+    canDo: ['製品・サービスの比較表作成','購入タイミングの判断','市場調査・競合分析','技術トレンド調査','ツール導入可否の判断'],
+    cannotDo: ['コードの実装','法的な正式見解','戦略的意思決定（Business Strategistへ）'],
+    webSearch: true,
+  },
+  'data-analyst': {
+    fullName: 'Data Analyst（データアナリスト）',
+    desc: 'CSVやJSONの数値データを整理・集計し、KPIモニタリング・インサイト抽出・推奨アクション提示を行います。',
+    canDo: ['CSVデータの集計・クレンジング','KPI定義と進捗モニタリング','A/Bテスト結果の解釈','競合数値ベンチマーク'],
+    cannotDo: ['データ収集・スクレイピング（Backend Engineerへ）','高度な統計モデル・機械学習'],
+    webSearch: false,
+  },
+  'career-advisor': {
+    fullName: 'Career Advisor（キャリアアドバイザー）',
+    desc: 'k-yabe個人のキャリア・副業・収入機会に特化したアドバイザー。スキルセットと市場ニーズを照合して具体的な候補を提示します。',
+    canDo: ['副業・フリーランス案件の発掘','キャリアパスの設計','スキルアップ計画の作成','収入アップ施策の提案','転職・独立タイミングの判断'],
+    cannotDo: ['他者のキャリア相談','法的な雇用契約判断（Legal Reviewへ）'],
+    webSearch: true,
+  },
+  'tech-lead': {
+    fullName: 'Tech Lead（テックリード）',
+    desc: 'エンジニアリングチームのオーケストレーター。技術設計・実装方針を決めてFrontend/Backend/QA/DevOpsに振り分けます。',
+    canDo: ['アーキテクチャ設計','技術選定・比較','コードレビュー','タスクの振り分け','実装方針の策定'],
+    cannotDo: ['重要インフラ変更（人間確認が必要）','セキュリティポリシー変更'],
+    webSearch: true,
+  },
+  'frontend-engineer': {
+    fullName: 'Frontend Engineer（フロントエンドエンジニア）',
+    desc: 'UI/UXの実装を担当。HTML・CSS・JavaScriptでデザインを形にします。アクセシビリティとパフォーマンスを意識した実装が得意。',
+    canDo: ['HTML/CSS/JSの実装','レスポンシブデザイン','アニメーション・インタラクション','アクセシビリティ対応'],
+    cannotDo: ['サーバーサイド実装（Backend Engineerへ）','デザイン原案の作成'],
+    webSearch: false,
+  },
+  'backend-engineer': {
+    fullName: 'Backend Engineer（バックエンドエンジニア）',
+    desc: 'API設計・DB設計・サーバー実装を担当。データの永続化・セキュリティ・パフォーマンスを考慮した実装を行います。',
+    canDo: ['API設計・実装','DB設計・最適化','認証・認可の実装','外部API連携','データ移行'],
+    cannotDo: ['インフラ構築・デプロイ（DevOps Engineerへ）','UI実装（Frontend Engineerへ）'],
+    webSearch: false,
+  },
+  'qa-engineer': {
+    fullName: 'QA Engineer（品質エンジニア）',
+    desc: 'ソフトウェアの品質保証を担当。テストケース設計・バグ検出・夜間自動QAの実行と結果分析を行います。',
+    canDo: ['テストケース設計','バグレポート作成','回帰テスト','パフォーマンステスト','夜間自動QA分析'],
+    cannotDo: ['バグの修正（Tech Lead等へ）','新機能の要件定義'],
+    webSearch: false,
+  },
+  'devops-engineer': {
+    fullName: 'DevOps Engineer（デブオプスエンジニア）',
+    desc: 'CI/CDパイプラインの構築・Vercelデプロイ・インフラ自動化を担当。コードが確実に本番環境に届く仕組みを作ります。',
+    canDo: ['GitHub Actionsワークフロー','Vercel/Netlifyデプロイ設定','環境変数・シークレット管理','Dockerコンテナ設定'],
+    cannotDo: ['本番データの削除（人間確認が必要）','月1万円超えのインフラ変更（人間確認）'],
+    webSearch: false,
+  },
+  'content-director': {
+    fullName: 'Content Director（コンテンツディレクター）',
+    desc: 'コンテンツチームのオーケストレーター。記事・LP・メール・SNS投稿などのコンテンツを制作し、Brand Voice/Root Cause/Anti-AI Slopのサブエージェントでクオリティを担保します。',
+    canDo: ['記事・ブログ執筆','LPコピーライティング','メール文面','SNS投稿文','コンテンツ戦略立案'],
+    cannotDo: ['動画台本（Video Producerへ）','マーケ戦略全体（Marketing Directorへ）'],
+    webSearch: true,
+  },
+  'video-producer': {
+    fullName: 'Video Producer（ビデオプロデューサー）',
+    desc: 'YouTube動画・Shorts・Reelsの企画と台本制作を担当。Hook→本編→CTAの三部構成で視聴者を引き付けます。',
+    canDo: ['YouTube台本（Hook/本編/CTA）','Shorts/Reels用60秒スクリプト','サムネイル・タイトルのAB案','シリーズ企画'],
+    cannotDo: ['動画編集・制作','SEO最適化（Research Analystへ）'],
+    webSearch: false,
+  },
+  'brand-voice': {
+    fullName: 'Brand Voice（ブランドボイス担当）',
+    desc: 'コンテンツのトーン・言葉遣いがブランドの価値観・スタイルと一致しているかチェックするサブエージェント。Content Directorが内部で呼び出します。',
+    canDo: ['トーン&マナーチェック','言葉遣いの統一確認','ブランド価値観との整合チェック'],
+    cannotDo: ['コンテンツの新規作成','戦略的な方向性の変更'],
+    webSearch: false,
+  },
+  'root-cause': {
+    fullName: 'Root Cause（本質チェック担当）',
+    desc: 'コンテンツが本質的な価値・深みを持っているか、賞味期限の長い情報かをチェックするサブエージェント。Content Directorが内部で呼び出します。',
+    canDo: ['コンテンツの本質チェック','情報の深さ・独自性評価','賞味期限の長さ判定'],
+    cannotDo: ['コンテンツの新規作成'],
+    webSearch: false,
+  },
+  'anti-ai-slop': {
+    fullName: 'Anti-AI Slop（AIっぽさ除去担当）',
+    desc: 'AIが書いたような不自然な表現・陳腐なフレーズ・過剰な箇条書きを検出・修正するサブエージェント。Content Directorが内部で呼び出します。',
+    canDo: ['AIっぽい表現の検出','平凡フレーズの修正提案','過剰な箇条書きの整理','読みやすさ改善'],
+    cannotDo: ['コンテンツの新規作成'],
+    webSearch: false,
+  },
+  'business-strategist': {
+    fullName: 'Business Strategist（ビジネスストラテジスト）',
+    desc: '事業の重要な意思決定・戦略立案に特化。費用対効果・リスク分析・長期的な方向性の判断を担当します。コストが高いため本当に重要な判断時のみ使用。',
+    canDo: ['事業戦略立案','新規事業の可否判断','ピボット判断','競合分析・ポジショニング','収益モデル設計'],
+    cannotDo: ['日常的な実行タスク（コスト節約のため最小限使用）','マーケ施策の細部（Marketing Directorへ）'],
+    webSearch: true,
+  },
+  'marketing-director': {
+    fullName: 'Marketing Director（マーケティングディレクター）',
+    desc: 'SNS運用・集客施策・広告コピー・プロモーション計画など、マーケティング全般を担当します。',
+    canDo: ['SNS運用計画','広告コピー作成','コンテンツカレンダー','インフルエンサー施策','SEO施策'],
+    cannotDo: ['事業の重要判断（Business Strategistへ）','実際の広告入稿'],
+    webSearch: false,
+  },
+  'sales-growth': {
+    fullName: 'Sales & Growth Manager（セールス＆グロース）',
+    desc: '収益化施策・グロースハック・LTV最大化を担当。YouTubeメンバーシップ・有料サービス・アフィリエイトなどの収益チャネルを最大化します。',
+    canDo: ['収益化施策の立案','LPのCVR改善提案','メールシナリオ設計','価格設定・バンドル提案'],
+    cannotDo: ['契約・法的事項（Legal Reviewへ）','重要な事業判断（Business Strategistへ）'],
+    webSearch: false,
+  },
+  'partnership-manager': {
+    fullName: 'Partnership Manager（パートナーシップマネージャー）',
+    desc: '外部からのパートナー提案・コラボ・スポンサー案件をフィルタリング。優先度の高い案件だけを通過させます。',
+    canDo: ['案件の価値評価・フィルタリング','ハイプ製品の除外','コラボ提案の整理','優先度付けと推薦'],
+    cannotDo: ['契約交渉・締結（Legal Reviewへ）','最終的な採否判断（Business Strategistへ）'],
+    webSearch: false,
+  },
+  'legal-review': {
+    fullName: 'Legal Review（リーガルレビュー担当）',
+    desc: '契約書・利用規約・プライバシーポリシーなどの法的文書の第1段階レビューを担当。明らかなリスクや注意点を指摘します。',
+    canDo: ['契約書のリスク指摘','利用規約のチェック','プライバシーポリシー確認','重要条項のハイライト'],
+    cannotDo: ['正式な法的見解の提供（弁護士に委任）','契約交渉の代理'],
+    webSearch: false,
+  },
+  'task-dispatcher': {
+    fullName: 'Task Dispatcher（タスクディスパッチャー）',
+    desc: 'inbox/フォルダを監視してMarkdownファイルを検出し、内容を解析してタスクを自動生成・適切なエージェントに割り振ります。5分ごとに実行。',
+    canDo: ['inbox/のファイル監視','タスクの自動生成','エージェントへの自動割り振り','朝会レポートの生成'],
+    cannotDo: ['タスクの実行（Task Executorが担当）','人間の判断が必要なタスクの処理'],
+    webSearch: false,
+  },
+  'local-support': {
+    fullName: 'Local Support（ローカルサポート）',
+    desc: 'ローカルの軽量モデルが担当。タスクボード・文脈エンジンの定期クリーンアップ・メンテナンス作業を行います。',
+    canDo: ['古いファイルの整理','タスクデータのクリーンアップ','ログローテーション'],
+    cannotDo: ['インターネットアクセスが必要な作業','重要な判断'],
+    webSearch: false,
+  },
+};
+
 var ORG_TEAMS = [
   {
     key: 'leadership', label: '経営層', color: '#5c35a0',
@@ -1811,7 +2039,7 @@ var ORG_TEAMS = [
     ]
   },
   {
-    key: 'personal', label: 'kunito', color: '#c2185b',
+    key: 'personal', label: 'パーソナル', color: '#c2185b',
     members: [
       {id:'career-advisor', name:'Career Advisor', role:'副業・キャリア相談', model:'Sonnet'},
     ]
@@ -1871,9 +2099,6 @@ function renderOrgChart() {
   var doneCount = tasks.filter(function(t){return t.status==='done';}).length;
   var ipCount = tasks.filter(function(t){return t.status==='in-progress';}).length;
   var blockedCount = tasks.filter(function(t){return t.status==='blocked';}).length;
-  document.getElementById('orgSubheading').textContent =
-    '全'+total+'タスク — 完了:'+doneCount+' 進行中:'+ipCount+' ブロック:'+blockedCount+' | 月予算 $10';
-
   // COO stats
   var cooStats = agentStats('coo');
   var cooEl = document.getElementById('coo-stats');
@@ -1885,6 +2110,12 @@ function renderOrgChart() {
   // Teams
   var row = document.getElementById('orgTeamsRow');
   row.innerHTML = '';
+  // 総エージェント数（CEO除く）
+  var totalAgents = 1; // COO
+  ORG_TEAMS.forEach(function(t){ if(t.key!=='leadership') totalAgents += t.members.length; });
+  document.getElementById('orgSubheading').textContent =
+    '全'+totalAgents+'名体制 — タスク: 全'+total+' 完了'+doneCount+' 進行中'+ipCount+' ブロック'+blockedCount+' | 月予算 $10';
+
   ORG_TEAMS.forEach(function(team) {
     if(team.key === 'leadership') return; // COOは上段に表示済み
     var col = document.createElement('div');
@@ -1893,7 +2124,7 @@ function renderOrgChart() {
     hdr.className = 'org-team-header';
     hdr.style.borderBottomColor = team.color;
     hdr.style.color = team.color;
-    hdr.textContent = team.label;
+    hdr.innerHTML = team.label + '<span class="org-team-count">'+team.members.length+'名</span>';
     col.appendChild(hdr);
     team.members.forEach(function(m) {
       var a = AGENTS[m.id] || {e:'🤖', c:'#444'};
@@ -1904,6 +2135,7 @@ function renderOrgChart() {
       if(stats.done) statsHtml += '<span class="org-stat">完了'+stats.done+'</span>';
       var node = document.createElement('div');
       node.className = 'org-node';
+      node.title = 'クリックでプロフィール表示';
       node.style.borderLeftWidth = '3px';
       node.style.borderLeftColor = a.c;
       node.innerHTML =
@@ -1915,10 +2147,57 @@ function renderOrgChart() {
         + '<div class="org-node-model">'+h(m.model)+'</div>'
         + '</div></div>'
         + (statsHtml ? '<div class="org-node-stats">'+statsHtml+'</div>' : '');
+      node.addEventListener('click', function(){ openAgentProfile(m.id); });
       col.appendChild(node);
     });
     row.appendChild(col);
   });
+}
+
+function openAgentProfile(agentId) {
+  var p = AGENT_PROFILES[agentId];
+  var a = AGENTS[agentId] || {e:'🤖', c:'#444'};
+  if(!p) return;
+  document.getElementById('apEmoji').textContent = a.e;
+  document.getElementById('apFullname').textContent = p.fullName;
+  document.getElementById('apModel').textContent = 'モデル: ' + (
+    p.model === 'Sonnet' ? 'claude-sonnet-4-6' :
+    p.model === 'Haiku' ? 'claude-haiku-4-5' :
+    p.model === 'Local' ? 'ローカルモデル' : p.model || '—'
+  ) + (p.webSearch ? ' + Web検索' : '');
+  document.getElementById('apDesc').textContent = p.desc;
+  // できること
+  var canTags = document.getElementById('apCanTags');
+  canTags.innerHTML = (p.canDo||[]).map(function(s){
+    return '<span class="agent-profile-tag can">'+h(s)+'</span>';
+  }).join('');
+  // 対象外
+  var cannotTags = document.getElementById('apCannotTags');
+  cannotTags.innerHTML = (p.cannotDo||[]).map(function(s){
+    return '<span class="agent-profile-tag cannot">'+h(s)+'</span>';
+  }).join('');
+  // Webツール
+  document.getElementById('apWebSection').style.display = p.webSearch ? '' : 'none';
+  document.getElementById('apWebTag').innerHTML = p.webSearch
+    ? '<span class="agent-profile-wsearch">🌐 Web検索（最新情報を自動取得）</span>' : '';
+  // 統計
+  var stats = agentStats(agentId);
+  var total = tasks.filter(function(t){return t.assignee===agentId;}).length;
+  document.getElementById('apStatsRow').innerHTML =
+    '<div class="agent-profile-stat"><div class="agent-profile-stat-val" style="color:var(--col-ip)">'+(stats.active||0)+'</div><div class="agent-profile-stat-label">進行中</div></div>'
+    +'<div class="agent-profile-stat"><div class="agent-profile-stat-val" style="color:var(--col-bl)">'+(stats.blocked||0)+'</div><div class="agent-profile-stat-label">ブロック</div></div>'
+    +'<div class="agent-profile-stat"><div class="agent-profile-stat-val" style="color:var(--col-done)">'+(stats.done||0)+'</div><div class="agent-profile-stat-label">完了</div></div>'
+    +'<div class="agent-profile-stat"><div class="agent-profile-stat-val">'+total+'</div><div class="agent-profile-stat-label">累計担当</div></div>';
+  // カードの左ボーダーカラーをエージェント色に
+  document.getElementById('agentProfileCard').style.borderLeftWidth = '4px';
+  document.getElementById('agentProfileCard').style.borderLeftColor = a.c;
+  document.getElementById('agentProfileOverlay').classList.remove('hidden');
+}
+
+function closeAgentProfile(e) {
+  if(e.target === document.getElementById('agentProfileOverlay')) {
+    document.getElementById('agentProfileOverlay').classList.add('hidden');
+  }
 }
 
 // ── REPORTS ──
