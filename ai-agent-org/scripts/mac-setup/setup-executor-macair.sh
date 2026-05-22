@@ -1,16 +1,14 @@
 #!/bin/bash
-# MacBook Air M3 用 task-executor セットアップスクリプト
+# MacBook Air M3 用 AI Agent セットアップスクリプト
 # 実行: bash scripts/mac-setup/setup-executor-macair.sh
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-PLIST_NAME="com.kyabe.ai-agent-executor.plist"
-PLIST_SRC="$SCRIPT_DIR/$PLIST_NAME"
-PLIST_DST="$HOME/Library/LaunchAgents/$PLIST_NAME"
+LAUNCHAGENTS="$HOME/Library/LaunchAgents"
 
-echo "=== AI Agent Executor セットアップ ==="
+echo "=== AI Agent セットアップ ==="
 echo ""
 
 # 1. Node.js の確認
@@ -42,33 +40,81 @@ else
   echo "✓ ANTHROPIC_API_KEY: 設定済み"
 fi
 
-# 4. plist をコピーしてプレースホルダを置換
+# 4. Obsidian Vault パスの確認
+echo ""
+# iCloud 経由検出
+ICLOUD_OBS="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents"
+if [ -d "$ICLOUD_OBS" ]; then
+  FIRST_VAULT=$(ls -d "$ICLOUD_OBS"/*/ 2>/dev/null | head -1)
+  if [ -n "$FIRST_VAULT" ]; then
+    DEFAULT_VAULT="${FIRST_VAULT%/}"
+  fi
+fi
+# ~/Obsidian 検出
+if [ -z "$DEFAULT_VAULT" ] && [ -d "$HOME/Obsidian" ]; then
+  FIRST_VAULT=$(ls -d "$HOME/Obsidian"/*/ 2>/dev/null | head -1)
+  [ -n "$FIRST_VAULT" ] && DEFAULT_VAULT="${FIRST_VAULT%/}"
+fi
+# ~/Documents/Obsidian 検出
+if [ -z "$DEFAULT_VAULT" ] && [ -d "$HOME/Documents/Obsidian" ]; then
+  FIRST_VAULT=$(ls -d "$HOME/Documents/Obsidian"/*/ 2>/dev/null | head -1)
+  [ -n "$FIRST_VAULT" ] && DEFAULT_VAULT="${FIRST_VAULT%/}"
+fi
+
+if [ -n "$DEFAULT_VAULT" ]; then
+  echo "✓ Obsidian Vault を検出: $DEFAULT_VAULT"
+  VAULT_PATH="$DEFAULT_VAULT"
+else
+  echo "⚠️  Obsidian Vault が自動検出できませんでした。"
+  read -p "Vault のパスを入力してください (空白でスキップ): " VAULT_PATH
+fi
+
+# 5. executor plist 作成
 echo ""
 echo "⚙️  launchd 設定を作成中..."
+EXECUTOR_PLIST="$LAUNCHAGENTS/com.kyabe.ai-agent-executor.plist"
 sed \
   -e "s|REPLACE_WITH_NODE|$NODE_PATH|g" \
   -e "s|REPLACE_WITH_REPO|$REPO_DIR|g" \
   -e "s|REPLACE_WITH_API_KEY|$API_KEY|g" \
   -e "s|REPLACE_WITH_HOME|$HOME|g" \
-  "$PLIST_SRC" > "$PLIST_DST"
-echo "✓ plist を $PLIST_DST に配置"
-echo "  リポジトリ: $REPO_DIR"
-echo "  node: $NODE_PATH"
+  "$SCRIPT_DIR/com.kyabe.ai-agent-executor.plist" > "$EXECUTOR_PLIST"
+echo "✓ executor plist 作成"
 
-# 5. launchctl に登録
-launchctl unload "$PLIST_DST" 2>/dev/null || true
-launchctl load "$PLIST_DST"
-echo "✓ launchd に登録完了（5分ごとに自動実行・起動時即時実行）"
+# 6. obsidian-sync plist 作成（Vault が設定されている場合のみ）
+if [ -n "$VAULT_PATH" ]; then
+  SYNC_PLIST="$LAUNCHAGENTS/com.kyabe.ai-agent-obsidian-sync.plist"
+  sed \
+    -e "s|REPLACE_WITH_NODE|$NODE_PATH|g" \
+    -e "s|REPLACE_WITH_REPO|$REPO_DIR|g" \
+    -e "s|REPLACE_WITH_HOME|$HOME|g" \
+    "$SCRIPT_DIR/com.kyabe.ai-agent-obsidian-sync.plist" \
+    | sed "s|</dict>|  <key>OBSIDIAN_VAULT_PATH</key>\n  <string>$VAULT_PATH</string>\n</dict>|" \
+    > "$SYNC_PLIST"
+  echo "✓ obsidian-sync plist 作成 (vault: $VAULT_PATH)"
+fi
+
+# 7. launchctl に登録
+for PLIST in "$EXECUTOR_PLIST" ${SYNC_PLIST:+"$SYNC_PLIST"}; do
+  launchctl unload "$PLIST" 2>/dev/null || true
+  launchctl load "$PLIST"
+  echo "✓ 登録: $(basename $PLIST)"
+done
 
 echo ""
 echo "=== セットアップ完了 ✅ ==="
 echo ""
-echo "動作確認："
+echo "動作確認:"
 echo "  node $REPO_DIR/scripts/task-executor.js --dry-run"
+[ -n "$VAULT_PATH" ] && echo "  node $REPO_DIR/scripts/obsidian-sync.js --dry-run"
 echo ""
-echo "今すぐ実行："
+echo "今すぐ実行:"
 echo "  node $REPO_DIR/scripts/task-executor.js"
+[ -n "$VAULT_PATH" ] && echo "  node $REPO_DIR/scripts/obsidian-sync.js"
 echo ""
-echo "ログの確認："
+echo "ログの確認:"
 echo "  tail -f $HOME/Library/Logs/ai-agent-executor.log"
-echo "停止する場合: launchctl unload $PLIST_DST"
+[ -n "$VAULT_PATH" ] && echo "  tail -f $HOME/Library/Logs/ai-agent-obsidian-sync.log"
+echo ""
+echo "停止する場合:"
+echo "  launchctl unload $EXECUTOR_PLIST"

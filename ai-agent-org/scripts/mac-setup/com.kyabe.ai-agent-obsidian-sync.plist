@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.kyabe.ai-agent-obsidian-sync</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>REPLACE_WITH_NODE</string>
+    <string>REPLACE_WITH_REPO/scripts/obsidian-sync.js</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <!-- エグゼキューターと同じ5分ごと（executor完了後に走る） -->
+  <key>StartInterval</key>
+  <integer>300</integer>
+
+  <key>WorkingDirectory</key>
+  <string>REPLACE_WITH_REPO</string>
+
+  <key>StandardOutPath</key>
+  <string>REPLACE_WITH_HOME/Library/Logs/ai-agent-obsidian-sync.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>REPLACE_WITH_HOME/Library/Logs/ai-agent-obsidian-sync-error.log</string>
+
+  <key>RunAtLoad</key>
+  <true/>
+</dict>
+</plist>
