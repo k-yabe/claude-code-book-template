@@ -575,9 +575,12 @@ async function main() {
       // ── COO承認 → done ──
       saveToObsidian(task, result, 'APPROVED');
       const outputFile = saveOutput(task, result);
-      const snippet = result.length > 300 ? result.slice(0, 300) + '…（続きは projects/ フォルダを確認）' : result;
-      const commentContent = outputFile
-        ? `${snippet}\n\n📄 出力ファイル: context/projects/${outputFile}`
+      const snippet = result.length > 300 ? result.slice(0, 300) + '…' : result;
+      const githubUrl = outputFile
+        ? `https://github.com/${GITHUB_REPO}/blob/main/ai-agent-org/context/projects/${outputFile}`
+        : null;
+      const commentContent = githubUrl
+        ? `${snippet}\n\n📄 [全文レポートを見る](${githubUrl})`
         : snippet;
 
       taskRef.status = 'done';
