@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-05-22T08:04:51.136Z",
+  "lastUpdated": "2026-05-22T08:04:54.680Z",
   "tasks": [
     {
       "id": "T001",
@@ -216,14 +216,14 @@
       "id": "T013",
       "title": "Mac miniの購入検討",
       "description": "1. 検討の判断軸\n   新型が出るタイミングを最優先して購入したいと考えている。現状のリーク情報や予測情報を含めて、いつ購入すべきか、またMacBook Air M3と置き換える（あるいは使い分ける）べきか、構造的に判断してほしい。\n\n2. 現状の使用用途とニーズ\n   (a) MacBook Pro M5（仕事用）\n       メイン機だが重たいため、外出時の持ち運びには適さない。\n   (b) MacBook Air M3（外出用）\n       簡易的な外出用として、軽い作業のみで持ち運びたいというニーズがある。\n\n3. 今後の運用案\n   MacBook Air M3を持ち運ぶ機会が増えているため、Mac miniを自宅でサーバーのように運用した方が良いのではないかと考えている。",
-      "status": "done",
+      "status": "new-assigned",
       "priority": "P2",
       "assignee": "backend-engineer",
       "assigneeType": "ai",
       "team": "engineering",
       "organization": "private",
       "createdAt": "2026-05-19T00:47:48.981Z",
-      "updatedAt": "2026-05-22T08:04:51.136Z",
+      "updatedAt": "2026-05-22T08:04:54.680Z",
       "comments": [
         {
           "author": "task-dispatcher",
@@ -239,6 +239,11 @@
           "author": "human",
           "content": "内容の情報が古いので、最新の情報を元に判断してほしい",
           "timestamp": "2026-05-22T08:04:51.136Z"
+        },
+        {
+          "author": "human",
+          "content": "📋 ステータスを「new-assigned」に変更",
+          "timestamp": "2026-05-22T08:04:54.680Z"
         }
       ],
       "blockedReason": "",
