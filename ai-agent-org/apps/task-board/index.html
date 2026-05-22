@@ -760,29 +760,32 @@ input:focus, select:focus { border-color: var(--accent); }
     <div class="modal-body">
       <div class="field">
         <label>タイトル *</label>
-        <input type="text" id="cTitle" placeholder="何をしたいか一言で">
+        <input type="text" id="cTitle" placeholder="何をしたいか一言で" oninput="updateAutoPreview()">
       </div>
       <div class="field">
         <label>説明・背景</label>
-        <textarea id="cDesc" placeholder="目的・ゴール・詳細など"></textarea>
+        <textarea id="cDesc" placeholder="目的・ゴール・詳細など" oninput="updateAutoPreview()"></textarea>
       </div>
       <div class="row2">
         <div class="field">
           <label>担当者</label>
-          <select id="cAssignee">
-            <option value="research-analyst">🔎 research-analyst</option>
-            <option value="career-advisor">🧭 career-advisor</option>
-            <option value="human">👤 human</option>
-            <option value="tech-lead">🔧 tech-lead</option>
-            <option value="frontend-engineer">🎨 frontend-engineer</option>
-            <option value="backend-engineer">⚙️ backend-engineer</option>
-            <option value="qa-engineer">🧪 qa-engineer</option>
-            <option value="content-director">📝 content-director</option>
-            <option value="marketing-director">📣 marketing-director</option>
-            <option value="business-strategist">💼 business-strategist</option>
-            <option value="partnership-manager">🤝 partnership-manager</option>
-            <option value="legal-review">⚖️ legal-review</option>
+          <select id="cAssignee" onchange="onAssigneeChange()">
+            <option value="auto" selected>🤖 おまかせ（自動判断）</option>
+            <option value="human">👤 自分でやる</option>
+            <option disabled>── AI エージェント ──</option>
+            <option value="research-analyst">🔎 research-analyst（調査・比較）</option>
+            <option value="career-advisor">🧭 career-advisor（副業・キャリア）</option>
+            <option value="content-director">📝 content-director（記事・台本）</option>
+            <option value="marketing-director">📣 marketing-director（マーケ）</option>
+            <option value="business-strategist">💼 business-strategist（戦略）</option>
+            <option value="tech-lead">🔧 tech-lead（技術・実装）</option>
+            <option value="frontend-engineer">🎨 frontend-engineer（UI）</option>
+            <option value="backend-engineer">⚙️ backend-engineer（API/DB）</option>
+            <option value="qa-engineer">🧪 qa-engineer（品質・テスト）</option>
+            <option value="legal-review">⚖️ legal-review（契約・規約）</option>
+            <option value="partnership-manager">🤝 partnership-manager（提携）</option>
           </select>
+          <div id="autoHint" style="font-size:10px;color:var(--text2);margin-top:4px">タイトルと説明からキーワードで自動判断します</div>
         </div>
         <div class="field">
           <label>優先度</label>
@@ -1362,18 +1365,72 @@ function openCreate(){ document.getElementById('createOverlay').classList.remove
 function closeCreate(){ document.getElementById('createOverlay').classList.add('hidden'); }
 function closeBg(e,id){ if(e.target===document.getElementById(id)) document.getElementById(id).classList.add('hidden'); }
 
+// task-dispatcher.js と同じルーティングロジックをフロントで再現
+var FRONT_ROUTING = [
+  {kw:['副業','フリーランス','キャリア','転職','案件探し','求人','スキルアップ','収入アップ'], assignee:'career-advisor', team:'personal'},
+  {kw:['購入','比較','検討','調査','おすすめ','リサーチ','選定','評価','どれがいい','候補','導入','乗り換え'], assignee:'research-analyst', team:'research'},
+  {kw:['コード','バグ','実装','エラー','テスト','デプロイ','API','プログラム'], assignee:'tech-lead', team:'engineering'},
+  {kw:['UI','フロントエンド','デザイン','レイアウト','CSS','HTML'], assignee:'frontend-engineer', team:'engineering'},
+  {kw:['バックエンド','DB','データベース','インフラ構築','クラウド設定'], assignee:'backend-engineer', team:'engineering'},
+  {kw:['品質','QA','検証','レビュー'], assignee:'qa-engineer', team:'engineering'},
+  {kw:['記事','ブログ','動画','スクリプト','台本','コンテンツ','原稿','ライティング'], assignee:'content-director', team:'content'},
+  {kw:['マーケ','マーケティング','宣伝','SNS','プロモ','集客','広告'], assignee:'marketing-director', team:'business'},
+  {kw:['戦略','事業','収益','方針','ピボット','新規事業'], assignee:'business-strategist', team:'business'},
+  {kw:['契約','法的','リーガル','規約','利用規約'], assignee:'legal-review', team:'business'},
+  {kw:['パートナー','コラボ','提携','スポンサー','タイアップ'], assignee:'partnership-manager', team:'business'},
+];
+
+function autoRoute(text){
+  for(var i=0;i<FRONT_ROUTING.length;i++){
+    var r=FRONT_ROUTING[i];
+    if(r.kw.some(function(k){return text.includes(k);})) return r;
+  }
+  return {assignee:'research-analyst', team:'research'};
+}
+
+function onAssigneeChange(){
+  var val=document.getElementById('cAssignee').value;
+  var hint=document.getElementById('autoHint');
+  if(hint) hint.style.display=(val==='auto')?'block':'none';
+  // チームを自動設定（autoでない場合）
+  if(val!=='auto'&&val!=='human'){
+    var found=FRONT_ROUTING.find(function(r){return r.assignee===val;});
+    if(found) document.getElementById('cTeam').value=found.team;
+  }
+}
+
+function updateAutoPreview(){
+  var sel=document.getElementById('cAssignee');
+  if(sel.value!=='auto') return;
+  var text=(document.getElementById('cTitle').value||'')+' '+(document.getElementById('cDesc').value||'');
+  var r=autoRoute(text);
+  var a=ag(r.assignee);
+  var hint=document.getElementById('autoHint');
+  if(hint) hint.textContent='→ '+a.e+' '+r.assignee+' に割り当てられます';
+}
+
 function createTask(){
   var title=document.getElementById('cTitle').value.trim();
   if(!title){alert('タイトルは必須です');return;}
   var now=new Date().toISOString();
-  var assignee=document.getElementById('cAssignee').value;
+  var sel=document.getElementById('cAssignee').value;
+  var assignee, team;
+  if(sel==='auto'){
+    var text=title+' '+(document.getElementById('cDesc').value||'');
+    var routed=autoRoute(text);
+    assignee=routed.assignee; team=routed.team;
+  } else {
+    assignee=sel;
+    var found=FRONT_ROUTING.find(function(r){return r.assignee===assignee;});
+    team=found?found.team:document.getElementById('cTeam').value;
+  }
   var t={
     id:nextId(), title:title,
     description:document.getElementById('cDesc').value.trim(),
     status:'new-assigned',
     priority:document.getElementById('cPriority').value,
     assignee:assignee, assigneeType:assignee==='human'?'human':'ai',
-    team:document.getElementById('cTeam').value,
+    team:team,
     organization:document.getElementById('cOrg').value,
     createdAt:now, updatedAt:now,
     comments:[], blockedReason:'', tags:[]
