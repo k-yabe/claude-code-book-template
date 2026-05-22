@@ -338,35 +338,65 @@ function saveOutput(task, result) {
   return filename;
 }
 
-// ── Git push ─────────────────────────────────────────────
-function getAuthRemote() {
+// ── GitHub API push（git競合を完全回避）────────────────────
+const GITHUB_REPO  = 'k-yabe/claude-code-book-template';
+const GITHUB_PATH  = 'ai-agent-org/tasks/tasks.json';
+const GITHUB_API   = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
+
+async function pushViaGitHubAPI(data, taskIds) {
+  if (DRY_RUN) return;
   const token = process.env.GITHUB_TOKEN;
-  if (!token) return null;
+  if (!token) {
+    console.warn('⚠️  GITHUB_TOKEN 未設定 — ローカルに保存のみ（GitHubへの反映なし）');
+    return;
+  }
+
   try {
-    const remote = execSync('git remote get-url origin', { cwd: ROOT }).toString().trim();
-    // https://github.com/... → https://token@github.com/...
-    return remote.replace('https://', `https://${token}@`);
-  } catch { return null; }
+    // 現在のSHAと最新データを取得
+    const metaRes = await fetch(GITHUB_API, {
+      headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
+    });
+    const meta = await metaRes.json();
+
+    // リモートと updatedAt ベースでマージ（競合防止）
+    let merged = data.tasks;
+    try {
+      const remoteData = JSON.parse(Buffer.from(meta.content.replace(/\n/g, ''), 'base64').toString('utf-8'));
+      const remoteTasks = remoteData.tasks || remoteData;
+      if (Array.isArray(remoteTasks)) {
+        const localMap = new Map(data.tasks.map(t => [t.id, t]));
+        remoteTasks.forEach(rt => {
+          const local = localMap.get(rt.id);
+          if (!local) localMap.set(rt.id, rt);
+          else if (new Date(rt.updatedAt) > new Date(local.updatedAt)) localMap.set(rt.id, rt);
+        });
+        merged = Array.from(localMap.values());
+      }
+    } catch { /* マージ失敗時はローカルをそのまま使用 */ }
+
+    const payload = JSON.stringify({ version: '1.0', lastUpdated: new Date().toISOString(), tasks: merged }, null, 2);
+    const content = Buffer.from(payload).toString('base64');
+
+    const putRes = await fetch(GITHUB_API, {
+      method: 'PUT',
+      headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `bot: タスク自動実行 [${taskIds.join(', ')}]`, content, sha: meta.sha })
+    });
+
+    if (putRes.ok) {
+      console.log('\n✓ GitHubへの反映完了（API経由）');
+    } else {
+      const err = await putRes.json();
+      console.error('GitHub API push 失敗:', err.message || putRes.status);
+    }
+  } catch (err) {
+    console.error('GitHub API push エラー:', err.message);
+  }
 }
 
 function gitPushChanges(taskIds) {
-  if (DRY_RUN) return;
-  try {
-    execSync('git add tasks/tasks.json context/projects/', { cwd: ROOT });
-    execSync(`git commit -m "bot: タスク自動実行 [${taskIds.join(', ')}]"`, { cwd: ROOT });
-
-    const authRemote = getAuthRemote();
-    const pushCmd = authRemote ? `git push "${authRemote}" HEAD:main` : 'git push';
-
-    try {
-      execSync(pushCmd, { cwd: ROOT });
-    } catch {
-      const fetchCmd = authRemote ? `git fetch "${authRemote}" main:origin/main` : 'git fetch origin main';
-      execSync(fetchCmd, { cwd: ROOT });
-      execSync('git rebase origin/main', { cwd: ROOT });
-      execSync(pushCmd, { cwd: ROOT });
-    }
-    console.log('\n✓ GitHubへのプッシュ完了');
+  // 後方互換のため残すが、実際の push は pushViaGitHubAPI で行う
+  console.log('\n✓ GitHubへのプッシュ完了');
   } catch (err) {
     console.error('git push 失敗:', err.message);
   }
@@ -380,16 +410,29 @@ async function main() {
     process.exit(1);
   }
 
-  try {
-    const authRemote = getAuthRemote();
-    const fetchCmd = authRemote
-      ? `git fetch "${authRemote}" main:refs/remotes/origin/main`
-      : 'git fetch origin main';
-    execSync(fetchCmd, { cwd: ROOT });
-    execSync('git checkout origin/main -- tasks/tasks.json scripts/', { cwd: ROOT });
-    console.log('✓ GitHubから最新データを取得');
-  } catch (err) {
-    console.error('git fetch 失敗（続行）:', err.message);
+  // GitHub APIから最新のtasks.jsonを直接取得（git競合を回避）
+  const token = process.env.GITHUB_TOKEN;
+  if (token) {
+    try {
+      const res = await fetch(GITHUB_API, {
+        headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
+      });
+      const meta = await res.json();
+      const content = Buffer.from(meta.content.replace(/\n/g, ''), 'base64').toString('utf-8');
+      fs.writeFileSync(TASKS_FILE, content, 'utf-8');
+      console.log('✓ GitHubから最新データを取得');
+    } catch (err) {
+      console.error('GitHub API fetch 失敗（ローカルで続行）:', err.message);
+    }
+  } else {
+    // GITHUB_TOKEN未設定時はgit fetchにフォールバック
+    try {
+      execSync('git fetch origin main', { cwd: ROOT });
+      execSync('git checkout origin/main -- tasks/tasks.json', { cwd: ROOT });
+      console.log('✓ GitHubから最新データを取得（git）');
+    } catch (err) {
+      console.error('git fetch 失敗（続行）:', err.message);
+    }
   }
 
   const data = loadTasks();
@@ -509,7 +552,7 @@ async function main() {
   }
 
   if (processedIds.length > 0) {
-    gitPushChanges(processedIds);
+    await pushViaGitHubAPI(data, processedIds);
   }
 
   // ── コスト集計 ──
