@@ -693,7 +693,10 @@ function save() {
 
 function pushToGitHub() {
   var pat = getPat();
-  if (!pat) return;
+  if (!pat) {
+    setSyncStatus('⚠️ GitHubに保存されていません — 🔑 ボタンでトークンを設定してください', '#f85149');
+    return;
+  }
   var payload = JSON.stringify({ version: '1.0', lastUpdated: new Date().toISOString(), tasks: tasks }, null, 2);
   // まず現在のSHAを取得してからPUT
   fetch(GITHUB_API_URL, { headers: { Authorization: 'token ' + pat, Accept: 'application/vnd.github.v3+json' } })
