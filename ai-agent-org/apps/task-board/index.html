@@ -720,14 +720,12 @@ function pushToGitHub() {
 
 function saveAndPush() {
   save();
-  // debounce: 1秒以内の連続変更は1回のpushにまとめる
-  clearTimeout(pushTimer);
-  pushTimer = setTimeout(executePush, 1000);
+  executePush();
 }
 
 function executePush() {
   if (pushInFlight) {
-    // 別のpushが進行中なら完了後に再実行
+    // pushが進行中なら完了後に最新状態で再実行
     pushPending = true;
     return;
   }
