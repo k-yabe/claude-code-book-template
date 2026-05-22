@@ -75,6 +75,11 @@ const MAX_TOKENS = {
 // Web検索結果の最大文字数（コスト節約：1件あたり約1000トークン相当）
 const WEB_SEARCH_RESULT_MAX_CHARS = 3000;
 
+// Obsidian Vault パス（タスクログの保存先）
+const OBSIDIAN_VAULT = process.env.OBSIDIAN_VAULT_PATH
+  || '/Users/kunito/Library/CloudStorage/OneDrive-個人用/10_Work/40_Onsidian/Obsidian';
+const OBSIDIAN_TASKS_DIR = path.join(OBSIDIAN_VAULT, 'タスクログ');
+
 // Web検索が有用なエージェント
 const WEB_SEARCH_AGENTS = new Set([
   'research-analyst', 'career-advisor', 'content-director',
@@ -338,6 +343,39 @@ function saveOutput(task, result) {
   return filename;
 }
 
+function saveToObsidian(task, result, verdict) {
+  if (DRY_RUN) return;
+  try {
+    if (!fs.existsSync(OBSIDIAN_TASKS_DIR)) fs.mkdirSync(OBSIDIAN_TASKS_DIR, { recursive: true });
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    const timeStr = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false });
+    const filePath = path.join(OBSIDIAN_TASKS_DIR, `${dateStr}.md`);
+    const header = `# タスクログ ${dateStr}\n\n`;
+    const entry = [
+      `## ${verdict === 'APPROVED' ? '✅' : '🚫'} [${task.id}] ${task.title} \`${timeStr}\``,
+      `**担当**: ${task.assignee}  `,
+      `**チーム**: ${task.team || '未設定'}  `,
+      `**ステータス**: ${verdict === 'APPROVED' ? 'done' : 'blocked'}  `,
+      '',
+      '### レポート',
+      result.length > 1000 ? result.slice(0, 1000) + '\n\n…（全文は context/projects/ を参照）' : result,
+      '',
+      '---',
+      '',
+    ].join('\n');
+
+    if (fs.existsSync(filePath)) {
+      fs.appendFileSync(filePath, entry, 'utf-8');
+    } else {
+      fs.writeFileSync(filePath, header + entry, 'utf-8');
+    }
+    console.log(`📓 Obsidianに記録: タスクログ/${dateStr}.md`);
+  } catch (err) {
+    console.warn(`⚠️  Obsidian書き込み失敗（スキップ）: ${err.message}`);
+  }
+}
+
 // ── GitHub API push（git競合を完全回避）────────────────────
 const GITHUB_REPO  = 'k-yabe/claude-code-book-template';
 const GITHUB_PATH  = 'ai-agent-org/tasks/tasks.json';
@@ -507,6 +545,7 @@ async function main() {
           });
           const snippet2 = result.length > 300 ? result.slice(0, 300) + '…' : result;
           taskRef.comments.push({ author: task.assignee, content: snippet2, timestamp: new Date().toISOString() });
+          saveToObsidian(task, result, 'REJECTED');
           saveTasks(data);
           console.log(`⚠️  ${task.id}: blocked（COO 2回差し戻し）`);
           processedIds.push(task.id);
@@ -515,6 +554,7 @@ async function main() {
       }
 
       // ── COO承認 → done ──
+      saveToObsidian(task, result, 'APPROVED');
       const outputFile = saveOutput(task, result);
       const snippet = result.length > 300 ? result.slice(0, 300) + '…（続きは projects/ フォルダを確認）' : result;
       const commentContent = outputFile
