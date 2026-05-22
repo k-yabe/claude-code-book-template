@@ -73,10 +73,10 @@ const AGENT_MODELS = {
   'task-dispatcher':     MODELS.HAIKU,
 };
 
-// モデルごとのmax_tokens
+// モデルごとのmax_tokens（Sonnetは Web検索結果+レポート本文を収めるため大きく設定）
 const MAX_TOKENS = {
   [MODELS.HAIKU]:  2048,
-  [MODELS.SONNET]: 4096,
+  [MODELS.SONNET]: 16000,
 };
 
 // Web検索結果の最大文字数（コスト節約：1件あたり約1000トークン相当）
