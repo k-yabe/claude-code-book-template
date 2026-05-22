@@ -225,7 +225,7 @@ ai-agent-org/
 ```
 07:00  morning-standup.js  → 朝会レポート生成
 毎5分  task-dispatcher.js  → inbox監視
-毎時   task-executor.js    → タスク実行（3件まで）
+毎5分  task-executor.js    → タスク実行（3件まで）
 毎5分  obsidian-sync.js    → Obsidian同期
 ```
 
