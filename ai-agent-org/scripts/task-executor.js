@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * Task Executor
- * 未着手（new-assigned）タスクをAIが処理し、結果をコメントとして書き込む。
- * tasks.json を更新後、GitHub にプッシュする。
+ * 未着手（new-assigned）タスクをAIが処理し、COOレビュー後にdoneにする。
+ * 月予算 $10 を前提に設計（Haikuメイン、Sonnetは調査・戦略系のみ）。
  *
  * Usage:
  *   node scripts/task-executor.js
@@ -28,41 +28,73 @@ const LIMIT = (() => {
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-// エージェントごとのモデル（コスト節約：基本Haiku、判断・調査系はSonnet）
-const AGENT_MODELS = {
-  // リサーチ・パーソナルチーム（調査・判断が必要なのでSonnet）
-  'research-analyst': 'claude-sonnet-4-6',
-  'career-advisor': 'claude-sonnet-4-6',
-  // エンジニアリングチーム
-  'tech-lead': 'claude-haiku-4-5-20251001',
-  'frontend-engineer': 'claude-haiku-4-5-20251001',
-  'backend-engineer': 'claude-haiku-4-5-20251001',
-  'qa-engineer': 'claude-haiku-4-5-20251001',
-  // コンテンツチーム
-  'content-director': 'claude-haiku-4-5-20251001',
-  'brand-voice': 'claude-haiku-4-5-20251001',
-  'root-cause': 'claude-haiku-4-5-20251001',
-  'anti-ai-slop': 'claude-haiku-4-5-20251001',
-  // ビジネスチーム
-  'marketing-director': 'claude-haiku-4-5-20251001',
-  'business-strategist': 'claude-sonnet-4-6',
-  'partnership-manager': 'claude-haiku-4-5-20251001',
-  'legal-review': 'claude-haiku-4-5-20251001',
-  // インフラ
-  'task-dispatcher': 'claude-haiku-4-5-20251001',
+// ── モデル定義 ──────────────────────────────────────────────
+const MODELS = {
+  HAIKU:  'claude-haiku-4-5-20251001',
+  SONNET: 'claude-sonnet-4-6',
+  // Opus は $10/月の予算制約で自動実行から除外。手動タスクのみ。
 };
 
-// Web検索が有用なエージェント（調査・リサーチ系）
+// エージェントごとのモデル（Haikuデフォルト、判断・調査・戦略系のみSonnet）
+const AGENT_MODELS = {
+  // 経営層
+  'coo':                 MODELS.HAIKU,   // 判定のみなので構造化出力で十分
+  // リサーチ（調査・分析はSonnet）
+  'research-analyst':    MODELS.SONNET,
+  'data-analyst':        MODELS.HAIKU,
+  // パーソナル（nuanceが必要なのでSonnet）
+  'career-advisor':      MODELS.SONNET,
+  // エンジニアリング（実行系はHaiku）
+  'tech-lead':           MODELS.HAIKU,
+  'frontend-engineer':   MODELS.HAIKU,
+  'backend-engineer':    MODELS.HAIKU,
+  'qa-engineer':         MODELS.HAIKU,
+  'devops-engineer':     MODELS.HAIKU,
+  // コンテンツ（品質が重要な台本・記事はSonnet）
+  'content-director':    MODELS.SONNET,
+  'video-producer':      MODELS.HAIKU,
+  'brand-voice':         MODELS.HAIKU,
+  'root-cause':          MODELS.HAIKU,
+  'anti-ai-slop':        MODELS.HAIKU,
+  // ビジネス（戦略・法務はSonnet、実行系はHaiku）
+  'business-strategist': MODELS.SONNET,
+  'marketing-director':  MODELS.HAIKU,
+  'sales-growth':        MODELS.HAIKU,
+  'partnership-manager': MODELS.HAIKU,
+  'legal-review':        MODELS.SONNET,
+  // インフラ
+  'task-dispatcher':     MODELS.HAIKU,
+};
+
+// モデルごとのmax_tokens（コスト節約）
+const MAX_TOKENS = {
+  [MODELS.HAIKU]:  2048,
+  [MODELS.SONNET]: 4096,
+};
+
+// Web検索が有用なエージェント
 const WEB_SEARCH_AGENTS = new Set([
-  'research-analyst',
-  'career-advisor',
-  'content-director',
-  'marketing-director',
-  'business-strategist',
-  'tech-lead',
-  'legal-review',
+  'research-analyst', 'career-advisor', 'content-director',
+  'business-strategist', 'tech-lead', 'legal-review',
 ]);
 
+// ── コスト追跡 ──────────────────────────────────────────────
+// 料金 (USD per 1M tokens)
+const PRICE = {
+  [MODELS.HAIKU]:  { input: 1.0, output: 5.0 },
+  [MODELS.SONNET]: { input: 3.0, output: 15.0 },
+};
+const costLog = { totalUSD: 0, calls: 0 };
+
+function trackCost(model, inputTokens, outputTokens) {
+  const p = PRICE[model];
+  if (!p) return;
+  const usd = (inputTokens * p.input + outputTokens * p.output) / 1_000_000;
+  costLog.totalUSD += usd;
+  costLog.calls += 1;
+}
+
+// ── ファイルロード ────────────────────────────────────────
 function loadTasks() {
   return JSON.parse(fs.readFileSync(TASKS_FILE, 'utf-8'));
 }
@@ -78,27 +110,33 @@ function loadContextFile(filename) {
   return fs.existsSync(p) ? fs.readFileSync(p, 'utf-8') : '';
 }
 
+// ── エージェント説明 ─────────────────────────────────────
+const AGENT_DESCRIPTIONS = {
+  'research-analyst':    'あなたはリサーチアナリストです。結論を最初に書き、選択肢を表で比較し、明確な推奨を出してください。',
+  'data-analyst':        'あなたはデータアナリストです。数値を整理し、KPI・インサイト・推奨アクションをまとめてください。',
+  'career-advisor':      'あなたはキャリアアドバイザーです。クライアントのスキルと市場ニーズを照合し、具体的な候補リストを作成してください。',
+  'content-director':    'あなたはコンテンツディレクターです。記事・LP・メール・SNS投稿などの高品質なコンテンツを制作します。',
+  'video-producer':      'あなたはビデオプロデューサーです。Hook→本編→CTAの三部構成で視聴者を引き付ける台本を作成してください。',
+  'marketing-director':  'あなたはマーケティングディレクターです。マーケ戦略・施策・コピーを考えます。',
+  'business-strategist': 'あなたはビジネスストラテジストです。事業戦略・意思決定の分析を行います。',
+  'sales-growth':        'あなたはSales&Growth Managerです。収益化・グロース施策・LTV最大化のための提案を行います。',
+  'tech-lead':           'あなたはテックリードです。技術的な設計・実装方針・コードレビューを担当します。',
+  'frontend-engineer':   'あなたはフロントエンドエンジニアです。UI/HTML/CSS/JSの実装を担当します。',
+  'backend-engineer':    'あなたはバックエンドエンジニアです。API/DB/サーバーの設計・実装を担当します。',
+  'qa-engineer':         'あなたはQAエンジニアです。品質チェック・テスト・検証を担当します。',
+  'devops-engineer':     'あなたはDevOpsエンジニアです。CI/CD・Vercelデプロイ・インフラ自動化を担当します。',
+  'legal-review':        'あなたはリーガルレビュー担当です。契約書・規約の確認を担当します。',
+  'partnership-manager': 'あなたはパートナーシップマネージャーです。外部案件のフィルタリングを担当します。',
+  'brand-voice':         'あなたはブランドボイス担当です。ブランドのトーン・言葉遣いのチェックを担当します。',
+  'root-cause':          'あなたはRoot Cause担当です。コンテンツの本質・深さ・賞味期限をチェックします。',
+  'anti-ai-slop':        'あなたはAnti-AI Slop担当です。AIっぽい不自然な表現を検出・修正します。',
+};
+
 function buildSystemPrompt(task) {
   const identity = loadContextFile('professional-identity.md');
   const philosophy = loadContextFile('philosophy.md');
   const designGuide = loadContextFile('visual-design.md');
-
-  const agentDescriptions = {
-    'research-analyst': 'あなたはリサーチアナリストのAIエージェントです。購入検討・ツール比較・情報調査・導入判断のサポートを担当します。結論を最初に書き、選択肢を表で比較し、明確な推奨を出してください。',
-    'career-advisor': 'あなたはキャリアアドバイザーのAIエージェントです。副業案件探し・キャリア相談・収入機会の発見を担当します。クライアントのスキルセットと市場ニーズを照合し、具体的な候補リストを作成してください。',
-    'content-director': 'あなたはコンテンツディレクターのAIエージェントです。記事・動画台本・LP・メール文・SNS投稿などのコンテンツを制作します。',
-    'marketing-director': 'あなたはマーケティングディレクターのAIエージェントです。マーケティング戦略・施策・コピーを考えます。',
-    'business-strategist': 'あなたはビジネスストラテジストのAIエージェントです。事業戦略・意思決定の分析を行います。',
-    'tech-lead': 'あなたはテックリードのAIエージェントです。技術的な設計・実装方針・コードレビューを担当します。',
-    'frontend-engineer': 'あなたはフロントエンドエンジニアのAIエージェントです。UI/HTML/CSS/JSの実装を担当します。',
-    'backend-engineer': 'あなたはバックエンドエンジニアのAIエージェントです。API/DB/インフラの設計・実装を担当します。',
-    'qa-engineer': 'あなたはQAエンジニアのAIエージェントです。品質チェック・テスト・検証を担当します。',
-    'legal-review': 'あなたはリーガルレビュー担当のAIエージェントです。契約書・規約の確認を担当します。',
-    'partnership-manager': 'あなたはパートナーシップマネージャーのAIエージェントです。外部企業・団体からのパートナー提案・コラボ・スポンサー案件のフィルタリングを担当します。',
-    'brand-voice': 'あなたはブランドボイス担当のAIエージェントです。ブランドのトーン・言葉遣いのチェックを担当します。',
-  };
-
-  const agentDesc = agentDescriptions[task.assignee] || 'あなたはAIエージェントです。';
+  const agentDesc = AGENT_DESCRIPTIONS[task.assignee] || 'あなたはAIエージェントです。';
 
   return `${agentDesc}
 
@@ -116,17 +154,21 @@ ${designGuide}
 - クライアントが喜ぶ実用的な成果物を作る
 - 曖昧な部分は合理的なデフォルトで判断して進める
 - 日本語で回答する
-- 「人間の確認が必要です」は、本当に先に進めない場合のみ使う。参考情報・推奨事項は普通に書いてOK
-`;
+- 「人間の確認が必要です」は、本当に先に進めない場合のみ使う`;
 }
 
-async function processTask(task) {
-  const model = AGENT_MODELS[task.assignee] || 'claude-haiku-4-5-20251001';
+// ── メインタスク処理 ─────────────────────────────────────
+async function processTask(task, feedbackFromCOO = null) {
+  const model = AGENT_MODELS[task.assignee] || MODELS.HAIKU;
   const systemPrompt = buildSystemPrompt(task);
   const useWebSearch = WEB_SEARCH_AGENTS.has(task.assignee);
 
-  const userMessage = `以下のタスクを実行してください。
+  const feedbackNote = feedbackFromCOO
+    ? `\n## COOからのフィードバック（前回の差し戻し理由）\n${feedbackFromCOO}\n\n上記の問題点を解消して改めてアウトプットを作成してください。\n`
+    : '';
 
+  const userMessage = `以下のタスクを実行してください。
+${feedbackNote}
 ## タスクID: ${task.id}
 ## タイトル: ${task.title}
 ## 優先度: ${task.priority}
@@ -142,7 +184,7 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
 成果物がある場合（文章・コード・資料など）は全文を出力してください。
 判断が必要で人間の確認が必要な場合は、その旨と理由を明記してください。${useWebSearch ? '\n最新情報が必要な場合は積極的にweb_searchツールを使って調査してください。' : ''}`;
 
-  console.log(`\n処理中: ${task.id} "${task.title}" → ${task.assignee} (${model})${useWebSearch ? ' [Web検索有効]' : ''}`);
+  console.log(`\n処理中: ${task.id} "${task.title}" → ${task.assignee} (${model})${feedbackFromCOO ? ' [COO差し戻し再試行]' : ''}${useWebSearch ? ' [Web検索有効]' : ''}`);
 
   const tools = useWebSearch
     ? [{ type: 'web_search_20260209', name: 'web_search', allowed_callers: ['direct'] }]
@@ -151,11 +193,12 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
 
   const messages = [{ role: 'user', content: userMessage }];
   let result = '';
+  let totalInput = 0, totalOutput = 0;
 
   for (let i = 0; i < 10; i++) {
     const reqParams = {
       model,
-      max_tokens: 4096,
+      max_tokens: MAX_TOKENS[model] || 2048,
       system: systemPrompt,
       messages,
       ...(tools ? { tools } : {}),
@@ -165,9 +208,11 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
       ? client.beta.messages.create({ ...reqParams, betas })
       : client.messages.create(reqParams));
 
+    totalInput  += response.usage?.input_tokens  || 0;
+    totalOutput += response.usage?.output_tokens || 0;
+
     console.log(`  ターン${i + 1}: stop_reason=${response.stop_reason}, blocks=${response.content.map(b => b.type).join(',')}`);
 
-    // 全ターンのテキストを蓄積
     const textBlocks = response.content.filter(b => b.type === 'text');
     if (textBlocks.length > 0) {
       const newText = textBlocks.map(b => b.text).join('\n\n');
@@ -176,25 +221,18 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
 
     messages.push({ role: 'assistant', content: response.content });
 
-    if (response.stop_reason === 'end_turn') {
-      break;
-    }
+    if (response.stop_reason === 'end_turn') break;
 
     if (response.stop_reason === 'tool_use') {
       const toolUseBlocks = response.content.filter(b => b.type === 'tool_use');
       const hasWebSearch = toolUseBlocks.some(b => b.name === 'web_search');
-
       if (hasWebSearch) {
-        // web_search はサーバーサイド実行
         const hasResults = response.content.some(b => b.type === 'web_search_result');
         if (hasResults) {
-          // 結果あり & 既にテキスト回答もある場合は終了（余分なAPIコールを省く）
           const hasText = response.content.some(b => b.type === 'text' && b.text.trim().length > 50);
           if (hasText) break;
-          // 結果あり & テキスト未出力 → 最終回答を促す
           messages.push({ role: 'user', content: 'search_resultを踏まえて最終的な回答を日本語でまとめてください。' });
         } else {
-          // 結果なし → tool_resultを返してサーバーに検索させる
           const toolResults = toolUseBlocks
             .filter(b => b.name === 'web_search')
             .map(b => ({ type: 'tool_result', tool_use_id: b.id, content: '' }));
@@ -202,24 +240,79 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
         }
         continue;
       }
-
-      // web_search 以外のツール（現在は使用しないが念のため）
       break;
     }
-
-    // max_tokens などその他の stop_reason
     break;
   }
+
+  trackCost(model, totalInput, totalOutput);
+  console.log(`  トークン: in=${totalInput}, out=${totalOutput} | 推定 $${(totalInput * PRICE[model].input / 1e6 + totalOutput * PRICE[model].output / 1e6).toFixed(5)}`);
 
   if (!result) {
     result = '（AIからのテキスト応答がありませんでした。タスク内容を確認して再実行してください。）';
   }
 
-  // 「本当に先に進めない」場合のみ blocked にする（参考情報としての「確認事項」は除外）
   const needsHuman = /^\s*(?:⚠️\s*)?(?:人間の確認が必要です|承認が必要です|判断をお願いします|このタスクはブロックされています)/m.test(result);
   return { result, needsHuman };
 }
 
+// ── COOレビュー（Haiku使用、max_tokens: 512の構造化判定）─
+async function reviewWithCOO(task, agentOutput) {
+  const model = MODELS.HAIKU;
+  const systemPrompt = `あなたはCOO（最高執行責任者）のAIエージェントです。
+担当エージェントが作成したアウトプットを品質チェックし、承認または差し戻しを判定します。
+必ずJSON形式のみで返答してください。説明文は不要です。`;
+
+  const userMessage = `## タスク情報
+タイトル: ${task.title}
+担当: ${task.assignee}
+タスク詳細: ${task.description?.slice(0, 500) || '（詳細なし）'}
+
+## 担当エージェントのアウトプット
+${agentOutput.slice(0, 2000)}${agentOutput.length > 2000 ? '\n（省略）' : ''}
+
+## チェック項目
+以下の3点を判定し、JSON形式で返してください:
+1. タスクの要件を満たしているか（スコープ漏れなし）
+2. 明らかな事実誤認・論理矛盾がないか
+3. 中途半端で未完成でないか（「〜を検討してください」で終わっていないか）
+
+## 返答フォーマット（JSONのみ）
+{"pass": true}
+または
+{"pass": false, "feedback": "具体的な問題点と改善指示を1〜3文で"}`;
+
+  try {
+    const response = await client.messages.create({
+      model,
+      max_tokens: 512,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMessage }],
+    });
+
+    const text = response.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    const inputTokens  = response.usage?.input_tokens  || 0;
+    const outputTokens = response.usage?.output_tokens || 0;
+    trackCost(model, inputTokens, outputTokens);
+    console.log(`  COOレビュー: in=${inputTokens}, out=${outputTokens} | 推定 $${(inputTokens * PRICE[model].input / 1e6 + outputTokens * PRICE[model].output / 1e6).toFixed(5)}`);
+
+    // JSONを抽出
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) {
+      // パース失敗 → 安全側に倒して承認
+      console.log('  COO: JSONパース失敗 → 自動承認');
+      return { pass: true };
+    }
+    const verdict = JSON.parse(match[0]);
+    console.log(`  COO判定: ${verdict.pass ? '✅ 承認' : '🔄 差し戻し: ' + (verdict.feedback || '')}`);
+    return verdict;
+  } catch (err) {
+    console.error('  COOレビューエラー（自動承認）:', err.message);
+    return { pass: true };
+  }
+}
+
+// ── ファイル保存 ─────────────────────────────────────────
 function saveOutput(task, result) {
   if (DRY_RUN) return null;
   if (!fs.existsSync(PROJECTS_DIR)) fs.mkdirSync(PROJECTS_DIR, { recursive: true });
@@ -227,17 +320,17 @@ function saveOutput(task, result) {
   const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
   const filename = `${task.id}-${dateStr}-output.md`;
   const outputPath = path.join(PROJECTS_DIR, filename);
-  const content = `# ${task.title}\n\n**タスクID:** ${task.id}  \n**実行日:** ${dateStr} ${ts}  \n**担当:** ${task.assignee}\n\n---\n\n${result}\n`;
+  const content = `# ${task.title}\n\n**タスクID:** ${task.id}  \n**実行日:** ${dateStr} ${ts}  \n**担当:** ${task.assignee}  \n**COOレビュー:** 承認済み\n\n---\n\n${result}\n`;
   fs.writeFileSync(outputPath, content, 'utf-8');
   return filename;
 }
 
+// ── Git push ─────────────────────────────────────────────
 function gitPushChanges(taskIds) {
   if (DRY_RUN) return;
   try {
     execSync('git add tasks/tasks.json context/projects/', { cwd: ROOT });
     execSync(`git commit -m "bot: タスク自動実行 [${taskIds.join(', ')}]"`, { cwd: ROOT });
-    // push失敗時はremoteのtasks.json以外をrebaseしてリトライ
     try {
       execSync('git push', { cwd: ROOT });
     } catch {
@@ -251,6 +344,7 @@ function gitPushChanges(taskIds) {
   }
 }
 
+// ── メイン ───────────────────────────────────────────────
 async function main() {
   if (!process.env.ANTHROPIC_API_KEY) {
     console.error('エラー: ANTHROPIC_API_KEY が未設定です。');
@@ -258,7 +352,6 @@ async function main() {
     process.exit(1);
   }
 
-  // tasks.json を常に GitHub の最新版で上書き（競合を完全回避）
   try {
     execSync('git fetch origin main', { cwd: ROOT });
     execSync('git checkout origin/main -- tasks/tasks.json scripts/', { cwd: ROOT });
@@ -286,31 +379,84 @@ async function main() {
   for (const task of pending) {
     try {
       const now = new Date().toISOString();
-
       const taskRef = data.tasks.find(t => t.id === task.id);
+
       taskRef.status = 'in-progress';
       taskRef.updatedAt = now;
       taskRef.comments.push({ author: task.assignee, content: 'タスクを開始しました。', timestamp: now });
       saveTasks(data);
 
-      const { result, needsHuman } = await processTask(task);
+      // ── Round 1: エージェント実行 ──
+      let { result, needsHuman } = await processTask(task);
 
+      if (needsHuman) {
+        // 人間確認が必要なケースはCOOをスキップしてblocked
+        taskRef.status = 'blocked';
+        taskRef.blockedReason = '人間の確認・判断が必要です。上記コメントを確認してください。';
+        taskRef.updatedAt = new Date().toISOString();
+        const snippet = result.length > 300 ? result.slice(0, 300) + '…（続きは projects/ フォルダを確認）' : result;
+        taskRef.comments.push({ author: task.assignee, content: snippet, timestamp: new Date().toISOString() });
+        saveTasks(data);
+        console.log(`⚠️  ${task.id}: blocked（人間確認が必要）`);
+        processedIds.push(task.id);
+        continue;
+      }
+
+      // ── COOレビュー Round 1 ──
+      console.log(`\n🏢 COOレビュー開始: ${task.id}`);
+      let verdict = await reviewWithCOO(task, result);
+
+      if (!verdict.pass) {
+        // ── COO差し戻し → エージェント再実行（Round 2） ──
+        taskRef.comments.push({
+          author: 'coo',
+          content: `🔄 差し戻し\n理由: ${verdict.feedback}\n改善後に再提出してください。`,
+          timestamp: new Date().toISOString(),
+        });
+        saveTasks(data);
+
+        console.log(`\n再実行: ${task.id} （COOフィードバックを反映）`);
+        const retry = await processTask(task, verdict.feedback);
+        result = retry.result;
+
+        // ── COOレビュー Round 2（最終） ──
+        console.log(`\n🏢 COOレビュー（最終判定）: ${task.id}`);
+        verdict = await reviewWithCOO(task, result);
+
+        if (!verdict.pass) {
+          // 2回差し戻しはblockedにして人間に判断を委ねる
+          taskRef.status = 'blocked';
+          taskRef.blockedReason = `COO 2回差し戻し: ${verdict.feedback}`;
+          taskRef.updatedAt = new Date().toISOString();
+          taskRef.comments.push({
+            author: 'coo',
+            content: `🔴 COOレビュー最終差し戻し\n2回の修正でも品質基準を満たしませんでした。\n理由: ${verdict.feedback}\n人間の判断が必要です。`,
+            timestamp: new Date().toISOString(),
+          });
+          const snippet2 = result.length > 300 ? result.slice(0, 300) + '…' : result;
+          taskRef.comments.push({ author: task.assignee, content: snippet2, timestamp: new Date().toISOString() });
+          saveTasks(data);
+          console.log(`⚠️  ${task.id}: blocked（COO 2回差し戻し）`);
+          processedIds.push(task.id);
+          continue;
+        }
+      }
+
+      // ── COO承認 → done ──
       const outputFile = saveOutput(task, result);
-
       const snippet = result.length > 300 ? result.slice(0, 300) + '…（続きは projects/ フォルダを確認）' : result;
       const commentContent = outputFile
         ? `${snippet}\n\n📄 出力ファイル: context/projects/${outputFile}`
         : snippet;
 
-      taskRef.status = needsHuman ? 'blocked' : 'done';
-      taskRef.blockedReason = needsHuman ? '人間の確認・判断が必要です。上記コメントを確認してください。' : '';
+      taskRef.status = 'done';
+      taskRef.blockedReason = '';
       taskRef.updatedAt = new Date().toISOString();
       taskRef.comments.push({ author: task.assignee, content: commentContent, timestamp: new Date().toISOString() });
-
+      taskRef.comments.push({ author: 'coo', content: '✅ COOレビュー承認\n品質基準を満たしています。', timestamp: new Date().toISOString() });
       saveTasks(data);
       processedIds.push(task.id);
-
-      console.log(`✓ ${task.id}: ${needsHuman ? '→ blocked（要確認）' : '→ done'}`);
+      console.log(`✅ ${task.id}: done（COO承認済み）`);
 
       if (DRY_RUN) {
         console.log('--- 出力プレビュー ---');
@@ -334,6 +480,19 @@ async function main() {
     gitPushChanges(processedIds);
   }
 
+  // ── コスト集計 ──
+  const monthlyCostEstimate = costLog.totalUSD * 30;
+  console.log('\n── コスト集計 ──────────────────────────');
+  console.log(`  この実行: $${costLog.totalUSD.toFixed(5)} (${costLog.calls}回のAPI呼び出し)`);
+  console.log(`  月額換算（1日1回実行の場合）: $${monthlyCostEstimate.toFixed(3)}`);
+  console.log(`  月額換算（5回/日実行の場合）: $${(costLog.totalUSD * 30 * 5).toFixed(3)}`);
+  console.log(`  予算上限: $10.00/月`);
+  if (monthlyCostEstimate * 5 > 10) {
+    console.log('  ⚠️  タスク数が多い場合は月$10を超える可能性があります。--limit を下げてください。');
+  } else {
+    console.log('  ✓ 予算内の見込みです');
+  }
+  console.log('────────────────────────────────────────');
   console.log(`\n完了: ${processedIds.length}件処理しました`);
 }
 

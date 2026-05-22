@@ -102,6 +102,76 @@ body {
 .reports-view.hidden { display: none; }
 #view-board.hidden { display: none; }
 
+/* ── ORG CHART VIEW ── */
+#view-org { flex: 1; overflow-y: auto; padding: 24px 32px; display: none; }
+#view-org.visible { display: block; }
+.org-wrap { max-width: 960px; margin: 0 auto; }
+.org-heading { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.org-subheading { font-size: 12px; color: var(--text2); margin-bottom: 28px; }
+.org-ceo-row { display: flex; justify-content: center; margin-bottom: 0; }
+.org-connector-v { width: 2px; height: 32px; background: var(--border); margin: 0 auto; }
+.org-coo-row { display: flex; justify-content: center; margin-bottom: 0; }
+.org-connector-h-wrap { display: flex; justify-content: center; margin-bottom: 0; }
+.org-connector-h {
+  position: relative; height: 32px;
+  width: var(--hw, 80%); max-width: 860px;
+}
+.org-connector-h::before {
+  content: ''; position: absolute; top: 0; left: 50%; right: 0;
+  height: 2px; background: var(--border);
+  width: calc(50% - 1px); transform: none;
+}
+.org-connector-h::after {
+  content: ''; position: absolute; top: 0; right: 50%;
+  height: 2px; background: var(--border);
+  width: calc(50% - 1px);
+}
+.org-connector-h-line {
+  position: absolute; top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%; height: 2px; background: var(--border);
+}
+.org-teams-row { display: flex; gap: 12px; justify-content: center; align-items: flex-start; }
+.org-team-col { flex: 1; min-width: 130px; max-width: 160px; }
+.org-team-header {
+  font-size: 11px; font-weight: 700; color: var(--text2); text-align: center;
+  padding: 6px 8px; border-radius: 0; border-bottom: 2px solid var(--border);
+  margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.org-node {
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 10px 10px 8px; margin-bottom: 6px; cursor: default;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+}
+.org-node:hover { border-color: var(--accent); background: var(--bg3); }
+.org-node-ceo {
+  background: var(--bg2); border: 2px solid var(--accent);
+  padding: 10px 20px; text-align: center; width: 180px;
+}
+.org-node-coo {
+  background: #5c35a022; border: 2px solid #5c35a0;
+  padding: 10px 20px; text-align: center; width: 220px;
+}
+html.light .org-node-coo { background: #5c35a010; }
+.org-node-top { display: flex; align-items: center; gap: 7px; }
+.org-node-emoji { font-size: 18px; flex-shrink: 0; }
+.org-node-ceo .org-node-emoji,
+.org-node-coo .org-node-emoji { font-size: 22px; }
+.org-node-info { min-width: 0; }
+.org-node-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.org-node-role { font-size: 10px; color: var(--text2); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.org-node-model { font-size: 9px; color: var(--text3); margin-top: 3px; }
+.org-node-stats { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.org-stat {
+  font-size: 9px; padding: 1px 5px; background: var(--bg3); color: var(--text2);
+}
+.org-stat.active { background: #388bfd22; color: var(--col-ip); }
+.org-stat.blocked { background: #f8514922; color: var(--col-bl); }
+.org-team-sep { height: 1px; background: var(--border); margin: 12px 0 10px; }
+.org-coo-connector { display: flex; justify-content: center; }
+.org-coo-connector-v { width: 2px; height: 28px; background: var(--border); }
+
 .report-list {
   width: 220px;
   min-width: 220px;
@@ -803,6 +873,7 @@ input:focus, select:focus { border-color: var(--accent); }
 <div class="tab-bar">
   <button class="tab-btn active" id="tab-board" onclick="showTab('board')">📋 カンバン</button>
   <button class="tab-btn" id="tab-reports" onclick="showTab('reports')">📊 レポート</button>
+  <button class="tab-btn" id="tab-org" onclick="showTab('org')">🏢 組織図</button>
 </div>
 
 <!-- ══ BOARD VIEW ══ -->
@@ -876,6 +947,47 @@ input:focus, select:focus { border-color: var(--accent); }
   </div>
   <div class="report-content empty" id="reportContent">
     <div style="text-align:center;line-height:2.5;color:var(--text3)">📊<br>レポートを選択してください</div>
+  </div>
+</div>
+
+<!-- ══ ORG CHART VIEW ══ -->
+<div id="view-org">
+  <div class="org-wrap">
+    <div class="org-heading">🏢 AI Agent 組織図</div>
+    <div class="org-subheading" id="orgSubheading">読み込み中...</div>
+
+    <!-- CEO -->
+    <div class="org-ceo-row">
+      <div class="org-node org-node-ceo">
+        <div class="org-node-top" style="justify-content:center">
+          <span class="org-node-emoji">👤</span>
+          <div class="org-node-info">
+            <div class="org-node-name">CEO / k-yabe</div>
+            <div class="org-node-role">最終意思決定者</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="org-connector-v"></div>
+
+    <!-- COO -->
+    <div class="org-coo-row">
+      <div class="org-node org-node-coo">
+        <div class="org-node-top" style="justify-content:center">
+          <span class="org-node-emoji">🏢</span>
+          <div class="org-node-info">
+            <div class="org-node-name">COO</div>
+            <div class="org-node-role">全アウトプット検収・品質保証</div>
+            <div class="org-node-model">Sonnet 4.6</div>
+          </div>
+        </div>
+        <div class="org-node-stats" style="justify-content:center" id="coo-stats"></div>
+      </div>
+    </div>
+    <div class="org-coo-connector"><div class="org-coo-connector-v"></div></div>
+
+    <!-- Teams -->
+    <div class="org-teams-row" id="orgTeamsRow"></div>
   </div>
 </div>
 
@@ -1672,11 +1784,141 @@ function showTab(tab){
   currentTab = tab;
   document.getElementById('view-board').classList.toggle('hidden', tab!=='board');
   document.getElementById('view-reports').classList.toggle('hidden', tab!=='reports');
+  var orgView = document.getElementById('view-org');
+  orgView.classList.toggle('visible', tab==='org');
   document.getElementById('tab-board').classList.toggle('active', tab==='board');
   document.getElementById('tab-reports').classList.toggle('active', tab==='reports');
+  document.getElementById('tab-org').classList.toggle('active', tab==='org');
   var filters = document.querySelector('.header-filters');
   if(filters) filters.style.visibility = tab==='board' ? 'visible' : 'hidden';
   if(tab==='reports') loadReportList();
+  if(tab==='org') renderOrgChart();
+}
+
+// ── ORG CHART ──
+var ORG_TEAMS = [
+  {
+    key: 'leadership', label: '経営層', color: '#5c35a0',
+    members: [
+      {id:'coo', name:'COO', role:'全アウトプット検収', model:'Sonnet'},
+    ]
+  },
+  {
+    key: 'research', label: 'リサーチ', color: '#00897b',
+    members: [
+      {id:'research-analyst', name:'Research Analyst', role:'調査・比較・導入判断', model:'Sonnet'},
+      {id:'data-analyst', name:'Data Analyst', role:'データ・KPI分析', model:'Haiku'},
+    ]
+  },
+  {
+    key: 'personal', label: 'kunito', color: '#c2185b',
+    members: [
+      {id:'career-advisor', name:'Career Advisor', role:'副業・キャリア相談', model:'Sonnet'},
+    ]
+  },
+  {
+    key: 'engineering', label: 'エンジニア', color: '#1565c0',
+    members: [
+      {id:'tech-lead', name:'Tech Lead', role:'技術判断・割り振り', model:'Haiku'},
+      {id:'frontend-engineer', name:'Frontend Eng.', role:'UI/CSS/HTML', model:'Haiku'},
+      {id:'backend-engineer', name:'Backend Eng.', role:'API/DB/サーバー', model:'Haiku'},
+      {id:'qa-engineer', name:'QA Engineer', role:'品質チェック', model:'Haiku'},
+      {id:'devops-engineer', name:'DevOps Eng.', role:'CI/CD・デプロイ', model:'Haiku'},
+    ]
+  },
+  {
+    key: 'content', label: 'コンテンツ', color: '#6a1b9a',
+    members: [
+      {id:'content-director', name:'Content Director', role:'記事・コンテンツ', model:'Sonnet'},
+      {id:'video-producer', name:'Video Producer', role:'YouTube台本', model:'Haiku'},
+      {id:'brand-voice', name:'Brand Voice', role:'ブランドチェック', model:'Haiku'},
+      {id:'root-cause', name:'Root Cause', role:'本質・深さチェック', model:'Haiku'},
+      {id:'anti-ai-slop', name:'Anti-AI Slop', role:'AI表現除去', model:'Haiku'},
+    ]
+  },
+  {
+    key: 'business', label: 'ビジネス', color: '#e65100',
+    members: [
+      {id:'business-strategist', name:'Biz Strategist', role:'戦略・事業判断', model:'Sonnet'},
+      {id:'marketing-director', name:'Marketing Dir.', role:'マーケ・SNS', model:'Haiku'},
+      {id:'sales-growth', name:'Sales & Growth', role:'収益化・グロース', model:'Haiku'},
+      {id:'partnership-manager', name:'Partnership Mgr', role:'提携・スポンサー', model:'Haiku'},
+      {id:'legal-review', name:'Legal Review', role:'契約・規約確認', model:'Sonnet'},
+    ]
+  },
+  {
+    key: 'infrastructure', label: 'インフラ', color: '#2e7d32',
+    members: [
+      {id:'task-dispatcher', name:'Task Dispatcher', role:'inbox→タスク生成', model:'Haiku'},
+      {id:'local-support', name:'Local Support', role:'ゴミ掃除・メンテ', model:'Local'},
+    ]
+  },
+];
+
+function agentStats(agentId) {
+  var active=0, blocked=0, done=0;
+  tasks.forEach(function(t){
+    if(t.assignee!==agentId) return;
+    if(t.status==='in-progress') active++;
+    else if(t.status==='blocked') blocked++;
+    else if(t.status==='done') done++;
+  });
+  return {active:active, blocked:blocked, done:done};
+}
+
+function renderOrgChart() {
+  var total = tasks.length;
+  var doneCount = tasks.filter(function(t){return t.status==='done';}).length;
+  var ipCount = tasks.filter(function(t){return t.status==='in-progress';}).length;
+  var blockedCount = tasks.filter(function(t){return t.status==='blocked';}).length;
+  document.getElementById('orgSubheading').textContent =
+    '全'+total+'タスク — 完了:'+doneCount+' 進行中:'+ipCount+' ブロック:'+blockedCount+' | 月予算 $10';
+
+  // COO stats
+  var cooStats = agentStats('coo');
+  var cooEl = document.getElementById('coo-stats');
+  cooEl.innerHTML = '';
+  if(cooStats.active) cooEl.innerHTML += '<span class="org-stat active">進行中 '+cooStats.active+'</span>';
+  if(cooStats.blocked) cooEl.innerHTML += '<span class="org-stat blocked">ブロック '+cooStats.blocked+'</span>';
+  if(cooStats.done) cooEl.innerHTML += '<span class="org-stat">完了 '+cooStats.done+'</span>';
+
+  // Teams
+  var row = document.getElementById('orgTeamsRow');
+  row.innerHTML = '';
+  ORG_TEAMS.forEach(function(team) {
+    if(team.key === 'leadership') return; // COOは上段に表示済み
+    var col = document.createElement('div');
+    col.className = 'org-team-col';
+    var hdr = document.createElement('div');
+    hdr.className = 'org-team-header';
+    hdr.style.borderBottomColor = team.color;
+    hdr.style.color = team.color;
+    hdr.textContent = team.label;
+    col.appendChild(hdr);
+    team.members.forEach(function(m) {
+      var a = AGENTS[m.id] || {e:'🤖', c:'#444'};
+      var stats = agentStats(m.id);
+      var statsHtml = '';
+      if(stats.active) statsHtml += '<span class="org-stat active">進行中'+stats.active+'</span>';
+      if(stats.blocked) statsHtml += '<span class="org-stat blocked">ブロック'+stats.blocked+'</span>';
+      if(stats.done) statsHtml += '<span class="org-stat">完了'+stats.done+'</span>';
+      var node = document.createElement('div');
+      node.className = 'org-node';
+      node.style.borderLeftWidth = '3px';
+      node.style.borderLeftColor = a.c;
+      node.innerHTML =
+        '<div class="org-node-top">'
+        + '<span class="org-node-emoji">'+a.e+'</span>'
+        + '<div class="org-node-info">'
+        + '<div class="org-node-name">'+h(m.name)+'</div>'
+        + '<div class="org-node-role">'+h(m.role)+'</div>'
+        + '<div class="org-node-model">'+h(m.model)+'</div>'
+        + '</div></div>'
+        + (statsHtml ? '<div class="org-node-stats">'+statsHtml+'</div>' : '');
+      col.appendChild(node);
+    });
+    row.appendChild(col);
+  });
 }
 
 // ── REPORTS ──
