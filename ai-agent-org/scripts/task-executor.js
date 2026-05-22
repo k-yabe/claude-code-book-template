@@ -149,7 +149,8 @@ const AGENT_DESCRIPTIONS = {
 function buildSystemPrompt(task) {
   const identity = loadContextFile('professional-identity.md');
   const philosophy = loadContextFile('philosophy.md');
-  const designGuide = loadContextFile('visual-design.md');
+  const needsDesign = ['frontend-engineer', 'content-director', 'marketing-director'].includes(task.assignee);
+  const designGuide = needsDesign ? loadContextFile('visual-design.md') : '';
   const agentDesc = AGENT_DESCRIPTIONS[task.assignee] || 'あなたはAIエージェントです。';
 
   const today = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -199,7 +200,7 @@ ${feedbackNote}
 ## タスクの詳細:
 ${task.description}
 
-${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n${task.comments.map(c => `[${c.author}] ${c.content}`).join('\n')}` : ''}
+${task.comments && task.comments.length > 0 ? `## これまでのコメント（直近3件）:\n${task.comments.slice(-3).map(c => `[${c.author}] ${c.content.slice(0, 200)}`).join('\n')}` : ''}
 
 タスクを実行し、成果物または実行結果を日本語でまとめてください。
 
@@ -213,7 +214,7 @@ ${useWebSearch ? '- 最新情報が必要な場合は web_search ツールを使
   console.log(`\n処理中: ${task.id} "${task.title}" → ${task.assignee} (${model})${feedbackFromCOO ? ' [COO差し戻し再試行]' : ''}${useWebSearch ? ' [Web検索有効]' : ''}`);
 
   const tools = useWebSearch
-    ? [{ type: 'web_search_20260209', name: 'web_search', allowed_callers: ['direct'], max_uses: 2 }]
+    ? [{ type: 'web_search_20260209', name: 'web_search', allowed_callers: ['direct'], max_uses: 1 }]
     : undefined;
   const betas = useWebSearch ? ['web-search-2025-03-05'] : undefined;
 
@@ -329,7 +330,7 @@ ${agentOutput.slice(0, 2000)}${agentOutput.length > 2000 ? '\n…（以降省略
     const response = await client.messages.create({
       model,
       max_tokens: 512,
-      system: systemPrompt,
+      system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: userMessage }],
     });
 
