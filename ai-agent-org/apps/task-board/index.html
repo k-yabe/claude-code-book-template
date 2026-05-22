@@ -261,7 +261,7 @@ html.light .org-node-coo { background: #5c35a010; }
   flex-shrink: 0;
 }
 .col-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.col-title { font-size: 11px; font-weight: 600; flex: 1; color: var(--text2); letter-spacing: 0.5px; text-transform: uppercase; }
+.col-title { font-size: 11px; font-weight: 600; flex: 1; color: var(--text2); letter-spacing: 0.5px; }
 .col-count {
   background: var(--bg3);
   font-size: 11px;
@@ -416,6 +416,8 @@ html.light .unread-dot { box-shadow: 0 0 0 2px var(--bg); }
   flex-shrink: 0;
 }
 .blocked-label { font-size: 10px; color: var(--p0); margin-bottom: 5px; }
+.blocked-banner { background: #f851491a; border-left: 3px solid var(--col-bl); padding: 8px 14px; font-size: 11px; color: var(--col-bl); line-height: 1.5; }
+.blocked-banner.hidden { display: none; }
 
 /* team chip */
 .team-chip { font-size: 10px; padding: 1px 6px; border-radius: 20px; font-weight: 500; flex-shrink: 0; }
@@ -971,13 +973,15 @@ input:focus, select:focus { border-color: var(--accent); }
     <div class="panel-hdr">
       <div class="panel-hdr-row1">
         <div class="panel-agent-av" id="panelAv"></div>
-        <span class="panel-agent-name" id="panelAgent" onclick="openAssigneeEdit()" title="クリックで担当者変更" style="cursor:pointer;text-decoration:underline dotted"></span>
+        <span class="panel-agent-name" id="panelAgent"></span>
+        <button class="btn-icon" onclick="openAssigneeEdit()" aria-label="担当者を変更" title="担当者を変更" style="font-size:12px;opacity:0.6">✎</button>
         <button class="btn-icon" onclick="deleteActiveTask()" aria-label="タスクを削除" title="削除">🗑</button>
         <button class="btn-icon" onclick="closePanel()" aria-label="パネルを閉じる" title="閉じる (Esc)">✕</button>
       </div>
       <div class="panel-hdr-row2" id="panelTitle"></div>
       <div class="panel-hdr-row3" id="panelMeta"></div>
     </div>
+    <div class="blocked-banner hidden" id="blockedBanner"></div>
     <div class="messages" id="chatMessages"></div>
     <div class="chat-input">
       <textarea id="msgInput" placeholder="コメントを追加（Enter で送信、Shift+Enter で改行）" rows="1"
@@ -1099,27 +1103,27 @@ input:focus, select:focus { border-color: var(--accent); }
             <option value="auto" selected>🤖 おまかせ（自動判断）</option>
             <option value="human">👤 自分でやる</option>
             <option disabled>── 経営層 ──</option>
-            <option value="coo">🏢 coo（全体レビュー・品質保証）</option>
+            <option value="coo">🏢 COO（全体レビュー・品質保証）</option>
             <option disabled>── リサーチ ──</option>
-            <option value="research-analyst">🔎 research-analyst（調査・比較）</option>
-            <option value="data-analyst">📊 data-analyst（データ・KPI分析）</option>
+            <option value="research-analyst">🔎 リサーチアナリスト（調査・比較）</option>
+            <option value="data-analyst">📊 データアナリスト（データ・KPI分析）</option>
             <option disabled>── kunito ──</option>
-            <option value="career-advisor">🧭 career-advisor（副業・キャリア）</option>
+            <option value="career-advisor">🧭 キャリアアドバイザー（副業・キャリア）</option>
             <option disabled>── エンジニアリング ──</option>
-            <option value="tech-lead">🔧 tech-lead（技術・実装）</option>
-            <option value="frontend-engineer">🎨 frontend-engineer（UI/CSS）</option>
-            <option value="backend-engineer">⚙️ backend-engineer（API/DB）</option>
-            <option value="qa-engineer">🧪 qa-engineer（品質・テスト）</option>
-            <option value="devops-engineer">🚀 devops-engineer（CI/CD・デプロイ）</option>
+            <option value="tech-lead">🔧 テックリード（技術・実装）</option>
+            <option value="frontend-engineer">🎨 フロントエンドエンジニア（UI/CSS）</option>
+            <option value="backend-engineer">⚙️ バックエンドエンジニア（API/DB）</option>
+            <option value="qa-engineer">🧪 QAエンジニア（品質・テスト）</option>
+            <option value="devops-engineer">🚀 デブオプスエンジニア（CI/CD・デプロイ）</option>
             <option disabled>── コンテンツ ──</option>
-            <option value="content-director">📝 content-director（記事・コンテンツ）</option>
-            <option value="video-producer">🎬 video-producer（動画・台本）</option>
+            <option value="content-director">📝 コンテンツディレクター（記事・コンテンツ）</option>
+            <option value="video-producer">🎬 ビデオプロデューサー（動画・台本）</option>
             <option disabled>── ビジネス ──</option>
-            <option value="business-strategist">💼 business-strategist（戦略）</option>
-            <option value="marketing-director">📣 marketing-director（マーケ）</option>
-            <option value="sales-growth">📈 sales-growth（収益・グロース）</option>
-            <option value="partnership-manager">🤝 partnership-manager（提携）</option>
-            <option value="legal-review">⚖️ legal-review（契約・規約）</option>
+            <option value="business-strategist">💼 ビジネスストラテジスト（戦略）</option>
+            <option value="marketing-director">📣 マーケティングディレクター（マーケ）</option>
+            <option value="sales-growth">📈 セールス＆グロース（収益・グロース）</option>
+            <option value="partnership-manager">🤝 パートナーシップマネージャー（提携）</option>
+            <option value="legal-review">⚖️ リーガルレビュー（契約・規約）</option>
           </select>
           <div id="autoHint" style="font-size:10px;color:var(--text2);margin-top:4px">タイトルと説明からキーワードで自動判断します</div>
         </div>
@@ -1137,6 +1141,7 @@ input:focus, select:focus { border-color: var(--accent); }
         <div class="field">
           <label>チーム</label>
           <select id="cTeam">
+            <option value="" selected>おまかせ（担当者に合わせる）</option>
             <option value="leadership">経営</option>
             <option value="research">リサーチ</option>
             <option value="personal">kunito</option>
@@ -1191,34 +1196,34 @@ var pushPending  = false;
 var themeMode    = 'auto'; // 'auto'|'dark'|'light'
 
 var AGENTS = {
-  'human':               {e:'👤', c:'#1f6feb'},
+  'human':               {e:'👤', c:'#1f6feb', n:'自分でやる'},
   // 経営層
-  'coo':                 {e:'🏢', c:'#5c35a0'},
+  'coo':                 {e:'🏢', c:'#5c35a0', n:'COO'},
   // リサーチ
-  'research-analyst':    {e:'🔎', c:'#00897b'},
-  'data-analyst':        {e:'📊', c:'#00695c'},
+  'research-analyst':    {e:'🔎', c:'#00897b', n:'リサーチアナリスト'},
+  'data-analyst':        {e:'📊', c:'#00695c', n:'データアナリスト'},
   // パーソナル (kunito)
-  'career-advisor':      {e:'🧭', c:'#c2185b'},
+  'career-advisor':      {e:'🧭', c:'#c2185b', n:'キャリアアドバイザー'},
   // エンジニアリング
-  'tech-lead':           {e:'🔧', c:'#1565c0'},
-  'frontend-engineer':   {e:'🎨', c:'#6a1b9a'},
-  'backend-engineer':    {e:'⚙️', c:'#0277bd'},
-  'qa-engineer':         {e:'🧪', c:'#2e7d32'},
-  'devops-engineer':     {e:'🚀', c:'#01579b'},
+  'tech-lead':           {e:'🔧', c:'#1565c0', n:'テックリード'},
+  'frontend-engineer':   {e:'🎨', c:'#6a1b9a', n:'フロントエンドエンジニア'},
+  'backend-engineer':    {e:'⚙️', c:'#0277bd', n:'バックエンドエンジニア'},
+  'qa-engineer':         {e:'🧪', c:'#2e7d32', n:'QAエンジニア'},
+  'devops-engineer':     {e:'🚀', c:'#01579b', n:'デブオプスエンジニア'},
   // コンテンツ
-  'content-director':    {e:'📝', c:'#4527a0'},
-  'video-producer':      {e:'🎬', c:'#880e4f'},
-  'brand-voice':         {e:'🎙️', c:'#6d4c41'},
-  'root-cause':          {e:'🔍', c:'#37474f'},
-  'anti-ai-slop':        {e:'🚫', c:'#bf360c'},
+  'content-director':    {e:'📝', c:'#4527a0', n:'コンテンツディレクター'},
+  'video-producer':      {e:'🎬', c:'#880e4f', n:'ビデオプロデューサー'},
+  'brand-voice':         {e:'🎙️', c:'#6d4c41', n:'ブランドボイス'},
+  'root-cause':          {e:'🔍', c:'#37474f', n:'根本原因分析'},
+  'anti-ai-slop':        {e:'🚫', c:'#bf360c', n:'アンチAIスロップ'},
   // ビジネス
-  'business-strategist': {e:'💼', c:'#004d40'},
-  'marketing-director':  {e:'📣', c:'#f57f17'},
-  'sales-growth':        {e:'📈', c:'#e65100'},
-  'partnership-manager': {e:'🤝', c:'#558b2f'},
-  'legal-review':        {e:'⚖️', c:'#4e342e'},
+  'business-strategist': {e:'💼', c:'#004d40', n:'ビジネスストラテジスト'},
+  'marketing-director':  {e:'📣', c:'#f57f17', n:'マーケティングディレクター'},
+  'sales-growth':        {e:'📈', c:'#e65100', n:'セールス＆グロース'},
+  'partnership-manager': {e:'🤝', c:'#558b2f', n:'パートナーシップマネージャー'},
+  'legal-review':        {e:'⚖️', c:'#4e342e', n:'リーガルレビュー'},
   // インフラ
-  'task-dispatcher':     {e:'📬', c:'#37474f'},
+  'task-dispatcher':     {e:'📬', c:'#37474f', n:'タスクディスパッチャー'},
 };
 
 var TEAM_CSS = {
@@ -1410,10 +1415,27 @@ function pushToGitHub(){
   var pat=getPat();
   if(!pat){ setSyncStatus('⚠️ 未保存 — 🔑でトークン設定','var(--col-bl)'); return Promise.resolve(); }
   setSyncStatus('保存中...','var(--accent)');
-  var payload=JSON.stringify({version:'1.0',lastUpdated:new Date().toISOString(),tasks:tasks},null,2);
   return fetch(GITHUB_API_URL,{headers:{Authorization:'token '+pat,Accept:'application/vnd.github.v3+json'}})
     .then(function(r){return r.json();})
     .then(function(meta){
+      // GitHubの最新データと手元データをマージ（updatedAt新しい方を優先）
+      var merged = tasks.slice();
+      try {
+        var remoteRaw = JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\n/g,'')))));
+        var remoteTasks = remoteRaw.tasks || remoteRaw;
+        if(Array.isArray(remoteTasks)){
+          remoteTasks.forEach(function(rt){
+            var local = merged.find(function(lt){return lt.id===rt.id;});
+            if(!local){
+              merged.push(rt); // リモートにしか存在しないタスクを追加
+            } else if(new Date(rt.updatedAt) > new Date(local.updatedAt)){
+              var idx = merged.indexOf(local);
+              merged[idx] = rt; // リモートが新しければリモートで上書き
+            }
+          });
+        }
+      } catch(e){ /* マージ失敗時はローカルをそのまま使用 */ }
+      var payload=JSON.stringify({version:'1.0',lastUpdated:new Date().toISOString(),tasks:merged},null,2);
       return fetch(GITHUB_API_URL,{
         method:'PUT',
         headers:{Authorization:'token '+pat,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},
@@ -1608,8 +1630,8 @@ function renderPanelHeader(){
   av.textContent=a.e;
   av.style.cssText='background:'+a.c+'22;border:1.5px solid '+a.c+'55;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;';
 
-  var a2=ag(t.assignee);
-  document.getElementById('panelAgent').textContent=a2.e+' '+t.assignee;
+  var agentName = (AGENTS[t.assignee]&&AGENTS[t.assignee].n) ? AGENTS[t.assignee].n : t.assignee;
+  document.getElementById('panelAgent').textContent=a.e+' '+agentName;
   document.getElementById('panelTitle').textContent=t.title;
 
   var tc=TEAM_CSS[t.team]||'tc-engineering';
@@ -1619,6 +1641,14 @@ function renderPanelHeader(){
     +'<span class="prio-chip pc-'+t.priority+'">'+t.priority+'</span>'
     +'<span class="team-chip '+tc+'">'+tl+'</span>'
     +'<span class="panel-hdr-id">'+h(t.id)+'</span>';
+
+  var banner=document.getElementById('blockedBanner');
+  if(t.status==='blocked'&&t.blockedReason){
+    banner.textContent='⛔ ブロック理由: '+t.blockedReason;
+    banner.classList.remove('hidden');
+  } else {
+    banner.classList.add('hidden');
+  }
 }
 
 // ── ASSIGNEE EDIT ──
@@ -1626,29 +1656,38 @@ function openAssigneeEdit(){
   var t=tasks.find(function(x){return x.id===activeId;});
   if(!t) return;
   var el=document.getElementById('panelAgent');
+  if(!el) return;
+  var origAssignee=t.assignee;
   var agentIds=Object.keys(AGENTS).filter(function(k){return k!=='human';});
   var sel=document.createElement('select');
-  sel.style.cssText='max-width:200px;font-size:12px;';
+  sel.style.cssText='max-width:220px;font-size:12px;flex:1;';
   agentIds.forEach(function(id){
     var o=document.createElement('option');
-    o.value=id; o.textContent=AGENTS[id].e+' '+id;
+    var name=(AGENTS[id]&&AGENTS[id].n)?AGENTS[id].n:id;
+    o.value=id; o.textContent=AGENTS[id].e+' '+name;
     if(id===t.assignee) o.selected=true;
     sel.appendChild(o);
   });
   el.replaceWith(sel);
   sel.focus();
+  var applied=false;
   function applyChange(){
+    if(applied) return;
+    applied=true;
+    sel.onchange=null; sel.onblur=null;
     var newAssignee=sel.value;
+    if(newAssignee===origAssignee){ renderPanelHeader(); return; }
     var found=FRONT_ROUTING.find(function(r){return r.assignee===newAssignee;});
     t.assignee=newAssignee;
     if(found) t.team=found.team;
     t.updatedAt=new Date().toISOString();
     t.comments=t.comments||[];
-    t.comments.push({author:'human',content:'👤 担当者を「'+newAssignee+'」に変更',timestamp:new Date().toISOString()});
+    var name=(AGENTS[newAssignee]&&AGENTS[newAssignee].n)?AGENTS[newAssignee].n:newAssignee;
+    t.comments.push({author:'human',content:'👤 担当者を「'+name+'」に変更',timestamp:new Date().toISOString()});
     saveAndPush(); render(); renderPanelHeader(); renderChat();
   }
   sel.onchange=applyChange;
-  sel.onblur=function(){ applyChange(); };
+  sel.onblur=applyChange;
 }
 
 // ── STATUS MENU ──
@@ -1835,7 +1874,8 @@ function updateAutoPreview(){
   var r=autoRoute(text);
   var a=ag(r.assignee);
   var hint=document.getElementById('autoHint');
-  if(hint) hint.textContent='→ '+a.e+' '+r.assignee+' に割り当てられます';
+  var aName=(AGENTS[r.assignee]&&AGENTS[r.assignee].n)?AGENTS[r.assignee].n:r.assignee;
+  if(hint) hint.textContent='→ '+a.e+' '+aName+' に割り当てられます';
 }
 
 function createTask(){
@@ -1851,7 +1891,8 @@ function createTask(){
   } else {
     assignee=sel;
     var found=FRONT_ROUTING.find(function(r){return r.assignee===assignee;});
-    team=found?found.team:document.getElementById('cTeam').value;
+    var cTeamVal=document.getElementById('cTeam').value;
+    team=found?found.team:(cTeamVal||'engineering');
   }
   var t={
     id:nextId(), title:title,
@@ -1914,133 +1955,133 @@ var AGENT_PROFILES = {
     webSearch: false,
   },
   'research-analyst': {
-    fullName: 'Research Analyst（リサーチアナリスト）',
+    fullName: 'リサーチアナリスト',
     desc: '購入検討・ツール比較・市場調査・導入判断など「調べて比べて結論を出す」タスク全般を担当。最新Webも検索して根拠のある推奨を出します。',
     canDo: ['製品・サービスの比較表作成','購入タイミングの判断','市場調査・競合分析','技術トレンド調査','ツール導入可否の判断'],
     cannotDo: ['コードの実装','法的な正式見解','戦略的意思決定（Business Strategistへ）'],
     webSearch: true,
   },
   'data-analyst': {
-    fullName: 'Data Analyst（データアナリスト）',
+    fullName: 'データアナリスト',
     desc: 'CSVやJSONの数値データを整理・集計し、KPIモニタリング・インサイト抽出・推奨アクション提示を行います。',
     canDo: ['CSVデータの集計・クレンジング','KPI定義と進捗モニタリング','A/Bテスト結果の解釈','競合数値ベンチマーク'],
     cannotDo: ['データ収集・スクレイピング（Backend Engineerへ）','高度な統計モデル・機械学習'],
     webSearch: false,
   },
   'career-advisor': {
-    fullName: 'Career Advisor（キャリアアドバイザー）',
+    fullName: 'キャリアアドバイザー',
     desc: 'k-yabe個人のキャリア・副業・収入機会に特化したアドバイザー。スキルセットと市場ニーズを照合して具体的な候補を提示します。',
     canDo: ['副業・フリーランス案件の発掘','キャリアパスの設計','スキルアップ計画の作成','収入アップ施策の提案','転職・独立タイミングの判断'],
     cannotDo: ['他者のキャリア相談','法的な雇用契約判断（Legal Reviewへ）'],
     webSearch: true,
   },
   'tech-lead': {
-    fullName: 'Tech Lead（テックリード）',
+    fullName: 'テックリード',
     desc: 'エンジニアリングチームのオーケストレーター。技術設計・実装方針を決めてFrontend/Backend/QA/DevOpsに振り分けます。',
     canDo: ['アーキテクチャ設計','技術選定・比較','コードレビュー','タスクの振り分け','実装方針の策定'],
     cannotDo: ['重要インフラ変更（人間確認が必要）','セキュリティポリシー変更'],
     webSearch: true,
   },
   'frontend-engineer': {
-    fullName: 'Frontend Engineer（フロントエンドエンジニア）',
+    fullName: 'フロントエンドエンジニア',
     desc: 'UI/UXの実装を担当。HTML・CSS・JavaScriptでデザインを形にします。アクセシビリティとパフォーマンスを意識した実装が得意。',
     canDo: ['HTML/CSS/JSの実装','レスポンシブデザイン','アニメーション・インタラクション','アクセシビリティ対応'],
     cannotDo: ['サーバーサイド実装（Backend Engineerへ）','デザイン原案の作成'],
     webSearch: false,
   },
   'backend-engineer': {
-    fullName: 'Backend Engineer（バックエンドエンジニア）',
+    fullName: 'バックエンドエンジニア',
     desc: 'API設計・DB設計・サーバー実装を担当。データの永続化・セキュリティ・パフォーマンスを考慮した実装を行います。',
     canDo: ['API設計・実装','DB設計・最適化','認証・認可の実装','外部API連携','データ移行'],
     cannotDo: ['インフラ構築・デプロイ（DevOps Engineerへ）','UI実装（Frontend Engineerへ）'],
     webSearch: false,
   },
   'qa-engineer': {
-    fullName: 'QA Engineer（品質エンジニア）',
+    fullName: 'QAエンジニア',
     desc: 'ソフトウェアの品質保証を担当。テストケース設計・バグ検出・夜間自動QAの実行と結果分析を行います。',
     canDo: ['テストケース設計','バグレポート作成','回帰テスト','パフォーマンステスト','夜間自動QA分析'],
     cannotDo: ['バグの修正（Tech Lead等へ）','新機能の要件定義'],
     webSearch: false,
   },
   'devops-engineer': {
-    fullName: 'DevOps Engineer（デブオプスエンジニア）',
+    fullName: 'デブオプスエンジニア',
     desc: 'CI/CDパイプラインの構築・Vercelデプロイ・インフラ自動化を担当。コードが確実に本番環境に届く仕組みを作ります。',
     canDo: ['GitHub Actionsワークフロー','Vercel/Netlifyデプロイ設定','環境変数・シークレット管理','Dockerコンテナ設定'],
     cannotDo: ['本番データの削除（人間確認が必要）','月1万円超えのインフラ変更（人間確認）'],
     webSearch: false,
   },
   'content-director': {
-    fullName: 'Content Director（コンテンツディレクター）',
+    fullName: 'コンテンツディレクター',
     desc: 'コンテンツチームのオーケストレーター。記事・LP・メール・SNS投稿などのコンテンツを制作し、Brand Voice/Root Cause/Anti-AI Slopのサブエージェントでクオリティを担保します。',
     canDo: ['記事・ブログ執筆','LPコピーライティング','メール文面','SNS投稿文','コンテンツ戦略立案'],
     cannotDo: ['動画台本（Video Producerへ）','マーケ戦略全体（Marketing Directorへ）'],
     webSearch: true,
   },
   'video-producer': {
-    fullName: 'Video Producer（ビデオプロデューサー）',
+    fullName: 'ビデオプロデューサー',
     desc: 'YouTube動画・Shorts・Reelsの企画と台本制作を担当。Hook→本編→CTAの三部構成で視聴者を引き付けます。',
     canDo: ['YouTube台本（Hook/本編/CTA）','Shorts/Reels用60秒スクリプト','サムネイル・タイトルのAB案','シリーズ企画'],
     cannotDo: ['動画編集・制作','SEO最適化（Research Analystへ）'],
     webSearch: false,
   },
   'brand-voice': {
-    fullName: 'Brand Voice（ブランドボイス担当）',
+    fullName: 'ブランドボイス',
     desc: 'コンテンツのトーン・言葉遣いがブランドの価値観・スタイルと一致しているかチェックするサブエージェント。Content Directorが内部で呼び出します。',
     canDo: ['トーン&マナーチェック','言葉遣いの統一確認','ブランド価値観との整合チェック'],
     cannotDo: ['コンテンツの新規作成','戦略的な方向性の変更'],
     webSearch: false,
   },
   'root-cause': {
-    fullName: 'Root Cause（本質チェック担当）',
+    fullName: '根本原因分析',
     desc: 'コンテンツが本質的な価値・深みを持っているか、賞味期限の長い情報かをチェックするサブエージェント。Content Directorが内部で呼び出します。',
     canDo: ['コンテンツの本質チェック','情報の深さ・独自性評価','賞味期限の長さ判定'],
     cannotDo: ['コンテンツの新規作成'],
     webSearch: false,
   },
   'anti-ai-slop': {
-    fullName: 'Anti-AI Slop（AIっぽさ除去担当）',
+    fullName: 'アンチAIスロップ',
     desc: 'AIが書いたような不自然な表現・陳腐なフレーズ・過剰な箇条書きを検出・修正するサブエージェント。Content Directorが内部で呼び出します。',
     canDo: ['AIっぽい表現の検出','平凡フレーズの修正提案','過剰な箇条書きの整理','読みやすさ改善'],
     cannotDo: ['コンテンツの新規作成'],
     webSearch: false,
   },
   'business-strategist': {
-    fullName: 'Business Strategist（ビジネスストラテジスト）',
+    fullName: 'ビジネスストラテジスト',
     desc: '事業の重要な意思決定・戦略立案に特化。費用対効果・リスク分析・長期的な方向性の判断を担当します。コストが高いため本当に重要な判断時のみ使用。',
     canDo: ['事業戦略立案','新規事業の可否判断','ピボット判断','競合分析・ポジショニング','収益モデル設計'],
     cannotDo: ['日常的な実行タスク（コスト節約のため最小限使用）','マーケ施策の細部（Marketing Directorへ）'],
     webSearch: true,
   },
   'marketing-director': {
-    fullName: 'Marketing Director（マーケティングディレクター）',
+    fullName: 'マーケティングディレクター',
     desc: 'SNS運用・集客施策・広告コピー・プロモーション計画など、マーケティング全般を担当します。',
     canDo: ['SNS運用計画','広告コピー作成','コンテンツカレンダー','インフルエンサー施策','SEO施策'],
     cannotDo: ['事業の重要判断（Business Strategistへ）','実際の広告入稿'],
     webSearch: false,
   },
   'sales-growth': {
-    fullName: 'Sales & Growth Manager（セールス＆グロース）',
+    fullName: 'セールス＆グロース',
     desc: '収益化施策・グロースハック・LTV最大化を担当。YouTubeメンバーシップ・有料サービス・アフィリエイトなどの収益チャネルを最大化します。',
     canDo: ['収益化施策の立案','LPのCVR改善提案','メールシナリオ設計','価格設定・バンドル提案'],
     cannotDo: ['契約・法的事項（Legal Reviewへ）','重要な事業判断（Business Strategistへ）'],
     webSearch: false,
   },
   'partnership-manager': {
-    fullName: 'Partnership Manager（パートナーシップマネージャー）',
+    fullName: 'パートナーシップマネージャー',
     desc: '外部からのパートナー提案・コラボ・スポンサー案件をフィルタリング。優先度の高い案件だけを通過させます。',
     canDo: ['案件の価値評価・フィルタリング','ハイプ製品の除外','コラボ提案の整理','優先度付けと推薦'],
     cannotDo: ['契約交渉・締結（Legal Reviewへ）','最終的な採否判断（Business Strategistへ）'],
     webSearch: false,
   },
   'legal-review': {
-    fullName: 'Legal Review（リーガルレビュー担当）',
+    fullName: 'リーガルレビュー',
     desc: '契約書・利用規約・プライバシーポリシーなどの法的文書の第1段階レビューを担当。明らかなリスクや注意点を指摘します。',
     canDo: ['契約書のリスク指摘','利用規約のチェック','プライバシーポリシー確認','重要条項のハイライト'],
     cannotDo: ['正式な法的見解の提供（弁護士に委任）','契約交渉の代理'],
     webSearch: false,
   },
   'task-dispatcher': {
-    fullName: 'Task Dispatcher（タスクディスパッチャー）',
+    fullName: 'タスクディスパッチャー',
     desc: 'inbox/フォルダを監視してMarkdownファイルを検出し、内容を解析してタスクを自動生成・適切なエージェントに割り振ります。5分ごとに実行。',
     canDo: ['inbox/のファイル監視','タスクの自動生成','エージェントへの自動割り振り','朝会レポートの生成'],
     cannotDo: ['タスクの実行（Task Executorが担当）','人間の判断が必要なタスクの処理'],
@@ -2065,51 +2106,51 @@ var ORG_TEAMS = [
   {
     key: 'research', label: 'リサーチ', color: '#00897b',
     members: [
-      {id:'research-analyst', name:'Research Analyst', role:'調査・比較・導入判断', model:'Sonnet'},
-      {id:'data-analyst', name:'Data Analyst', role:'データ・KPI分析', model:'Haiku'},
+      {id:'research-analyst', name:'リサーチアナリスト', role:'調査・比較・導入判断', model:'Sonnet'},
+      {id:'data-analyst', name:'データアナリスト', role:'データ・KPI分析', model:'Haiku'},
     ]
   },
   {
     key: 'personal', label: 'パーソナル', color: '#c2185b',
     members: [
-      {id:'career-advisor', name:'Career Advisor', role:'副業・キャリア相談', model:'Sonnet'},
+      {id:'career-advisor', name:'キャリアアドバイザー', role:'副業・キャリア相談', model:'Sonnet'},
     ]
   },
   {
     key: 'engineering', label: 'エンジニア', color: '#1565c0',
     members: [
-      {id:'tech-lead', name:'Tech Lead', role:'技術判断・割り振り', model:'Haiku'},
-      {id:'frontend-engineer', name:'Frontend Eng.', role:'UI/CSS/HTML', model:'Haiku'},
-      {id:'backend-engineer', name:'Backend Eng.', role:'API/DB/サーバー', model:'Haiku'},
-      {id:'qa-engineer', name:'QA Engineer', role:'品質チェック', model:'Haiku'},
-      {id:'devops-engineer', name:'DevOps Eng.', role:'CI/CD・デプロイ', model:'Haiku'},
+      {id:'tech-lead', name:'テックリード', role:'技術判断・割り振り', model:'Haiku'},
+      {id:'frontend-engineer', name:'フロントエンドエンジニア', role:'UI/CSS/HTML', model:'Haiku'},
+      {id:'backend-engineer', name:'バックエンドエンジニア', role:'API/DB/サーバー', model:'Haiku'},
+      {id:'qa-engineer', name:'QAエンジニア', role:'品質チェック', model:'Haiku'},
+      {id:'devops-engineer', name:'デブオプスエンジニア', role:'CI/CD・デプロイ', model:'Haiku'},
     ]
   },
   {
     key: 'content', label: 'コンテンツ', color: '#6a1b9a',
     members: [
-      {id:'content-director', name:'Content Director', role:'記事・コンテンツ', model:'Sonnet'},
-      {id:'video-producer', name:'Video Producer', role:'YouTube台本', model:'Haiku'},
-      {id:'brand-voice', name:'Brand Voice', role:'ブランドチェック', model:'Haiku'},
-      {id:'root-cause', name:'Root Cause', role:'本質・深さチェック', model:'Haiku'},
-      {id:'anti-ai-slop', name:'Anti-AI Slop', role:'AI表現除去', model:'Haiku'},
+      {id:'content-director', name:'コンテンツディレクター', role:'記事・コンテンツ', model:'Sonnet'},
+      {id:'video-producer', name:'ビデオプロデューサー', role:'YouTube台本', model:'Haiku'},
+      {id:'brand-voice', name:'ブランドボイス', role:'ブランドチェック', model:'Haiku'},
+      {id:'root-cause', name:'根本原因分析', role:'本質・深さチェック', model:'Haiku'},
+      {id:'anti-ai-slop', name:'アンチAIスロップ', role:'AI表現除去', model:'Haiku'},
     ]
   },
   {
     key: 'business', label: 'ビジネス', color: '#e65100',
     members: [
-      {id:'business-strategist', name:'Biz Strategist', role:'戦略・事業判断', model:'Sonnet'},
-      {id:'marketing-director', name:'Marketing Dir.', role:'マーケ・SNS', model:'Haiku'},
-      {id:'sales-growth', name:'Sales & Growth', role:'収益化・グロース', model:'Haiku'},
-      {id:'partnership-manager', name:'Partnership Mgr', role:'提携・スポンサー', model:'Haiku'},
-      {id:'legal-review', name:'Legal Review', role:'契約・規約確認', model:'Sonnet'},
+      {id:'business-strategist', name:'ビジネスストラテジスト', role:'戦略・事業判断', model:'Sonnet'},
+      {id:'marketing-director', name:'マーケティングディレクター', role:'マーケ・SNS', model:'Haiku'},
+      {id:'sales-growth', name:'セールス＆グロース', role:'収益化・グロース', model:'Haiku'},
+      {id:'partnership-manager', name:'パートナーシップマネージャー', role:'提携・スポンサー', model:'Haiku'},
+      {id:'legal-review', name:'リーガルレビュー', role:'契約・規約確認', model:'Sonnet'},
     ]
   },
   {
     key: 'infrastructure', label: 'インフラ', color: '#2e7d32',
     members: [
-      {id:'task-dispatcher', name:'Task Dispatcher', role:'inbox→タスク生成', model:'Haiku'},
-      {id:'local-support', name:'Local Support', role:'ゴミ掃除・メンテ', model:'Local'},
+      {id:'task-dispatcher', name:'タスクディスパッチャー', role:'inbox→タスク生成', model:'Haiku'},
+      {id:'local-support', name:'ローカルサポート', role:'ゴミ掃除・メンテ', model:'Local'},
     ]
   },
 ];
