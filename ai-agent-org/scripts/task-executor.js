@@ -228,8 +228,9 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
     }
 
     // Web検索結果を切り詰めてトークン節約
+    // APIバージョンにより 'web_search_result' または 'web_search_tool_result' の両方に対応
     const contentForHistory = response.content.map(b => {
-      if (b.type === 'web_search_result') {
+      if (b.type === 'web_search_result' || b.type === 'web_search_tool_result') {
         const truncated = typeof b.content === 'string'
           ? b.content.slice(0, WEB_SEARCH_RESULT_MAX_CHARS)
           : b.content;
@@ -245,7 +246,7 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n
       const toolUseBlocks = response.content.filter(b => b.type === 'tool_use');
       const hasWebSearch = toolUseBlocks.some(b => b.name === 'web_search');
       if (hasWebSearch) {
-        const hasResults = response.content.some(b => b.type === 'web_search_result');
+        const hasResults = response.content.some(b => b.type === 'web_search_result' || b.type === 'web_search_tool_result');
         if (hasResults) {
           const hasText = response.content.some(b => b.type === 'text' && b.text.trim().length > 50);
           if (hasText) break;
@@ -584,6 +585,7 @@ async function main() {
         taskRef.blockedReason = `実行エラー: ${err.message}`;
         taskRef.updatedAt = new Date().toISOString();
         saveTasks(data);
+        processedIds.push(task.id); // エラー時も push してステータスをクラウドに反映
       }
     }
   }
@@ -599,10 +601,10 @@ async function main() {
   console.log(`  月額換算（1日1回実行の場合）: $${monthlyCostEstimate.toFixed(3)}`);
   console.log(`  月額換算（5回/日実行の場合）: $${(costLog.totalUSD * 30 * 5).toFixed(3)}`);
   console.log(`  予算上限: $10.00/月`);
-  if (monthlyCostEstimate * 5 > 10) {
-    console.log('  ⚠️  タスク数が多い場合は月$10を超える可能性があります。--limit を下げてください。');
+  if (monthlyCostEstimate > 10) {
+    console.log('  ⚠️  このペースで続くと月$10を超えます。--limit を下げてください。');
   } else {
-    console.log('  ✓ 予算内の見込みです');
+    console.log(`  ✓ 予算内の見込みです（月額換算: $${monthlyCostEstimate.toFixed(3)}）`);
   }
   console.log('────────────────────────────────────────');
   console.log(`\n完了: ${processedIds.length}件処理しました`);
