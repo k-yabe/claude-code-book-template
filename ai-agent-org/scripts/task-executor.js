@@ -73,10 +73,9 @@ const AGENT_MODELS = {
   'task-dispatcher':     MODELS.HAIKU,
 };
 
-// モデルごとのmax_tokens（Sonnetは Web検索結果+レポート本文を収めるため大きく設定）
 const MAX_TOKENS = {
   [MODELS.HAIKU]:  2048,
-  [MODELS.SONNET]: 16000,
+  [MODELS.SONNET]: 8192,
 };
 
 // Web検索結果の最大文字数（コスト節約：1件あたり約1000トークン相当）
@@ -226,7 +225,8 @@ ${useWebSearch ? '- 最新情報が必要な場合は web_search ツールを使
     const reqParams = {
       model,
       max_tokens: MAX_TOKENS[model] || 2048,
-      system: systemPrompt,
+      // システムプロンプトをキャッシュ（毎回同じ内容 → 2回目以降90%割引）
+      system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
       messages,
       ...(tools ? { tools } : {}),
     };
@@ -563,7 +563,25 @@ async function main() {
         continue;
       }
 
-      // ── COOレビュー Round 1 ──
+      // ── COOレビュー（Haikuタスクはスキップ、コスト節約）──
+      const taskModel = AGENT_MODELS[task.assignee] || MODELS.HAIKU;
+      if (taskModel === MODELS.HAIKU) {
+        console.log(`  Haikuタスクのため COOレビューをスキップ`);
+        saveToObsidian(task, result, 'APPROVED');
+        const outputFile = saveOutput(task, result);
+        const githubUrl = outputFile ? await pushOutputFileToGitHub(outputFile, fs.readFileSync(path.join(PROJECTS_DIR, outputFile), 'utf-8')) : null;
+        const snippet = result.length > 300 ? result.slice(0, 300) + '…' : result;
+        const commentContent = githubUrl ? `${snippet}\n\n📄 [全文レポートを見る](${githubUrl})` : snippet;
+        taskRef.status = 'done';
+        taskRef.blockedReason = '';
+        taskRef.updatedAt = new Date().toISOString();
+        taskRef.comments.push({ author: task.assignee, content: commentContent, timestamp: new Date().toISOString() });
+        saveTasks(data);
+        processedIds.push(task.id);
+        console.log(`✅ ${task.id}: done`);
+        continue;
+      }
+
       console.log(`\n🏢 COOレビュー開始: ${task.id}`);
       let verdict = await reviewWithCOO(task, result);
 
