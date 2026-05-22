@@ -326,17 +326,32 @@ function saveOutput(task, result) {
 }
 
 // ── Git push ─────────────────────────────────────────────
+function getAuthRemote() {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return null;
+  try {
+    const remote = execSync('git remote get-url origin', { cwd: ROOT }).toString().trim();
+    // https://github.com/... → https://token@github.com/...
+    return remote.replace('https://', `https://${token}@`);
+  } catch { return null; }
+}
+
 function gitPushChanges(taskIds) {
   if (DRY_RUN) return;
   try {
     execSync('git add tasks/tasks.json context/projects/', { cwd: ROOT });
     execSync(`git commit -m "bot: タスク自動実行 [${taskIds.join(', ')}]"`, { cwd: ROOT });
+
+    const authRemote = getAuthRemote();
+    const pushCmd = authRemote ? `git push "${authRemote}" HEAD:main` : 'git push';
+
     try {
-      execSync('git push', { cwd: ROOT });
+      execSync(pushCmd, { cwd: ROOT });
     } catch {
-      execSync('git fetch origin main', { cwd: ROOT });
+      const fetchCmd = authRemote ? `git fetch "${authRemote}" main:origin/main` : 'git fetch origin main';
+      execSync(fetchCmd, { cwd: ROOT });
       execSync('git rebase origin/main', { cwd: ROOT });
-      execSync('git push', { cwd: ROOT });
+      execSync(pushCmd, { cwd: ROOT });
     }
     console.log('\n✓ GitHubへのプッシュ完了');
   } catch (err) {
@@ -353,7 +368,11 @@ async function main() {
   }
 
   try {
-    execSync('git fetch origin main', { cwd: ROOT });
+    const authRemote = getAuthRemote();
+    const fetchCmd = authRemote
+      ? `git fetch "${authRemote}" main:refs/remotes/origin/main`
+      : 'git fetch origin main';
+    execSync(fetchCmd, { cwd: ROOT });
     execSync('git checkout origin/main -- tasks/tasks.json scripts/', { cwd: ROOT });
     console.log('✓ GitHubから最新データを取得');
   } catch (err) {
