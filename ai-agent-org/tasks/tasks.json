@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-05-22T13:30:18.097Z",
+  "lastUpdated": "2026-05-22T13:44:37.591Z",
   "tasks": [
     {
       "id": "T001",
@@ -216,19 +216,34 @@
       "id": "T013",
       "title": "Mac miniの購入検討",
       "description": "1. 検討の判断軸\n   新型が出るタイミングを最優先して購入したいと考えている。現状のリーク情報や予測情報を含めて、いつ購入すべきか、またMacBook Air M3と置き換える（あるいは使い分ける）べきか、構造的に判断してほしい。\n\n2. 現状の使用用途とニーズ\n   (a) MacBook Pro M5（仕事用）\n       メイン機だが重たいため、外出時の持ち運びには適さない。\n   (b) MacBook Air M3（外出用）\n       簡易的な外出用として、軽い作業のみで持ち運びたいというニーズがある。\n\n3. 今後の運用案\n   MacBook Air M3を持ち運ぶ機会が増えているため、Mac miniを自宅でサーバーのように運用した方が良いのではないかと考えている。",
-      "status": "new-assigned",
+      "status": "done",
       "priority": "P2",
       "assignee": "research-analyst",
       "assigneeType": "ai",
       "team": "research",
       "organization": "private",
       "createdAt": "2026-05-19T00:47:48.981Z",
-      "updatedAt": "2026-05-22T13:34:49.605Z",
+      "updatedAt": "2026-05-22T13:44:37.203Z",
       "comments": [
         {
           "author": "task-dispatcher",
           "content": "inbox から自動生成",
           "timestamp": "2026-05-19T00:47:48.981Z"
+        },
+        {
+          "author": "research-analyst",
+          "content": "タスクを開始しました。",
+          "timestamp": "2026-05-22T13:43:20.526Z"
+        },
+        {
+          "author": "research-analyst",
+          "content": "まず最新情報を調査します。\n\n調査完了。では構造化してレポートをまとめます。\n\n---\n\n# T013｜Mac mini 購入検討レポート\n\n## 【結論・最終推奨】\n\n> **M5 Mac mini の発売は2026年中頃〜後半が有力。現時点（2026年5月）はリリース直前の待機フェーズであり、「あと数ヶ月待つ」のが最も合理的な選択。ただし、用途がサーバー的な常時稼働 × AI活用であれば、整備済製品のM4 Mac miniを即時購入する選択肢も成立する。**\n\n---\n\n## 1. 現状のリーク・予測情報まとめ（2026年5月時点）\n\n### M5 Mac mini の発売予測\n\n\n\nAp…（続きは projects/ フォルダを確認）\n\n📄 出力ファイル: context/projects/T013-2026-05-22-output.md",
+          "timestamp": "2026-05-22T13:44:37.203Z"
+        },
+        {
+          "author": "coo",
+          "content": "✅ COOレビュー承認\n品質基準を満たしています。",
+          "timestamp": "2026-05-22T13:44:37.203Z"
         }
       ],
       "blockedReason": "",
