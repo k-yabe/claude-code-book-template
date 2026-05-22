@@ -397,9 +397,6 @@ async function pushViaGitHubAPI(data, taskIds) {
 function gitPushChanges(taskIds) {
   // 後方互換のため残すが、実際の push は pushViaGitHubAPI で行う
   console.log('\n✓ GitHubへのプッシュ完了');
-  } catch (err) {
-    console.error('git push 失敗:', err.message);
-  }
 }
 
 // ── メイン ───────────────────────────────────────────────
