@@ -92,7 +92,12 @@ const WEB_SEARCH_AGENTS = new Set([
   'business-strategist', 'tech-lead', 'legal-review',
 ]);
 
-// ── コスト追跡 ──────────────────────────────────────────────
+// 手動処理が必要なエージェント（API コスト節約のため claude.ai で処理）
+const MANUAL_AGENTS = new Set([
+  'research-analyst', 'career-advisor', 'business-strategist', 'legal-review',
+]);
+
+
 // 料金 (USD per 1M tokens)
 const PRICE = {
   [MODELS.HAIKU]:  { input: 1.0, output: 5.0 },
@@ -541,6 +546,24 @@ async function main() {
     try {
       const now = new Date().toISOString();
       const taskRef = data.tasks.find(t => t.id === task.id);
+
+      // ── 手動処理エージェントは claude.ai に誘導して即 blocked ──
+      if (MANUAL_AGENTS.has(task.assignee)) {
+        const prompt = `## ${task.title}\n\n${task.description || ''}`.trim();
+        taskRef.status = 'blocked';
+        taskRef.blockedReason = '手動処理タスクです。claude.ai のチャットで処理してください。';
+        taskRef.updatedAt = now;
+        taskRef.comments = taskRef.comments || [];
+        taskRef.comments.push({
+          author: 'task-dispatcher',
+          content: `🔍 **手動処理が必要です（API コスト節約）**\n\nclaude.ai のチャットに以下をそのまま貼り付けてください：\n\n---\n${prompt}\n---\n\n完了後、結果をこのタスクのコメントに貼り付けてステータスを「完了」に変更してください。`,
+          timestamp: now,
+        });
+        saveTasks(data);
+        processedIds.push(task.id);
+        console.log(`📋 ${task.id}: 手動処理に振り分け（${task.assignee}）`);
+        continue;
+      }
 
       taskRef.status = 'in-progress';
       taskRef.updatedAt = now;
