@@ -231,6 +231,14 @@ body {
 .card:hover { box-shadow: 0 2px 8px var(--shadow); border-color: var(--text3); }
 .card.active { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent)22; }
 .card[draggable]:active { opacity: 0.5; cursor: grabbing; }
+/* キーボードフォーカス */
+.card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent) !important;
+}
+/* 完了列は未読ドット非表示 */
+#list-done .unread-dot { display: none; }
 
 /* ステータス別カードスタイル */
 #list-in-progress .card {
@@ -609,6 +617,7 @@ html.dark .org-akkodis  { color:#ffa657; }
 }
 .btn:hover { border-color: var(--accent); }
 .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .btn-icon {
   background: none; border: none;
   color: var(--text2);
@@ -618,6 +627,25 @@ html.dark .org-akkodis  { color:#ffa657; }
   transition: color 0.1s, background 0.1s;
 }
 .btn-icon:hover { color: var(--text); background: var(--bg3); }
+.btn-icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+/* 削除確認トースト */
+.delete-confirm {
+  position: fixed;
+  bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg3);
+  border: 1px solid var(--p0);
+  border-radius: 8px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  box-shadow: 0 8px 24px var(--shadow);
+  z-index: 600;
+  white-space: nowrap;
+}
+.delete-confirm.hidden { display: none; }
 
 input, select {
   background: var(--bg3);
@@ -742,14 +770,14 @@ input:focus, select:focus { border-color: var(--accent); }
   <h1>🤖 AI Agent</h1>
   <div class="header-filters">
     <input type="search" id="filterText" placeholder="🔍 検索" oninput="render()" style="width:140px">
-    <select id="filterOrg" onchange="render()">
+    <select id="filterOrg" onchange="render()" aria-label="組織フィルター">
       <option value="">組織: 全て</option>
-      <option value="private">プライベート</option>
+      <option value="private">個人</option>
       <option value="shift-ai">SHIFT AI</option>
       <option value="otsunagi">OTSUNAGI</option>
       <option value="akkodis">AKKODiS</option>
     </select>
-    <select id="filterTeam" onchange="render()">
+    <select id="filterTeam" onchange="render()" aria-label="チームフィルター">
       <option value="">チーム: 全て</option>
       <option value="research">リサーチ</option>
       <option value="personal">kunito</option>
@@ -760,10 +788,10 @@ input:focus, select:focus { border-color: var(--accent); }
   </div>
   <div class="header-right">
     <span id="syncStatus" style="font-size:11px;color:var(--text2);white-space:nowrap"></span>
-    <button class="theme-btn" id="themeBtn" onclick="toggleThemeManual()" title="テーマ切り替え">🌙</button>
-    <button class="btn" onclick="syncNow()">↺ 同期</button>
-    <button class="btn" onclick="showPatDialog()">🔑</button>
-    <button class="btn primary" onclick="openCreate()">＋ タスク</button>
+    <button class="theme-btn" id="themeBtn" onclick="toggleThemeManual()" aria-label="テーマ切り替え" title="テーマ切り替え（N=新規 /=検索）">🌙</button>
+    <button class="btn" onclick="syncNow()" aria-label="データを同期">↺ 同期</button>
+    <button class="btn" onclick="showPatDialog()" aria-label="GitHubトークン設定">🔑</button>
+    <button class="btn primary" onclick="openCreate()" aria-label="新規タスク作成（N）">＋ タスク</button>
   </div>
 </div>
 
@@ -785,7 +813,7 @@ input:focus, select:focus { border-color: var(--accent); }
         <span class="col-count" id="cnt-new-assigned">0</span>
       </div>
       <div class="card-list" id="list-new-assigned"
-        ondragover="onDragOver(event)" ondrop="onDrop(event,'new-assigned')" ondragleave="onDragLeave(event)"></div>
+        ondragenter="onDragEnter(event)" ondragover="onDragOver(event)" ondrop="onDrop(event,'new-assigned')" ondragleave="onDragLeave(event)"></div>
     </div>
     <div class="column">
       <div class="col-header">
@@ -794,7 +822,7 @@ input:focus, select:focus { border-color: var(--accent); }
         <span class="col-count" id="cnt-in-progress">0</span>
       </div>
       <div class="card-list" id="list-in-progress"
-        ondragover="onDragOver(event)" ondrop="onDrop(event,'in-progress')" ondragleave="onDragLeave(event)"></div>
+        ondragenter="onDragEnter(event)" ondragover="onDragOver(event)" ondrop="onDrop(event,'in-progress')" ondragleave="onDragLeave(event)"></div>
     </div>
     <div class="column">
       <div class="col-header">
@@ -803,7 +831,7 @@ input:focus, select:focus { border-color: var(--accent); }
         <span class="col-count" id="cnt-blocked">0</span>
       </div>
       <div class="card-list" id="list-blocked"
-        ondragover="onDragOver(event)" ondrop="onDrop(event,'blocked')" ondragleave="onDragLeave(event)"></div>
+        ondragenter="onDragEnter(event)" ondragover="onDragOver(event)" ondrop="onDrop(event,'blocked')" ondragleave="onDragLeave(event)"></div>
     </div>
     <div class="column">
       <div class="col-header">
@@ -812,7 +840,7 @@ input:focus, select:focus { border-color: var(--accent); }
         <span class="col-count" id="cnt-done">0</span>
       </div>
       <div class="card-list" id="list-done"
-        ondragover="onDragOver(event)" ondrop="onDrop(event,'done')" ondragleave="onDragLeave(event)"></div>
+        ondragenter="onDragEnter(event)" ondragover="onDragOver(event)" ondrop="onDrop(event,'done')" ondragleave="onDragLeave(event)"></div>
     </div>
   </div>
 
@@ -822,8 +850,8 @@ input:focus, select:focus { border-color: var(--accent); }
       <div class="panel-hdr-row1">
         <div class="panel-agent-av" id="panelAv"></div>
         <span class="panel-agent-name" id="panelAgent"></span>
-        <button class="btn-icon" onclick="deleteActiveTask()" title="削除">🗑</button>
-        <button class="btn-icon" onclick="closePanel()" title="閉じる (Esc)">✕</button>
+        <button class="btn-icon" onclick="deleteActiveTask()" aria-label="タスクを削除" title="削除">🗑</button>
+        <button class="btn-icon" onclick="closePanel()" aria-label="パネルを閉じる" title="閉じる (Esc)">✕</button>
       </div>
       <div class="panel-hdr-row2" id="panelTitle"></div>
       <div class="panel-hdr-row3" id="panelMeta"></div>
@@ -832,7 +860,7 @@ input:focus, select:focus { border-color: var(--accent); }
     <div class="chat-input">
       <textarea id="msgInput" placeholder="コメントを追加（Enter で送信、Shift+Enter で改行）" rows="1"
         onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-      <button class="send-btn" onclick="sendMsg()">↑</button>
+      <button class="send-btn" onclick="sendMsg()" aria-label="コメントを送信">↑</button>
     </div>
   </div>
 </div>
@@ -916,7 +944,7 @@ input:focus, select:focus { border-color: var(--accent); }
         <div class="field">
           <label>組織</label>
           <select id="cOrg">
-            <option value="private" selected>プライベート</option>
+            <option value="private" selected>個人</option>
             <option value="shift-ai">SHIFT AI</option>
             <option value="otsunagi">OTSUNAGI</option>
             <option value="akkodis">AKKODiS</option>
@@ -932,6 +960,13 @@ input:focus, select:focus { border-color: var(--accent); }
 </div>
 
 <input type="file" id="fileInput" accept=".json" style="display:none" onchange="onFileImport(event)">
+
+<!-- 削除確認トースト -->
+<div class="delete-confirm hidden" id="deleteConfirm" role="alertdialog" aria-modal="true" aria-label="タスク削除の確認">
+  <span id="deleteConfirmMsg">このタスクを削除しますか？</span>
+  <button class="btn danger" onclick="confirmDelete()">削除</button>
+  <button class="btn" onclick="cancelDelete()">キャンセル</button>
+</div>
 
 <script>
 // ── Config ──
@@ -1080,7 +1115,7 @@ function initTheme() {
 }
 
 // ── Util ──
-function h(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function h(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function ag(name){ return AGENTS[name]||{e:'🤖',c:'#444'}; }
 
 // 相対時刻（カード表示用）
@@ -1295,11 +1330,22 @@ function cardHTML(t){
 }
 
 // ── DRAG & DROP ──
+var dragCounters = {};
 function onDragStart(e,id){ dragId=id; e.dataTransfer.effectAllowed='move'; }
 function onDragOver(e){ e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
-function onDragLeave(e){ e.currentTarget.classList.remove('drag-over'); }
+function onDragLeave(e){
+  var el=e.currentTarget, key=el.id||el.dataset.status||'col';
+  dragCounters[key]=(dragCounters[key]||0)-1;
+  if(dragCounters[key]<=0){ dragCounters[key]=0; el.classList.remove('drag-over'); }
+}
+function onDragEnter(e){
+  var el=e.currentTarget, key=el.id||el.dataset.status||'col';
+  dragCounters[key]=(dragCounters[key]||0)+1;
+  el.classList.add('drag-over');
+}
 function onDrop(e,newStatus){
   e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  var key=e.currentTarget.id||e.currentTarget.dataset.status||'col'; dragCounters[key]=0;
   if(!dragId) return;
   var t=tasks.find(function(x){return x.id===dragId;});
   if(!t||t.status===newStatus){dragId=null;return;}
@@ -1363,8 +1409,13 @@ function toggleStatusMenu(e){
   var menu=document.getElementById('statusMenu');
   if(menu.classList.contains('hidden')){
     var r=e.target.getBoundingClientRect();
-    menu.style.top=(r.bottom+4)+'px'; menu.style.left=r.left+'px';
+    menu.style.top='-9999px'; menu.style.left='-9999px';
     menu.classList.remove('hidden');
+    var mw=menu.offsetWidth||160, mh=menu.offsetHeight||160;
+    var top=r.bottom+4, left=r.left;
+    if(left+mw>window.innerWidth-8) left=window.innerWidth-mw-8;
+    if(top+mh>window.innerHeight-8) top=r.top-mh-4;
+    menu.style.top=Math.max(4,top)+'px'; menu.style.left=Math.max(4,left)+'px';
   } else { menu.classList.add('hidden'); }
 }
 document.addEventListener('click',function(){ document.getElementById('statusMenu').classList.add('hidden'); });
@@ -1422,20 +1473,27 @@ function renderChat(){
 }
 
 // ── SEND ──
+var sendInFlight=false;
 function sendMsg(){
+  if(sendInFlight) return;
   var input=document.getElementById('msgInput');
   var content=input.value.trim();
   if(!content||!activeId) return;
   var t=tasks.find(function(x){return x.id===activeId;});
   if(!t) return;
+  sendInFlight=true;
   t.comments=t.comments||[];
   t.comments.push({author:'human',content:content,timestamp:new Date().toISOString()});
   t.updatedAt=new Date().toISOString();
-  input.value=''; input.style.height='auto';
+  input.value=''; autoResize(input);
   saveAndPush(); render(); renderChat();
+  setTimeout(function(){ sendInFlight=false; }, 300);
 }
 function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} }
-function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,110)+'px'; }
+function autoResize(el){
+  el.style.height='38px';
+  el.style.height=Math.min(el.scrollHeight,110)+'px';
+}
 
 // キーボードショートカット
 document.addEventListener('keydown',function(e){
@@ -1458,11 +1516,23 @@ document.addEventListener('keydown',function(e){
 
 // ── DELETE ──
 function deleteActiveTask(){
-  if(!activeId||!confirm('タスク '+activeId+' を削除しますか？')) return;
+  if(!activeId) return;
+  var t=tasks.find(function(x){return x.id===activeId;});
+  if(!t) return;
+  var toast=document.getElementById('deleteConfirm');
+  document.getElementById('deleteConfirmMsg').textContent=t.title+'（'+t.id+'）を削除しますか？';
+  toast.classList.remove('hidden');
+}
+function confirmDelete(){
+  document.getElementById('deleteConfirm').classList.add('hidden');
+  if(!activeId) return;
   tasks=tasks.filter(function(t){return t.id!==activeId;});
   activeId=null; saveAndPush();
   document.getElementById('detailPanel').classList.add('hidden');
   render();
+}
+function cancelDelete(){
+  document.getElementById('deleteConfirm').classList.add('hidden');
 }
 
 // ── CREATE ──
