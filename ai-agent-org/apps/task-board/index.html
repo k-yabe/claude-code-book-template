@@ -1625,22 +1625,19 @@ function renderPanelHeader(){
 function openAssigneeEdit(){
   var t=tasks.find(function(x){return x.id===activeId;});
   if(!t) return;
+  var el=document.getElementById('panelAgent');
   var agentIds=Object.keys(AGENTS).filter(function(k){return k!=='human';});
   var sel=document.createElement('select');
-  sel.style.cssText='position:absolute;z-index:500;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-size:12px;';
+  sel.style.cssText='max-width:200px;font-size:12px;';
   agentIds.forEach(function(id){
     var o=document.createElement('option');
-    var a=AGENTS[id];
-    o.value=id; o.textContent=a.e+' '+id;
+    o.value=id; o.textContent=AGENTS[id].e+' '+id;
     if(id===t.assignee) o.selected=true;
     sel.appendChild(o);
   });
-  var el=document.getElementById('panelAgent');
-  var r=el.getBoundingClientRect();
-  sel.style.top=r.bottom+'px'; sel.style.left=r.left+'px';
-  document.body.appendChild(sel);
+  el.replaceWith(sel);
   sel.focus();
-  sel.onchange=function(){
+  function applyChange(){
     var newAssignee=sel.value;
     var found=FRONT_ROUTING.find(function(r){return r.assignee===newAssignee;});
     t.assignee=newAssignee;
@@ -1648,10 +1645,10 @@ function openAssigneeEdit(){
     t.updatedAt=new Date().toISOString();
     t.comments=t.comments||[];
     t.comments.push({author:'human',content:'👤 担当者を「'+newAssignee+'」に変更',timestamp:new Date().toISOString()});
-    document.body.removeChild(sel);
     saveAndPush(); render(); renderPanelHeader(); renderChat();
-  };
-  sel.onblur=function(){ if(document.body.contains(sel)) document.body.removeChild(sel); };
+  }
+  sel.onchange=applyChange;
+  sel.onblur=function(){ applyChange(); };
 }
 
 // ── STATUS MENU ──
