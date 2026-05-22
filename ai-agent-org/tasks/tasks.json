@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-05-22T08:11:36.275Z",
+  "lastUpdated": "2026-05-22T08:12:01.540Z",
   "tasks": [
     {
       "id": "T001",
@@ -223,7 +223,7 @@
       "team": "engineering",
       "organization": "private",
       "createdAt": "2026-05-19T00:47:48.981Z",
-      "updatedAt": "2026-05-22T08:11:35.273Z",
+      "updatedAt": "2026-05-22T08:12:01.540Z",
       "comments": [
         {
           "author": "task-dispatcher",
@@ -243,7 +243,7 @@
         {
           "author": "human",
           "content": "情報が古いので、最新の情報をリサーチして対応してください。",
-          "timestamp": "2026-05-22T08:11:35.273Z"
+          "timestamp": "2026-05-22T08:12:01.540Z"
         }
       ],
       "blockedReason": "",
