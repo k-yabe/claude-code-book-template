@@ -384,7 +384,7 @@ function saveToObsidian(task, result, verdict) {
       `**ステータス**: ${verdict === 'APPROVED' ? 'done' : 'blocked'}  `,
       '',
       '### レポート',
-      result.length > 1000 ? result.slice(0, 1000) + '\n\n…（全文は context/projects/ を参照）' : result,
+      result,
       '',
       '---',
       '',
@@ -581,14 +581,8 @@ async function main() {
 
       // ── COO承認 → done ──
       saveToObsidian(task, result, 'APPROVED');
-      const outputFile = saveOutput(task, result);
-      const snippet = result.length > 300 ? result.slice(0, 300) + '…' : result;
-      const githubUrl = outputFile
-        ? `https://github.com/${GITHUB_REPO}/blob/main/ai-agent-org/context/projects/${outputFile}`
-        : null;
-      const commentContent = githubUrl
-        ? `${snippet}\n\n📄 [全文レポートを見る](${githubUrl})`
-        : snippet;
+      saveOutput(task, result);
+      const snippet = result.length > 300 ? result.slice(0, 300) + '…（全文はObsidianのタスクログを確認）' : result;
 
       taskRef.status = 'done';
       taskRef.blockedReason = '';
