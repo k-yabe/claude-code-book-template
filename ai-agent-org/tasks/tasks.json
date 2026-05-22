@@ -216,14 +216,14 @@
       "id": "T013",
       "title": "Mac miniの購入検討",
       "description": "1. 検討の判断軸\n   新型が出るタイミングを最優先して購入したいと考えている。現状のリーク情報や予測情報を含めて、いつ購入すべきか、またMacBook Air M3と置き換える（あるいは使い分ける）べきか、構造的に判断してほしい。\n\n2. 現状の使用用途とニーズ\n   (a) MacBook Pro M5（仕事用）\n       メイン機だが重たいため、外出時の持ち運びには適さない。\n   (b) MacBook Air M3（外出用）\n       簡易的な外出用として、軽い作業のみで持ち運びたいというニーズがある。\n\n3. 今後の運用案\n   MacBook Air M3を持ち運ぶ機会が増えているため、Mac miniを自宅でサーバーのように運用した方が良いのではないかと考えている。",
-      "status": "new-assigned",
+      "status": "done",
       "priority": "P2",
       "assignee": "research-analyst",
       "assigneeType": "ai",
       "team": "research",
       "organization": "private",
       "createdAt": "2026-05-19T00:47:48.981Z",
-      "updatedAt": "2026-05-22T10:30:00.000Z",
+      "updatedAt": "2026-05-22T12:46:00.401Z",
       "comments": [
         {
           "author": "task-dispatcher",
@@ -254,6 +254,11 @@
           "author": "human",
           "content": "担当者を「research-analyst」に変更（最新情報のリサーチが必要なため）",
           "timestamp": "2026-05-22T10:30:00.000Z"
+        },
+        {
+          "author": "human",
+          "content": "✅ 手動で完了に変更（Executor処理済み）",
+          "timestamp": "2026-05-22T12:46:00.402Z"
         }
       ],
       "blockedReason": "",
