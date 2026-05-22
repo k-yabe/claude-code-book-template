@@ -38,24 +38,31 @@ function detectOrganization(content) {
 // Agent routing rules: keyword → assignee + team
 // 上から順に評価し、最初にマッチしたルールを使う
 const ROUTING_RULES = [
-  // --- Personal チーム ---
+  // --- Leadership チーム ---
+  { keywords: ['COOレビュー', '全体レビュー', '成果物確認', '検収'], assignee: 'coo', team: 'leadership' },
+
+  // --- Personal チーム (kunito) ---
   { keywords: ['副業', 'フリーランス', 'キャリア', '転職', '案件探し', '求人', 'スキルアップ', '収入アップ'], assignee: 'career-advisor', team: 'personal' },
 
   // --- Research チーム ---
+  { keywords: ['データ', 'メトリクス', 'KPI', '集計', 'CSV', '数値分析'], assignee: 'data-analyst', team: 'research' },
   { keywords: ['購入', '比較', '検討', '調査', 'おすすめ', 'リサーチ', '選定', '評価', 'どれがいい', '候補', '導入', '乗り換え'], assignee: 'research-analyst', team: 'research' },
 
   // --- Engineering チーム ---
-  { keywords: ['コード', 'バグ', '実装', 'エラー', 'テスト', 'デプロイ', 'API', 'プログラム'], assignee: 'tech-lead', team: 'engineering' },
+  { keywords: ['CI', 'CD', 'GitHub Actions', 'Vercel', 'Docker', 'インフラ自動化', 'デプロイ設定'], assignee: 'devops-engineer', team: 'engineering' },
+  { keywords: ['コード', 'バグ', '実装', 'エラー', 'API', 'プログラム'], assignee: 'tech-lead', team: 'engineering' },
   { keywords: ['UI', 'フロントエンド', 'デザイン', 'レイアウト', 'CSS', 'HTML'], assignee: 'frontend-engineer', team: 'engineering' },
-  { keywords: ['バックエンド', 'DB', 'データベース', 'インフラ構築', 'サーバー構築', 'クラウド設定'], assignee: 'backend-engineer', team: 'engineering' },
-  { keywords: ['品質', 'QA', '検証', 'レビュー'], assignee: 'qa-engineer', team: 'engineering' },
+  { keywords: ['バックエンド', 'DB', 'データベース', 'サーバー構築', 'クラウド設定'], assignee: 'backend-engineer', team: 'engineering' },
+  { keywords: ['品質', 'QA', '検証', 'テスト'], assignee: 'qa-engineer', team: 'engineering' },
 
   // --- Content チーム ---
-  { keywords: ['記事', 'ブログ', '動画', 'スクリプト', '台本', 'コンテンツ', '原稿', 'ライティング'], assignee: 'content-director', team: 'content' },
+  { keywords: ['動画', 'YouTube', 'Shorts', '台本', 'スクリプト', '動画企画'], assignee: 'video-producer', team: 'content' },
+  { keywords: ['記事', 'ブログ', 'コンテンツ', '原稿', 'ライティング'], assignee: 'content-director', team: 'content' },
 
   // --- Business チーム ---
+  { keywords: ['収益', 'グロース', 'LTV', 'ランディングページ', 'CVR', 'メルマガ', '収益化'], assignee: 'sales-growth', team: 'business' },
   { keywords: ['マーケ', 'マーケティング', '宣伝', 'SNS', 'プロモ', '集客', '広告'], assignee: 'marketing-director', team: 'business' },
-  { keywords: ['戦略', '事業', '収益', '方針', 'ピボット', '新規事業'], assignee: 'business-strategist', team: 'business' },
+  { keywords: ['戦略', '事業', '方針', 'ピボット', '新規事業'], assignee: 'business-strategist', team: 'business' },
   { keywords: ['契約', '法的', 'リーガル', '規約', '利用規約'], assignee: 'legal-review', team: 'business' },
   { keywords: ['パートナー', 'コラボ', '提携', 'スポンサー', 'タイアップ'], assignee: 'partnership-manager', team: 'business' },
 ];

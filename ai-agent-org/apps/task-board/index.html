@@ -349,12 +349,14 @@ html.light .unread-dot { box-shadow: 0 0 0 2px var(--bg); }
 
 /* team chip */
 .team-chip { font-size: 10px; padding: 1px 6px; border-radius: 20px; font-weight: 500; flex-shrink: 0; }
+.tc-leadership  { background:#5c35a018; color:#5c35a0; }
 .tc-research    { background:#00897b18; color:#00897b; }
 .tc-personal    { background:#c2185b18; color:#c2185b; }
 .tc-engineering { background:#1565c018; color:#1565c0; }
 .tc-content     { background:#6a1b9a18; color:#6a1b9a; }
 .tc-business    { background:#e6510018; color:#e65100; }
 .tc-infrastructure { background:#2e7d3218; color:#2e7d32; }
+html.dark .tc-leadership  { color:#b39ddb; }
 html.dark .tc-research    { color:#4db6ac; }
 html.dark .tc-personal    { color:#f48fb1; }
 html.dark .tc-engineering { color:#64b5f6; }
@@ -779,11 +781,13 @@ input:focus, select:focus { border-color: var(--accent); }
     </select>
     <select id="filterTeam" onchange="render()" aria-label="チームフィルター">
       <option value="">チーム: 全て</option>
+      <option value="leadership">経営</option>
       <option value="research">リサーチ</option>
       <option value="personal">kunito</option>
       <option value="engineering">エンジニア</option>
       <option value="content">コンテンツ</option>
       <option value="business">ビジネス</option>
+      <option value="infrastructure">インフラ</option>
     </select>
   </div>
   <div class="header-right">
@@ -905,18 +909,28 @@ input:focus, select:focus { border-color: var(--accent); }
           <select id="cAssignee" onchange="onAssigneeChange()">
             <option value="auto" selected>🤖 おまかせ（自動判断）</option>
             <option value="human">👤 自分でやる</option>
-            <option disabled>── AI エージェント ──</option>
+            <option disabled>── 経営層 ──</option>
+            <option value="coo">🏢 coo（全体レビュー・品質保証）</option>
+            <option disabled>── リサーチ ──</option>
             <option value="research-analyst">🔎 research-analyst（調査・比較）</option>
+            <option value="data-analyst">📊 data-analyst（データ・KPI分析）</option>
+            <option disabled>── kunito ──</option>
             <option value="career-advisor">🧭 career-advisor（副業・キャリア）</option>
-            <option value="content-director">📝 content-director（記事・台本）</option>
-            <option value="marketing-director">📣 marketing-director（マーケ）</option>
-            <option value="business-strategist">💼 business-strategist（戦略）</option>
+            <option disabled>── エンジニアリング ──</option>
             <option value="tech-lead">🔧 tech-lead（技術・実装）</option>
-            <option value="frontend-engineer">🎨 frontend-engineer（UI）</option>
+            <option value="frontend-engineer">🎨 frontend-engineer（UI/CSS）</option>
             <option value="backend-engineer">⚙️ backend-engineer（API/DB）</option>
             <option value="qa-engineer">🧪 qa-engineer（品質・テスト）</option>
-            <option value="legal-review">⚖️ legal-review（契約・規約）</option>
+            <option value="devops-engineer">🚀 devops-engineer（CI/CD・デプロイ）</option>
+            <option disabled>── コンテンツ ──</option>
+            <option value="content-director">📝 content-director（記事・コンテンツ）</option>
+            <option value="video-producer">🎬 video-producer（動画・台本）</option>
+            <option disabled>── ビジネス ──</option>
+            <option value="business-strategist">💼 business-strategist（戦略）</option>
+            <option value="marketing-director">📣 marketing-director（マーケ）</option>
+            <option value="sales-growth">📈 sales-growth（収益・グロース）</option>
             <option value="partnership-manager">🤝 partnership-manager（提携）</option>
+            <option value="legal-review">⚖️ legal-review（契約・規約）</option>
           </select>
           <div id="autoHint" style="font-size:10px;color:var(--text2);margin-top:4px">タイトルと説明からキーワードで自動判断します</div>
         </div>
@@ -934,11 +948,13 @@ input:focus, select:focus { border-color: var(--accent); }
         <div class="field">
           <label>チーム</label>
           <select id="cTeam">
+            <option value="leadership">経営</option>
             <option value="research">リサーチ</option>
             <option value="personal">kunito</option>
             <option value="engineering">エンジニア</option>
             <option value="content">コンテンツ</option>
             <option value="business">ビジネス</option>
+            <option value="infrastructure">インフラ</option>
           </select>
         </div>
         <div class="field">
@@ -987,30 +1003,42 @@ var themeMode    = 'auto'; // 'auto'|'dark'|'light'
 
 var AGENTS = {
   'human':               {e:'👤', c:'#1f6feb'},
+  // 経営層
+  'coo':                 {e:'🏢', c:'#5c35a0'},
+  // リサーチ
   'research-analyst':    {e:'🔎', c:'#00897b'},
+  'data-analyst':        {e:'📊', c:'#00695c'},
+  // パーソナル (kunito)
   'career-advisor':      {e:'🧭', c:'#c2185b'},
+  // エンジニアリング
   'tech-lead':           {e:'🔧', c:'#1565c0'},
   'frontend-engineer':   {e:'🎨', c:'#6a1b9a'},
   'backend-engineer':    {e:'⚙️', c:'#0277bd'},
   'qa-engineer':         {e:'🧪', c:'#2e7d32'},
+  'devops-engineer':     {e:'🚀', c:'#01579b'},
+  // コンテンツ
   'content-director':    {e:'📝', c:'#4527a0'},
+  'video-producer':      {e:'🎬', c:'#880e4f'},
   'brand-voice':         {e:'🎙️', c:'#6d4c41'},
   'root-cause':          {e:'🔍', c:'#37474f'},
   'anti-ai-slop':        {e:'🚫', c:'#bf360c'},
-  'marketing-director':  {e:'📣', c:'#f57f17'},
+  // ビジネス
   'business-strategist': {e:'💼', c:'#004d40'},
+  'marketing-director':  {e:'📣', c:'#f57f17'},
+  'sales-growth':        {e:'📈', c:'#e65100'},
   'partnership-manager': {e:'🤝', c:'#558b2f'},
   'legal-review':        {e:'⚖️', c:'#4e342e'},
+  // インフラ
   'task-dispatcher':     {e:'📬', c:'#37474f'},
 };
 
 var TEAM_CSS = {
-  research:'tc-research', personal:'tc-personal',
+  leadership:'tc-leadership', research:'tc-research', personal:'tc-personal',
   engineering:'tc-engineering', content:'tc-content',
   business:'tc-business', infrastructure:'tc-infrastructure'
 };
 var TEAM_LABELS = {
-  research:'リサーチ', personal:'kunito', engineering:'エンジニア',
+  leadership:'経営', research:'リサーチ', personal:'kunito', engineering:'エンジニア',
   content:'コンテンツ', business:'ビジネス', infrastructure:'インフラ'
 };
 var ORG_CSS = {
@@ -1543,19 +1571,24 @@ function closeBg(e,id){ if(e.target===document.getElementById(id)) document.getE
 // task-dispatcher.js と同じルーティングロジックをフロントで再現
 var FRONT_ROUTING = [
   {kw:['副業','フリーランス','キャリア','転職','案件探し','求人','スキルアップ','収入アップ'], assignee:'career-advisor', team:'personal'},
+  {kw:['データ','メトリクス','KPI','集計','分析','CSV','数値'], assignee:'data-analyst', team:'research'},
   {kw:['購入','比較','検討','調査','おすすめ','リサーチ','選定','評価','どれがいい','候補','導入','乗り換え'], assignee:'research-analyst', team:'research'},
-  {kw:['コード','バグ','実装','エラー','テスト','デプロイ','API','プログラム'], assignee:'tech-lead', team:'engineering'},
+  {kw:['デプロイ','CI','CD','GitHub Actions','Vercel','Docker','インフラ自動化'], assignee:'devops-engineer', team:'engineering'},
+  {kw:['コード','バグ','実装','エラー','API','プログラム'], assignee:'tech-lead', team:'engineering'},
   {kw:['UI','フロントエンド','デザイン','レイアウト','CSS','HTML'], assignee:'frontend-engineer', team:'engineering'},
-  {kw:['バックエンド','DB','データベース','インフラ構築','クラウド設定'], assignee:'backend-engineer', team:'engineering'},
-  {kw:['品質','QA','検証','レビュー'], assignee:'qa-engineer', team:'engineering'},
-  {kw:['記事','ブログ','動画','スクリプト','台本','コンテンツ','原稿','ライティング'], assignee:'content-director', team:'content'},
+  {kw:['バックエンド','DB','データベース','サーバー','クラウド設定'], assignee:'backend-engineer', team:'engineering'},
+  {kw:['品質','QA','検証','テスト'], assignee:'qa-engineer', team:'engineering'},
+  {kw:['動画','YouTube','Shorts','台本','スクリプト','企画'], assignee:'video-producer', team:'content'},
+  {kw:['記事','ブログ','コンテンツ','原稿','ライティング'], assignee:'content-director', team:'content'},
+  {kw:['収益','グロース','LTV','ランディングページ','CVR','メルマガ'], assignee:'sales-growth', team:'business'},
   {kw:['マーケ','マーケティング','宣伝','SNS','プロモ','集客','広告'], assignee:'marketing-director', team:'business'},
-  {kw:['戦略','事業','収益','方針','ピボット','新規事業'], assignee:'business-strategist', team:'business'},
+  {kw:['戦略','事業','方針','ピボット','新規事業'], assignee:'business-strategist', team:'business'},
   {kw:['契約','法的','リーガル','規約','利用規約'], assignee:'legal-review', team:'business'},
   {kw:['パートナー','コラボ','提携','スポンサー','タイアップ'], assignee:'partnership-manager', team:'business'},
 ];
 
 function autoRoute(text){
+  if(/レビュー|検収|確認|承認|COO/.test(text)) return {assignee:'coo', team:'leadership'};
   for(var i=0;i<FRONT_ROUTING.length;i++){
     var r=FRONT_ROUTING[i];
     if(r.kw.some(function(k){return text.includes(k);})) return r;
