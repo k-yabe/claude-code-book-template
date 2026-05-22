@@ -42,7 +42,7 @@ const ROUTING_RULES = [
   { keywords: ['COOレビュー', '全体レビュー', '成果物確認', '検収'], assignee: 'coo', team: 'leadership' },
 
   // --- Personal チーム (kunito) ---
-  { keywords: ['副業', 'フリーランス', 'キャリア', '転職', '案件探し', '求人', 'スキルアップ', '収入アップ'], assignee: 'career-advisor', team: 'personal' },
+  { keywords: ['副業', 'フリーランス', 'キャリア', '転職', '案件探し', '求人', 'スキルアップ', '収入アップ', 'ジム', '減量', '筋トレ', '運動', 'ダイエット', '健康', '食事', '睡眠', 'プライベート', '生活'], assignee: 'career-advisor', team: 'personal' },
 
   // --- Research チーム ---
   { keywords: ['データ', 'メトリクス', 'KPI', '集計', 'CSV', '数値分析'], assignee: 'data-analyst', team: 'research' },
