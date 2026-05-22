@@ -168,6 +168,8 @@ select:focus, input[type="text"]:focus, textarea:focus {
   border-radius: 10px;
   font-weight: 500;
 }
+.team-research    { background: #00808033; color: #00d4aa; border: 1px solid #00d4aa44; }
+.team-personal    { background: #c0556033; color: #ff8fab; border: 1px solid #ff8fab44; }
 .team-engineering { background: #0d419d33; color: #58a6ff; border: 1px solid #58a6ff44; }
 .team-content     { background: #6e40c933; color: #b687f7; border: 1px solid #b687f744; }
 .team-business    { background: #9e6a0333; color: #e3b341; border: 1px solid #e3b34144; }
@@ -258,23 +260,23 @@ select:focus, input[type="text"]:focus, textarea:focus {
     <select id="filterAssignee" onchange="render()">
       <option value="">担当者: 全て</option>
       <option value="human">👤 human</option>
+      <option value="research-analyst">🔎 research-analyst</option>
+      <option value="career-advisor">🧭 career-advisor</option>
       <option value="tech-lead">🔧 tech-lead</option>
       <option value="frontend-engineer">🎨 frontend-engineer</option>
       <option value="backend-engineer">⚙️ backend-engineer</option>
       <option value="qa-engineer">🧪 qa-engineer</option>
       <option value="content-director">📝 content-director</option>
-      <option value="brand-voice">🎙️ brand-voice</option>
-      <option value="root-cause">🔍 root-cause</option>
-      <option value="anti-ai-slop">🚫 anti-ai-slop</option>
       <option value="marketing-director">📣 marketing-director</option>
       <option value="business-strategist">💼 business-strategist</option>
       <option value="partnership-manager">🤝 partnership-manager</option>
       <option value="legal-review">⚖️ legal-review</option>
       <option value="task-dispatcher">📬 task-dispatcher</option>
-      <option value="local-support">🖥️ local-support</option>
     </select>
     <select id="filterTeam" onchange="render()">
       <option value="">チーム: 全て</option>
+      <option value="research">リサーチ</option>
+      <option value="personal">パーソナル</option>
       <option value="engineering">エンジニア</option>
       <option value="content">コンテンツ</option>
       <option value="business">ビジネス</option>
@@ -617,6 +619,8 @@ var DEFAULT_TASKS = [
 
 var ASSIGNEE_LABELS = {
   'human': '👤 human',
+  'research-analyst': '🔎 research-analyst',
+  'career-advisor': '🧭 career-advisor',
   'tech-lead': '🔧 tech-lead',
   'frontend-engineer': '🎨 frontend-engineer',
   'backend-engineer': '⚙️ backend-engineer',
@@ -629,11 +633,12 @@ var ASSIGNEE_LABELS = {
   'business-strategist': '💼 business-strategist',
   'partnership-manager': '🤝 partnership-manager',
   'legal-review': '⚖️ legal-review',
-  'task-dispatcher': '📬 task-dispatcher',
-  'local-support': '🖥️ local-support'
+  'task-dispatcher': '📬 task-dispatcher'
 };
 
 var TEAM_LABELS = {
+  'research': 'リサーチ',
+  'personal': 'パーソナル',
   'engineering': 'エンジニア',
   'content': 'コンテンツ',
   'business': 'ビジネス',

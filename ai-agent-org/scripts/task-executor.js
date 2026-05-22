@@ -28,25 +28,34 @@ const LIMIT = (() => {
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-// エージェントごとのモデル（コスト節約：基本Haiku、重要判断のみSonnet）
+// エージェントごとのモデル（コスト節約：基本Haiku、判断・調査系はSonnet）
 const AGENT_MODELS = {
+  // リサーチ・パーソナルチーム（調査・判断が必要なのでSonnet）
+  'research-analyst': 'claude-sonnet-4-6',
+  'career-advisor': 'claude-sonnet-4-6',
+  // エンジニアリングチーム
   'tech-lead': 'claude-haiku-4-5-20251001',
   'frontend-engineer': 'claude-haiku-4-5-20251001',
   'backend-engineer': 'claude-haiku-4-5-20251001',
   'qa-engineer': 'claude-haiku-4-5-20251001',
+  // コンテンツチーム
   'content-director': 'claude-haiku-4-5-20251001',
   'brand-voice': 'claude-haiku-4-5-20251001',
   'root-cause': 'claude-haiku-4-5-20251001',
   'anti-ai-slop': 'claude-haiku-4-5-20251001',
+  // ビジネスチーム
   'marketing-director': 'claude-haiku-4-5-20251001',
-  'business-strategist': 'claude-sonnet-4-6', // 戦略判断のみSonnet
+  'business-strategist': 'claude-sonnet-4-6',
   'partnership-manager': 'claude-haiku-4-5-20251001',
   'legal-review': 'claude-haiku-4-5-20251001',
+  // インフラ
   'task-dispatcher': 'claude-haiku-4-5-20251001',
 };
 
 // Web検索が有用なエージェント（調査・リサーチ系）
 const WEB_SEARCH_AGENTS = new Set([
+  'research-analyst',
+  'career-advisor',
   'content-director',
   'marketing-director',
   'business-strategist',
@@ -75,6 +84,8 @@ function buildSystemPrompt(task) {
   const designGuide = loadContextFile('visual-design.md');
 
   const agentDescriptions = {
+    'research-analyst': 'あなたはリサーチアナリストのAIエージェントです。購入検討・ツール比較・情報調査・導入判断のサポートを担当します。結論を最初に書き、選択肢を表で比較し、明確な推奨を出してください。',
+    'career-advisor': 'あなたはキャリアアドバイザーのAIエージェントです。副業案件探し・キャリア相談・収入機会の発見を担当します。クライアントのスキルセットと市場ニーズを照合し、具体的な候補リストを作成してください。',
     'content-director': 'あなたはコンテンツディレクターのAIエージェントです。記事・動画台本・LP・メール文・SNS投稿などのコンテンツを制作します。',
     'marketing-director': 'あなたはマーケティングディレクターのAIエージェントです。マーケティング戦略・施策・コピーを考えます。',
     'business-strategist': 'あなたはビジネスストラテジストのAIエージェントです。事業戦略・意思決定の分析を行います。',
@@ -83,7 +94,7 @@ function buildSystemPrompt(task) {
     'backend-engineer': 'あなたはバックエンドエンジニアのAIエージェントです。API/DB/インフラの設計・実装を担当します。',
     'qa-engineer': 'あなたはQAエンジニアのAIエージェントです。品質チェック・テスト・検証を担当します。',
     'legal-review': 'あなたはリーガルレビュー担当のAIエージェントです。契約書・規約の確認を担当します。',
-    'partnership-manager': 'あなたはパートナーシップマネージャーのAIエージェントです。案件・提携の管理を担当します。',
+    'partnership-manager': 'あなたはパートナーシップマネージャーのAIエージェントです。外部企業・団体からのパートナー提案・コラボ・スポンサー案件のフィルタリングを担当します。',
     'brand-voice': 'あなたはブランドボイス担当のAIエージェントです。ブランドのトーン・言葉遣いのチェックを担当します。',
   };
 

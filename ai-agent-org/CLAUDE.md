@@ -34,22 +34,26 @@ ai-agent-org/
 
 ## エージェント組織
 
+### リサーチチーム
+- **Research Analyst** (Sonnet) — 調査・比較・購入検討・導入判断全般（フォールバック先）
+
+### パーソナルチーム
+- **Career Advisor** (Sonnet) — 副業案件探し・キャリア相談・収入機会の発見
+
 ### エンジニアリングチーム
-- **Tech Lead** (Sonnet) — オーケストレーター、タスク割り振り
+- **Tech Lead** (Sonnet) — オーケストレーター、技術的タスクの割り振り
 - **Frontend Engineer** (Haiku) — UI/CSS/HTML実装
-- **Backend Engineer** (Haiku) — API/DB/インフラ
+- **Backend Engineer** (Haiku) — API/DB/インフラ構築
 - **QA Engineer** (Sonnet) — テスト・品質チェック・夜間自動QA
 
 ### コンテンツチーム
-- **Content Director** (Sonnet) — オーケストレーター、台本レビュー
-- **Brand Voice** (Haiku) — ブランドボイスチェック
-- **Root Cause** (Haiku) — 本質・深さチェック
-- **Anti-AI Slop** (Haiku) — AIっぽい表現の除去
+- **Content Director** (Sonnet) — オーケストレーター、台本・記事・コンテンツ全般
+  - ※ Brand Voice / Root Cause / Anti-AI Slop はContent Directorが内部で呼び出すサブエージェント
 
 ### ビジネスチーム
-- **Marketing Director** (Sonnet) — マーケ戦略
-- **Business Strategist** (Opus ※戦略判断時のみ) — 事業判断
-- **Partnership Manager** (Haiku) — 案件管理・フィルタリング
+- **Marketing Director** (Sonnet) — マーケ戦略・SNS・集客施策
+- **Business Strategist** (Opus ※戦略判断時のみ) — 事業の重要意思決定
+- **Partnership Manager** (Haiku) — 外部パートナー・コラボ・スポンサー案件のフィルタリング
 - **Legal Review** (Sonnet) — 契約書レビュー（第1段階）
 
 ### インフラ運用チーム

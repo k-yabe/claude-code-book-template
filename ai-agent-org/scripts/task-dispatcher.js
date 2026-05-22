@@ -36,16 +36,28 @@ function detectOrganization(content) {
 }
 
 // Agent routing rules: keyword → assignee + team
+// 上から順に評価し、最初にマッチしたルールを使う
 const ROUTING_RULES = [
-  { keywords: ['コード', 'バグ', '実装', 'エラー', 'テスト', 'デプロイ', 'API'], assignee: 'tech-lead', team: 'engineering' },
-  { keywords: ['UI', 'フロントエンド', 'デザイン', 'レイアウト', 'CSS'], assignee: 'frontend-engineer', team: 'engineering' },
-  { keywords: ['バックエンド', 'DB', 'データベース', 'サーバー', 'インフラ'], assignee: 'backend-engineer', team: 'engineering' },
-  { keywords: ['品質', 'QA', '検証', 'チェック'], assignee: 'qa-engineer', team: 'engineering' },
-  { keywords: ['記事', 'ブログ', '動画', 'スクリプト', '台本', 'コンテンツ'], assignee: 'content-director', team: 'content' },
-  { keywords: ['マーケ', 'マーケティング', '宣伝', 'SNS', 'プロモ'], assignee: 'marketing-director', team: 'business' },
-  { keywords: ['戦略', 'ビジネス', '事業', '収益', '方針'], assignee: 'business-strategist', team: 'business' },
-  { keywords: ['契約', '法的', 'リーガル', '規約'], assignee: 'legal-review', team: 'business' },
-  { keywords: ['案件', 'パートナー', 'コラボ', '提携'], assignee: 'partnership-manager', team: 'business' },
+  // --- Personal チーム ---
+  { keywords: ['副業', 'フリーランス', 'キャリア', '転職', '案件探し', '求人', 'スキルアップ', '収入アップ'], assignee: 'career-advisor', team: 'personal' },
+
+  // --- Research チーム ---
+  { keywords: ['購入', '比較', '検討', '調査', 'おすすめ', 'リサーチ', '選定', '評価', 'どれがいい', '候補', '導入', '乗り換え'], assignee: 'research-analyst', team: 'research' },
+
+  // --- Engineering チーム ---
+  { keywords: ['コード', 'バグ', '実装', 'エラー', 'テスト', 'デプロイ', 'API', 'プログラム'], assignee: 'tech-lead', team: 'engineering' },
+  { keywords: ['UI', 'フロントエンド', 'デザイン', 'レイアウト', 'CSS', 'HTML'], assignee: 'frontend-engineer', team: 'engineering' },
+  { keywords: ['バックエンド', 'DB', 'データベース', 'インフラ構築', 'サーバー構築', 'クラウド設定'], assignee: 'backend-engineer', team: 'engineering' },
+  { keywords: ['品質', 'QA', '検証', 'レビュー'], assignee: 'qa-engineer', team: 'engineering' },
+
+  // --- Content チーム ---
+  { keywords: ['記事', 'ブログ', '動画', 'スクリプト', '台本', 'コンテンツ', '原稿', 'ライティング'], assignee: 'content-director', team: 'content' },
+
+  // --- Business チーム ---
+  { keywords: ['マーケ', 'マーケティング', '宣伝', 'SNS', 'プロモ', '集客', '広告'], assignee: 'marketing-director', team: 'business' },
+  { keywords: ['戦略', '事業', '収益', '方針', 'ピボット', '新規事業'], assignee: 'business-strategist', team: 'business' },
+  { keywords: ['契約', '法的', 'リーガル', '規約', '利用規約'], assignee: 'legal-review', team: 'business' },
+  { keywords: ['パートナー', 'コラボ', '提携', 'スポンサー', 'タイアップ'], assignee: 'partnership-manager', team: 'business' },
 ];
 
 function loadTasks() {
@@ -80,7 +92,7 @@ function routeTask(content) {
       return { assignee: rule.assignee, team: rule.team };
     }
   }
-  return { assignee: 'tech-lead', team: 'engineering' };
+  return { assignee: 'research-analyst', team: 'research' };
 }
 
 function parseInboxFile(filePath) {
