@@ -1449,20 +1449,33 @@ function pushToGitHub(){
     .catch(function(){setSyncStatus('⚠️ 保存失敗','var(--col-bl)');});
 }
 
-function loadFromGitHub(silent){
-  if(!silent) setSyncStatus('同期中...','var(--accent)');
-  return fetch(GITHUB_TASKS_URL+'?t='+Date.now())
-    .then(function(r){return r.json();})
-    .then(function(data){
-      var f=data.tasks||data;
-      if(!Array.isArray(f)) throw new Error('invalid');
-      tasks=f; save(); lastSynced=new Date();
-      setSyncStatus('同期済み '+lastSynced.toLocaleTimeString('ja-JP'),'var(--col-done)');
+
+function loadFromGitHub(silent) {
+  if (!silent) setSyncStatus('同期中...', 'var(--accent)');
+  var pat = getPat();
+  var headers = { Accept: 'application/vnd.github.v3+json' };
+  if (pat) headers['Authorization'] = 'token ' + pat;
+  return fetch(GITHUB_API_URL + '?t=' + Date.now(), { headers: headers })
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(apiData) {
+      var content = apiData.content;
+      if (!content) throw new Error('no content');
+      var decoded = atob(content.replace(/\n/g, ''));
+      var data = JSON.parse(decoded);
+      var fetched = data.tasks || data;
+      if (!Array.isArray(fetched)) throw new Error('invalid');
+      tasks = fetched;
+      save();
+      lastSynced = new Date();
+      setSyncStatus('最終同期: ' + lastSynced.toLocaleTimeString('ja-JP'), 'var(--col-done)');
       render();
       if(activeId) renderPanel();
     })
-    .catch(function(){
-      setSyncStatus('取得失敗 — ローカル使用','var(--col-bl)');
+    .catch(function() {
+      setSyncStatus('GitHub取得失敗 — ローカルデータを使用', 'var(--col-bl)');
       load(); render();
     });
 }
