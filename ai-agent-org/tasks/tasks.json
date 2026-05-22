@@ -223,62 +223,12 @@
       "team": "research",
       "organization": "private",
       "createdAt": "2026-05-19T00:47:48.981Z",
-      "updatedAt": "2026-05-22T13:22:33.759Z",
+      "updatedAt": "2026-05-22T13:27:55.416Z",
       "comments": [
         {
           "author": "task-dispatcher",
-          "content": "inbox/20250518_Mac miniの購入検討.md から自動生成",
+          "content": "inbox から自動生成",
           "timestamp": "2026-05-19T00:47:48.981Z"
-        },
-        {
-          "author": "backend-engineer",
-          "content": "Mac mini購入タイミング・デバイス役割分担の分析を完了しました。結論：新型Mac miniを待ちつつ、現状はMacBook Air M3をサーバー専用に固定することを推奨。\n\n📄 出力ファイル: context/projects/T013-2026-05-20-output.md",
-          "timestamp": "2026-05-20T00:00:00.000Z"
-        },
-        {
-          "author": "human",
-          "content": "📋 ステータスを「new-assigned」に変更",
-          "timestamp": "2026-05-22T08:05:11.547Z"
-        },
-        {
-          "author": "human",
-          "content": "情報が古いので、最新の情報をリサーチして対応してください。",
-          "timestamp": "2026-05-22T08:12:01.540Z"
-        },
-        {
-          "author": "human",
-          "content": "👤 担当者を「backend-engineer」に変更",
-          "timestamp": "2026-05-22T10:01:11.337Z"
-        },
-        {
-          "author": "human",
-          "content": "担当者を「research-analyst」に変更（最新情報のリサーチが必要なため）",
-          "timestamp": "2026-05-22T10:30:00.000Z"
-        },
-        {
-          "author": "research-analyst",
-          "content": "タスクを開始しました。",
-          "timestamp": "2026-05-22T12:45:17.813Z"
-        },
-        {
-          "author": "coo",
-          "content": "🔄 差し戻し\n理由: アウトプットが途中で省略されており、完全な分析が確認できません。特に『3. 購入タイミングの選択肢比較』表の後半と『4. MacBook Air M3との使い分け戦略』『5. Mac mini自宅サーバー化の実装案』など、タスク要件の「構造的判断」に必要な重要セクションが欠落しています。完全版レポートの提出を求めます。\n改善後に再提出してください。",
-          "timestamp": "2026-05-22T12:46:46.404Z"
-        },
-        {
-          "author": "coo",
-          "content": "🔴 COOレビュー最終差し戻し\n2回の修正でも品質基準を満たしませんでした。\n理由: レポートが途中で省略されており、完全版として提出されていません。タスク要件である「いつ購入すべきか」「MacBook Air M3と置き換える/使い分けるべきか」「今後の運用案の具体的検証」について、結論はあるものの根拠となる詳細な比較分析・シナリオ検討が欠落しています。完全なレポートを提出してください。\n人間の判断が必要です。",
-          "timestamp": "2026-05-22T12:48:15.596Z"
-        },
-        {
-          "author": "research-analyst",
-          "content": "最新情報を調査してから完全版レポートを作成します。\n\n情報が十分に集まりました。完全版レポートを作成します。\n\n---\n\n# T013 完全版リサーチレポート：Mac mini購入検討\n\n**作成日**: 2026年5月22日\n**担当**: research-analyst\n**ステータス**: 再提出版（COOフィードバック対応済み・完全版）\n\n---\n\n## 【結論・推奨】（Executive Summary）\n\n> **「M5 Mac miniをWWDC 2026（6月）前後まで待って購入する」を強く推奨。**\n> M5モデルの登場は現時点で最有力シナリオが2026年6月（WWDC）〜…",
-          "timestamp": "2026-05-22T12:48:15.596Z"
-        },
-        {
-          "author": "human",
-          "content": "未着手に戻して再処理（max_tokens修正後）",
-          "timestamp": "2026-05-22T13:00:00.000Z"
         }
       ],
       "blockedReason": "",

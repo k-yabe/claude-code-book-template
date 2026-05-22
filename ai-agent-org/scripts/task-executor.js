@@ -196,13 +196,18 @@ ${task.description}
 ${task.comments && task.comments.length > 0 ? `## これまでのコメント:\n${task.comments.map(c => `[${c.author}] ${c.content}`).join('\n')}` : ''}
 
 タスクを実行し、成果物または実行結果を日本語でまとめてください。
-成果物がある場合（文章・コード・資料など）は全文を出力してください。
-判断が必要で人間の確認が必要な場合は、その旨と理由を明記してください。${useWebSearch ? '\n最新情報が必要な場合は積極的にweb_searchツールを使って調査してください。' : ''}`;
+
+## 出力の厳守事項
+- **「（省略）」「（以下省略）」「（続く）」などの省略表記は絶対に使わないこと**
+- 成果物がある場合（文章・コード・資料など）は**必ず全文を出力**すること
+- セクションを書き始めたら最後まで書ききること。途中で切り上げない
+- 判断が必要で人間の確認が必要な場合は、その旨と理由を明記してください
+${useWebSearch ? '- 最新情報が必要な場合は web_search ツールを使って調査してください。' : ''}`;
 
   console.log(`\n処理中: ${task.id} "${task.title}" → ${task.assignee} (${model})${feedbackFromCOO ? ' [COO差し戻し再試行]' : ''}${useWebSearch ? ' [Web検索有効]' : ''}`);
 
   const tools = useWebSearch
-    ? [{ type: 'web_search_20260209', name: 'web_search', allowed_callers: ['direct'], max_uses: 3 }]
+    ? [{ type: 'web_search_20260209', name: 'web_search', allowed_callers: ['direct'], max_uses: 2 }]
     : undefined;
   const betas = useWebSearch ? ['web-search-2025-03-05'] : undefined;
 
