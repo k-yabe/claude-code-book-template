@@ -136,17 +136,57 @@ body {
   border-radius: 6px;
   padding: 10px 11px;
   cursor: pointer;
-  transition: box-shadow 0.12s, border-color 0.12s;
+  transition: box-shadow 0.12s, border-color 0.12s, opacity 0.12s;
   position: relative;
 }
 .card:hover { box-shadow: 0 2px 8px var(--shadow); border-color: var(--text3); }
 .card.active { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent)22; }
 .card[draggable]:active { opacity: 0.5; cursor: grabbing; }
 
+/* ステータス別カードスタイル */
+#list-in-progress .card {
+  background: var(--bg);
+  border-color: var(--border);
+}
+html.dark #list-in-progress .card { background: #0d1117; }
+html.light #list-in-progress .card { background: #ffffff; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+#list-done .card {
+  opacity: 0.45;
+  filter: grayscale(20%);
+}
+#list-done .card:hover { opacity: 0.7; filter: none; }
+#list-done .card.active { opacity: 1; filter: none; }
+
+#list-blocked .card { border-color: var(--p0)44; }
+
 .pbl-P0 { border-left-color: var(--p0); }
 .pbl-P1 { border-left-color: var(--p1); }
 .pbl-P2 { border-left-color: var(--text3); }
 .pbl-P3 { border-left-color: var(--p3); }
+
+/* 未読ドット：AIが返信済み・未確認 */
+.unread-dot {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--bg3);
+}
+html.light .unread-dot { box-shadow: 0 0 0 2px var(--bg); }
+
+/* 優先度ラベル */
+.prio-pill {
+  font-size: 9px; font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.3px;
+}
+.pp-P0 { background: var(--p0)20; color: var(--p0); }
+.pp-P1 { background: var(--p1)20; color: var(--p1); }
+.pp-P2 { background: var(--text3)18; color: var(--text3); }
+.pp-P3 { background: var(--p3)20; color: var(--p3); }
 
 .card-meta {
   display: flex;
@@ -224,6 +264,17 @@ html.dark .tc-engineering { color:#64b5f6; }
 html.dark .tc-content     { color:#ce93d8; }
 html.dark .tc-business    { color:#ffb74d; }
 html.dark .tc-infrastructure { color:#81c784; }
+
+/* org badge */
+.org-badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 600; flex-shrink: 0; letter-spacing: 0.2px; }
+.org-private     { background:#6e768118; color:#6e7681; }
+.org-shift-ai    { background:#388bfd18; color:#388bfd; }
+.org-otsunagi    { background:#3fb95018; color:#3fb950; }
+.org-akkodis     { background:#fb8f4418; color:#fb8f44; }
+html.dark .org-private  { color:#8b949e; }
+html.dark .org-shift-ai { color:#58a6ff; }
+html.dark .org-otsunagi { color:#56d364; }
+html.dark .org-akkodis  { color:#ffa657; }
 
 /* ── DETAIL PANEL ── */
 .detail-panel {
@@ -612,7 +663,7 @@ input:focus, select:focus { border-color: var(--accent); }
     <select id="filterTeam" onchange="render()">
       <option value="">チーム: 全て</option>
       <option value="research">リサーチ</option>
-      <option value="personal">パーソナル</option>
+      <option value="personal">kunito</option>
       <option value="engineering">エンジニア</option>
       <option value="content">コンテンツ</option>
       <option value="business">ビジネス</option>
@@ -748,7 +799,7 @@ input:focus, select:focus { border-color: var(--accent); }
           <label>チーム</label>
           <select id="cTeam">
             <option value="research">リサーチ</option>
-            <option value="personal">パーソナル</option>
+            <option value="personal">kunito</option>
             <option value="engineering">エンジニア</option>
             <option value="content">コンテンツ</option>
             <option value="business">ビジネス</option>
@@ -816,8 +867,15 @@ var TEAM_CSS = {
   business:'tc-business', infrastructure:'tc-infrastructure'
 };
 var TEAM_LABELS = {
-  research:'リサーチ', personal:'パーソナル', engineering:'エンジニア',
+  research:'リサーチ', personal:'kunito', engineering:'エンジニア',
   content:'コンテンツ', business:'ビジネス', infrastructure:'インフラ'
+};
+var ORG_CSS = {
+  'private':'org-private','shift-ai':'org-shift-ai',
+  'otsunagi':'org-otsunagi','akkodis':'org-akkodis'
+};
+var ORG_LABELS = {
+  'private':'個人','shift-ai':'SHIFT AI','otsunagi':'OTSUNAGI','akkodis':'AKKODiS'
 };
 var STATUS_CFG = {
   'new-assigned': {label:'未着手',  sb:'sb-new',   col:'var(--col-new)'},
@@ -916,6 +974,23 @@ function initTheme() {
 // ── Util ──
 function h(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function ag(name){ return AGENTS[name]||{e:'🤖',c:'#444'}; }
+
+// 相対時刻（カード表示用）
+function relTime(ts){
+  if(!ts) return '';
+  var diff=Date.now()-new Date(ts).getTime();
+  var min=Math.floor(diff/60000);
+  if(min<1) return 'たった今';
+  if(min<60) return min+'分前';
+  var hrs=Math.floor(min/60);
+  if(hrs<24) return hrs+'時間前';
+  var days=Math.floor(hrs/24);
+  if(days<7) return days+'日前';
+  var d=new Date(ts);
+  return (d.getMonth()+1)+'/'+(d.getDate());
+}
+
+// 絶対時刻（チャットパネル用）
 function fmtDate(ts){
   if(!ts) return '';
   var d=new Date(ts), now=new Date();
@@ -1044,6 +1119,13 @@ function filtered(){
 }
 
 // ── RENDER BOARD ──
+var EMPTY_MSGS = {
+  'new-assigned': 'タスクなし',
+  'in-progress':  '進行中のタスクなし',
+  'blocked':      'ブロックなし 👍',
+  'done':         '完了タスクなし',
+};
+
 function render(){
   var ft=filtered();
   ['new-assigned','in-progress','blocked','done'].forEach(function(col){
@@ -1052,7 +1134,8 @@ function render(){
     var colTasks=ft.filter(function(t){return t.status===col;});
     cnt.textContent=colTasks.length;
     if(!colTasks.length){
-      list.innerHTML='<div style="text-align:center;color:var(--text3);font-size:11px;padding:24px 0">タスクなし</div>';
+      list.innerHTML='<div style="text-align:center;color:var(--text3);font-size:11px;padding:28px 0 20px;line-height:2">'
+        +(col==='blocked'?'✅':'📭')+'<br>'+EMPTY_MSGS[col]+'</div>';
       return;
     }
     list.innerHTML=colTasks.map(cardHTML).join('');
@@ -1063,25 +1146,31 @@ function cardHTML(t){
   var a=ag(t.assignee);
   var tc=TEAM_CSS[t.team]||'tc-engineering';
   var tl=TEAM_LABELS[t.team]||t.team;
+  var oc=ORG_CSS[t.organization]||'org-private';
+  var ol=ORG_LABELS[t.organization]||t.organization||'個人';
   var cc=(t.comments&&t.comments.length)||0;
   var lastComment=null;
   for(var i=cc-1;i>=0;i--){
     if(!isSys(t.comments[i])){ lastComment=t.comments[i]; break; }
   }
+  // 未読：最後のコメントがAI（human・systemでない）
+  var unread=lastComment && lastComment.author!=='human' && lastComment.author!=='system';
   var preview=lastComment
-    ? lastComment.content.replace(/\n/g,' ').slice(0,60)
-    : (t.description||'').replace(/\n/g,' ').slice(0,60);
+    ? lastComment.content.replace(/\n/g,' ').slice(0,58)
+    : (t.description||'').replace(/\n/g,' ').slice(0,58);
   var blocked=t.status==='blocked'&&t.blockedReason
     ? '<div class="blocked-label">⛔ '+h(t.blockedReason.slice(0,40))+'</div>' : '';
-  var updatedStr=t.updatedAt?fmtDate(t.updatedAt):'';
+  var timeStr=t.updatedAt?relTime(t.updatedAt):'';
   return '<div class="card pbl-'+h(t.priority)+(activeId===t.id?' active':'')+'" draggable="true"'
     +' ondragstart="onDragStart(event,\''+h(t.id)+'\')"'
     +' onclick="openPanel(\''+h(t.id)+'\')">'
+    +(unread?'<div class="unread-dot"></div>':'')
     +'<div class="card-meta">'
     +'<span class="card-id">'+h(t.id)+'</span>'
     +'<span class="card-sep">·</span>'
-    +'<span class="team-chip '+tc+'">'+tl+'</span>'
-    +(updatedStr?'<span style="margin-left:auto;font-size:10px;color:var(--text3)">'+updatedStr+'</span>':'')
+    +'<span class="prio-pill pp-'+h(t.priority)+'">'+h(t.priority)+'</span>'
+    +'<span class="org-badge '+oc+'">'+h(ol)+'</span>'
+    +(timeStr?'<span style="margin-left:auto;font-size:10px;color:var(--text3)">'+timeStr+'</span>':'')
     +'</div>'
     +'<div class="card-title">'+h(t.title)+'</div>'
     +(preview?'<div class="card-preview">'+h(preview)+'</div>':'')
@@ -1091,6 +1180,7 @@ function cardHTML(t){
     +'<div class="card-agent-av" style="background:'+a.c+'22;border:1px solid '+a.c+'44">'+a.e+'</div>'
     +'<span>'+h(t.assignee)+'</span>'
     +'</div>'
+    +'<span class="team-chip '+tc+'">'+tl+'</span>'
     +(cc?'<span class="msg-count">💬 '+cc+'</span>':'')
     +'</div>'
     +'</div>';
@@ -1239,12 +1329,23 @@ function sendMsg(){
 function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} }
 function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,110)+'px'; }
 
-// Escape to close panel
+// キーボードショートカット
 document.addEventListener('keydown',function(e){
+  // inputフォーカス中はスキップ
+  var tag=e.target.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'){
+    if(e.key==='Escape'){
+      if(!document.getElementById('createOverlay').classList.contains('hidden')){ closeCreate(); return; }
+      if(!document.getElementById('detailPanel').classList.contains('hidden')){ closePanel(); }
+    }
+    return;
+  }
   if(e.key==='Escape'){
     if(!document.getElementById('createOverlay').classList.contains('hidden')){ closeCreate(); return; }
-    if(!document.getElementById('detailPanel').classList.contains('hidden')){ closePanel(); }
+    if(!document.getElementById('detailPanel').classList.contains('hidden')){ closePanel(); return; }
   }
+  if(e.key==='n'||e.key==='N'){ e.preventDefault(); openCreate(); }
+  if(e.key==='/'){ e.preventDefault(); document.getElementById('filterText').focus(); }
 });
 
 // ── DELETE ──
