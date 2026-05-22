@@ -153,7 +153,12 @@ function buildSystemPrompt(task) {
   const designGuide = loadContextFile('visual-design.md');
   const agentDesc = AGENT_DESCRIPTIONS[task.assignee] || 'あなたはAIエージェントです。';
 
+  const today = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+
   return `${agentDesc}
+
+## 今日の日付
+${today}（この日付をレポートに使うこと。古い日付を使わない）
 
 ## クライアントのプロフィール
 ${identity}
@@ -169,7 +174,9 @@ ${designGuide}
 - クライアントが喜ぶ実用的な成果物を作る
 - 曖昧な部分は合理的なデフォルトで判断して進める
 - 日本語で回答する
-- 「人間の確認が必要です」は、本当に先に進めない場合のみ使う`;
+- 「人間の確認が必要です」は、本当に先に進めない場合のみ使う
+- **情報の鮮度を最優先する**: web_searchの結果を学習データより優先すること。「〜と見られている」「〜の予定」などの予測情報は検索で最新動向を必ず確認する
+- **前置き・宣言文は不要**: 「では〜します」「情報が揃いました」などの作業宣言は出力しない。レポート本文から直接始めること`;
 }
 
 // ── メインタスク処理 ─────────────────────────────────────
