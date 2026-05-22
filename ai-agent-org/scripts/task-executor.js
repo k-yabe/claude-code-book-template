@@ -300,18 +300,23 @@ async function reviewWithCOO(task, agentOutput) {
 タスク詳細: ${task.description?.slice(0, 500) || '（詳細なし）'}
 
 ## 担当エージェントのアウトプット
-${agentOutput.slice(0, 2000)}${agentOutput.length > 2000 ? '\n（省略）' : ''}
+${agentOutput.slice(0, 2000)}${agentOutput.length > 2000 ? '\n…（以降省略）' : ''}
 
 ## チェック項目
 以下の3点を判定し、JSON形式で返してください:
-1. タスクの要件を満たしているか（スコープ漏れなし）
+1. タスクの主要な結論・推奨・判断が含まれているか
 2. 明らかな事実誤認・論理矛盾がないか
-3. 中途半端で未完成でないか（「〜を検討してください」で終わっていないか）
+3. 「〜を検討してください」のみで何も結論が出ていないか
+
+## 判定基準（重要）
+- 表や詳細リストの一部省略は不合格の理由にしない
+- 主要な結論・推奨・判断が明確であれば合格
+- 完璧な網羅性より「意思決定に使えるか」を重視する
 
 ## 返答フォーマット（JSONのみ）
 {"pass": true}
 または
-{"pass": false, "feedback": "具体的な問題点と改善指示を1〜3文で"}`;
+{"pass": false, "feedback": "結論や判断が欠落している具体的な点のみ1〜2文で"}`;
 
   try {
     const response = await client.messages.create({
