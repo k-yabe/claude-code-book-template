@@ -1463,7 +1463,7 @@ function loadFromGitHub(silent) {
     .then(function(apiData) {
       var content = apiData.content;
       if (!content) throw new Error('no content');
-      var decoded = atob(content.replace(/\n/g, ''));
+      var decoded = decodeURIComponent(escape(atob(content.replace(/\n/g, ''))));
       var data = JSON.parse(decoded);
       var fetched = data.tasks || data;
       if (!Array.isArray(fetched)) throw new Error('invalid');
