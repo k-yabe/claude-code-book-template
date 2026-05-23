@@ -87,7 +87,7 @@ Ball speed scales with level: `speed = 4 + (level - 1) * 0.5`. Each brick is wor
 4. **1ファイルずつ実装** — 一度に複数ファイルを変更しない。1ファイル変更→レビュー→次へ
 5. **ステアリングファイルを更新** — 作業完了後にステータスと作業ログを記録する
 6. **永続的ドキュメントを最新化** — `docs/design.md` を常に現状と一致させる
-7. **WHAT'S NEW を必ず更新する** — `index.html` の `WHATS_NEW` 配列に今日の日付・アプリ名・変更内容を追記する。**これを忘れることは禁止。** コミット前に必ず確認すること
+7. **WHAT'S NEW を更新する（Marketing apps のみ）** — `index.html` の `WHATS_NEW` 配列を更新するのは `apps/` 配下のマーケティング系アプリ（Banner Resizer・SNS Post Generator・Marketo Mail Generator・AI NEWS・Wireframe Maker 等）を変更した場合のみ。**`ai-agent-org/` 配下の変更では更新しない。**
 8. **アプリのオンボーディング「最近のアップデート」も必ず更新する** — 変更したアプリの `initOnboarding` 内 `updates` 配列に、わかりやすい文章で最新3件を維持する。WHAT'S NEW と同時に更新すること
 
 ### WHAT'S NEW / バッジ運用ルール（統一）
@@ -140,5 +140,5 @@ Ball speed scales with level: `speed = 4 + (level - 1) * 0.5`. Each brick is wor
 - 複数ファイルを一括変更すること（1ファイルずつ）
 - `docs/design.md` を古い状態のまま放置すること
 - ステアリングファイルを作らずに作業を始めること
-- **`index.html` の WHAT'S NEW を更新せずにコミットすること**
+- **`ai-agent-org/` 関連の変更で `index.html` の WHAT'S NEW を更新すること**（Marketing apps のみ更新対象）
 - **機密情報をコードやファイルに含めること**（APIキー・パスワード・個人情報・社内資料など）。これらは `.env` ファイルや Vercel 環境変数で管理すること
