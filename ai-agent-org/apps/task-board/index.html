@@ -192,7 +192,10 @@ html.light .org-node-coo {
 
 /* エージェントノード */
 .org-node {
-  background: var(--bg); border: 1px solid var(--border);
+  background: var(--bg3);
+  border-top: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   border-left: 3px solid var(--team-color, var(--border));
   padding: 9px 10px 7px; margin: 0 8px 6px;
   cursor: default; transition: transform 0.12s, box-shadow 0.12s;
@@ -1046,6 +1049,7 @@ input:focus, select:focus { border-color: var(--accent); }
   <button class="tab-btn" id="tab-reports" onclick="showTab('reports')">📊 レポート</button>
   <button class="tab-btn" id="tab-timeline" onclick="showTab('timeline')">📅 タイムライン</button>
   <button class="tab-btn" id="tab-org" onclick="showTab('org')">🏢 組織図</button>
+  <button class="tab-btn" id="tab-cost" onclick="showTab('cost')">💰 コスト</button>
 </div>
 
 <!-- ══ BOARD VIEW ══ -->
@@ -1130,6 +1134,14 @@ input:focus, select:focus { border-color: var(--accent); }
     <div style="font-size:22px;font-weight:800;margin-bottom:4px">📅 タイムライン</div>
     <div id="timelineSubheading" style="font-size:12px;color:var(--text2);margin-bottom:28px"></div>
     <div id="timelineContent"></div>
+  </div>
+</div>
+
+<div id="view-cost" style="display:none;flex:1;overflow-y:auto;padding:24px 32px">
+  <div style="max-width:760px;margin:0 auto">
+    <div style="font-size:22px;font-weight:800;margin-bottom:4px">💰 コスト状況</div>
+    <div id="costSubheading" style="font-size:12px;color:var(--text2);margin-bottom:28px"></div>
+    <div id="costContent"></div>
   </div>
 </div>
 
@@ -2217,17 +2229,20 @@ function showTab(tab){
   document.getElementById('view-board').classList.toggle('hidden', tab!=='board');
   document.getElementById('view-reports').classList.toggle('hidden', tab!=='reports');
   document.getElementById('view-timeline').style.display = tab==='timeline' ? 'flex' : 'none';
+  document.getElementById('view-cost').style.display = tab==='cost' ? 'flex' : 'none';
   var orgView = document.getElementById('view-org');
   orgView.classList.toggle('visible', tab==='org');
   document.getElementById('tab-board').classList.toggle('active', tab==='board');
   document.getElementById('tab-reports').classList.toggle('active', tab==='reports');
   document.getElementById('tab-timeline').classList.toggle('active', tab==='timeline');
   document.getElementById('tab-org').classList.toggle('active', tab==='org');
+  document.getElementById('tab-cost').classList.toggle('active', tab==='cost');
   var filters = document.querySelector('.header-filters');
   if(filters) filters.style.visibility = tab==='board' ? 'visible' : 'hidden';
   if(tab==='reports') loadReportList();
   if(tab==='org') renderOrgChart();
   if(tab==='timeline') renderTimeline();
+  if(tab==='cost') renderCost();
 }
 
 function renderTimeline() {
@@ -2264,6 +2279,133 @@ function renderTimeline() {
     html += '</div>';
   });
   document.getElementById('timelineContent').innerHTML = html || '<div style="color:var(--text2);padding:40px;text-align:center">タスクがありません</div>';
+}
+
+// ── COST ──
+var MODEL_RATES = {
+  'Opus':   { in: 15.00, out: 75.00 },
+  'Sonnet': { in:  3.00, out: 15.00 },
+  'Haiku':  { in:  1.00, out:  5.00 },
+  'Local':  { in:  0.00, out:  0.00 }
+};
+// assigneeキー → モデル（ORG_CHART データと合わせる）
+var AGENT_MODEL_MAP = {
+  'coo':'Sonnet','research-analyst':'Sonnet','data-analyst':'Haiku',
+  'career-advisor':'Sonnet','tech-lead':'Sonnet','frontend-engineer':'Haiku',
+  'backend-engineer':'Haiku','qa-engineer':'Sonnet','devops-engineer':'Haiku',
+  'content-director':'Sonnet','video-producer':'Haiku','business-strategist':'Opus',
+  'marketing-director':'Sonnet','sales-growth':'Haiku','partnership-manager':'Haiku',
+  'legal-review':'Sonnet','task-dispatcher':'Sonnet','local-support':'Local',
+  'human':'Local'
+};
+// タスク1件あたりの概算トークン（入力2000 / 出力500）
+var EST_IN = 2000, EST_OUT = 500;
+
+function renderCost() {
+  var modelCount = {Opus:0, Sonnet:0, Haiku:0, Local:0};
+  var agentCount = {};
+  tasks.forEach(function(t) {
+    var m = AGENT_MODEL_MAP[t.assignee] || 'Sonnet';
+    modelCount[m] = (modelCount[m]||0) + 1;
+    if (!agentCount[t.assignee]) agentCount[t.assignee] = {total:0, done:0, model:m};
+    agentCount[t.assignee].total++;
+    if (t.status === 'done') agentCount[t.assignee].done++;
+  });
+
+  var totalCost = 0;
+  var modelCosts = {};
+  Object.keys(modelCount).forEach(function(m) {
+    var n = modelCount[m];
+    var r = MODEL_RATES[m] || {in:0,out:0};
+    var c = n * (EST_IN * r.in + EST_OUT * r.out) / 1e6;
+    modelCosts[m] = c;
+    totalCost += c;
+  });
+
+  var MONTHLY_BUDGET = 10; // $10 想定
+  var pct = Math.min(totalCost / MONTHLY_BUDGET * 100, 100);
+  var barColor = pct > 80 ? '#f85149' : pct > 50 ? '#fb8f44' : '#3fb950';
+
+  document.getElementById('costSubheading').textContent =
+    '全'+tasks.length+'件のタスクにもとづく概算（1件あたり入力'+EST_IN+'tok / 出力'+EST_OUT+'tok 換算）';
+
+  var sortedAgents = Object.entries(agentCount)
+    .filter(function(e){ return e[1].total > 0; })
+    .sort(function(a,b){ return b[1].total - a[1].total; });
+
+  var mBadge = function(m) {
+    var colors = {
+      Opus:'background:#7c3aed22;color:#a78bfa;border:1px solid #7c3aed44',
+      Sonnet:'background:#1d4ed822;color:#60a5fa;border:1px solid #1d4ed844',
+      Haiku:'background:#05966922;color:#34d399;border:1px solid #05966944',
+      Local:'background:var(--bg3);color:var(--text3);border:1px solid var(--border)'
+    };
+    return '<span style="font-size:9px;padding:1px 5px;'+( colors[m]||'')+';display:inline-block;margin-left:4px">'+h(m)+'</span>';
+  };
+
+  var html = '';
+
+  // 予算メーター
+  html += '<div style="background:var(--bg2);border:1px solid var(--border);padding:20px 24px;margin-bottom:20px">'
+    + '<div style="font-size:13px;font-weight:700;margin-bottom:12px">月間予算メーター</div>'
+    + '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">'
+    + '<span style="font-size:28px;font-weight:800;color:'+barColor+'">$'+totalCost.toFixed(4)+'</span>'
+    + '<span style="font-size:12px;color:var(--text2)">/ $'+MONTHLY_BUDGET+'.00 想定予算</span>'
+    + '</div>'
+    + '<div style="background:var(--bg3);height:10px;border-radius:0;overflow:hidden">'
+    + '<div style="background:'+barColor+';width:'+pct.toFixed(1)+'%;height:100%;transition:width 0.4s"></div>'
+    + '</div>'
+    + '<div style="font-size:10px;color:var(--text2);margin-top:6px">'+pct.toFixed(1)+'% 使用 — '+tasks.filter(function(t){return t.status==='done';}).length+'件完了</div>'
+    + '</div>';
+
+  // モデル別内訳
+  html += '<div style="background:var(--bg2);border:1px solid var(--border);padding:20px 24px;margin-bottom:20px">'
+    + '<div style="font-size:13px;font-weight:700;margin-bottom:14px">モデル別コスト内訳</div>'
+    + '<div style="display:flex;flex-direction:column;gap:10px">';
+  ['Opus','Sonnet','Haiku','Local'].forEach(function(m) {
+    var n = modelCount[m] || 0;
+    var c = modelCosts[m] || 0;
+    var r = MODEL_RATES[m];
+    var barW = totalCost > 0 ? Math.round(c / totalCost * 100) : 0;
+    html += '<div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+      + '<span style="font-size:12px;font-weight:600">'+mBadge(m)+' <span style="margin-left:4px">'+n+'件</span></span>'
+      + '<span style="font-size:12px;font-weight:700;font-variant-numeric:tabular-nums">$'+c.toFixed(4)+'</span>'
+      + '</div>'
+      + '<div style="background:var(--bg3);height:6px">'
+      + '<div style="background:var(--accent);opacity:0.7;width:'+barW+'%;height:100%"></div>'
+      + '</div>'
+      + '<div style="font-size:9px;color:var(--text3);margin-top:2px">入力 $'+r.in+'/1Mtok · 出力 $'+r.out+'/1Mtok</div>'
+      + '</div>';
+  });
+  html += '</div></div>';
+
+  // エージェント別
+  html += '<div style="background:var(--bg2);border:1px solid var(--border);padding:20px 24px">'
+    + '<div style="font-size:13px;font-weight:700;margin-bottom:14px">エージェント別タスク数</div>'
+    + '<div style="display:flex;flex-direction:column;gap:6px">';
+  sortedAgents.forEach(function(entry) {
+    var key = entry[0], d = entry[1];
+    var a = ag(key);
+    var m = d.model;
+    var c = d.total * (EST_IN * (MODEL_RATES[m]||{in:0}).in + EST_OUT * (MODEL_RATES[m]||{out:0}).out) / 1e6;
+    var maxN = sortedAgents[0][1].total;
+    var barW = maxN > 0 ? Math.round(d.total / maxN * 100) : 0;
+    html += '<div style="display:flex;align-items:center;gap:10px">'
+      + '<div style="font-size:16px;width:22px;text-align:center;flex-shrink:0">'+a.e+'</div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">'
+      + '<span style="font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+h(a.n||key)+mBadge(m)+'</span>'
+      + '<span style="font-size:11px;color:var(--text2);flex-shrink:0;margin-left:8px">'+d.total+'件 (完了'+d.done+') · $'+c.toFixed(4)+'</span>'
+      + '</div>'
+      + '<div style="background:var(--bg3);height:4px">'
+      + '<div style="background:var(--accent);opacity:0.5;width:'+barW+'%;height:100%"></div>'
+      + '</div>'
+      + '</div></div>';
+  });
+  html += '</div></div>';
+
+  document.getElementById('costContent').innerHTML = html;
 }
 
 // ── ORG CHART ──
