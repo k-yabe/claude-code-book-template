@@ -594,8 +594,7 @@ async function main() {
         saveToObsidian(task, result, 'APPROVED');
         const outputFile = saveOutput(task, result);
         const githubUrl = outputFile ? await pushOutputFileToGitHub(outputFile, fs.readFileSync(path.join(PROJECTS_DIR, outputFile), 'utf-8')) : null;
-        const snippet = result.length > 300 ? result.slice(0, 300) + '…' : result;
-        const commentContent = githubUrl ? `${snippet}\n\n📄 [全文レポートを見る](${githubUrl})` : snippet;
+        const commentContent = result;
         taskRef.status = 'done';
         taskRef.blockedReason = '';
         taskRef.updatedAt = new Date().toISOString();
@@ -636,8 +635,7 @@ async function main() {
             content: `🔴 COOレビュー最終差し戻し\n2回の修正でも品質基準を満たしませんでした。\n理由: ${verdict.feedback}\n人間の判断が必要です。`,
             timestamp: new Date().toISOString(),
           });
-          const snippet2 = result.length > 300 ? result.slice(0, 300) + '…' : result;
-          taskRef.comments.push({ author: task.assignee, content: snippet2, timestamp: new Date().toISOString() });
+          taskRef.comments.push({ author: task.assignee, content: result, timestamp: new Date().toISOString() });
           saveToObsidian(task, result, 'REJECTED');
           saveTasks(data);
           console.log(`⚠️  ${task.id}: blocked（COO 2回差し戻し）`);
@@ -650,10 +648,7 @@ async function main() {
       saveToObsidian(task, result, 'APPROVED');
       const outputFile = saveOutput(task, result);
       const githubUrl = outputFile ? await pushOutputFileToGitHub(outputFile, fs.readFileSync(path.join(PROJECTS_DIR, outputFile), 'utf-8')) : null;
-      const snippet = result.length > 300 ? result.slice(0, 300) + '…' : result;
-      const commentContent = githubUrl
-        ? `${snippet}\n\n📄 [全文レポートを見る](${githubUrl})`
-        : `${snippet}\n\n（全文はObsidianのタスクログを確認）`;
+      const commentContent = result;
 
       taskRef.status = 'done';
       taskRef.blockedReason = '';
