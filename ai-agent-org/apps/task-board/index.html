@@ -964,7 +964,7 @@ input:focus, select:focus { border-color: var(--accent); }
 <div class="header">
   <h1>🤖 AI Agent</h1>
   <div class="header-filters">
-    <input type="search" id="filterText" placeholder="🔍 検索" oninput="render()" style="width:140px">
+    <input type="search" id="filterText" placeholder="🔍 検索" oninput="debounceRender()" style="width:140px">
     <select id="filterOrg" onchange="render()" aria-label="組織フィルター">
       <option value="">組織: 全て</option>
       <option value="private">個人</option>
@@ -1309,6 +1309,7 @@ var AGENTS = {
   'legal-review':        {e:'⚖️', c:'#4e342e', n:'リーガルレビュー'},
   // インフラ
   'task-dispatcher':     {e:'📬', c:'#37474f', n:'タスクディスパッチャー'},
+  'local-support':       {e:'🖥️', c:'#546e7a', n:'ローカルサポート'},
 };
 
 var TEAM_CSS = {
@@ -1833,6 +1834,9 @@ function openAssigneeEdit(){
 }
 
 // ── STATUS MENU ──
+var _renderTimer;
+function debounceRender(){ clearTimeout(_renderTimer); _renderTimer=setTimeout(render, 150); }
+
 function toggleStatusMenu(e){
   e.stopPropagation();
   var menu=document.getElementById('statusMenu');
@@ -2065,7 +2069,7 @@ function onFileImport(e){
       var data=JSON.parse(ev.target.result);
       var imported=data.tasks||data;
       if(!Array.isArray(imported)) throw new Error('tasks配列なし');
-      tasks=imported; save(); render(); alert(tasks.length+'件インポートしました');
+      tasks=imported; saveAndPush(); render(); alert(tasks.length+'件インポートしました');
     }catch(err){alert('エラー: '+err.message);}
   };
   reader.readAsText(file);
