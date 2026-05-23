@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-05-22T13:30:18.097Z",
+  "lastUpdated": "2026-05-23T00:00:00.000Z",
   "tasks": [
     {
       "id": "T001",
@@ -27,11 +27,7 @@
         }
       ],
       "blockedReason": "",
-      "tags": [
-        "context-engine",
-        "design-system",
-        "setup"
-      ]
+      "tags": ["context-engine", "design-system", "setup"]
     },
     {
       "id": "T002",
@@ -63,11 +59,7 @@
         }
       ],
       "blockedReason": "",
-      "tags": [
-        "agent-review",
-        "quality",
-        "setup"
-      ]
+      "tags": ["agent-review", "quality", "setup"]
     },
     {
       "id": "T003",
@@ -89,11 +81,7 @@
         }
       ],
       "blockedReason": "",
-      "tags": [
-        "testing",
-        "task-board",
-        "infrastructure"
-      ]
+      "tags": ["testing", "task-board", "infrastructure"]
     },
     {
       "id": "T004",
@@ -125,11 +113,7 @@
         }
       ],
       "blockedReason": "",
-      "tags": [
-        "content",
-        "brand-voice",
-        "setup"
-      ]
+      "tags": ["content", "brand-voice", "setup"]
     },
     {
       "id": "T005",
@@ -151,11 +135,7 @@
         }
       ],
       "blockedReason": "",
-      "tags": [
-        "automation",
-        "infrastructure",
-        "daily-report"
-      ]
+      "tags": ["automation", "infrastructure", "daily-report"]
     },
     {
       "id": "T006",
@@ -216,19 +196,24 @@
       "id": "T013",
       "title": "Mac miniの購入検討",
       "description": "1. 検討の判断軸\n   新型が出るタイミングを最優先して購入したいと考えている。現状のリーク情報や予測情報を含めて、いつ購入すべきか、またMacBook Air M3と置き換える（あるいは使い分ける）べきか、構造的に判断してほしい。\n\n2. 現状の使用用途とニーズ\n   (a) MacBook Pro M5（仕事用）\n       メイン機だが重たいため、外出時の持ち運びには適さない。\n   (b) MacBook Air M3（外出用）\n       簡易的な外出用として、軽い作業のみで持ち運びたいというニーズがある。\n\n3. 今後の運用案\n   MacBook Air M3を持ち運ぶ機会が増えているため、Mac miniを自宅でサーバーのように運用した方が良いのではないかと考えている。",
-      "status": "new-assigned",
+      "status": "done",
       "priority": "P2",
       "assignee": "research-analyst",
       "assigneeType": "ai",
       "team": "research",
       "organization": "private",
       "createdAt": "2026-05-19T00:47:48.981Z",
-      "updatedAt": "2026-05-22T13:46:13.620Z",
+      "updatedAt": "2026-05-23T00:00:00.000Z",
       "comments": [
         {
           "author": "task-dispatcher",
           "content": "inbox から自動生成",
           "timestamp": "2026-05-19T00:47:48.981Z"
+        },
+        {
+          "author": "task-dispatcher",
+          "content": "ステータスを手動で done に修正（昨日完了済み）",
+          "timestamp": "2026-05-23T00:00:00.000Z"
         }
       ],
       "blockedReason": "",
