@@ -1495,6 +1495,7 @@ function startAutoRefresh(){
   setInterval(function(){
     if(!document.getElementById('statusMenu').classList.contains('hidden')) return;
     if(!document.getElementById('createOverlay').classList.contains('hidden')) return;
+    if(activeId) return; // パネル（タスク詳細）を開いている間は同期しない
     loadFromGitHub(true);
   },60000);
 }
