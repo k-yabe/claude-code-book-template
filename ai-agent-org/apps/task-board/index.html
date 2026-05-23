@@ -1854,7 +1854,8 @@ function closeBg(e,id){ if(e.target===document.getElementById(id)) document.getE
 
 // task-dispatcher.js と同じルーティングロジックをフロントで再現
 var FRONT_ROUTING = [
-  {kw:['副業','フリーランス','キャリア','転職','案件探し','求人','スキルアップ','収入アップ','ジム','減量','筋トレ','運動','ダイエット','健康','食事','睡眠','プライベート','生活'], assignee:'career-advisor', team:'personal'},
+  {kw:['副業','フリーランス','キャリア','転職','案件探し','求人','スキルアップ','収入アップ'], assignee:'career-advisor', team:'personal'},
+  {kw:['ジム','減量','筋トレ','運動','ダイエット','健康','食事','睡眠','プライベート','生活'], assignee:'content-director', team:'content'},
   {kw:['データ','メトリクス','KPI','集計','分析','CSV','数値'], assignee:'data-analyst', team:'research'},
   {kw:['購入','比較','検討','調査','おすすめ','リサーチ','選定','評価','どれがいい','候補','導入','乗り換え'], assignee:'research-analyst', team:'research'},
   {kw:['デプロイ','CI','CD','GitHub Actions','Vercel','Docker','インフラ自動化'], assignee:'devops-engineer', team:'engineering'},
