@@ -804,6 +804,61 @@ html.dark .org-akkodis  { color:#ffa657; }
 }
 .send-btn:hover { opacity: 0.85; }
 
+/* ── ATTACHMENTS ── */
+.attach-bar {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 6px 12px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.attach-bar-empty { display: none; }
+.attach-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: var(--text2);
+  max-width: 200px;
+}
+.attach-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attach-chip-del {
+  background: none; border: none; color: var(--text3);
+  cursor: pointer; font-size: 13px; line-height: 1; padding: 0;
+  flex-shrink: 0;
+}
+.attach-chip-del:hover { color: var(--danger, #f85149); }
+.attach-btn {
+  background: none; border: 1px solid var(--border);
+  color: var(--text2); border-radius: 6px;
+  padding: 3px 8px; font-size: 11px; cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+  transition: background 0.12s;
+}
+.attach-btn:hover { background: var(--bg3); }
+.attach-modal-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 4px 10px;
+  font-size: 11px; color: var(--text2); max-width: 260px;
+}
+.attach-modal-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attach-modal-chip button {
+  background: none; border: none; color: var(--text3);
+  cursor: pointer; font-size: 13px; padding: 0; line-height: 1;
+}
+.attach-modal-chip button:hover { color: var(--danger, #f85149); }
+.attach-progress {
+  font-size: 11px; color: var(--text3); padding: 2px 0;
+}
+
 /* ── CONTROLS ── */
 .btn {
   background: var(--bg3);
@@ -1027,6 +1082,7 @@ input:focus, select:focus { border-color: var(--accent); }
 .md-body strong { font-weight:700; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 </head>
 <body>
 
@@ -1142,7 +1198,9 @@ input:focus, select:focus { border-color: var(--accent); }
     </div>
     <div class="blocked-banner hidden" id="blockedBanner"></div>
     <div class="messages" id="chatMessages"></div>
+    <div class="attach-bar attach-bar-empty" id="panelAttachBar"></div>
     <div class="chat-input">
+      <button class="attach-btn" onclick="openAttachPicker('panel')" title="ファイルを添付" style="flex-shrink:0;height:34px;padding:0 8px;">📎</button>
       <textarea id="msgInput" placeholder="コメントを追加（Enter で送信、Shift+Enter で改行）" rows="1"
         onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
       <button class="send-btn" onclick="sendMsg()" aria-label="コメントを送信">↑</button>
@@ -1790,6 +1848,15 @@ input:focus, select:focus { border-color: var(--accent); }
           </select>
         </div>
       </div>
+      <div class="field">
+        <label>添付ファイル</label>
+        <div id="cAttachList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"></div>
+        <div id="cAttachProgress" class="attach-progress"></div>
+        <button class="attach-btn" onclick="openAttachPicker('create')" type="button">
+          📎 ファイルを追加
+        </button>
+        <div style="font-size:10px;color:var(--text3);margin-top:4px">対応: テキスト / CSV / Markdown / PDF / 画像（PNG・JPG・GIF・WebP）</div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeCreate()">キャンセル</button>
@@ -1799,6 +1866,7 @@ input:focus, select:focus { border-color: var(--accent); }
 </div>
 
 <input type="file" id="fileInput" accept=".json" style="display:none" onchange="onFileImport(event)">
+<input type="file" id="attachFileInput" accept=".txt,.md,.csv,.pdf,.png,.jpg,.jpeg,.gif,.webp" multiple style="display:none" onchange="onAttachFiles(event)">
 
 <!-- レポートビューアーモーダル -->
 <div class="overlay hidden" id="reportViewerOverlay" onclick="if(event.target===this)closeReportViewer()">
@@ -2324,8 +2392,10 @@ function onDrop(e,newStatus){
 // ── PANEL ──
 function openPanel(id){
   activeId=id;
+  panelAttachments = [];
   document.getElementById('detailPanel').classList.remove('hidden');
   renderPanel();
+  renderPanelAttachBar();
   render();
   setTimeout(function(){
     var m=document.getElementById('chatMessages');
@@ -2336,6 +2406,7 @@ function openPanel(id){
 }
 function closePanel(){
   document.getElementById('detailPanel').classList.add('hidden');
+  panelAttachments = [];
   activeId=null; render();
 }
 
@@ -2493,6 +2564,8 @@ function renderChat(){
       +'</div>';
   }
 
+  html += renderTaskAttachments(t);
+
   (t.comments||[]).forEach(function(c){
     if(isSys(c)){
       html+='<div class="msg-sys"><span>'+h(c.content)+'</span>'
@@ -2526,12 +2599,24 @@ function sendMsg(){
   if(sendInFlight) return;
   var input=document.getElementById('msgInput');
   var content=input.value.trim();
-  if(!content||!activeId) return;
+  var hasAttach = panelAttachments.length > 0;
+  if(!content && !hasAttach) return;
+  if(!activeId) return;
   var t=tasks.find(function(x){return x.id===activeId;});
   if(!t) return;
   sendInFlight=true;
   t.comments=t.comments||[];
-  t.comments.push({author:'human',content:content,timestamp:new Date().toISOString()});
+  // 添付ファイルをタスクに追記
+  if (hasAttach) {
+    t.attachments = (t.attachments || []).concat(panelAttachments);
+    var names = panelAttachments.map(function(a){ return a.name; }).join(', ');
+    t.comments.push({author:'system', content:'📎 ファイルを添付: '+names, timestamp:new Date().toISOString()});
+    panelAttachments = [];
+    renderPanelAttachBar();
+  }
+  if(content){
+    t.comments.push({author:'human',content:content,timestamp:new Date().toISOString()});
+  }
   t.updatedAt=new Date().toISOString();
   input.value=''; autoResize(input);
   saveAndPush(); render(); renderChat();
@@ -2586,7 +2671,6 @@ function cancelDelete(){
 
 // ── CREATE ──
 function openCreate(){ document.getElementById('createOverlay').classList.remove('hidden'); setTimeout(function(){document.getElementById('cTitle').focus();},50); }
-function closeCreate(){ document.getElementById('createOverlay').classList.add('hidden'); }
 function closeBg(e,id){ if(e.target===document.getElementById(id)) document.getElementById(id).classList.add('hidden'); }
 
 // task-dispatcher.js と同じルーティングロジックをフロントで再現
@@ -2640,6 +2724,170 @@ function updateAutoPreview(){
   if(hint) hint.textContent='→ '+a.e+' '+aName+' に割り当てられます';
 }
 
+// ── ATTACHMENTS ────────────────────────────────────────────
+var pendingAttachments = [];   // for create modal
+var panelAttachments  = [];    // for panel attach-then-comment
+var attachTarget = 'create';   // 'create' | 'panel'
+
+function openAttachPicker(target) {
+  attachTarget = target;
+  var inp = document.getElementById('attachFileInput');
+  inp.value = '';
+  inp.click();
+}
+
+function attachTypeIcon(type) {
+  if (type === 'image') return '🖼️';
+  if (type === 'pdf')   return '📄';
+  return '📝';
+}
+
+function renderCreateAttachList() {
+  var el = document.getElementById('cAttachList');
+  if (!el) return;
+  el.innerHTML = pendingAttachments.map(function(a, i) {
+    return '<span class="attach-modal-chip">'
+      + attachTypeIcon(a.type) + ' <span title="'+h(a.name)+'">'+h(a.name)+'</span>'
+      + '<button onclick="removeCreateAttach('+i+')" title="削除">×</button>'
+      + '</span>';
+  }).join('');
+}
+
+function removeCreateAttach(i) {
+  pendingAttachments.splice(i, 1);
+  renderCreateAttachList();
+}
+
+function renderPanelAttachBar() {
+  var bar = document.getElementById('panelAttachBar');
+  if (!bar) return;
+  if (panelAttachments.length === 0) {
+    bar.className = 'attach-bar attach-bar-empty';
+    bar.innerHTML = '';
+    return;
+  }
+  bar.className = 'attach-bar';
+  bar.innerHTML = '<span style="font-size:11px;color:var(--text3);flex-shrink:0">添付:</span>'
+    + panelAttachments.map(function(a, i) {
+      return '<span class="attach-chip">'
+        + attachTypeIcon(a.type) + ' <span title="'+h(a.name)+'">'+h(a.name)+'</span>'
+        + '<button class="attach-chip-del" onclick="removePanelAttach('+i+')" title="削除">×</button>'
+        + '</span>';
+    }).join('');
+}
+
+function removePanelAttach(i) {
+  panelAttachments.splice(i, 1);
+  renderPanelAttachBar();
+}
+
+async function extractPdfText(arrayBuffer) {
+  if (typeof pdfjsLib === 'undefined') return '[PDF解析ライブラリが読み込まれていません]';
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+  var pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  var texts = [];
+  for (var p = 1; p <= Math.min(pdf.numPages, 50); p++) {
+    var page = await pdf.getPage(p);
+    var tc = await page.getTextContent();
+    texts.push(tc.items.map(function(it){ return it.str; }).join(' '));
+  }
+  return texts.join('\n\n');
+}
+
+async function readAttachFile(file) {
+  var name = file.name;
+  var mime = file.type || '';
+  if (mime.startsWith('image/')) {
+    return new Promise(function(resolve) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var dataUrl = e.target.result;
+        var base64 = dataUrl.split(',')[1];
+        resolve({ name: name, type: 'image', mediaType: mime, data: base64 });
+      };
+      reader.readAsDataURL(file);
+    });
+  } else if (mime === 'application/pdf' || name.endsWith('.pdf')) {
+    return new Promise(function(resolve) {
+      var reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          var text = await extractPdfText(e.target.result);
+          resolve({ name: name, type: 'pdf', content: text });
+        } catch(err) {
+          resolve({ name: name, type: 'pdf', content: '[PDF解析エラー: '+err.message+']' });
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  } else {
+    return new Promise(function(resolve) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        resolve({ name: name, type: 'text', content: e.target.result });
+      };
+      reader.readAsText(file, 'utf-8');
+    });
+  }
+}
+
+async function onAttachFiles(e) {
+  var files = Array.from(e.target.files);
+  if (!files.length) return;
+
+  if (attachTarget === 'create') {
+    var prog = document.getElementById('cAttachProgress');
+    if (prog) prog.textContent = '読み込み中...';
+    for (var i = 0; i < files.length; i++) {
+      var att = await readAttachFile(files[i]);
+      pendingAttachments.push(att);
+    }
+    if (prog) prog.textContent = '';
+    renderCreateAttachList();
+  } else {
+    for (var i = 0; i < files.length; i++) {
+      var att = await readAttachFile(files[i]);
+      panelAttachments.push(att);
+    }
+    renderPanelAttachBar();
+  }
+}
+
+function renderTaskAttachments(task) {
+  var atts = task.attachments;
+  if (!atts || !atts.length) return '';
+  var items = atts.map(function(a) {
+    var icon = attachTypeIcon(a.type);
+    var preview = '';
+    if (a.type === 'image' && a.data) {
+      preview = '<br><img src="data:'+a.mediaType+';base64,'+a.data+'"'
+        + ' style="max-width:100%;max-height:120px;border-radius:4px;margin-top:6px;cursor:pointer"'
+        + ' onclick="this.style.maxHeight=this.style.maxHeight===\'none\'?\'120px\':\'none\'" title="クリックで拡大">';
+    } else if ((a.type === 'text' || a.type === 'pdf') && a.content) {
+      var preview_text = a.content.slice(0, 200).replace(/</g,'&lt;');
+      preview = '<div style="font-size:10px;color:var(--text3);margin-top:4px;background:var(--bg);padding:4px 6px;border-radius:4px;white-space:pre-wrap;font-family:monospace">'
+        + preview_text + (a.content.length > 200 ? '…' : '') + '</div>';
+    }
+    return '<div style="display:inline-flex;align-items:flex-start;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px;max-width:100%">'
+      + icon + ' <div><div style="font-size:11px;font-weight:600">'+h(a.name)+'</div>' + preview + '</div></div>';
+  });
+  return '<div style="padding:10px 14px 0;display:flex;flex-direction:column;gap:6px">'
+    + '<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">添付ファイル ('+atts.length+'件)</div>'
+    + items.join('') + '</div>';
+}
+
+function closeCreate(){
+  document.getElementById('createOverlay').classList.add('hidden');
+  document.getElementById('cTitle').value='';
+  document.getElementById('cDesc').value='';
+  document.getElementById('cAssignee').value='auto';
+  document.getElementById('cPriority').value='P2';
+  document.getElementById('autoHint').textContent='タイトルと説明からキーワードで自動判断します';
+  pendingAttachments = [];
+  renderCreateAttachList();
+}
+
 function createTask(){
   var title=document.getElementById('cTitle').value.trim();
   if(!title){alert('タイトルは必須です');return;}
@@ -2665,8 +2913,10 @@ function createTask(){
     team:team,
     organization:document.getElementById('cOrg').value,
     createdAt:now, updatedAt:now,
-    comments:[], blockedReason:'', tags:[]
+    comments:[], blockedReason:'', tags:[],
+    attachments: pendingAttachments.slice()
   };
+  pendingAttachments = [];
   tasks.unshift(t); saveAndPush(); closeCreate(); render(); openPanel(t.id);
 }
 

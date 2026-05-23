@@ -207,6 +207,31 @@ ${designGuide}
 - **前置き・宣言文は不要**: 「では〜します」「情報が揃いました」などの作業宣言は出力しない。レポート本文から直接始めること`;
 }
 
+// ── 添付ファイルをメッセージコンテンツに変換 ──────────────
+function buildAttachmentContent(attachments) {
+  if (!attachments || attachments.length === 0) return [];
+  const blocks = [];
+  for (const att of attachments) {
+    if (att.type === 'image' && att.data) {
+      // Claude Vision: base64 画像ブロック
+      blocks.push({
+        type: 'image',
+        source: { type: 'base64', media_type: att.mediaType || 'image/png', data: att.data }
+      });
+      blocks.push({ type: 'text', text: `[上の画像: ${att.name}]` });
+    } else if ((att.type === 'text' || att.type === 'pdf') && att.content) {
+      // テキスト/PDF はプロンプトに展開（先頭10000文字まで）
+      const content = att.content.slice(0, 10000);
+      const truncated = att.content.length > 10000 ? '\n...(以降省略)' : '';
+      blocks.push({
+        type: 'text',
+        text: `## 添付ファイル: ${att.name}\n\n${content}${truncated}`
+      });
+    }
+  }
+  return blocks;
+}
+
 // ── メインタスク処理 ─────────────────────────────────────
 async function processTask(task, feedbackFromCOO = null) {
   const model = AGENT_MODELS[task.assignee] || MODELS.HAIKU;
@@ -217,7 +242,7 @@ async function processTask(task, feedbackFromCOO = null) {
     ? `\n## COOからのフィードバック（前回の差し戻し理由）\n${feedbackFromCOO}\n\n上記の問題点を解消して改めてアウトプットを作成してください。\n`
     : '';
 
-  const userMessage = `以下のタスクを実行してください。
+  const textMessage = `以下のタスクを実行してください。
 ${feedbackNote}
 ## タスクID: ${task.id}
 ## タイトル: ${task.title}
@@ -239,7 +264,15 @@ ${task.comments && task.comments.length > 0 ? `## これまでのコメント（
 - 判断が必要で人間の確認が必要な場合は、その旨と理由を明記してください
 ${useWebSearch ? '- 最新情報が必要な場合は web_search ツールを使って調査してください。' : ''}`;
 
-  console.log(`\n処理中: ${task.id} "${task.title}" → ${task.assignee} (${model})${feedbackFromCOO ? ' [COO差し戻し再試行]' : ''}${useWebSearch ? ' [Web検索有効]' : ''}`);
+  // 添付ファイルがある場合はマルチコンテンツ形式
+  const attachBlocks = buildAttachmentContent(task.attachments);
+  const hasAttach = attachBlocks.length > 0;
+  const userMessage = hasAttach
+    ? [...attachBlocks, { type: 'text', text: textMessage }]
+    : textMessage;
+
+  const attachLog = hasAttach ? ` [添付${(task.attachments||[]).length}件]` : '';
+  console.log(`\n処理中: ${task.id} "${task.title}" → ${task.assignee} (${model})${feedbackFromCOO ? ' [COO差し戻し再試行]' : ''}${useWebSearch ? ' [Web検索有効]' : ''}${attachLog}`);
 
   const tools = useWebSearch
     ? [{ type: 'web_search_20260209', name: 'web_search', allowed_callers: ['direct'], max_uses: 1 }]

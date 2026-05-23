@@ -766,6 +766,7 @@
 
     // ── 更新履歴 ────────────────────────────────────────
     const WHATS_NEW = [
+      { icon: '📎', app: 'AI Agent Task Board', badge: 'NEW', date: '2026-05-23(土)', desc: '【ファイル添付機能を追加 — PDFや画像をタスクに添付してエージェントが直接処理】タスク作成時・詳細パネルのコメント欄から📎ボタンでファイルを添付可能。対応形式: テキスト/Markdown/CSV/PDF/画像(PNG・JPG・GIF・WebP)。PDFはpdf.jsでブラウザ内テキスト抽出、画像はClaudeのVision機能で直接読み取り。添付されたファイルはtasks.jsonに保存され、task-executorがタスク処理時に自動でClaudeに渡す。' },
       { icon: '📈', app: 'AI NEWS', badge: 'UPDATE', date: '2026-05-17(土)', desc: '【X生成AIトレンドの件数を最大10件に増加・EN対応強化】Xトレンドの収集上限を6→10件に増やし、表示閾値（X_BUZZ_MIN）を1500→500に引き下げて幅広いトレンドを表示。あわせてENモードでX投稿テキストを英語翻訳表示（日本語原文はトグルで確認可）、ピッカーコメントもEN翻訳フィールド（pickerCommentEn）を追加して英語対応を完成。' },
       { icon: '🎯', app: 'AI NEWS', badge: 'UPDATE', date: '2026-05-16(金)', desc: '【コンテンツ方針を刷新 — BtoBマーケ→AKKODiS事業領域に特化】「AI NEWS」のコンテンツ方針をAKKODiSの実際の事業領域（ITコンサル・DX支援・エンジニアリング派遣・システム開発・BPO・技術者育成）に最適化。ニュースソースをEnterpriseZine/IT Leaders/ZDNet Japan等のDX・エンタープライズIT系メディアに刷新、キーワードをDX・ITコンサル・エンジニアリング派遣・BPO・クラウド・セキュリティ等に変更、AI要約プロンプトを「B2Bマーケ担当者向け」→「ITコンサル・DX・エンジニアリング派遣の事業担当者向け」に書き換え。競合は引き続き SIer・コンサルファーム・エンジニアリングサービス50+社を監視。' },
       { icon: '🔗', app: 'AI NEWS', badge: 'UPDATE', date: '2026-05-16(金)', desc: '【ニュース参照元（URL・媒体名）の誤りを修正】Google News RSS 経由で収集した記事で URL が「news.google.com/rss/articles/...」という Google のリダイレクト URL のまま保存されていた問題を根治。スクレイパー側で base64 デコード（HTTP 不要）→ HTML 解析→ HTTP フォローの 3 段階で実際の記事 URL に解決するロジックを追加。これにより「元記事を読む」リンクが正しい記事に飛ぶように。さらに媒体名も「Google News (NEC)」→「NEC」など実媒体名・会社名に正規化（app.js の prettySource() ヘルパーで既存データも即時補正）。' },
