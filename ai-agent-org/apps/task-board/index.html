@@ -1081,6 +1081,7 @@ input:focus, select:focus { border-color: var(--accent); }
   <button class="tab-btn" id="tab-timeline" onclick="showTab('timeline')">📅 タイムライン</button>
   <button class="tab-btn" id="tab-org" onclick="showTab('org')">🏢 組織図</button>
   <button class="tab-btn" id="tab-cost" onclick="showTab('cost')">💰 コスト</button>
+  <button class="tab-btn" id="tab-guide" onclick="showTab('guide')">📖 使い方</button>
 </div>
 
 <!-- ══ BOARD VIEW ══ -->
@@ -1165,6 +1166,302 @@ input:focus, select:focus { border-color: var(--accent); }
     <div style="font-size:22px;font-weight:800;margin-bottom:4px">📅 タイムライン</div>
     <div id="timelineSubheading" style="font-size:12px;color:var(--text2);margin-bottom:28px"></div>
     <div id="timelineContent"></div>
+  </div>
+</div>
+
+<div id="view-guide" style="display:none;flex:1;overflow-y:auto;padding:24px 32px">
+  <div style="max-width:740px;margin:0 auto;font-size:13px;line-height:1.7">
+
+    <div style="font-size:22px;font-weight:800;margin-bottom:4px">📖 使い方ガイド</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:32px">初めての方でもわかるように、このシステムの全体像と使い方を説明します</div>
+
+    <!-- ① このシステムって何？ -->
+    <div style="margin-bottom:32px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;font-weight:700">STEP 0</span>
+        このシステムって何？
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);padding:18px 20px;margin-bottom:12px">
+        <div style="font-size:13px;margin-bottom:14px">
+          <strong>「AIの社員を26名雇って、仕事を自動で進めてもらう」</strong>システムです。<br>
+          普通は自分でChatGPTに一件一件聞いていたところを、タスクを渡すだけで適切な担当が自動で処理します。
+        </div>
+        <!-- フロー図 -->
+        <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin-top:8px">
+          <div style="text-align:center;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);min-width:90px">
+            <div style="font-size:20px">📝</div>
+            <div style="font-size:10px;font-weight:700;margin-top:4px">あなた</div>
+            <div style="font-size:9px;color:var(--text2)">inboxに書く</div>
+          </div>
+          <div style="font-size:18px;color:var(--text3);padding:0 6px">→</div>
+          <div style="text-align:center;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);min-width:90px">
+            <div style="font-size:20px">📬</div>
+            <div style="font-size:10px;font-weight:700;margin-top:4px">Dispatcher</div>
+            <div style="font-size:9px;color:var(--text2)">担当を決める</div>
+          </div>
+          <div style="font-size:18px;color:var(--text3);padding:0 6px">→</div>
+          <div style="text-align:center;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);min-width:90px">
+            <div style="font-size:20px">🤖</div>
+            <div style="font-size:10px;font-weight:700;margin-top:4px">AIエージェント</div>
+            <div style="font-size:9px;color:var(--text2)">自動で処理</div>
+          </div>
+          <div style="font-size:18px;color:var(--text3);padding:0 6px">→</div>
+          <div style="text-align:center;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);min-width:90px">
+            <div style="font-size:20px">🏢</div>
+            <div style="font-size:10px;font-weight:700;margin-top:4px">COO確認</div>
+            <div style="font-size:9px;color:var(--text2)">品質チェック</div>
+          </div>
+          <div style="font-size:18px;color:var(--text3);padding:0 6px">→</div>
+          <div style="text-align:center;padding:10px 14px;background:#3fb95018;border:1px solid #3fb95044;min-width:90px">
+            <div style="font-size:20px">✅</div>
+            <div style="font-size:10px;font-weight:700;margin-top:4px;color:#3fb950">完了</div>
+            <div style="font-size:9px;color:var(--text2)">あなたに届く</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 基本的な使い方 -->
+    <div style="margin-bottom:32px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;font-weight:700">STEP 1</span>
+        基本的な使い方（3ステップ）
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
+          <div style="font-size:22px;font-weight:800;color:var(--accent);flex-shrink:0;line-height:1">1</div>
+          <div>
+            <div style="font-weight:700;margin-bottom:4px">inboxにファイルを置く</div>
+            <div style="font-size:11px;color:var(--text2)"><code style="background:var(--bg3);padding:1px 5px;font-size:10px">ai-agent-org/context/inbox/</code> に .md ファイルを作るだけ。ファイル名は何でもOK。</div>
+            <div style="margin-top:8px;padding:8px 10px;background:var(--bg3);font-size:11px;font-family:monospace">
+              # 副業案件を探してほしい<br>
+              <span style="color:var(--text2)">スキル: Claude Code, TypeScript<br>
+              週10時間以内、リモートのみ希望</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
+          <div style="font-size:22px;font-weight:800;color:var(--accent);flex-shrink:0;line-height:1">2</div>
+          <div>
+            <div style="font-weight:700;margin-bottom:4px">5分待つ（自動で動く）</div>
+            <div style="font-size:11px;color:var(--text2)">launchd が5分ごとに inbox を監視しています。ファイルを置いたら放置でOK。タスクが自動生成されて担当エージェントに割り振られます。</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
+          <div style="font-size:22px;font-weight:800;color:var(--accent);flex-shrink:0;line-height:1">3</div>
+          <div>
+            <div style="font-weight:700;margin-bottom:4px">カンバンボードで確認</div>
+            <div style="font-size:11px;color:var(--text2)">このタスクボードの「📋 カンバン」タブでステータスを確認。完了したらコメントに結果が書かれています。カードをクリックで詳細表示。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ どう書けばどのエージェントに行くか -->
+    <div style="margin-bottom:32px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;font-weight:700">STEP 2</span>
+        こう書けばこのエージェントに届く
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);overflow:hidden">
+        <div style="padding:10px 14px;background:var(--bg3);font-size:10px;font-weight:700;color:var(--text2);letter-spacing:0.5px">キーワード → 担当エージェント（自動振り分け）</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:4px">📝 書くキーワード例</div>
+            <div style="font-size:12px;font-weight:600">「副業」「案件探し」「キャリア」</div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:4px">🧭 担当</div>
+            <div style="font-size:12px;font-weight:600">キャリアアドバイザー</div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:4px">📝 書くキーワード例</div>
+            <div style="font-size:12px;font-weight:600">「購入」「比較」「どれがいい」「おすすめ」</div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:4px">🔎 担当</div>
+            <div style="font-size:12px;font-weight:600">リサーチアナリスト</div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:4px">📝 書くキーワード例</div>
+            <div style="font-size:12px;font-weight:600">「コード」「バグ」「実装」「UI」</div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:4px">🔧 担当</div>
+            <div style="font-size:12px;font-weight:600">テックリード → 各エンジニアへ</div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:4px">📝 書くキーワード例</div>
+            <div style="font-size:12px;font-weight:600">「記事」「ブログ」「動画台本」「SNS」</div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:4px">📝 担当</div>
+            <div style="font-size:12px;font-weight:600">コンテンツディレクター / ビデオプロデューサー</div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:4px">📝 書くキーワード例</div>
+            <div style="font-size:12px;font-weight:600">「収支」「予算」「コスト管理」</div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:4px">💰 担当</div>
+            <div style="font-size:12px;font-weight:600">ファイナンスマネージャー</div>
+          </div>
+          <div style="padding:10px 14px;border-right:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:4px">📝 書くキーワード例</div>
+            <div style="font-size:12px;font-weight:600">「メール」「返信文」「日程調整」</div>
+          </div>
+          <div style="padding:10px 14px">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:4px">🤖 担当</div>
+            <div style="font-size:12px;font-weight:600">パーソナルアシスタント</div>
+          </div>
+        </div>
+        <div style="padding:8px 14px;background:var(--bg3);font-size:10px;color:var(--text2)">
+          💡 どのキーワードにも当てはまらない場合は <strong>リサーチアナリスト</strong> が対応します
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ 自動スケジュール -->
+    <div style="margin-bottom:32px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;font-weight:700">INFO</span>
+        毎日自動で動くスケジュール
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:800;color:var(--accent);min-width:80px">5分ごと</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:12px">inbox を監視 → タスク自動生成</div>
+            <div style="font-size:10px;color:var(--text2)">置いたファイルを読み取って担当エージェントに割り振り</div>
+          </div>
+          <div style="font-size:20px">📬</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:800;color:var(--accent);min-width:80px">毎朝 7:00</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:12px">朝会レポート生成</div>
+            <div style="font-size:10px;color:var(--text2)">今日のタスク状況・優先事項をAIがまとめて Obsidian に保存</div>
+          </div>
+          <div style="font-size:20px">☀️</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:800;color:var(--accent);min-width:80px">毎朝 2:00</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:12px">夜間 QA チェック</div>
+            <div style="font-size:10px;color:var(--text2)">tasks.json の整合性・エージェント設定・未処理 inbox を自動チェック</div>
+          </div>
+          <div style="font-size:20px">🌙</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 16px">
+          <div style="font-size:13px;font-weight:800;color:var(--accent);min-width:80px">毎週月 9:00</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:12px">週次サマリー生成</div>
+            <div style="font-size:10px;color:var(--text2)">先週の完了数・活躍エージェント・来週の課題を AI がまとめてレポート化</div>
+          </div>
+          <div style="font-size:20px">📊</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ タスクボードの各タブ -->
+    <div style="margin-bottom:32px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;font-weight:700">INFO</span>
+        このタスクボードの使い方
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--accent)">
+          <div style="font-weight:700;margin-bottom:4px">📋 カンバン</div>
+          <div style="font-size:11px;color:var(--text2)">全タスクをステータス別に表示。カードをクリックで詳細・コメント確認。ドラッグで移動も可能。</div>
+        </div>
+        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-top:3px solid #3b82f6">
+          <div style="font-weight:700;margin-bottom:4px">📊 レポート</div>
+          <div style="font-size:11px;color:var(--text2)">朝会・夜間 QA・週次サマリーなど自動生成されたレポートを一覧表示。</div>
+        </div>
+        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-top:3px solid #10b981">
+          <div style="font-weight:700;margin-bottom:4px">📅 タイムライン</div>
+          <div style="font-size:11px;color:var(--text2)">更新日時順で全タスクを確認。クリックで詳細モーダルが開く。「ボードで開く」でカンバンに切り替え。</div>
+        </div>
+        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-top:3px solid #8b5cf6">
+          <div style="font-weight:700;margin-bottom:4px">🏢 組織図</div>
+          <div style="font-size:11px;color:var(--text2)">26名のAIエージェント全員を確認。各ノードをクリックでプロフィール・得意タスク表示。</div>
+        </div>
+        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-top:3px solid #f59e0b">
+          <div style="font-weight:700;margin-bottom:4px">💰 コスト</div>
+          <div style="font-size:11px;color:var(--text2)">月間予算メーター・モデル別コスト内訳・エージェント別タスク数を表示。</div>
+        </div>
+        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-top:3px solid #ef4444">
+          <div style="font-weight:700;margin-bottom:4px">📖 使い方（このページ）</div>
+          <div style="font-size:11px;color:var(--text2)">システム全体の説明・使い方・よくあるQ&Aをまとめたページ。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑥ よくある質問 -->
+    <div style="margin-bottom:32px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;font-weight:700">Q&A</span>
+        よくある疑問
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="background:var(--bg2);border:1px solid var(--border)">
+          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+            <span style="color:var(--accent)">Q.</span> タスクを置いたのに5分経っても動かない
+          </div>
+          <div style="padding:0 14px 12px;font-size:11px;color:var(--text2);display:none">
+            <strong>確認ポイント：</strong><br>
+            ① ファイルの拡張子が <code>.md</code> になっているか<br>
+            ② <code>ai-agent-org/context/inbox/</code> に置いているか（別フォルダはNG）<br>
+            ③ launchd が動いているか → ターミナルで <code>launchctl list | grep kyabe</code> で確認<br>
+            ④ ログを確認 → <code>tail -f ~/Library/Logs/ai-agent-executor.log</code>
+          </div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border)">
+          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+            <span style="color:var(--accent)">Q.</span> 担当エージェントが自分のイメージと違うものになった
+          </div>
+          <div style="padding:0 14px 12px;font-size:11px;color:var(--text2);display:none">
+            カンバンボードのカードにある担当名をクリックすると変更できます。<br>
+            または inbox ファイルにより具体的なキーワードを書いてみてください。<br>
+            例：「リサーチしてほしい」より「購入を比較検討してほしい」の方が意図が伝わりやすくなります。
+          </div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border)">
+          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+            <span style="color:var(--accent)">Q.</span> ステータスが「ブロック中」になっている
+          </div>
+          <div style="padding:0 14px 12px;font-size:11px;color:var(--text2);display:none">
+            タスクカードをクリックしてコメント欄を確認してください。<br>
+            ブロック理由が書かれています。多くの場合「人間の判断が必要」というケースで、あなたが追加情報を書いてステータスを「進行中」に戻すと再開します。
+          </div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border)">
+          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+            <span style="color:var(--accent)">Q.</span> タスクを手動で作りたい
+          </div>
+          <div style="padding:0 14px 12px;font-size:11px;color:var(--text2);display:none">
+            カンバンタブの右上「＋」ボタンから直接作成できます。<br>
+            担当・優先度・チームも選んで登録できるので、inbox 経由より細かく指定したい時に便利です。
+          </div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border)">
+          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+            <span style="color:var(--accent)">Q.</span> コストが心配。いくらかかるの？
+          </div>
+          <div style="padding:0 14px 12px;font-size:11px;color:var(--text2);display:none">
+            「💰 コスト」タブで確認できます。<br>
+            タスク1件あたりの目安：Haiku で約$0.003（0.5円以下）、Sonnet で約$0.018（約3円）。<br>
+            月に100件のタスクをこなしても $1〜2 程度の設計になっています。Opus は戦略判断時のみ使用で月数回以内が目安。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- フッター -->
+    <div style="padding:16px;background:var(--bg2);border:1px solid var(--border);font-size:11px;color:var(--text2);text-align:center">
+      困ったときは「📋 カンバン」タブのタスクコメント欄に状況を書き込むと、次回の実行時にエージェントが対応します
+    </div>
+
   </div>
 </div>
 
@@ -2374,6 +2671,7 @@ function showTab(tab){
   document.getElementById('view-reports').classList.toggle('hidden', tab!=='reports');
   document.getElementById('view-timeline').style.display = tab==='timeline' ? 'flex' : 'none';
   document.getElementById('view-cost').style.display = tab==='cost' ? 'flex' : 'none';
+  document.getElementById('view-guide').style.display = tab==='guide' ? 'flex' : 'none';
   var orgView = document.getElementById('view-org');
   if (orgView) orgView.classList.toggle('visible', tab==='org');
   document.getElementById('tab-board').classList.toggle('active', tab==='board');
@@ -2381,6 +2679,7 @@ function showTab(tab){
   document.getElementById('tab-timeline').classList.toggle('active', tab==='timeline');
   document.getElementById('tab-org').classList.toggle('active', tab==='org');
   document.getElementById('tab-cost').classList.toggle('active', tab==='cost');
+  document.getElementById('tab-guide').classList.toggle('active', tab==='guide');
   var filters = document.querySelector('.header-filters');
   if(filters) filters.style.visibility = tab==='board' ? 'visible' : 'hidden';
   if(tab==='reports') loadReportList();
