@@ -1,7 +1,23 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-05-23T00:00:00.000Z",
+  "lastUpdated": "2026-05-23T00:16:46.503Z",
   "tasks": [
+    {
+      "id": "T014",
+      "title": "2027年3月までに10キロ落としたい",
+      "description": "2027年3月に結婚式があるので、10キロ落としたいです。\n現在は172cm,82キロです。\n\n美容クリニックでの手術も検討しましたが、140万で3-4キロしか落ちないとのことだったので、見送りしました。\n\n現在は24hジムに通っていて、上半身の筋トレと傾斜15、時速5キロで30分の運動としています。基本的には土日に行っています。\n\n平日は仕事があり行けないこともあるので、それも考慮してください。\n\n現在食事制限は全くしていないです。",
+      "status": "new-assigned",
+      "priority": "P2",
+      "assignee": "career-advisor",
+      "assigneeType": "ai",
+      "team": "personal",
+      "organization": "private",
+      "createdAt": "2026-05-23T00:16:46.214Z",
+      "updatedAt": "2026-05-23T00:16:46.214Z",
+      "comments": [],
+      "blockedReason": "",
+      "tags": []
+    },
     {
       "id": "T001",
       "title": "文脈エンジンの整備：visual-design.md の作成",
@@ -27,7 +43,11 @@
         }
       ],
       "blockedReason": "",
-      "tags": ["context-engine", "design-system", "setup"]
+      "tags": [
+        "context-engine",
+        "design-system",
+        "setup"
+      ]
     },
     {
       "id": "T002",
@@ -59,7 +79,11 @@
         }
       ],
       "blockedReason": "",
-      "tags": ["agent-review", "quality", "setup"]
+      "tags": [
+        "agent-review",
+        "quality",
+        "setup"
+      ]
     },
     {
       "id": "T003",
@@ -81,7 +105,11 @@
         }
       ],
       "blockedReason": "",
-      "tags": ["testing", "task-board", "infrastructure"]
+      "tags": [
+        "testing",
+        "task-board",
+        "infrastructure"
+      ]
     },
     {
       "id": "T004",
@@ -113,7 +141,11 @@
         }
       ],
       "blockedReason": "",
-      "tags": ["content", "brand-voice", "setup"]
+      "tags": [
+        "content",
+        "brand-voice",
+        "setup"
+      ]
     },
     {
       "id": "T005",
@@ -135,7 +167,11 @@
         }
       ],
       "blockedReason": "",
-      "tags": ["automation", "infrastructure", "daily-report"]
+      "tags": [
+        "automation",
+        "infrastructure",
+        "daily-report"
+      ]
     },
     {
       "id": "T006",
