@@ -549,6 +549,8 @@ html.light .unread-dot { box-shadow: 0 0 0 2px var(--bg); }
 .tc-content     { background:#6a1b9a18; color:#6a1b9a; }
 .tc-business    { background:#e6510018; color:#e65100; }
 .tc-infrastructure { background:#2e7d3218; color:#2e7d32; }
+.tc-finance        { background:#00695c18; color:#00695c; }
+.tc-cx             { background:#ad145718; color:#ad1457; }
 html.dark .tc-leadership  { color:#b39ddb; }
 html.dark .tc-research    { color:#4db6ac; }
 html.dark .tc-personal    { color:#f48fb1; }
@@ -556,6 +558,8 @@ html.dark .tc-engineering { color:#64b5f6; }
 html.dark .tc-content     { color:#ce93d8; }
 html.dark .tc-business    { color:#ffb74d; }
 html.dark .tc-infrastructure { color:#81c784; }
+html.dark .tc-finance     { color:#4db6ac; }
+html.dark .tc-cx          { color:#f48fb1; }
 
 /* org badge */
 .org-badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 600; flex-shrink: 0; letter-spacing: 0.2px; }
@@ -1356,6 +1360,21 @@ input:focus, select:focus { border-color: var(--accent); }
   </div>
 </div>
 
+<!-- ── TASK DETAIL MODAL（タイムライン用） ── -->
+<div class="agent-profile-overlay hidden" id="taskDetailOverlay" onclick="if(event.target===this)closeTaskDetail()">
+  <div class="agent-profile-card" id="taskDetailCard" style="max-width:560px;width:92%">
+    <div class="agent-profile-header">
+      <div class="agent-profile-em" id="tdEmoji"></div>
+      <div class="agent-profile-title">
+        <div class="agent-profile-fullname" id="tdTitle" style="font-size:14px;line-height:1.4"></div>
+        <div class="agent-profile-model" id="tdMeta"></div>
+      </div>
+      <button class="agent-profile-close" onclick="closeTaskDetail()">✕</button>
+    </div>
+    <div class="agent-profile-body" id="tdBody"></div>
+  </div>
+</div>
+
 <!-- ── STATUS MENU ── -->
 <div class="status-menu hidden" id="statusMenu">
   <div class="sm-item" onclick="setStatus('new-assigned')"><span class="sm-dot" style="background:var(--col-new)"></span> 未着手</div>
@@ -1520,12 +1539,24 @@ var AGENTS = {
   // インフラ
   'task-dispatcher':     {e:'📬', c:'#37474f', n:'タスクディスパッチャー'},
   'local-support':       {e:'🖥️', c:'#546e7a', n:'ローカルサポート'},
+  // 財務
+  'finance-manager':     {e:'💰', c:'#00695c', n:'ファイナンスマネージャー'},
+  // PMO
+  'project-manager':     {e:'🗂️', c:'#1565c0', n:'プロジェクトマネージャー'},
+  // マーケ拡張
+  'seo-analyst':         {e:'🔍', c:'#6a1b9a', n:'SEO / アナリティクス'},
+  'customer-success':    {e:'🌟', c:'#ad1457', n:'カスタマーサクセス'},
+  // セキュリティ
+  'security-reviewer':   {e:'🔒', c:'#bf360c', n:'セキュリティレビュアー'},
+  // パーソナル
+  'personal-assistant':  {e:'🤖', c:'#795548', n:'パーソナルアシスタント'},
 };
 
 var TEAM_CSS = {
   leadership:'tc-leadership', research:'tc-research', personal:'tc-personal',
   engineering:'tc-engineering', content:'tc-content',
-  business:'tc-business', infrastructure:'tc-infrastructure'
+  business:'tc-business', infrastructure:'tc-infrastructure',
+  finance:'tc-finance', cx:'tc-cx'
 };
 var TEAM_LABELS = {
   leadership:'経営', research:'リサーチ', personal:'kunito', engineering:'エンジニア',
@@ -2378,7 +2409,7 @@ function renderTimeline() {
     groups[date].forEach(function(t) {
       var a = ag(t.assignee);
       var sc = statusColor[t.status]||'var(--text2)';
-      html += '<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;padding:10px 12px;background:var(--bg2);border-left:3px solid '+sc+';cursor:pointer" onclick="openPanel(\''+t.id+'\')">'
+      html += '<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;padding:10px 12px;background:var(--bg2);border-left:3px solid '+sc+';cursor:pointer;transition:background 0.12s" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'var(--bg2)\'" onclick="openTaskDetail(\''+t.id+'\')">'
         + '<div style="font-size:18px;flex-shrink:0">'+a.e+'</div>'
         + '<div style="flex:1;min-width:0">'
         + '<div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+h(t.title)+'</div>'
@@ -2407,6 +2438,8 @@ var AGENT_MODEL_MAP = {
   'content-director':'Sonnet','video-producer':'Haiku','business-strategist':'Opus',
   'marketing-director':'Sonnet','sales-growth':'Haiku','partnership-manager':'Haiku',
   'legal-review':'Sonnet','task-dispatcher':'Sonnet','local-support':'Local',
+  'finance-manager':'Haiku','project-manager':'Haiku','seo-analyst':'Haiku',
+  'customer-success':'Sonnet','security-reviewer':'Sonnet','personal-assistant':'Haiku',
   'human':'Local'
 };
 // タスク1件あたりの概算トークン（入力2000 / 出力500）
@@ -2668,6 +2701,48 @@ var AGENT_PROFILES = {
     cannotDo: ['インターネットアクセスが必要な作業','重要な判断'],
     webSearch: false,
   },
+  'finance-manager': {
+    fullName: 'ファイナンスマネージャー',
+    desc: '収支・予算・コスト追跡を担当。副業収入・AI API費用・各種サービス費用を整理し、月次レポートと予算アラートを提供します。',
+    canDo: ['月次収支サマリー作成','AI利用コスト分析','副業収入の記録・集計','予算超過アラート','節約施策の提案'],
+    cannotDo: ['税務申告（専門家へ）','投資・資産運用の判断'],
+    webSearch: false,
+  },
+  'project-manager': {
+    fullName: 'プロジェクトマネージャー',
+    desc: '複数タスクの優先度・依存関係・期日を管理。Task Dispatcherがタスクを生成するのに対し、PMは既存タスクのスケジュール調整・進捗モニタリング・詰まり解消を担当します。',
+    canDo: ['タスク優先度の整理・再設定','マイルストーン管理','ボトルネック分析','スプリント計画','進捗レポート作成'],
+    cannotDo: ['タスクの実行（各専門エージェントへ）','新規タスクの生成（Task Dispatcherへ）'],
+    webSearch: false,
+  },
+  'seo-analyst': {
+    fullName: 'SEO / アナリティクス スペシャリスト',
+    desc: 'Webサイト・コンテンツのSEO改善と数値分析を担当。Marketing Directorが戦略を立てる一方、SEO Analystは検索流入の数値改善に特化します。',
+    canDo: ['キーワード調査・競合分析','コンテンツSEO改善提案','サイト構造・内部リンク最適化','アクセス解析レポート','Core Web Vitals改善提案'],
+    cannotDo: ['コンテンツ作成（Content Directorへ）','広告運用（Marketing Directorへ）'],
+    webSearch: true,
+  },
+  'customer-success': {
+    fullName: 'カスタマーサクセス',
+    desc: 'ユーザーのフィードバック・問い合わせを分析し、製品・サービスの改善提案を行います。ユーザーの声を組織にフィードバックするハブ役。',
+    canDo: ['フィードバック分析・カテゴリ分類','FAQ・ヘルプドキュメント作成','ユーザーインタビュー設計','改善提案の優先度付け','NPS・満足度調査設計'],
+    cannotDo: ['実際のシステム修正（エンジニアリングチームへ）','マーケ施策の実行（Marketing Directorへ）'],
+    webSearch: false,
+  },
+  'security-reviewer': {
+    fullName: 'セキュリティレビュアー',
+    desc: 'コード・設定・インフラのセキュリティリスクをチェック。Legal ReviewがNDA・契約を扱う一方、Security Reviewerは技術的なセキュリティ観点に特化します。',
+    canDo: ['コードのセキュリティレビュー（XSS・SQLインジェクション等）','APIキー・シークレット管理の確認','依存パッケージの脆弱性チェック','認証・認可フローのレビュー'],
+    cannotDo: ['ペネトレーションテストの実行','法的なコンプライアンス判断（Legal Reviewへ）'],
+    webSearch: true,
+  },
+  'personal-assistant': {
+    fullName: 'パーソナルアシスタント',
+    desc: '日程調整・メール下書き・リマインダー設定・雑務処理など、他のエージェントの専門外となる日常タスクをまとめて引き受ける汎用窓口。',
+    canDo: ['メール・メッセージの下書き','スケジュール調整・リマインダー','情報収集・まとめ（軽度）','ちょっとした計算・変換','タスク振り分けの相談'],
+    cannotDo: ['専門的な技術・法務・財務判断（各担当へ）','外部サービスへの直接アクセス'],
+    webSearch: false,
+  },
 };
 
 var ORG_TEAMS = [
@@ -2721,7 +2796,23 @@ var ORG_TEAMS = [
     key: 'infrastructure', label: 'インフラ', color: '#2e7d32',
     members: [
       {id:'task-dispatcher', name:'タスクディスパッチャー', role:'inbox→タスク生成', model:'Sonnet'},
+      {id:'project-manager', name:'プロジェクトマネージャー', role:'優先度・スケジュール管理', model:'Haiku'},
       {id:'local-support', name:'ローカルサポート', role:'ゴミ掃除・メンテ', model:'Local'},
+    ]
+  },
+  {
+    key: 'finance', label: 'ファイナンス', color: '#00695c',
+    members: [
+      {id:'finance-manager', name:'ファイナンスマネージャー', role:'収支・予算・コスト追跡', model:'Haiku'},
+    ]
+  },
+  {
+    key: 'cx', label: 'CX / セキュリティ', color: '#ad1457',
+    members: [
+      {id:'customer-success', name:'カスタマーサクセス', role:'フィードバック・改善提案', model:'Sonnet'},
+      {id:'seo-analyst', name:'SEO / アナリティクス', role:'検索流入・数値改善', model:'Haiku'},
+      {id:'security-reviewer', name:'セキュリティレビュアー', role:'脆弱性・リスクチェック', model:'Sonnet'},
+      {id:'personal-assistant', name:'パーソナルアシスタント', role:'日程・メール・雑務', model:'Haiku'},
     ]
   },
 ];
@@ -2838,6 +2929,75 @@ function closeAgentProfile(e) {
   if(e.target === document.getElementById('agentProfileOverlay')) {
     document.getElementById('agentProfileOverlay').classList.add('hidden');
   }
+}
+
+function openTaskDetail(id) {
+  var t = tasks.find(function(x){ return x.id === id; });
+  if (!t) return;
+  var a = ag(t.assignee);
+  var sc = STATUS_CFG[t.status] || STATUS_CFG['new-assigned'];
+  var pLabel = {P0:'🔴 P0 緊急',P1:'🟠 P1 高',P2:'🟡 P2 中',P3:'🔵 P3 低'};
+  var sLabel = {'new-assigned':'未着手','in-progress':'進行中','blocked':'ブロック中','done':'完了'};
+
+  document.getElementById('tdEmoji').textContent = a.e;
+  document.getElementById('tdEmoji').style.cssText = 'background:'+a.c+'22;border:1.5px solid '+a.c+'55;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0';
+  document.getElementById('tdTitle').textContent = t.title;
+  document.getElementById('tdMeta').innerHTML =
+    '<span style="color:'+sc.c+'">● '+h(sLabel[t.status]||t.status)+'</span>'
+    + ' &nbsp;·&nbsp; ' + h(a.n||t.assignee)
+    + ' &nbsp;·&nbsp; ' + h(pLabel[t.priority]||t.priority||'')
+    + (t.team ? ' &nbsp;·&nbsp; '+h(t.team) : '');
+
+  var body = '';
+  if (t.description) {
+    body += '<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">概要</div>'
+      + '<div style="font-size:12px;line-height:1.7;color:var(--text)">'+h(t.description).replace(/\n/g,'<br>')+'</div></div>';
+  }
+  if (t.blockedReason) {
+    body += '<div style="margin-bottom:14px;padding:10px 12px;background:#f8514918;border-left:3px solid #f85149">'
+      + '<div style="font-size:10px;font-weight:700;color:#f85149;margin-bottom:4px">🚫 ブロック理由</div>'
+      + '<div style="font-size:12px;color:var(--text)">'+h(t.blockedReason)+'</div></div>';
+  }
+
+  // 日付情報
+  body += '<div style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap">';
+  if (t.createdAt) body += '<div style="font-size:11px;color:var(--text2)">作成: <strong>'+t.createdAt.split('T')[0]+'</strong></div>';
+  if (t.updatedAt) body += '<div style="font-size:11px;color:var(--text2)">更新: <strong>'+t.updatedAt.split('T')[0]+'</strong></div>';
+  if (t.dueDate)   body += '<div style="font-size:11px;color:var(--text2)">期限: <strong style="color:#f59e0b">'+t.dueDate+'</strong></div>';
+  body += '</div>';
+
+  // コメント
+  var comments = t.comments || [];
+  if (comments.length > 0) {
+    body += '<div style="font-size:10px;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">コメント ('+comments.length+'件)</div>';
+    body += '<div style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:8px">';
+    comments.forEach(function(c) {
+      var ca = ag(c.author);
+      body += '<div style="background:var(--bg3);padding:8px 10px;border-left:2px solid '+ca.c+'">'
+        + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'
+        + '<span style="font-size:14px">'+ca.e+'</span>'
+        + '<span style="font-size:10px;font-weight:700">'+h(ca.n||c.author)+'</span>'
+        + '<span style="font-size:9px;color:var(--text3);margin-left:auto">'+h((c.timestamp||'').replace('T',' ').slice(0,16))+'</span>'
+        + '</div>'
+        + '<div style="font-size:11px;line-height:1.6;color:var(--text)">'+h(c.content||'').replace(/\n/g,'<br>')+'</div>'
+        + '</div>';
+    });
+    body += '</div>';
+  } else {
+    body += '<div style="font-size:11px;color:var(--text3);padding:16px 0;text-align:center">コメントなし</div>';
+  }
+
+  // ボードで開くリンク
+  body += '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);text-align:right">'
+    + '<button onclick="closeTaskDetail();showTab(\'board\');openPanel(\''+id+'\')" style="font-size:11px;padding:5px 12px;background:var(--accent);color:#fff;border:none;cursor:pointer">📋 ボードで開く</button>'
+    + '</div>';
+
+  document.getElementById('tdBody').innerHTML = body;
+  document.getElementById('taskDetailOverlay').classList.remove('hidden');
+}
+
+function closeTaskDetail() {
+  document.getElementById('taskDetailOverlay').classList.add('hidden');
 }
 
 function toggleLegend(el) {

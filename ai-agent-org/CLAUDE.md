@@ -32,7 +32,7 @@ ai-agent-org/
     └── overnight-qa.js      # 夜間QA実行
 ```
 
-## エージェント組織（20名体制）
+## エージェント組織（26名体制）
 
 すべてのアウトプットはCOOレビューを経て人間（CEO）に届けられる。
 
@@ -46,6 +46,7 @@ ai-agent-org/
 
 ### パーソナルチーム（kunito）
 - **Career Advisor** (Sonnet) — 副業案件探し・キャリア相談・収入機会の発見
+- **Personal Assistant** (Haiku) — 日程調整・メール下書き・雑務処理の汎用窓口
 
 ### エンジニアリングチーム
 - **Tech Lead** (Sonnet) — オーケストレーター、技術的タスクの割り振り
@@ -66,8 +67,17 @@ ai-agent-org/
 - **Partnership Manager** (Haiku) — 外部パートナー・コラボ・スポンサー案件のフィルタリング
 - **Legal Review** (Sonnet) — 契約書レビュー（第1段階）
 
+### ファイナンスチーム
+- **Finance Manager** (Haiku) — 収支・予算管理・AI利用コスト追跡・月次レポート
+
+### CX / セキュリティチーム
+- **Customer Success** (Sonnet) — ユーザーフィードバック分析・改善提案・FAQ作成
+- **SEO / Analytics Specialist** (Haiku) — 検索流入分析・SEO改善・アクセス解析
+- **Security Reviewer** (Sonnet) — コード・設定のセキュリティチェック・脆弱性レビュー
+
 ### インフラ運用チーム
 - **Task Dispatcher** (Sonnet) — inbox監視→タスク生成・割り振り
+- **Project Manager** (Haiku) — 既存タスクの優先度・スケジュール・依存関係管理
 - **Local Support** (ローカルモデル) — ゴミ掃除・メンテ
 
 ## 運用ルール
