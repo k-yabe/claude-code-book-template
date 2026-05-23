@@ -85,6 +85,7 @@ const WEB_SEARCH_RESULT_MAX_CHARS = 3000;
 const OBSIDIAN_VAULT = process.env.OBSIDIAN_VAULT_PATH
   || '/Users/kunito/Library/CloudStorage/OneDrive-個人用/10_Work/40_Onsidian/Obsidian';
 const OBSIDIAN_TASKS_DIR = path.join(OBSIDIAN_VAULT, 'タスクログ');
+const OBSIDIAN_TASK_NOTES_DIR = path.join(OBSIDIAN_VAULT, 'Tasks');
 
 // Web検索が有用なエージェント
 const WEB_SEARCH_AGENTS = new Set([
@@ -441,6 +442,26 @@ function saveToObsidian(task, result, verdict) {
   }
 }
 
+function updateObsidianTaskNote(task, summary, verdict) {
+  if (DRY_RUN) return;
+  try {
+    if (!fs.existsSync(OBSIDIAN_TASK_NOTES_DIR)) return;
+    const files = fs.readdirSync(OBSIDIAN_TASK_NOTES_DIR).filter(f => f.startsWith(`${task.id}-`) && f.endsWith('.md'));
+    if (files.length === 0) return;
+    const filePath = path.join(OBSIDIAN_TASK_NOTES_DIR, files[0]);
+    let content = fs.readFileSync(filePath, 'utf-8');
+    const statusEmoji = verdict === 'APPROVED' ? '✅' : '🚫';
+    const statusLabel = verdict === 'APPROVED' ? 'done' : 'blocked';
+    content = content.replace(/^status: .+$/m, `status: ${statusLabel}`);
+    content = content.replace(/\*\*ステータス\*\*: .+/m, `**ステータス**: ${statusEmoji} ${statusLabel}  `);
+    content = content.replace('（完了後に追記）', summary);
+    fs.writeFileSync(filePath, content, 'utf-8');
+    console.log(`📓 Obsidian更新: Tasks/${files[0]}`);
+  } catch (err) {
+    console.warn(`⚠️  Obsidianノート更新失敗（スキップ）: ${err.message}`);
+  }
+}
+
 // ── GitHub API push（git競合を完全回避）────────────────────
 const GITHUB_REPO  = 'k-yabe/claude-code-book-template';
 const GITHUB_PATH  = 'ai-agent-org/tasks/tasks.json';
@@ -629,6 +650,7 @@ async function main() {
         const outputFile = saveOutput(task, result);
         const githubUrl = outputFile ? await pushOutputFileToGitHub(outputFile, fs.readFileSync(path.join(PROJECTS_DIR, outputFile), 'utf-8')) : null;
         const summary = await generateSummary(task, result);
+        updateObsidianTaskNote(task, summary, 'APPROVED');
         const commentContent = githubUrl ? `${summary}\n\n📄 [全文レポートを見る](${githubUrl})` : summary;
         taskRef.status = 'done';
         taskRef.blockedReason = '';
@@ -673,6 +695,7 @@ async function main() {
           const blockedSummary = await generateSummary(task, result);
           taskRef.comments.push({ author: task.assignee, content: blockedSummary, timestamp: new Date().toISOString() });
           saveToObsidian(task, result, 'REJECTED');
+          updateObsidianTaskNote(task, blockedSummary, 'REJECTED');
           saveTasks(data);
           console.log(`⚠️  ${task.id}: blocked（COO 2回差し戻し）`);
           processedIds.push(task.id);
@@ -685,6 +708,7 @@ async function main() {
       const outputFile = saveOutput(task, result);
       const githubUrl = outputFile ? await pushOutputFileToGitHub(outputFile, fs.readFileSync(path.join(PROJECTS_DIR, outputFile), 'utf-8')) : null;
       const summary = await generateSummary(task, result);
+      updateObsidianTaskNote(task, summary, 'APPROVED');
       const commentContent = githubUrl ? `${summary}\n\n📄 [全文レポートを見る](${githubUrl})` : summary;
 
       taskRef.status = 'done';

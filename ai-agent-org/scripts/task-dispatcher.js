@@ -18,6 +18,10 @@ const INBOX_DIR = path.join(ROOT, 'context', 'inbox');
 const TASKS_FILE = path.join(ROOT, 'tasks', 'tasks.json');
 const HANDOFFS_DIR = path.join(ROOT, 'context', 'context', 'ai-handoffs');
 
+const OBSIDIAN_VAULT = process.env.OBSIDIAN_VAULT_PATH
+  || '/Users/kunito/Library/CloudStorage/OneDrive-個人用/10_Work/40_Onsidian/Obsidian';
+const OBSIDIAN_TASKS_DIR = path.join(OBSIDIAN_VAULT, 'Tasks');
+
 const DRY_RUN = process.argv.includes('--dry-run');
 
 // Organization routing rules: keyword → organization
@@ -167,6 +171,7 @@ function processInbox() {
 
       data.tasks.push(task);
       report.created.push({ id, title, assignee, team, file });
+      writeObsidianTask(task, raw);
       console.log(`✓ ${id}: "${title}" → ${assignee} (${team})`);
     } catch (err) {
       report.errors.push({ file, error: err.message });
@@ -179,6 +184,47 @@ function processInbox() {
 
   console.log(`\n完了: ${report.created.length}件のタスクを作成`);
   if (DRY_RUN) console.log('（dry-run モード: ファイルへの書き込みなし）');
+}
+
+function writeObsidianTask(task, raw) {
+  if (DRY_RUN) return;
+  try {
+    if (!fs.existsSync(OBSIDIAN_TASKS_DIR)) fs.mkdirSync(OBSIDIAN_TASKS_DIR, { recursive: true });
+    const safeName = task.title.replace(/[\\/:*?"<>|]/g, '-').slice(0, 40);
+    const fileName = `${task.id}-${safeName}.md`;
+    const content = [
+      '---',
+      `id: ${task.id}`,
+      `title: "${task.title}"`,
+      `assignee: ${task.assignee}`,
+      `team: ${task.team}`,
+      `status: new-assigned`,
+      `priority: ${task.priority}`,
+      `organization: ${task.organization}`,
+      `created: ${task.createdAt.split('T')[0]}`,
+      '---',
+      '',
+      `# [${task.id}] ${task.title}`,
+      '',
+      `**担当**: ${task.assignee}  `,
+      `**チーム**: ${task.team}  `,
+      `**優先度**: ${task.priority}  `,
+      `**ステータス**: 🔲 new-assigned  `,
+      `**組織**: ${task.organization}  `,
+      '',
+      '## 依頼内容',
+      '',
+      raw,
+      '',
+      '## レポート',
+      '',
+      '（完了後に追記）',
+    ].join('\n');
+    fs.writeFileSync(path.join(OBSIDIAN_TASKS_DIR, fileName), content, 'utf-8');
+    console.log(`📓 Obsidian: Tasks/${fileName}`);
+  } catch (err) {
+    console.warn(`⚠️  Obsidian書き込み失敗（スキップ）: ${err.message}`);
+  }
 }
 
 function writeDispatchReport(report) {
