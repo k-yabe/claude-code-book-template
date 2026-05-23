@@ -2,7 +2,7 @@
 # executor の自動実行ラッパー
 # launchd から呼び出され、毎回最新コードを pull してから実行する
 
-REPO_DIR="/Users/kunito/Documents/ai-agent-workspace/ai-agent-org"
+REPO_DIR="/Users/kunito/ai-agent-workspace/ai-agent-org"
 
 cd "$REPO_DIR" || exit 1
 

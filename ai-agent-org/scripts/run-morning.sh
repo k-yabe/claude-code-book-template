@@ -3,7 +3,7 @@
 # 1. inboxのファイルをタスクに変換（task-dispatcher）
 # 2. 朝会レポートを生成（morning-standup）
 
-REPO_DIR="/Users/kunito/Documents/ai-agent-workspace/ai-agent-org"
+REPO_DIR="/Users/kunito/ai-agent-workspace/ai-agent-org"
 LOG_FILE="$REPO_DIR/ai-agent-org/logs/morning-$(date +%Y-%m-%d).log"
 
 mkdir -p "$REPO_DIR/ai-agent-org/logs"
