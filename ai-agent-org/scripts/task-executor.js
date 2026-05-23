@@ -594,7 +594,7 @@ async function main() {
         saveToObsidian(task, result, 'APPROVED');
         const outputFile = saveOutput(task, result);
         const githubUrl = outputFile ? await pushOutputFileToGitHub(outputFile, fs.readFileSync(path.join(PROJECTS_DIR, outputFile), 'utf-8')) : null;
-        const commentContent = result;
+        const commentContent = githubUrl ? `${result}\n\n📄 [GitHubで見る](${githubUrl})` : result;
         taskRef.status = 'done';
         taskRef.blockedReason = '';
         taskRef.updatedAt = new Date().toISOString();
@@ -648,7 +648,7 @@ async function main() {
       saveToObsidian(task, result, 'APPROVED');
       const outputFile = saveOutput(task, result);
       const githubUrl = outputFile ? await pushOutputFileToGitHub(outputFile, fs.readFileSync(path.join(PROJECTS_DIR, outputFile), 'utf-8')) : null;
-      const commentContent = result;
+      const commentContent = githubUrl ? `${result}\n\n📄 [GitHubで見る](${githubUrl})` : result;
 
       taskRef.status = 'done';
       taskRef.blockedReason = '';
