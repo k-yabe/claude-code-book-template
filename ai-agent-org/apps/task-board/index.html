@@ -1171,6 +1171,17 @@ input:focus, select:focus { border-color: var(--accent); }
 
 <input type="file" id="fileInput" accept=".json" style="display:none" onchange="onFileImport(event)">
 
+<!-- レポートビューアーモーダル -->
+<div class="overlay hidden" id="reportViewerOverlay" onclick="if(event.target===this)closeReportViewer()">
+  <div class="modal" style="max-width:800px;width:90vw;max-height:85vh;display:flex;flex-direction:column">
+    <div class="modal-header">
+      <h2>📄 全文レポート</h2>
+      <button class="modal-close" onclick="closeReportViewer()">×</button>
+    </div>
+    <div class="modal-body" id="reportViewerBody" style="flex:1;overflow-y:auto"></div>
+  </div>
+</div>
+
 <!-- 削除確認トースト -->
 <div class="delete-confirm hidden" id="deleteConfirm" role="alertdialog" aria-modal="true" aria-label="タスク削除の確認">
   <span id="deleteConfirmMsg">このタスクを削除しますか？</span>
@@ -1366,14 +1377,46 @@ function fmtDate(ts){
 // linkify: converts URLs and repo file paths to clickable links
 function linkify(text){
   var safe = h(text);
-  // https:// URLs
-  safe = safe.replace(/(https?:\/\/[^\s<>"&]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
-  // Repo-relative file paths (e.g. context/context/ai-handoffs/xxx.md)
+  // 1. Intercept this repo's private GitHub blob links → modal viewer
+  safe = safe.replace(/(https?:\/\/github\.com\/k-yabe\/claude-code-book-template\/blob\/main\/[^\s<>"&)[\]]+)/g, function(url) {
+    var filePath = url.replace('https://github.com/k-yabe/claude-code-book-template/blob/main/', '');
+    return '<a href="#" onclick="openGithubReport(\'' + filePath.replace(/'/g, "\\'") + '\');return false;" style="color:var(--accent)">📄 全文レポートを見る</a>';
+  });
+  // 2. Other https:// URLs — strip trailing punctuation before linkifying
+  safe = safe.replace(/(https?:\/\/[^\s<>"&]+)/g, function(url) {
+    var trail = '';
+    while (/[)\].,;]$/.test(url)) { trail = url.slice(-1) + trail; url = url.slice(0, -1); }
+    return '<a href="' + url + '" target="_blank" rel="noopener">' + url + '</a>' + trail;
+  });
+  // 3. Repo-relative file paths → modal viewer
   safe = safe.replace(/(?<![/"'>])((?:context|tasks|agents|scripts|apps)\/[^\s<>"&()[\]]+\.(?:md|json|js|html|sh|txt))/g, function(m){
-    var url = GITHUB_FILE_BASE + m;
-    return '<a href="' + url + '" target="_blank" rel="noopener" title="GitHubで開く">' + m + ' ↗</a>';
+    return '<a href="#" onclick="openGithubReport(\'' + m.replace(/'/g, "\\'") + '\');return false;" title="レポートを表示">' + m + ' ↗</a>';
   });
   return safe;
+}
+
+// ── GitHub レポートビューアー ──
+function openGithubReport(filePath) {
+  var pat = getPat();
+  var apiUrl = 'https://api.github.com/repos/k-yabe/claude-code-book-template/contents/' + filePath;
+  var headers = { Accept: 'application/vnd.github.v3+json' };
+  if (pat) headers['Authorization'] = 'token ' + pat;
+  var overlay = document.getElementById('reportViewerOverlay');
+  var body = document.getElementById('reportViewerBody');
+  overlay.classList.remove('hidden');
+  body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2)">読み込み中...</div>';
+  fetch(apiUrl, { headers: headers })
+    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data){
+      var content = decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))));
+      body.innerHTML = '<pre style="white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.7;padding:4px">' + h(content) + '</pre>';
+    })
+    .catch(function(err){
+      body.innerHTML = '<div style="color:var(--col-bl);padding:16px">エラー: ' + h(err.message) + '<br><br>GitHub PATが設定されているか確認してください（右上の設定アイコン）。</div>';
+    });
+}
+function closeReportViewer() {
+  document.getElementById('reportViewerOverlay').classList.add('hidden');
 }
 
 function isSys(c){

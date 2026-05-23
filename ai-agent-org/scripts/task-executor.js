@@ -300,6 +300,40 @@ ${useWebSearch ? '- 最新情報が必要な場合は web_search ツールを使
   return { result, needsHuman };
 }
 
+// ── タスクボード用サマリー生成（Haiku、日報スタイル）──
+async function generateSummary(task, result) {
+  const model = MODELS.HAIKU;
+  const agentName = task.assignee;
+  const userMessage = `あなたは「${agentName}」というAIエージェントです。
+今日完了したタスクを、チームメンバーへの日報として報告してください。
+
+## 完了タスク
+タイトル: ${task.title}
+担当: ${agentName}
+
+## 実行したアウトプット（全文）
+${result.slice(0, 4000)}${result.length > 4000 ? '\n…（以降省略）' : ''}
+
+## 日報の書き方ルール
+- 「今日やったこと」を1〜2行で書く（何を調査・作成・分析したか）
+- 重要な発見・結論・成果を箇条書きで3〜5点（具体的な数値・判断・推奨を含める）
+- 担当者として率直な所感・気づきを1〜2行（「〜と感じました」「〜が想定以上でした」など）
+- 全体で15行以内に収める
+- 一人称は「私」でOK。チームへの報告のような自然な口調で
+- 締め文（「以上です」「よろしくお願いします」等）は不要
+- 前置き・宣言文（「日報を書きます」等）は不要。本文から直接始める`;
+
+  const response = await client.messages.create({
+    model,
+    max_tokens: 600,
+    system: 'あなたはAIエージェントです。指示に従い日報スタイルの報告を作成してください。',
+    messages: [{ role: 'user', content: userMessage }],
+  });
+  trackCost(model, response.usage?.input_tokens || 0, response.usage?.output_tokens || 0);
+  const summary = response.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+  return summary || result.slice(0, 500);
+}
+
 // ── COOレビュー（Haiku使用、max_tokens: 512の構造化判定）─
 async function reviewWithCOO(task, agentOutput) {
   const model = MODELS.HAIKU;
@@ -594,7 +628,8 @@ async function main() {
         saveToObsidian(task, result, 'APPROVED');
         const outputFile = saveOutput(task, result);
         const githubUrl = outputFile ? await pushOutputFileToGitHub(outputFile, fs.readFileSync(path.join(PROJECTS_DIR, outputFile), 'utf-8')) : null;
-        const commentContent = githubUrl ? `${result}\n\n📄 [GitHubで見る](${githubUrl})` : result;
+        const summary = await generateSummary(task, result);
+        const commentContent = githubUrl ? `${summary}\n\n📄 [全文レポートを見る](${githubUrl})` : summary;
         taskRef.status = 'done';
         taskRef.blockedReason = '';
         taskRef.updatedAt = new Date().toISOString();
@@ -635,7 +670,8 @@ async function main() {
             content: `🔴 COOレビュー最終差し戻し\n2回の修正でも品質基準を満たしませんでした。\n理由: ${verdict.feedback}\n人間の判断が必要です。`,
             timestamp: new Date().toISOString(),
           });
-          taskRef.comments.push({ author: task.assignee, content: result, timestamp: new Date().toISOString() });
+          const blockedSummary = await generateSummary(task, result);
+          taskRef.comments.push({ author: task.assignee, content: blockedSummary, timestamp: new Date().toISOString() });
           saveToObsidian(task, result, 'REJECTED');
           saveTasks(data);
           console.log(`⚠️  ${task.id}: blocked（COO 2回差し戻し）`);
@@ -648,7 +684,8 @@ async function main() {
       saveToObsidian(task, result, 'APPROVED');
       const outputFile = saveOutput(task, result);
       const githubUrl = outputFile ? await pushOutputFileToGitHub(outputFile, fs.readFileSync(path.join(PROJECTS_DIR, outputFile), 'utf-8')) : null;
-      const commentContent = githubUrl ? `${result}\n\n📄 [GitHubで見る](${githubUrl})` : result;
+      const summary = await generateSummary(task, result);
+      const commentContent = githubUrl ? `${summary}\n\n📄 [全文レポートを見る](${githubUrl})` : summary;
 
       taskRef.status = 'done';
       taskRef.blockedReason = '';
