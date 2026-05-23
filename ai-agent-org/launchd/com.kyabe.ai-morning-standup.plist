@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.kyabe.ai-morning-standup</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/kunito/Documents/ai-agent-workspace/ai-agent-org/ai-agent-org/scripts/run-morning.sh</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/kunito/Documents/ai-agent-workspace/ai-agent-org</string>
+
+  <!-- 毎朝7:00 JSTに実行 -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>7</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>ANTHROPIC_API_KEY</key>
+    <string>YOUR_ANTHROPIC_API_KEY</string>
+    <key>GITHUB_TOKEN</key>
+    <string>YOUR_GITHUB_PAT</string>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/Users/kunito/Documents/ai-agent-workspace/ai-agent-org/ai-agent-org/logs/launchd-morning.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/kunito/Documents/ai-agent-workspace/ai-agent-org/ai-agent-org/logs/launchd-morning-err.log</string>
+</dict>
+</plist>

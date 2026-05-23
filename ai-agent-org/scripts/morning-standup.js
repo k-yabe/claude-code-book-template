@@ -119,10 +119,10 @@ function generateReport(data) {
   return lines.join('\n');
 }
 
-// GitHub 最新版を取得（scripts/ も自己更新 → 次回実行から反映）
+// GitHub 最新版を取得
 try {
   execSync('git fetch origin main', { cwd: ROOT });
-  execSync('git checkout origin/main -- tasks/tasks.json scripts/', { cwd: ROOT });
+  execSync('git checkout origin/main -- tasks/tasks.json', { cwd: ROOT });
 } catch (err) {
   console.error('git fetch 失敗（続行）:', err.message);
 }
