@@ -229,6 +229,41 @@ html.light .org-node-coo {
 .org-stat.blocked { background: #f8514918; color: var(--col-bl); border-color: #f8514944; }
 .org-team-sep { height: 1px; background: var(--border); margin: 8px 8px 8px; }
 
+/* モデル凡例 */
+.org-legend {
+  max-width: 640px; margin: 0 auto 36px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  padding: 16px 20px;
+}
+.org-legend-title {
+  font-size: 13px; font-weight: 800; margin-bottom: 6px; color: var(--accent);
+}
+.org-legend-desc {
+  font-size: 11px; color: var(--text2); line-height: 1.6; margin-bottom: 14px;
+}
+.org-legend-models { display: flex; gap: 10px; flex-wrap: wrap; }
+.org-legend-model {
+  flex: 1; min-width: 160px; display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px; border: 1px solid var(--border);
+}
+.org-legend-badge {
+  font-size: 10px; font-weight: 800; padding: 3px 8px;
+  white-space: nowrap; flex-shrink: 0; letter-spacing: 0.5px;
+}
+.org-legend-model.opus .org-legend-badge  { background: #7c3aed22; color: #a78bfa; border: 1px solid #7c3aed55; }
+.org-legend-model.sonnet .org-legend-badge { background: #1d4ed822; color: #60a5fa; border: 1px solid #1d4ed855; }
+.org-legend-model.haiku .org-legend-badge  { background: #05966922; color: #34d399; border: 1px solid #05966955; }
+.org-legend-model-name { font-size: 11px; font-weight: 700; margin-bottom: 2px; }
+.org-legend-model-desc { font-size: 10px; color: var(--text2); line-height: 1.5; }
+
+/* エージェントカードのモデルバッジをカラーコード */
+.org-node-model { font-size: 8px; display: inline-block; padding: 1px 5px; margin-top: 3px; border: 1px solid transparent; }
+.org-node-model[data-model="Opus"]   { background: #7c3aed22; color: #a78bfa; border-color: #7c3aed44; }
+.org-node-model[data-model="Sonnet"] { background: #1d4ed822; color: #60a5fa; border-color: #1d4ed844; }
+.org-node-model[data-model="Haiku"]  { background: #05966922; color: #34d399; border-color: #05966944; }
+.org-node-model[data-model="Local"]  { background: var(--bg3); color: var(--text3); }
+
 .report-list {
   width: 220px;
   min-width: 220px;
@@ -1081,6 +1116,35 @@ input:focus, select:focus { border-color: var(--accent); }
     <div class="org-heading">🏢 AI Agent 組織図</div>
     <div class="org-subheading" id="orgSubheading">読み込み中...</div>
 
+    <!-- モデル凡例 -->
+    <div class="org-legend">
+      <div class="org-legend-title">同じClaudeでも「何者か」が違う</div>
+      <div class="org-legend-desc">各エージェントはモデルの性能・専用システムプロンプト・ツール権限の組み合わせで専門化されています。同じ質問をしても、エージェントによって視点・深度・優先事項が異なります。</div>
+      <div class="org-legend-models">
+        <div class="org-legend-model opus">
+          <span class="org-legend-badge">Opus</span>
+          <div class="org-legend-model-info">
+            <div class="org-legend-model-name">戦略判断専用</div>
+            <div class="org-legend-model-desc">最高性能・高コスト。重要な意思決定のみ使用</div>
+          </div>
+        </div>
+        <div class="org-legend-model sonnet">
+          <span class="org-legend-badge">Sonnet</span>
+          <div class="org-legend-model-info">
+            <div class="org-legend-model-name">調査・判断・品質確認</div>
+            <div class="org-legend-model-desc">バランス型。複雑なリサーチや文章生成に使用</div>
+          </div>
+        </div>
+        <div class="org-legend-model haiku">
+          <span class="org-legend-badge">Haiku</span>
+          <div class="org-legend-model-info">
+            <div class="org-legend-model-name">定型実行タスク</div>
+            <div class="org-legend-model-desc">高速・低コスト。フォーマット・検索・実装に使用</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- CEO -->
     <div class="org-ceo-row">
       <div class="org-node org-node-ceo">
@@ -1103,7 +1167,7 @@ input:focus, select:focus { border-color: var(--accent); }
           <div class="org-node-info">
             <div class="org-node-name">COO</div>
             <div class="org-node-role">全アウトプット検収・品質保証</div>
-            <div class="org-node-model">Sonnet 4.6</div>
+            <div class="org-node-model" data-model="Sonnet">Sonnet</div>
           </div>
         </div>
         <div class="org-node-stats" style="justify-content:center" id="coo-stats"></div>
@@ -2357,7 +2421,7 @@ function renderOrgChart() {
         + '<div class="org-node-info">'
         + '<div class="org-node-name">'+h(m.name)+'</div>'
         + '<div class="org-node-role">'+h(m.role)+'</div>'
-        + '<div class="org-node-model">'+h(m.model)+'</div>'
+        + '<div class="org-node-model" data-model="'+h(m.model)+'">'+h(m.model)+'</div>'
         + '</div></div>'
         + (statsHtml ? '<div class="org-node-stats">'+statsHtml+'</div>' : '');
       node.addEventListener('click', function(){ openAgentProfile(m.id); });
