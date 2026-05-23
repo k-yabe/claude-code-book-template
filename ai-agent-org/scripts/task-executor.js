@@ -403,13 +403,16 @@ ${agentOutput.slice(0, 2000)}${agentOutput.length > 2000 ? '\n…（以降省略
     console.log(`  COOレビュー: in=${inputTokens}, out=${outputTokens} | 推定 $${(inputTokens * PRICE[model].input / 1e6 + outputTokens * PRICE[model].output / 1e6).toFixed(5)}`);
 
     // JSONを抽出
-    const match = text.match(/\{[\s\S]*\}/);
+    const match = text.match(/\{[\s\S]*?\}/);
     if (!match) {
-      // パース失敗 → 安全側に倒して承認
       console.log('  COO: JSONパース失敗 → 自動承認');
       return { pass: true };
     }
-    const verdict = JSON.parse(match[0]);
+    let verdict;
+    try { verdict = JSON.parse(match[0]); } catch(e) {
+      console.log('  COO: JSONパース失敗 → 自動承認:', e.message);
+      return { pass: true };
+    }
     console.log(`  COO判定: ${verdict.pass ? '✅ 承認' : '🔄 差し戻し: ' + (verdict.feedback || '')}`);
     return verdict;
   } catch (err) {
@@ -623,6 +626,10 @@ async function main() {
     try {
       const now = new Date().toISOString();
       const taskRef = data.tasks.find(t => t.id === task.id);
+      if (!taskRef) {
+        console.error(`タスク ${task.id} が tasks.json に見つかりません。スキップします。`);
+        return;
+      }
 
       // ── 手動処理エージェントは claude.ai に誘導して即 blocked ──
       if (MANUAL_AGENTS.has(task.assignee)) {

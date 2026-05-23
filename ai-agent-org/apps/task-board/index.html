@@ -234,31 +234,56 @@ html.light .org-node-coo {
 
 /* モデル凡例 */
 .org-legend {
-  max-width: 640px; margin: 0 auto 36px;
+  max-width: 680px; margin: 0 auto 36px;
   background: var(--bg2); border: 1px solid var(--border);
   border-left: 4px solid var(--accent);
-  padding: 16px 20px;
+  padding: 18px 22px;
 }
 .org-legend-title {
-  font-size: 13px; font-weight: 800; margin-bottom: 6px; color: var(--accent);
+  font-size: 13px; font-weight: 800; margin-bottom: 8px; color: var(--accent);
 }
 .org-legend-desc {
-  font-size: 11px; color: var(--text2); line-height: 1.6; margin-bottom: 14px;
+  font-size: 11px; color: var(--text2); line-height: 1.7; margin-bottom: 16px;
 }
-.org-legend-models { display: flex; gap: 10px; flex-wrap: wrap; }
+.org-legend-models { display: flex; flex-direction: column; gap: 8px; }
 .org-legend-model {
-  flex: 1; min-width: 160px; display: flex; align-items: flex-start; gap: 10px;
-  padding: 10px 12px; border: 1px solid var(--border);
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 14px; border: 1px solid var(--border);
+  cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
+  position: relative;
 }
+.org-legend-model:hover {
+  background: var(--bg3);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.org-legend-model::after {
+  content: '▼'; font-size: 10px; color: var(--text3);
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  transition: transform 0.2s;
+}
+.org-legend-model.open::after { transform: translateY(-50%) rotate(180deg); }
 .org-legend-badge {
-  font-size: 10px; font-weight: 800; padding: 3px 8px;
-  white-space: nowrap; flex-shrink: 0; letter-spacing: 0.5px;
+  font-size: 10px; font-weight: 800; padding: 4px 10px;
+  white-space: nowrap; flex-shrink: 0; letter-spacing: 0.5px; min-width: 90px; text-align: center;
 }
-.org-legend-model.opus .org-legend-badge  { background: #7c3aed22; color: #a78bfa; border: 1px solid #7c3aed55; }
-.org-legend-model.sonnet .org-legend-badge { background: #1d4ed822; color: #60a5fa; border: 1px solid #1d4ed855; }
-.org-legend-model.haiku .org-legend-badge  { background: #05966922; color: #34d399; border: 1px solid #05966955; }
-.org-legend-model-name { font-size: 11px; font-weight: 700; margin-bottom: 2px; }
+.org-legend-model-info { flex: 1; min-width: 0; }
+.org-legend-model-name { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
 .org-legend-model-desc { font-size: 10px; color: var(--text2); line-height: 1.5; }
+.org-legend-detail {
+  display: none; padding: 14px 14px 14px 118px;
+  border-top: 1px solid var(--border); background: var(--bg3);
+  font-size: 11px; line-height: 1.7; color: var(--text2);
+}
+.org-legend-model.open + .org-legend-detail { display: block; }
+.org-legend-detail table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+.org-legend-detail td, .org-legend-detail th {
+  padding: 5px 10px; border: 1px solid var(--border); font-size: 10px; text-align: left;
+}
+.org-legend-detail th { background: var(--bg2); font-weight: 700; color: var(--text); }
+.org-legend-detail .tag {
+  display: inline-block; font-size: 9px; padding: 2px 7px; margin: 2px;
+  border: 1px solid var(--border); background: var(--bg2); color: var(--text2);
+}
 
 /* エージェントカードのモデルバッジをカラーコード */
 .org-node-model { font-size: 8px; display: inline-block; padding: 1px 5px; margin-top: 3px; border: 1px solid transparent; }
@@ -1187,29 +1212,115 @@ input:focus, select:focus { border-color: var(--accent); }
     <!-- 仕組み説明（下部） -->
     <div class="org-legend" style="margin-top:40px">
       <div class="org-legend-title">❓ 「全員同じClaudeじゃないの？」</div>
-      <div class="org-legend-desc" style="margin-bottom:16px">同じモデルを使っていても、<strong>3つの要素</strong>で各エージェントは別人として動きます。同じHaikuでも「フロントエンドエンジニア」と「リーガルレビュー」では、視点・優先事項・アウトプットの形式がまったく異なります。</div>
+      <div class="org-legend-desc">同じモデルを使っていても、<strong>3つの要素</strong>で各エージェントは別人として動きます。同じHaikuでも「フロントエンドエンジニア」と「リーガルレビュー」では、視点・優先事項・アウトプットの形式がまったく異なります。<span style="font-size:10px;color:var(--text3)">（各項目をクリックで詳細表示）</span></div>
       <div class="org-legend-models">
-        <div class="org-legend-model" style="border-left:3px solid var(--accent)">
-          <span class="org-legend-badge" style="background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent)">① 役割プロンプト</span>
+
+        <!-- ① 役割プロンプト -->
+        <div class="org-legend-model" style="border-left:3px solid var(--accent)" onclick="toggleLegend(this)">
+          <span class="org-legend-badge" style="background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent)">① 役割プロンプト</span>
           <div class="org-legend-model-info">
             <div class="org-legend-model-name">専門性の核心（最重要）</div>
-            <div class="org-legend-model-desc">各エージェントは固有のシステムプロンプトを持ち、専門領域・判断基準・アウトプット形式が定義されています。同じ質問でも担当が違えば答えが変わります</div>
+            <div class="org-legend-model-desc">各エージェントは固有のシステムプロンプトを持ち、専門領域・判断基準・アウトプット形式が定義されています</div>
           </div>
         </div>
-        <div class="org-legend-model" style="border-left:3px solid #818cf8">
-          <span class="org-legend-badge" style="background:#818cf822;color:#818cf8;border:1px solid #818cf844">② モデル選択</span>
+        <div class="org-legend-detail">
+          <strong>同じ「競合調査して」という依頼でも担当によってアウトプットが変わります：</strong>
+          <table style="margin-top:10px">
+            <tr><th>エージェント</th><th>視点</th><th>アウトプット形式</th></tr>
+            <tr><td>📊 データアナリスト</td><td>数値・KPI・グラフ</td><td>比較表・数値サマリー</td></tr>
+            <tr><td>🔎 リサーチアナリスト</td><td>定性情報・トレンド</td><td>調査レポート・推奨アクション</td></tr>
+            <tr><td>💼 ビジネスストラテジスト</td><td>戦略的優位性・リスク</td><td>意思決定サポート文書</td></tr>
+            <tr><td>📣 マーケティングディレクター</td><td>訴求・差別化</td><td>マーケ施策・コピー案</td></tr>
+          </table>
+          <div style="margin-top:10px;padding:10px;background:var(--bg2);border-left:3px solid var(--accent)">
+            💡 役割プロンプト＝エージェントの「人格」。どんな専門家として振る舞うかを定義します
+          </div>
+        </div>
+
+        <!-- ② モデル選択 -->
+        <div class="org-legend-model" style="border-left:3px solid #818cf8" onclick="toggleLegend(this)">
+          <span class="org-legend-badge" style="background:#818cf815;color:#818cf8;border:1px solid #818cf840">② モデル選択</span>
           <div class="org-legend-model-info">
             <div class="org-legend-model-name">Haiku / Sonnet / Opus</div>
-            <div class="org-legend-model-desc">コストと性能のトレードオフ。定型タスクはHaiku、複雑な判断はSonnet、重要戦略のみOpus。月$10予算の中で最大の成果を出す設計です</div>
+            <div class="org-legend-model-desc">コストと性能のトレードオフ。定型タスクはHaiku、複雑な判断はSonnet、重要戦略のみOpus</div>
           </div>
         </div>
-        <div class="org-legend-model" style="border-left:3px solid #34d399">
-          <span class="org-legend-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">③ ツール権限</span>
+        <div class="org-legend-detail">
+          <table>
+            <tr><th>モデル</th><th>コスト（1Mトークン）</th><th>向いているタスク</th><th>このシステムでの用途</th></tr>
+            <tr>
+              <td><span style="color:#34d399;font-weight:700">Haiku</span></td>
+              <td>入力 $1 / 出力 $5</td>
+              <td>定型処理・フォーマット・検索</td>
+              <td>Frontend/Backend/DevOps/Video Producer など</td>
+            </tr>
+            <tr>
+              <td><span style="color:#60a5fa;font-weight:700">Sonnet</span></td>
+              <td>入力 $3 / 出力 $15</td>
+              <td>判断・調整・中程度の推論</td>
+              <td>COO/Tech Lead/Content Director など</td>
+            </tr>
+            <tr>
+              <td><span style="color:#a78bfa;font-weight:700">Opus</span></td>
+              <td>入力 $15 / 出力 $75</td>
+              <td>戦略的意思決定・高難度推論</td>
+              <td>Business Strategist（最小限使用）</td>
+            </tr>
+          </table>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px;padding:8px 10px;background:var(--bg2);border-top:2px solid #34d399;font-size:10px">
+              <div style="font-weight:700;color:#34d399;margin-bottom:4px">Haiku 戦略</div>
+              単純な処理をHaikuに任せることで月$1〜2程度に抑えられる。タスク数が増えても低コスト。
+            </div>
+            <div style="flex:1;min-width:180px;padding:8px 10px;background:var(--bg2);border-top:2px solid #a78bfa;font-size:10px">
+              <div style="font-weight:700;color:#a78bfa;margin-bottom:4px">Opus は切り札</div>
+              Business Strategist が月に数回使うだけ。重要な判断1回に集中投下する設計。
+            </div>
+          </div>
+        </div>
+
+        <!-- ③ ツール権限 -->
+        <div class="org-legend-model" style="border-left:3px solid #34d399" onclick="toggleLegend(this)">
+          <span class="org-legend-badge" style="background:#34d39915;color:#34d399;border:1px solid #34d39940">③ ツール権限</span>
           <div class="org-legend-model-info">
             <div class="org-legend-model-name">Web検索・ファイル操作など</div>
-            <div class="org-legend-model-desc">リサーチ系エージェントはリアルタイムWeb検索が使えます。ツールへのアクセス権限が異なることで、できることの範囲も変わります</div>
+            <div class="org-legend-model-desc">アクセス権限が異なることで、できることの範囲も変わります</div>
           </div>
         </div>
+        <div class="org-legend-detail">
+          <table>
+            <tr><th>ツール</th><th>使えるエージェント</th><th>用途</th></tr>
+            <tr>
+              <td>🌐 Web検索</td>
+              <td>リサーチアナリスト、リーガルレビュー</td>
+              <td>最新情報・競合調査・法令確認</td>
+            </tr>
+            <tr>
+              <td>📁 ファイル読み書き</td>
+              <td>全エージェント（tasks.json 経由）</td>
+              <td>タスク管理・引き継ぎ書保存</td>
+            </tr>
+            <tr>
+              <td>💻 コード実行</td>
+              <td>Backend Engineer、DevOps</td>
+              <td>テスト実行・デプロイ・自動化</td>
+            </tr>
+            <tr>
+              <td>📬 Slack通知</td>
+              <td>COO、Task Dispatcher</td>
+              <td>タスク完了・ブロック報告</td>
+            </tr>
+            <tr>
+              <td>🗂️ GitHub操作</td>
+              <td>Tech Lead、DevOps</td>
+              <td>コード管理・PR作成</td>
+            </tr>
+          </table>
+          <div style="margin-top:10px;padding:8px 12px;background:var(--bg2);font-size:10px">
+            💡 同じHaikuモデルでも、Web検索ができるかどうかで「調べる」タスクへの対応力が大きく変わります
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -2231,7 +2342,7 @@ function showTab(tab){
   document.getElementById('view-timeline').style.display = tab==='timeline' ? 'flex' : 'none';
   document.getElementById('view-cost').style.display = tab==='cost' ? 'flex' : 'none';
   var orgView = document.getElementById('view-org');
-  orgView.classList.toggle('visible', tab==='org');
+  if (orgView) orgView.classList.toggle('visible', tab==='org');
   document.getElementById('tab-board').classList.toggle('active', tab==='board');
   document.getElementById('tab-reports').classList.toggle('active', tab==='reports');
   document.getElementById('tab-timeline').classList.toggle('active', tab==='timeline');
@@ -2727,6 +2838,15 @@ function closeAgentProfile(e) {
   if(e.target === document.getElementById('agentProfileOverlay')) {
     document.getElementById('agentProfileOverlay').classList.add('hidden');
   }
+}
+
+function toggleLegend(el) {
+  var isOpen = el.classList.contains('open');
+  // 他を全部閉じる
+  document.querySelectorAll('.org-legend-model.open').forEach(function(m) {
+    m.classList.remove('open');
+  });
+  if (!isOpen) el.classList.add('open');
 }
 
 // ── REPORTS ──
