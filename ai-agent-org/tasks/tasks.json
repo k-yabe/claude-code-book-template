@@ -1,19 +1,19 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-05-23T07:41:41.914Z",
+  "lastUpdated": "2026-05-23T07:41:46.399Z",
   "tasks": [
     {
       "id": "T015",
       "title": "お台場の花火大会をどこから見るか",
       "description": "本日お台場で花火大会が実施されるようです。\n晴海埠頭公園から観ようと思っていますが。そもそも見れますか？\n\n花火大会についての概要もまとめてほしいです。\nそれ以外にもおすすめの内容やTIPS的な情報があれば教えてください。",
-      "status": "blocked",
+      "status": "new-assigned",
       "priority": "P2",
       "assignee": "research-analyst",
       "assigneeType": "ai",
       "team": "research",
       "organization": "private",
       "createdAt": "2026-05-23T07:38:07.906Z",
-      "updatedAt": "2026-05-23T07:41:41.644Z",
+      "updatedAt": "2026-05-23T07:41:46.012Z",
       "comments": [
         {
           "author": "task-dispatcher",
@@ -24,6 +24,11 @@
           "author": "human",
           "content": "そこをなんとか調べてください",
           "timestamp": "2026-05-23T07:41:41.644Z"
+        },
+        {
+          "author": "system",
+          "content": "📋 ステータスを「ブロック」→「未着手」に変更",
+          "timestamp": "2026-05-23T07:41:46.012Z"
         }
       ],
       "blockedReason": "手動処理タスクです。claude.ai のチャットで処理してください。",
