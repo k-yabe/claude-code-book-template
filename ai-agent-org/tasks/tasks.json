@@ -1,19 +1,19 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-05-23T07:41:46.399Z",
+  "lastUpdated": "2026-05-23T07:44:57.792Z",
   "tasks": [
     {
       "id": "T015",
       "title": "お台場の花火大会をどこから見るか",
       "description": "本日お台場で花火大会が実施されるようです。\n晴海埠頭公園から観ようと思っていますが。そもそも見れますか？\n\n花火大会についての概要もまとめてほしいです。\nそれ以外にもおすすめの内容やTIPS的な情報があれば教えてください。",
-      "status": "new-assigned",
+      "status": "blocked",
       "priority": "P2",
       "assignee": "research-analyst",
       "assigneeType": "ai",
       "team": "research",
       "organization": "private",
       "createdAt": "2026-05-23T07:38:07.906Z",
-      "updatedAt": "2026-05-23T07:41:46.012Z",
+      "updatedAt": "2026-05-23T07:44:57.365Z",
       "comments": [
         {
           "author": "task-dispatcher",
@@ -29,6 +29,11 @@
           "author": "system",
           "content": "📋 ステータスを「ブロック」→「未着手」に変更",
           "timestamp": "2026-05-23T07:41:46.012Z"
+        },
+        {
+          "author": "task-dispatcher",
+          "content": "🔍 **手動処理が必要です（API コスト節約）**\n\nclaude.ai のチャットに以下をそのまま貼り付けてください：\n\n---\n## お台場の花火大会をどこから見るか\n\n本日お台場で花火大会が実施されるようです。\n晴海埠頭公園から観ようと思っていますが。そもそも見れますか？\n\n花火大会についての概要もまとめてほしいです。\nそれ以外にもおすすめの内容やTIPS的な情報があれば教えてください。\n---\n\n完了後、結果をこのタスクのコメントに貼り付けてステータスを「完了」に変更してください。",
+          "timestamp": "2026-05-23T07:44:57.365Z"
         }
       ],
       "blockedReason": "手動処理タスクです。claude.ai のチャットで処理してください。",
