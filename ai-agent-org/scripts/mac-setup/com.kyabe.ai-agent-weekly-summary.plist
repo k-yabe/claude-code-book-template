@@ -3,27 +3,31 @@
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>com.kyabe.ai-agent-overnight-qa</string>
+  <string>com.kyabe.ai-agent-weekly-summary</string>
 
   <key>ProgramArguments</key>
   <array>
     <string>REPLACE_WITH_NODE</string>
-    <string>REPLACE_WITH_REPO/scripts/overnight-qa.js</string>
+    <string>REPLACE_WITH_REPO/scripts/weekly-summary.js</string>
   </array>
 
   <key>EnvironmentVariables</key>
   <dict>
+    <key>ANTHROPIC_API_KEY</key>
+    <string>REPLACE_WITH_API_KEY</string>
     <key>SLACK_WEBHOOK_URL</key>
     <string>REPLACE_WITH_SLACK_WEBHOOK</string>
     <key>PATH</key>
     <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
   </dict>
 
-  <!-- 毎朝2時に実行 -->
+  <!-- 毎週月曜 09:00 に実行 -->
   <key>StartCalendarInterval</key>
   <dict>
+    <key>Weekday</key>
+    <integer>1</integer>
     <key>Hour</key>
-    <integer>2</integer>
+    <integer>9</integer>
     <key>Minute</key>
     <integer>0</integer>
   </dict>
@@ -32,9 +36,9 @@
   <string>REPLACE_WITH_REPO</string>
 
   <key>StandardOutPath</key>
-  <string>REPLACE_WITH_HOME/Library/Logs/ai-agent-overnight-qa.log</string>
+  <string>REPLACE_WITH_HOME/Library/Logs/ai-agent-weekly-summary.log</string>
 
   <key>StandardErrorPath</key>
-  <string>REPLACE_WITH_HOME/Library/Logs/ai-agent-overnight-qa-error.log</string>
+  <string>REPLACE_WITH_HOME/Library/Logs/ai-agent-weekly-summary-error.log</string>
 </dict>
 </plist>

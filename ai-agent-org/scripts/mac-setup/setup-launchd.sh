@@ -1,6 +1,6 @@
 #!/bin/bash
 # AI Agent — macOS launchd 一括セットアップ
-# dispatcher / standup / overnight-qa を登録する
+# dispatcher / standup / overnight-qa / weekly-summary を登録する
 # executor は別途 setup-executor-macair.sh を使う（APIキーが必要なため）
 #
 # 実行: bash scripts/mac-setup/setup-launchd.sh
@@ -22,6 +22,24 @@ echo "リポジトリ: $REPO_DIR"
 echo "node: $NODE_PATH ($( node -v ))"
 echo ""
 
+# Slack Webhook URL の確認
+if [ -z "$SLACK_WEBHOOK_URL" ]; then
+  echo "⚠️  SLACK_WEBHOOK_URL が未設定です（Slack通知はスキップされます）"
+  SLACK_WEBHOOK="__SLACK_DISABLED__"
+else
+  SLACK_WEBHOOK="$SLACK_WEBHOOK_URL"
+  echo "✓ SLACK_WEBHOOK_URL: 設定済み"
+fi
+
+# weekly-summary は ANTHROPIC_API_KEY が必要
+if [ -z "$ANTHROPIC_API_KEY" ]; then
+  echo "⚠️  ANTHROPIC_API_KEY が未設定です（weekly-summary はスキップします）"
+  SKIP_WEEKLY=1
+else
+  echo "✓ ANTHROPIC_API_KEY: 設定済み"
+fi
+echo ""
+
 install_plist() {
   local name="$1"
   local src="$SCRIPT_DIR/$name.plist"
@@ -31,6 +49,8 @@ install_plist() {
     -e "s|REPLACE_WITH_NODE|$NODE_PATH|g" \
     -e "s|REPLACE_WITH_REPO|$REPO_DIR|g" \
     -e "s|REPLACE_WITH_HOME|$HOME|g" \
+    -e "s|REPLACE_WITH_SLACK_WEBHOOK|$SLACK_WEBHOOK|g" \
+    -e "s|REPLACE_WITH_API_KEY|${ANTHROPIC_API_KEY:-}|g" \
     "$src" > "$dst"
 
   launchctl unload "$dst" 2>/dev/null || true
@@ -41,19 +61,24 @@ install_plist() {
 install_plist "com.kyabe.ai-agent-dispatcher"
 install_plist "com.kyabe.ai-agent-standup"
 install_plist "com.kyabe.ai-agent-overnight-qa"
+if [ -z "$SKIP_WEEKLY" ]; then
+  install_plist "com.kyabe.ai-agent-weekly-summary"
+fi
 
 echo ""
 echo "=== セットアップ完了 ✅ ==="
 echo ""
 echo "スケジュール:"
-echo "  dispatcher   — 5分ごと（inbox → タスク自動生成）"
-echo "  standup      — 毎朝 07:00（朝会レポート生成）"
-echo "  overnight-qa — 毎朝 02:00（夜間 QA チェック）"
+echo "  dispatcher      — 5分ごと（inbox → タスク自動生成）"
+echo "  standup         — 毎朝 07:00（朝会レポート生成）"
+echo "  overnight-qa    — 毎朝 02:00（夜間 QA チェック）"
+[ -z "$SKIP_WEEKLY" ] && echo "  weekly-summary  — 毎週月曜 09:00（週次レポート生成）"
 echo ""
 echo "ログ確認:"
 echo "  tail -f ~/Library/Logs/ai-agent-dispatcher.log"
 echo "  tail -f ~/Library/Logs/ai-agent-standup.log"
 echo "  tail -f ~/Library/Logs/ai-agent-overnight-qa.log"
+[ -z "$SKIP_WEEKLY" ] && echo "  tail -f ~/Library/Logs/ai-agent-weekly-summary.log"
 echo ""
 echo "executor（AIタスク実行）は別途セットアップが必要:"
 echo "  bash $SCRIPT_DIR/setup-executor-macair.sh"

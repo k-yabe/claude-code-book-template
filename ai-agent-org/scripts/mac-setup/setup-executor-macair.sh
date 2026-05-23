@@ -42,12 +42,26 @@ fi
 
 # 4. Obsidian Vault パスの確認
 echo ""
+# OneDrive 経由検出（個人用・法人用の両パターン）
+for ONEDRIVE_BASE in \
+    "$HOME/Library/CloudStorage/OneDrive-個人用" \
+    "$HOME/Library/CloudStorage/OneDrive-Personal" \
+    "$HOME/OneDrive - 個人用" \
+    "$HOME/OneDrive"; do
+  if [ -d "$ONEDRIVE_BASE" ]; then
+    FIRST_VAULT=$(find "$ONEDRIVE_BASE" -maxdepth 4 -name ".obsidian" -type d 2>/dev/null | head -1 | xargs dirname 2>/dev/null)
+    if [ -n "$FIRST_VAULT" ]; then
+      DEFAULT_VAULT="$FIRST_VAULT"
+      break
+    fi
+  fi
+done
 # iCloud 経由検出
-ICLOUD_OBS="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents"
-if [ -d "$ICLOUD_OBS" ]; then
-  FIRST_VAULT=$(ls -d "$ICLOUD_OBS"/*/ 2>/dev/null | head -1)
-  if [ -n "$FIRST_VAULT" ]; then
-    DEFAULT_VAULT="${FIRST_VAULT%/}"
+if [ -z "$DEFAULT_VAULT" ]; then
+  ICLOUD_OBS="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents"
+  if [ -d "$ICLOUD_OBS" ]; then
+    FIRST_VAULT=$(ls -d "$ICLOUD_OBS"/*/ 2>/dev/null | head -1)
+    [ -n "$FIRST_VAULT" ] && DEFAULT_VAULT="${FIRST_VAULT%/}"
   fi
 fi
 # ~/Obsidian 検出

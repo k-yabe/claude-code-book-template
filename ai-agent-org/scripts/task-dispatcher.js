@@ -70,6 +70,20 @@ const ROUTING_RULES = [
   { keywords: ['戦略', '事業', '方針', 'ピボット', '新規事業'], assignee: 'business-strategist', team: 'business' },
   { keywords: ['契約', '法的', 'リーガル', '規約', '利用規約'], assignee: 'legal-review', team: 'business' },
   { keywords: ['パートナー', 'コラボ', '提携', 'スポンサー', 'タイアップ'], assignee: 'partnership-manager', team: 'business' },
+
+  // --- Finance チーム ---
+  { keywords: ['収支', '予算', '家計', '支出', '収入管理', 'コスト管理', '月次レポート', '節約'], assignee: 'finance-manager', team: 'finance' },
+
+  // --- CX / セキュリティチーム ---
+  { keywords: ['SEO', '検索流入', 'アクセス解析', 'キーワード', 'Core Web Vitals', 'Google Analytics'], assignee: 'seo-analyst', team: 'cx' },
+  { keywords: ['ユーザーフィードバック', 'フィードバック分析', 'ユーザー満足', 'FAQ', 'ヘルプ', '改善提案', 'NPS'], assignee: 'customer-success', team: 'cx' },
+  { keywords: ['セキュリティ', '脆弱性', 'XSS', 'SQLインジェクション', '認証', '認可', 'セキュリティレビュー'], assignee: 'security-reviewer', team: 'cx' },
+
+  // --- インフラ / PM ---
+  { keywords: ['スケジュール', 'マイルストーン', 'スプリント', '優先度整理', '進捗確認', '依存関係'], assignee: 'project-manager', team: 'infrastructure' },
+
+  // --- パーソナル（雑務） ---
+  { keywords: ['メール', '返信文', '日程調整', 'リマインダー', 'メッセージ下書き', '雑務', 'ちょっと'], assignee: 'personal-assistant', team: 'personal' },
 ];
 
 function loadTasks() {
