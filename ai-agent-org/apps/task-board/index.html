@@ -1467,7 +1467,17 @@ function loadFromGitHub(silent) {
       var data = JSON.parse(decoded);
       var fetched = data.tasks || data;
       if (!Array.isArray(fetched)) throw new Error('invalid');
-      tasks = fetched;
+      // ローカルと GitHub をスマートマージ（updatedAt が新しい方を優先）
+      var merged = fetched.slice();
+      tasks.forEach(function(local) {
+        var remote = merged.find(function(r) { return r.id === local.id; });
+        if (!remote) {
+          merged.push(local); // ローカルにしかないタスクを保持
+        } else if (new Date(local.updatedAt) > new Date(remote.updatedAt)) {
+          merged[merged.indexOf(remote)] = local; // ローカルが新しければローカルを優先
+        }
+      });
+      tasks = merged;
       save();
       lastSynced = new Date();
       setSyncStatus('最終同期: ' + lastSynced.toLocaleTimeString('ja-JP'), 'var(--col-done)');
