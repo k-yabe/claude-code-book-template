@@ -392,6 +392,7 @@ html.light .org-node-coo {
 }
 .card:hover { box-shadow: 0 2px 8px var(--shadow); border-color: var(--text3); }
 .card.active { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent)22; }
+.card.bulk-selected { border-color: var(--accent) !important; background: color-mix(in srgb, var(--accent) 10%, var(--bg2)); }
 .card[draggable]:active { opacity: 0.5; cursor: grabbing; }
 /* キーボードフォーカス */
 .card:focus-visible {
@@ -1022,8 +1023,20 @@ input:focus, select:focus { border-color: var(--accent); }
     <span id="syncStatus" style="font-size:11px;color:var(--text2);white-space:nowrap"></span>
     <button class="theme-btn" id="themeBtn" onclick="toggleThemeManual()" aria-label="テーマ切り替え" title="テーマ切り替え（N=新規 /=検索）">🌙</button>
     <button class="btn" onclick="syncNow()" aria-label="データを同期">↺ 同期</button>
+    <button class="btn" id="bulkToggleBtn" onclick="toggleBulkMode()" title="複数選択モード">☑ 選択</button>
     <button class="btn" onclick="showPatDialog()" aria-label="GitHubトークン設定">🔑</button>
     <button class="btn primary" onclick="openCreate()" aria-label="新規タスク作成（N）">＋ タスク</button>
+  </div>
+</div>
+
+<!-- ── バルク操作バー ── -->
+<div id="bulkBar" style="display:none;background:var(--accent);color:#000;padding:8px 16px;gap:10px;align-items:center;font-size:13px;font-weight:600">
+  <span id="bulkCount">0件選択中</span>
+  <div style="margin-left:auto;display:flex;gap:6px">
+    <button class="btn" style="background:#fff2;color:#000;font-size:11px" onclick="bulkSetStatus('in-progress')">進行中に変更</button>
+    <button class="btn" style="background:#fff2;color:#000;font-size:11px" onclick="bulkSetStatus('done')">完了に変更</button>
+    <button class="btn" style="background:#f004;color:#fff;font-size:11px" onclick="bulkDelete()">削除</button>
+    <button class="btn" style="background:#fff2;color:#000;font-size:11px" onclick="toggleBulkMode()">キャンセル</button>
   </div>
 </div>
 
@@ -1031,6 +1044,7 @@ input:focus, select:focus { border-color: var(--accent); }
 <div class="tab-bar">
   <button class="tab-btn active" id="tab-board" onclick="showTab('board')">📋 カンバン</button>
   <button class="tab-btn" id="tab-reports" onclick="showTab('reports')">📊 レポート</button>
+  <button class="tab-btn" id="tab-timeline" onclick="showTab('timeline')">📅 タイムライン</button>
   <button class="tab-btn" id="tab-org" onclick="showTab('org')">🏢 組織図</button>
 </div>
 
@@ -1111,39 +1125,19 @@ input:focus, select:focus { border-color: var(--accent); }
 </div>
 
 <!-- ══ ORG CHART VIEW ══ -->
+<div id="view-timeline" style="display:none;flex:1;overflow-y:auto;padding:24px 32px">
+  <div style="max-width:720px;margin:0 auto">
+    <div style="font-size:22px;font-weight:800;margin-bottom:4px">📅 タイムライン</div>
+    <div id="timelineSubheading" style="font-size:12px;color:var(--text2);margin-bottom:28px"></div>
+    <div id="timelineContent"></div>
+  </div>
+</div>
+
 <div id="view-org">
   <div class="org-wrap">
     <div class="org-heading">🏢 AI Agent 組織図</div>
     <div class="org-subheading" id="orgSubheading">読み込み中...</div>
 
-    <!-- モデル凡例 -->
-    <div class="org-legend">
-      <div class="org-legend-title">同じClaudeでも「何者か」が違う</div>
-      <div class="org-legend-desc">各エージェントはモデルの性能・専用システムプロンプト・ツール権限の組み合わせで専門化されています。同じ質問をしても、エージェントによって視点・深度・優先事項が異なります。</div>
-      <div class="org-legend-models">
-        <div class="org-legend-model opus">
-          <span class="org-legend-badge">Opus</span>
-          <div class="org-legend-model-info">
-            <div class="org-legend-model-name">戦略判断専用</div>
-            <div class="org-legend-model-desc">最高性能・高コスト。重要な意思決定のみ使用</div>
-          </div>
-        </div>
-        <div class="org-legend-model sonnet">
-          <span class="org-legend-badge">Sonnet</span>
-          <div class="org-legend-model-info">
-            <div class="org-legend-model-name">調査・判断・品質確認</div>
-            <div class="org-legend-model-desc">バランス型。複雑なリサーチや文章生成に使用</div>
-          </div>
-        </div>
-        <div class="org-legend-model haiku">
-          <span class="org-legend-badge">Haiku</span>
-          <div class="org-legend-model-info">
-            <div class="org-legend-model-name">定型実行タスク</div>
-            <div class="org-legend-model-desc">高速・低コスト。フォーマット・検索・実装に使用</div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- CEO -->
     <div class="org-ceo-row">
@@ -1177,6 +1171,35 @@ input:focus, select:focus { border-color: var(--accent); }
 
     <!-- Teams -->
     <div class="org-teams-row" id="orgTeamsRow"></div>
+
+    <!-- 仕組み説明（下部） -->
+    <div class="org-legend" style="margin-top:40px">
+      <div class="org-legend-title">❓ 「全員同じClaudeじゃないの？」</div>
+      <div class="org-legend-desc" style="margin-bottom:16px">同じモデルを使っていても、<strong>3つの要素</strong>で各エージェントは別人として動きます。同じHaikuでも「フロントエンドエンジニア」と「リーガルレビュー」では、視点・優先事項・アウトプットの形式がまったく異なります。</div>
+      <div class="org-legend-models">
+        <div class="org-legend-model" style="border-left:3px solid var(--accent)">
+          <span class="org-legend-badge" style="background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent)">① 役割プロンプト</span>
+          <div class="org-legend-model-info">
+            <div class="org-legend-model-name">専門性の核心（最重要）</div>
+            <div class="org-legend-model-desc">各エージェントは固有のシステムプロンプトを持ち、専門領域・判断基準・アウトプット形式が定義されています。同じ質問でも担当が違えば答えが変わります</div>
+          </div>
+        </div>
+        <div class="org-legend-model" style="border-left:3px solid #818cf8">
+          <span class="org-legend-badge" style="background:#818cf822;color:#818cf8;border:1px solid #818cf844">② モデル選択</span>
+          <div class="org-legend-model-info">
+            <div class="org-legend-model-name">Haiku / Sonnet / Opus</div>
+            <div class="org-legend-model-desc">コストと性能のトレードオフ。定型タスクはHaiku、複雑な判断はSonnet、重要戦略のみOpus。月$10予算の中で最大の成果を出す設計です</div>
+          </div>
+        </div>
+        <div class="org-legend-model" style="border-left:3px solid #34d399">
+          <span class="org-legend-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">③ ツール権限</span>
+          <div class="org-legend-model-info">
+            <div class="org-legend-model-name">Web検索・ファイル操作など</div>
+            <div class="org-legend-model-desc">リサーチ系エージェントはリアルタイムWeb検索が使えます。ツールへのアクセス権限が異なることで、できることの範囲も変わります</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1513,6 +1536,17 @@ function fmtDate(ts){
   return (d.getMonth()+1)+'/'+(d.getDate())+' '+d.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
 }
 
+// renderMd: マークダウンをレンダリングしてからリンクを処理
+function renderMd(text) {
+  if (!text) return '';
+  var rendered = (typeof marked !== 'undefined') ? marked.parse(text) : h(text).replace(/\n/g, '<br>');
+  // GitHub blob リンク → モーダルビューアー
+  rendered = rendered.replace(/(https?:\/\/github\.com\/k-yabe\/claude-code-book-template\/blob\/main\/([^\s<>"&)[\]]+))/g, function(_, url, filePath) {
+    return '<a href="#" onclick="openGithubReport(\'' + filePath.replace(/'/g, "\\'") + '\');return false;" style="color:var(--accent)">📄 全文レポートを見る</a>';
+  });
+  return rendered;
+}
+
 // linkify: converts URLs and repo file paths to clickable links
 function linkify(text){
   var safe = h(text);
@@ -1666,6 +1700,7 @@ function loadFromGitHub(silent) {
       setSyncStatus('最終同期: ' + lastSynced.toLocaleTimeString('ja-JP'), 'var(--col-done)');
       render();
       if(activeId) renderPanel();
+      checkAndNotify();
     })
     .catch(function() {
       setSyncStatus('GitHub取得失敗 — ローカルデータを使用', 'var(--col-bl)');
@@ -1750,9 +1785,11 @@ function cardHTML(t){
   var blocked=t.status==='blocked'&&t.blockedReason
     ? '<div class="blocked-label">⛔ '+h(t.blockedReason.slice(0,40))+'</div>' : '';
   var timeStr=t.updatedAt?relTime(t.updatedAt):'';
-  return '<div class="card pbl-'+h(t.priority)+(activeId===t.id?' active':'')+'" draggable="true"'
+  var isBulkSel = bulkSelected.has(t.id);
+  return '<div class="card pbl-'+h(t.priority)+(activeId===t.id?' active':'')+(isBulkSel?' bulk-selected':'')+'" draggable="'+(!bulkMode)+'"'
     +' ondragstart="onDragStart(event,\''+h(t.id)+'\')"'
-    +' onclick="openPanel(\''+h(t.id)+'\')">'
+    +' onclick="'+(bulkMode?'toggleBulkSelect(\''+h(t.id)+'\',event)':'openPanel(\''+h(t.id)+'\')')+'">'
+    +(bulkMode?'<div style="position:absolute;top:8px;right:8px;width:16px;height:16px;border:2px solid var(--accent);background:'+(isBulkSel?'var(--accent)':'transparent')+';display:flex;align-items:center;justify-content:center;font-size:10px;color:#000">'+(isBulkSel?'✓':'')+'</div>':'')
     +(unread?'<div class="unread-dot"></div>':'')
     +'<div class="card-meta">'
     +'<span class="card-id">'+h(t.id)+'</span>'
@@ -1901,6 +1938,40 @@ function openAssigneeEdit(){
 var _renderTimer;
 function debounceRender(){ clearTimeout(_renderTimer); _renderTimer=setTimeout(render, 150); }
 
+// ── バルク操作 ──
+var bulkMode = false;
+var bulkSelected = new Set();
+function toggleBulkMode() {
+  bulkMode = !bulkMode;
+  bulkSelected.clear();
+  document.getElementById('bulkBar').style.display = bulkMode ? 'flex' : 'none';
+  document.getElementById('bulkToggleBtn').classList.toggle('active', bulkMode);
+  render();
+}
+function toggleBulkSelect(id, e) {
+  if (!bulkMode) return;
+  e.stopPropagation();
+  if (bulkSelected.has(id)) bulkSelected.delete(id); else bulkSelected.add(id);
+  document.getElementById('bulkCount').textContent = bulkSelected.size + '件選択中';
+  render();
+}
+function bulkSetStatus(status) {
+  if (!bulkSelected.size) return;
+  tasks.forEach(function(t) {
+    if (bulkSelected.has(t.id)) {
+      t.status = status; t.updatedAt = new Date().toISOString();
+      t.comments.push({author:'human',content:'ステータスを'+status+'に変更（一括操作）',timestamp:new Date().toISOString()});
+    }
+  });
+  saveAndPush(); bulkSelected.clear(); document.getElementById('bulkCount').textContent = '0件選択中'; render();
+}
+function bulkDelete() {
+  if (!bulkSelected.size) return;
+  if (!confirm(bulkSelected.size+'件のタスクを削除しますか？')) return;
+  tasks = tasks.filter(function(t){ return !bulkSelected.has(t.id); });
+  saveAndPush(); bulkSelected.clear(); toggleBulkMode();
+}
+
 function toggleStatusMenu(e){
   e.stopPropagation();
   var menu=document.getElementById('statusMenu');
@@ -1957,7 +2028,7 @@ function renderChat(){
         +'<div class="msg-av" style="background:'+a.c+'22;border:1px solid '+a.c+'44">'+a.e+'</div>'
         +'<div class="msg-ai-body">'
         +'<div class="msg-name">'+h(c.author)+'</div>'
-        +'<div class="bubble-ai">'+linkify(c.content)+'</div>'
+        +'<div class="bubble-ai md-body">'+renderMd(c.content)+'</div>'
         +'<div class="msg-time">'+fmtDate(c.timestamp)+'</div>'
         +'</div>'
         +'</div>';
@@ -2145,15 +2216,54 @@ function showTab(tab){
   currentTab = tab;
   document.getElementById('view-board').classList.toggle('hidden', tab!=='board');
   document.getElementById('view-reports').classList.toggle('hidden', tab!=='reports');
+  document.getElementById('view-timeline').style.display = tab==='timeline' ? 'flex' : 'none';
   var orgView = document.getElementById('view-org');
   orgView.classList.toggle('visible', tab==='org');
   document.getElementById('tab-board').classList.toggle('active', tab==='board');
   document.getElementById('tab-reports').classList.toggle('active', tab==='reports');
+  document.getElementById('tab-timeline').classList.toggle('active', tab==='timeline');
   document.getElementById('tab-org').classList.toggle('active', tab==='org');
   var filters = document.querySelector('.header-filters');
   if(filters) filters.style.visibility = tab==='board' ? 'visible' : 'hidden';
   if(tab==='reports') loadReportList();
   if(tab==='org') renderOrgChart();
+  if(tab==='timeline') renderTimeline();
+}
+
+function renderTimeline() {
+  var statusLabel = {'new-assigned':'未着手','in-progress':'進行中','blocked':'ブロック中','done':'完了'};
+  var statusColor = {'new-assigned':'var(--col-new)','in-progress':'var(--col-ip)','blocked':'var(--col-bl)','done':'var(--col-done)'};
+  var sorted = tasks.slice().sort(function(a,b){ return new Date(b.updatedAt||b.createdAt) - new Date(a.updatedAt||a.createdAt); });
+  // 日付ごとにグループ化
+  var groups = {};
+  sorted.forEach(function(t) {
+    var d = (t.updatedAt||t.createdAt||'').split('T')[0];
+    if (!groups[d]) groups[d] = [];
+    groups[d].push(t);
+  });
+  var done = tasks.filter(function(t){return t.status==='done';}).length;
+  document.getElementById('timelineSubheading').textContent = '全'+tasks.length+'件 完了'+done+'件 — 更新日時順';
+  var html = '';
+  Object.keys(groups).sort().reverse().forEach(function(date) {
+    var d = new Date(date);
+    var label = d.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+    html += '<div style="margin-bottom:28px">'
+      + '<div style="font-size:12px;font-weight:700;color:var(--text2);border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:12px">'+h(label)+'</div>';
+    groups[date].forEach(function(t) {
+      var a = ag(t.assignee);
+      var sc = statusColor[t.status]||'var(--text2)';
+      html += '<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;padding:10px 12px;background:var(--bg2);border-left:3px solid '+sc+';cursor:pointer" onclick="openPanel(\''+t.id+'\')">'
+        + '<div style="font-size:18px;flex-shrink:0">'+a.e+'</div>'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+h(t.title)+'</div>'
+        + '<div style="font-size:10px;color:var(--text2);margin-top:2px">'+h(a.n||t.assignee)+' · <span style="color:'+sc+'">'+h(statusLabel[t.status]||t.status)+'</span></div>'
+        + '</div>'
+        + '<div style="font-size:9px;color:var(--text3);flex-shrink:0">'+h(t.id)+'</div>'
+        + '</div>';
+    });
+    html += '</div>';
+  });
+  document.getElementById('timelineContent').innerHTML = html || '<div style="color:var(--text2);padding:40px;text-align:center">タスクがありません</div>';
 }
 
 // ── ORG CHART ──
@@ -2620,9 +2730,31 @@ function inlineRender(t){
     .replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
 }
 
+// ── ブラウザ通知 ──
+var _notifiedIds = JSON.parse(localStorage.getItem('ai-notified-ids')||'[]');
+function initNotifications() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') Notification.requestPermission();
+}
+function checkAndNotify() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  tasks.forEach(function(t) {
+    if (t.status === 'done' && !_notifiedIds.includes(t.id)) {
+      _notifiedIds.push(t.id);
+      new Notification('✅ タスク完了: ' + t.title, {
+        body: (t.comments && t.comments.length ? t.comments[t.comments.length-1].content : '').slice(0, 80),
+        icon: '/ai-agent-org/apps/task-board/favicon.png',
+        tag: t.id,
+      });
+    }
+  });
+  localStorage.setItem('ai-notified-ids', JSON.stringify(_notifiedIds.slice(-100)));
+}
+
 // ── BOOT ──
 initTheme();
 load();
+initNotifications();
 loadFromGitHub(false);
 startAutoRefresh();
 </script>

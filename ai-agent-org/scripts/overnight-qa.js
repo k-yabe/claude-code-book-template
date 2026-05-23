@@ -161,7 +161,7 @@ function checkInbox() {
 // tasks.json を常に GitHub の最新版で上書き（競合を完全回避）
 try {
   execSync('git fetch origin main', { cwd: ROOT });
-  execSync('git checkout origin/main -- tasks/tasks.json scripts/', { cwd: ROOT });
+  execSync('git checkout origin/main -- tasks/tasks.json', { cwd: ROOT });
 } catch (err) {
   console.error('git fetch 失敗（続行）:', err.message);
 }
@@ -219,6 +219,18 @@ try {
   if (!err.message.includes('nothing to commit')) {
     console.error('git push 失敗:', err.message);
   }
+}
+
+// Slack通知
+const SLACK_WEBHOOK = process.env.SLACK_WEBHOOK_URL;
+if (SLACK_WEBHOOK) {
+  const emoji = results.failed.length > 0 ? '🔴' : results.warnings.length > 0 ? '⚠️' : '✅';
+  const text = `${emoji} *夜間QAレポート ${dateStr}*\n合格: ${results.passed.length} / 警告: ${results.warnings.length} / 失敗: ${results.failed.length}`
+    + (results.failed.length ? '\n*要対応:*\n' + results.failed.map(m => `• ${m}`).join('\n') : '')
+    + (results.warnings.length ? '\n*警告:*\n' + results.warnings.slice(0,5).map(m => `• ${m}`).join('\n') : '');
+  fetch(SLACK_WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text}) })
+    .then(() => console.log('✓ Slack通知送信'))
+    .catch(e => console.warn('Slack通知失敗:', e.message));
 }
 
 if (results.failed.length > 0) {

@@ -34,6 +34,28 @@ if (typeof fetch === 'undefined') {
 }
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const SLACK_WEBHOOK = process.env.SLACK_WEBHOOK_URL;
+
+// コスト追跡（$1M tokens単価）
+const MODEL_COST = {
+  'claude-haiku-4-5-20251001': { input: 1.0, output: 5.0 },
+  'claude-sonnet-4-6':         { input: 3.0, output: 15.0 },
+  'claude-opus-4-7':           { input: 15.0, output: 75.0 },
+};
+let sessionCost = 0;
+function trackCost(model, inputTokens, outputTokens) {
+  const rate = MODEL_COST[model] || { input: 3.0, output: 15.0 };
+  const cost = (inputTokens * rate.input + outputTokens * rate.output) / 1_000_000;
+  sessionCost += cost;
+  return cost;
+}
+
+async function notifySlack(text) {
+  if (!SLACK_WEBHOOK) return;
+  try {
+    await fetch(SLACK_WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text}) });
+  } catch(e) { console.warn('Slack通知失敗:', e.message); }
+}
 
 // ── モデル定義 ──────────────────────────────────────────────
 const MODELS = {
@@ -659,6 +681,7 @@ async function main() {
         saveTasks(data);
         processedIds.push(task.id);
         console.log(`✅ ${task.id}: done`);
+        await notifySlack(`✅ *${task.id}* 完了: ${task.title}\n担当: ${task.assignee}\n${summary.slice(0, 200)}`);
         continue;
       }
 
@@ -719,6 +742,7 @@ async function main() {
       saveTasks(data);
       processedIds.push(task.id);
       console.log(`✅ ${task.id}: done（COO承認済み）`);
+      await notifySlack(`✅ *${task.id}* 完了（COO承認済み）: ${task.title}\n担当: ${task.assignee}\n${summary.slice(0, 200)}`);
 
       if (DRY_RUN) {
         console.log('--- 出力プレビュー ---');
