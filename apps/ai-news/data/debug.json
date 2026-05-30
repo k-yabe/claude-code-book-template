@@ -1,23 +1,22 @@
 {
-  "ranAt": "2026-05-29T00:06:15.104914+00:00",
+  "ranAt": "2026-05-30T00:04:24.650952+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": true,
   "sources": 68,
   "phase": "start",
-  "fetched_items": 17,
-  "summarizer": "fallback",
-  "anthropicError": "BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'You have reached your specified API usage limits. You will regain access on 2026-06-01 at 00:00 UTC.'}, 'request_id': 'req_011CbVtMoEhCgMMWyQ4u2QRC'}",
-  "final_items": 17,
-  "competitor_items": 2,
-  "x_highlights": 0,
+  "fetched_items": 12,
+  "summarizer": "anthropic_haiku",
+  "final_items": 12,
+  "competitor_items": 0,
+  "x_highlights": 2,
   "audio": {
     "googleKeySet": true,
     "azureKeySet": false,
     "elevenKeySet": false,
     "openaiKeySet": true,
-    "scriptChars": 1555,
-    "scriptSource": "template_fallback",
-    "mp3Bytes": 2079405
+    "scriptChars": 1540,
+    "scriptSource": "claude",
+    "mp3Bytes": 957357
   },
-  "durationSec": 95.7
+  "durationSec": 257.1
 }
