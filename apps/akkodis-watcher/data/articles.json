@@ -1,16 +1,6 @@
 {
-  "last_scraped": "2026-06-05T00:02:28Z",
+  "last_scraped": "2026-06-06T00:00:45Z",
   "articles": [
-    {
-      "id": "ai-redefining-human-potential-workplace",
-      "title": "AI Isn’t Replacing People. It’s Redefining Human Potential at Work.",
-      "url": "https://www.akkodis.com/blog/articles/ai-redefining-human-potential-workplace",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-05-15T23:44:26Z",
-      "published_date": "2026-05-06T00:00:00Z",
-      "summary_ja": "AIは数十年前から企業システムに組み込まれていましたが、最近になって誰でも使えるインターフェースとして表面化し、企業全体で理解と活用が求められるようになりました。生成機能は簡単になった一方で、ビジネスコンテキストに合わせた有用な出力を作成することの重要性が増し、単なるスピード重視では実際の成果には結びつかないという課題が生まれています。AIは人の仕事を奪うのではなく、データ分析や意思決定を強化し、人間にしかできない複雑で創造的な業務に時間を充てられるようにすることで、組織全体の働き方を再構築しています。"
-    },
     {
       "id": "how-prebuilt-ai-agents-drive-enterprise-ai-roi",
       "title": "How Prebuilt AI Agents Drive Enterprise AI ROI",
@@ -20,16 +10,6 @@
       "first_seen": "2026-05-13T23:48:41Z",
       "published_date": "2026-05-13T00:00:00Z",
       "summary_ja": "エンタープライズ企業は個人の生産性を高めるコパイロットの導入は進めているものの、部門全体の業務フローそのものは依然として手作業のままで、コスト削減や処理速度の改善につながっていません。人事や財務、調達、営業などの部門に特化した専用のAIエージェントを既存ワークフローに組み込むことで、これらの業務を自動化し、承認プロセスの効率化や処理時間の短縮を実現できます。Akkodis Japanは営業業務の自動化により年間15,000時間の削減に成功しており、こうした手法は顧客サポートやサプライチェーン業務など多くの部門に応用可能です。"
-    },
-    {
-      "id": "sap-commerce-cloud-jdk21-upgrade-guide",
-      "title": "The Clock Is Running Out on Your Java 17 Commerce Platform",
-      "url": "https://www.akkodis.com/blog/articles/sap-commerce-cloud-jdk21-upgrade-guide",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-05-07T23:42:46Z",
-      "published_date": "2026-05-06T00:00:00Z",
-      "summary_ja": "SAP Commerce Cloudがプラットフォーム全体をJava 21とSpring 6へ移行する大規模アップデートを実施しており、2026年8月31日以降はJava 17での新規ビルドが永久にブロックされるため、企業は迅速な対応が必須となります。このアップデートはセキュリティパッチの終了、新機能へのアクセス制限、デプロイメント機能の喪失など、対応しない場合のビジネスリスクが極めて大きいものです。Akkodisでは迅速な現状把握から自動化ツールの活用、カスタムコード対応、テスト、本番環境への移行まで、段階的で管理された移行プロセスを提供し、顧客企業が確実にアップデートを完了できるよう支援しています。"
     },
     {
       "id": "how-knowledge-graphs-power-agentic-it-operations",
@@ -275,6 +255,15 @@
       "summary_ja": "アッコディスは、文書処理の自動化を手がけるフランス企業向けにセールスフォースの脱炭素クラウドソリューションを導入し、企業全体の9つの事業部門から排出量データを一元管理できるようにしました。廃棄物管理の専用モジュールを開発して正確な炭素排出量の指標を数値化し、リアルタイムで監視できるダッシュボードを構築することで、サステナビリティ報告書の信頼性を高めました。多言語・多通貨対応による複雑な制約を排除しながら、カーボンフットプリントを削減し財務報告をより効率的に行える仕組みを整備しました。"
     },
     {
+      "id": "zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
+      "title": "View\nkeyboard_arrow_right",
+      "url": "https://www.akkodis.com/en/blog/client-success/zusammenarbeit-mit-designbereich-bei-fuehrendem-automobilhersteller",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-06-06T00:00:00Z",
+      "published_date": null
+    },
+    {
       "id": "automotive-company-speeds-up-education-programs-adoption",
       "title": "Automotive Company’s Speeds Up Education Programs Adoption",
       "url": "https://www.akkodis.com/en/blog/client-success/automotive-company-speeds-up-education-programs-adoption",
@@ -385,6 +374,15 @@
       "summary_ja": "BMWグループは経験豊富な退職者の知識が失われるのを防ぐため、シニア・エキスパート・プログラムを立ち上げ、元従業員が短期プロジェクトで若い世代に知識を伝承する仕組みを構築しました。アコディスは従業員管理プラットフォーム「BEEPLE」をBMWグループの要件に合わせてカスタマイズし、プールの設計から契約管理、面接調整まで一貫してサポートしました。プログラム開始以来50以上のプロジェクトが実施され、アコディスの人材採用経験とプラットフォームの柔軟性により、BMWグループは100年間培った従業員の経験と専門知識を次世代に確実に引き継ぐことができるようになりました。"
     },
     {
+      "id": "personal-rekrutierung-fur-value-added-reseller",
+      "title": "View\nkeyboard_arrow_right",
+      "url": "https://www.akkodis.com/en/blog/client-success/personal-rekrutierung-fur-value-added-reseller",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-06-06T00:00:26Z",
+      "published_date": null
+    },
+    {
       "id": "akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
       "title": "Akkodis Delivers Cost Efficiencies in EE’s SD Management",
       "url": "https://www.akkodis.com/en/blog/client-success/akkodis-delivers-cost-efficiencies-in-ee-service-desk-operations-management",
@@ -433,36 +431,6 @@
       "first_seen": "2026-03-14T12:21:47Z",
       "published_date": null,
       "summary_ja": "フランス国立保健医学研究機構（INSERM）は、複数のシステムがセキュリティ要件を満たせず、採用評価や競争プロセスの管理が複雑になっていた課題を抱えていました。AKKODiSはINSERM保有の5つのアプリケーションを1つのソリューションに統合し、ウェブポータル2つ、業務プロセス管理ツール、エンタープライズデータ管理ソフトウェア2つを組み込みました。2,500人日の開発を費やしてシステムを構築した結果、ユーザーの利便性が大幅に向上し、サービスへのアクセスが格段にシンプルになりました。"
-    },
-    {
-      "id": "akkodis-sustains-adecco-app-project",
-      "title": "Akkodis Sustains Adecco' App Project",
-      "url": "https://www.akkodis.com/en/blog/client-success/akkodis-sustains-adecco-app-project",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-06-05T00:01:55Z",
-      "published_date": null,
-      "summary_ja": "Adeccoは求職者向けモバイルアプリの開発プロジェクトで内部リソースが不足していたため、Akkodisに人材確保を依頼しました。Akkodisは採用プロセスで実務的なタスクを導入して適切な候補者を見極め、わずか数名から始まったチームを20人以上の専門家へと拡大させることに成功しました。結果として、Akkodisチームはプロジェクトを期限内に完了させながら、グループレベルでの認知度向上と従業員のキャリア成長につながる事業機会を生み出しました。"
-    },
-    {
-      "id": "british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
-      "title": "British Airways Transforms Its IT Function",
-      "url": "https://www.akkodis.com/en/blog/client-success/british-airways-transforms-its-it-function-by-consolidating-uk-service-centers-for-global-support",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-06-05T00:02:05Z",
-      "published_date": null,
-      "summary_ja": "ブリティッシュ・エアウェイズは世界中の空港からのIT問い合わせに対応する24時間体制の情報技術センターを運営していましたが、問い合わせ件数の急増と人員不足に直面していました。アッコディスは50人以上の専門スタッフで構成されたサービスデスクチームを派遣し、採用・離職管理の煩雑な業務を引き継ぐとともに、継続的なスキル研修を実施することで、運営の効率化を図りました。その結果、サービス提供にかかる全体コストを削減しながら、安定した人員配置を実現し、ブリティッシュ・エアウェイズがIT機能の変革を進めやすい体制を整備することができました。"
-    },
-    {
-      "id": "rbc-railway",
-      "title": "Ensuring Rail Software Safety: Akkodis Validation Services",
-      "url": "https://www.akkodis.com/en/blog/client-success/rbc-railway",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-06-05T00:02:17Z",
-      "published_date": null,
-      "summary_ja": "フランスの鉄道インフラメーカーから、ヨーロッパの鉄道信号制御システム（ERTMS）の中核を担うソフトウェアの検証業務を受託しました。専用のテスト環境で様々な運転シナリオを再現し、ソフトウェアの性能と安全性を徹底的に評価するテスト戦略を構築しました。2019年から現在まで、複数の市場向けのソフトウェアバージョンを同時に検証することで、スケジュール通りの納期達成と多様な規制要件への対応を両立させ、顧客の信頼を得ています。"
     }
   ]
 }
