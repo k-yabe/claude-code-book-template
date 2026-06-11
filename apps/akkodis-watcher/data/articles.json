@@ -1,6 +1,15 @@
 {
-  "last_scraped": "2026-06-10T00:06:42Z",
+  "last_scraped": "2026-06-11T00:10:39Z",
   "articles": [
+    {
+      "id": "low-code-platforms-faster-digital-transformation",
+      "title": "Low Code Development: Accelerating Digital Transformation and Business Innovation",
+      "url": "https://www.akkodis.com/blog/articles/low-code-platforms-faster-digital-transformation",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-06-11T00:07:36Z",
+      "published_date": "2026-06-10T00:00:00Z"
+    },
     {
       "id": "how-prebuilt-ai-agents-drive-enterprise-ai-roi",
       "title": "How Prebuilt AI Agents Drive Enterprise AI ROI",
@@ -64,6 +73,24 @@
       "source_label": "Thinkers & Makers",
       "published_date": "2024",
       "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "airbus-field-service-middle-east",
+      "title": "Airbus Strengthens Middle East Field Service Operations with Akkodis",
+      "url": "https://www.akkodis.com/en/blog/client-success/airbus-field-service-middle-east",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-06-11T00:10:22Z",
+      "published_date": "2025-03-27T00:00:00Z"
+    },
+    {
+      "id": "generative-ai-as400-modernization-trucking-operational-efficiency",
+      "title": "How Generative AI Modernized a Legacy AS/400 System — 25% Efficiency Gain",
+      "url": "https://www.akkodis.com/en/blog/client-success/generative-ai-as400-modernization-trucking-operational-efficiency",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-06-11T00:10:30Z",
+      "published_date": "2025-03-27T00:00:00Z"
     },
     {
       "id": "scaling-enterprise-productivity-with-agentic-copilot",
@@ -402,26 +429,6 @@
       "first_seen": "2026-03-14T12:21:33Z",
       "published_date": null,
       "summary_ja": "自動車部品大手のグローバル企業が経営方針をエンジン技術から電動車・ソフトウェア中心へシフトさせるにあたり、AkkodisはACCADEMYを通じて機械工学の専門家500人をシステム開発やソフトウェア開発、機能安全の分野に転換する研修プログラムを設計・実施しました。ドイツの職業訓練認定制度を活用して資金確保を行い、5ヶ月間の専門講座と3ヶ月間のインターンシップで、オンライン講義と実務経験を組み合わせて人材育成に取り組みました。プロジェクト期間中の計画変更や労働組合との調整が課題となる中で、大学やテクノロジーパートナーとの連携ネットワークを活かし、研究機関と実務の知見を兼ね備えた研修を提供することで、企業全体の大規模な経営転換をサポートしました。"
-    },
-    {
-      "id": "continuous-integration-for-the-department-of-transport-on-demand-transport-platform",
-      "title": "Continuous Integration and Delivery pipeline for the Department of Transport’s On-Demand Transport platform",
-      "url": "https://www.akkodis.com/en/blog/client-success/continuous-integration-for-the-department-of-transport-on-demand-transport-platform",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-14T12:21:40Z",
-      "published_date": null,
-      "summary_ja": "オーストラリア西部運輸省がオンデマンド輸送サービスの展開を加速させるため、Jenkinsを活用した自動デプロイメントのパイプラインを構築しました。これにより、従来は複数チームが手作業で行っていた設定作業がコード化されて自動実行されるようになり、配置の時間と手間が劇的に削減されました。パイプラインはソースコード管理と連携して開発環境から本番環境まで段階的に進み、各段階で品質チェックと承認プロセスを経て、同じテンプレートで他のプロジェクトにも展開できる仕組みになっています。"
-    },
-    {
-      "id": "inserm-consolidates-and-modernizes-applications-to-optimize-internal-processes",
-      "title": "INSERM Consolidates and Modernizes Applications",
-      "url": "https://www.akkodis.com/en/blog/client-success/inserm-consolidates-and-modernizes-applications-to-optimize-internal-processes",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-03-14T12:21:47Z",
-      "published_date": null,
-      "summary_ja": "フランス国立保健医学研究機構（INSERM）は、複数のシステムがセキュリティ要件を満たせず、採用評価や競争プロセスの管理が複雑になっていた課題を抱えていました。AKKODiSはINSERM保有の5つのアプリケーションを1つのソリューションに統合し、ウェブポータル2つ、業務プロセス管理ツール、エンタープライズデータ管理ソフトウェア2つを組み込みました。2,500人日の開発を費やしてシステムを構築した結果、ユーザーの利便性が大幅に向上し、サービスへのアクセスが格段にシンプルになりました。"
     }
   ]
 }
