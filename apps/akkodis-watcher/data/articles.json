@@ -1,6 +1,24 @@
 {
-  "last_scraped": "2026-06-11T00:10:39Z",
+  "last_scraped": "2026-06-12T00:16:23Z",
   "articles": [
+    {
+      "id": "sap-accelerator-to-composable-storefront-migration",
+      "title": "The Accelerator Era Is Over: Your SAP Commerce Cloud Migration Playbook",
+      "url": "https://www.akkodis.com/blog/articles/sap-accelerator-to-composable-storefront-migration",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-06-12T00:13:47Z",
+      "published_date": "2026-06-11T00:00:00Z"
+    },
+    {
+      "id": "decoding-tomorrow-zero-trust-cybersecurity-ai-digital-trust",
+      "title": "In an AI-Driven World, Trust Is No Longer by Default. It’s a Trust by Design.",
+      "url": "https://www.akkodis.com/blog/articles/decoding-tomorrow-zero-trust-cybersecurity-ai-digital-trust",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-06-12T00:13:57Z",
+      "published_date": "2026-06-10T00:00:00Z"
+    },
     {
       "id": "low-code-platforms-faster-digital-transformation",
       "title": "Low Code Development: Accelerating Digital Transformation and Business Innovation",
@@ -9,16 +27,6 @@
       "source_label": "Akkodis Blog",
       "first_seen": "2026-06-11T00:07:36Z",
       "published_date": "2026-06-10T00:00:00Z"
-    },
-    {
-      "id": "how-prebuilt-ai-agents-drive-enterprise-ai-roi",
-      "title": "How Prebuilt AI Agents Drive Enterprise AI ROI",
-      "url": "https://www.akkodis.com/blog/articles/how-prebuilt-ai-agents-drive-enterprise-ai-roi",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-05-13T23:48:41Z",
-      "published_date": "2026-05-13T00:00:00Z",
-      "summary_ja": "エンタープライズ企業は個人の生産性を高めるコパイロットの導入は進めているものの、部門全体の業務フローそのものは依然として手作業のままで、コスト削減や処理速度の改善につながっていません。人事や財務、調達、営業などの部門に特化した専用のAIエージェントを既存ワークフローに組み込むことで、これらの業務を自動化し、承認プロセスの効率化や処理時間の短縮を実現できます。Akkodis Japanは営業業務の自動化により年間15,000時間の削減に成功しており、こうした手法は顧客サポートやサプライチェーン業務など多くの部門に応用可能です。"
     },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
