@@ -1,6 +1,15 @@
 {
-  "last_scraped": "2026-06-12T00:16:23Z",
+  "last_scraped": "2026-06-13T00:15:19Z",
   "articles": [
+    {
+      "id": "decoding-tomorrow-ai-human-collaboration-business-innovation",
+      "title": "AI in Practice: It’s More Than Just a Tool",
+      "url": "https://www.akkodis.com/blog/articles/decoding-tomorrow-ai-human-collaboration-business-innovation",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-06-13T00:12:42Z",
+      "published_date": "2026-06-10T00:00:00Z"
+    },
     {
       "id": "sap-accelerator-to-composable-storefront-migration",
       "title": "The Accelerator Era Is Over: Your SAP Commerce Cloud Migration Playbook",
