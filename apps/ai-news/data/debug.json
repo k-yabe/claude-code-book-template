@@ -1,13 +1,13 @@
 {
-  "ranAt": "2026-06-14T00:00:52.556631+00:00",
+  "ranAt": "2026-06-15T00:04:09.142918+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": true,
   "sources": 68,
   "phase": "start",
-  "fetched_items": 7,
+  "fetched_items": 15,
   "summarizer": "fallback",
-  "anthropicError": "BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011Cc2AsEchsywgC3u3uB3NB'}",
-  "final_items": 7,
+  "anthropicError": "BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011Cc44wUGAVTX6ZkLmVwzu5'}",
+  "final_items": 15,
   "competitor_items": 0,
   "x_highlights": 0,
   "audio": {
@@ -15,9 +15,9 @@
     "azureKeySet": false,
     "elevenKeySet": false,
     "openaiKeySet": true,
-    "scriptChars": 1467,
+    "scriptChars": 1851,
     "scriptSource": "template_fallback",
-    "mp3Bytes": 1903680
+    "mp3Bytes": 2532909
   },
-  "durationSec": 76.3
+  "durationSec": 87.8
 }
