@@ -28,7 +28,10 @@
       "mcp__52e6052e-b936-46f6-bd61-54536f986204__get_runtime_logs",
       "mcp__52e6052e-b936-46f6-bd61-54536f986204__web_fetch_vercel_url",
       "mcp__52e6052e-b936-46f6-bd61-54536f986204__list_deployments",
-      "mcp__52e6052e-b936-46f6-bd61-54536f986204__deploy_to_vercel"
+      "mcp__52e6052e-b936-46f6-bd61-54536f986204__deploy_to_vercel",
+      "mcp__16209ffd-2584-4034-8caa-02314e1be98e__get_themes",
+      "mcp__16209ffd-2584-4034-8caa-02314e1be98e__generate",
+      "mcp__16209ffd-2584-4034-8caa-02314e1be98e__get_generation_status"
     ]
   },
   "enableAllProjectMcpServers": true,
