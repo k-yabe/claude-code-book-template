@@ -64,6 +64,7 @@
 | Wireframe Maker | `apps/wireframe-maker/index.html`, `api/wireframe-generate.js`, `api/figma-import.js`, `api/deploy-lp.js` | ✅ 完成 | S035, S037, S038, S040, S043, S048, S050, S051, S052, S053, S054, S055, S056, S066, S068, S069, S070 |
 | Cache Checker | `apps/cache-checker/index.html`, `api/fetch-article.js(mode=proxy)` | ✅ 完成 | S037 |
 | Image Converter | `apps/image-converter/index.html` | ✅ 完成 | S047 |
+| ROI / ROAS Simulator | `apps/roi-roas-simulator/index.html` | ✅ 完成（広告費対効果のリアルタイム計算機・API不要） | S082 |
 | AI NEWS | `apps/ai-news/index.html`, `apps/ai-news/app.js`, `apps/ai-news/scraper.py`, `api/ai-news-api.js`, `.github/workflows/ai-news-collect.yml`, `.github/workflows/auto-merge-claude.yml` | ✅ 完成（毎朝8時 JST 日本語RSSのみ自動収集 + Claude Haiku 4.5インテリジェンス・ブリーフ + AIダイジェスト音声(tts-1-hd/shimmer/カタカナ変換) + Picker風専門家コメント + スワイプナビ + パーソナライズ + OGP画像自動抽出 + unavatar.io Xアバター + ラジオ番組風ダイジェスト + NewsPicks/SmartNews風UIリデザイン + 日本語率フィルタ + /merges API auto-merge + 「詳しく読む」3ステップ番号UI + Xカード全リンク化） | S073, S074, S075, S077, S078, S079 |
 
 ---
@@ -237,6 +238,30 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 
 **スコア計算:**
 `10 × 消去数 × max(1, 連鎖ボーナス + 色ボーナス + グループボーナス)`
+
+### ROI / ROAS Simulator（`apps/roi-roas-simulator/`）（S082）
+
+広告施策の費用対効果を施策前にシミュレーションするピュアな client-side 計算機。**API は使わず**、入力イベントで `compute()` → `render()` を即時実行する 1 ファイル完結アプリ。共通 `assets/app-styles.css` と `assets/onboarding.js` に準拠。
+
+**入力:** 広告費 / 流入（CPC から算出 ⇄ クリック数を直接入力のトグル）/ CVR / 客単価 / 粗利率（CVR・粗利率はスライダー連動）
+
+**計算式:**
+
+| 指標 | 式 |
+|------|----|
+| クリック数 | `広告費 ÷ CPC`（または直接入力） |
+| CV 数 | `クリック数 × CVR` |
+| 売上 | `CV数 × 客単価` |
+| 粗利 | `売上 × 粗利率` |
+| 広告費差引後利益 | `粗利 − 広告費` |
+| ROAS | `売上 ÷ 広告費 × 100`（%） |
+| ROI | `(粗利 − 広告費) ÷ 広告費 × 100`（%） |
+| CPA | `広告費 ÷ CV数` |
+| 損益分岐 ROAS | `1 ÷ 粗利率 × 100`（粗利で広告費を回収できる売上倍率） |
+
+**判定:** 広告費差引後利益 ≥ 0 で🟢黒字、< 0 で🔴赤字。赤字時は `黒字化に必要な CVR = 広告費 ÷ (クリック数 × 客単価 × 粗利率)` を逆算して提示。損益分岐 ROAS をバーの 60% 位置に固定し、実 ROAS をその比率で描画。
+
+**プリセット:** リード獲得（BtoB）/ EC・物販 / セミナー集客 の 3 業種別初期値。結果はテキストでクリップボードコピー可能。
 
 ---
 
