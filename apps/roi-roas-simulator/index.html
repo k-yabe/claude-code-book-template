@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROI / ROAS Simulator — AKKODiS マーケティングアプリ</title>
+  <!-- OGP / Twitter Card（社内シェア時のプレビュー用） -->
+  <meta property="og:title" content="ROI / ROAS Simulator — AKKODiS マーケティングアプリ">
+  <meta property="og:description" content="広告費・CVR・客単価から ROAS / ROI / CPA / 損益分岐点を即時シミュレーション">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AKKODiS マーケティングアプリ">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ROI / ROAS Simulator">
+  <meta name="twitter:description" content="広告費・CVR・客単価から ROAS / ROI / CPA / 損益分岐点を即時シミュレーション">
+  <meta name="description" content="広告費・CVR・客単価から ROAS / ROI / CPA / 損益分岐点を即時シミュレーション">
+  <link rel="stylesheet" href="../../assets/app-styles.css?v=20260501">
+  <style>
+    /* ── App-specific styles (shared styles via app-styles.css) ── */
+    h1 { font-size: var(--text-xl); font-weight: 700; color: var(--navy); letter-spacing: -0.01em; margin-bottom: var(--sp-1); }
+
+    .sim-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-6);
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .sim-layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── 入力フィールド ── */
+    .field { margin-bottom: var(--sp-5); }
+    .field:last-child { margin-bottom: 0; }
+    .field-label {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--sp-2);
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: var(--sp-2);
+    }
+    .field-label .hint { font-weight: 400; color: var(--text-faint); font-size: var(--text-xs); }
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .input-wrap .prefix,
+    .input-wrap .suffix {
+      position: absolute;
+      color: var(--text-muted);
+      font-size: var(--text-base);
+      font-weight: 600;
+      pointer-events: none;
+    }
+    .input-wrap .prefix { left: 14px; }
+    .input-wrap .suffix { right: 14px; }
+    .input-wrap input[type="number"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: var(--text-md);
+      font-weight: 600;
+      font-family: var(--font-mono);
+      color: var(--navy);
+      text-align: right;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      transition: border-color var(--ease), box-shadow var(--ease);
+      -moz-appearance: textfield;
+    }
+    .input-wrap.has-prefix input { padding-left: 30px; }
+    .input-wrap.has-suffix input { padding-right: 34px; }
+    .input-wrap input:focus {
+      outline: none;
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(0,31,51,0.08);
+    }
+    .input-wrap input::-webkit-outer-spin-button,
+    .input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="range"] {
+      width: 100%;
+      margin-top: 10px;
+      accent-color: var(--navy);
+      cursor: pointer;
+    }
+
+    .mode-toggle { display: flex; gap: 0; border: 1.5px solid var(--border); overflow: hidden; }
+    .mode-toggle button {
+      flex: 1;
+      padding: 9px 8px;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--surface);
+      border: none;
+      cursor: pointer;
+      transition: all var(--ease);
+    }
+    .mode-toggle button + button { border-left: 1.5px solid var(--border); }
+    .mode-toggle button.active { background: var(--navy); color: #fff; }
+
+    /* ── 結果パネル ── */
+    .result-card {
+      position: sticky;
+      top: var(--sp-5);
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-top: 3px solid var(--navy);
+      padding: var(--sp-6);
+    }
+    @media (max-width: 860px) { .result-card { position: static; } }
+
+    .verdict {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-4);
+      margin-bottom: var(--sp-5);
+      border: 1.5px solid var(--border);
+    }
+    .verdict.profit { background: var(--success-bg); border-color: var(--success-border); }
+    .verdict.loss { background: var(--error-bg); border-color: var(--error-border); }
+    .verdict-icon { font-size: 1.6rem; line-height: 1; }
+    .verdict-text { display: flex; flex-direction: column; gap: 2px; }
+    .verdict-title { font-size: var(--text-md); font-weight: 700; }
+    .verdict.profit .verdict-title { color: var(--success-text); }
+    .verdict.loss .verdict-title { color: var(--error-text); }
+    .verdict-sub { font-size: var(--text-xs); color: var(--text-muted); }
+
+    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-bottom: var(--sp-5); }
+    .kpi {
+      background: var(--surface-alt);
+      border: 1px solid var(--border-light);
+      padding: var(--sp-4);
+    }
+    .kpi.kpi-hero { grid-column: span 2; background: var(--navy); border-color: var(--navy); }
+    .kpi-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .kpi-hero .kpi-label { color: var(--gold); }
+    .kpi-value { font-size: 1.5rem; font-weight: 700; color: var(--navy); font-family: var(--font-mono); line-height: 1.1; }
+    .kpi-hero .kpi-value { color: #fff; font-size: 1.9rem; }
+    .kpi-value .unit { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+    .kpi-hero .kpi-value .unit { color: var(--gold-60); }
+    .kpi-sub { font-size: var(--text-xs); color: var(--text-faint); margin-top: 4px; }
+    .kpi-hero .kpi-sub { color: rgba(255,255,255,0.6); }
+
+    /* ── 損益分岐バー ── */
+    .breakeven { margin-bottom: var(--sp-5); }
+    .breakeven-head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: var(--text-sm); margin-bottom: var(--sp-2);
+    }
+    .breakeven-head .lbl { font-weight: 600; color: var(--navy); }
+    .breakeven-head .be { color: var(--text-muted); font-family: var(--font-mono); }
+    .bar-track {
+      position: relative; height: 14px; background: var(--border-light);
+      border-radius: 7px; overflow: hidden;
+    }
+    .bar-fill { position: absolute; inset: 0 auto 0 0; border-radius: 7px; transition: width var(--ease), background var(--ease); }
+    .bar-fill.profit { background: linear-gradient(90deg, #00897b, #00bfa5); }
+    .bar-fill.loss { background: linear-gradient(90deg, #e74c3c, #ff7062); }
+    .bar-marker {
+      position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--navy);
+    }
+    .bar-marker::after {
+      content: '損益分岐'; position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+      font-size: 0.6rem; font-weight: 700; color: var(--navy); white-space: nowrap;
+    }
+
+    /* ── ファネル内訳 ── */
+    .funnel { display: flex; flex-direction: column; gap: 6px; }
+    .funnel-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: var(--text-sm); padding: 8px 12px; background: var(--surface-alt);
+      border: 1px solid var(--border-light);
+    }
+    .funnel-row .f-label { color: var(--text-secondary); }
+    .funnel-row .f-val { font-weight: 700; color: var(--navy); font-family: var(--font-mono); }
+
+    .result-actions { display: flex; gap: var(--sp-3); margin-top: var(--sp-5); }
+    .result-actions button { flex: 1; }
+
+    .sample-hint { font-size: var(--text-sm); color: var(--text-muted); margin-top: var(--sp-4); }
+    .sample-btn {
+      background: none; border: none; color: var(--navy); font-weight: 600;
+      cursor: pointer; padding: 0; font-size: inherit; text-decoration: underline;
+    }
+    .preset-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: var(--sp-5); }
+    .preset-chip {
+      padding: 6px 12px; font-size: var(--text-xs); font-weight: 600;
+      color: var(--navy); background: var(--surface); border: 1.5px solid var(--border);
+      cursor: pointer; transition: all var(--ease);
+    }
+    .preset-chip:hover { border-color: var(--navy); background: var(--surface-alt); }
+
+    .section-title {
+      font-size: var(--text-sm); font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-muted); margin: var(--sp-6) 0 var(--sp-3);
+    }
+    .section-title:first-child { margin-top: 0; }
+
+    .copy-toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--navy); color: #fff; padding: 10px 20px; font-size: var(--text-sm);
+      font-weight: 600; opacity: 0; pointer-events: none; transition: all var(--ease); z-index: 50;
+    }
+    .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a href="../../" class="back-btn">← アプリ一覧へ</a>
+      <div class="navbar-divider"></div>
+      <span class="navbar-title">ROI / ROAS Simulator</span>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>ROI / ROAS Simulator</h1>
+      <p class="page-desc">広告予算とコンバージョン条件から、費用対効果をその場でシミュレーション</p>
+    </div>
+
+    <div class="preset-row" id="preset-row">
+      <button class="preset-chip" data-preset="lead">リード獲得（BtoB）</button>
+      <button class="preset-chip" data-preset="ec">EC・物販</button>
+      <button class="preset-chip" data-preset="seminar">セミナー集客</button>
+    </div>
+
+    <div class="sim-layout">
+      <!-- 入力 -->
+      <div class="step">
+        <div class="step-body" style="padding: var(--sp-6);">
+          <div class="section-title">① 広告・流入</div>
+
+          <div class="field">
+            <div class="field-label"><span>広告費（月額）</span></div>
+            <div class="input-wrap has-prefix">
+              <span class="prefix">¥</span>
+              <input type="number" id="in-budget" min="0" step="10000" value="500000" inputmode="numeric">
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label">
+              <span>流入の入力方法</span>
+            </div>
+            <div class="mode-toggle" id="traffic-mode">
+              <button type="button" data-mode="cpc" class="active">CPCから算出</button>
+              <button type="button" data-mode="clicks">クリック数を直接入力</button>
+            </div>
+          </div>
+
+          <div class="field" id="field-cpc">
+            <div class="field-label"><span>CPC（クリック単価）</span><span class="hint">1クリックあたり</span></div>
+            <div class="input-wrap has-prefix">
+              <span class="prefix">¥</span>
+              <input type="number" id="in-cpc" min="1" step="10" value="250" inputmode="numeric">
+            </div>
+          </div>
+
+          <div class="field" id="field-clicks" style="display:none;">
+            <div class="field-label"><span>クリック数</span></div>
+            <div class="input-wrap">
+              <input type="number" id="in-clicks" min="0" step="100" value="2000" inputmode="numeric">
+            </div>
+          </div>
+
+          <div class="section-title">② コンバージョン</div>
+
+          <div class="field">
+            <div class="field-label"><span>CVR（コンバージョン率）</span><span class="hint" id="cvr-hint">3.0%</span></div>
+            <div class="input-wrap has-suffix">
+              <input type="number" id="in-cvr" min="0" max="100" step="0.1" value="3" inputmode="decimal">
+              <span class="suffix">%</span>
+            </div>
+            <input type="range" id="range-cvr" min="0" max="20" step="0.1" value="3">
+          </div>
+
+          <div class="field">
+            <div class="field-label"><span>客単価（平均成約額）</span><span class="hint">1件あたりの売上</span></div>
+            <div class="input-wrap has-prefix">
+              <span class="prefix">¥</span>
+              <input type="number" id="in-aov" min="0" step="1000" value="50000" inputmode="numeric">
+            </div>
+          </div>
+
+          <div class="section-title">③ 利益設定</div>
+
+          <div class="field">
+            <div class="field-label"><span>粗利率</span><span class="hint" id="margin-hint">40%</span></div>
+            <div class="input-wrap has-suffix">
+              <input type="number" id="in-margin" min="0" max="100" step="1" value="40" inputmode="numeric">
+              <span class="suffix">%</span>
+            </div>
+            <input type="range" id="range-margin" min="0" max="100" step="1" value="40">
+          </div>
+        </div>
+      </div>
+
+      <!-- 結果 -->
+      <div class="result-card">
+        <div class="verdict" id="verdict">
+          <span class="verdict-icon" id="verdict-icon">⏳</span>
+          <div class="verdict-text">
+            <span class="verdict-title" id="verdict-title">入力してください</span>
+            <span class="verdict-sub" id="verdict-sub">数値を入れるとリアルタイムで計算します</span>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi kpi-hero">
+            <div class="kpi-label">ROAS（広告費用対効果）</div>
+            <div class="kpi-value"><span id="kpi-roas">—</span><span class="unit">%</span></div>
+            <div class="kpi-sub" id="kpi-roas-sub">売上 ÷ 広告費</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">ROI（投資利益率）</div>
+            <div class="kpi-value"><span id="kpi-roi">—</span><span class="unit">%</span></div>
+            <div class="kpi-sub">（粗利−広告費）÷ 広告費</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">CPA（顧客獲得単価）</div>
+            <div class="kpi-value"><span class="unit">¥</span><span id="kpi-cpa">—</span></div>
+            <div class="kpi-sub">広告費 ÷ CV数</div>
+          </div>
+        </div>
+
+        <div class="breakeven">
+          <div class="breakeven-head">
+            <span class="lbl">損益分岐 ROAS</span>
+            <span class="be" id="be-target">—</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" id="bar-fill" style="width:0%"></div>
+            <div class="bar-marker" id="bar-marker" style="left:50%"></div>
+          </div>
+        </div>
+
+        <div class="funnel" id="funnel">
+          <div class="funnel-row"><span class="f-label">クリック数</span><span class="f-val" id="f-clicks">—</span></div>
+          <div class="funnel-row"><span class="f-label">コンバージョン数</span><span class="f-val" id="f-cv">—</span></div>
+          <div class="funnel-row"><span class="f-label">売上（想定）</span><span class="f-val" id="f-revenue">—</span></div>
+          <div class="funnel-row"><span class="f-label">粗利（想定）</span><span class="f-val" id="f-profit">—</span></div>
+          <div class="funnel-row"><span class="f-label">広告費差引後の利益</span><span class="f-val" id="f-net">—</span></div>
+        </div>
+
+        <div class="result-actions">
+          <button class="btn-outline" id="copy-btn">結果をコピー</button>
+          <button class="btn-secondary" id="reset-btn">リセット</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="sample-hint">用語や計算式の意味は <button class="sample-btn" id="help-btn">使い方ガイドを開く →</button></p>
+  </div>
+
+  <div class="copy-toast" id="copy-toast">コピーしました</div>
+
+  <footer class="app-footer">
+    <span class="app-footer-text">⚠️ 機密情報・個人情報のアップロードは禁止です</span>
+  </footer>
+
+  <script>
+    // ── デフォルト値とプリセット ─────────────────────────
+    const DEFAULTS = { budget: 500000, mode: 'cpc', cpc: 250, clicks: 2000, cvr: 3, aov: 50000, margin: 40 };
+    const PRESETS = {
+      lead:    { budget: 500000, mode: 'cpc', cpc: 350, clicks: 1400, cvr: 2, aov: 300000, margin: 60 },
+      ec:      { budget: 800000, mode: 'cpc', cpc: 80,  clicks: 10000, cvr: 2.5, aov: 8000, margin: 35 },
+      seminar: { budget: 300000, mode: 'cpc', cpc: 200, clicks: 1500, cvr: 5, aov: 0, margin: 100 },
+    };
+
+    let mode = 'cpc';
+
+    // ── 要素参照 ─────────────────────────────────────
+    const el = (id) => document.getElementById(id);
+    const inputs = {
+      budget: el('in-budget'), cpc: el('in-cpc'), clicks: el('in-clicks'),
+      cvr: el('in-cvr'), aov: el('in-aov'), margin: el('in-margin'),
+    };
+    const rangeCvr = el('range-cvr'), rangeMargin = el('range-margin');
+
+    // ── フォーマッタ ─────────────────────────────────
+    const yen = (n) => '¥' + Math.round(n).toLocaleString('ja-JP');
+    const num = (n) => Math.round(n).toLocaleString('ja-JP');
+    const pct = (n) => (Math.round(n * 10) / 10).toLocaleString('ja-JP');
+    const val = (input) => { const v = parseFloat(input.value); return isNaN(v) || v < 0 ? 0 : v; };
+
+    // ── 計算ロジック ─────────────────────────────────
+    function compute() {
+      const budget = val(inputs.budget);
+      const cvr = val(inputs.cvr) / 100;
+      const aov = val(inputs.aov);
+      const margin = val(inputs.margin) / 100;
+
+      let clicks;
+      if (mode === 'cpc') {
+        const cpc = val(inputs.cpc);
+        clicks = cpc > 0 ? budget / cpc : 0;
+      } else {
+        clicks = val(inputs.clicks);
+      }
+
+      const cv = clicks * cvr;
+      const revenue = cv * aov;
+      const grossProfit = revenue * margin;       // 粗利
+      const netProfit = grossProfit - budget;     // 広告費差引後の利益
+      const roas = budget > 0 ? (revenue / budget) * 100 : 0;
+      const roi = budget > 0 ? (netProfit / budget) * 100 : 0;
+      const cpa = cv > 0 ? budget / cv : 0;
+      // 損益分岐ROAS = 1 / 粗利率（粗利で広告費を回収できる売上倍率）
+      const breakEvenRoas = margin > 0 ? (1 / margin) * 100 : Infinity;
+
+      return { budget, clicks, cv, revenue, grossProfit, netProfit, roas, roi, cpa, breakEvenRoas, margin };
+    }
+
+    // ── 描画 ─────────────────────────────────────────
+    function render() {
+      const r = compute();
+      const hasInput = r.budget > 0 && (mode === 'cpc' ? val(inputs.cpc) > 0 : r.clicks > 0);
+
+      // ヒント更新
+      el('cvr-hint').textContent = pct(val(inputs.cvr)) + '%';
+      el('margin-hint').textContent = num(val(inputs.margin)) + '%';
+
+      // KPI
+      el('kpi-roas').textContent = hasInput ? num(r.roas) : '—';
+      el('kpi-roi').textContent = hasInput ? (r.roi >= 0 ? '+' : '') + num(r.roi) : '—';
+      el('kpi-cpa').textContent = (hasInput && r.cv > 0) ? num(r.cpa) : '—';
+      el('kpi-roas-sub').textContent = isFinite(r.breakEvenRoas)
+        ? `黒字ライン ${num(r.breakEvenRoas)}%` : '粗利率を設定してください';
+
+      // ファネル
+      el('f-clicks').textContent = hasInput ? num(r.clicks) + ' クリック' : '—';
+      el('f-cv').textContent = hasInput ? num(r.cv) + ' 件' : '—';
+      el('f-revenue').textContent = hasInput ? yen(r.revenue) : '—';
+      el('f-profit').textContent = hasInput ? yen(r.grossProfit) : '—';
+      el('f-net').textContent = hasInput ? (r.netProfit >= 0 ? '+' : '−') + yen(Math.abs(r.netProfit)).slice(1) : '—';
+      el('f-net').style.color = r.netProfit >= 0 ? 'var(--success-text)' : 'var(--error-text)';
+
+      // 損益分岐バー
+      el('be-target').textContent = isFinite(r.breakEvenRoas) ? num(r.breakEvenRoas) + '%' : '—';
+      const marker = el('bar-marker'), fill = el('bar-fill');
+      if (hasInput && isFinite(r.breakEvenRoas) && r.breakEvenRoas > 0) {
+        // 損益分岐を画面の60%位置に固定し、実ROASをその比率で配置（上限100%）
+        const markerPos = 60;
+        marker.style.left = markerPos + '%';
+        const ratio = r.roas / r.breakEvenRoas;       // 1.0 で損益分岐
+        let fillPct = Math.min(ratio * markerPos, 100);
+        fill.style.width = Math.max(fillPct, 0) + '%';
+        fill.className = 'bar-fill ' + (r.netProfit >= 0 ? 'profit' : 'loss');
+      } else {
+        fill.style.width = '0%';
+        marker.style.left = '60%';
+      }
+
+      // 判定
+      const verdict = el('verdict');
+      if (!hasInput) {
+        verdict.className = 'verdict';
+        el('verdict-icon').textContent = '⏳';
+        el('verdict-title').textContent = '入力してください';
+        el('verdict-sub').textContent = '数値を入れるとリアルタイムで計算します';
+      } else if (r.netProfit >= 0) {
+        verdict.className = 'verdict profit';
+        el('verdict-icon').textContent = '🟢';
+        el('verdict-title').textContent = '黒字の見込み';
+        el('verdict-sub').textContent = `広告費を回収し ${yen(r.netProfit)} の利益（ROI ${r.roi >= 0 ? '+' : ''}${num(r.roi)}%）`;
+      } else {
+        verdict.className = 'verdict loss';
+        el('verdict-icon').textContent = '🔴';
+        el('verdict-title').textContent = '赤字の見込み';
+        const needCvr = neededCvr(r);
+        el('verdict-sub').textContent = needCvr
+          ? `黒字化には CVR ${pct(needCvr)}% 以上（現在 ${pct(val(inputs.cvr))}%）が必要`
+          : `${yen(Math.abs(r.netProfit))} の損失。条件の見直しを`;
+      }
+    }
+
+    // 黒字化に必要な CVR を逆算
+    function neededCvr(r) {
+      const aov = val(inputs.aov), margin = r.margin;
+      if (aov <= 0 || margin <= 0 || r.clicks <= 0) return null;
+      // budget = clicks * cvr * aov * margin → cvr = budget / (clicks * aov * margin)
+      const cvr = r.budget / (r.clicks * aov * margin) * 100;
+      return cvr <= 100 ? cvr : null;
+    }
+
+    // ── モード切替 ───────────────────────────────────
+    el('traffic-mode').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-mode]');
+      if (!btn) return;
+      mode = btn.dataset.mode;
+      el('traffic-mode').querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+      el('field-cpc').style.display = mode === 'cpc' ? '' : 'none';
+      el('field-clicks').style.display = mode === 'clicks' ? '' : 'none';
+      render();
+    });
+
+    // ── 入力連動（スライダー ↔ 数値） ───────────────────
+    function syncRange(input, range) {
+      input.addEventListener('input', () => { range.value = input.value; render(); });
+      range.addEventListener('input', () => { input.value = range.value; render(); });
+    }
+    syncRange(inputs.cvr, rangeCvr);
+    syncRange(inputs.margin, rangeMargin);
+    [inputs.budget, inputs.cpc, inputs.clicks, inputs.aov].forEach(i => i.addEventListener('input', render));
+
+    // ── プリセット ───────────────────────────────────
+    function applyValues(v) {
+      mode = v.mode;
+      el('traffic-mode').querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+      el('field-cpc').style.display = mode === 'cpc' ? '' : 'none';
+      el('field-clicks').style.display = mode === 'clicks' ? '' : 'none';
+      inputs.budget.value = v.budget; inputs.cpc.value = v.cpc; inputs.clicks.value = v.clicks;
+      inputs.cvr.value = v.cvr; inputs.aov.value = v.aov; inputs.margin.value = v.margin;
+      rangeCvr.value = v.cvr; rangeMargin.value = v.margin;
+      render();
+    }
+    el('preset-row').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-preset]');
+      if (chip) applyValues(PRESETS[chip.dataset.preset]);
+    });
+    el('reset-btn').addEventListener('click', () => applyValues(DEFAULTS));
+
+    // ── コピー ───────────────────────────────────────
+    el('copy-btn').addEventListener('click', () => {
+      const r = compute();
+      const lines = [
+        '【ROI / ROAS シミュレーション結果】',
+        `広告費: ${yen(r.budget)}`,
+        `クリック数: ${num(r.clicks)} / CV数: ${num(r.cv)} 件`,
+        `想定売上: ${yen(r.revenue)} / 粗利: ${yen(r.grossProfit)}`,
+        `ROAS: ${num(r.roas)}%（損益分岐 ${isFinite(r.breakEvenRoas) ? num(r.breakEvenRoas) + '%' : '—'}）`,
+        `ROI: ${r.roi >= 0 ? '+' : ''}${num(r.roi)}%`,
+        `CPA: ${r.cv > 0 ? yen(r.cpa) : '—'}`,
+        `判定: ${r.netProfit >= 0 ? '黒字見込み（利益 ' + yen(r.netProfit) + '）' : '赤字見込み（損失 ' + yen(Math.abs(r.netProfit)) + '）'}`,
+      ];
+      navigator.clipboard.writeText(lines.join('\n')).then(() => {
+        const t = el('copy-toast'); t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 1600);
+      });
+    });
+
+    // 初期描画
+    render();
+  </script>
+
+  <script src="../../assets/onboarding.js?v=20260503"></script>
+  <script>
+  const OB_CONFIG = {
+    appName: 'roi-roas-simulator',
+    title: 'ROI / ROAS Simulator',
+    description: '「この予算で黒字になるか？」を施策前に見極めます',
+    features: [
+      { icon: '📈', text: '広告費・CVR・客単価から ROAS / ROI / CPA を即時計算' },
+      { icon: '🟢', text: '損益分岐点と黒字/赤字をひと目で判定' },
+      { icon: '🎯', text: '赤字なら黒字化に必要な CVR を自動で逆算' },
+      { icon: '⚡', text: 'スライダーを動かすだけのリアルタイム・シミュレーション' }
+    ],
+    updates: [
+      { date: '06/19', text: '新登場：広告予算と成約条件から費用対効果をシミュレーションできる計算ツール。ROAS・ROI・CPA・損益分岐点を一画面で確認できます' }
+    ]
+  };
+  initOnboarding(OB_CONFIG);
+
+  // 「使い方ガイドを開く」: オンボーディングの表示済みフラグを解除して再表示
+  document.getElementById('help-btn').addEventListener('click', () => {
+    try {
+      Object.keys(localStorage)
+        .filter(k => k.startsWith(OB_CONFIG.appName + '_onboarded_v'))
+        .forEach(k => localStorage.removeItem(k));
+    } catch {}
+    initOnboarding(OB_CONFIG);
+  });
+  </script>
+</body>
+</html>
