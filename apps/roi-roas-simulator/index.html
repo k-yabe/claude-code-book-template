@@ -208,6 +208,21 @@
     .section-title:first-child { margin-top: 0; }
     .section-opt { font-size: var(--text-xs); font-weight: 600; color: var(--text-faint); text-transform: none; letter-spacing: 0; border: 1px solid var(--border); padding: 1px 7px; }
     .field-help { font-size: 0.72rem; color: var(--text-faint); line-height: 1.5; margin-top: 6px; }
+    /* 必須 / 任意バッジ */
+    .req { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; padding: 1px 6px; vertical-align: middle; }
+    .req-must { background: var(--navy); color: #fff; }
+    .req-opt { background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); }
+    .field-label .lbl { display: inline-flex; align-items: center; gap: 6px; }
+    .preset-note { font-size: 0.72rem; color: var(--text-faint); line-height: 1.5; margin: calc(-1 * var(--sp-3)) 0 var(--sp-5); }
+
+    /* 資料に記載がなく仮の値を使っている入力欄の警告マーク */
+    .field.needs-input .input-wrap input { border-color: var(--gold); box-shadow: inset 3px 0 0 0 var(--gold); }
+    .field.needs-input::after {
+      content: '⚠ 資料に記載なし — BtoB の一般的な目安（仮の値）です。自社の実績値に置き換えてください';
+      display: block; margin-top: 6px; padding: 5px 9px;
+      font-size: 0.72rem; font-weight: 600; line-height: 1.45;
+      color: var(--navy); background: var(--gold-20);
+    }
 
     .copy-toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
@@ -344,19 +359,20 @@
     </div>
 
     <div class="preset-row" id="preset-row">
-      <button class="preset-chip" data-preset="lead">リード獲得（BtoB）</button>
-      <button class="preset-chip" data-preset="ec">EC・物販</button>
-      <button class="preset-chip" data-preset="seminar">セミナー集客</button>
+      <button class="preset-chip" data-preset="academy">アカデミー（研修・育成）</button>
+      <button class="preset-chip" data-preset="solution">ソリューション</button>
+      <button class="preset-chip" data-preset="consulting">コンサルティング</button>
     </div>
+    <p class="preset-note">AKKODiS の BtoB 3事業ライン向けの「一般的な目安」を初期値として用意しています。実際の数値が分かる項目は置き換えてください。展示会・カンファレンスなどクリックが無い施策は、流入を「獲得数を直接入力」に切り替えてリード/名刺数を入れてください。</p>
 
     <div class="sim-layout">
       <!-- 入力 -->
       <div class="step">
         <div class="step-body" style="padding: var(--sp-6);">
-          <div class="section-title">① 広告・流入</div>
+          <div class="section-title">① 予算・流入</div>
 
           <div class="field">
-            <div class="field-label"><span>広告費（月額）</span></div>
+            <div class="field-label"><span class="lbl">予算（広告費・出展費など／月額）<span class="req req-must">必須</span></span></div>
             <div class="input-wrap has-prefix">
               <span class="prefix">¥</span>
               <input type="number" id="in-budget" min="0" step="10000" value="500000" inputmode="numeric">
@@ -365,73 +381,75 @@
 
           <div class="field">
             <div class="field-label">
-              <span>流入の入力方法</span>
+              <span class="lbl">流入の入力方法<span class="req req-must">必須</span></span>
             </div>
             <div class="mode-toggle" id="traffic-mode">
-              <button type="button" data-mode="cpc" class="active">CPCから算出</button>
-              <button type="button" data-mode="clicks">クリック数を直接入力</button>
+              <button type="button" data-mode="cpc" class="active">CPC×予算で算出</button>
+              <button type="button" data-mode="clicks">獲得数を直接入力</button>
             </div>
           </div>
 
           <div class="field" id="field-cpc">
-            <div class="field-label"><span>CPC（クリック単価）</span><span class="hint">1クリックあたり</span></div>
+            <div class="field-label"><span class="lbl">CPC（クリック単価）<span class="req req-must">必須</span></span><span class="hint">1クリックあたり</span></div>
             <div class="input-wrap has-prefix">
               <span class="prefix">¥</span>
-              <input type="number" id="in-cpc" min="1" step="10" value="250" inputmode="numeric">
+              <input type="number" id="in-cpc" min="1" step="10" value="600" inputmode="numeric">
             </div>
           </div>
 
           <div class="field" id="field-clicks" style="display:none;">
-            <div class="field-label"><span>クリック数</span></div>
+            <div class="field-label"><span class="lbl">獲得数（クリック / リード / 名刺 / 申込）<span class="req req-must">必須</span></span></div>
             <div class="input-wrap">
-              <input type="number" id="in-clicks" min="0" step="100" value="2000" inputmode="numeric">
+              <input type="number" id="in-clicks" min="0" step="50" value="800" inputmode="numeric">
             </div>
+            <p class="field-help">展示会・カンファレンス・セミナーなどクリックが無い施策は、ここに獲得したリード数／名刺枚数／申込数を入力してください（CPC は不要）。</p>
           </div>
 
           <div class="section-title">② コンバージョン</div>
 
           <div class="field">
-            <div class="field-label"><span>CVR（コンバージョン率）</span><span class="hint" id="cvr-hint">3.0%</span></div>
+            <div class="field-label"><span class="lbl">CVR（成約率）<span class="req req-must">必須</span></span><span class="hint" id="cvr-hint">0.5%</span></div>
             <div class="input-wrap has-suffix">
-              <input type="number" id="in-cvr" min="0" max="100" step="0.1" value="3" inputmode="decimal">
+              <input type="number" id="in-cvr" min="0" max="100" step="0.1" value="0.5" inputmode="decimal">
               <span class="suffix">%</span>
             </div>
-            <input type="range" id="range-cvr" min="0" max="20" step="0.1" value="3">
+            <input type="range" id="range-cvr" min="0" max="20" step="0.1" value="0.5">
+            <p class="field-help">流入（クリック/リード）から受注に至る割合。広告クリック→受注は低め（目安 0.2〜2%）、展示会など名刺/リード→受注なら高め（目安 5〜20%）です。</p>
           </div>
 
           <div class="field">
-            <div class="field-label"><span>客単価（初回の平均成約額）</span><span class="hint">1回あたりの売上</span></div>
+            <div class="field-label"><span class="lbl">客単価（初回の平均成約額）<span class="req req-must">必須</span></span><span class="hint">1回あたりの売上</span></div>
             <div class="input-wrap has-prefix">
               <span class="prefix">¥</span>
-              <input type="number" id="in-aov" min="0" step="1000" value="50000" inputmode="numeric">
+              <input type="number" id="in-aov" min="0" step="1000" value="500000" inputmode="numeric">
             </div>
           </div>
 
           <div class="field">
-            <div class="field-label"><span>平均購入回数（LTV）</span><span class="hint" id="repeat-hint">1.0回</span></div>
+            <div class="field-label"><span class="lbl">平均購入回数（LTV）<span class="req req-opt">任意</span></span><span class="hint" id="repeat-hint">1.0回</span></div>
             <div class="input-wrap has-suffix">
               <input type="number" id="in-repeat" min="1" step="0.1" value="1" inputmode="decimal">
               <span class="suffix">回</span>
             </div>
             <input type="range" id="range-repeat" min="1" max="10" step="0.1" value="1">
-            <p class="field-help">1顧客が生涯に購入する平均回数。リピート/サブスクは2以上に。1なら単発（LTV考慮なし）。</p>
+            <p class="field-help">1顧客が生涯に契約・購入する平均回数。継続研修・保守契約・リピートは2以上に。1なら単発（LTV考慮なし）。</p>
           </div>
 
           <div class="section-title">③ 利益設定</div>
 
           <div class="field">
-            <div class="field-label"><span>粗利率</span><span class="hint" id="margin-hint">40%</span></div>
+            <div class="field-label"><span class="lbl">粗利率<span class="req req-must">必須</span></span><span class="hint" id="margin-hint">50%</span></div>
             <div class="input-wrap has-suffix">
-              <input type="number" id="in-margin" min="0" max="100" step="1" value="40" inputmode="numeric">
+              <input type="number" id="in-margin" min="0" max="100" step="1" value="50" inputmode="numeric">
               <span class="suffix">%</span>
             </div>
-            <input type="range" id="range-margin" min="0" max="100" step="1" value="40">
+            <input type="range" id="range-margin" min="0" max="100" step="1" value="50">
           </div>
 
           <div class="section-title">④ その他コスト<span class="section-opt">任意</span></div>
 
           <div class="field">
-            <div class="field-label"><span>その他固定費（月額）</span><span class="hint">人件費・制作費・ツール費など</span></div>
+            <div class="field-label"><span class="lbl">その他固定費（月額）<span class="req req-opt">任意</span></span><span class="hint">人件費・制作費・ツール費など</span></div>
             <div class="input-wrap has-prefix">
               <span class="prefix">¥</span>
               <input type="number" id="in-othercost" min="0" step="10000" value="0" inputmode="numeric">
@@ -546,13 +564,19 @@
   </footer>
 
   <script>
-    // ── デフォルト値とプリセット ─────────────────────────
-    const DEFAULTS = { budget: 500000, mode: 'cpc', cpc: 250, clicks: 2000, cvr: 3, aov: 50000, repeat: 1, margin: 40, othercost: 0 };
+    // ── デフォルト値とプリセット（BtoB の一般的な目安） ──────
+    // ※ AKKODiS の BtoB 3事業ライン向け。実数値は各社で要調整の「目安」。
+    const DEFAULTS = { budget: 500000, mode: 'cpc', cpc: 600, clicks: 800, cvr: 0.5, aov: 500000, repeat: 1, margin: 50, othercost: 0 };
     const PRESETS = {
-      lead:    { budget: 500000, mode: 'cpc', cpc: 350, clicks: 1400, cvr: 2, aov: 300000, repeat: 1, margin: 60, othercost: 200000 },
-      ec:      { budget: 800000, mode: 'cpc', cpc: 80,  clicks: 10000, cvr: 2.5, aov: 8000, repeat: 2.5, margin: 35, othercost: 150000 },
-      seminar: { budget: 300000, mode: 'cpc', cpc: 200, clicks: 1500, cvr: 5, aov: 0, repeat: 1, margin: 100, othercost: 0 },
+      // アカデミー（研修・人材育成）: 受注単価中・継続あり・粗利高
+      academy:    { budget: 400000, mode: 'cpc', cpc: 800,  clicks: 500, cvr: 0.3, aov: 350000,  repeat: 2, margin: 60, othercost: 120000 },
+      // ソリューション（SES・システム開発等）: 受注単価高・粗利中・運用人件費大
+      solution:   { budget: 800000, mode: 'cpc', cpc: 1200, clicks: 667, cvr: 0.3, aov: 1200000, repeat: 1, margin: 45, othercost: 300000 },
+      // コンサルティング: 受注単価特大・高単価少数・粗利高
+      consulting: { budget: 600000, mode: 'cpc', cpc: 1500, clicks: 400, cvr: 0.2, aov: 3000000, repeat: 1, margin: 65, othercost: 350000 },
     };
+    // 資料に記載が無い「自社側数値」を補う BtoB の一般的な目安（仮値・要置換）
+    const BTOB_BENCHMARK = { cvr: 0.5, aov: 500000, margin: 50 };
 
     let mode = 'cpc';
 
@@ -729,9 +753,9 @@
     }
     el('preset-row').addEventListener('click', (e) => {
       const chip = e.target.closest('[data-preset]');
-      if (chip) applyValues(PRESETS[chip.dataset.preset]);
+      if (chip) { applyValues(PRESETS[chip.dataset.preset]); clearMissingMarks(); clearImportError(); }
     });
-    el('reset-btn').addEventListener('click', () => applyValues(DEFAULTS));
+    el('reset-btn').addEventListener('click', () => { applyValues(DEFAULTS); clearMissingMarks(); clearImportError(); });
 
     // ── プラン比較 ───────────────────────────────────
     let scenarios = [];        // { label, ...params }
@@ -829,6 +853,13 @@
     [inputs.budget, inputs.cpc, inputs.clicks, inputs.cvr, inputs.aov, inputs.repeat, inputs.margin, inputs.othercost,
      rangeCvr, rangeMargin, rangeRepeat].forEach(i => i.addEventListener('input', markManualEdit));
     el('traffic-mode').addEventListener('click', markManualEdit);
+    // 手入力したら、その欄の「仮の値」警告マークを解除
+    [inputs.budget, inputs.cpc, inputs.clicks, inputs.cvr, inputs.aov, inputs.margin].forEach(i =>
+      i.addEventListener('input', () => i.closest('.field')?.classList.remove('needs-input')));
+    [rangeCvr, rangeMargin].forEach((r, idx) => {
+      const inp = idx === 0 ? inputs.cvr : inputs.margin;
+      r.addEventListener('input', () => inp.closest('.field')?.classList.remove('needs-input'));
+    });
 
     // ── コピー ───────────────────────────────────────
     el('copy-btn').addEventListener('click', () => {
@@ -962,11 +993,27 @@
       }
     }
 
+    // ラベル → 入力欄（不足マーキング用）
+    const FIELD_BY_LABEL = {
+      '予算': inputs.budget, 'CPC': inputs.cpc, '獲得数': inputs.clicks,
+      'CVR': inputs.cvr, '客単価': inputs.aov, '粗利率': inputs.margin,
+    };
+    function clearMissingMarks() {
+      document.querySelectorAll('.field.needs-input').forEach(f => f.classList.remove('needs-input'));
+    }
+    function markMissingFields(labels) {
+      clearMissingMarks();
+      (labels || []).forEach(lbl => {
+        const field = FIELD_BY_LABEL[lbl]?.closest('.field');
+        if (field) field.classList.add('needs-input');
+      });
+    }
+
     // 抽出値をフォームへ反映
     function applyExtracted(d) {
       const filled = [];
       const missing = [];
-      const setField = (input, range, value, label) => {
+      const setField = (input, range, value, label, fallback) => {
         const n = toNum(value);
         if (n !== null && n >= 0) {
           input.value = n;
@@ -976,6 +1023,11 @@
           input.closest('.field')?.classList.add('fill-flash');
           filled.push(label);
         } else {
+          // 資料に無い項目は BtoB の一般的な目安（仮値）を入れておく（後で markMissingFields で警告表示）
+          if (fallback !== undefined && fallback !== null) {
+            input.value = fallback;
+            if (range) range.value = fallback;
+          }
           missing.push(label);
         }
       };
@@ -988,12 +1040,12 @@
       el('field-cpc').style.display = mode === 'cpc' ? '' : 'none';
       el('field-clicks').style.display = mode === 'clicks' ? '' : 'none';
 
-      setField(inputs.budget, null, d.budget, '広告費');
-      if (mode === 'cpc') setField(inputs.cpc, null, d.cpc, 'CPC');
-      else setField(inputs.clicks, null, d.clicks, 'クリック数');
-      setField(inputs.cvr, rangeCvr, d.cvr, 'CVR');
-      setField(inputs.aov, null, d.aov, '客単価');
-      setField(inputs.margin, rangeMargin, d.margin, '粗利率');
+      setField(inputs.budget, null, d.budget, '予算', DEFAULTS.budget);
+      if (mode === 'cpc') setField(inputs.cpc, null, d.cpc, 'CPC', DEFAULTS.cpc);
+      else setField(inputs.clicks, null, d.clicks, '獲得数', DEFAULTS.clicks);
+      setField(inputs.cvr, rangeCvr, d.cvr, 'CVR', BTOB_BENCHMARK.cvr);
+      setField(inputs.aov, null, d.aov, '客単価', BTOB_BENCHMARK.aov);
+      setField(inputs.margin, rangeMargin, d.margin, '粗利率', BTOB_BENCHMARK.margin);
       // 任意項目（読み取れなければ現在値を維持・missing には含めない）
       if (toNum(d.purchaseCount) !== null && toNum(d.purchaseCount) >= 1) {
         inputs.repeat.value = toNum(d.purchaseCount); rangeRepeat.value = toNum(d.purchaseCount);
@@ -1055,7 +1107,7 @@
 
       const missBlock = el('ai-missing-block');
       if (missing && missing.length) {
-        el('ai-missing').textContent = missing.join(' / ') + '（資料に記載が見つからず、現在の値を使用しています）';
+        el('ai-missing').textContent = `${missing.join(' / ')} — これらは資料に記載がなく、仮の値で試算しています。上の⚠マークの欄を自社の実績値に置き換えると判定が確定します。`;
         missBlock.style.display = '';
       } else { missBlock.style.display = 'none'; }
 
@@ -1087,10 +1139,10 @@
 出力は必ず次のキーを持つ JSON オブジェクトのみ（前後に説明文やコードフェンスを付けない）:
 {
   "found": boolean,            // 試算に使える数値が1つでも読み取れたら true
-  "budget": number|null,       // 広告費（月額・円）。期間が月額でなければ月額に換算し assumptions に明記
-  "trafficMode": "cpc"|"clicks"|null,
-  "cpc": number|null,          // クリック単価（円）
-  "clicks": number|null,       // クリック数（trafficMode=clicks のとき）
+  "budget": number|null,       // 予算（広告費／展示会・カンファレンスの出展費など・月額・円）。期間が月額でなければ月額に換算し assumptions に明記
+  "trafficMode": "cpc"|"clicks"|null,  // オンライン広告は cpc、展示会/カンファレンス/セミナー等クリックの無い施策は clicks（=獲得数の直接入力）
+  "cpc": number|null,          // クリック単価（円）。オンライン広告のみ
+  "clicks": number|null,       // 獲得数（クリック数／展示会等のリード数・名刺枚数・申込数）。trafficMode=clicks のとき
   "cvr": number|null,          // コンバージョン率（パーセントの数値。例: 3.5 は 3.5%）
   "aov": number|null,          // 客単価・平均成約額（円。初回1回あたり）
   "purchaseCount": number|null,// 1顧客あたりの平均購入回数(LTV)。リピート/サブスクの記載があれば。なければ null
@@ -1110,7 +1162,8 @@
     }
   ]
 }
-ルール: 金額は円の整数、カンマや単位記号は付けない。読み取れない値は null。推測で埋めず、根拠が弱い場合は assumptions にその旨を書く。CPC とクリック数の両方があれば trafficMode は資料の主旨に合う方を選ぶ。トップレベルの budget〜otherCost には最も標準的／推奨されるプランの値を入れる。複数プランがある場合は各プランを scenarios に最大5件入れ、各プランで異なる項目のみ値を入れ、共通項目は null（ベース値を継承）でよい。単一プランなら scenarios は []。`;
+ルール: 金額は円の整数、カンマや単位記号は付けない。読み取れない値は null。CPC とクリック数の両方があれば trafficMode は資料の主旨に合う方を選ぶ。トップレベルの budget〜otherCost には最も標準的／推奨されるプランの値を入れる。複数プランがある場合は各プランを scenarios に最大5件入れ、各プランで異なる項目のみ値を入れ、共通項目は null（ベース値を継承）でよい。単一プランなら scenarios は []。
+【最重要・データ不足の扱い】営業資料（特に媒体資料・広告メニュー表）には、広告費・CPC・クリック数・インプレッション等は載っていても、CVR・客単価(aov)・粗利率(margin)・購入回数(purchaseCount)・人件費等(otherCost)といった「広告主（自社）側の数値」は載っていないのが普通である。**資料に明記されていない数値は絶対に推測・業界平均で補完せず、必ず null にする**こと（勝手に数値を入れると誤った投資判断につながる）。そのうえで assumptions に「どの値が資料に無かったか」を明記する。重要な前提（cvr・aov・margin のいずれか）が資料から読み取れない場合は、verdict を必ず "REVIEW" にし、verdictReason の冒頭に「○○が資料に記載されていないため暫定判断です」と書き、risks の先頭に不足している前提を列挙し、suggestions にそれらを自社実績から入力するよう促す一文を入れること。`;
 
         const userMsg = `次の営業資料から前提値を抽出し、JSON で返してください。複数の料金プラン/パターンがあれば scenarios に列挙してください。\n\n【資料テキスト（抜粋）】\n${text.slice(0, 7000)}`;
 
@@ -1142,8 +1195,11 @@
         uploadArea.classList.add('has-file');
 
         const { filled, missing } = applyExtracted(parsed);
+        markMissingFields(missing);
         if (filled.length === 0) {
-          showImportError('資料から試算に使える数値を読み取れませんでした。手入力で調整してください。');
+          showImportError('資料から試算に使える数値を読み取れませんでした。下の各項目を手入力してください。');
+        } else if (missing.length > 0) {
+          showImportError(`${filled.length}項目を読み取りました。${missing.length}項目（${missing.join('・')}）は資料に記載がないため仮の値です。⚠マークの欄を実績値に置き換えてください。`);
         }
 
         // 複数プランがあれば比較表に展開（適用後のフォーム値をベースに継承）
@@ -1209,9 +1265,9 @@
       { icon: '🟢', text: '損益分岐点と黒字/赤字・必要 CVR をひと目で判定' }
     ],
     updates: [
-      { date: '06/19', text: 'モデルを大幅強化：①人件費などの「その他固定費」を加味した ROI／損益分岐に対応、②LTV（平均購入回数）でリピート売上を反映、③資料に複数プラン（松竹梅・月額プラン等）があれば自動で並べて横比較（列クリックで反映）。手入力でも「この条件を比較に追加」で複数案を並べられます' },
-      { date: '06/19', text: '営業資料インポートに対応：提案書や媒体資料をアップロードすると AI が前提値を読み取って自動入力し、ROAS/ROI を試算したうえで投資判断の所見（GO/要検討/見送り・リスク・改善提案）まで提示します' },
-      { date: '06/19', text: '新登場：広告予算と成約条件から費用対効果をシミュレーションできる計算ツール。ROAS・ROI・CPA・損益分岐点を一画面で確認できます' }
+      { date: '06/19', text: '誰でも迷わず使えるUXに：①プリセットを AKKODiS の BtoB 3事業ライン（アカデミー／ソリューション／コンサル）に刷新し一般的な目安値をワンクリック投入、②各項目に「必須／任意」バッジ、③展示会・カンファレンスなどクリックが無い施策は「獲得数を直接入力」でリード/名刺数を入れればOK（CPC不要）' },
+      { date: '06/19', text: 'データ不足時の安全装置：営業資料に CVR・客単価・粗利率などが書かれていない場合、AI は推測で埋めず、その欄を「⚠仮の値（目安）」とハッキリ明示します（判定も「要検討（暫定）」に）。実績値を入れれば判定が確定します' },
+      { date: '06/19', text: 'モデルを大幅強化：①人件費などの「その他固定費」を加味した ROI／損益分岐、②LTV（平均購入回数）でリピート売上を反映、③資料に複数プランがあれば自動で並べて横比較（列クリックで反映）' }
     ]
   };
   initOnboarding(OB_CONFIG);
