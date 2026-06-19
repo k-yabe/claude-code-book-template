@@ -239,9 +239,9 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 **スコア計算:**
 `10 × 消去数 × max(1, 連鎖ボーナス + 色ボーナス + グループボーナス)`
 
-### ROI / ROAS Simulator（`apps/roi-roas-simulator/`）（S082）
+### ROI / ROAS Simulator（`apps/roi-roas-simulator/`）（S082, S083）
 
-広告施策の費用対効果を施策前にシミュレーションするピュアな client-side 計算機。**API は使わず**、入力イベントで `compute()` → `render()` を即時実行する 1 ファイル完結アプリ。共通 `assets/app-styles.css` と `assets/onboarding.js` に準拠。
+広告施策の費用対効果を施策前にシミュレーションする計算アプリ。手入力での試算はピュアな client-side（入力イベントで `compute()` → `render()` を即時実行）。S083 で「営業資料インポートによる AI 自動入力＆所見」を追加（このときのみ既存 `/api/generate` を経由して Anthropic を呼ぶ）。共通 `assets/app-styles.css` と `assets/onboarding.js` に準拠。
 
 **入力:** 広告費 / 流入（CPC から算出 ⇄ クリック数を直接入力のトグル）/ CVR / 客単価 / 粗利率（CVR・粗利率はスライダー連動）
 
@@ -262,6 +262,14 @@ Canvas 2D ベースのぷよぷよゲーム。1ファイル完結。
 **判定:** 広告費差引後利益 ≥ 0 で🟢黒字、< 0 で🔴赤字。赤字時は `黒字化に必要な CVR = 広告費 ÷ (クリック数 × 客単価 × 粗利率)` を逆算して提示。損益分岐 ROAS をバーの 60% 位置に固定し、実 ROAS をその比率で描画。
 
 **プリセット:** リード獲得（BtoB）/ EC・物販 / セミナー集客 の 3 業種別初期値。結果はテキストでクリップボードコピー可能。
+
+**営業資料インポート（AI 自動入力＆所見・S083）:**
+
+- 対応形式: PDF / PPTX / DOCX / TXT / MD。テキスト抽出は **client-side**（PDF.js は先頭8ページ、JSZip で PPTX 先頭20スライド・DOCX 本文、TXT/MD はそのまま）。画像化された PDF（テキストレイヤーなし）は非対応。
+- 抽出テキスト（先頭 7000 字）を `/api/generate`（汎用 Anthropic プロキシ・`claude-haiku-4-5` / max_tokens 1024）に送り、**厳密 JSON** で前提値＋所見を取得。資料の内容はサーバーに保存しない（都度送信のみ）。
+- 返却 JSON: `budget` `trafficMode` `cpc` `clicks` `cvr`(%) `aov` `margin`(%) と `assumptions` / `verdict`(GO|REVIEW|NOGO) / `verdictReason` / `risks[]` / `suggestions[]`。`toNum()` で `¥500,000` や `3.5%` 等の表記ゆれを数値化、`null` 項目はフォーム未変更で「読み取れなかった項目」として明示。
+- 読み取った値で各入力欄を自動入力（流入モードも自動切替・`fill-flash` でハイライト）→ 既存の `compute()`/`render()` で **ROAS/ROI/損益分岐は決定論的に再計算**。AI 所見（前提要約・投資判断バッジ・根拠・リスク・改善提案）は別パネルに定性的補足として表示。ハード指標と AI の定性判断を分離している点がポイント。
+- フォールバック: テキスト20字未満／JSON 解析失敗／API エラー／非対応形式／15MB 超 はそれぞれ専用エラー表示。手入力試算は AI 機能と独立して常に動作する。
 
 ---
 
