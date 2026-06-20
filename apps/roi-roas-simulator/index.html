@@ -1393,7 +1393,9 @@
       setField(inputs.budget, null, d.budget, '予算', DEFAULTS.budget);
       if (mode === 'cpc') setField(inputs.cpc, null, d.cpc, 'CPC', DEFAULTS.cpc);
       else setField(inputs.clicks, null, d.clicks, '獲得数', DEFAULTS.clicks);
-      setField(inputs.cvr, rangeCvr, d.cvr, 'CVR', BTOB_BENCHMARK.cvr);
+      // CVR の仮値は流入モードで変える：CPC=クリック→受注(0.5%)、獲得数=リード/名刺→受注(5%)
+      const cvrFallback = (mode === 'clicks') ? 5 : BTOB_BENCHMARK.cvr;
+      setField(inputs.cvr, rangeCvr, d.cvr, 'CVR', cvrFallback);
       setField(inputs.aov, null, d.aov, '客単価', BTOB_BENCHMARK.aov);
       setField(inputs.margin, rangeMargin, d.margin, '粗利率', BTOB_BENCHMARK.margin);
       // 任意項目（読み取れなければ現在値を維持・missing には含めない）

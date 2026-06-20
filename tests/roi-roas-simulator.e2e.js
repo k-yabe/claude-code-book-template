@@ -128,6 +128,7 @@ check('インポート: 予算=推奨1000000 を維持', $('in-budget').value ==
 check('インポート: 客単価=推奨2000000 を維持', $('in-aov').value === '2000000', $('in-aov').value);
 check('インポート: その他固定費=250000', $('in-othercost').value === '250000', $('in-othercost').value);
 check('インポート: CVR未取得で⚠目安マーク', $('in-cvr').closest('.field').classList.contains('needs-input'));
+check('インポート(CPC): CVR仮値はクリック基準0.5%', $('in-cvr').value === '0.5', $('in-cvr').value);
 check('インポート: 粗利率未取得で⚠目安マーク', $('in-margin').closest('.field').classList.contains('needs-input'));
 check('インポート: AI所見パネル表示', $('ai-panel').classList.contains('show'));
 check('インポート: 判定=要検討(REVIEW)', txt('ai-verdict').includes('要検討'), txt('ai-verdict'));
@@ -159,6 +160,7 @@ check('展示会: 予算=出展費800000', $('in-budget').value === '800000', $(
 check('展示会: 獲得数=150', $('in-clicks').value === '150', $('in-clicks').value);
 check('展示会: 客単価が⚠目安', $('in-aov').closest('.field').classList.contains('needs-input'));
 check('展示会: 成約率が⚠目安', $('in-cvr').closest('.field').classList.contains('needs-input'));
+check('展示会: CVR仮値はリード基準5%（クリック0.5%ではない）', $('in-cvr').value === '5', $('in-cvr').value);
 check('展示会: 来場者を見込客と取り違えない注意', txt('ai-risks').includes('来場者'), txt('ai-risks'));
 
 console.log('# 9. コピー内容（採用モードの単位追従）');
