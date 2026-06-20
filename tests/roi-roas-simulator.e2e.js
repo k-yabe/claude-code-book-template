@@ -1,137 +1,156 @@
 // 実運用検証 / リグレッションテスト（ROI / ROAS Simulator）
 // jsdom で実際に DOM + inline scripts を動かし、イベントを発火して挙動を確認する。
 // 実行: `npm run test:roi`（要 `npm install` で jsdom）。ブラウザ不要。
-const fs = require('fs');
-const path = require('path');
+// （包括版: 数値正確性・全プリセット・エッジ・往復・比較・AIインポート(モック)・コピー・UI/UX を網羅）
+const fs = require('fs'), path = require('path');
 const { JSDOM, VirtualConsole } = require('jsdom');
-
-const APP = path.resolve(__dirname, "..", "apps", "roi-roas-simulator", "index.html");
-let html = fs.readFileSync(APP, 'utf8');
-
-// 外部 script（onboarding.js）はネット制限で読めないので stub に置換
+let html = fs.readFileSync(path.resolve(__dirname, '..', 'apps', 'roi-roas-simulator', 'index.html'), 'utf8');
 html = html.replace(/<script src="[^"]*onboarding\.js[^"]*"><\/script>/g,
   '<script>window.initOnboarding=function(){};window.sendAppView=function(){};</script>');
+html = html.replace('</head>', `<script>
+  window.matchMedia=window.matchMedia||function(){return{matches:false,addListener:function(){},removeListener:function(){}};};
+  Element.prototype.scrollIntoView=function(){};
+  if(!navigator.clipboard){navigator.clipboard={writeText:function(){return Promise.resolve();}};}
+</script></head>`);
+const vc = new VirtualConsole(); const errs = []; vc.on('jsdomError', e => errs.push(e.message || String(e)));
+const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, virtualConsole: vc, url: 'http://localhost/' });
+const { window } = dom, doc = window.document;
+Object.defineProperty(window.navigator, 'clipboard', { value: { writeText: t => { window.__copied = t; return Promise.resolve(); } }, configurable: true });
+const $ = id => doc.getElementById(id), txt = id => { const e = $(id); return e ? e.textContent.trim() : '(none)'; };
+const fire = (el, t) => el.dispatchEvent(new window.Event(t, { bubbles: true }));
+const click = el => el.dispatchEvent(new window.Event('click', { bubbles: true }));
+const setv = (id, v) => { $(id).value = String(v); fire($(id), 'input'); };
+let pass = 0, fail = 0; const check = (n, c, x) => { if (c) { pass++; } else { fail++; console.log('  ✗ FAIL:', n, x || ''); } };
 
-// polyfill（jsdom 未実装のもの）を <head> 先頭に注入
-const poly = `<script>
-  window.matchMedia = window.matchMedia || function(){return{matches:false,addListener:function(){},removeListener:function(){}};};
-  Element.prototype.scrollIntoView = Element.prototype.scrollIntoView || function(){};
-  if(!navigator.clipboard){ navigator.clipboard = { writeText: function(){ return Promise.resolve(); } }; }
-</script>`;
-html = html.replace('</head>', poly + '</head>');
+(async () => {
+console.log('# 1. 数値の正確性（デフォルト: 予算50万/CPC600/CVR0.5%/客単価50万/粗利50%）');
+// clicks=833.33 cv=4.1667 rev=2,083,333 roas=416.7→417 roi=108.3→108 cpa=120,000 ltv=250,000 ltvCac=2.08→2.1 beCV=2
+check('ROAS=417', txt('kpi-roas') === '417', txt('kpi-roas'));
+check('ROI=+108', txt('kpi-roi') === '+108', txt('kpi-roi'));
+check('CPA=120,000', txt('kpi-cpa') === '120,000', txt('kpi-cpa'));
+check('LTV/CAC=2.1倍', txt('m-ltvcac') === '2.1倍', txt('m-ltvcac'));
+check('LTV/CAC 要改善バッジ', txt('m-ltvcac-pill') === '要改善', txt('m-ltvcac-pill'));
+check('損益分岐CV=2件', txt('m-becv').startsWith('2 件'), txt('m-becv'));
+check('限界CPA(=LTV)=250,000', txt('m-maxcpa') === '¥250,000', txt('m-maxcpa'));
+check('実CPA 許容内（120k<250k）', txt('m-cpa-pill') === '許容内', txt('m-cpa-pill'));
 
-const vc = new VirtualConsole();
-let scriptErrors = [];
-vc.on('jsdomError', e => scriptErrors.push(e.message || String(e)));
+console.log('# 1b. UI/UX・アクセシビリティ・折りたたみ');
+check('はじめ方ガイド2パス', doc.querySelectorAll('.guide .guide-path').length === 2);
+check('結果カード見出し', !!doc.querySelector('.result-card-head'));
+check('verdict aria-live=polite', $('verdict').getAttribute('aria-live') === 'polite');
+check('用途トグル role=group', $('usecase-toggle').getAttribute('role') === 'group');
+check('用途 aria-pressed 初期', $('usecase-toggle').querySelector('[data-uc="acquire"]').getAttribute('aria-pressed') === 'true');
+check('流入トグル aria-label', !!$('traffic-mode').getAttribute('aria-label'));
+check('プリセット群 aria-label', !!$('preset-row').getAttribute('aria-label'));
+check('④その他コストは details', $('adv-cost').tagName.toLowerCase() === 'details');
+check('初期はその他コスト畳む', $('adv-cost').open === false);
 
-const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, virtualConsole: vc });
-const { window } = dom;
-const doc = window.document;
-const $ = (id) => doc.getElementById(id);
-const txt = (id) => { const e = $(id); return e ? e.textContent.trim() : '(no el)'; };
-const fire = (el, type) => el.dispatchEvent(new window.Event(type, { bubbles: true }));
-const click = (el) => el.dispatchEvent(new window.Event('click', { bubbles: true }));
-
-let pass = 0, fail = 0;
-const check = (name, cond, extra) => { if (cond) { pass++; console.log('  ✓', name); } else { fail++; console.log('  ✗ FAIL:', name, extra || ''); } };
-
-console.log('=== 1. 初期描画（顧客獲得モード・デフォルト値） ===');
-check('script エラーなし', scriptErrors.length === 0, scriptErrors.join(' | '));
-check('ROAS が数値で描画', /^[0-9,]+$/.test(txt('kpi-roas')), 'got=' + txt('kpi-roas'));
-check('ROI が描画', txt('kpi-roi') !== '—', 'got=' + txt('kpi-roi'));
-check('CPA が描画', txt('kpi-cpa') !== '—', 'got=' + txt('kpi-cpa'));
-check('判定が黒字/赤字を出す', /黒字|赤字/.test(txt('verdict-title')), 'got=' + txt('verdict-title'));
-check('プリセットチップが4つ（顧客獲得）', $('preset-row').querySelectorAll('[data-preset]').length === 4);
-check('予算ラベル初期', txt('t-budget').includes('予算'), txt('t-budget'));
-
-console.log('=== 1b. UI/UX・アクセシビリティ ===');
-check('はじめ方ガイド表示（2パス）', doc.querySelectorAll('.guide .guide-path').length === 2);
-check('結果カードの見出し', !!doc.querySelector('.result-card-head'));
-check('verdict が aria-live', $('verdict').getAttribute('aria-live') === 'polite');
-check('用途トグルに role=group', $('usecase-toggle').getAttribute('role') === 'group');
-check('用途ボタン aria-pressed 初期(acquire=true)', $('usecase-toggle').querySelector('[data-uc="acquire"]').getAttribute('aria-pressed') === 'true');
-check('流入トグルに aria-label', !!$('traffic-mode').getAttribute('aria-label'));
-check('プリセット群に aria-label', !!$('preset-row').getAttribute('aria-label'));
-check('④その他コストは折りたたみ要素', $('adv-cost').tagName.toLowerCase() === 'details');
-check('初期はその他コスト畳んでいる（othercost=0）', $('adv-cost').open === false);
-
-console.log('=== 2. 入力変更でリアルタイム再計算 ===');
-const roas0 = txt('kpi-roas');
-$('in-cvr').value = '2'; fire($('in-cvr'), 'input');
-check('CVR変更でROAS変化', txt('kpi-roas') !== roas0, `before=${roas0} after=${txt('kpi-roas')}`);
-
-console.log('=== 3. プリセット（エンジニア派遣）適用 ===');
-const talentBtn = $('preset-row').querySelector('[data-preset="talent"]');
-check('talent チップ存在', !!talentBtn);
-if (talentBtn) {
-  click(talentBtn);
-  check('talent 適用で予算=700000', $('in-budget').value === '700000', 'got=' + $('in-budget').value);
-  check('その他コストありプリセットで詳細が自動オープン', $('adv-cost').open === true);
-  check('折りたたみ見出しに金額表示', txt('adv-cost-amount').includes('計上'), 'got=' + txt('adv-cost-amount'));
+console.log('# 2. 全プリセットの ROAS/ROI（顧客獲得4ライン）');
+const expect = { consulting: ['400', '+64'], solution: ['300', '-2'], talent: ['667', '+96'], academy: ['263', '+21'] };
+for (const k in expect) {
+  click($('preset-row').querySelector(`[data-preset="${k}"]`));
+  check(`${k} ROAS=${expect[k][0]}`, txt('kpi-roas') === expect[k][0], 'got=' + txt('kpi-roas'));
+  check(`${k} ROI=${expect[k][1]}`, txt('kpi-roi') === expect[k][1], 'got=' + txt('kpi-roi'));
 }
+check('その他コストありプリセットで詳細自動オープン', $('adv-cost').open === true);
+check('折りたたみ見出しに金額', txt('adv-cost-amount').includes('計上'), txt('adv-cost-amount'));
 
-console.log('=== 4. 用途トグル → エンジニア採用 ===');
-const recBtn = $('usecase-toggle').querySelector('[data-uc="recruit"]');
-click(recBtn);
-check('採用: 客単価ラベル→月次粗利', txt('t-aov') === '1人あたり月次粗利', 'got=' + txt('t-aov'));
-check('採用: CVRラベル→採用率', txt('t-cvr').includes('採用率'), 'got=' + txt('t-cvr'));
-check('採用: CPAラベル→採用単価', txt('t-kpi-cpa').includes('採用単価'), 'got=' + txt('t-kpi-cpa'));
-check('採用: 稼働月数の単位=ヶ月', txt('t-repeat-unit') === 'ヶ月', 'got=' + txt('t-repeat-unit'));
-check('採用: プリセット2種', $('preset-row').querySelectorAll('[data-preset]').length === 2);
-check('採用: 稼働月数スライダー上限60', $('range-repeat').max === '60', 'got=' + $('range-repeat').max);
-check('採用: 中途プリセットで稼働=24ヶ月', $('in-repeat').value === '24', 'got=' + $('in-repeat').value);
-check('採用: スライダー値も24に追従', $('range-repeat').value === '24', 'got=' + $('range-repeat').value);
-check('採用: ファネルCV見出し→採用人数', txt('t-f-cv') === '採用人数', 'got=' + txt('t-f-cv'));
-check('採用: 採用人数が描画', txt('f-cv') !== '—', 'got=' + txt('f-cv'));
-check('採用: 用途ボタン aria-pressed 更新', $('usecase-toggle').querySelector('[data-uc="recruit"]').getAttribute('aria-pressed') === 'true');
+console.log('# 3. エッジケース');
+click($('reset-btn'));
+setv('in-budget', 0);
+check('予算0で ROAS=—', txt('kpi-roas') === '—', txt('kpi-roas'));
+check('予算0で 判定=入力してください', txt('verdict-title').includes('入力'), txt('verdict-title'));
+click($('reset-btn'));
+setv('in-cpc', 0);
+check('CPC0で ROAS=—（流入0）', txt('kpi-roas') === '—', txt('kpi-roas'));
+click($('reset-btn'));
+setv('in-margin', 0);
+check('粗利0で 損益分岐ROAS=—', txt('be-target') === '—', txt('be-target'));
+check('粗利0で 赤字判定', txt('verdict-title').includes('赤字'), txt('verdict-title'));
+click($('reset-btn'));
+check('リセットで予算=500000', $('in-budget').value === '500000', $('in-budget').value);
+check('リセットで ROAS=417 復帰', txt('kpi-roas') === '417', txt('kpi-roas'));
 
-console.log('=== 5. 詳しい指標（LTV/CAC・限界CPA・損益分岐CV） ===');
-check('LTV/CAC 描画', txt('m-ltvcac').includes('倍'), 'got=' + txt('m-ltvcac'));
-check('LTV/CAC バッジ', ['健全','要改善','赤字'].includes(txt('m-ltvcac-pill')), 'got=' + txt('m-ltvcac-pill'));
-check('実CPA バッジ（許容内/超過）', ['許容内','超過'].includes(txt('m-cpa-pill')), 'got=' + txt('m-cpa-pill'));
-check('損益分岐CV（採用数）が人単位', txt('m-becv').includes('人'), 'got=' + txt('m-becv'));
+console.log('# 4. 用途トグル往復（採用→顧客獲得→採用でラベル復帰）');
+const uc = u => click($('usecase-toggle').querySelector(`[data-uc="${u}"]`));
+uc('recruit'); check('採用: 客単価→月次粗利', txt('t-aov') === '1人あたり月次粗利', txt('t-aov'));
+uc('acquire'); check('獲得: 客単価復帰', txt('t-aov').includes('客単価'), txt('t-aov'));
+uc('recruit'); check('採用: 再度 月次粗利', txt('t-aov') === '1人あたり月次粗利', txt('t-aov'));
+check('採用: CPAラベル=採用単価', txt('t-kpi-cpa').includes('採用単価'), txt('t-kpi-cpa'));
+check('採用: スライダー上限60', $('range-repeat').max === '60', $('range-repeat').max);
+uc('acquire'); check('獲得: スライダー上限10復帰', $('range-repeat').max === '10', $('range-repeat').max);
 
-console.log('=== 6. 顧客獲得に戻す → 業界平均の目安ヘルパー ===');
-click($('usecase-toggle').querySelector('[data-uc="acquire"]'));
-check('戻し: 客単価ラベル復帰', txt('t-aov').includes('客単価'), 'got=' + txt('t-aov'));
-// 粗利率の目安チップ（45%）
-const marginChip = doc.querySelector('#bench .bench-chip[data-set="margin"][data-val="45"]');
-check('粗利率の目安チップ存在', !!marginChip);
-if (marginChip) {
-  click(marginChip);
-  check('目安で粗利率=45', $('in-margin').value === '45', 'got=' + $('in-margin').value);
-  check('粗利率欄が⚠目安マーク', $('in-margin').closest('.field').classList.contains('needs-input'));
-}
-// 商談化率×受注率→CVR
-$('bench-mtg').value = '20'; $('bench-win').value = '30';
-click($('bench-calc-apply'));
-check('商談化率20×受注率30→CVR=6', $('in-cvr').value === '6', 'got=' + $('in-cvr').value);
+console.log('# 5. 黒字化に必要なCVR 逆算（赤字時）');
+click($('preset-row').querySelector('[data-preset="solution"]')); // roi -2 付近
+setv('in-cvr', 0.1); // さらに下げて確実に赤字
+check('赤字判定', txt('verdict-title').includes('赤字'), txt('verdict-title'));
+check('必要CVRを提示', /CVR .*%.*必要/.test(txt('verdict-sub')), txt('verdict-sub'));
 
-console.log('=== 7. 人件費の概算（人数×時給×月稼働） ===');
-$('hc-people').value = '3'; $('hc-wage').value = '5000'; $('hc-hours').value = '160';
-fire($('hc-hours'), 'input');
-check('概算プレビュー更新', txt('hc-preview').includes('2,400,000'), 'got=' + txt('hc-preview'));
-click($('hc-apply'));
-check('概算反映で その他固定費=2400000', $('in-othercost').value === '2400000', 'got=' + $('in-othercost').value);
+console.log('# 6. 業界平均の目安・商談化率×受注率');
+click($('reset-btn'));
+click(doc.querySelector('#bench .bench-chip[data-set="cvr"][data-val="5"]'));
+check('CVR目安5%反映', $('in-cvr').value === '5', $('in-cvr').value);
+check('CVR欄が⚠目安', $('in-cvr').closest('.field').classList.contains('needs-input'));
+setv('in-cvr', 1.2); // 手入力でマーク解除
+check('手入力で⚠目安解除', !$('in-cvr').closest('.field').classList.contains('needs-input'));
+$('bench-mtg').value = '25'; $('bench-win').value = '40'; click($('bench-calc-apply'));
+check('商談25%×受注40%→CVR10', $('in-cvr').value === '10', $('in-cvr').value);
 
-console.log('=== 8. 流入モード切替（CPC↔獲得数直接） ===');
-const directBtn = $('traffic-mode').querySelector('[data-mode="clicks"]');
-click(directBtn);
-check('獲得数フィールド表示', $('field-clicks').style.display !== 'none');
-check('CPCフィールド非表示', $('field-cpc').style.display === 'none');
+console.log('# 7. プラン比較 ライフサイクル');
+click($('reset-btn'));
+click($('compare-add')); click($('preset-row').querySelector('[data-preset="academy"]')); click($('compare-add'));
+let heads = $('compare-table').querySelectorAll('.sc-head');
+check('2プラン並ぶ', heads.length === 2, 'len=' + heads.length);
+click(heads[0]); // 1つ目を反映
+check('列クリックで反映（active付与）', $('compare-table').querySelector('.sc-head.active') !== null);
+const rm = $('compare-table').querySelector('[data-remove]'); click(rm);
+check('1プラン削除', $('compare-table').querySelectorAll('.sc-head').length === 1);
+click($('compare-clear'));
+check('クリアで比較パネル非表示', !$('compare-panel').classList.contains('show'));
 
-console.log('=== 9. プラン比較（手動スナップショット） ===');
-click($('compare-add'));
-check('比較パネル表示', $('compare-panel').classList.contains('show'));
-check('比較テーブルに行', $('compare-table').querySelectorAll('tr').length > 0);
+console.log('# 8. AIインポート パイプライン（fetch をモック）');
+const canned = {
+  found: true, budget: 1000000, trafficMode: 'cpc', cpc: 500, clicks: null,
+  cvr: null, aov: 2000000, purchaseCount: null, margin: null, otherCost: 250000,
+  assumptions: '広告費は月額換算', verdict: 'REVIEW', verdictReason: 'CVRが資料に無いため暫定',
+  risks: ['CVR不明'], suggestions: ['実績CVRを入力'],
+  scenarios: [
+    { label: '松プラン', budget: 1500000, cpc: 500, cvr: null, aov: 3000000, margin: null, otherCost: null },
+    { label: '竹プラン', budget: 1000000, cpc: 500, cvr: null, aov: 2000000, margin: null, otherCost: null },
+  ],
+};
+window.fetch = async () => ({ ok: true, json: async () => ({ content: [{ text: '```json\n' + JSON.stringify(canned) + '\n```' }] }) });
+const file = new window.File(['営業資料テキスト。広告費 月100万円、CPC500円、客単価200万円。複数プランあり。'], 'deck.txt', { type: 'text/plain' });
+await window.analyzeDocument(file);
+check('インポート: 予算=推奨1000000 を維持', $('in-budget').value === '1000000', $('in-budget').value);
+check('インポート: 客単価=推奨2000000 を維持', $('in-aov').value === '2000000', $('in-aov').value);
+check('インポート: その他固定費=250000', $('in-othercost').value === '250000', $('in-othercost').value);
+check('インポート: CVR未取得で⚠目安マーク', $('in-cvr').closest('.field').classList.contains('needs-input'));
+check('インポート: 粗利率未取得で⚠目安マーク', $('in-margin').closest('.field').classList.contains('needs-input'));
+check('インポート: AI所見パネル表示', $('ai-panel').classList.contains('show'));
+check('インポート: 判定=要検討(REVIEW)', txt('ai-verdict').includes('要検討'), txt('ai-verdict'));
+check('インポート: リスク表示', txt('ai-risks').includes('CVR不明'), txt('ai-risks'));
+check('インポート: 推奨+2プラン=3列展開', $('compare-table').querySelectorAll('.sc-head').length === 3, 'len=' + $('compare-table').querySelectorAll('.sc-head').length);
+check('インポート: 先頭列=資料の推奨', $('compare-table').querySelector('.sc-head .sc-label').textContent.includes('推奨'), $('compare-table').querySelector('.sc-head .sc-label').textContent);
+check('インポート: 推奨列がアクティブ', $('compare-table').querySelector('.sc-head.active') !== null);
+check('インポート: 仮の値サマリ表示', txt('import-error').includes('仮の値'), txt('import-error'));
 
-console.log('=== 10. コピー出力（クラッシュしないこと） ===');
-let copyOk = true;
-try { click($('copy-btn')); } catch (e) { copyOk = false; }
-check('コピーがエラーにならない', copyOk);
+console.log('# 9. コピー内容（採用モードの単位追従）');
+uc('recruit');
+window.__copied = null;
+click($('copy-btn'));
+const copied = window.__copied;
+check('コピー: 採用ヘッダ', copied && copied.includes('エンジニア採用'), copied ? copied.split('\n')[0] : 'null');
+check('コピー: 採用人数の語', copied && copied.includes('採用人数'), '');
+check('コピー: 採用単価の語', copied && copied.includes('採用単価'), '');
 
-console.log('\n=== 実行後の script エラー累計 ===');
-check('実行中 jsdomError なし', scriptErrors.length === 0, scriptErrors.join(' | '));
+console.log('# 10. 異常系：AI が JSON でない応答');
+uc('acquire'); click($('reset-btn'));
+window.fetch = async () => ({ ok: true, json: async () => ({ content: [{ text: 'すみません、解析できませんでした' }] }) });
+await window.analyzeDocument(new window.File(['x'.repeat(50)], 'd.txt', { type: 'text/plain' }));
+check('JSON不正でエラー表示・クラッシュなし', txt('import-error').length > 0, txt('import-error'));
 
+check('全工程で script エラー無し', errs.length === 0, errs.join(' | '));
 console.log(`\n結果: ${pass} pass / ${fail} fail`);
 process.exit(fail ? 1 : 0);
+})();
