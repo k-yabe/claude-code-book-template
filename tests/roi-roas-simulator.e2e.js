@@ -44,6 +44,15 @@ check('判定が黒字/赤字を出す', /黒字|赤字/.test(txt('verdict-title
 check('プリセットチップが4つ（顧客獲得）', $('preset-row').querySelectorAll('[data-preset]').length === 4);
 check('予算ラベル初期', txt('t-budget').includes('予算'), txt('t-budget'));
 
+console.log('=== 1b. UI/UX・アクセシビリティ ===');
+check('はじめ方ガイド表示（2パス）', doc.querySelectorAll('.guide .guide-path').length === 2);
+check('結果カードの見出し', !!doc.querySelector('.result-card-head'));
+check('verdict が aria-live', $('verdict').getAttribute('aria-live') === 'polite');
+check('用途トグルに role=group', $('usecase-toggle').getAttribute('role') === 'group');
+check('用途ボタン aria-pressed 初期(acquire=true)', $('usecase-toggle').querySelector('[data-uc="acquire"]').getAttribute('aria-pressed') === 'true');
+check('流入トグルに aria-label', !!$('traffic-mode').getAttribute('aria-label'));
+check('プリセット群に aria-label', !!$('preset-row').getAttribute('aria-label'));
+
 console.log('=== 2. 入力変更でリアルタイム再計算 ===');
 const roas0 = txt('kpi-roas');
 $('in-cvr').value = '2'; fire($('in-cvr'), 'input');
@@ -67,6 +76,7 @@ check('採用: 中途プリセットで稼働=24ヶ月', $('in-repeat').value ==
 check('採用: スライダー値も24に追従', $('range-repeat').value === '24', 'got=' + $('range-repeat').value);
 check('採用: ファネルCV見出し→採用人数', txt('t-f-cv') === '採用人数', 'got=' + txt('t-f-cv'));
 check('採用: 採用人数が描画', txt('f-cv') !== '—', 'got=' + txt('f-cv'));
+check('採用: 用途ボタン aria-pressed 更新', $('usecase-toggle').querySelector('[data-uc="recruit"]').getAttribute('aria-pressed') === 'true');
 
 console.log('=== 5. 詳しい指標（LTV/CAC・限界CPA・損益分岐CV） ===');
 check('LTV/CAC 描画', txt('m-ltvcac').includes('倍'), 'got=' + txt('m-ltvcac'));
