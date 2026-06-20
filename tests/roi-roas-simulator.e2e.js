@@ -135,6 +135,23 @@ check('インポート: 先頭列=資料の推奨', $('compare-table').querySele
 check('インポート: 推奨列がアクティブ', $('compare-table').querySelector('.sc-head.active') !== null);
 check('インポート: 仮の値サマリ表示', txt('import-error').includes('仮の値'), txt('import-error'));
 
+console.log('# 8b. カンファレンス/展示会の出展資料（trafficMode=clicks・出展費）');
+const conf = {
+  found: true, budget: 800000, trafficMode: 'clicks', cpc: null, clicks: 150,
+  cvr: null, aov: null, purchaseCount: null, margin: null, otherCost: null,
+  assumptions: '出展費80万円。来場者5000人（自社リードではない）。獲得見込み名刺150枚。',
+  verdict: 'REVIEW', verdictReason: '成約率・客単価が資料に無いため暫定判断です',
+  risks: ['来場者全員が見込み客ではない', '成約率は自社実績が必要'], suggestions: ['実績の成約率・客単価を入力'], scenarios: [],
+};
+window.fetch = async () => ({ ok: true, json: async () => ({ content: [{ text: JSON.stringify(conf) }] }) });
+await window.analyzeDocument(new window.File(['◯◯カンファレンス 出展案内。出展費80万円。来場見込5000名。'], 'expo.txt', { type: 'text/plain' }));
+check('展示会: 獲得数モードに切替', $('field-clicks').style.display !== 'none' && $('field-cpc').style.display === 'none');
+check('展示会: 予算=出展費800000', $('in-budget').value === '800000', $('in-budget').value);
+check('展示会: 獲得数=150', $('in-clicks').value === '150', $('in-clicks').value);
+check('展示会: 客単価が⚠目安', $('in-aov').closest('.field').classList.contains('needs-input'));
+check('展示会: 成約率が⚠目安', $('in-cvr').closest('.field').classList.contains('needs-input'));
+check('展示会: 来場者を見込客と取り違えない注意', txt('ai-risks').includes('来場者'), txt('ai-risks'));
+
 console.log('# 9. コピー内容（採用モードの単位追従）');
 uc('recruit');
 window.__copied = null;
