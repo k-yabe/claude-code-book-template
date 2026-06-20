@@ -1429,7 +1429,7 @@
       if (v) { vb.className = 'ai-verdict ' + v.cls; vb.textContent = v.label; vb.style.display = ''; }
       else { vb.style.display = 'none'; }
 
-      const planNote = (planCount && planCount >= 2) ? `資料から ${planCount} プランを検出しました。下の「プラン比較」で切り替えられます。 ` : '';
+      const planNote = (planCount && planCount >= 2) ? `資料から複数の料金プランを検出しました。下の「プラン比較」で「資料の推奨」と各プランを切り替えられます。 ` : '';
       el('ai-assumptions').textContent = planNote + (d.assumptions || '（前提の要約は得られませんでした）');
       el('ai-reason').textContent = d.verdictReason || '（判断の根拠は得られませんでした）';
 
@@ -1541,19 +1541,21 @@
           showImportError(`${filled.length}項目を読み取りました。${missing.length}項目（${missing.join('・')}）は資料に記載がないため仮の値です。⚠マークの欄を実績値に置き換えてください。`);
         }
 
-        // 複数プランがあれば比較表に展開（適用後のフォーム値をベースに継承）
+        // 複数プランがあれば比較表に展開（フォームは AI 推奨値のまま・比較表の先頭に「資料の推奨」を置く）
         clearScenarios();
         const scList = Array.isArray(parsed.scenarios) ? parsed.scenarios.filter(s => s && typeof s === 'object') : [];
         if (scList.length >= 2) {
-          const base = readInputs();
-          scenarios = scList.slice(0, 5).map((sc, i) => {
+          const base = readInputs(); // applyExtracted 済みの推奨値
+          const built = scList.slice(0, 4).map((sc, i) => {
             const p = scenarioFromExtracted(sc, base);
             p.label = (sc.label && String(sc.label).trim()) || `プラン${i + 1}`;
             return p;
           });
-          activeScenario = -1;
+          // 先頭に推奨（現在のフォーム値）を置く。フォームは推奨のまま動かさない
+          scenarios = [Object.assign({}, base, { label: '資料の推奨' }), ...built];
+          activeScenario = 0;
           renderCompare();
-          applyScenario(0); // 先頭プランを反映
+          updateActiveHeader();
         }
 
         renderAiPanel(parsed, missing, scenarios.length);
