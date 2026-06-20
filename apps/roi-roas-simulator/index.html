@@ -269,6 +269,15 @@
     /* 結果カードの見出し */
     .result-card-head { font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: var(--sp-3); }
 
+    /* 任意の詳細セクション（その他コスト・人件費）を折りたたみ */
+    .advanced { margin: var(--sp-6) 0 0; }
+    .advanced > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: var(--sp-2); padding: 6px 0; user-select: none; }
+    .advanced > summary::-webkit-details-marker { display: none; }
+    .advanced > summary::before { content: '▸'; color: var(--text-muted); font-size: 0.8rem; transition: transform var(--ease); }
+    .advanced[open] > summary::before { transform: rotate(90deg); }
+    .adv-title { font-size: var(--text-sm); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); display: inline-flex; align-items: center; gap: var(--sp-2); }
+    .adv-amount { margin-left: auto; font-size: var(--text-sm); font-weight: 700; color: var(--navy); font-family: var(--font-mono); }
+
     /* キーボード操作のフォーカス可視化（アクセシビリティ） */
     button:focus-visible, summary:focus-visible, input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
       outline: 2px solid var(--gold); outline-offset: 2px;
@@ -555,25 +564,27 @@
             <input type="range" id="range-margin" min="0" max="100" step="1" value="50">
           </div>
 
-          <div class="section-title">④ その他コスト<span class="section-opt">任意</span></div>
+          <details class="advanced" id="adv-cost">
+            <summary id="adv-cost-sum"><span class="adv-title">④ その他コスト・人件費<span class="section-opt">任意</span></span><span class="adv-amount" id="adv-cost-amount"></span></summary>
 
-          <div class="field">
-            <div class="field-label"><span class="lbl">その他固定費（月額）<span class="req req-opt">任意</span></span><span class="hint">人件費・制作費・ツール費など</span></div>
-            <div class="input-wrap has-prefix">
-              <span class="prefix">¥</span>
-              <input type="number" id="in-othercost" min="0" step="10000" value="0" inputmode="numeric">
+            <div class="field">
+              <div class="field-label"><span class="lbl">その他固定費（月額）<span class="req req-opt">任意</span></span><span class="hint">人件費・制作費・ツール費など</span></div>
+              <div class="input-wrap has-prefix">
+                <span class="prefix">¥</span>
+                <input type="number" id="in-othercost" min="0" step="10000" value="0" inputmode="numeric">
+              </div>
+              <p class="field-help">広告費以外にかかる運用コスト。ROI と損益分岐はこれも差し引いて判定します。</p>
+              <div class="bench-calc" style="margin-top:8px">
+                <label>人数 <input type="number" id="hc-people" placeholder="3" min="0" step="1" inputmode="numeric">人</label>
+                <span>×</span>
+                <label>時給 <input type="number" id="hc-wage" placeholder="5000" min="0" step="100" inputmode="numeric">円</label>
+                <span>×</span>
+                <label>月稼働 <input type="number" id="hc-hours" placeholder="160" min="0" step="5" inputmode="numeric">h</label>
+                <button class="bench-apply" id="hc-apply">概算を反映</button>
+              </div>
+              <p class="bench-note" id="hc-preview">「人数 × 時給 × 月稼働時間」で概算できます（任意）。例：3人 × 5,000円 × 160h ＝ ¥2,400,000／月。月稼働は“この施策に割く時間”です。</p>
             </div>
-            <p class="field-help">広告費以外にかかる運用コスト。ROI と損益分岐はこれも差し引いて判定します。</p>
-            <div class="bench-calc" style="margin-top:8px">
-              <label>人数 <input type="number" id="hc-people" placeholder="3" min="0" step="1" inputmode="numeric">人</label>
-              <span>×</span>
-              <label>時給 <input type="number" id="hc-wage" placeholder="5000" min="0" step="100" inputmode="numeric">円</label>
-              <span>×</span>
-              <label>月稼働 <input type="number" id="hc-hours" placeholder="160" min="0" step="5" inputmode="numeric">h</label>
-              <button class="bench-apply" id="hc-apply">概算を反映</button>
-            </div>
-            <p class="bench-note" id="hc-preview">「人数 × 時給 × 月稼働時間」で概算できます（任意）。例：3人 × 5,000円 × 160h ＝ ¥2,400,000／月。月稼働は“この施策に割く時間”です。</p>
-          </div>
+          </details>
         </div>
       </div>
 
@@ -913,6 +924,7 @@
       const otherRow = el('f-othercost-row');
       if (r.otherCost > 0) { otherRow.style.display = ''; el('f-othercost').textContent = '−' + yen(r.otherCost); }
       else { otherRow.style.display = 'none'; }
+      el('adv-cost-amount').textContent = r.otherCost > 0 ? '計上 ' + yen(r.otherCost) : '';
       el('f-totalcost').textContent = hasInput ? yen(r.totalCost) : '—';
       el('f-net').textContent = hasInput ? (r.netProfit >= 0 ? '+' : '−') + yen(Math.abs(r.netProfit)) : '—';
       el('f-net').style.color = r.netProfit >= 0 ? 'var(--success-text)' : 'var(--error-text)';
@@ -1015,6 +1027,8 @@
       inputs.cvr.value = v.cvr; inputs.aov.value = v.aov; inputs.margin.value = v.margin;
       inputs.repeat.value = (v.repeat ?? 1); inputs.othercost.value = (v.othercost ?? 0);
       rangeCvr.value = v.cvr; rangeMargin.value = v.margin; rangeRepeat.value = (v.repeat ?? 1);
+      // その他コストに値があるプリセットは詳細を自動で開く（無ければ畳んだまま＝初見はスッキリ）
+      const adv = el('adv-cost'); if (adv) adv.open = (parseFloat(v.othercost) || 0) > 0;
       render();
     }
     el('preset-row').addEventListener('click', (e) => {
@@ -1590,7 +1604,7 @@
       { icon: '🟢', text: 'ROAS/ROI/CPA に加え LTV/CAC・限界CPA・損益分岐CV など BtoB 指標も' }
     ],
     updates: [
-      { date: '06/20', text: '誰でも迷わず使えるよう UI/UX を磨きました：冒頭に「はじめ方ガイド」（資料アップで自動 ／ 用途と事業を選んで手入力の2通り）、結果カードに見出し、判定の読み上げ対応やキーボード操作のフォーカス表示などアクセシビリティも強化' },
+      { date: '06/20', text: '誰でも迷わず使えるよう UI/UX を磨きました：冒頭に「はじめ方ガイド」（資料アップで自動 ／ 用途と事業を選んで手入力の2通り）、任意項目（その他コスト・人件費）は折りたたんで入力欄をスッキリ、結果カードに見出し、判定の読み上げ対応やキーボード操作のフォーカス表示などアクセシビリティも強化' },
       { date: '06/20', text: 'AKKODiS 事業に合わせて拡張：①用途トグル「顧客獲得／エンジニア採用」（採用モードは客単価→月次粗利・購入回数→稼働月数などラベルが変わり採用マーケに使える）、②公式4事業ラインのプリセット、③成約率・粗利率がわからなくても「業界平均の目安」をワンタップ（商談化率×受注率からCVRを出す任意計算も）、④人件費を「人数×時給×月稼働時間」で概算。目安は常に任意・⚠表示・置換可能' },
       { date: '06/19', text: '指標を拡充：ROAS/ROI/CPA に加え「詳しい指標を見る」で LTV/CAC比（健全の目安3倍）・限界CPA（許容上限）vs 実CPA・損益分岐CV数 を表示。普段はたたんでシンプルなまま' }
     ]
