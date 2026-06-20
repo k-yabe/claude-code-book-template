@@ -35,7 +35,7 @@
     .field { margin-bottom: var(--sp-4); }
     /* 広い画面では入力欄を2カラムにして縦の長さを抑える（見出し・詳細は全幅） */
     @media (min-width: 1080px) {
-      .step-body.cols-2 { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--sp-5); align-items: end; }
+      .step-body.cols-2 { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--sp-5); align-items: start; }
       .step-body.cols-2 > .section-title,
       .step-body.cols-2 > details.advanced { grid-column: 1 / -1; }
     }
