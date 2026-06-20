@@ -44,9 +44,11 @@ check('流入トグル aria-label', !!$('traffic-mode').getAttribute('aria-label
 check('プリセット群 aria-label', !!$('preset-row').getAttribute('aria-label'));
 check('④その他コストは details', $('adv-cost').tagName.toLowerCase() === 'details');
 check('初期はその他コスト畳む', $('adv-cost').open === false);
+check('顧客獲得プリセット=3（派遣削除済み）', $('preset-row').querySelectorAll('[data-preset]').length === 3, 'len=' + $('preset-row').querySelectorAll('[data-preset]').length);
+check('エンジニア派遣プリセット無し', !$('preset-row').querySelector('[data-preset="talent"]'));
 
 console.log('# 2. 全プリセットの ROAS/ROI（顧客獲得4ライン）');
-const expect = { consulting: ['400', '+64'], solution: ['300', '-2'], talent: ['667', '+96'], academy: ['263', '+21'] };
+const expect = { consulting: ['400', '+64'], solution: ['300', '-2'], academy: ['263', '+21'] };
 for (const k in expect) {
   click($('preset-row').querySelector(`[data-preset="${k}"]`));
   check(`${k} ROAS=${expect[k][0]}`, txt('kpi-roas') === expect[k][0], 'got=' + txt('kpi-roas'));
@@ -134,6 +136,13 @@ check('インポート: 推奨+2プラン=3列展開', $('compare-table').queryS
 check('インポート: 先頭列=資料の推奨', $('compare-table').querySelector('.sc-head .sc-label').textContent.includes('推奨'), $('compare-table').querySelector('.sc-head .sc-label').textContent);
 check('インポート: 推奨列がアクティブ', $('compare-table').querySelector('.sc-head.active') !== null);
 check('インポート: 仮の値サマリ表示', txt('import-error').includes('仮の値'), txt('import-error'));
+
+console.log('# 8a. 用途切替でインポート内容が消えない（formDirty）');
+const beforeBudget = $('in-budget').value, beforeAov = $('in-aov').value;
+uc('recruit');
+check('インポート後に用途切替しても予算が保持される', $('in-budget').value === beforeBudget, `before=${beforeBudget} after=${$('in-budget').value}`);
+check('インポート後に用途切替しても客単価が保持される', $('in-aov').value === beforeAov, `before=${beforeAov} after=${$('in-aov').value}`);
+uc('acquire');
 
 console.log('# 8b. カンファレンス/展示会の出展資料（trafficMode=clicks・出展費）');
 const conf = {

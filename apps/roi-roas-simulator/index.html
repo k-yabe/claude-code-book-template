@@ -32,7 +32,13 @@
     }
 
     /* ── 入力フィールド ── */
-    .field { margin-bottom: var(--sp-5); }
+    .field { margin-bottom: var(--sp-4); }
+    /* 広い画面では入力欄を2カラムにして縦の長さを抑える（見出し・詳細は全幅） */
+    @media (min-width: 1080px) {
+      .step-body.cols-2 { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--sp-5); align-items: end; }
+      .step-body.cols-2 > .section-title,
+      .step-body.cols-2 > details.advanced { grid-column: 1 / -1; }
+    }
     .field:last-child { margin-bottom: 0; }
     .field-label {
       display: flex;
@@ -473,7 +479,7 @@
         <div class="bench-group">
           <div class="bench-title">粗利率の目安（AKKODiS 事業ライン別）</div>
           <div class="bench-chips">
-            <button class="bench-chip" data-set="margin" data-val="30">エンジニア派遣・SES 30%</button>
+            <button class="bench-chip" data-set="margin" data-val="35">システム開発・受託 35%</button>
             <button class="bench-chip" data-set="margin" data-val="45">ソリューション・受託 45%</button>
             <button class="bench-chip" data-set="margin" data-val="65">コンサルティング 65%</button>
             <button class="bench-chip" data-set="margin" data-val="60">アカデミー（研修）60%</button>
@@ -486,7 +492,7 @@
     <div class="sim-layout">
       <!-- 入力 -->
       <div class="step">
-        <div class="step-body" style="padding: var(--sp-6);">
+        <div class="step-body cols-2" style="padding: var(--sp-6);">
           <div class="section-title">① 予算・流入</div>
 
           <div class="field">
@@ -725,16 +731,15 @@
 
   <script>
     // ── デフォルト値とプリセット（BtoB の一般的な目安） ──────
-    // ※ AKKODiS の公式4事業ライン（Consulting / Solutions / Talent / Academy）＋採用。実数値は各社で要調整の「目安」。
+    // ※ AKKODiS の事業ライン（Consulting / Solutions / Academy）＋エンジニア採用。実数値は各社で要調整の「目安」。
+    // ※ エンジニア派遣事業はアデコへ移管のため対象外。
     const DEFAULTS = { budget: 500000, mode: 'cpc', cpc: 600, clicks: 800, cvr: 0.5, aov: 500000, repeat: 1, margin: 50, othercost: 0 };
     const PRESETS = {
-      // ── 顧客獲得（受注）：AKKODiS 公式4事業ライン ──
+      // ── 顧客獲得（受注）：AKKODiS 事業ライン ──
       // コンサルティング: 受注単価特大・高単価少数・粗利高
       consulting: { budget: 600000, mode: 'cpc', cpc: 1500, clicks: 400, cvr: 0.2, aov: 3000000, repeat: 1, margin: 65, othercost: 350000 },
       // ソリューション（DX・システム開発等）: 受注単価高・粗利中・運用人件費大
       solution:   { budget: 800000, mode: 'cpc', cpc: 1200, clicks: 667, cvr: 0.3, aov: 1200000, repeat: 1, margin: 45, othercost: 300000 },
-      // タレント（エンジニア派遣）: 配置あたり粗利・継続あり
-      talent:     { budget: 700000, mode: 'cpc', cpc: 900,  clicks: 778, cvr: 0.2, aov: 1500000, repeat: 2, margin: 40, othercost: 250000 },
       // アカデミー（研修・人材育成）: 受注単価中・継続あり・粗利高
       academy:    { budget: 400000, mode: 'cpc', cpc: 800,  clicks: 500, cvr: 0.3, aov: 350000,  repeat: 2, margin: 60, othercost: 120000 },
       // ── エンジニア採用（候補者マーケ）：客単価＝月次粗利 / 購入回数＝平均稼働月数 / 粗利率100% ──
@@ -745,11 +750,11 @@
     };
     // 用途別の初期プリセット・チップ構成
     const USE_CASE_PRESETS = {
-      acquire: ['consulting', 'solution', 'talent', 'academy'],
+      acquire: ['consulting', 'solution', 'academy'],
       recruit: ['recruit_mid', 'recruit_new'],
     };
     const PRESET_LABELS = {
-      consulting: 'コンサルティング', solution: 'ソリューション', talent: 'エンジニア派遣', academy: 'アカデミー（研修）',
+      consulting: 'コンサルティング', solution: 'ソリューション', academy: 'アカデミー（研修）',
       recruit_mid: '中途（経験者）', recruit_new: '新卒・ポテンシャル',
     };
     // 資料に記載が無い「自社側数値」を補う BtoB の一般的な目安（仮値・要置換）
@@ -757,6 +762,7 @@
 
     let mode = 'cpc';
     let useCase = 'acquire';   // 'acquire' 顧客獲得 | 'recruit' エンジニア採用
+    let formDirty = false;     // 資料インポート/手入力で内容が変わったか（用途切替で内容を保持する判定に使う）
 
     // ── 要素参照 ─────────────────────────────────────
     const el = (id) => document.getElementById(id);
@@ -776,7 +782,7 @@
     // ── 用途別ラベル（顧客獲得 / エンジニア採用） ──────────
     const UC = {
       acquire: {
-        note: 'AKKODiS 公式4事業ライン（コンサルティング / ソリューション / エンジニア派遣 / アカデミー）の「一般的な目安」を初期値に用意。実数値が分かる項目は置き換えてください。展示会・カンファレンスなどクリックが無い施策は、流入を「獲得数を直接入力」に切り替えてリード/名刺数を入れてください。',
+        note: 'AKKODiS の事業ライン（コンサルティング / ソリューション / アカデミー）の「一般的な目安」を初期値に用意。実数値が分かる項目は置き換えてください。展示会・カンファレンスなどクリックが無い施策は、流入を「獲得数を直接入力」に切り替えてリード/名刺数を入れてください。',
         repeatUnit: '回', cvWord: '件', cvrWord: 'CVR', flowWord: '獲得数',
         labels: {
           't-sec2': '② コンバージョン',
@@ -1029,6 +1035,7 @@
       rangeCvr.value = v.cvr; rangeMargin.value = v.margin; rangeRepeat.value = (v.repeat ?? 1);
       // その他コストに値があるプリセットは詳細を自動で開く（無ければ畳んだまま＝初見はスッキリ）
       const adv = el('adv-cost'); if (adv) adv.open = (parseFloat(v.othercost) || 0) > 0;
+      formDirty = false;  // プリセット/リセット等の既知ロード後はクリーン状態
       render();
     }
     el('preset-row').addEventListener('click', (e) => {
@@ -1038,10 +1045,11 @@
     el('reset-btn').addEventListener('click', () => { applyValues(DEFAULTS); clearMissingMarks(); clearImportError(); });
 
     // 用途トグル（顧客獲得 / エンジニア採用）
+    // 資料インポート後や手入力後（formDirty）は内容を保持。未編集なら用途の初期プリセットを読み込む。
     el('usecase-toggle').addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-uc]');
       if (!btn || btn.dataset.uc === useCase) return;
-      setUseCase(btn.dataset.uc, true);
+      setUseCase(btn.dataset.uc, !formDirty);
     });
 
     // 業界平均の目安ヘルパー（任意・ワンタップで入力＋⚠目安マーク）
@@ -1054,6 +1062,7 @@
       inp.value = v; if (rng) rng.value = v;
       const f = inp.closest('.field');
       if (f) { f.classList.add('needs-input'); f.classList.remove('fill-flash'); void f.offsetWidth; f.classList.add('fill-flash'); }
+      formDirty = true;
       render();
     }
     el('bench').addEventListener('click', (e) => {
@@ -1086,6 +1095,7 @@
         inputs.othercost.value = Math.round(v);
         const f = inputs.othercost.closest('.field');
         if (f) { f.classList.remove('fill-flash'); void f.offsetWidth; f.classList.add('fill-flash'); }
+        formDirty = true;
         render();
       } else { el('hc-people').focus(); }
     });
@@ -1108,6 +1118,7 @@
       });
     }
     function markManualEdit() {
+      formDirty = true;
       if (activeScenario !== -1) { activeScenario = -1; updateActiveHeader(); }
     }
 
@@ -1233,7 +1244,7 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.mjs';
             const pdf = await pdfjsLib.getDocument({ data: e.target.result }).promise;
             let text = '';
-            const maxPages = Math.min(pdf.numPages, 8);
+            const maxPages = Math.min(pdf.numPages, 16);
             for (let i = 1; i <= maxPages; i++) {
               const page = await pdf.getPage(i);
               const content = await page.getTextContent();
@@ -1264,7 +1275,7 @@
     async function extractPptxText(file) {
       const JSZip = await loadJSZip();
       const zip = await JSZip.loadAsync(await file.arrayBuffer());
-      const slides = Object.keys(zip.files).filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n)).sort().slice(0, 20);
+      const slides = Object.keys(zip.files).filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).slice(0, 40);
       let text = '';
       for (const name of slides) {
         const xml = await zip.files[name].async('string');
@@ -1395,6 +1406,7 @@
         inputs.othercost.closest('.field')?.classList.add('fill-flash');
       }
 
+      formDirty = true;  // 資料インポート後は内容を保持（用途切替でリセットしない）
       render();
       return { filled, missing };
     }
@@ -1470,7 +1482,7 @@
       try {
         const text = await extractFileText(file);
         if (!text || text.length < 20) {
-          throw new Error('資料からテキストを抽出できませんでした。テキストを含む PDF/PPTX/DOCX か、画像化されていない資料をお試しください。');
+          throw new Error('資料から文字を読み取れませんでした。画像が中心の PDF（スキャンや、書き出し時に文字が画像化された資料）は読み取れません。テキストを含む PDF、または PPTX / Word をお試しください。下のプリセットや「業界平均の目安」から手早く埋めることもできます。');
         }
         setLoading(true, 'AI が数値を読み取っています…');
 
@@ -1505,7 +1517,7 @@
 【最重要・データ不足の扱い】営業資料（特に媒体資料・広告メニュー表）には、広告費・CPC・クリック数・インプレッション等は載っていても、CVR・客単価(aov)・粗利率(margin)・購入回数(purchaseCount)・人件費等(otherCost)といった「広告主（自社）側の数値」は載っていないのが普通である。**資料に明記されていない数値は絶対に推測・業界平均で補完せず、必ず null にする**こと（勝手に数値を入れると誤った投資判断につながる）。そのうえで assumptions に「どの値が資料に無かったか」を明記する。重要な前提（cvr・aov・margin のいずれか）が資料から読み取れない場合は、verdict を必ず "REVIEW" にし、verdictReason の冒頭に「○○が資料に記載されていないため暫定判断です」と書き、risks の先頭に不足している前提を列挙し、suggestions にそれらを自社実績から入力するよう促す一文を入れること。
 【展示会・カンファレンス・セミナーの出展資料の扱い】出展案内・ブース料金表・協賛メニュー等の場合: ①budget には出展費用／参加費／協賛費（複数ブースサイズ・協賛グレードがあれば各プランを scenarios に）。②trafficMode は必ず "clicks"（クリックは無い）。③clicks には「自社が獲得を見込むリード数・名刺枚数」を入れる。ただし**資料の「来場者数」「総来場見込み」「出展社数」は自社の見込みリードではない**ので clicks には入れず assumptions に参考情報として記録し、自社の獲得見込みが資料に無ければ clicks は null。④cvr（リード→受注の成約率）・aov・margin は自社側なので通常は記載が無く null。⑤risks に「来場者全員が見込み客ではない」「リード獲得数・成約率は自社の実績前提が必要」等を入れる。`;
 
-        const userMsg = `次の営業資料から前提値を抽出し、JSON で返してください。複数の料金プラン/パターンがあれば scenarios に列挙してください。\n\n【資料テキスト（抜粋）】\n${text.slice(0, 7000)}`;
+        const userMsg = `次の営業資料から前提値を抽出し、JSON で返してください。複数の料金プラン/パターンがあれば scenarios に列挙してください。\n\n【資料テキスト（抜粋）】\n${text.slice(0, 12000)}`;
 
         const res = await fetch('/api/generate', {
           method: 'POST',
@@ -1537,7 +1549,7 @@
         const { filled, missing } = applyExtracted(parsed);
         markMissingFields(missing);
         if (filled.length === 0) {
-          showImportError('資料から試算に使える数値を読み取れませんでした。下の各項目を手入力してください。');
+          showImportError('資料から具体的な数値を読み取れませんでした（画像中心の PDF などで文字が取れない場合があります）。下の各欄には業界の目安（⚠）を入れています。わかる項目を実績値に置き換えると判定が確定します。');
         } else if (missing.length > 0) {
           showImportError(`${filled.length}項目を読み取りました。${missing.length}項目（${missing.join('・')}）は資料に記載がないため仮の値です。⚠マークの欄を実績値に置き換えてください。`);
         }
@@ -1572,8 +1584,8 @@
         showImportError(`非対応の形式です。${ACCEPTED_EXTS.join(' / ')} のいずれかをアップロードしてください。`);
         return;
       }
-      if (file.size > 15 * 1024 * 1024) {
-        showImportError('ファイルサイズが大きすぎます（15MB まで）。');
+      if (file.size > 100 * 1024 * 1024) {
+        showImportError('ファイルが大きすぎて読み込めません（100MB 超）。PDF を分割するか画質を下げてお試しください。');
         return;
       }
       analyzeDocument(file);
@@ -1601,7 +1613,7 @@
     title: 'ROI / ROAS Simulator',
     description: '「この予算で黒字になるか？」を施策前に見極めます',
     features: [
-      { icon: '🏢', text: 'AKKODiS 公式4事業ライン＋「エンジニア採用」モード（採用マーケにも対応）' },
+      { icon: '🏢', text: 'AKKODiS の事業ラインのプリセット＋「エンジニア採用」モード（採用マーケにも対応）' },
       { icon: '📊', text: '営業資料アップで AI 自動入力／複数プランは横比較' },
       { icon: '🧭', text: 'CVR・粗利率がわからなくても「業界平均の目安」をワンタップ（⚠目安と明示）' },
       { icon: '🟢', text: 'ROAS/ROI/CPA に加え LTV/CAC・限界CPA・損益分岐CV など BtoB 指標も' }
@@ -1609,7 +1621,7 @@
     updates: [
       { date: '06/20', text: '展示会・カンファレンスの出展資料も AI が読み取り対応：出展費を予算として読み取り「獲得数を直接入力」モードに自動切替、複数ブース／協賛プランは比較に展開。来場者数を自社リードと取り違えないよう配慮し、成約率・客単価など自社側の数値は⚠目安＋「要検討（暫定）」で提示します' },
       { date: '06/20', text: '誰でも迷わず使えるよう UI/UX を磨きました：冒頭に「はじめ方ガイド」（資料アップで自動 ／ 用途と事業を選んで手入力の2通り）、任意項目（その他コスト・人件費）は折りたたんで入力欄をスッキリ、結果カードに見出し、判定の読み上げ対応やキーボード操作のフォーカス表示などアクセシビリティも強化' },
-      { date: '06/20', text: 'AKKODiS 事業に合わせて拡張：用途トグル「顧客獲得／エンジニア採用」、公式4事業ラインのプリセット、成約率・粗利率がわからなくても「業界平均の目安」をワンタップ（商談化率×受注率からCVRを出す任意計算も）、人件費を「人数×時給×月稼働時間」で概算' }
+      { date: '06/20', text: 'AKKODiS 事業に合わせて拡張：用途トグル「顧客獲得／エンジニア採用」、事業ラインのプリセット、成約率・粗利率がわからなくても「業界平均の目安」をワンタップ（商談化率×受注率からCVRを出す任意計算も）、人件費を「人数×時給×月稼働時間」で概算' }
     ]
   };
   initOnboarding(OB_CONFIG);
