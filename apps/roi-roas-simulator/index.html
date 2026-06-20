@@ -801,6 +801,9 @@
     function setUseCase(uc, loadPreset) {
       useCase = uc;
       el('usecase-toggle').querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.uc === uc));
+      // スライダーの上限を用途に合わせて調整（採用は採用率〜50%・稼働月数〜60ヶ月）
+      rangeCvr.max = uc === 'recruit' ? 50 : 20;
+      rangeRepeat.max = uc === 'recruit' ? 60 : 10;
       renderPresetChips(uc);
       applyUseCaseLabels(uc);
       if (loadPreset) { applyValues(PRESETS[USE_CASE_PRESETS[uc][0]]); clearMissingMarks(); clearImportError(); }
@@ -1157,15 +1160,19 @@
     // ── コピー ───────────────────────────────────────
     el('copy-btn').addEventListener('click', () => {
       const r = compute();
+      const W = UC[useCase];
+      const flowLabel = mode === 'cpc' ? 'クリック数' : W.flowWord;
+      const cvLabel = useCase === 'recruit' ? '採用人数' : 'CV数';
+      const cpaLabel = useCase === 'recruit' ? '採用単価' : 'CPA';
       const lines = [
-        '【ROI / ROAS シミュレーション結果】',
-        `広告費: ${yen(r.budget)}` + (r.otherCost > 0 ? ` / その他固定費: ${yen(r.otherCost)} / 総コスト: ${yen(r.totalCost)}` : ''),
-        `クリック数: ${num(r.clicks)} / CV数: ${num(r.cv)} 件` + (r.repeat > 1 ? ` / 平均購入回数(LTV): ${pct(r.repeat)}回` : ''),
+        `【${useCase === 'recruit' ? 'エンジニア採用' : '顧客獲得'}：ROI / ROAS シミュレーション結果】`,
+        `予算: ${yen(r.budget)}` + (r.otherCost > 0 ? ` / その他固定費: ${yen(r.otherCost)} / 総コスト: ${yen(r.totalCost)}` : ''),
+        `${flowLabel}: ${num(r.clicks)} / ${cvLabel}: ${num(r.cv)} ${W.cvWord}` + (r.repeat > 1 ? ` / ${useCase === 'recruit' ? '平均稼働月数' : '平均購入回数(LTV)'}: ${pct(r.repeat)}${W.repeatUnit}` : ''),
         `想定売上${r.repeat > 1 ? '(LTV込)' : ''}: ${yen(r.revenue)} / 粗利: ${yen(r.grossProfit)}`,
         `ROAS: ${num(r.roas)}%（損益分岐 ${isFinite(r.breakEvenRoas) ? num(r.breakEvenRoas) + '%' : '—'}）`,
         `ROI: ${r.roi >= 0 ? '+' : ''}${num(r.roi)}%（総コストベース）`,
-        `CPA: ${r.cv > 0 ? yen(r.cpa) : '—'}（限界CPA上限 ${r.cv > 0 ? yen(r.ltv) : '—'}）`,
-        `LTV/CAC: ${r.cv > 0 ? (Math.round(r.ltvCac * 10) / 10) + '倍' : '—'}（目安≥3）/ 損益分岐CV数: ${isFinite(r.breakEvenCv) ? (Math.round(r.breakEvenCv * 10) / 10) + '件' : '—'}`,
+        `${cpaLabel}: ${r.cv > 0 ? yen(r.cpa) : '—'}（限界${cpaLabel}上限 ${r.cv > 0 ? yen(r.ltv) : '—'}）`,
+        `LTV/CAC: ${r.cv > 0 ? (Math.round(r.ltvCac * 10) / 10) + '倍' : '—'}（目安≥3）/ 損益分岐${cvLabel}: ${isFinite(r.breakEvenCv) ? (Math.round(r.breakEvenCv * 10) / 10) + W.cvWord : '—'}`,
         `判定: ${r.netProfit >= 0 ? '黒字見込み（利益 ' + yen(r.netProfit) + '）' : '赤字見込み（損失 ' + yen(Math.abs(r.netProfit)) + '）'}`,
       ];
       navigator.clipboard.writeText(lines.join('\n')).then(() => {
