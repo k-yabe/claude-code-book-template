@@ -236,11 +236,33 @@
     .req-opt { background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); }
     .field-label .lbl { display: inline-flex; align-items: center; gap: 6px; }
     .preset-note { font-size: 0.72rem; color: var(--text-faint); line-height: 1.5; margin: calc(-1 * var(--sp-3)) 0 var(--sp-5); }
+    .usecase-row { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+    .usecase-label { font-size: var(--text-xs); font-weight: 700; letter-spacing: 0.06em; color: var(--text-muted); text-transform: uppercase; }
+    .usecase-toggle { flex: 1; max-width: 420px; }
+
+    /* ── 業界平均の目安ヘルパー ── */
+    .bench { margin: 0 0 var(--sp-5); border: 1px solid var(--border-light); }
+    .bench > summary { list-style: none; cursor: pointer; padding: 10px 14px; font-size: var(--text-sm); font-weight: 700; color: var(--navy); background: var(--surface-alt); display: flex; align-items: center; gap: 8px; user-select: none; }
+    .bench > summary::-webkit-details-marker { display: none; }
+    .bench > summary::before { content: '▸'; color: var(--text-muted); font-size: 0.8rem; transition: transform var(--ease); }
+    .bench[open] > summary::before { transform: rotate(90deg); }
+    .bench-body { padding: var(--sp-4); }
+    .bench-intro { font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6; margin-bottom: var(--sp-4); }
+    .bench-group { margin-bottom: var(--sp-4); }
+    .bench-group:last-child { margin-bottom: 0; }
+    .bench-title { font-size: var(--text-xs); font-weight: 700; color: var(--text-secondary); margin-bottom: var(--sp-2); }
+    .bench-chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+    .bench-chip { padding: 6px 12px; font-size: var(--text-xs); font-weight: 600; color: var(--navy); background: var(--surface); border: 1.5px solid var(--border); cursor: pointer; transition: all var(--ease); }
+    .bench-chip:hover { border-color: var(--navy); background: var(--surface-alt); }
+    .bench-calc { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; font-size: var(--text-sm); color: var(--text-secondary); }
+    .bench-calc input { width: 60px; padding: 6px 8px; font-family: var(--font-mono); font-weight: 600; text-align: right; border: 1.5px solid var(--border); }
+    .bench-apply { padding: 6px 12px; font-size: var(--text-xs); font-weight: 700; color: #fff; background: var(--navy); border: none; cursor: pointer; }
+    .bench-note { font-size: 0.68rem; color: var(--text-faint); line-height: 1.5; margin-top: 6px; }
 
     /* 資料に記載がなく仮の値を使っている入力欄の警告マーク */
     .field.needs-input .input-wrap input { border-color: var(--gold); box-shadow: inset 3px 0 0 0 var(--gold); }
     .field.needs-input::after {
-      content: '⚠ 資料に記載なし — BtoB の一般的な目安（仮の値）です。自社の実績値に置き換えてください';
+      content: '⚠ 業界平均の目安（仮の値）です。自社の実績値に置き換えてください';
       display: block; margin-top: 6px; padding: 5px 9px;
       font-size: 0.72rem; font-weight: 600; line-height: 1.45;
       color: var(--navy); background: var(--gold-20);
@@ -380,12 +402,54 @@
       </div>
     </div>
 
-    <div class="preset-row" id="preset-row">
-      <button class="preset-chip" data-preset="academy">アカデミー（研修・育成）</button>
-      <button class="preset-chip" data-preset="solution">ソリューション</button>
-      <button class="preset-chip" data-preset="consulting">コンサルティング</button>
+    <div class="usecase-row">
+      <span class="usecase-label">用途</span>
+      <div class="mode-toggle usecase-toggle" id="usecase-toggle">
+        <button type="button" data-uc="acquire" class="active">💼 顧客獲得（受注）</button>
+        <button type="button" data-uc="recruit">🧑‍💻 エンジニア採用</button>
+      </div>
     </div>
-    <p class="preset-note">AKKODiS の BtoB 3事業ライン向けの「一般的な目安」を初期値として用意しています。実際の数値が分かる項目は置き換えてください。展示会・カンファレンスなどクリックが無い施策は、流入を「獲得数を直接入力」に切り替えてリード/名刺数を入れてください。</p>
+
+    <div class="preset-row" id="preset-row"></div>
+    <p class="preset-note" id="preset-note"></p>
+
+    <details class="bench" id="bench">
+      <summary>📊 数値がわからない時は「業界平均の目安」から入れる</summary>
+      <div class="bench-body">
+        <p class="bench-intro">自社の成約率・粗利率・商談化率などが分からなくても大丈夫。下の一般的な目安を「使う」と入力欄に入り、<strong>⚠目安</strong>として表示されます（必須ではなく、勝手には入りません。後で実績値に置き換えられます）。</p>
+
+        <div class="bench-group">
+          <div class="bench-title">成約率（CVR）の目安 — 流入から受注に至る割合</div>
+          <div class="bench-chips">
+            <button class="bench-chip" data-set="cvr" data-val="0.5">広告クリック→受注 0.5%</button>
+            <button class="bench-chip" data-set="cvr" data-val="5">リード/名刺→受注 5%</button>
+            <button class="bench-chip" data-set="cvr" data-val="15">スカウト返信→採用 15%</button>
+          </div>
+        </div>
+
+        <div class="bench-group">
+          <div class="bench-title">商談化率 × 受注率 から成約率(CVR)を出す（任意・追わなくてもOK）</div>
+          <div class="bench-calc">
+            <label>商談化率 <input type="number" id="bench-mtg" placeholder="20" min="0" max="100" inputmode="decimal">%</label>
+            <span>×</span>
+            <label>受注率 <input type="number" id="bench-win" placeholder="30" min="0" max="100" inputmode="decimal">%</label>
+            <button class="bench-apply" id="bench-calc-apply">CVRに反映</button>
+          </div>
+          <p class="bench-note">目安：リード→商談（商談化率）10〜30% ／ 商談→受注（受注率）20〜40%。掛け合わせがリード→受注の成約率です（例 20%×30%＝6%）。分からなければ空欄のままでOK。</p>
+        </div>
+
+        <div class="bench-group">
+          <div class="bench-title">粗利率の目安（AKKODiS 事業ライン別）</div>
+          <div class="bench-chips">
+            <button class="bench-chip" data-set="margin" data-val="30">エンジニア派遣・SES 30%</button>
+            <button class="bench-chip" data-set="margin" data-val="45">ソリューション・受託 45%</button>
+            <button class="bench-chip" data-set="margin" data-val="65">コンサルティング 65%</button>
+            <button class="bench-chip" data-set="margin" data-val="60">アカデミー（研修）60%</button>
+          </div>
+          <p class="bench-note">サービス業の粗利率は概ね 30〜70%。派遣/SES は低め、コンサル・研修は高めが一般的です。</p>
+        </div>
+      </div>
+    </details>
 
     <div class="sim-layout">
       <!-- 入力 -->
@@ -394,7 +458,7 @@
           <div class="section-title">① 予算・流入</div>
 
           <div class="field">
-            <div class="field-label"><span class="lbl">予算（広告費・出展費など／月額）<span class="req req-must">必須</span></span></div>
+            <div class="field-label"><span class="lbl"><span id="t-budget">予算（広告費・出展費など／月額）</span><span class="req req-must">必須</span></span></div>
             <div class="input-wrap has-prefix">
               <span class="prefix">¥</span>
               <input type="number" id="in-budget" min="0" step="10000" value="500000" inputmode="numeric">
@@ -420,27 +484,27 @@
           </div>
 
           <div class="field" id="field-clicks" style="display:none;">
-            <div class="field-label"><span class="lbl">獲得数（クリック / リード / 名刺 / 申込）<span class="req req-must">必須</span></span></div>
+            <div class="field-label"><span class="lbl"><span id="t-clicks">獲得数（クリック / リード / 名刺 / 申込）</span><span class="req req-must">必須</span></span></div>
             <div class="input-wrap">
               <input type="number" id="in-clicks" min="0" step="50" value="800" inputmode="numeric">
             </div>
-            <p class="field-help">展示会・カンファレンス・セミナーなどクリックが無い施策は、ここに獲得したリード数／名刺枚数／申込数を入力してください（CPC は不要）。</p>
+            <p class="field-help" id="t-clicks-help">展示会・カンファレンス・セミナーなどクリックが無い施策は、ここに獲得したリード数／名刺枚数／申込数を入力してください（CPC は不要）。</p>
           </div>
 
-          <div class="section-title">② コンバージョン</div>
+          <div class="section-title" id="t-sec2">② コンバージョン</div>
 
           <div class="field">
-            <div class="field-label"><span class="lbl">CVR（成約率）<span class="req req-must">必須</span></span><span class="hint" id="cvr-hint">0.5%</span></div>
+            <div class="field-label"><span class="lbl"><span id="t-cvr">CVR（成約率）</span><span class="req req-must">必須</span></span><span class="hint" id="cvr-hint">0.5%</span></div>
             <div class="input-wrap has-suffix">
               <input type="number" id="in-cvr" min="0" max="100" step="0.1" value="0.5" inputmode="decimal">
               <span class="suffix">%</span>
             </div>
             <input type="range" id="range-cvr" min="0" max="20" step="0.1" value="0.5">
-            <p class="field-help">流入（クリック/リード）から受注に至る割合。広告クリック→受注は低め（目安 0.2〜2%）、展示会など名刺/リード→受注なら高め（目安 5〜20%）です。</p>
+            <p class="field-help" id="t-cvr-help">流入（クリック/リード）から受注に至る割合。広告クリック→受注は低め（目安 0.2〜2%）、展示会など名刺/リード→受注なら高め（目安 5〜20%）です。</p>
           </div>
 
           <div class="field">
-            <div class="field-label"><span class="lbl">客単価（初回の平均成約額）<span class="req req-must">必須</span></span><span class="hint">1回あたりの売上</span></div>
+            <div class="field-label"><span class="lbl"><span id="t-aov">客単価（初回の平均成約額）</span><span class="req req-must">必須</span></span><span class="hint" id="t-aov-hint">1回あたりの売上</span></div>
             <div class="input-wrap has-prefix">
               <span class="prefix">¥</span>
               <input type="number" id="in-aov" min="0" step="1000" value="500000" inputmode="numeric">
@@ -448,13 +512,13 @@
           </div>
 
           <div class="field">
-            <div class="field-label"><span class="lbl">平均購入回数（LTV）<span class="req req-opt">任意</span></span><span class="hint" id="repeat-hint">1.0回</span></div>
+            <div class="field-label"><span class="lbl"><span id="t-repeat">平均購入回数（LTV）</span><span class="req req-opt">任意</span></span><span class="hint" id="repeat-hint">1.0回</span></div>
             <div class="input-wrap has-suffix">
               <input type="number" id="in-repeat" min="1" step="0.1" value="1" inputmode="decimal">
-              <span class="suffix">回</span>
+              <span class="suffix" id="t-repeat-unit">回</span>
             </div>
             <input type="range" id="range-repeat" min="1" max="10" step="0.1" value="1">
-            <p class="field-help">1顧客が生涯に契約・購入する平均回数。継続研修・保守契約・リピートは2以上に。1なら単発（LTV考慮なし）。</p>
+            <p class="field-help" id="t-repeat-help">1顧客が生涯に契約・購入する平均回数。継続研修・保守契約・リピートは2以上に。1なら単発（LTV考慮なし）。</p>
           </div>
 
           <div class="section-title">③ 利益設定</div>
@@ -477,6 +541,15 @@
               <input type="number" id="in-othercost" min="0" step="10000" value="0" inputmode="numeric">
             </div>
             <p class="field-help">広告費以外にかかる運用コスト。ROI と損益分岐はこれも差し引いて判定します。</p>
+            <div class="bench-calc" style="margin-top:8px">
+              <label>人数 <input type="number" id="hc-people" placeholder="3" min="0" step="1" inputmode="numeric">人</label>
+              <span>×</span>
+              <label>時給 <input type="number" id="hc-wage" placeholder="5000" min="0" step="100" inputmode="numeric">円</label>
+              <span>×</span>
+              <label>月稼働 <input type="number" id="hc-hours" placeholder="160" min="0" step="5" inputmode="numeric">h</label>
+              <button class="bench-apply" id="hc-apply">概算を反映</button>
+            </div>
+            <p class="bench-note" id="hc-preview">「人数 × 時給 × 月稼働時間」で概算できます（任意）。例：3人 × 5,000円 × 160h ＝ ¥2,400,000／月。月稼働は“この施策に割く時間”です。</p>
           </div>
         </div>
       </div>
@@ -503,7 +576,7 @@
             <div class="kpi-sub">（粗利−総コスト）÷ 総コスト</div>
           </div>
           <div class="kpi">
-            <div class="kpi-label">CPA（顧客獲得単価）</div>
+            <div class="kpi-label" id="t-kpi-cpa">CPA（顧客獲得単価）</div>
             <div class="kpi-value"><span class="unit">¥</span><span id="kpi-cpa">—</span></div>
             <div class="kpi-sub">広告費 ÷ CV数</div>
           </div>
@@ -522,7 +595,7 @@
 
         <div class="funnel" id="funnel">
           <div class="funnel-row"><span class="f-label" id="f-clicks-label">クリック数</span><span class="f-val" id="f-clicks">—</span></div>
-          <div class="funnel-row"><span class="f-label">コンバージョン数</span><span class="f-val" id="f-cv">—</span></div>
+          <div class="funnel-row"><span class="f-label" id="t-f-cv">コンバージョン数</span><span class="f-val" id="f-cv">—</span></div>
           <div class="funnel-row"><span class="f-label" id="f-revenue-label">売上（想定）</span><span class="f-val" id="f-revenue">—</span></div>
           <div class="funnel-row"><span class="f-label">粗利（想定）</span><span class="f-val" id="f-profit">—</span></div>
           <div class="funnel-row" id="f-othercost-row" style="display:none;"><span class="f-label">その他固定費</span><span class="f-val" id="f-othercost">—</span></div>
@@ -542,11 +615,11 @@
               <span class="mm-val"><span id="m-maxcpa">—</span></span>
             </div>
             <div class="mm-row">
-              <span class="mm-label">実CPA（広告費÷CV）<span class="mm-sub">限界CPA を超えると赤字方向</span></span>
+              <span class="mm-label"><span id="t-m-cpa">実CPA（広告費÷CV）</span><span class="mm-sub">限界CPA を超えると赤字方向</span></span>
               <span class="mm-val"><span id="m-cpa">—</span><span class="mm-pill" id="m-cpa-pill"></span></span>
             </div>
             <div class="mm-row">
-              <span class="mm-label">LTV（1顧客あたり粗利）<span class="mm-sub">客単価 × 購入回数 × 粗利率</span></span>
+              <span class="mm-label"><span id="t-m-ltv">LTV（1顧客あたり粗利）</span><span class="mm-sub" id="t-m-ltv-sub">客単価 × 購入回数 × 粗利率</span></span>
               <span class="mm-val"><span id="m-ltv">—</span></span>
             </div>
             <div class="mm-row">
@@ -554,7 +627,7 @@
               <span class="mm-val"><span id="m-cac">—</span></span>
             </div>
             <div class="mm-row">
-              <span class="mm-label">損益分岐CV数<span class="mm-sub">黒字化に必要な成約数</span></span>
+              <span class="mm-label"><span id="t-m-becv">損益分岐CV数</span><span class="mm-sub">黒字化に必要な成約数</span></span>
               <span class="mm-val"><span id="m-becv">—</span></span>
             </div>
           </div>
@@ -617,20 +690,38 @@
 
   <script>
     // ── デフォルト値とプリセット（BtoB の一般的な目安） ──────
-    // ※ AKKODiS の BtoB 3事業ライン向け。実数値は各社で要調整の「目安」。
+    // ※ AKKODiS の公式4事業ライン（Consulting / Solutions / Talent / Academy）＋採用。実数値は各社で要調整の「目安」。
     const DEFAULTS = { budget: 500000, mode: 'cpc', cpc: 600, clicks: 800, cvr: 0.5, aov: 500000, repeat: 1, margin: 50, othercost: 0 };
     const PRESETS = {
-      // アカデミー（研修・人材育成）: 受注単価中・継続あり・粗利高
-      academy:    { budget: 400000, mode: 'cpc', cpc: 800,  clicks: 500, cvr: 0.3, aov: 350000,  repeat: 2, margin: 60, othercost: 120000 },
-      // ソリューション（SES・システム開発等）: 受注単価高・粗利中・運用人件費大
-      solution:   { budget: 800000, mode: 'cpc', cpc: 1200, clicks: 667, cvr: 0.3, aov: 1200000, repeat: 1, margin: 45, othercost: 300000 },
+      // ── 顧客獲得（受注）：AKKODiS 公式4事業ライン ──
       // コンサルティング: 受注単価特大・高単価少数・粗利高
       consulting: { budget: 600000, mode: 'cpc', cpc: 1500, clicks: 400, cvr: 0.2, aov: 3000000, repeat: 1, margin: 65, othercost: 350000 },
+      // ソリューション（DX・システム開発等）: 受注単価高・粗利中・運用人件費大
+      solution:   { budget: 800000, mode: 'cpc', cpc: 1200, clicks: 667, cvr: 0.3, aov: 1200000, repeat: 1, margin: 45, othercost: 300000 },
+      // タレント（エンジニア派遣）: 配置あたり粗利・継続あり
+      talent:     { budget: 700000, mode: 'cpc', cpc: 900,  clicks: 778, cvr: 0.2, aov: 1500000, repeat: 2, margin: 40, othercost: 250000 },
+      // アカデミー（研修・人材育成）: 受注単価中・継続あり・粗利高
+      academy:    { budget: 400000, mode: 'cpc', cpc: 800,  clicks: 500, cvr: 0.3, aov: 350000,  repeat: 2, margin: 60, othercost: 120000 },
+      // ── エンジニア採用（候補者マーケ）：客単価＝月次粗利 / 購入回数＝平均稼働月数 / 粗利率100% ──
+      // 中途（経験者）: 応募から採用、月次粗利×稼働月数で1人のLTV
+      recruit_mid: { budget: 1000000, mode: 'clicks', cpc: 1000, clicks: 40, cvr: 10, aov: 350000, repeat: 24, margin: 100, othercost: 300000 },
+      // 新卒・ポテンシャル: 応募多・採用率低・長期在籍
+      recruit_new: { budget: 800000, mode: 'clicks', cpc: 800, clicks: 100, cvr: 5, aov: 250000, repeat: 36, margin: 100, othercost: 250000 },
+    };
+    // 用途別の初期プリセット・チップ構成
+    const USE_CASE_PRESETS = {
+      acquire: ['consulting', 'solution', 'talent', 'academy'],
+      recruit: ['recruit_mid', 'recruit_new'],
+    };
+    const PRESET_LABELS = {
+      consulting: 'コンサルティング', solution: 'ソリューション', talent: 'エンジニア派遣', academy: 'アカデミー（研修）',
+      recruit_mid: '中途（経験者）', recruit_new: '新卒・ポテンシャル',
     };
     // 資料に記載が無い「自社側数値」を補う BtoB の一般的な目安（仮値・要置換）
     const BTOB_BENCHMARK = { cvr: 0.5, aov: 500000, margin: 50 };
 
     let mode = 'cpc';
+    let useCase = 'acquire';   // 'acquire' 顧客獲得 | 'recruit' エンジニア採用
 
     // ── 要素参照 ─────────────────────────────────────
     const el = (id) => document.getElementById(id);
@@ -646,6 +737,75 @@
     const num = (n) => Math.round(n).toLocaleString('ja-JP');
     const pct = (n) => (Math.round(n * 10) / 10).toLocaleString('ja-JP');
     const val = (input) => { const v = parseFloat(input.value); return isNaN(v) || v < 0 ? 0 : v; };
+
+    // ── 用途別ラベル（顧客獲得 / エンジニア採用） ──────────
+    const UC = {
+      acquire: {
+        note: 'AKKODiS 公式4事業ライン（コンサルティング / ソリューション / エンジニア派遣 / アカデミー）の「一般的な目安」を初期値に用意。実数値が分かる項目は置き換えてください。展示会・カンファレンスなどクリックが無い施策は、流入を「獲得数を直接入力」に切り替えてリード/名刺数を入れてください。',
+        repeatUnit: '回', cvWord: '件', cvrWord: 'CVR', flowWord: '獲得数',
+        labels: {
+          't-sec2': '② コンバージョン',
+          't-budget': '予算（広告費・出展費など／月額）',
+          't-clicks': '獲得数（クリック / リード / 名刺 / 申込）',
+          't-clicks-help': '展示会・カンファレンス・セミナーなどクリックが無い施策は、ここに獲得したリード数／名刺枚数／申込数を入力してください（CPC は不要）。',
+          't-cvr': 'CVR（成約率）',
+          't-cvr-help': '流入（クリック/リード）から受注に至る割合。広告クリック→受注は低め（目安 0.2〜2%）、展示会など名刺/リード→受注なら高め（目安 5〜20%）です。',
+          't-aov': '客単価（初回の平均成約額）',
+          't-aov-hint': '1回あたりの売上',
+          't-repeat': '平均購入回数（LTV）',
+          't-repeat-unit': '回',
+          't-repeat-help': '1顧客が生涯に契約・購入する平均回数。継続研修・保守契約・リピートは2以上に。1なら単発（LTV考慮なし）。',
+          't-kpi-cpa': 'CPA（顧客獲得単価）',
+          't-f-cv': 'コンバージョン数',
+          't-m-cpa': '実CPA（予算÷CV）',
+          't-m-ltv': 'LTV（1顧客あたり粗利）',
+          't-m-ltv-sub': '客単価 × 購入回数 × 粗利率',
+          't-m-becv': '損益分岐CV数',
+        },
+      },
+      recruit: {
+        note: 'エンジニア採用（候補者マーケ）モード。客単価＝「1人あたり月次粗利」、購入回数＝「平均稼働月数」、CVR＝「応募・接触→採用率」、CV＝「採用人数」として入力します。月次粗利を直接入れる前提なので粗利率は100%が目安。採用は1人の生涯価値が大きいため LTV/CAC は高く出ます（＝採用は基本的に投資対効果が高い）。',
+        repeatUnit: 'ヶ月', cvWord: '人', cvrWord: '採用率', flowWord: '応募・接触数',
+        labels: {
+          't-sec2': '② 採用',
+          't-budget': '採用予算（媒体費・スカウト・エージェント／月額）',
+          't-clicks': '応募・スカウト返信数',
+          't-clicks-help': '媒体応募数・スカウト返信数・エントリー数を入力してください（クリックから出す場合は「CPC×予算で算出」に切替）。',
+          't-cvr': '採用率（応募・接触→採用）',
+          't-cvr-help': '応募・スカウト返信から採用（内定承諾）に至る割合。媒体応募→採用は3〜10%、スカウト返信→採用は20〜40%が目安。',
+          't-aov': '1人あたり月次粗利',
+          't-aov-hint': 'エンジニア1人・1ヶ月の粗利',
+          't-repeat': '平均稼働月数',
+          't-repeat-unit': 'ヶ月',
+          't-repeat-help': 'エンジニアが平均で稼働する月数。LTV＝月次粗利×稼働月数。長期在籍ほど採用1人の価値は大きくなります。',
+          't-kpi-cpa': '採用単価（CPA）',
+          't-f-cv': '採用人数',
+          't-m-cpa': '採用単価（予算÷採用数）',
+          't-m-ltv': 'エンジニア1人あたり粗利（生涯）',
+          't-m-ltv-sub': '月次粗利 × 稼働月数 × 粗利率',
+          't-m-becv': '損益分岐の採用数',
+        },
+      },
+    };
+
+    function renderPresetChips(uc) {
+      const row = el('preset-row');
+      row.innerHTML = USE_CASE_PRESETS[uc].map(k =>
+        `<button class="preset-chip" data-preset="${k}">${PRESET_LABELS[k]}</button>`).join('');
+    }
+    function applyUseCaseLabels(uc) {
+      const L = UC[uc].labels;
+      Object.keys(L).forEach(id => { const e = el(id); if (e) e.textContent = L[id]; });
+      el('preset-note').textContent = UC[uc].note;
+    }
+    function setUseCase(uc, loadPreset) {
+      useCase = uc;
+      el('usecase-toggle').querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.uc === uc));
+      renderPresetChips(uc);
+      applyUseCaseLabels(uc);
+      if (loadPreset) { applyValues(PRESETS[USE_CASE_PRESETS[uc][0]]); clearMissingMarks(); clearImportError(); }
+      else render();
+    }
 
     // ── 現在のフォーム値をパラメータ化 ───────────────────
     function readInputs() {
@@ -707,7 +867,7 @@
       // ヒント更新
       el('cvr-hint').textContent = pct(val(inputs.cvr)) + '%';
       el('margin-hint').textContent = num(val(inputs.margin)) + '%';
-      el('repeat-hint').textContent = pct(Math.max(val(inputs.repeat), 1)) + '回';
+      el('repeat-hint').textContent = pct(Math.max(val(inputs.repeat), 1)) + UC[useCase].repeatUnit;
 
       // KPI
       el('kpi-roas').textContent = hasInput ? num(r.roas) : '—';
@@ -718,9 +878,9 @@
 
       // ファネル
       el('f-revenue-label').textContent = r.repeat > 1 ? '売上（LTV込み・想定）' : '売上（想定）';
-      el('f-clicks-label').textContent = mode === 'cpc' ? 'クリック数' : '獲得数';
+      el('f-clicks-label').textContent = mode === 'cpc' ? 'クリック数' : UC[useCase].flowWord;
       el('f-clicks').textContent = hasInput ? num(r.clicks) + (mode === 'cpc' ? ' クリック' : ' 件') : '—';
-      el('f-cv').textContent = hasInput ? num(r.cv) + ' 件' : '—';
+      el('f-cv').textContent = hasInput ? num(r.cv) + ' ' + UC[useCase].cvWord : '—';
       el('f-revenue').textContent = hasInput ? yen(r.revenue) : '—';
       el('f-profit').textContent = hasInput ? yen(r.grossProfit) : '—';
       const otherRow = el('f-othercost-row');
@@ -743,7 +903,7 @@
         el('m-ltv').textContent = yen(r.ltv);
         el('m-cac').textContent = yen(r.cac);
         el('m-becv').textContent = isFinite(r.breakEvenCv)
-          ? `${(Math.round(r.breakEvenCv * 10) / 10).toLocaleString('ja-JP')} 件（現在 ${num(r.cv)} 件）` : '—';
+          ? `${(Math.round(r.breakEvenCv * 10) / 10).toLocaleString('ja-JP')} ${UC[useCase].cvWord}（現在 ${num(r.cv)} ${UC[useCase].cvWord}）` : '—';
       } else {
         ['m-ltvcac', 'm-maxcpa', 'm-cpa', 'm-ltv', 'm-cac', 'm-becv'].forEach(id => el(id).textContent = '—');
         ['m-ltvcac-pill', 'm-cpa-pill'].forEach(id => { el(id).textContent = ''; el(id).className = 'mm-pill'; });
@@ -783,7 +943,7 @@
         el('verdict-title').textContent = '赤字の見込み';
         const needCvr = neededCvr(r);
         el('verdict-sub').textContent = needCvr
-          ? `黒字化には CVR ${pct(needCvr)}% 以上（現在 ${pct(val(inputs.cvr))}%）が必要`
+          ? `黒字化には ${UC[useCase].cvrWord} ${pct(needCvr)}% 以上（現在 ${pct(val(inputs.cvr))}%）が必要`
           : `${yen(Math.abs(r.netProfit))} の損失。条件の見直しを`;
       }
     }
@@ -835,6 +995,60 @@
       if (chip) { applyValues(PRESETS[chip.dataset.preset]); clearMissingMarks(); clearImportError(); }
     });
     el('reset-btn').addEventListener('click', () => { applyValues(DEFAULTS); clearMissingMarks(); clearImportError(); });
+
+    // 用途トグル（顧客獲得 / エンジニア採用）
+    el('usecase-toggle').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-uc]');
+      if (!btn || btn.dataset.uc === useCase) return;
+      setUseCase(btn.dataset.uc, true);
+    });
+
+    // 業界平均の目安ヘルパー（任意・ワンタップで入力＋⚠目安マーク）
+    function setBenchmark(field, value) {
+      const map = { cvr: [inputs.cvr, rangeCvr], margin: [inputs.margin, rangeMargin] };
+      const pair = map[field];
+      if (!pair || !isFinite(value)) return;
+      const [inp, rng] = pair;
+      const v = Math.max(0, Math.round(value * 10) / 10);
+      inp.value = v; if (rng) rng.value = v;
+      const f = inp.closest('.field');
+      if (f) { f.classList.add('needs-input'); f.classList.remove('fill-flash'); void f.offsetWidth; f.classList.add('fill-flash'); }
+      render();
+    }
+    el('bench').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-set]');
+      if (chip) setBenchmark(chip.dataset.set, parseFloat(chip.dataset.val));
+    });
+    el('bench-calc-apply').addEventListener('click', () => {
+      const m = parseFloat(el('bench-mtg').value), w = parseFloat(el('bench-win').value);
+      if (isFinite(m) && isFinite(w) && m > 0 && w > 0) setBenchmark('cvr', m * w / 100);
+      else { el('bench-mtg').focus(); }
+    });
+
+    // その他固定費（人件費）の概算ヘルパー：人数 × 時給 × 月稼働時間
+    function hcCompute() {
+      const p = parseFloat(el('hc-people').value) || 0;
+      const w = parseFloat(el('hc-wage').value) || 0;
+      const h = parseFloat(el('hc-hours').value) || 0;
+      return Math.max(0, p * w * h);
+    }
+    function hcPreview() {
+      const v = hcCompute();
+      el('hc-preview').textContent = v > 0
+        ? `概算人件費 ＝ ${yen(v)}／月（人数 × 時給 × 月稼働時間）。月稼働は“この施策に割く時間”です。「概算を反映」で上の欄に入ります。`
+        : '「人数 × 時給 × 月稼働時間」で概算できます（任意）。例：3人 × 5,000円 × 160h ＝ ¥2,400,000／月。月稼働は“この施策に割く時間”です。';
+    }
+    ['hc-people', 'hc-wage', 'hc-hours'].forEach(id => el(id).addEventListener('input', hcPreview));
+    el('hc-apply').addEventListener('click', () => {
+      const v = hcCompute();
+      if (v > 0) {
+        inputs.othercost.value = Math.round(v);
+        const f = inputs.othercost.closest('.field');
+        if (f) { f.classList.remove('fill-flash'); void f.offsetWidth; f.classList.add('fill-flash'); }
+        render();
+      } else { el('hc-people').focus(); }
+    });
+    hcPreview();
 
     // ── プラン比較 ───────────────────────────────────
     let scenarios = [];        // { label, ...params }
@@ -1328,8 +1542,8 @@
       if (file) handleFile(file);
     });
 
-    // 初期描画
-    render();
+    // 初期描画（用途ラベル・プリセットチップを反映してから描画）
+    setUseCase('acquire', false);
   </script>
 
   <script src="../../assets/onboarding.js?v=20260503"></script>
@@ -1339,15 +1553,15 @@
     title: 'ROI / ROAS Simulator',
     description: '「この予算で黒字になるか？」を施策前に見極めます',
     features: [
-      { icon: '📄', text: '営業資料（PDF/PPTX/DOCX）をアップすると AI が数値を読み取り自動で試算' },
-      { icon: '📊', text: '資料に複数プランがあれば自動で並べて ROAS/ROI/利益を横比較' },
-      { icon: '💴', text: '人件費などの固定費・LTV（リピート）も加味した本格モデル' },
+      { icon: '🏢', text: 'AKKODiS 公式4事業ライン＋「エンジニア採用」モード（採用マーケにも対応）' },
+      { icon: '📊', text: '営業資料アップで AI 自動入力／複数プランは横比較' },
+      { icon: '🧭', text: 'CVR・粗利率がわからなくても「業界平均の目安」をワンタップ（⚠目安と明示）' },
       { icon: '🟢', text: 'ROAS/ROI/CPA に加え LTV/CAC・限界CPA・損益分岐CV など BtoB 指標も' }
     ],
     updates: [
+      { date: '06/20', text: 'AKKODiS 事業に合わせて拡張：①用途トグル「顧客獲得／エンジニア採用」（採用モードは客単価→月次粗利・購入回数→稼働月数などラベルが変わり採用マーケに使える）、②公式4事業ラインのプリセット（コンサル/ソリューション/エンジニア派遣/アカデミー）、③成約率・粗利率がわからなくても「業界平均の目安」をワンタップ（商談化率×受注率からCVRを出す任意計算も）、④人件費を「人数×時給×月稼働時間」で概算。目安は常に任意・⚠表示・置換可能' },
       { date: '06/19', text: '指標を拡充：ROAS/ROI/CPA に加え「詳しい指標を見る」で LTV/CAC比（健全の目安3倍）・限界CPA（許容上限）vs 実CPA・損益分岐CV数・1顧客あたりLTV を表示。BtoB の投資判断に必要な指標を一通りカバー（普段はたたんでシンプルなまま）' },
-      { date: '06/19', text: '誰でも迷わず使えるUXに：①プリセットを AKKODiS の BtoB 3事業ライン（アカデミー／ソリューション／コンサル）に刷新し一般的な目安値をワンクリック投入、②各項目に「必須／任意」バッジ、③展示会・カンファレンスなどクリックが無い施策は「獲得数を直接入力」でリード/名刺数を入れればOK（CPC不要）' },
-      { date: '06/19', text: 'データ不足時の安全装置：営業資料に CVR・客単価・粗利率などが書かれていない場合、AI は推測で埋めず、その欄を「⚠仮の値（目安）」とハッキリ明示します（判定も「要検討（暫定）」に）。実績値を入れれば判定が確定します' }
+      { date: '06/19', text: '誰でも迷わず使えるUXに：必須/任意バッジ、展示会・カンファレンスなどクリックが無い施策は「獲得数を直接入力」でリード/名刺数を入れればOK（CPC不要）、データ不足時は AI が推測せず「⚠仮の値」と明示' }
     ]
   };
   initOnboarding(OB_CONFIG);
