@@ -5,10 +5,12 @@
   "scripts": {
     "test": "playwright test",
     "test:ai-news": "playwright test tests/ai-news.spec.js",
+    "test:roi": "node tests/roi-roas-simulator.e2e.js",
     "serve": "npx -y serve . -p 3000"
   },
   "dependencies": {},
   "devDependencies": {
-    "@playwright/test": "1.56.1"
+    "@playwright/test": "1.56.1",
+    "jsdom": "^29.1.1"
   }
 }
