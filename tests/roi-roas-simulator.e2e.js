@@ -52,6 +52,8 @@ check('用途トグルに role=group', $('usecase-toggle').getAttribute('role') 
 check('用途ボタン aria-pressed 初期(acquire=true)', $('usecase-toggle').querySelector('[data-uc="acquire"]').getAttribute('aria-pressed') === 'true');
 check('流入トグルに aria-label', !!$('traffic-mode').getAttribute('aria-label'));
 check('プリセット群に aria-label', !!$('preset-row').getAttribute('aria-label'));
+check('④その他コストは折りたたみ要素', $('adv-cost').tagName.toLowerCase() === 'details');
+check('初期はその他コスト畳んでいる（othercost=0）', $('adv-cost').open === false);
 
 console.log('=== 2. 入力変更でリアルタイム再計算 ===');
 const roas0 = txt('kpi-roas');
@@ -61,7 +63,12 @@ check('CVR変更でROAS変化', txt('kpi-roas') !== roas0, `before=${roas0} afte
 console.log('=== 3. プリセット（エンジニア派遣）適用 ===');
 const talentBtn = $('preset-row').querySelector('[data-preset="talent"]');
 check('talent チップ存在', !!talentBtn);
-if (talentBtn) { click(talentBtn); check('talent 適用で予算=700000', $('in-budget').value === '700000', 'got=' + $('in-budget').value); }
+if (talentBtn) {
+  click(talentBtn);
+  check('talent 適用で予算=700000', $('in-budget').value === '700000', 'got=' + $('in-budget').value);
+  check('その他コストありプリセットで詳細が自動オープン', $('adv-cost').open === true);
+  check('折りたたみ見出しに金額表示', txt('adv-cost-amount').includes('計上'), 'got=' + txt('adv-cost-amount'));
+}
 
 console.log('=== 4. 用途トグル → エンジニア採用 ===');
 const recBtn = $('usecase-toggle').querySelector('[data-uc="recruit"]');
