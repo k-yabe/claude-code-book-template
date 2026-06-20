@@ -184,6 +184,28 @@
     .funnel-row .f-label { color: var(--text-secondary); }
     .funnel-row .f-val { font-weight: 700; color: var(--navy); font-family: var(--font-mono); }
 
+    /* ── 詳しい指標（折りたたみ） ── */
+    .more-metrics { margin-top: var(--sp-4); border: 1px solid var(--border-light); }
+    .more-metrics > summary {
+      list-style: none; cursor: pointer; padding: 10px 14px;
+      font-size: var(--text-sm); font-weight: 700; color: var(--navy);
+      background: var(--surface-alt); display: flex; align-items: center; gap: 8px;
+      user-select: none;
+    }
+    .more-metrics > summary::-webkit-details-marker { display: none; }
+    .more-metrics > summary::before { content: '▸'; color: var(--text-muted); font-size: 0.8rem; transition: transform var(--ease); }
+    .more-metrics[open] > summary::before { transform: rotate(90deg); }
+    .mm-body { padding: var(--sp-2) var(--sp-4) var(--sp-4); }
+    .mm-row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: 9px 0; border-bottom: 1px solid var(--border-light); }
+    .mm-row:last-child { border-bottom: none; }
+    .mm-label { display: flex; flex-direction: column; gap: 1px; font-size: var(--text-sm); font-weight: 600; color: var(--text-secondary); }
+    .mm-sub { font-size: 0.68rem; font-weight: 400; color: var(--text-faint); }
+    .mm-val { display: inline-flex; align-items: center; gap: 8px; font-size: var(--text-md); font-weight: 700; color: var(--navy); font-family: var(--font-mono); white-space: nowrap; }
+    .mm-pill { font-family: var(--font-sans); font-size: 0.66rem; font-weight: 700; padding: 1px 7px; }
+    .mm-pill.good { background: var(--success-bg); color: var(--success-text); }
+    .mm-pill.warn { background: var(--gold-20); color: var(--navy); }
+    .mm-pill.bad { background: var(--error-bg); color: var(--error-text); }
+
     .result-actions { display: flex; gap: var(--sp-3); margin-top: var(--sp-5); }
     .result-actions button { flex: 1; }
 
@@ -499,7 +521,7 @@
         </div>
 
         <div class="funnel" id="funnel">
-          <div class="funnel-row"><span class="f-label">クリック数</span><span class="f-val" id="f-clicks">—</span></div>
+          <div class="funnel-row"><span class="f-label" id="f-clicks-label">クリック数</span><span class="f-val" id="f-clicks">—</span></div>
           <div class="funnel-row"><span class="f-label">コンバージョン数</span><span class="f-val" id="f-cv">—</span></div>
           <div class="funnel-row"><span class="f-label" id="f-revenue-label">売上（想定）</span><span class="f-val" id="f-revenue">—</span></div>
           <div class="funnel-row"><span class="f-label">粗利（想定）</span><span class="f-val" id="f-profit">—</span></div>
@@ -507,6 +529,36 @@
           <div class="funnel-row"><span class="f-label">総コスト（広告費＋その他）</span><span class="f-val" id="f-totalcost">—</span></div>
           <div class="funnel-row"><span class="f-label">全コスト差引後の利益</span><span class="f-val" id="f-net">—</span></div>
         </div>
+
+        <details class="more-metrics">
+          <summary>詳しい指標を見る（LTV / CAC・限界CPA・損益分岐CV数）</summary>
+          <div class="mm-body">
+            <div class="mm-row">
+              <span class="mm-label">LTV / CAC 比<span class="mm-sub">健全の目安 3倍以上</span></span>
+              <span class="mm-val"><span id="m-ltvcac">—</span><span class="mm-pill" id="m-ltvcac-pill"></span></span>
+            </div>
+            <div class="mm-row">
+              <span class="mm-label">限界CPA（許容上限）<span class="mm-sub">1件にかけられる粗利の上限</span></span>
+              <span class="mm-val"><span id="m-maxcpa">—</span></span>
+            </div>
+            <div class="mm-row">
+              <span class="mm-label">実CPA（広告費÷CV）<span class="mm-sub">限界CPA を超えると赤字方向</span></span>
+              <span class="mm-val"><span id="m-cpa">—</span><span class="mm-pill" id="m-cpa-pill"></span></span>
+            </div>
+            <div class="mm-row">
+              <span class="mm-label">LTV（1顧客あたり粗利）<span class="mm-sub">客単価 × 購入回数 × 粗利率</span></span>
+              <span class="mm-val"><span id="m-ltv">—</span></span>
+            </div>
+            <div class="mm-row">
+              <span class="mm-label">CAC（顧客獲得コスト）<span class="mm-sub">総コスト ÷ CV数</span></span>
+              <span class="mm-val"><span id="m-cac">—</span></span>
+            </div>
+            <div class="mm-row">
+              <span class="mm-label">損益分岐CV数<span class="mm-sub">黒字化に必要な成約数</span></span>
+              <span class="mm-val"><span id="m-becv">—</span></span>
+            </div>
+          </div>
+        </details>
 
         <div class="result-actions">
           <button class="btn-outline" id="copy-btn">結果をコピー</button>
@@ -635,7 +687,14 @@
       // grossProfit = totalCost → 売上 = totalCost / margin → /budget
       const breakEvenRoas = (margin > 0 && budget > 0) ? (totalCost / margin / budget) * 100 : Infinity;
 
-      return { budget, otherCost, totalCost, clicks, cv, revenue, grossProfit, netProfit, roas, roi, cpa, breakEvenRoas, margin, repeat };
+      // ── BtoB 標準指標（既存入力から導出） ──
+      const ltv = aov * repeat * margin;            // 1顧客あたり粗利（生涯）＝許容CPA上限
+      const cac = cv > 0 ? totalCost / cv : 0;       // 顧客獲得コスト（総コスト基準）
+      const ltvCac = cac > 0 ? ltv / cac : 0;        // LTV/CAC 比（目安≥3で健全）
+      const breakEvenCv = ltv > 0 ? totalCost / ltv : Infinity; // 損益分岐CV数
+      const cpl = clicks > 0 ? budget / clicks : 0;  // 獲得単価（CPC=広告費÷獲得数）
+
+      return { budget, otherCost, totalCost, clicks, cv, revenue, grossProfit, netProfit, roas, roi, cpa, breakEvenRoas, margin, repeat, ltv, cac, ltvCac, breakEvenCv, cpl };
     }
 
     function compute() { return computeFrom(readInputs()); }
@@ -659,7 +718,8 @@
 
       // ファネル
       el('f-revenue-label').textContent = r.repeat > 1 ? '売上（LTV込み・想定）' : '売上（想定）';
-      el('f-clicks').textContent = hasInput ? num(r.clicks) + ' クリック' : '—';
+      el('f-clicks-label').textContent = mode === 'cpc' ? 'クリック数' : '獲得数';
+      el('f-clicks').textContent = hasInput ? num(r.clicks) + (mode === 'cpc' ? ' クリック' : ' 件') : '—';
       el('f-cv').textContent = hasInput ? num(r.cv) + ' 件' : '—';
       el('f-revenue').textContent = hasInput ? yen(r.revenue) : '—';
       el('f-profit').textContent = hasInput ? yen(r.grossProfit) : '—';
@@ -669,6 +729,25 @@
       el('f-totalcost').textContent = hasInput ? yen(r.totalCost) : '—';
       el('f-net').textContent = hasInput ? (r.netProfit >= 0 ? '+' : '−') + yen(Math.abs(r.netProfit)) : '—';
       el('f-net').style.color = r.netProfit >= 0 ? 'var(--success-text)' : 'var(--error-text)';
+
+      // 詳しい指標（LTV/CAC・限界CPA・損益分岐CV）
+      const setPill = (id, label, cls) => { const p = el(id); p.textContent = label; p.className = 'mm-pill ' + cls; };
+      if (hasInput && r.cv > 0) {
+        el('m-ltvcac').textContent = (Math.round(r.ltvCac * 10) / 10) + '倍';
+        if (r.ltvCac >= 3) setPill('m-ltvcac-pill', '健全', 'good');
+        else if (r.ltvCac >= 1) setPill('m-ltvcac-pill', '要改善', 'warn');
+        else setPill('m-ltvcac-pill', '赤字', 'bad');
+        el('m-maxcpa').textContent = yen(r.ltv);
+        el('m-cpa').textContent = yen(r.cpa);
+        setPill('m-cpa-pill', r.cpa <= r.ltv ? '許容内' : '超過', r.cpa <= r.ltv ? 'good' : 'bad');
+        el('m-ltv').textContent = yen(r.ltv);
+        el('m-cac').textContent = yen(r.cac);
+        el('m-becv').textContent = isFinite(r.breakEvenCv)
+          ? `${(Math.round(r.breakEvenCv * 10) / 10).toLocaleString('ja-JP')} 件（現在 ${num(r.cv)} 件）` : '—';
+      } else {
+        ['m-ltvcac', 'm-maxcpa', 'm-cpa', 'm-ltv', 'm-cac', 'm-becv'].forEach(id => el(id).textContent = '—');
+        ['m-ltvcac-pill', 'm-cpa-pill'].forEach(id => { el(id).textContent = ''; el(id).className = 'mm-pill'; });
+      }
 
       // 損益分岐バー
       el('be-target').textContent = isFinite(r.breakEvenRoas) ? num(r.breakEvenRoas) + '%' : '—';
@@ -871,7 +950,8 @@
         `想定売上${r.repeat > 1 ? '(LTV込)' : ''}: ${yen(r.revenue)} / 粗利: ${yen(r.grossProfit)}`,
         `ROAS: ${num(r.roas)}%（損益分岐 ${isFinite(r.breakEvenRoas) ? num(r.breakEvenRoas) + '%' : '—'}）`,
         `ROI: ${r.roi >= 0 ? '+' : ''}${num(r.roi)}%（総コストベース）`,
-        `CPA: ${r.cv > 0 ? yen(r.cpa) : '—'}`,
+        `CPA: ${r.cv > 0 ? yen(r.cpa) : '—'}（限界CPA上限 ${r.cv > 0 ? yen(r.ltv) : '—'}）`,
+        `LTV/CAC: ${r.cv > 0 ? (Math.round(r.ltvCac * 10) / 10) + '倍' : '—'}（目安≥3）/ 損益分岐CV数: ${isFinite(r.breakEvenCv) ? (Math.round(r.breakEvenCv * 10) / 10) + '件' : '—'}`,
         `判定: ${r.netProfit >= 0 ? '黒字見込み（利益 ' + yen(r.netProfit) + '）' : '赤字見込み（損失 ' + yen(Math.abs(r.netProfit)) + '）'}`,
       ];
       navigator.clipboard.writeText(lines.join('\n')).then(() => {
@@ -1262,12 +1342,12 @@
       { icon: '📄', text: '営業資料（PDF/PPTX/DOCX）をアップすると AI が数値を読み取り自動で試算' },
       { icon: '📊', text: '資料に複数プランがあれば自動で並べて ROAS/ROI/利益を横比較' },
       { icon: '💴', text: '人件費などの固定費・LTV（リピート）も加味した本格モデル' },
-      { icon: '🟢', text: '損益分岐点と黒字/赤字・必要 CVR をひと目で判定' }
+      { icon: '🟢', text: 'ROAS/ROI/CPA に加え LTV/CAC・限界CPA・損益分岐CV など BtoB 指標も' }
     ],
     updates: [
+      { date: '06/19', text: '指標を拡充：ROAS/ROI/CPA に加え「詳しい指標を見る」で LTV/CAC比（健全の目安3倍）・限界CPA（許容上限）vs 実CPA・損益分岐CV数・1顧客あたりLTV を表示。BtoB の投資判断に必要な指標を一通りカバー（普段はたたんでシンプルなまま）' },
       { date: '06/19', text: '誰でも迷わず使えるUXに：①プリセットを AKKODiS の BtoB 3事業ライン（アカデミー／ソリューション／コンサル）に刷新し一般的な目安値をワンクリック投入、②各項目に「必須／任意」バッジ、③展示会・カンファレンスなどクリックが無い施策は「獲得数を直接入力」でリード/名刺数を入れればOK（CPC不要）' },
-      { date: '06/19', text: 'データ不足時の安全装置：営業資料に CVR・客単価・粗利率などが書かれていない場合、AI は推測で埋めず、その欄を「⚠仮の値（目安）」とハッキリ明示します（判定も「要検討（暫定）」に）。実績値を入れれば判定が確定します' },
-      { date: '06/19', text: 'モデルを大幅強化：①人件費などの「その他固定費」を加味した ROI／損益分岐、②LTV（平均購入回数）でリピート売上を反映、③資料に複数プランがあれば自動で並べて横比較（列クリックで反映）' }
+      { date: '06/19', text: 'データ不足時の安全装置：営業資料に CVR・客単価・粗利率などが書かれていない場合、AI は推測で埋めず、その欄を「⚠仮の値（目安）」とハッキリ明示します（判定も「要検討（暫定）」に）。実績値を入れれば判定が確定します' }
     ]
   };
   initOnboarding(OB_CONFIG);
