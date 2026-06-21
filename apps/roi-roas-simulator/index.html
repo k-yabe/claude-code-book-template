@@ -376,6 +376,11 @@
     /* 結果カードの見出し */
     .result-card-head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-3); }
     .rch-title { font-size: var(--text-base); font-weight: 700; color: var(--navy); }
+    /* 初心者向け：結果を平易な日本語で1文に */
+    .result-summary { font-size: var(--text-sm); line-height: 1.75; color: var(--text-secondary); background: var(--surface-alt); border-left: 3px solid var(--navy); padding: 11px 14px; margin: 0 0 var(--sp-5); }
+    .result-summary strong { color: var(--navy); font-weight: 700; }
+    .result-summary .rs-good { color: var(--success-text); font-weight: 700; }
+    .result-summary .rs-bad { color: var(--error-text); font-weight: 700; }
     /* 「いま何を前提に試算しているか」を常時表示するバー */
     .basis-bar { font-size: var(--text-xs); font-weight: 700; color: var(--navy); background: var(--surface-alt); border-left: 3px solid var(--navy); padding: 8px 12px; margin-bottom: var(--sp-4); line-height: 1.45; }
     .basis-bar::before { content: '📌 '; }
@@ -727,6 +732,8 @@
             <span class="verdict-sub" id="verdict-sub">数値を入れるとリアルタイムで計算します</span>
           </div>
         </div>
+
+        <p class="result-summary" id="result-summary" style="display:none;"></p>
 
         <div class="kpi-grid">
           <div class="kpi kpi-hero">
@@ -1140,6 +1147,21 @@
       } else {
         fill.style.width = '0%';
         marker.style.left = '60%';
+      }
+
+      // 初心者向け：結果を平易な日本語で1文に（事業選択＋入力済みのときだけ）
+      const rsEl = el('result-summary');
+      if (ok) {
+        const W = UC[useCase];
+        const svc = (activePresetKey && PRESET_LABELS[activePresetKey]) ? PRESET_LABELS[activePresetKey] : 'この事業';
+        const flowUnit = mode === 'cpc' ? 'クリック' : '件';
+        const cvVerb = useCase === 'recruit' ? '採用' : '成約';
+        const profit = r.netProfit >= 0;
+        const roiTxt = (r.roi >= 0 ? '＋' : '−') + pct(Math.abs(r.roi)) + '%';
+        rsEl.innerHTML = `💡 <strong>月 ${yen(r.budget)}</strong> を「<strong>${svc}</strong>」に使うと、約 <strong>${num(r.clicks)}</strong>${flowUnit}集まって <strong>${num(r.cv)}</strong>${W.cvWord}${cvVerb}、売上 <strong>${yen(r.revenue)}</strong> → 差引 <span class="${profit ? 'rs-good' : 'rs-bad'}">${(profit ? '＋' : '−') + yen(Math.abs(r.netProfit))} の${profit ? '黒字' : '赤字'}</span>（ROI ${roiTxt}）の見込みです。`;
+        rsEl.style.display = '';
+      } else {
+        rsEl.style.display = 'none';
       }
 
       // 判定

@@ -36,6 +36,8 @@ check('LTV/CAC 要改善バッジ', txt('m-ltvcac-pill') === '要改善', txt('m
 check('損益分岐CV=2件', txt('m-becv').startsWith('2 件'), txt('m-becv'));
 check('限界CPA(=LTV)=250,000', txt('m-maxcpa') === '¥250,000', txt('m-maxcpa'));
 check('実CPA 許容内（120k<250k）', txt('m-cpa-pill') === '許容内', txt('m-cpa-pill'));
+check('初心者向け1文サマリ表示', $('result-summary').style.display !== 'none' && /見込み/.test(txt('result-summary')), txt('result-summary').slice(0, 30));
+check('1文サマリに黒字/赤字の語', /黒字|赤字/.test(txt('result-summary')), txt('result-summary').slice(0, 40));
 
 console.log('# 1b. UI/UX・アクセシビリティ・折りたたみ');
 check('はじめ方ガイド3ステップ', doc.querySelectorAll('.guide .guide-path').length === 3, 'len=' + doc.querySelectorAll('.guide .guide-path').length);
