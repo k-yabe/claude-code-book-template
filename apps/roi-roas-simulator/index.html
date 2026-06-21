@@ -558,9 +558,9 @@
           <span class="ti">営業資料から「予算・流入」を自動で読み取る</span>
           <span class="tag">AI</span>
         </div>
-        <p class="import-desc">提案書・媒体資料・見積、<strong>展示会・カンファレンス・セミナーの出展資料</strong>（PDF / PPTX / DOCX / TXT / MD）をアップロードすると、AI が<strong>予算（広告費・出展費）・獲得数（クリック/リード/名刺）</strong>を読み取って自動入力します。複数ブース／料金プランがあれば自動で並べて比較。<strong>成約率・客単価・粗利率・LTV は資料ではなく「STEP 1 で選んだ事業」の経済性を使います</strong>（事業未選択なら判定は保留になります）。</p>
+        <p class="import-desc">提案書・媒体資料・見積、<strong>展示会・カンファレンス・セミナーの出展資料</strong>（PDF / PPTX / DOCX / TXT / MD）をアップロードすると、AI が<strong>予算（広告費・出展費）・獲得数（クリック/リード/名刺）</strong>を読み取って自動入力します。<strong>料金表のスクリーンショットや画像（PNG / JPG）、画像が貼り込まれた PDF も AI が画像として読み取れます</strong>。複数ブース／料金プランがあれば自動で並べて比較。<strong>成約率・客単価・粗利率・LTV は資料ではなく「STEP 1 で選んだ事業」の経済性を使います</strong>（事業未選択なら判定は保留になります）。</p>
         <div class="upload-area" id="upload-area">
-          <input type="file" id="doc-input" accept=".pdf,.pptx,.docx,.txt,.md" aria-label="営業資料ファイル（PDF / PPTX / DOCX / TXT / MD）" />
+          <input type="file" id="doc-input" accept=".pdf,.pptx,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.gif" aria-label="営業資料ファイル（PDF / PPTX / DOCX / TXT / MD / 画像）" />
           <div class="upload-icon" id="upload-icon">⬆️</div>
           <div class="upload-text" id="upload-text">ファイルをドラッグ&ドロップ、またはクリックして選択</div>
           <div class="upload-filename" id="upload-filename" style="display:none"></div>
@@ -1617,7 +1617,7 @@
     });
 
     // ── 営業資料インポート（AI 自動入力 & 所見） ──────────
-    const ACCEPTED_EXTS = ['.pdf', '.pptx', '.docx', '.txt', '.md'];
+    const ACCEPTED_EXTS = ['.pdf', '.pptx', '.docx', '.txt', '.md', '.png', '.jpg', '.jpeg', '.webp', '.gif'];
     const isAccepted = (f) => ACCEPTED_EXTS.some(ext => f.name.toLowerCase().endsWith(ext));
 
     // PDF テキスト抽出（PDF.js）
@@ -1698,6 +1698,45 @@
       if (n.endsWith('.pptx')) return extractPptxText(file);
       if (n.endsWith('.docx')) return extractDocxText(file);
       return extractTextFile(file);
+    }
+    const isImageFile = (file) => /\.(png|jpe?g|webp|gif)$/i.test(file.name);
+
+    // 画像ファイル → Claude vision 用の image パート（base64）
+    function readImagePart(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = e => {
+          const m = /^data:([^;]+);base64,(.*)$/.exec(e.target.result || '');
+          if (!m) return reject(new Error('画像を読み込めませんでした'));
+          resolve({ type: 'image', source: { type: 'base64', media_type: m[1], data: m[2] } });
+        };
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+    // PDF の各ページを画像にして vision で読む（ページ内に貼られた表・スクショ・図も拾える）
+    async function renderPdfToImages(file, maxPages) {
+      const pdfjsLib = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.mjs');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.mjs';
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      const n = Math.min(pdf.numPages, maxPages);
+      const parts = [];
+      for (let i = 1; i <= n; i++) {
+        const page = await pdf.getPage(i);
+        const base = page.getViewport({ scale: 1 });
+        const scale = Math.min(1568 / base.width, 2);
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.ceil(viewport.width);
+        canvas.height = Math.ceil(viewport.height);
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        parts.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: dataUrl.split(',')[1] } });
+      }
+      return parts;
     }
 
     // 数値の健全化（"¥500,000" や "3.5%" のような文字列も受ける）
@@ -1873,13 +1912,9 @@
       el('ai-panel').classList.remove('show');
       uploadArea.classList.remove('has-file');
       setLoading(true, 'テキストを抽出しています…');
+      let text = '';
+      let usedVision = false;
       try {
-        const text = await extractFileText(file);
-        if (!text || text.length < 20) {
-          throw new Error('資料から文字を読み取れませんでした。画像が中心の PDF（スキャンや、書き出し時に文字が画像化された資料）は読み取れません。テキストを含む PDF、または PPTX / Word をお試しください。下のプリセットや「業界平均の目安」から手早く埋めることもできます。');
-        }
-        setLoading(true, 'AI が数値を読み取っています…');
-
         const system = `あなたはBtoBマーケティングの投資判断を支援するアナリストです。営業資料・提案書・媒体資料・見積から、広告/キャンペーンの費用対効果シミュレーションに必要な前提値を読み取り、投資判断の所見を述べます。
 出力は必ず次のキーを持つ JSON オブジェクトのみ（前後に説明文やコードフェンスを付けない）:
 {
@@ -1911,29 +1946,66 @@
 【最重要・データ不足の扱い】営業資料（特に媒体資料・広告メニュー表）には、広告費・CPC・クリック数・インプレッション等は載っていても、CVR・客単価(aov)・粗利率(margin)・購入回数(purchaseCount)・人件費等(otherCost)といった「広告主（自社）側の数値」は載っていないのが普通である。**資料に明記されていない数値は絶対に推測・業界平均で補完せず、必ず null にする**こと（勝手に数値を入れると誤った投資判断につながる）。そのうえで assumptions に「どの値が資料に無かったか」を明記する。重要な前提（cvr・aov・margin のいずれか）が資料から読み取れない場合は、verdict を必ず "REVIEW" にし、verdictReason の冒頭に「○○が資料に記載されていないため暫定判断です」と書き、risks の先頭に不足している前提を列挙し、suggestions にそれらを自社実績から入力するよう促す一文を入れること。
 【展示会・カンファレンス・セミナーの出展資料の扱い】出展案内・ブース料金表・協賛メニュー等の場合: ①budget には出展費用／参加費／協賛費。**単体で出展できる料金プラン（例: 1小間/6m×3m、SILVER/GOLD/DIAMOND の各出展グレード）が複数あれば、それぞれ別プランとして scenarios に漏れなく全部入れる**（標準的な1つだけに絞らない）。ただし基本出展に“追加する”オプション枠（リストスポンサー追加、追加広告、協賛オプション等で単体出展でないもの）は scenarios に入れず assumptions にオプションとして記録する。②trafficMode は必ず "clicks"（クリックは無い）。③clicks には「自社が獲得を見込むリード数・名刺枚数」を入れる。ただし**資料の「来場者数」「総来場見込み」「出展社数」は自社の見込みリードではない**ので clicks には入れず assumptions に参考情報として記録し、自社の獲得見込みが資料に無ければ clicks は null。④cvr（リード→受注の成約率）・aov・margin は自社側なので通常は記載が無く null。⑤risks に「来場者全員が見込み客ではない」「リード獲得数・成約率は自社の実績前提が必要」等を入れる。`;
 
-        const userMsg = `次の営業資料から前提値を抽出し、JSON で返してください。複数の料金プラン/パターンがあれば scenarios に列挙してください。資料が長い場合は、予算・費用・料金・件数・KPI が載っている箇所を特に重視してください。\n\n【資料テキスト（抜粋）】\n${text.slice(0, 24000)}`;
+        // AI 呼び出し（content はテキスト文字列 or マルチモーダルなパート配列）
+        const callAI = async (content, tokens) => {
+          const res = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              _user: (sessionStorage.getItem('username') || localStorage.getItem('username') || 'unknown'),
+              _app: 'ROI / ROAS Simulator',
+              model: 'claude-haiku-4-5-20251001',
+              max_tokens: tokens || 2400,
+              system,
+              messages: [{ role: 'user', content }],
+            }),
+          });
+          if (!res.ok) {
+            const e = await res.json().catch(() => ({}));
+            throw new Error(e.error?.message || `AI 解析でエラーが発生しました（${res.status}）`);
+          }
+          const data = await res.json();
+          const raw = data.content?.[0]?.text || '';
+          try { return parseAiJson(raw); }
+          catch { throw new Error('AI の応答を解析できませんでした。もう一度お試しください。'); }
+        };
+        const hasData = (p) => p && (toNum(p.budget) !== null || toNum(p.cpc) !== null || toNum(p.clicks) !== null);
+        const buildUserMsg = (t) => `次の営業資料から前提値を抽出し、JSON で返してください。複数の料金プラン/パターンがあれば scenarios に列挙してください。資料が長い場合は、予算・費用・料金・件数・KPI が載っている箇所を特に重視してください。\n\n【資料テキスト（抜粋）】\n${t.slice(0, 24000)}`;
+        const visionInstruction = '次の画像（営業資料・提案書・媒体資料・見積・料金表・スクリーンショットなど）を読み取り、費用対効果シミュレーションに必要な前提値を JSON で返してください。画像内の表・グラフ・図・貼り込まれたスクリーンショットに書かれた金額・件数・料金プランも漏れなく読み取り、複数の料金プラン/パターンがあれば scenarios に列挙してください。';
 
-        const res = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            _user: (sessionStorage.getItem('username') || localStorage.getItem('username') || 'unknown'),
-            _app: 'ROI / ROAS Simulator',
-            model: 'claude-haiku-4-5-20251001',
-            max_tokens: 2400,
-            system,
-            messages: [{ role: 'user', content: userMsg }],
-          }),
-        });
-        if (!res.ok) {
-          const e = await res.json().catch(() => ({}));
-          throw new Error(e.error?.message || `AI 解析でエラーが発生しました（${res.status}）`);
+        let parsed = null;
+
+        if (isImageFile(file)) {
+          // 画像ファイル（スクショ等）は vision で直接読む
+          setLoading(true, 'AI が画像を読み取っています…');
+          const imgPart = await readImagePart(file);
+          parsed = await callAI([{ type: 'text', text: visionInstruction }, imgPart], 2600);
+          usedVision = true;
+        } else {
+          const isPdf = file.name.toLowerCase().endsWith('.pdf');
+          text = await extractFileText(file);
+          if ((!text || text.length < 20) && !isPdf) {
+            throw new Error('資料から文字を読み取れませんでした。テキストを含む PDF / PPTX / Word、または料金表のスクリーンショット画像（PNG / JPG）をお試しください。下のプリセットや「業界平均の目安」から手早く埋めることもできます。');
+          }
+          if (text && text.length >= 20) {
+            setLoading(true, 'AI が数値を読み取っています…');
+            parsed = await callAI(buildUserMsg(text), 2400);
+          }
+          // PDF でテキストから予算・流入が取れない（画像/スクショ貼り込み等）→ ページを画像化して vision で再読み取り
+          if (isPdf && !hasData(parsed)) {
+            setLoading(true, 'PDF を画像として読み取っています…');
+            try {
+              const imgs = await renderPdfToImages(file, 6);
+              if (imgs.length) {
+                const visionParsed = await callAI([{ type: 'text', text: visionInstruction }, ...imgs], 3000);
+                if (hasData(visionParsed) || !parsed) { parsed = visionParsed; usedVision = true; }
+              }
+            } catch (_) { /* 画像化に失敗してもテキスト結果があればそれを使う */ }
+          }
+          if (!parsed) {
+            throw new Error('資料から有効な数値を読み取れませんでした。テキストを含む PDF / PPTX / Word、または料金表のスクリーンショット画像（PNG / JPG）をお試しください。下のプリセットや「業界平均の目安」から手早く埋めることもできます。');
+          }
         }
-        const data = await res.json();
-        const raw = data.content?.[0]?.text || '';
-        let parsed;
-        try { parsed = parseAiJson(raw); }
-        catch { throw new Error('AI の応答を解析できませんでした。もう一度お試しください。'); }
 
         setLoading(false);
         uploadFilename.textContent = '✓ ' + file.name;
@@ -1947,12 +2019,16 @@
         manualAdjusted = false;
         updateBasis();
         if (filled.length === 0) {
-          // 文字は取れたか？で原因を切り分ける（取れていれば「金額が無い資料」、取れていなければ画像PDF）
-          const gotText = (text || '').replace(/\s/g, '').length;
-          if (gotText >= 80) {
-            showImportError(`資料は読み取れました（約${gotText.toLocaleString()}文字）が、予算・費用・料金などの「金額」や流入の件数が見つかりませんでした。議事録・案内・戦略資料など、具体的な金額が書かれていない資料の可能性があります。👉 予算・流入は手入力してください（事業を選べば成約率・客単価などは自動で入ります）。`);
+          if (usedVision) {
+            showImportError('AI が画像/PDF を読み取りましたが、予算・流入として使える数値を特定できませんでした。料金や件数がはっきり写った画像か、テキスト付きの資料でお試しいただくか、👉 予算・流入を手入力してください（事業を選べば成約率・客単価などは自動で入ります）。');
           } else {
-            showImportError('資料から文字をほとんど読み取れませんでした（画像中心の PDF など）。テキスト付きの PDF / PPTX / Word でお試しいただくか、予算・流入を手入力してください。');
+            // 文字は取れたか？で原因を切り分ける（取れていれば「金額が無い資料」、取れていなければ画像PDF）
+            const gotText = (text || '').replace(/\s/g, '').length;
+            if (gotText >= 80) {
+              showImportError(`資料は読み取れました（約${gotText.toLocaleString()}文字）が、予算・費用・料金などの「金額」や流入の件数が見つかりませんでした。議事録・案内・戦略資料など、具体的な金額が書かれていない資料の可能性があります。👉 予算・流入は手入力してください（事業を選べば成約率・客単価などは自動で入ります）。`);
+            } else {
+              showImportError('資料から文字をほとんど読み取れませんでした（画像中心の PDF など）。テキスト付きの PDF / PPTX / Word、料金表のスクリーンショット画像でお試しいただくか、予算・流入を手入力してください。');
+            }
           }
         } else if (!activePresetKey) {
           showImportError(`予算・流入を${filled.length}項目読み取りました。👉 次は STEP 1 で事業（コンサル／ソリューション／アカデミー）を選んでください。事業ごとの成約率・客単価・粗利率・LTV で黒字/赤字を判定します（成約率などは事業で大きく変わるため、資料からは判定しません）。`);
@@ -2034,9 +2110,9 @@
       { icon: '🟢', text: 'ROAS/ROI/CPA に加え LTV/CAC・限界CPA・損益分岐CV など BtoB 指標も' }
     ],
     updates: [
+      { date: '06/21', text: '料金表のスクリーンショットや画像（PNG / JPG / WEBP / GIF）をそのままアップロードでき、AIが画像を“見て”予算・流入を読み取ります。テキストから数値が取れないPDF（料金表やスクショが画像で貼り込まれた資料など）も、自動でページを画像化して読み直すようにしました（「PDFの中に貼ってある数字が読めない」を解消）' },
       { date: '06/21', text: '稟議・申請用の文章をワンクリック生成する「📝 稟議文を作成」を追加。件名・試算サマリ（予算/総コスト/想定売上/ROAS/ROI/利益）・前提・日付を整形し、黒字なら承認依頼・赤字なら再検討の結びに自動切替。編集してそのままコピーできます' },
-      { date: '06/21', text: '数値は後からいつでも書き換えOK（事業を選んで資料をアップした後でも、客単価・成約率などを自社の実績に直せます）。入力欄に「直接書き換え→右に自動反映」と明記し、変更すると結果カードが淡く光って反映が見えるようにしました（反映ボタンは不要）' },
-      { date: '06/21', text: '構造を「事業（サービス）起点」に作り直しました。使い方は3ステップ（STEP1 事業を選ぶ → STEP2 予算・流入を手入力 or 資料インポート → STEP3 判定）。事業を選ぶまで黒字/赤字・ROAS/ROI は「—」で判定を保留。事業を選ぶとその経済性で即試算、別事業に切り替えれば結果の違いを比較できます。ROAS・ROI が分からない方向けの用語解説や、カード整列・初心者導線も整備済み' }
+      { date: '06/21', text: '数値は後からいつでも書き換えOK（事業を選んで資料をアップした後でも、客単価・成約率などを自社の実績に直せます）。入力欄に「直接書き換え→右に自動反映」と明記し、変更すると結果カードが淡く光って反映が見えるようにしました（反映ボタンは不要）' }
     ]
   };
   initOnboarding(OB_CONFIG);

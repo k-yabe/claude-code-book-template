@@ -254,6 +254,25 @@ check('通常のサービス選択（インポートなし）で予算もプリ�
 check('基準バー＝コンサルティングの経済性', txt('basis-bar').includes('コンサルティング') && txt('basis-bar').includes('経済性'), txt('basis-bar'));
 click($('reset-btn'));
 
+console.log('# 8f. 画像/スクショは vision（画像パート）で読む');
+uc('acquire'); click($('reset-btn'));
+const shot = {
+  found: true, budget: 700000, trafficMode: 'cpc', cpc: 400, clicks: null,
+  cvr: null, aov: 1500000, purchaseCount: null, margin: null, otherCost: null,
+  assumptions: 'スクショの料金表から', verdict: 'REVIEW', verdictReason: 'CVR不明',
+  risks: ['CVR不明'], suggestions: ['実績入力'], scenarios: [],
+};
+let lastBody = null;
+window.fetch = async (url, opt) => { lastBody = JSON.parse(opt.body); return { ok: true, json: async () => ({ content: [{ text: JSON.stringify(shot) }] }) }; };
+const pngBytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x01]);
+await window.analyzeDocument(new window.File([pngBytes], 'ryokin.png', { type: 'image/png' }));
+const visContent = lastBody && lastBody.messages && lastBody.messages[0].content;
+check('画像はマルチモーダル配列で送る', Array.isArray(visContent), typeof visContent);
+check('画像パート(type=image)を含む', Array.isArray(visContent) && visContent.some(p => p.type === 'image'), JSON.stringify(Array.isArray(visContent) ? visContent.map(p => p.type) : visContent));
+check('画像: 予算=700000 を反映', $('in-budget').value === '700000', $('in-budget').value);
+check('画像: 客単価=1500000 を反映', $('in-aov').value === '1500000', $('in-aov').value);
+click($('reset-btn'));
+
 console.log('# 9. コピー内容（採用モードの単位追従）');
 uc('recruit');
 window.__copied = null;
