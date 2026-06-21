@@ -1195,9 +1195,18 @@
         applyValues(PRESETS[key]); clearMissingMarks(); clearImportError();
         showToast(`${svcName}の経済性で試算します`);
       }
+      syncScenarioEconomics(); // 比較表があれば各プランの経済性も選んだ事業に揃える
       updateBasis();
       render();
     });
+    // 既存のプラン比較列の経済性（成約率・客単価・粗利率・LTV・人件費）を、現在の事業の値に揃える。
+    // 各プランの予算・流入（資料由来）はそのまま維持する。
+    function syncScenarioEconomics() {
+      if (!scenarios.length) return;
+      const e = readInputs();
+      scenarios.forEach(s => { s.cvr = e.cvr; s.aov = e.aov; s.margin = e.margin; s.repeat = e.repeat; s.othercost = e.othercost; });
+      renderCompare();
+    }
     el('reset-btn').addEventListener('click', () => {
       activePresetKey = null; importLabel = null; manualAdjusted = false; econAnchored = false;
       applyValues(DEFAULTS); clearMissingMarks(); clearImportError();

@@ -149,6 +149,13 @@ check('インポート: 推奨+2プラン=3列展開', $('compare-table').queryS
 check('インポート: 先頭列=資料の推奨', $('compare-table').querySelector('.sc-head .sc-label').textContent.includes('推奨'), $('compare-table').querySelector('.sc-head .sc-label').textContent);
 check('インポート: 推奨列がアクティブ', $('compare-table').querySelector('.sc-head.active') !== null);
 check('インポート: 事業未選択なら STEP1 事業選択を促す', txt('import-error').includes('STEP 1') && txt('import-error').includes('事業'), txt('import-error'));
+// 多プラン取込後に事業を選ぶと、各プランの経済性も選んだ事業に揃う（予算・流入は維持）
+click($('preset-row').querySelector('[data-preset="consulting"]')); // コンサル: 客単価300万
+const aovRow = Array.from($('compare-table').querySelectorAll('tbody tr')).find(tr => { const l = tr.querySelector('.row-label'); return l && l.textContent === '客単価'; });
+const aovCells = aovRow ? Array.from(aovRow.querySelectorAll('td.num')).map(td => td.textContent.replace(/[^0-9]/g, '')) : [];
+check('事業選択で比較表の客単価が全プラン コンサル(300万)に揃う', aovCells.length === 3 && aovCells.every(c => c === '3000000'), aovCells.join(','));
+check('事業選択後も比較プラン数は維持', $('compare-table').querySelectorAll('.sc-head').length === 3, 'len=' + $('compare-table').querySelectorAll('.sc-head').length);
+click($('reset-btn')); // 後続の「事業未選択での取込」検証のため状態を戻す
 
 console.log('# 8c. 多数の料金パターンを全部展開（4件上限で切り捨てない）');
 const many = {
