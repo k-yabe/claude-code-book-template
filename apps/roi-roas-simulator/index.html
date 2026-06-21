@@ -212,8 +212,29 @@
     .mm-pill.warn { background: var(--gold-20); color: var(--navy); }
     .mm-pill.bad { background: var(--error-bg); color: var(--error-text); }
 
-    .result-actions { display: flex; gap: var(--sp-3); margin-top: var(--sp-5); }
-    .result-actions button { flex: 1; }
+    .result-actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-5); }
+    .result-actions button { flex: 1; min-width: 120px; }
+
+    /* 印刷ヘッダー（通常は非表示、印刷時のみ表示） */
+    .print-header { display: none; }
+
+    /* ── 印刷 / PDF 出力 ── */
+    @media print {
+      @page { margin: 14mm; }
+      body { background: #fff; }
+      .navbar, .guide, .import-step, .usecase-row, .preset-row, .bench,
+      .sim-layout > .step, .result-actions, .compare-add-btn, .app-footer,
+      .onboarding-overlay, .sample-hint { display: none !important; }
+      .container { max-width: 100%; padding: 0; margin: 0; }
+      .page-header { margin-bottom: 8mm; }
+      .sim-layout { display: block; gap: 0; }
+      .result-card { position: static !important; box-shadow: none !important; border: 1px solid #001f33; break-inside: avoid; }
+      .compare-panel, .ai-panel { margin-top: 8mm; box-shadow: none !important; break-inside: avoid; }
+      .print-header { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); padding-bottom: var(--sp-3); margin-bottom: var(--sp-3); border-bottom: 2px solid #001f33; }
+      .print-header .ph-brand { font-size: 13px; font-weight: 700; color: #001f33; }
+      .print-header .ph-date { font-size: 11px; color: #58697a; font-family: var(--font-mono); }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
 
     .sample-hint { font-size: var(--text-sm); color: var(--text-muted); margin-top: var(--sp-4); }
     .sample-btn {
@@ -596,6 +617,10 @@
 
       <!-- 結果 -->
       <div class="result-card">
+        <div class="print-header" aria-hidden="true">
+          <div class="ph-brand">AKKODiS — ROI / ROAS Simulator</div>
+          <div class="ph-date" id="print-date"></div>
+        </div>
         <div class="result-card-head">シミュレーション結果</div>
         <div class="verdict" id="verdict" role="status" aria-live="polite">
           <span class="verdict-icon" id="verdict-icon" aria-hidden="true">⏳</span>
@@ -675,6 +700,7 @@
         </details>
 
         <div class="result-actions">
+          <button class="btn-primary" id="pdf-btn">📄 PDF / 印刷</button>
           <button class="btn-outline" id="copy-btn">結果をコピー</button>
           <button class="btn-secondary" id="reset-btn">リセット</button>
         </div>
@@ -1230,6 +1256,16 @@
       });
     });
 
+    // ── PDF / 印刷 ───────────────────────────────────
+    el('pdf-btn').addEventListener('click', () => {
+      const d = new Date();
+      const wd = ['日', '月', '火', '水', '木', '金', '土'][d.getDay()];
+      const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}(${wd}) 出力`;
+      const pd = el('print-date');
+      if (pd) pd.textContent = stamp;
+      window.print();
+    });
+
     // ── 営業資料インポート（AI 自動入力 & 所見） ──────────
     const ACCEPTED_EXTS = ['.pdf', '.pptx', '.docx', '.txt', '.md'];
     const isAccepted = (f) => ACCEPTED_EXTS.some(ext => f.name.toLowerCase().endsWith(ext));
@@ -1621,6 +1657,7 @@
       { icon: '🟢', text: 'ROAS/ROI/CPA に加え LTV/CAC・限界CPA・損益分岐CV など BtoB 指標も' }
     ],
     updates: [
+      { date: '06/21', text: '結果を「PDF / 印刷」ボタンでそのまま出力できるようにしました：上長への共有や提案書への添付に。印刷時は入力欄やガイドを自動で省き、判定・主要指標・プラン比較・AI所見だけをブランドヘッダー（出力日付つき）で1枚にまとめます' },
       { date: '06/20', text: '展示会・カンファレンスの出展資料も AI が読み取り対応：出展費を予算として読み取り「獲得数を直接入力」モードに自動切替、複数ブース／協賛プランは比較に展開。来場者数を自社リードと取り違えないよう配慮し、成約率・客単価など自社側の数値は⚠目安＋「要検討（暫定）」で提示します' },
       { date: '06/20', text: '誰でも迷わず使えるよう UI/UX を磨きました：冒頭に「はじめ方ガイド」（資料アップで自動 ／ 用途と事業を選んで手入力の2通り）、任意項目（その他コスト・人件費）は折りたたんで入力欄をスッキリ、結果カードに見出し、判定の読み上げ対応やキーボード操作のフォーカス表示などアクセシビリティも強化' },
       { date: '06/20', text: 'AKKODiS 事業に合わせて拡張：用途トグル「顧客獲得／エンジニア採用」、事業ラインのプリセット、成約率・粗利率がわからなくても「業界平均の目安」をワンタップ（商談化率×受注率からCVRを出す任意計算も）、人件費を「人数×時給×月稼働時間」で概算' }
