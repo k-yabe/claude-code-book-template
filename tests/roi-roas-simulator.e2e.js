@@ -152,10 +152,12 @@ check('インポート: 推奨+2プラン=3列展開', $('compare-table').queryS
 check('インポート: 先頭列=資料の推奨', $('compare-table').querySelector('.sc-head .sc-label').textContent.includes('推奨'), $('compare-table').querySelector('.sc-head .sc-label').textContent);
 check('インポート: 推奨列がアクティブ', $('compare-table').querySelector('.sc-head.active') !== null);
 check('インポート: 事業未選択なら STEP1 事業選択を促す', txt('import-error').includes('STEP 1') && txt('import-error').includes('事業'), txt('import-error'));
+// 比較表セルの数値を読む（編集可能セルは <input> の value、計算結果はテキスト）
+const cellNum = (td) => { const inp = td.querySelector('input'); return (inp ? inp.value : td.textContent).replace(/[^0-9]/g, ''); };
+const rowCells = (label) => { const tr = Array.from($('compare-table').querySelectorAll('tbody tr')).find(tr => { const l = tr.querySelector('.row-label'); return l && l.textContent === label; }); return tr ? Array.from(tr.querySelectorAll('td.num')).map(cellNum) : []; };
 // 多プラン取込後に事業を選ぶと、各プランの経済性も選んだ事業に揃う（予算・流入は維持）
 click($('preset-row').querySelector('[data-preset="consulting"]')); // コンサル: 客単価300万
-const aovRow = Array.from($('compare-table').querySelectorAll('tbody tr')).find(tr => { const l = tr.querySelector('.row-label'); return l && l.textContent === '客単価'; });
-const aovCells = aovRow ? Array.from(aovRow.querySelectorAll('td.num')).map(td => td.textContent.replace(/[^0-9]/g, '')) : [];
+const aovCells = rowCells('客単価');
 check('事業選択で比較表の客単価が全プラン コンサル(300万)に揃う', aovCells.length === 3 && aovCells.every(c => c === '3000000'), aovCells.join(','));
 check('事業選択後も比較プラン数は維持', $('compare-table').querySelectorAll('.sc-head').length === 3, 'len=' + $('compare-table').querySelectorAll('.sc-head').length);
 // 比較表に「流入（クリック/リード）」「成約数」「CPA」の行がある
@@ -166,9 +168,21 @@ check('比較表にCPA行', rowLabels.includes('CPA'), rowLabels.join('/'));
 check('比較表に予算行（広告費固定ラベルでない）', rowLabels.includes('予算'));
 // 客単価を手で変えると比較表の各プランの客単価も追従する
 setv('in-aov', 2000000);
-const aovRow2 = Array.from($('compare-table').querySelectorAll('tbody tr')).find(tr => { const l = tr.querySelector('.row-label'); return l && l.textContent === '客単価'; });
-const aovCells2 = aovRow2 ? Array.from(aovRow2.querySelectorAll('td.num')).map(td => td.textContent.replace(/[^0-9]/g, '')) : [];
+const aovCells2 = rowCells('客単価');
 check('客単価を手入力で変えると比較表も全プラン追従', aovCells2.length === 3 && aovCells2.every(c => c === '2000000'), aovCells2.join(','));
+// 比較表のセルを直接編集：予算・客単価などは <input> で編集でき、計算結果(CV/ROAS等)は input を持たない
+const budgetCellsEditable = (() => { const tr = Array.from($('compare-table').querySelectorAll('tbody tr')).find(tr => { const l = tr.querySelector('.row-label'); return l && l.textContent === '予算'; }); return tr ? Array.from(tr.querySelectorAll('td.num')).every(td => td.querySelector('input')) : false; })();
+check('比較表: 予算セルは編集可（input を持つ）', budgetCellsEditable);
+const cvHasNoInput = (() => { const tr = Array.from($('compare-table').querySelectorAll('tbody tr')).find(tr => { const l = tr.querySelector('.row-label'); return l && l.textContent.includes('成約数'); }); return tr ? Array.from(tr.querySelectorAll('td.num')).every(td => !td.querySelector('input')) : false; })();
+check('比較表: 成約数(計算結果)は編集不可（input なし）', cvHasNoInput);
+const roasHasNoInput = (() => { const tr = Array.from($('compare-table').querySelectorAll('tbody tr')).find(tr => { const l = tr.querySelector('.row-label'); return l && l.textContent === 'ROAS'; }); return tr ? Array.from(tr.querySelectorAll('td.num')).every(td => !td.querySelector('input')) : false; })();
+check('比較表: ROAS(計算結果)は編集不可（input なし）', roasHasNoInput);
+// 1列目の客単価を編集 → そのプランの客単価が更新され、利益(計算結果)が再計算される
+const aovInput0 = (() => { const tr = Array.from($('compare-table').querySelectorAll('tbody tr')).find(tr => { const l = tr.querySelector('.row-label'); return l && l.textContent === '客単価'; }); return tr ? tr.querySelector('td.num input') : null; })();
+aovInput0.value = '5000000'; fire(aovInput0, 'change');
+const aovCells3 = rowCells('客単価');
+check('比較表: 1列目の客単価編集が反映（5,000,000）', aovCells3[0] === '5000000', aovCells3.join(','));
+check('比較表: 他列は据え置き（2列目は2,000,000のまま）', aovCells3[1] === '2000000', aovCells3.join(','));
 click($('reset-btn')); // 後続の「事業未選択での取込」検証のため状態を戻す
 
 console.log('# 8c. 多数の料金パターンを全部展開（4件上限で切り捨てない）');

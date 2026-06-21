@@ -35,6 +35,8 @@
       gap: var(--sp-6);
       align-items: start;
     }
+    /* 左カラム＝入力＋資料インポートを縦に積む（右の結果カードと高さが釣り合い、左下の空白を解消） */
+    .sim-col-left { display: flex; flex-direction: column; gap: var(--sp-6); min-width: 0; }
     @media (max-width: 920px) {
       .sim-layout { grid-template-columns: 1fr; }
     }
@@ -50,7 +52,7 @@
     .field > input[type="range"] { width: 100%; }
 
     /* 各カード（入力パネル・資料インポート）を結果カードと対の「白地＋ネイビー上アクセント」に統一 */
-    .sim-layout > .step, .import-step { background: var(--surface); border: 1px solid var(--border-light); border-top: 3px solid var(--navy); }
+    .sim-col-left > .step, .import-step { background: var(--surface); border: 1px solid var(--border-light); border-top: 3px solid var(--navy); }
     /* セクション見出しにネイビー＋区切り線で階層を明確に */
     .step .section-title {
       color: var(--navy); padding-bottom: var(--sp-2);
@@ -207,10 +209,10 @@
     .breakeven-head .lbl { font-weight: 600; color: var(--navy); }
     .breakeven-head .be { color: var(--text-muted); font-family: var(--font-mono); }
     .bar-track {
-      position: relative; height: 14px; background: var(--border-light);
-      border-radius: 7px; overflow: hidden;
+      position: relative; height: 12px; background: var(--border-light);
+      overflow: hidden;
     }
-    .bar-fill { position: absolute; inset: 0 auto 0 0; border-radius: 7px; transition: width var(--ease), background var(--ease); }
+    .bar-fill { position: absolute; inset: 0 auto 0 0; transition: width var(--ease), background var(--ease); }
     .bar-fill.profit { background: linear-gradient(90deg, #00897b, #00bfa5); }
     .bar-fill.loss { background: linear-gradient(90deg, #e74c3c, #ff7062); }
     .bar-marker {
@@ -312,6 +314,7 @@
     .step2-desc { font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6; margin-bottom: var(--sp-3); }
     .step-badge { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.06em; color: #fff; background: var(--navy); padding: 3px 9px; }
     .svc-step-title { font-size: var(--text-base); font-weight: 700; color: var(--navy); }
+    .svc-step-hint { font-size: var(--text-xs); color: var(--text-muted); font-weight: 400; }
     .svc-step-desc { font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6; margin-bottom: var(--sp-4); }
     .preset-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: var(--sp-2); }
     .preset-chip {
@@ -500,6 +503,24 @@
     .sc-remove { background: none; border: 1px solid currentColor; color: inherit; opacity: 0.5; cursor: pointer; font-size: 0.62rem; font-weight: 600; line-height: 1; padding: 2px 6px; }
     .sc-remove:hover { opacity: 1; }
     .compare-table td.num { font-family: var(--font-mono); color: var(--navy); font-weight: 600; }
+    /* 計算結果（自動）は控えめなグレーで「触れない」ことを示す */
+    .compare-table td.num .cell-auto { color: var(--text-muted); font-weight: 600; }
+    .compare-table td.num .cell-auto .lockmark { font-family: var(--font-sans); font-size: 0.58rem; color: var(--text-faint); margin-left: 4px; vertical-align: 1px; }
+    /* 編集可能セル：枠付きの入力。AI の読み取りをその場で直せる */
+    .compare-table td.num.edit { padding: 4px 6px; background: var(--surface); }
+    .cic { display: inline-flex; align-items: center; justify-content: flex-end; gap: 1px; width: 100%; }
+    .cic-pfx, .cic-sfx { color: var(--text-muted); font-size: var(--text-xs); font-weight: 600; flex: none; }
+    .cmp-input {
+      width: 100%; min-width: 56px; max-width: 120px; padding: 5px 6px;
+      font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 700; color: var(--navy);
+      text-align: right; background: var(--surface); border: 1.5px solid var(--border);
+      -moz-appearance: textfield; transition: border-color var(--ease), box-shadow var(--ease);
+    }
+    .cmp-input::-webkit-outer-spin-button, .cmp-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .cmp-input:hover { border-color: var(--navy); }
+    .cmp-input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(0,31,51,0.08); }
+    .cmp-legend { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; color: var(--text-faint); white-space: nowrap; }
+    .cmp-legend-edit { display: inline-block; border: 1.5px solid var(--navy); color: var(--navy); font-weight: 700; padding: 0 5px; font-size: 0.62rem; background: var(--surface); }
     .verdict-pill { display: inline-block; padding: 2px 8px; font-size: var(--text-xs); font-weight: 700; }
     .verdict-pill.profit { background: var(--success-bg); color: var(--success-text); }
     .verdict-pill.loss { background: var(--error-bg); color: var(--error-text); }
@@ -525,16 +546,16 @@
     <div class="guide" role="note" aria-label="使い方">
       <p class="guide-lead">使い方は3ステップ 👇　まず「どの事業か」を決めるのが肝心です</p>
       <div class="guide-paths">
-        <p class="guide-path"><span class="gp-num" aria-hidden="true">1</span><span><strong>事業（サービス）を選ぶ</strong> → その事業の成約率・客単価・粗利率・LTV が前提に入ります。<strong>事業によって黒字/赤字は大きく変わります</strong></span></p>
-        <p class="guide-path"><span class="gp-num" aria-hidden="true">2</span><span><strong>予算・流入を入れる</strong> → 手入力、または営業資料（PDF等）をアップすれば AI が予算・出展費・リード数を自動で読み取り</span></p>
-        <p class="guide-path"><span class="gp-num" aria-hidden="true">3</span><span><strong>右で🟢黒字／🔴赤字・ROAS/ROI を確認</strong> → 客単価・成約率などの数値は<strong>いつでも直接書き換えOK（自動で再計算）</strong>。事業を切り替えれば同じ予算でも結果がどう変わるか比較できます</span></p>
+        <p class="guide-path"><span class="gp-num" aria-hidden="true">1</span><span><strong>事業を選ぶ</strong> → 成約率・客単価・粗利率・LTV が前提に入る（事業で黒字/赤字は大きく変わる）</span></p>
+        <p class="guide-path"><span class="gp-num" aria-hidden="true">2</span><span><strong>予算・流入を入れる</strong> → 手入力、または資料をアップして AI 自動入力</span></p>
+        <p class="guide-path"><span class="gp-num" aria-hidden="true">3</span><span><strong>結果を見る</strong> → 黒字/赤字・ROAS/ROI を確認。数値は<strong>直接書き換えOK</strong>（自動で再計算）</span></p>
       </div>
     </div>
 
     <!-- STEP 1: 事業（サービス）を選ぶ＝経済性の前提が決まる -->
     <div class="svc-step">
       <div class="svc-step-head"><span class="step-badge">STEP 1</span><span class="svc-step-title">事業（サービス）を選ぶ</span><span class="req req-must">必須</span></div>
-      <p class="svc-step-desc">成約率・客単価・粗利率・LTV は事業で大きく変わります。まず事業を選ぶと、その「経済性」が前提として入ります（あとで自社の実績値に直せます）。</p>
+      <p class="svc-step-desc">選んだ事業の成約率・客単価・粗利率・LTV が前提に入ります（あとで自社の実績値に変更OK）。</p>
       <div class="usecase-row">
         <span class="usecase-label" id="usecase-label">用途</span>
         <div class="mode-toggle usecase-toggle" id="usecase-toggle" role="group" aria-labelledby="usecase-label">
@@ -546,31 +567,11 @@
       <p class="preset-note" id="preset-note"></p>
     </div>
 
-    <!-- STEP 2: 予算・流入を入れる（手入力 or 営業資料インポート） -->
-    <div class="svc-step-head svc-step-head--2"><span class="step-badge">STEP 2</span><span class="svc-step-title">予算・流入を入れる</span></div>
-    <p class="step2-desc">下の入力欄に直接入れるだけでOK。営業資料（PDF等）があれば、アップして自動入力もできます👇</p>
-
-    <!-- 営業資料インポート（AI 自動入力：予算・流入を読み取る） -->
-    <div class="import-step step">
-      <div class="step-body" style="padding: var(--sp-5);">
-        <div class="import-head">
-          <span class="ic">📄</span>
-          <span class="ti">営業資料から「予算・流入」を自動で読み取る</span>
-          <span class="tag">AI</span>
-        </div>
-        <p class="import-desc">提案書・媒体資料・見積、<strong>展示会・カンファレンス・セミナーの出展資料</strong>（PDF / PPTX / DOCX / TXT / MD）をアップロードすると、AI が<strong>予算（広告費・出展費）・獲得数（クリック/リード/名刺）</strong>を読み取って自動入力します。<strong>料金表のスクリーンショットや画像（PNG / JPG）、画像が貼り込まれた PDF も AI が画像として読み取れます</strong>。複数ブース／料金プランがあれば自動で並べて比較。<strong>成約率・客単価・粗利率・LTV は資料ではなく「STEP 1 で選んだ事業」の経済性を使います</strong>（事業未選択なら判定は保留になります）。</p>
-        <div class="upload-area" id="upload-area">
-          <input type="file" id="doc-input" accept=".pdf,.pptx,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.gif" aria-label="営業資料ファイル（PDF / PPTX / DOCX / TXT / MD / 画像）" />
-          <div class="upload-icon" id="upload-icon">⬆️</div>
-          <div class="upload-text" id="upload-text">ファイルをドラッグ&ドロップ、またはクリックして選択</div>
-          <div class="upload-filename" id="upload-filename" style="display:none"></div>
-        </div>
-        <p class="upload-note">⚠️ 機密情報・個人情報を含む資料はアップロードしないでください。読み取りのため内容を AI に送信します（サーバーには保存しません）。</p>
-        <div class="error-msg" id="import-error" role="alert"></div>
-      </div>
-    </div>
+    <!-- STEP 2: 予算・流入を入れる（左で手入力 or 営業資料インポート） -->
+    <div class="svc-step-head svc-step-head--2"><span class="step-badge">STEP 2</span><span class="svc-step-title">予算・流入を入れる</span><span class="svc-step-hint">手入力するか、資料をアップして自動入力</span></div>
 
     <div class="sim-layout">
+      <div class="sim-col-left">
       <!-- 入力 -->
       <div class="step">
         <div class="step-body" style="padding: var(--sp-5);">
@@ -717,6 +718,27 @@
         </div>
       </div>
 
+      <!-- 資料インポート（手入力の代わりに、AI が予算・流入を自動入力） -->
+      <div class="import-step step">
+        <div class="step-body" style="padding: var(--sp-5);">
+          <div class="import-head">
+            <span class="ic">📄</span>
+            <span class="ti">または、営業資料から自動で読み取る</span>
+            <span class="tag">AI</span>
+          </div>
+          <p class="import-desc">提案書・媒体資料・出展資料（PDF / PPTX / Word）や、<strong>料金表のスクショ・画像（PNG / JPG）</strong>をアップすると、AI が<strong>予算と獲得数</strong>を自動入力。複数プランがあれば並べて比較します。</p>
+          <div class="upload-area" id="upload-area">
+            <input type="file" id="doc-input" accept=".pdf,.pptx,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.gif" aria-label="営業資料ファイル（PDF / PPTX / DOCX / TXT / MD / 画像）" />
+            <div class="upload-icon" id="upload-icon">⬆️</div>
+            <div class="upload-text" id="upload-text">ファイルをドラッグ&ドロップ、またはクリックして選択</div>
+            <div class="upload-filename" id="upload-filename" style="display:none"></div>
+          </div>
+          <p class="upload-note">⚠️ 機密情報・個人情報を含む資料はアップロードしないでください（内容は読み取りのため AI に送信。サーバー保存はしません）。</p>
+          <div class="error-msg" id="import-error" role="alert"></div>
+        </div>
+      </div>
+      </div><!-- /sim-col-left -->
+
       <!-- 結果 -->
       <div class="result-card">
         <div class="print-header" aria-hidden="true">
@@ -843,7 +865,7 @@
         <span class="compare-title">📊 プラン比較</span>
         <button class="compare-clear" id="compare-clear">すべてクリア</button>
       </div>
-      <p class="compare-hint">列の見出しをクリックすると、その条件をシミュレーターに反映します。資料に複数プランがある場合は自動で並びます。</p>
+      <p class="compare-hint">列の見出しをクリックすると、その条件をシミュレーターに反映します。<strong>枠付きの数字（予算・流入・客単価など）は直接編集でき</strong>、AI の読み取りが違う場合はその場で直せます。<span class="cmp-legend"><span class="cmp-legend-edit">編集可</span>＝入力値／灰色＝計算結果（自動）</span></p>
       <div class="compare-scroll">
         <table class="compare-table" id="compare-table"></table>
       </div>
@@ -1466,13 +1488,22 @@
       const aovLabel = useCase === 'recruit' ? '月次粗利/人' : '客単価';
       const repeatLabel = useCase === 'recruit' ? '稼働月数' : '購入回数(LTV)';
       const cpaLabel = useCase === 'recruit' ? '採用単価' : 'CPA';
+      // 編集可能セル（入力ドライバ）。data-i / data-k で scenarios[i][k] に直接反映する。
+      const editCell = (i, k, value, o) => {
+        o = o || {};
+        const pfx = o.prefix ? `<span class="cic-pfx">${o.prefix}</span>` : '';
+        const sfx = o.suffix ? `<span class="cic-sfx">${esc(o.suffix)}</span>` : '';
+        return `<td class="num edit"><span class="cic${o.prefix ? ' has-pfx' : ''}${o.suffix ? ' has-sfx' : ''}">${pfx}<input class="cmp-input" type="number" data-i="${i}" data-k="${k}" value="${value}" min="${o.min != null ? o.min : 0}" step="${o.step || 1}" inputmode="numeric" aria-label="${esc(o.aria || k)}">${sfx}</span></td>`;
+      };
       const rows = [];
-      rows.push(['予算', results.map(r => `<td class="num">${yen(r.budget)}</td>`)]);
-      rows.push([flowLabel, results.map(r => `<td class="num">${num(r.clicks)}</td>`)]);
-      rows.push([cvLabel, results.map(r => `<td class="num">${num(r.cv)} ${W.cvWord}</td>`)]);
-      rows.push([aovLabel, scenarios.map(s => `<td class="num">${yen(Math.max(s.aov || 0, 0))}</td>`)]);
-      if (anyRepeat) rows.push([repeatLabel, scenarios.map(s => `<td class="num">${pct(Math.max(s.repeat || 1, 1))}${W.repeatUnit}</td>`)]);
-      if (anyOther) rows.push(['その他固定費', results.map(r => `<td class="num">${r.otherCost > 0 ? yen(r.otherCost) : '—'}</td>`)]);
+      rows.push(['予算', scenarios.map((s, i) => editCell(i, 'budget', Math.round(Math.max(s.budget || 0, 0)), { prefix: '¥', step: 10000, aria: '予算' }))]);
+      rows.push([flowLabel, scenarios.map((s, i) => s.mode === 'clicks'
+        ? editCell(i, 'clicks', Math.round(Math.max(s.clicks || 0, 0)), { step: 1, aria: flowLabel })
+        : `<td class="num"><span class="cell-auto" title="クリック単価×予算から自動計算">${num(results[i].clicks)}<span class="lockmark" aria-hidden="true">自動</span></span></td>`)]);
+      rows.push([cvLabel, results.map(r => `<td class="num"><span class="cell-auto">${num(r.cv)} ${W.cvWord}</span></td>`)]);
+      rows.push([aovLabel, scenarios.map((s, i) => editCell(i, 'aov', Math.round(Math.max(s.aov || 0, 0)), { prefix: '¥', step: 10000, aria: aovLabel }))]);
+      if (anyRepeat) rows.push([repeatLabel, scenarios.map((s, i) => editCell(i, 'repeat', Math.max(s.repeat || 1, 1), { min: 1, step: 1, suffix: W.repeatUnit, aria: repeatLabel }))]);
+      if (anyOther) rows.push(['その他固定費', scenarios.map((s, i) => editCell(i, 'othercost', Math.round(Math.max(s.othercost || 0, 0)), { prefix: '¥', step: 10000, aria: 'その他固定費' }))]);
       rows.push([anyRepeat ? '想定売上(LTV込)' : '想定売上', results.map(r => `<td class="num">${yen(r.revenue)}</td>`)]);
       rows.push(['想定粗利', results.map(r => `<td class="num">${yen(r.grossProfit)}</td>`)]);
       rows.push([cpaLabel, results.map(r => `<td class="num">${r.cv > 0 ? yen(r.cpa) : '—'}</td>`)]);
@@ -1496,10 +1527,32 @@
     });
     el('compare-clear').addEventListener('click', clearScenarios);
     el('compare-table').addEventListener('click', (e) => {
+      if (e.target.closest('.cmp-input')) return; // 入力欄クリックは編集（列反映にしない）
       const rm = e.target.closest('[data-remove]');
       if (rm) { e.stopPropagation(); removeScenario(Number(rm.dataset.remove)); return; }
       const head = e.target.closest('.sc-head');
       if (head) applyScenario(Number(head.dataset.idx));
+    });
+    // 比較表のセルを直接編集 → 該当プランの入力値を更新して再計算（確定時＝blur/Enter）
+    function commitCompareEdit(inp) {
+      const i = Number(inp.dataset.i), k = inp.dataset.k;
+      if (!scenarios[i]) return;
+      let v = parseFloat(inp.value);
+      if (!isFinite(v)) v = 0;
+      v = (k === 'repeat') ? Math.max(v, 1) : Math.max(v, 0);
+      if (k === 'clicks') scenarios[i].mode = 'clicks'; // リード/件数を直接編集＝件数モード
+      scenarios[i][k] = v;
+      // 編集中の列をアクティブ表示にして、どのプランを触っているか分かるように
+      activeScenario = i;
+      renderCompare();
+      updateActiveHeader();
+    }
+    el('compare-table').addEventListener('change', (e) => {
+      const inp = e.target.closest('.cmp-input');
+      if (inp) commitCompareEdit(inp);
+    });
+    el('compare-table').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target.closest('.cmp-input')) { e.preventDefault(); e.target.blur(); }
     });
     // 手入力したらアクティブ強調を解除
     [inputs.budget, inputs.cpc, inputs.clicks, inputs.cvr, inputs.aov, inputs.repeat, inputs.margin, inputs.othercost,
@@ -1944,7 +1997,7 @@
 }
 ルール: 金額は円の整数、カンマや単位記号は付けない。読み取れない値は null。CPC とクリック数の両方があれば trafficMode は資料の主旨に合う方を選ぶ。トップレベルの budget〜otherCost には最も標準的／推奨されるプランの値を入れる。複数プランがある場合は、**それ単体で実施できる料金プラン**を1つ残らず scenarios に入れる（最大8件。ブースサイズ違い・小間数違い・出展グレード違い・期間/数量違いなど、単体で成立するものはすべて別プラン）。各プランで異なる項目のみ値を入れ、共通項目は null（ベース値を継承）でよい。【重要】基本プランに“追加する”だけのオプション・付帯サービス（例：リストスポンサー枠の追加、追加広告枠、オプション講演、ノベルティ等、それ単体では実施できず費用対効果を単独で判断できないもの）は scenarios に入れない。それらは assumptions に「別途オプション：◯◯ +¥△△」とだけ記録する。単一プランなら scenarios は []。
 【最重要・データ不足の扱い】営業資料（特に媒体資料・広告メニュー表）には、広告費・CPC・クリック数・インプレッション等は載っていても、CVR・客単価(aov)・粗利率(margin)・購入回数(purchaseCount)・人件費等(otherCost)といった「広告主（自社）側の数値」は載っていないのが普通である。**資料に明記されていない数値は絶対に推測・業界平均で補完せず、必ず null にする**こと（勝手に数値を入れると誤った投資判断につながる）。そのうえで assumptions に「どの値が資料に無かったか」を明記する。重要な前提（cvr・aov・margin のいずれか）が資料から読み取れない場合は、verdict を必ず "REVIEW" にし、verdictReason の冒頭に「○○が資料に記載されていないため暫定判断です」と書き、risks の先頭に不足している前提を列挙し、suggestions にそれらを自社実績から入力するよう促す一文を入れること。
-【展示会・カンファレンス・セミナーの出展資料の扱い】出展案内・ブース料金表・協賛メニュー等の場合: ①budget には出展費用／参加費／協賛費。**単体で出展できる料金プラン（例: 1小間/6m×3m、SILVER/GOLD/DIAMOND の各出展グレード）が複数あれば、それぞれ別プランとして scenarios に漏れなく全部入れる**（標準的な1つだけに絞らない）。ただし基本出展に“追加する”オプション枠（リストスポンサー追加、追加広告、協賛オプション等で単体出展でないもの）は scenarios に入れず assumptions にオプションとして記録する。②trafficMode は必ず "clicks"（クリックは無い）。③clicks には「自社が獲得を見込むリード数・名刺枚数」を入れる。ただし**資料の「来場者数」「総来場見込み」「出展社数」は自社の見込みリードではない**ので clicks には入れず assumptions に参考情報として記録し、自社の獲得見込みが資料に無ければ clicks は null。④cvr（リード→受注の成約率）・aov・margin は自社側なので通常は記載が無く null。⑤risks に「来場者全員が見込み客ではない」「リード獲得数・成約率は自社の実績前提が必要」等を入れる。`;
+【展示会・カンファレンス・セミナーの出展資料の扱い】出展案内・ブース料金表・協賛メニュー等の場合: ①budget には出展費用／参加費／協賛費。**単体で出展できる料金プラン（例: 1小間/6m×3m、SILVER/GOLD/DIAMOND の各出展グレード）が複数あれば、それぞれ別プランとして scenarios に漏れなく全部入れる**（標準的な1つだけに絞らない）。ただし基本出展に“追加する”オプション枠（リストスポンサー追加、追加広告、協賛オプション等で単体出展でないもの）は scenarios に入れず assumptions にオプションとして記録する。②trafficMode は必ず "clicks"（クリックは無い）。③clicks には「自社が獲得を見込むリード数・名刺枚数」を入れる。**資料に出展プランごとの「提供リード数／保証リード数／獲得見込リード数」が表で示されている場合は、各プラン（各 scenario）の clicks に“その行・そのプランに対応する数値”を正確に入れる**こと。表の行と列・プラン名と数値の対応を取り違えない（例：SILVER の行に書かれた数をGOLDに入れない）。プランと数値の対応が画像・表で読み取りづらい場合は、推測で別プランの値を流用せず、確信が持てない scenario の clicks は null にして assumptions に「リード数の対応が不明瞭」と明記する。なお**資料の「来場者数」「総来場見込み」「出展社数」は自社の見込みリードではない**ので clicks には入れず assumptions に参考情報として記録し、自社の獲得見込みが資料に無ければ clicks は null。④cvr（リード→受注の成約率）・aov・margin は自社側なので通常は記載が無く null。⑤risks に「来場者全員が見込み客ではない」「リード獲得数・成約率は自社の実績前提が必要」等を入れる。`;
 
         // AI 呼び出し（content はテキスト文字列 or マルチモーダルなパート配列）
         const callAI = async (content, tokens) => {
@@ -2110,9 +2163,9 @@
       { icon: '🟢', text: 'ROAS/ROI/CPA に加え LTV/CAC・限界CPA・損益分岐CV など BtoB 指標も' }
     ],
     updates: [
-      { date: '06/21', text: '料金表のスクリーンショットや画像（PNG / JPG / WEBP / GIF）をそのままアップロードでき、AIが画像を“見て”予算・流入を読み取ります。テキストから数値が取れないPDF（料金表やスクショが画像で貼り込まれた資料など）も、自動でページを画像化して読み直すようにしました（「PDFの中に貼ってある数字が読めない」を解消）' },
-      { date: '06/21', text: '稟議・申請用の文章をワンクリック生成する「📝 稟議文を作成」を追加。件名・試算サマリ（予算/総コスト/想定売上/ROAS/ROI/利益）・前提・日付を整形し、黒字なら承認依頼・赤字なら再検討の結びに自動切替。編集してそのままコピーできます' },
-      { date: '06/21', text: '数値は後からいつでも書き換えOK（事業を選んで資料をアップした後でも、客単価・成約率などを自社の実績に直せます）。入力欄に「直接書き換え→右に自動反映」と明記し、変更すると結果カードが淡く光って反映が見えるようにしました（反映ボタンは不要）' }
+      { date: '06/21', text: 'プラン比較表をその場で編集できるようにしました。AIの読み取りが違っても、枠付きの数字（予算・流入/リード数・客単価・購入回数・その他固定費）を直接書き換えれば、成約数・売上・ROAS・ROI・利益・判定が自動で再計算されます。灰色の数字＝計算結果（触れない）と区別が付くので、どこを直せるか一目で分かります' },
+      { date: '06/21', text: '画面の「ごちゃごちゃ・見にくい」を解消。手入力と資料アップロードを左カラムにまとめ、右カラムを結果に統一（左＝入力／右＝結果）。左下の大きな空白をなくし、長い説明文を削ってスッキリ読みやすくしました' },
+      { date: '06/21', text: '料金表のスクリーンショットや画像（PNG / JPG / WEBP / GIF）をそのままアップロードでき、AIが画像を“見て”予算・流入を読み取ります。テキストから数値が取れないPDF（料金表やスクショが画像で貼り込まれた資料など）も、自動でページを画像化して読み直すようにしました（「PDFの中に貼ってある数字が読めない」を解消）' }
     ]
   };
   initOnboarding(OB_CONFIG);
