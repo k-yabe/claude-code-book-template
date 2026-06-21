@@ -50,8 +50,9 @@
     .field > .input-wrap { max-width: 280px; }
     .field > input[type="range"] { width: 100%; }
 
-    /* 入力パネルも結果カードと対になるよう「白地＋ネイビーの上アクセント」に統一 */
-    .sim-layout > .step { background: var(--surface); border: 1px solid var(--border-light); border-top: 3px solid var(--navy); }
+    /* 各カード（入力パネル・資料インポート）を結果カードと対の「白地＋ネイビー上アクセント」に統一 */
+    .sim-layout > .step, .import-step { background: var(--surface); border: 1px solid var(--border-light); border-top: 3px solid var(--navy); }
+    .import-step { max-width: 880px; }
     /* セクション見出しにネイビー＋区切り線で階層を明確に */
     .step .section-title {
       color: var(--navy); padding-bottom: var(--sp-2);
@@ -770,13 +771,13 @@
 
     <!-- AI 所見パネル（資料インポート時のみ表示） -->
     <div class="ai-panel" id="ai-panel">
-      <div class="ai-panel-head">🤖 AI の読み取り & 投資判断 <span class="ai-verdict" id="ai-verdict"></span></div>
+      <div class="ai-panel-head">🤖 AI が資料から読み取った内容＆注意点 <span class="ai-verdict" id="ai-verdict"></span></div>
       <div class="ai-block">
-        <div class="ai-block-label">資料から読み取った前提</div>
+        <div class="ai-block-label">資料から読み取った前提（予算・流入）</div>
         <p id="ai-assumptions"></p>
       </div>
-      <div class="ai-block">
-        <div class="ai-block-label">判断の根拠</div>
+      <div class="ai-block" id="ai-reason-block">
+        <div class="ai-block-label">補足コメント</div>
         <p id="ai-reason"></p>
       </div>
       <div class="ai-block" id="ai-risks-block">
@@ -791,7 +792,7 @@
         <div class="ai-block-label">資料から読み取れなかった項目（現在値のまま）</div>
         <p class="ai-missing" id="ai-missing"></p>
       </div>
-      <p class="ai-note">※ ROAS / ROI / 損益分岐などの数値は入力値からアプリが計算しています。AI 所見は定性的な補足であり、最終的な数値は必ず元資料でご確認ください。</p>
+      <p class="ai-note">※ 黒字/赤字・ROAS / ROI の判定は「STEP 1 で選んだ事業」の経済性とアプリの計算で行います。AI は資料からの読み取りと注意点の補足のみで、投資判断そのものは行いません。最終的な数値は必ず元資料でご確認ください。</p>
     </div>
 
     <p class="sample-hint">用語や計算式の意味は <button class="sample-btn" id="help-btn">使い方ガイドを開く →</button></p>
@@ -931,8 +932,9 @@
       applyUseCaseLabels(uc);
       if (loadPreset) {
         const firstKey = USE_CASE_PRESETS[uc][0];
+        // 状態を先に確定してから値を流し込む（applyValues 内 render が anchored を見られるように）
+        activePresetKey = firstKey; importLabel = null; manualAdjusted = false; econAnchored = true;
         applyValues(PRESETS[firstKey]); clearMissingMarks(); clearImportError();
-        activePresetKey = firstKey; importLabel = null; manualAdjusted = false;
       }
       else render();
       if (typeof updateBasis === 'function') updateBasis();
@@ -1046,9 +1048,9 @@
       }
 
       // 損益分岐バー
-      el('be-target').textContent = isFinite(r.breakEvenRoas) ? num(r.breakEvenRoas) + '%' : '—';
+      el('be-target').textContent = (ok && isFinite(r.breakEvenRoas)) ? num(r.breakEvenRoas) + '%' : '—';
       const marker = el('bar-marker'), fill = el('bar-fill');
-      if (hasInput && isFinite(r.breakEvenRoas) && r.breakEvenRoas > 0) {
+      if (ok && isFinite(r.breakEvenRoas) && r.breakEvenRoas > 0) {
         // 損益分岐を画面の60%位置に固定し、実ROASをその比率で配置（上限100%）
         const markerPos = 60;
         marker.style.left = markerPos + '%';
@@ -1186,6 +1188,7 @@
       if (importLabel) {
         // 資料インポート中：予算・流入を残してサービスの経済性だけ反映
         applyServiceEconomics(key);
+        clearImportError(); // 「事業を選んで」の案内は役目を終えたので消す
         showToast(`${svcName}の経済性で試算（資料の予算・流入は維持）`);
       } else {
         // 通常：そのサービスの目安一式を読み込む
@@ -1351,6 +1354,7 @@
     }
 
     el('compare-add').addEventListener('click', () => {
+      if (!isAnchored()) { showToast('先に STEP 1 で事業（サービス）を選んでください'); return; }
       addScenario(readInputs());
       el('compare-panel').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
     });
@@ -1375,13 +1379,16 @@
 
     // ── コピー ───────────────────────────────────────
     el('copy-btn').addEventListener('click', () => {
+      if (!isAnchored()) { showToast('先に STEP 1 で事業（サービス）を選んでください'); return; }
       const r = compute();
       const W = UC[useCase];
       const flowLabel = mode === 'cpc' ? 'クリック数' : W.flowWord;
       const cvLabel = useCase === 'recruit' ? '採用人数' : 'CV数';
       const cpaLabel = useCase === 'recruit' ? '採用単価' : 'CPA';
+      const svcName = (activePresetKey && PRESET_LABELS[activePresetKey]) ? PRESET_LABELS[activePresetKey] : '手入力';
       const lines = [
         `【${useCase === 'recruit' ? 'エンジニア採用' : '顧客獲得'}：ROI / ROAS シミュレーション結果】`,
+        `事業（前提）: ${svcName}` + (importLabel ? ` ／ 予算・流入: 資料「${importLabel}」` : ''),
         `予算: ${yen(r.budget)}` + (r.otherCost > 0 ? ` / その他固定費: ${yen(r.otherCost)} / 総コスト: ${yen(r.totalCost)}` : ''),
         `${flowLabel}: ${num(r.clicks)} / ${cvLabel}: ${num(r.cv)} ${W.cvWord}` + (r.repeat > 1 ? ` / ${useCase === 'recruit' ? '平均稼働月数' : '平均購入回数(LTV)'}: ${pct(r.repeat)}${W.repeatUnit}` : ''),
         `想定売上${r.repeat > 1 ? '(LTV込)' : ''}: ${yen(r.revenue)} / 粗利: ${yen(r.grossProfit)}`,
@@ -1399,6 +1406,7 @@
 
     // ── PDF / 印刷 ───────────────────────────────────
     el('pdf-btn').addEventListener('click', () => {
+      if (!isAnchored()) { showToast('先に STEP 1 で事業（サービス）を選んでください'); return; }
       const d = new Date();
       const wd = ['日', '月', '火', '水', '木', '金', '土'][d.getDay()];
       const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}(${wd}) 出力`;
@@ -1612,22 +1620,18 @@
       return p;
     }
 
-    // AI 所見パネル描画
+    // AI 所見パネル描画（投資判断はしない＝読み取り内容と注意点の補足のみ）
     function renderAiPanel(d, missing, planCount) {
       const panel = el('ai-panel');
-      const vmap = {
-        GO:     { cls: 'go',     label: '✅ GO（投資推奨）' },
-        REVIEW: { cls: 'review', label: '⚠️ 要検討' },
-        NOGO:   { cls: 'nogo',   label: '⛔ 見送り推奨' },
-      };
-      const v = vmap[(d.verdict || '').toUpperCase()] || null;
-      const vb = el('ai-verdict');
-      if (v) { vb.className = 'ai-verdict ' + v.cls; vb.textContent = v.label; vb.style.display = ''; }
-      else { vb.style.display = 'none'; }
+      // 黒字/赤字の判定は「選んだ事業の経済性 × アプリ計算」で行うため、AI の GO/NOGO は表示しない
+      const vb = el('ai-verdict'); if (vb) vb.style.display = 'none';
 
       const planNote = (planCount && planCount >= 2) ? `資料から複数の料金プランを検出しました。下の「プラン比較」で「資料の推奨」と各プランを切り替えられます。 ` : '';
       el('ai-assumptions').textContent = planNote + (d.assumptions || '（前提の要約は得られませんでした）');
-      el('ai-reason').textContent = d.verdictReason || '（判断の根拠は得られませんでした）';
+      const reason = (d.verdictReason || '').trim();
+      const rb = el('ai-reason-block');
+      if (reason) { el('ai-reason').textContent = reason; if (rb) rb.style.display = ''; }
+      else if (rb) rb.style.display = 'none';
 
       const fillList = (id, arr) => {
         const block = el(id + '-block'), ul = el(id);

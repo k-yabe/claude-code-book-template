@@ -111,6 +111,7 @@ check('商談25%×受注40%→CVR10', $('in-cvr').value === '10', $('in-cvr').va
 
 console.log('# 7. プラン比較 ライフサイクル');
 click($('reset-btn'));
+click($('preset-row').querySelector('[data-preset="consulting"]')); // 事業を選んで anchor（未選択だと比較追加はガード）
 click($('compare-add')); click($('preset-row').querySelector('[data-preset="academy"]')); click($('compare-add'));
 let heads = $('compare-table').querySelectorAll('.sc-head');
 check('2プラン並ぶ', heads.length === 2, 'len=' + heads.length);
@@ -142,7 +143,7 @@ check('インポート: CVR未取得で⚠目安マーク', $('in-cvr').closest(
 check('インポート(CPC): CVR仮値はクリック基準0.5%', $('in-cvr').value === '0.5', $('in-cvr').value);
 check('インポート: 粗利率未取得で⚠目安マーク', $('in-margin').closest('.field').classList.contains('needs-input'));
 check('インポート: AI所見パネル表示', $('ai-panel').classList.contains('show'));
-check('インポート: 判定=要検討(REVIEW)', txt('ai-verdict').includes('要検討'), txt('ai-verdict'));
+check('インポート: AIは投資判定(GO/NOGO)を出さない（バッジ非表示）', $('ai-verdict').style.display === 'none', 'display=' + $('ai-verdict').style.display);
 check('インポート: リスク表示', txt('ai-risks').includes('CVR不明'), txt('ai-risks'));
 check('インポート: 推奨+2プラン=3列展開', $('compare-table').querySelectorAll('.sc-head').length === 3, 'len=' + $('compare-table').querySelectorAll('.sc-head').length);
 check('インポート: 先頭列=資料の推奨', $('compare-table').querySelector('.sc-head .sc-label').textContent.includes('推奨'), $('compare-table').querySelector('.sc-head .sc-label').textContent);
@@ -247,14 +248,20 @@ window.fetch = async () => ({ ok: true, json: async () => ({ content: [{ text: '
 await window.analyzeDocument(new window.File(['x'.repeat(50)], 'd.txt', { type: 'text/plain' }));
 check('JSON不正でエラー表示・クラッシュなし', txt('import-error').length > 0, txt('import-error'));
 
-console.log('# 11. PDF / 印刷エクスポート');
+console.log('# 11. PDF / 印刷エクスポート（事業未選択ではガード）');
+uc('acquire'); click($('reset-btn')); // 事業未選択の状態にする
 check('PDF/印刷ボタンあり', !!$('pdf-btn'), 'no pdf-btn');
 check('印刷ヘッダー要素あり', !!doc.querySelector('.print-header'), 'no print-header');
 check('印刷日付プレースホルダあり', !!$('print-date'), 'no print-date');
 check('印刷前は日付未設定', txt('print-date') === '(none)' || $('print-date').textContent.trim() === '', txt('print-date'));
+const printedBefore0 = window.__printed;
+click($('pdf-btn'));
+check('事業未選択ではPDF印刷をガード（print未呼出）', window.__printed === printedBefore0, 'printed=' + window.__printed);
+// 事業を選べば印刷できる
+click($('preset-row').querySelector('[data-preset="consulting"]'));
 const printedBefore = window.__printed;
 click($('pdf-btn'));
-check('PDFボタンで window.print 呼出', window.__printed === printedBefore + 1, 'printed=' + window.__printed);
+check('事業選択後はPDFボタンで window.print 呼出', window.__printed === printedBefore + 1, 'printed=' + window.__printed);
 check('印刷ヘッダーに日付スタンプ反映', /\d{4}-\d{2}-\d{2}.+出力/.test(txt('print-date')), txt('print-date'));
 
 check('全工程で script エラー無し', errs.length === 0, errs.join(' | '));
