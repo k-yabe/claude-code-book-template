@@ -150,6 +150,9 @@
     .verdict-title { font-size: var(--text-md); font-weight: 700; }
     .verdict.profit .verdict-title { color: var(--success-text); }
     .verdict.loss .verdict-title { color: var(--error-text); }
+    /* 事業未選択など、判定保留の状態：注意を引くゴールド系 */
+    .verdict.pending { background: var(--gold-20); }
+    .verdict.pending .verdict-title { color: var(--navy); }
     .verdict-sub { font-size: var(--text-xs); color: var(--text-muted); }
 
     .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-bottom: var(--sp-5); }
@@ -259,7 +262,14 @@
       background: none; border: none; color: var(--navy); font-weight: 600;
       cursor: pointer; padding: 0; font-size: inherit; text-decoration: underline;
     }
-    .preset-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: var(--sp-5); }
+    /* STEP 構造（事業選択を起点にする導線） */
+    .svc-step { background: var(--surface); border: 1px solid var(--border-light); border-top: 3px solid var(--navy); padding: var(--sp-5); margin-bottom: var(--sp-5); max-width: 880px; }
+    .svc-step-head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-2); }
+    .svc-step-head--2 { max-width: 880px; margin-top: var(--sp-6); margin-bottom: var(--sp-3); }
+    .step-badge { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.06em; color: #fff; background: var(--navy); padding: 3px 9px; }
+    .svc-step-title { font-size: var(--text-base); font-weight: 700; color: var(--navy); }
+    .svc-step-desc { font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6; margin-bottom: var(--sp-4); }
+    .preset-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: var(--sp-2); }
     .preset-chip {
       padding: 6px 12px; font-size: var(--text-xs); font-weight: 600;
       color: var(--navy); background: var(--surface); border: 1.5px solid var(--border);
@@ -463,43 +473,28 @@
     </div>
 
     <div class="guide" role="note" aria-label="使い方">
-      <p class="guide-lead">使い方はかんたん。次のどちらかでOKです 👇</p>
+      <p class="guide-lead">使い方は3ステップ 👇　まず「どの事業か」を決めるのが肝心です</p>
       <div class="guide-paths">
-        <p class="guide-path"><span class="gp-num" aria-hidden="true">A</span><span>営業資料（PDF等）をアップ → AI が自動で読み取って試算・投資判断まで提示</span></p>
-        <p class="guide-path"><span class="gp-num" aria-hidden="true">B</span><span>用途と事業プリセットを選ぶ → 数値を自社の実績に直す（わからなければ「業界平均の目安」でOK）→ 右で🟢黒字／🔴赤字を確認</span></p>
+        <p class="guide-path"><span class="gp-num" aria-hidden="true">1</span><span><strong>事業（サービス）を選ぶ</strong> → その事業の成約率・客単価・粗利率・LTV が前提に入ります。<strong>事業によって黒字/赤字は大きく変わります</strong></span></p>
+        <p class="guide-path"><span class="gp-num" aria-hidden="true">2</span><span><strong>予算・流入を入れる</strong> → 手入力、または営業資料（PDF等）をアップすれば AI が予算・出展費・リード数を自動で読み取り</span></p>
+        <p class="guide-path"><span class="gp-num" aria-hidden="true">3</span><span><strong>右で🟢黒字／🔴赤字・ROAS/ROI を確認</strong> → 事業を切り替えれば、同じ予算でも結果がどう変わるか比較できます</span></p>
       </div>
     </div>
 
-    <!-- 営業資料インポート（AI 自動入力） -->
-    <div class="import-step step">
-      <div class="step-body" style="padding: var(--sp-5);">
-        <div class="import-head">
-          <span class="ic">📄</span>
-          <span class="ti">営業資料から自動で読み取って試算</span>
-          <span class="tag">AI</span>
+    <!-- STEP 1: 事業（サービス）を選ぶ＝経済性の前提が決まる -->
+    <div class="svc-step">
+      <div class="svc-step-head"><span class="step-badge">STEP 1</span><span class="svc-step-title">事業（サービス）を選ぶ</span><span class="req req-must">必須</span></div>
+      <p class="svc-step-desc">成約率・客単価・粗利率・LTV は事業で大きく変わります。まず事業を選ぶと、その「経済性」が前提として入ります（あとで自社の実績値に直せます）。</p>
+      <div class="usecase-row">
+        <span class="usecase-label" id="usecase-label">用途</span>
+        <div class="mode-toggle usecase-toggle" id="usecase-toggle" role="group" aria-labelledby="usecase-label">
+          <button type="button" data-uc="acquire" class="active" aria-pressed="true">💼 顧客獲得（受注）</button>
+          <button type="button" data-uc="recruit" aria-pressed="false">🧑‍💻 エンジニア採用</button>
         </div>
-        <p class="import-desc">提案書・媒体資料・見積、<strong>展示会・カンファレンス・セミナーの出展資料</strong>（PDF / PPTX / DOCX / TXT / MD）をアップロードすると、AI が予算（広告費・出展費）・獲得数・客単価などを読み取って自動入力し、ROAS / ROI を試算して投資判断まで提示します。複数ブース／料金プランがあれば自動で並べて比較。※成約率・粗利率など自社側の数値は資料に無いことが多く、その場合は「⚠目安」が入り判定は「要検討（暫定）」になります（実績値に置き換えると確定）。</p>
-        <div class="upload-area" id="upload-area">
-          <input type="file" id="doc-input" accept=".pdf,.pptx,.docx,.txt,.md" aria-label="営業資料ファイル（PDF / PPTX / DOCX / TXT / MD）" />
-          <div class="upload-icon" id="upload-icon">⬆️</div>
-          <div class="upload-text" id="upload-text">ファイルをドラッグ&ドロップ、またはクリックして選択</div>
-          <div class="upload-filename" id="upload-filename" style="display:none"></div>
-        </div>
-        <p class="upload-note">⚠️ 機密情報・個人情報を含む資料はアップロードしないでください。読み取りのため内容を AI に送信します（サーバーには保存しません）。</p>
-        <div class="error-msg" id="import-error" role="alert"></div>
       </div>
+      <div class="preset-row" id="preset-row" role="group" aria-label="事業（サービス）を選ぶ"></div>
+      <p class="preset-note" id="preset-note"></p>
     </div>
-
-    <div class="usecase-row">
-      <span class="usecase-label" id="usecase-label">用途</span>
-      <div class="mode-toggle usecase-toggle" id="usecase-toggle" role="group" aria-labelledby="usecase-label">
-        <button type="button" data-uc="acquire" class="active" aria-pressed="true">💼 顧客獲得（受注）</button>
-        <button type="button" data-uc="recruit" aria-pressed="false">🧑‍💻 エンジニア採用</button>
-      </div>
-    </div>
-
-    <div class="preset-row" id="preset-row" role="group" aria-label="事業プリセットを選ぶ"></div>
-    <p class="preset-note" id="preset-note"></p>
 
     <details class="bench" id="bench">
       <summary>📊 数値がわからない時は「業界平均の目安」から入れる</summary>
@@ -539,11 +534,34 @@
       </div>
     </details>
 
+    <!-- STEP 2: 予算・流入を入れる（手入力 or 営業資料インポート） -->
+    <div class="svc-step-head svc-step-head--2"><span class="step-badge">STEP 2</span><span class="svc-step-title">予算・流入を入れる（手入力 or 資料から自動）</span></div>
+
+    <!-- 営業資料インポート（AI 自動入力：予算・流入を読み取る） -->
+    <div class="import-step step">
+      <div class="step-body" style="padding: var(--sp-5);">
+        <div class="import-head">
+          <span class="ic">📄</span>
+          <span class="ti">営業資料から「予算・流入」を自動で読み取る</span>
+          <span class="tag">AI</span>
+        </div>
+        <p class="import-desc">提案書・媒体資料・見積、<strong>展示会・カンファレンス・セミナーの出展資料</strong>（PDF / PPTX / DOCX / TXT / MD）をアップロードすると、AI が<strong>予算（広告費・出展費）・獲得数（クリック/リード/名刺）</strong>を読み取って自動入力します。複数ブース／料金プランがあれば自動で並べて比較。<strong>成約率・客単価・粗利率・LTV は資料ではなく「STEP 1 で選んだ事業」の経済性を使います</strong>（事業未選択なら判定は保留になります）。</p>
+        <div class="upload-area" id="upload-area">
+          <input type="file" id="doc-input" accept=".pdf,.pptx,.docx,.txt,.md" aria-label="営業資料ファイル（PDF / PPTX / DOCX / TXT / MD）" />
+          <div class="upload-icon" id="upload-icon">⬆️</div>
+          <div class="upload-text" id="upload-text">ファイルをドラッグ&ドロップ、またはクリックして選択</div>
+          <div class="upload-filename" id="upload-filename" style="display:none"></div>
+        </div>
+        <p class="upload-note">⚠️ 機密情報・個人情報を含む資料はアップロードしないでください。読み取りのため内容を AI に送信します（サーバーには保存しません）。</p>
+        <div class="error-msg" id="import-error" role="alert"></div>
+      </div>
+    </div>
+
     <div class="sim-layout">
       <!-- 入力 -->
       <div class="step">
         <div class="step-body" style="padding: var(--sp-5);">
-          <div class="section-title">① 予算・流入</div>
+          <div class="section-title">① 予算・流入（資料 or 手入力）</div>
 
           <div class="field">
             <div class="field-label"><span class="lbl"><span id="t-budget">予算（広告費・出展費など／月額）</span><span class="req req-must">必須</span></span></div>
@@ -651,7 +669,7 @@
           <div class="ph-date" id="print-date"></div>
         </div>
         <div class="result-card-head">シミュレーション結果</div>
-        <div class="basis-bar" id="basis-bar" aria-live="polite">試算の前提：初期値（サンプル数値）</div>
+        <div class="basis-bar" id="basis-bar" aria-live="polite">試算の前提：未選択 — STEP 1 で事業（サービス）を選んでください</div>
         <div class="verdict" id="verdict" role="status" aria-live="polite">
           <span class="verdict-icon" id="verdict-icon" aria-hidden="true">⏳</span>
           <div class="verdict-text">
@@ -823,6 +841,10 @@
     let activePresetKey = null; // 選択中のサービス（コンサル/ソリューション/アカデミー…）
     let importLabel = null;     // 資料インポートのファイル名（読み取り中なら）
     let manualAdjusted = false; // プリセット/インポート後に手で数値を触ったか
+    // 経済性（成約率・客単価・粗利率・LTV）が「事業 or 手入力」で確定しているか。
+    // 確定するまで黒字/赤字の判定は出さない（事業で数値が激変するため）。
+    let econAnchored = false;
+    const isAnchored = () => activePresetKey !== null || econAnchored;
 
     // ── 要素参照 ─────────────────────────────────────
     const el = (id) => document.getElementById(id);
@@ -972,6 +994,9 @@
     function render() {
       const r = compute();
       const hasInput = r.budget > 0 && (mode === 'cpc' ? val(inputs.cpc) > 0 : r.clicks > 0);
+      // 事業（経済性）が確定し、かつ予算・流入が入っている時だけ実数値を出す。
+      // 事業未選択のうちは数値が事業で激変するため「—」にして判定も保留する。
+      const ok = hasInput && isAnchored();
 
       // ヒント更新
       el('cvr-hint').textContent = pct(val(inputs.cvr)) + '%';
@@ -979,30 +1004,31 @@
       el('repeat-hint').textContent = pct(Math.max(val(inputs.repeat), 1)) + UC[useCase].repeatUnit;
 
       // KPI
-      el('kpi-roas').textContent = hasInput ? num(r.roas) : '—';
-      el('kpi-roi').textContent = hasInput ? (r.roi >= 0 ? '+' : '') + num(r.roi) : '—';
-      el('kpi-cpa').textContent = (hasInput && r.cv > 0) ? num(r.cpa) : '—';
-      el('kpi-roas-sub').textContent = isFinite(r.breakEvenRoas)
-        ? `黒字ライン ${num(r.breakEvenRoas)}%${r.repeat > 1 ? '（LTV込み）' : ''}` : '粗利率を設定してください';
+      el('kpi-roas').textContent = ok ? num(r.roas) : '—';
+      el('kpi-roi').textContent = ok ? (r.roi >= 0 ? '+' : '') + num(r.roi) : '—';
+      el('kpi-cpa').textContent = (ok && r.cv > 0) ? num(r.cpa) : '—';
+      el('kpi-roas-sub').textContent = !isAnchored()
+        ? 'まず事業を選んでください'
+        : (isFinite(r.breakEvenRoas) ? `黒字ライン ${num(r.breakEvenRoas)}%${r.repeat > 1 ? '（LTV込み）' : ''}` : '粗利率を設定してください');
 
       // ファネル
       el('f-revenue-label').textContent = r.repeat > 1 ? '売上（LTV込み・想定）' : '売上（想定）';
       el('f-clicks-label').textContent = mode === 'cpc' ? 'クリック数' : UC[useCase].flowWord;
-      el('f-clicks').textContent = hasInput ? num(r.clicks) + (mode === 'cpc' ? ' クリック' : ' 件') : '—';
-      el('f-cv').textContent = hasInput ? num(r.cv) + ' ' + UC[useCase].cvWord : '—';
-      el('f-revenue').textContent = hasInput ? yen(r.revenue) : '—';
-      el('f-profit').textContent = hasInput ? yen(r.grossProfit) : '—';
+      el('f-clicks').textContent = ok ? num(r.clicks) + (mode === 'cpc' ? ' クリック' : ' 件') : '—';
+      el('f-cv').textContent = ok ? num(r.cv) + ' ' + UC[useCase].cvWord : '—';
+      el('f-revenue').textContent = ok ? yen(r.revenue) : '—';
+      el('f-profit').textContent = ok ? yen(r.grossProfit) : '—';
       const otherRow = el('f-othercost-row');
       if (r.otherCost > 0) { otherRow.style.display = ''; el('f-othercost').textContent = '−' + yen(r.otherCost); }
       else { otherRow.style.display = 'none'; }
       el('adv-cost-amount').textContent = r.otherCost > 0 ? '計上 ' + yen(r.otherCost) : '';
-      el('f-totalcost').textContent = hasInput ? yen(r.totalCost) : '—';
-      el('f-net').textContent = hasInput ? (r.netProfit >= 0 ? '+' : '−') + yen(Math.abs(r.netProfit)) : '—';
+      el('f-totalcost').textContent = ok ? yen(r.totalCost) : '—';
+      el('f-net').textContent = ok ? (r.netProfit >= 0 ? '+' : '−') + yen(Math.abs(r.netProfit)) : '—';
       el('f-net').style.color = r.netProfit >= 0 ? 'var(--success-text)' : 'var(--error-text)';
 
       // 詳しい指標（LTV/CAC・限界CPA・損益分岐CV）
       const setPill = (id, label, cls) => { const p = el(id); p.textContent = label; p.className = 'mm-pill ' + cls; };
-      if (hasInput && r.cv > 0) {
+      if (ok && r.cv > 0) {
         el('m-ltvcac').textContent = (Math.round(r.ltvCac * 10) / 10) + '倍';
         if (r.ltvCac >= 3) setPill('m-ltvcac-pill', '健全', 'good');
         else if (r.ltvCac >= 1) setPill('m-ltvcac-pill', '要改善', 'warn');
@@ -1040,8 +1066,14 @@
       if (!hasInput) {
         verdict.className = 'verdict';
         el('verdict-icon').textContent = '⏳';
-        el('verdict-title').textContent = '入力してください';
-        el('verdict-sub').textContent = '数値を入れるとリアルタイムで計算します';
+        el('verdict-title').textContent = '予算・流入を入力してください';
+        el('verdict-sub').textContent = '予算と流入（CPC×予算 または 獲得数）を入れると計算します';
+      } else if (!isAnchored()) {
+        // 事業（経済性）が未確定。黒字/赤字は事業で激変するので判定は保留。
+        verdict.className = 'verdict pending';
+        el('verdict-icon').textContent = '👉';
+        el('verdict-title').textContent = 'STEP 1：事業（サービス）を選んでください';
+        el('verdict-sub').textContent = '成約率・客単価・粗利率・LTV は事業で大きく変わります。事業を選ぶと、この予算・流入での黒字/赤字を判定します';
       } else if (r.netProfit >= 0) {
         verdict.className = 'verdict profit';
         el('verdict-icon').textContent = '🟢';
@@ -1108,11 +1140,11 @@
       const svcValid = activePresetKey && USE_CASE_PRESETS[useCase].includes(activePresetKey);
       const svc = svcValid ? PRESET_LABELS[activePresetKey] : null;
       let txt;
-      if (importLabel && svc) txt = `資料「${importLabel}」の予算・流入 × ${svc}の経済性（成約率・客単価・粗利率は目安）`;
-      else if (importLabel) txt = `資料「${importLabel}」を読み取り中（自社側の数値は⚠目安）。下のサービスを選ぶとその事業の経済性で試算します`;
-      else if (svc) txt = `${svc} の目安値`;
-      else if (manualAdjusted) txt = '手入力';
-      else txt = '初期値（サンプル数値）';
+      if (svc && importLabel) txt = `${svc}の経済性 × 資料「${importLabel}」の予算・流入`;
+      else if (svc) txt = `${svc} の経済性（成約率・客単価・粗利率・LTV）`;
+      else if (importLabel) txt = `資料「${importLabel}」の予算・流入のみ。STEP 1 で事業を選ぶと黒字/赤字を判定します`;
+      else if (econAnchored) txt = '手入力（経済性も手入力）';
+      else txt = '未選択 — STEP 1 で事業（サービス）を選んでください';
       if (manualAdjusted && (svc || importLabel)) txt += '（手で調整済み）';
       const bar = el('basis-bar'); if (bar) bar.textContent = '試算の前提：' + txt;
       document.querySelectorAll('#preset-row .preset-chip').forEach(c =>
@@ -1147,25 +1179,28 @@
       if (!chip) return;
       const key = chip.dataset.preset;
       const svcName = PRESET_LABELS[key] || 'サービス';
+      // 先に状態を確定（applyValues 等の内部 render が anchored を見られるように）
+      activePresetKey = key;
+      econAnchored = true;   // 事業を選んだので経済性が確定 → 判定OK
+      manualAdjusted = false;
       if (importLabel) {
         // 資料インポート中：予算・流入を残してサービスの経済性だけ反映
         applyServiceEconomics(key);
-        activePresetKey = key;
         showToast(`${svcName}の経済性で試算（資料の予算・流入は維持）`);
       } else {
         // 通常：そのサービスの目安一式を読み込む
         applyValues(PRESETS[key]); clearMissingMarks(); clearImportError();
-        activePresetKey = key; importLabel = null;
-        showToast(`${svcName}の目安を反映しました`);
+        showToast(`${svcName}の経済性で試算します`);
       }
-      manualAdjusted = false;
       updateBasis();
+      render();
     });
     el('reset-btn').addEventListener('click', () => {
+      activePresetKey = null; importLabel = null; manualAdjusted = false; econAnchored = false;
       applyValues(DEFAULTS); clearMissingMarks(); clearImportError();
-      activePresetKey = null; importLabel = null; manualAdjusted = false;
       el('upload-filename').style.display = 'none'; el('upload-area').classList.remove('has-file');
       updateBasis();
+      render();
     });
 
     // 用途トグル（顧客獲得 / エンジニア採用）
@@ -1186,7 +1221,7 @@
       inp.value = v; if (rng) rng.value = v;
       const f = inp.closest('.field');
       if (f) { f.classList.add('needs-input'); f.classList.remove('fill-flash'); void f.offsetWidth; f.classList.add('fill-flash'); }
-      formDirty = true; manualAdjusted = true;
+      formDirty = true; manualAdjusted = true; econAnchored = true;
       render(); updateBasis();
     }
     el('bench').addEventListener('click', (e) => {
@@ -1234,7 +1269,7 @@
       if (!s) return;
       applyValues(s);
       activeScenario = i;
-      activePresetKey = null; manualAdjusted = false;
+      activePresetKey = null; manualAdjusted = false; econAnchored = true;
       updateActiveHeader();
       updateBasis();
     }
@@ -1243,11 +1278,15 @@
         th.classList.toggle('active', Number(th.dataset.idx) === activeScenario);
       });
     }
-    function markManualEdit() {
+    const ECON_FIELDS = [inputs.cvr, inputs.aov, inputs.margin, inputs.repeat, rangeCvr, rangeMargin, rangeRepeat];
+    function markManualEdit(e) {
       formDirty = true;
       manualAdjusted = true;
+      // 経済性（成約率・客単価・粗利率・LTV）を手で触ったら、判定を出してよい状態にする
+      if (e && e.target && ECON_FIELDS.includes(e.target)) econAnchored = true;
       if (activeScenario !== -1) { activeScenario = -1; updateActiveHeader(); }
       updateBasis();
+      render();
     }
 
     function addScenario(params, label) {
@@ -1528,22 +1567,27 @@
       el('field-cpc').style.display = mode === 'cpc' ? '' : 'none';
       el('field-clicks').style.display = mode === 'clicks' ? '' : 'none';
 
+      // 資料からは「予算・流入」だけを読み取る（campaign 側）
       setField(inputs.budget, null, d.budget, '予算', DEFAULTS.budget);
       if (mode === 'cpc') setField(inputs.cpc, null, d.cpc, 'CPC', DEFAULTS.cpc);
       else setField(inputs.clicks, null, d.clicks, '獲得数', DEFAULTS.clicks);
-      // CVR の仮値は流入モードで変える：CPC=クリック→受注(0.5%)、獲得数=リード/名刺→受注(5%)
-      const cvrFallback = (mode === 'clicks') ? 5 : BTOB_BENCHMARK.cvr;
-      setField(inputs.cvr, rangeCvr, d.cvr, 'CVR', cvrFallback);
-      setField(inputs.aov, null, d.aov, '客単価', BTOB_BENCHMARK.aov);
-      setField(inputs.margin, rangeMargin, d.margin, '粗利率', BTOB_BENCHMARK.margin);
-      // 任意項目（読み取れなければ現在値を維持・missing には含めない）
-      if (toNum(d.purchaseCount) !== null && toNum(d.purchaseCount) >= 1) {
-        inputs.repeat.value = toNum(d.purchaseCount); rangeRepeat.value = toNum(d.purchaseCount);
-        inputs.repeat.closest('.field')?.classList.add('fill-flash');
-      }
-      if (toNum(d.otherCost) !== null && toNum(d.otherCost) >= 0) {
-        inputs.othercost.value = toNum(d.otherCost);
-        inputs.othercost.closest('.field')?.classList.add('fill-flash');
+
+      // 経済性（成約率・客単価・粗利率・LTV）は「事業（サービス）」が持つ。
+      // すでに事業が選ばれていれば、その経済性を維持して上書きしない。
+      // 事業未選択のときだけ一般目安を仮置きする（判定は事業選択まで保留される）。
+      if (!activePresetKey) {
+        const cvrFallback = (mode === 'clicks') ? 5 : BTOB_BENCHMARK.cvr;
+        setField(inputs.cvr, rangeCvr, d.cvr, 'CVR', cvrFallback);
+        setField(inputs.aov, null, d.aov, '客単価', BTOB_BENCHMARK.aov);
+        setField(inputs.margin, rangeMargin, d.margin, '粗利率', BTOB_BENCHMARK.margin);
+        if (toNum(d.purchaseCount) !== null && toNum(d.purchaseCount) >= 1) {
+          inputs.repeat.value = toNum(d.purchaseCount); rangeRepeat.value = toNum(d.purchaseCount);
+          inputs.repeat.closest('.field')?.classList.add('fill-flash');
+        }
+        if (toNum(d.otherCost) !== null && toNum(d.otherCost) >= 0) {
+          inputs.othercost.value = toNum(d.otherCost);
+          inputs.othercost.closest('.field')?.classList.add('fill-flash');
+        }
       }
 
       formDirty = true;  // 資料インポート後は内容を保持（用途切替でリセットしない）
@@ -1688,14 +1732,16 @@
 
         const { filled, missing } = applyExtracted(parsed);
         markMissingFields(missing);
-        // 「試算の前提」を資料インポートに切り替え（サービス未選択。下で選ぶと経済性が乗る）
+        // 資料は「予算・流入」を供給する。事業（経済性）は STEP 1 の選択を維持。
         importLabel = file.name.length > 28 ? file.name.slice(0, 27) + '…' : file.name;
-        activePresetKey = null; manualAdjusted = false;
+        manualAdjusted = false;
         updateBasis();
         if (filled.length === 0) {
-          showImportError('資料から具体的な数値を読み取れませんでした（画像中心の PDF などで文字が取れない場合があります）。下の各欄には業界の目安（⚠）を入れています。わかる項目を実績値に置き換えると判定が確定します。');
-        } else if (missing.length > 0) {
-          showImportError(`${filled.length}項目を読み取りました。${missing.length}項目（${missing.join('・')}）は資料に記載がないため仮の値です。⚠マークの欄を実績値に置き換えてください。`);
+          showImportError('資料から予算・流入の数値を読み取れませんでした（画像中心の PDF などで文字が取れない場合があります）。テキスト付きの PDF / PPTX / Word でお試しいただくか、予算・流入を手入力してください。');
+        } else if (!activePresetKey) {
+          showImportError(`予算・流入を${filled.length}項目読み取りました。👉 次は STEP 1 で事業（コンサル／ソリューション／アカデミー）を選んでください。事業ごとの成約率・客単価・粗利率・LTV で黒字/赤字を判定します（成約率などは事業で大きく変わるため、資料からは判定しません）。`);
+        } else {
+          showImportError(`予算・流入を${filled.length}項目読み取り、${PRESET_LABELS[activePresetKey]}の経済性で試算しました。⚠目安の欄は自社の実績値に置き換えると確定します。`);
         }
 
         // 複数プランがあれば比較表に展開（フォームは AI 推奨値のまま・比較表の先頭に「資料の推奨」を置く）
@@ -1766,15 +1812,15 @@
     title: 'ROI / ROAS Simulator',
     description: '「この予算で黒字になるか？」を施策前に見極めます',
     features: [
-      { icon: '🏢', text: 'AKKODiS の事業ラインのプリセット＋「エンジニア採用」モード（採用マーケにも対応）' },
-      { icon: '📊', text: '営業資料アップで AI 自動入力／複数プランは横比較' },
-      { icon: '🧭', text: 'CVR・粗利率がわからなくても「業界平均の目安」をワンタップ（⚠目安と明示）' },
+      { icon: '🧭', text: 'STEP1 事業（サービス）を選ぶ → STEP2 予算・流入を入れる → STEP3 黒字/赤字を判定（事業未選択のうちは判定を保留）' },
+      { icon: '🏢', text: 'コンサル／ソリューション／アカデミーで成約率・客単価・粗利率・LTV が切り替わり、結果がどう変わるか比較できる' },
+      { icon: '📄', text: '営業資料アップで「予算・流入」を AI 自動読み取り／複数料金プランは横比較' },
       { icon: '🟢', text: 'ROAS/ROI/CPA に加え LTV/CAC・限界CPA・損益分岐CV など BtoB 指標も' }
     ],
     updates: [
-      { date: '06/21', text: '「いま何を前提に試算しているか」を結果の先頭に📌バーで常時表示。さらに、資料をAIインポートした後にサービス（コンサル／ソリューション／アカデミー）を選ぶと、資料の予算・流入はそのまま残し、そのサービスの成約率・客単価・粗利率だけを目安として反映するように設計し直しました（選択中サービスは✓でハイライト＋反映時にトースト）。「この出展費・名刺数を◯◯事業の経済性で回したらROIは？」がワンタップで比較できます' },
-      { date: '06/21', text: '資料に複数の料金パターン（展示会のブースサイズ別・協賛グレード別など）が載っている場合に、これまで先頭4件までしか展開できなかったのを最大8プランまで拡大。SILVER/GOLD/DIAMOND/リストスポンサーのような料金表を1つ残らず横並びで試算（ROAS/ROI/利益/判定）できます' },
-      { date: '06/21', text: 'Mac など広い画面でのレイアウト崩れ／縦長を修正し、入力フォームを1カラムで端正に整理。人件費の「時給」欄が狭くて 5000 が 500 に見える不具合も直しました' }
+      { date: '06/21', text: '構造を「事業（サービス）起点」に作り直しました。使い方は3ステップ（STEP1 事業を選ぶ → STEP2 予算・流入を手入力 or 資料インポート → STEP3 判定）。成約率・客単価・粗利率・LTV は事業で全く違うため、事業を選ぶまで黒字/赤字・ROAS/ROI は「—」で判定を保留します。営業資料は「予算・流入」の読み取りに専念し、事業を選ぶとその経済性で即試算。別事業に切り替えれば同じ予算でも結果がどう変わるか比較できます' },
+      { date: '06/21', text: '「いま何を前提に試算しているか」を結果の先頭に📌バーで常時表示。資料インポート後に事業を選ぶと、資料の予算・流入は残しつつ事業の経済性だけが反映され、選択中の事業は✓でハイライト＋トーストで通知します' },
+      { date: '06/21', text: '資料に複数の料金パターン（展示会のブースサイズ別・協賛グレード別など）が載っている場合に最大8プランまで横並びで試算（ROAS/ROI/利益/判定）。Mac でのレイアウト崩れ／縦長も修正し、人件費「時給」欄が 5000→500 に見える不具合も直しました' }
     ]
   };
   initOnboarding(OB_CONFIG);

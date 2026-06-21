@@ -25,6 +25,8 @@ let pass = 0, fail = 0; const check = (n, c, x) => { if (c) { pass++; } else { f
 
 (async () => {
 console.log('# 1. 数値の正確性（デフォルト: 予算50万/CPC600/CVR0.5%/客単価50万/粗利50%）');
+// 経済性を手で確定（事業未選択だと判定・KPIは保留＝「—」になる仕様のため）。値は既定のまま再入力で anchor。
+fire($('in-cvr'), 'input');
 // clicks=833.33 cv=4.1667 rev=2,083,333 roas=416.7→417 roi=108.3→108 cpa=120,000 ltv=250,000 ltvCac=2.08→2.1 beCV=2
 check('ROAS=417', txt('kpi-roas') === '417', txt('kpi-roas'));
 check('ROI=+108', txt('kpi-roi') === '+108', txt('kpi-roi'));
@@ -36,7 +38,7 @@ check('限界CPA(=LTV)=250,000', txt('m-maxcpa') === '¥250,000', txt('m-maxcpa'
 check('実CPA 許容内（120k<250k）', txt('m-cpa-pill') === '許容内', txt('m-cpa-pill'));
 
 console.log('# 1b. UI/UX・アクセシビリティ・折りたたみ');
-check('はじめ方ガイド2パス', doc.querySelectorAll('.guide .guide-path').length === 2);
+check('はじめ方ガイド3ステップ', doc.querySelectorAll('.guide .guide-path').length === 3, 'len=' + doc.querySelectorAll('.guide .guide-path').length);
 check('結果カード見出し', !!doc.querySelector('.result-card-head'));
 check('verdict aria-live=polite', $('verdict').getAttribute('aria-live') === 'polite');
 check('用途トグル role=group', $('usecase-toggle').getAttribute('role') === 'group');
@@ -77,7 +79,10 @@ check('粗利0で 損益分岐ROAS=—', txt('be-target') === '—', txt('be-tar
 check('粗利0で 赤字判定', txt('verdict-title').includes('赤字'), txt('verdict-title'));
 click($('reset-btn'));
 check('リセットで予算=500000', $('in-budget').value === '500000', $('in-budget').value);
-check('リセットで ROAS=417 復帰', txt('kpi-roas') === '417', txt('kpi-roas'));
+check('リセット直後は事業未選択でROAS=—', txt('kpi-roas') === '—', txt('kpi-roas'));
+check('リセット直後の判定＝STEP1事業選択を促す', txt('verdict-title').includes('事業'), txt('verdict-title'));
+fire($('in-cvr'), 'input'); // 経済性を確定すれば既定値どおり復帰
+check('経済性確定でROAS=417復帰', txt('kpi-roas') === '417', txt('kpi-roas'));
 
 console.log('# 4. 用途トグル往復（採用→顧客獲得→採用でラベル復帰）');
 const uc = u => click($('usecase-toggle').querySelector(`[data-uc="${u}"]`));
@@ -142,7 +147,7 @@ check('インポート: リスク表示', txt('ai-risks').includes('CVR不明'),
 check('インポート: 推奨+2プラン=3列展開', $('compare-table').querySelectorAll('.sc-head').length === 3, 'len=' + $('compare-table').querySelectorAll('.sc-head').length);
 check('インポート: 先頭列=資料の推奨', $('compare-table').querySelector('.sc-head .sc-label').textContent.includes('推奨'), $('compare-table').querySelector('.sc-head .sc-label').textContent);
 check('インポート: 推奨列がアクティブ', $('compare-table').querySelector('.sc-head.active') !== null);
-check('インポート: 仮の値サマリ表示', txt('import-error').includes('仮の値'), txt('import-error'));
+check('インポート: 事業未選択なら STEP1 事業選択を促す', txt('import-error').includes('STEP 1') && txt('import-error').includes('事業'), txt('import-error'));
 
 console.log('# 8c. 多数の料金パターンを全部展開（4件上限で切り捨てない）');
 const many = {
@@ -221,10 +226,10 @@ check('基準バーにサービス名（ソリューション）が出る', txt(
 check('選択中サービスのチップがアクティブ', (() => { const a = $('preset-row').querySelector('.preset-chip.active'); return a && a.dataset.preset === 'solution'; })(), 'active');
 check('サービスの経済性は⚠目安マーク（客単価）', $('in-aov').closest('.field').classList.contains('needs-input'));
 click($('reset-btn'));
-check('リセットで基準バー＝初期値', txt('basis-bar').includes('初期値'), txt('basis-bar'));
+check('リセットで基準バー＝未選択（STEP1へ）', txt('basis-bar').includes('未選択') || txt('basis-bar').includes('STEP 1'), txt('basis-bar'));
 click($('preset-row').querySelector('[data-preset="consulting"]'));
 check('通常のサービス選択（インポートなし）で予算もプリセット値に', $('in-budget').value === '600000', $('in-budget').value);
-check('基準バー＝コンサルティングの目安値', txt('basis-bar').includes('コンサルティング') && txt('basis-bar').includes('目安'), txt('basis-bar'));
+check('基準バー＝コンサルティングの経済性', txt('basis-bar').includes('コンサルティング') && txt('basis-bar').includes('経済性'), txt('basis-bar'));
 click($('reset-btn'));
 
 console.log('# 9. コピー内容（採用モードの単位追従）');
