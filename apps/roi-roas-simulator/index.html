@@ -266,6 +266,9 @@
       cursor: pointer; transition: all var(--ease);
     }
     .preset-chip:hover { border-color: var(--navy); background: var(--surface-alt); }
+    /* 選択中のプリセットをはっきり表示（反映されたことが分かるように） */
+    .preset-chip.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .preset-chip.active::before { content: '✓ '; }
 
     .section-title {
       font-size: var(--text-sm); font-weight: 700; text-transform: uppercase;
@@ -300,7 +303,12 @@
     .bench-chip { padding: 6px 12px; font-size: var(--text-xs); font-weight: 600; color: var(--navy); background: var(--surface); border: 1.5px solid var(--border); cursor: pointer; transition: all var(--ease); }
     .bench-chip:hover { border-color: var(--navy); background: var(--surface-alt); }
     .bench-calc { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; font-size: var(--text-sm); color: var(--text-secondary); }
-    .bench-calc input { width: 60px; padding: 6px 8px; font-family: var(--font-mono); font-weight: 600; text-align: right; border: 1.5px solid var(--border); }
+    .bench-calc input { width: 78px; padding: 6px 10px; font-family: var(--font-mono); font-weight: 600; text-align: right; border: 1.5px solid var(--border); }
+    /* 数字のスピナー（上下の矢印）を消す。狭い入力欄で「5000」の末尾が矢印に隠れて
+       「500」に見えてしまう不具合を防ぐ。 */
+    .bench-calc input::-webkit-outer-spin-button,
+    .bench-calc input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .bench-calc input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
     .bench-apply { padding: 6px 12px; font-size: var(--text-xs); font-weight: 700; color: #fff; background: var(--navy); border: none; cursor: pointer; }
     .bench-note { font-size: 0.68rem; color: var(--text-faint); line-height: 1.5; margin-top: 6px; }
 
@@ -313,6 +321,9 @@
 
     /* 結果カードの見出し */
     .result-card-head { font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: var(--sp-3); }
+    /* 「いま何を前提に試算しているか」を常時表示するバー */
+    .basis-bar { font-size: var(--text-xs); font-weight: 700; color: var(--navy); background: var(--surface-alt); border-left: 3px solid var(--navy); padding: 8px 12px; margin-bottom: var(--sp-4); line-height: 1.45; }
+    .basis-bar::before { content: '📌 '; }
 
     /* 任意の詳細セクション（その他コスト・人件費）を折りたたみ */
     .advanced { margin: var(--sp-6) 0 0; }
@@ -640,6 +651,7 @@
           <div class="ph-date" id="print-date"></div>
         </div>
         <div class="result-card-head">シミュレーション結果</div>
+        <div class="basis-bar" id="basis-bar" aria-live="polite">試算の前提：初期値（サンプル数値）</div>
         <div class="verdict" id="verdict" role="status" aria-live="polite">
           <span class="verdict-icon" id="verdict-icon" aria-hidden="true">⏳</span>
           <div class="verdict-text">
@@ -807,6 +819,10 @@
     let mode = 'cpc';
     let useCase = 'acquire';   // 'acquire' 顧客獲得 | 'recruit' エンジニア採用
     let formDirty = false;     // 資料インポート/手入力で内容が変わったか（用途切替で内容を保持する判定に使う）
+    // 「いま何を前提に試算しているか」を表す状態（基準バーに表示）
+    let activePresetKey = null; // 選択中のサービス（コンサル/ソリューション/アカデミー…）
+    let importLabel = null;     // 資料インポートのファイル名（読み取り中なら）
+    let manualAdjusted = false; // プリセット/インポート後に手で数値を触ったか
 
     // ── 要素参照 ─────────────────────────────────────
     const el = (id) => document.getElementById(id);
@@ -891,8 +907,13 @@
       rangeRepeat.max = uc === 'recruit' ? 60 : 10;
       renderPresetChips(uc);
       applyUseCaseLabels(uc);
-      if (loadPreset) { applyValues(PRESETS[USE_CASE_PRESETS[uc][0]]); clearMissingMarks(); clearImportError(); }
+      if (loadPreset) {
+        const firstKey = USE_CASE_PRESETS[uc][0];
+        applyValues(PRESETS[firstKey]); clearMissingMarks(); clearImportError();
+        activePresetKey = firstKey; importLabel = null; manualAdjusted = false;
+      }
       else render();
+      if (typeof updateBasis === 'function') updateBasis();
     }
 
     // ── 現在のフォーム値をパラメータ化 ───────────────────
@@ -1082,11 +1103,70 @@
       formDirty = false;  // プリセット/リセット等の既知ロード後はクリーン状態
       render();
     }
+    // 「試算の前提」バーとサービスチップのハイライトを更新
+    function updateBasis() {
+      const svcValid = activePresetKey && USE_CASE_PRESETS[useCase].includes(activePresetKey);
+      const svc = svcValid ? PRESET_LABELS[activePresetKey] : null;
+      let txt;
+      if (importLabel && svc) txt = `資料「${importLabel}」の予算・流入 × ${svc}の経済性（成約率・客単価・粗利率は目安）`;
+      else if (importLabel) txt = `資料「${importLabel}」を読み取り中（自社側の数値は⚠目安）。下のサービスを選ぶとその事業の経済性で試算します`;
+      else if (svc) txt = `${svc} の目安値`;
+      else if (manualAdjusted) txt = '手入力';
+      else txt = '初期値（サンプル数値）';
+      if (manualAdjusted && (svc || importLabel)) txt += '（手で調整済み）';
+      const bar = el('basis-bar'); if (bar) bar.textContent = '試算の前提：' + txt;
+      document.querySelectorAll('#preset-row .preset-chip').forEach(c =>
+        c.classList.toggle('active', c.dataset.preset === activePresetKey));
+    }
+
+    // 簡易トースト（コピー用要素を流用）
+    function showToast(msg) {
+      const t = el('copy-toast'); if (!t) return;
+      t.textContent = msg; t.classList.add('show');
+      clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    // 資料インポート後にサービスを選んだ時：資料由来の予算・流入は残し、
+    // そのサービスの「経済性（成約率・客単価・粗利率・購入回数・人件費）」だけを目安として反映する。
+    function applyServiceEconomics(key) {
+      const p = PRESETS[key];
+      const flash = (inp) => { const f = inp.closest('.field'); if (f) { f.classList.remove('fill-flash'); void f.offsetWidth; f.classList.add('fill-flash'); } };
+      const mark = (inp) => { inp.closest('.field')?.classList.add('needs-input'); };
+      inputs.cvr.value = p.cvr; rangeCvr.value = p.cvr; flash(inputs.cvr); mark(inputs.cvr);
+      inputs.aov.value = p.aov; flash(inputs.aov); mark(inputs.aov);
+      inputs.margin.value = p.margin; rangeMargin.value = p.margin; flash(inputs.margin); mark(inputs.margin);
+      inputs.repeat.value = (p.repeat ?? 1); rangeRepeat.value = (p.repeat ?? 1); flash(inputs.repeat);
+      inputs.othercost.value = (p.othercost ?? 0); flash(inputs.othercost);
+      const adv = el('adv-cost'); if (adv && (parseFloat(p.othercost) || 0) > 0) adv.open = true;
+      formDirty = true; manualAdjusted = false;
+      render();
+    }
+
     el('preset-row').addEventListener('click', (e) => {
       const chip = e.target.closest('[data-preset]');
-      if (chip) { applyValues(PRESETS[chip.dataset.preset]); clearMissingMarks(); clearImportError(); }
+      if (!chip) return;
+      const key = chip.dataset.preset;
+      const svcName = PRESET_LABELS[key] || 'サービス';
+      if (importLabel) {
+        // 資料インポート中：予算・流入を残してサービスの経済性だけ反映
+        applyServiceEconomics(key);
+        activePresetKey = key;
+        showToast(`${svcName}の経済性で試算（資料の予算・流入は維持）`);
+      } else {
+        // 通常：そのサービスの目安一式を読み込む
+        applyValues(PRESETS[key]); clearMissingMarks(); clearImportError();
+        activePresetKey = key; importLabel = null;
+        showToast(`${svcName}の目安を反映しました`);
+      }
+      manualAdjusted = false;
+      updateBasis();
     });
-    el('reset-btn').addEventListener('click', () => { applyValues(DEFAULTS); clearMissingMarks(); clearImportError(); });
+    el('reset-btn').addEventListener('click', () => {
+      applyValues(DEFAULTS); clearMissingMarks(); clearImportError();
+      activePresetKey = null; importLabel = null; manualAdjusted = false;
+      el('upload-filename').style.display = 'none'; el('upload-area').classList.remove('has-file');
+      updateBasis();
+    });
 
     // 用途トグル（顧客獲得 / エンジニア採用）
     // 資料インポート後や手入力後（formDirty）は内容を保持。未編集なら用途の初期プリセットを読み込む。
@@ -1106,8 +1186,8 @@
       inp.value = v; if (rng) rng.value = v;
       const f = inp.closest('.field');
       if (f) { f.classList.add('needs-input'); f.classList.remove('fill-flash'); void f.offsetWidth; f.classList.add('fill-flash'); }
-      formDirty = true;
-      render();
+      formDirty = true; manualAdjusted = true;
+      render(); updateBasis();
     }
     el('bench').addEventListener('click', (e) => {
       const chip = e.target.closest('[data-set]');
@@ -1139,8 +1219,8 @@
         inputs.othercost.value = Math.round(v);
         const f = inputs.othercost.closest('.field');
         if (f) { f.classList.remove('fill-flash'); void f.offsetWidth; f.classList.add('fill-flash'); }
-        formDirty = true;
-        render();
+        formDirty = true; manualAdjusted = true;
+        render(); updateBasis();
       } else { el('hc-people').focus(); }
     });
     hcPreview();
@@ -1154,7 +1234,9 @@
       if (!s) return;
       applyValues(s);
       activeScenario = i;
+      activePresetKey = null; manualAdjusted = false;
       updateActiveHeader();
+      updateBasis();
     }
     function updateActiveHeader() {
       document.querySelectorAll('#compare-table .sc-head').forEach(th => {
@@ -1163,7 +1245,9 @@
     }
     function markManualEdit() {
       formDirty = true;
+      manualAdjusted = true;
       if (activeScenario !== -1) { activeScenario = -1; updateActiveHeader(); }
+      updateBasis();
     }
 
     function addScenario(params, label) {
@@ -1604,6 +1688,10 @@
 
         const { filled, missing } = applyExtracted(parsed);
         markMissingFields(missing);
+        // 「試算の前提」を資料インポートに切り替え（サービス未選択。下で選ぶと経済性が乗る）
+        importLabel = file.name.length > 28 ? file.name.slice(0, 27) + '…' : file.name;
+        activePresetKey = null; manualAdjusted = false;
+        updateBasis();
         if (filled.length === 0) {
           showImportError('資料から具体的な数値を読み取れませんでした（画像中心の PDF などで文字が取れない場合があります）。下の各欄には業界の目安（⚠）を入れています。わかる項目を実績値に置き換えると判定が確定します。');
         } else if (missing.length > 0) {
@@ -1684,9 +1772,9 @@
       { icon: '🟢', text: 'ROAS/ROI/CPA に加え LTV/CAC・限界CPA・損益分岐CV など BtoB 指標も' }
     ],
     updates: [
-      { date: '06/21', text: 'Mac など広い画面でレイアウトが崩れる／縦に長く見える問題を修正しました：このツール専用に本文幅を広げ、入力欄が細く割れて長いラベルが何行も折り返していたのを1カラムに整理（各項目が1行に収まります）。「入力｜結果」の横並びで全体の高さも抑えました' },
-      { date: '06/21', text: '資料に複数の料金パターン（展示会のブースサイズ別・協賛グレード別など）が載っている場合に、これまで先頭4件までしか展開できなかったのを最大8プランまで拡大。SILVER/GOLD/DIAMOND/リストスポンサーのような料金表を1つ残らず横並びで試算（ROAS/ROI/利益/判定）できるようにしました' },
-      { date: '06/21', text: '結果を「PDF / 印刷」ボタンでそのまま出力できるようにしました：上長への共有や提案書への添付に。印刷時は入力欄やガイドを自動で省き、判定・主要指標・プラン比較・AI所見だけをブランドヘッダー（出力日付つき）で1枚にまとめます' }
+      { date: '06/21', text: '「いま何を前提に試算しているか」を結果の先頭に📌バーで常時表示。さらに、資料をAIインポートした後にサービス（コンサル／ソリューション／アカデミー）を選ぶと、資料の予算・流入はそのまま残し、そのサービスの成約率・客単価・粗利率だけを目安として反映するように設計し直しました（選択中サービスは✓でハイライト＋反映時にトースト）。「この出展費・名刺数を◯◯事業の経済性で回したらROIは？」がワンタップで比較できます' },
+      { date: '06/21', text: '資料に複数の料金パターン（展示会のブースサイズ別・協賛グレード別など）が載っている場合に、これまで先頭4件までしか展開できなかったのを最大8プランまで拡大。SILVER/GOLD/DIAMOND/リストスポンサーのような料金表を1つ残らず横並びで試算（ROAS/ROI/利益/判定）できます' },
+      { date: '06/21', text: 'Mac など広い画面でのレイアウト崩れ／縦長を修正し、入力フォームを1カラムで端正に整理。人件費の「時給」欄が狭くて 5000 が 500 に見える不具合も直しました' }
     ]
   };
   initOnboarding(OB_CONFIG);
