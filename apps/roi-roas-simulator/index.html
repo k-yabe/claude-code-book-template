@@ -578,16 +578,17 @@
 
           <div class="field">
             <div class="field-label">
-              <span class="lbl">流入の入力方法<span class="req req-must">必須</span></span>
+              <span class="lbl">流入（何件集まるか）の入れ方<span class="req req-must">必須</span></span>
             </div>
             <div class="mode-toggle" id="traffic-mode" role="group" aria-label="流入の入力方法">
-              <button type="button" data-mode="cpc" class="active" aria-pressed="true">CPC×予算で算出</button>
-              <button type="button" data-mode="clicks" aria-pressed="false">獲得数を直接入力</button>
+              <button type="button" data-mode="cpc" class="active" aria-pressed="true">クリック単価で計算</button>
+              <button type="button" data-mode="clicks" aria-pressed="false">件数を直接入力</button>
             </div>
+            <p class="field-help">Web広告など「クリック単価（CPC）」で考える場合は左。展示会・セミナー・紹介など、見込み件数が分かる場合は右で件数を直接入れます。</p>
           </div>
 
           <div class="field" id="field-cpc">
-            <div class="field-label"><span class="lbl">CPC（クリック単価）<span class="req req-must">必須</span></span><span class="hint">1クリックあたり</span></div>
+            <div class="field-label"><span class="lbl">CPC（1クリックの広告費）<span class="req req-must">必須</span></span><span class="hint">クリック単価</span></div>
             <div class="input-wrap has-prefix">
               <span class="prefix">¥</span>
               <input type="number" id="in-cpc" aria-label="CPC クリック単価（円）" min="1" step="10" value="600" inputmode="numeric">
