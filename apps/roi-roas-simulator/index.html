@@ -44,9 +44,9 @@
        各フィールドが全幅を使えてラベル（必須バッジ・補足つき）が1〜2行に収まる。
        以前は入力欄を更に2列化していたが、列が細くなりラベルが3〜4行に折り返して崩れていた。 */
     .field { margin-bottom: var(--sp-4); }
-    /* ラベルは全幅・1行で読める（長い和文ラベルでも折り返さない）。入力ボックスは
-       間延びしないよう適度な幅に収める。スライダーは全幅でレンジ感を保つ。 */
-    .field > .input-wrap { max-width: 280px; }
+    /* 入力ボックス・スライダー・トグルはすべて全幅にそろえて、左右の端を一直線に通す
+       （幅をバラバラにすると右端がガタついて崩れて見える）。 */
+    .field > .input-wrap { width: 100%; }
     .field > input[type="range"] { width: 100%; }
 
     /* 各カード（入力パネル・資料インポート）を結果カードと対の「白地＋ネイビー上アクセント」に統一 */
@@ -138,6 +138,13 @@
       padding: var(--sp-6);
     }
     @media (max-width: 920px) { .result-card { position: static; } }
+    /* 入力を変えた時、結果が即反映されたことが分かるよう淡くパルス（反映ボタン代わり） */
+    .result-card.just-updated { animation: rcpulse 0.6s var(--ease); }
+    @keyframes rcpulse {
+      0% { box-shadow: 0 0 0 0 rgba(255,184,28,0); }
+      35% { box-shadow: 0 0 0 3px rgba(255,184,28,0.55); }
+      100% { box-shadow: 0 0 0 0 rgba(255,184,28,0); }
+    }
 
     .verdict {
       display: flex;
@@ -250,6 +257,16 @@
     .result-actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-5); }
     .result-actions button { flex: 1; min-width: 120px; white-space: nowrap; }
 
+    /* 稟議・申請用テキスト */
+    .ringi-panel { margin-top: var(--sp-4); border: 1px solid var(--border-light); border-top: 3px solid var(--navy); background: var(--surface); padding: var(--sp-4); }
+    .ringi-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-2); }
+    .ringi-title { font-size: var(--text-base); font-weight: 700; color: var(--navy); }
+    .ringi-close { background: none; border: none; cursor: pointer; font-size: var(--text-md); color: var(--text-muted); padding: 4px; line-height: 1; }
+    .ringi-hint { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--sp-3); line-height: 1.5; }
+    #ringi-text { width: 100%; box-sizing: border-box; padding: var(--sp-3); font-family: var(--font-mono); font-size: var(--text-xs); line-height: 1.7; color: var(--text-primary); border: 1.5px solid var(--border); background: var(--surface-alt); resize: vertical; }
+    .ringi-actions { margin-top: var(--sp-3); }
+    .ringi-actions button { width: 100%; }
+
     /* 印刷ヘッダー（通常は非表示、印刷時のみ表示） */
     .print-header { display: none; }
 
@@ -259,6 +276,7 @@
       body { background: #fff; }
       .navbar, .guide, .import-step, .usecase-row, .preset-row, .bench,
       .sim-layout > .step, .result-actions, .compare-add-btn, .app-footer,
+      .svc-step, .svc-step-head--2, .ringi-panel,
       .onboarding-overlay, .sample-hint { display: none !important; }
       .container { max-width: 100%; padding: 0; margin: 0; }
       .page-header { margin-bottom: 8mm; }
@@ -491,7 +509,7 @@
       <div class="guide-paths">
         <p class="guide-path"><span class="gp-num" aria-hidden="true">1</span><span><strong>事業（サービス）を選ぶ</strong> → その事業の成約率・客単価・粗利率・LTV が前提に入ります。<strong>事業によって黒字/赤字は大きく変わります</strong></span></p>
         <p class="guide-path"><span class="gp-num" aria-hidden="true">2</span><span><strong>予算・流入を入れる</strong> → 手入力、または営業資料（PDF等）をアップすれば AI が予算・出展費・リード数を自動で読み取り</span></p>
-        <p class="guide-path"><span class="gp-num" aria-hidden="true">3</span><span><strong>右で🟢黒字／🔴赤字・ROAS/ROI を確認</strong> → 事業を切り替えれば、同じ予算でも結果がどう変わるか比較できます</span></p>
+        <p class="guide-path"><span class="gp-num" aria-hidden="true">3</span><span><strong>右で🟢黒字／🔴赤字・ROAS/ROI を確認</strong> → 客単価・成約率などの数値は<strong>いつでも直接書き換えOK（自動で再計算）</strong>。事業を切り替えれば同じ予算でも結果がどう変わるか比較できます</span></p>
       </div>
     </div>
 
@@ -574,7 +592,7 @@
           </div>
 
           <div class="section-title" id="t-sec2">② コンバージョン</div>
-          <p class="econ-note">下の②③（成約率・客単価・粗利率など）は、<strong>STEP 1 で選んだ事業の標準値が自動で入ります</strong>。自社の実績がわかれば上書きしてください。</p>
+          <p class="econ-note">下の②③（成約率・客単価・粗利率など）は <strong>STEP 1 で選んだ事業の標準値が自動で入ります</strong>。<strong>✏️ そのまま直接書き換えてOK</strong>（資料アップ後でも、自社の実績に直せます）。書き換えると<strong>右の結果にその場で反映</strong>されます（反映ボタンは不要）。</p>
 
           <div class="field">
             <div class="field-label"><span class="lbl"><span id="t-cvr">CVR（成約率）</span><span class="req req-must">必須</span></span><span class="hint" id="cvr-hint">0.5%</span></div>
@@ -773,11 +791,25 @@
         </details>
 
         <div class="result-actions">
-          <button class="btn-primary" id="pdf-btn">📄 PDF / 印刷</button>
+          <button class="btn-primary" id="ringi-btn">📝 稟議文を作成</button>
+          <button class="btn-outline" id="pdf-btn">📄 PDF / 印刷</button>
           <button class="btn-outline" id="copy-btn">結果をコピー</button>
           <button class="btn-secondary" id="reset-btn">リセット</button>
         </div>
         <button class="compare-add-btn" id="compare-add">＋ この条件をプラン比較に追加</button>
+
+        <!-- 稟議用テキスト（社内申請にそのまま使える文章） -->
+        <div class="ringi-panel" id="ringi-panel" style="display:none;">
+          <div class="ringi-head">
+            <span class="ringi-title">📝 稟議・申請用の文章</span>
+            <button class="ringi-close" id="ringi-close" aria-label="閉じる">✕</button>
+          </div>
+          <p class="ringi-hint">そのままコピーして社内の稟議・申請にお使いください。文章は自由に編集できます。</p>
+          <textarea id="ringi-text" rows="18" spellcheck="false" aria-label="稟議用の文章"></textarea>
+          <div class="ringi-actions">
+            <button class="btn-primary" id="ringi-copy">この文章をコピー</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1162,8 +1194,8 @@
       inputs.cvr.value = v.cvr; inputs.aov.value = v.aov; inputs.margin.value = v.margin;
       inputs.repeat.value = (v.repeat ?? 1); inputs.othercost.value = (v.othercost ?? 0);
       rangeCvr.value = v.cvr; rangeMargin.value = v.margin; rangeRepeat.value = (v.repeat ?? 1);
-      // その他コストに値があるプリセットは詳細を自動で開く（無ければ畳んだまま＝初見はスッキリ）
-      const adv = el('adv-cost'); if (adv) adv.open = (parseFloat(v.othercost) || 0) > 0;
+      // ④その他コストは畳んだまま（見出しに「計上 ¥…」と金額を出すので開かなくても分かる）
+      const adv = el('adv-cost'); if (adv) adv.open = false;
       formDirty = false;  // プリセット/リセット等の既知ロード後はクリーン状態
       render();
     }
@@ -1206,7 +1238,6 @@
       set(inputs.margin, p.margin, rangeMargin);
       set(inputs.repeat, (p.repeat ?? 1), rangeRepeat);
       set(inputs.othercost, (p.othercost ?? 0));
-      const adv = el('adv-cost'); if (adv && (parseFloat(p.othercost) || 0) > 0) adv.open = true;
       formDirty = true; manualAdjusted = false;
       render();
     }
@@ -1326,6 +1357,11 @@
       });
     }
     const ECON_FIELDS = [inputs.cvr, inputs.aov, inputs.margin, inputs.repeat, rangeCvr, rangeMargin, rangeRepeat];
+    function flashResult() {
+      const rc = document.querySelector('.result-card');
+      if (!rc) return;
+      rc.classList.remove('just-updated'); void rc.offsetWidth; rc.classList.add('just-updated');
+    }
     function markManualEdit(e) {
       formDirty = true;
       manualAdjusted = true;
@@ -1334,6 +1370,7 @@
       if (activeScenario !== -1) { activeScenario = -1; updateActiveHeader(); }
       updateBasis();
       render();
+      flashResult(); // 「いま反映されたよ」の視覚フィードバック
     }
 
     function addScenario(params, label) {
@@ -1457,6 +1494,71 @@
       const pd = el('print-date');
       if (pd) pd.textContent = stamp;
       window.print();
+    });
+
+    // ── 稟議・申請用テキストの生成 ───────────────────────
+    function buildRingiText() {
+      const r = compute();
+      const W = UC[useCase];
+      const isRecruit = useCase === 'recruit';
+      const purpose = isRecruit ? 'エンジニア採用' : '顧客獲得';
+      const svc = (activePresetKey && PRESET_LABELS[activePresetKey]) ? PRESET_LABELS[activePresetKey] : '（手入力の前提）';
+      const cvWord = W.cvWord; // 件 / 人
+      const flowWord = mode === 'cpc' ? 'クリック数' : W.flowWord;
+      const aovWord = isRecruit ? '1人あたり月次粗利' : '客単価';
+      const cpaWord = isRecruit ? '採用単価' : 'CPA';
+      const profit = r.netProfit >= 0;
+      const signedPct = (n) => (n >= 0 ? '+' : '−') + pct(Math.abs(n)) + '%';
+      const signedYen = (n) => (n >= 0 ? '' : '−') + yen(Math.abs(n));
+      const d = new Date();
+      const wd = ['日', '月', '火', '水', '木', '金', '土'][d.getDay()];
+      const dateStr = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${wd}）`;
+      const beRoas = isFinite(r.breakEvenRoas) ? num(r.breakEvenRoas) + '%' : '—';
+
+      const opening = profit
+        ? `標記の件、施策の実施に先立ち費用対効果を試算いたしました。下記のとおり、月額予算 ${yen(r.budget)} に対して ${yen(r.netProfit)} の利益（ROI ${signedPct(r.roi)}）が見込まれ、投資対効果は十分と考えられます。つきましては、本施策の実施についてご承認を賜りたくお願い申し上げます。`
+        : `標記の件、施策の実施に先立ち費用対効果を試算いたしました。下記のとおり、現状の前提では ${yen(Math.abs(r.netProfit))} の損失（ROI ${signedPct(r.roi)}）が見込まれます。前提条件の見直し、または投資判断の再検討が必要と考えられるため、ご確認をお願いいたします。`;
+
+      const lines = [
+        `件名：${svc}における${purpose}施策の実施について（費用対効果の試算）`,
+        ``,
+        opening,
+        ``,
+        `■ 試算サマリ（月額ベース）`,
+        `・対象事業：${svc}（${purpose}）`,
+        `・予算：${yen(r.budget)}`,
+        (r.otherCost > 0 ? `・その他固定費（人件費等）：${yen(r.otherCost)}` : null),
+        `・総コスト：${yen(r.totalCost)}`,
+        `・想定${flowWord}：${num(r.clicks)}`,
+        `・想定${isRecruit ? '採用' : '成約'}数：${num(r.cv)} ${cvWord}（${W.cvrWord} ${pct(val(inputs.cvr))}%）`,
+        `・想定売上${r.repeat > 1 ? '（LTV込み）' : ''}：${yen(r.revenue)}`,
+        `・想定粗利：${yen(r.grossProfit)}`,
+        `・ROAS（広告費用対効果）：${num(r.roas)}%（損益分岐 ${beRoas}）`,
+        `・ROI（投資利益率）：${signedPct(r.roi)}`,
+        `・${cpaWord}：${r.cv > 0 ? yen(r.cpa) : '—'}`,
+        `・差引利益（見込み）：${signedYen(r.netProfit)}`,
+        ``,
+        `■ 試算の前提`,
+        `・${svc}の標準的な${W.cvrWord} ${pct(val(inputs.cvr))}％・${aovWord} ${yen(val(inputs.aov))}・粗利率 ${num(val(inputs.margin))}％ を前提に試算しています。`,
+        (importLabel ? `・予算・流入は資料「${importLabel}」をもとに算定しています。` : null),
+        `・本試算は施策実施前の事前試算であり、実績値により変動します。`,
+        ``,
+        `${dateStr}`,
+      ].filter(x => x !== null);
+      return lines.join('\n');
+    }
+
+    el('ringi-btn').addEventListener('click', () => {
+      if (!isAnchored()) { showToast('先に STEP 1 で事業（サービス）を選んでください'); return; }
+      el('ringi-text').value = buildRingiText();
+      el('ringi-panel').style.display = '';
+      el('ringi-panel').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
+    });
+    el('ringi-close').addEventListener('click', () => { el('ringi-panel').style.display = 'none'; });
+    el('ringi-copy').addEventListener('click', () => {
+      const ta = el('ringi-text');
+      ta.select();
+      navigator.clipboard.writeText(ta.value).then(() => showToast('稟議文をコピーしました'));
     });
 
     // ── 営業資料インポート（AI 自動入力 & 所見） ──────────
@@ -1866,9 +1968,9 @@
       { icon: '🟢', text: 'ROAS/ROI/CPA に加え LTV/CAC・限界CPA・損益分岐CV など BtoB 指標も' }
     ],
     updates: [
-      { date: '06/21', text: '構造を「事業（サービス）起点」に作り直しました。使い方は3ステップ（STEP1 事業を選ぶ → STEP2 予算・流入を手入力 or 資料インポート → STEP3 判定）。成約率・客単価・粗利率・LTV は事業で全く違うため、事業を選ぶまで黒字/赤字・ROAS/ROI は「—」で判定を保留します。営業資料は「予算・流入」の読み取りに専念し、事業を選ぶとその経済性で即試算。別事業に切り替えれば同じ予算でも結果がどう変わるか比較できます' },
-      { date: '06/21', text: '「いま何を前提に試算しているか」を結果の先頭に📌バーで常時表示。資料インポート後に事業を選ぶと、資料の予算・流入は残しつつ事業の経済性だけが反映され、選択中の事業は✓でハイライト＋トーストで通知します' },
-      { date: '06/21', text: '初心者向けに全体を仕上げ：カード幅をそろえて整列、事業選択ボタンを大きく、入力②③に「事業の標準値が自動で入る／自社実績に上書きOK」の注記を追加、目安ヘルパーは入力カード内に移動。用途切替時に前の事業選択が残る構造バグも修正。複数料金は最大8プラン横並び試算、Mac のレイアウト崩れ・人件費「時給」表示の不具合も解消済み' }
+      { date: '06/21', text: '稟議・申請用の文章をワンクリック生成する「📝 稟議文を作成」を追加。件名・試算サマリ（予算/総コスト/想定売上/ROAS/ROI/利益）・前提・日付を整形し、黒字なら承認依頼・赤字なら再検討の結びに自動切替。編集してそのままコピーできます' },
+      { date: '06/21', text: '数値は後からいつでも書き換えOK（事業を選んで資料をアップした後でも、客単価・成約率などを自社の実績に直せます）。入力欄に「直接書き換え→右に自動反映」と明記し、変更すると結果カードが淡く光って反映が見えるようにしました（反映ボタンは不要）' },
+      { date: '06/21', text: '構造を「事業（サービス）起点」に作り直しました。使い方は3ステップ（STEP1 事業を選ぶ → STEP2 予算・流入を手入力 or 資料インポート → STEP3 判定）。事業を選ぶまで黒字/赤字・ROAS/ROI は「—」で判定を保留。事業を選ぶとその経済性で即試算、別事業に切り替えれば結果の違いを比較できます。ROAS・ROI が分からない方向けの用語解説や、カード整列・初心者導線も整備済み' }
     ]
   };
   initOnboarding(OB_CONFIG);
