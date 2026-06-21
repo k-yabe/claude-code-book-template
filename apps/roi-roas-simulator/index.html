@@ -1542,7 +1542,7 @@
   "verdictReason": string,     // 上記判断の理由を日本語で2〜3文
   "risks": string[],           // リスク・注意点（日本語、最大4件）
   "suggestions": string[],     // 改善提案（日本語、最大4件）
-  "scenarios": [               // 資料に複数の料金プラン/パターン（松竹梅・月額プラン・数量別など）がある場合のみ。無ければ空配列 []
+  "scenarios": [               // 資料に複数の料金プラン/パターン（松竹梅・月額プラン・数量別・ブースサイズ別・協賛グレード別など）がある場合は、漏れなく全部列挙。無ければ空配列 []
     {
       "label": string,         // プラン名（例「スタンダード」「プランB」「100万円コース」）
       "budget": number|null, "trafficMode": "cpc"|"clicks"|null, "cpc": number|null, "clicks": number|null,
@@ -1551,9 +1551,9 @@
     }
   ]
 }
-ルール: 金額は円の整数、カンマや単位記号は付けない。読み取れない値は null。CPC とクリック数の両方があれば trafficMode は資料の主旨に合う方を選ぶ。トップレベルの budget〜otherCost には最も標準的／推奨されるプランの値を入れる。複数プランがある場合は各プランを scenarios に最大5件入れ、各プランで異なる項目のみ値を入れ、共通項目は null（ベース値を継承）でよい。単一プランなら scenarios は []。
+ルール: 金額は円の整数、カンマや単位記号は付けない。読み取れない値は null。CPC とクリック数の両方があれば trafficMode は資料の主旨に合う方を選ぶ。トップレベルの budget〜otherCost には最も標準的／推奨されるプランの値を入れる。複数プランがある場合は、資料に載っている料金パターンを**1つ残らず** scenarios に入れる（最大8件。ブースサイズ違い・小間数違い・協賛グレード違い・期間/数量違いはすべて別プラン）。各プランで異なる項目のみ値を入れ、共通項目は null（ベース値を継承）でよい。単一プランなら scenarios は []。
 【最重要・データ不足の扱い】営業資料（特に媒体資料・広告メニュー表）には、広告費・CPC・クリック数・インプレッション等は載っていても、CVR・客単価(aov)・粗利率(margin)・購入回数(purchaseCount)・人件費等(otherCost)といった「広告主（自社）側の数値」は載っていないのが普通である。**資料に明記されていない数値は絶対に推測・業界平均で補完せず、必ず null にする**こと（勝手に数値を入れると誤った投資判断につながる）。そのうえで assumptions に「どの値が資料に無かったか」を明記する。重要な前提（cvr・aov・margin のいずれか）が資料から読み取れない場合は、verdict を必ず "REVIEW" にし、verdictReason の冒頭に「○○が資料に記載されていないため暫定判断です」と書き、risks の先頭に不足している前提を列挙し、suggestions にそれらを自社実績から入力するよう促す一文を入れること。
-【展示会・カンファレンス・セミナーの出展資料の扱い】出展案内・ブース料金表・協賛メニュー等の場合: ①budget には出展費用／参加費／協賛費（複数ブースサイズ・協賛グレードがあれば各プランを scenarios に）。②trafficMode は必ず "clicks"（クリックは無い）。③clicks には「自社が獲得を見込むリード数・名刺枚数」を入れる。ただし**資料の「来場者数」「総来場見込み」「出展社数」は自社の見込みリードではない**ので clicks には入れず assumptions に参考情報として記録し、自社の獲得見込みが資料に無ければ clicks は null。④cvr（リード→受注の成約率）・aov・margin は自社側なので通常は記載が無く null。⑤risks に「来場者全員が見込み客ではない」「リード獲得数・成約率は自社の実績前提が必要」等を入れる。`;
+【展示会・カンファレンス・セミナーの出展資料の扱い】出展案内・ブース料金表・協賛メニュー等の場合: ①budget には出展費用／参加費／協賛費。**ブースサイズ違い・小間数違い・協賛グレード違い（例: 1小間/6m×3m、SILVER/GOLD/DIAMOND、リストスポンサー 等）の料金が複数あれば、それぞれ別プランとして scenarios に漏れなく全部入れる**（標準的な1つだけに絞らない）。②trafficMode は必ず "clicks"（クリックは無い）。③clicks には「自社が獲得を見込むリード数・名刺枚数」を入れる。ただし**資料の「来場者数」「総来場見込み」「出展社数」は自社の見込みリードではない**ので clicks には入れず assumptions に参考情報として記録し、自社の獲得見込みが資料に無ければ clicks は null。④cvr（リード→受注の成約率）・aov・margin は自社側なので通常は記載が無く null。⑤risks に「来場者全員が見込み客ではない」「リード獲得数・成約率は自社の実績前提が必要」等を入れる。`;
 
         const userMsg = `次の営業資料から前提値を抽出し、JSON で返してください。複数の料金プラン/パターンがあれば scenarios に列挙してください。\n\n【資料テキスト（抜粋）】\n${text.slice(0, 12000)}`;
 
@@ -1564,7 +1564,7 @@
             _user: (sessionStorage.getItem('username') || localStorage.getItem('username') || 'unknown'),
             _app: 'ROI / ROAS Simulator',
             model: 'claude-haiku-4-5-20251001',
-            max_tokens: 1536,
+            max_tokens: 2400,
             system,
             messages: [{ role: 'user', content: userMsg }],
           }),
@@ -1597,14 +1597,23 @@
         const scList = Array.isArray(parsed.scenarios) ? parsed.scenarios.filter(s => s && typeof s === 'object') : [];
         if (scList.length >= 2) {
           const base = readInputs(); // applyExtracted 済みの推奨値
-          const built = scList.slice(0, 4).map((sc, i) => {
+          const built = scList.slice(0, 8).map((sc, i) => {
             const p = scenarioFromExtracted(sc, base);
             p.label = (sc.label && String(sc.label).trim()) || `プラン${i + 1}`;
             return p;
           });
-          // 先頭に推奨（現在のフォーム値）を置く。フォームは推奨のまま動かさない
-          scenarios = [Object.assign({}, base, { label: '資料の推奨' }), ...built];
-          activeScenario = 0;
+          // 資料中の各プランが「推奨」と実質同一（予算・客単価・粗利が一致）なら、
+          // 重複列を避けて推奨列を出さず、資料のプランだけを並べる
+          const sameAsBase = (p) => Math.round(p.budget || 0) === Math.round(base.budget || 0)
+            && Math.round(p.aov || 0) === Math.round(base.aov || 0)
+            && Math.round(p.margin || 0) === Math.round(base.margin || 0)
+            && Math.round((p.mode === 'clicks' ? p.clicks : p.cpc) || 0) === Math.round((base.mode === 'clicks' ? base.clicks : base.cpc) || 0);
+          const dupOfBase = built.some(sameAsBase);
+          // 推奨が資料プランの一つと重複しなければ先頭に「資料の推奨」を置く（フォームは推奨のまま）
+          scenarios = dupOfBase ? built : [Object.assign({}, base, { label: '資料の推奨' }), ...built];
+          // フォームに入っている値（＝推奨）と一致する列をアクティブ表示にする
+          activeScenario = dupOfBase ? scenarios.findIndex(sameAsBase) : 0;
+          if (activeScenario < 0) activeScenario = 0;
           renderCompare();
           updateActiveHeader();
         }

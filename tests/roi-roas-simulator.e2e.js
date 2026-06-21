@@ -124,7 +124,7 @@ const canned = {
   risks: ['CVR不明'], suggestions: ['実績CVRを入力'],
   scenarios: [
     { label: '松プラン', budget: 1500000, cpc: 500, cvr: null, aov: 3000000, margin: null, otherCost: null },
-    { label: '竹プラン', budget: 1000000, cpc: 500, cvr: null, aov: 2000000, margin: null, otherCost: null },
+    { label: '竹プラン', budget: 900000, cpc: 500, cvr: null, aov: 1800000, margin: null, otherCost: null },
   ],
 };
 window.fetch = async () => ({ ok: true, json: async () => ({ content: [{ text: '```json\n' + JSON.stringify(canned) + '\n```' }] }) });
@@ -143,6 +143,45 @@ check('インポート: 推奨+2プラン=3列展開', $('compare-table').queryS
 check('インポート: 先頭列=資料の推奨', $('compare-table').querySelector('.sc-head .sc-label').textContent.includes('推奨'), $('compare-table').querySelector('.sc-head .sc-label').textContent);
 check('インポート: 推奨列がアクティブ', $('compare-table').querySelector('.sc-head.active') !== null);
 check('インポート: 仮の値サマリ表示', txt('import-error').includes('仮の値'), txt('import-error'));
+
+console.log('# 8c. 多数の料金パターンを全部展開（4件上限で切り捨てない）');
+const many = {
+  found: true, budget: 1000000, trafficMode: 'clicks', cpc: null, clicks: 100,
+  cvr: null, aov: 500000, purchaseCount: null, margin: 50, otherCost: null,
+  assumptions: '出展案内に多数の料金プラン', verdict: 'REVIEW', verdictReason: 'CVR不明', risks: ['CVR不明'], suggestions: ['実績入力'],
+  scenarios: [
+    { label: 'SILVER', budget: 700000, clicks: 60, trafficMode: 'clicks' },
+    { label: 'GOLD', budget: 1000000, clicks: 100, trafficMode: 'clicks' },
+    { label: 'DIAMOND', budget: 3000000, clicks: 200, trafficMode: 'clicks' },
+    { label: 'リストスポンサー', budget: 4000000, clicks: 250, trafficMode: 'clicks' },
+    { label: '1小間', budget: 350000, clicks: 30, trafficMode: 'clicks' },
+    { label: '6m×3m', budget: 1200000, clicks: 120, trafficMode: 'clicks' },
+  ],
+};
+window.fetch = async () => ({ ok: true, json: async () => ({ content: [{ text: JSON.stringify(many) }] }) });
+await window.analyzeDocument(new window.File(['出展案内。SILVER/GOLD/DIAMOND/リストスポンサー/1小間/6m×3m など多数の料金。'], 'expo-many.txt', { type: 'text/plain' }));
+const manyHeads = $('compare-table').querySelectorAll('.sc-head');
+// GOLD が推奨(base)と一致するため、推奨列は重複させず資料の6プランをそのまま全部表示
+check('6プラン全部が列に出る（4件で切られない）', manyHeads.length === 6, 'len=' + manyHeads.length);
+const labels = Array.from(manyHeads).map(h => h.querySelector('.sc-label').textContent);
+check('全ラベルが揃う', ['SILVER','GOLD','DIAMOND','リストスポンサー','1小間','6m×3m'].every(l => labels.includes(l)), labels.join(','));
+check('各プランに ROAS 行（試算結果）が出る', Array.from($('compare-table').querySelectorAll('tbody tr')).some(tr => tr.querySelector('.row-label') && tr.querySelector('.row-label').textContent === 'ROAS'));
+check('推奨(GOLD)と一致する列がアクティブ', (() => { const a = $('compare-table').querySelector('.sc-head.active'); return a && a.querySelector('.sc-label').textContent === 'GOLD'; })(), 'active=' + (($('compare-table').querySelector('.sc-head.active')||{}).textContent||''));
+
+console.log('# 8d. 推奨と異なる複数プランは「資料の推奨」列を先頭に追加');
+const distinct = {
+  found: true, budget: 1000000, trafficMode: 'cpc', cpc: 500, clicks: null,
+  cvr: null, aov: 2000000, purchaseCount: null, margin: 50, otherCost: null,
+  assumptions: 'x', verdict: 'REVIEW', verdictReason: 'x', risks: ['x'], suggestions: ['x'],
+  scenarios: [
+    { label: 'A案', budget: 1500000, cpc: 500, aov: 3000000 },
+    { label: 'B案', budget: 800000, cpc: 500, aov: 1500000 },
+  ],
+};
+window.fetch = async () => ({ ok: true, json: async () => ({ content: [{ text: JSON.stringify(distinct) }] }) });
+await window.analyzeDocument(new window.File(['提案資料です。A案とB案の2つの料金プランがあります。推奨は標準プランで、予算は月100万円・客単価200万円を想定しています。'], 'deck2.txt', { type: 'text/plain' }));
+check('推奨が資料プランと異なる→推奨+2=3列', $('compare-table').querySelectorAll('.sc-head').length === 3, 'len=' + $('compare-table').querySelectorAll('.sc-head').length);
+check('先頭列=資料の推奨', $('compare-table').querySelector('.sc-head .sc-label').textContent.includes('推奨'), $('compare-table').querySelector('.sc-head .sc-label').textContent);
 
 console.log('# 8a. 用途切替でインポート内容が消えない（formDirty）');
 const beforeBudget = $('in-budget').value, beforeAov = $('in-aov').value;
