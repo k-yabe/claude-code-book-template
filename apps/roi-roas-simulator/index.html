@@ -499,7 +499,7 @@
             <div class="field-label"><span class="lbl"><span id="t-budget">予算（広告費・出展費など／月額）</span><span class="req req-must">必須</span></span></div>
             <div class="input-wrap has-prefix">
               <span class="prefix">¥</span>
-              <input type="number" id="in-budget" min="0" step="10000" value="500000" inputmode="numeric">
+              <input type="number" id="in-budget" aria-labelledby="t-budget" min="0" step="10000" value="500000" inputmode="numeric">
             </div>
           </div>
 
@@ -517,14 +517,14 @@
             <div class="field-label"><span class="lbl">CPC（クリック単価）<span class="req req-must">必須</span></span><span class="hint">1クリックあたり</span></div>
             <div class="input-wrap has-prefix">
               <span class="prefix">¥</span>
-              <input type="number" id="in-cpc" min="1" step="10" value="600" inputmode="numeric">
+              <input type="number" id="in-cpc" aria-label="CPC クリック単価（円）" min="1" step="10" value="600" inputmode="numeric">
             </div>
           </div>
 
           <div class="field" id="field-clicks" style="display:none;">
             <div class="field-label"><span class="lbl"><span id="t-clicks">獲得数（クリック / リード / 名刺 / 申込）</span><span class="req req-must">必須</span></span></div>
             <div class="input-wrap">
-              <input type="number" id="in-clicks" min="0" step="50" value="800" inputmode="numeric">
+              <input type="number" id="in-clicks" aria-labelledby="t-clicks" min="0" step="50" value="800" inputmode="numeric">
             </div>
             <p class="field-help" id="t-clicks-help">展示会・カンファレンス・セミナーなどクリックが無い施策は、ここに獲得したリード数／名刺枚数／申込数を入力してください（CPC は不要）。</p>
           </div>
@@ -534,10 +534,10 @@
           <div class="field">
             <div class="field-label"><span class="lbl"><span id="t-cvr">CVR（成約率）</span><span class="req req-must">必須</span></span><span class="hint" id="cvr-hint">0.5%</span></div>
             <div class="input-wrap has-suffix">
-              <input type="number" id="in-cvr" min="0" max="100" step="0.1" value="0.5" inputmode="decimal">
+              <input type="number" id="in-cvr" aria-labelledby="t-cvr" min="0" max="100" step="0.1" value="0.5" inputmode="decimal">
               <span class="suffix">%</span>
             </div>
-            <input type="range" id="range-cvr" min="0" max="20" step="0.1" value="0.5">
+            <input type="range" id="range-cvr" aria-labelledby="t-cvr" min="0" max="20" step="0.1" value="0.5">
             <p class="field-help" id="t-cvr-help">流入（クリック/リード）から受注に至る割合。広告クリック→受注は低め（目安 0.2〜2%）、展示会など名刺/リード→受注なら高め（目安 5〜20%）です。</p>
           </div>
 
@@ -545,17 +545,17 @@
             <div class="field-label"><span class="lbl"><span id="t-aov">客単価（初回の平均成約額）</span><span class="req req-must">必須</span></span><span class="hint" id="t-aov-hint">1回あたりの売上</span></div>
             <div class="input-wrap has-prefix">
               <span class="prefix">¥</span>
-              <input type="number" id="in-aov" min="0" step="1000" value="500000" inputmode="numeric">
+              <input type="number" id="in-aov" aria-labelledby="t-aov" min="0" step="1000" value="500000" inputmode="numeric">
             </div>
           </div>
 
           <div class="field">
             <div class="field-label"><span class="lbl"><span id="t-repeat">平均購入回数（LTV）</span><span class="req req-opt">任意</span></span><span class="hint" id="repeat-hint">1.0回</span></div>
             <div class="input-wrap has-suffix">
-              <input type="number" id="in-repeat" min="1" step="0.1" value="1" inputmode="decimal">
+              <input type="number" id="in-repeat" aria-labelledby="t-repeat" min="1" step="0.1" value="1" inputmode="decimal">
               <span class="suffix" id="t-repeat-unit">回</span>
             </div>
-            <input type="range" id="range-repeat" min="1" max="10" step="0.1" value="1">
+            <input type="range" id="range-repeat" aria-labelledby="t-repeat" min="1" max="10" step="0.1" value="1">
             <p class="field-help" id="t-repeat-help">1顧客が生涯に契約・購入する平均回数。継続研修・保守契約・リピートは2以上に。1なら単発（LTV考慮なし）。</p>
           </div>
 
@@ -564,10 +564,10 @@
           <div class="field">
             <div class="field-label"><span class="lbl">粗利率<span class="req req-must">必須</span></span><span class="hint" id="margin-hint">50%</span></div>
             <div class="input-wrap has-suffix">
-              <input type="number" id="in-margin" min="0" max="100" step="1" value="50" inputmode="numeric">
+              <input type="number" id="in-margin" aria-label="粗利率（パーセント）" min="0" max="100" step="1" value="50" inputmode="numeric">
               <span class="suffix">%</span>
             </div>
-            <input type="range" id="range-margin" min="0" max="100" step="1" value="50">
+            <input type="range" id="range-margin" aria-label="粗利率（パーセント）" min="0" max="100" step="1" value="50">
           </div>
 
           <details class="advanced" id="adv-cost">
@@ -577,7 +577,7 @@
               <div class="field-label"><span class="lbl">その他固定費（月額）<span class="req req-opt">任意</span></span><span class="hint">人件費・制作費・ツール費など</span></div>
               <div class="input-wrap has-prefix">
                 <span class="prefix">¥</span>
-                <input type="number" id="in-othercost" min="0" step="10000" value="0" inputmode="numeric">
+                <input type="number" id="in-othercost" aria-label="その他固定費（月額・円）" min="0" step="10000" value="0" inputmode="numeric">
               </div>
               <p class="field-help">広告費以外にかかる運用コスト。ROI と損益分岐はこれも差し引いて判定します。</p>
               <div class="bench-calc" style="margin-top:8px">

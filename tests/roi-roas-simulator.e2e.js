@@ -46,6 +46,11 @@ check('④その他コストは details', $('adv-cost').tagName.toLowerCase() ==
 check('初期はその他コスト畳む', $('adv-cost').open === false);
 check('顧客獲得プリセット=3（派遣削除済み）', $('preset-row').querySelectorAll('[data-preset]').length === 3, 'len=' + $('preset-row').querySelectorAll('[data-preset]').length);
 check('エンジニア派遣プリセット無し', !$('preset-row').querySelector('[data-preset="talent"]'));
+// すべての主要入力欄・スライダーにアクセシブルな名前があるか
+const accName = el => { const al = el.getAttribute('aria-label'); if (al && al.trim()) return al.trim(); const lb = el.getAttribute('aria-labelledby'); if (lb) { const t = $(lb); if (t && t.textContent.trim()) return t.textContent.trim(); } return ''; };
+['in-budget','in-cpc','in-clicks','in-cvr','in-aov','in-repeat','in-margin','in-othercost','range-cvr','range-repeat','range-margin'].forEach(id => {
+  check('アクセシブル名あり: ' + id, accName($(id)) !== '', 'no name');
+});
 
 console.log('# 2. 全プリセットの ROAS/ROI（顧客獲得4ライン）');
 const expect = { consulting: ['400', '+64'], solution: ['300', '-2'], academy: ['263', '+21'] };
