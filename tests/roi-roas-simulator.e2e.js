@@ -272,6 +272,26 @@ click($('pdf-btn'));
 check('事業選択後はPDFボタンで window.print 呼出', window.__printed === printedBefore + 1, 'printed=' + window.__printed);
 check('印刷ヘッダーに日付スタンプ反映', /\d{4}-\d{2}-\d{2}.+出力/.test(txt('print-date')), txt('print-date'));
 
+console.log('# 12. 稟議・申請用テキストの生成');
+uc('acquire'); click($('reset-btn'));
+click($('ringi-btn'));
+check('事業未選択では稟議パネルを開かない', $('ringi-panel').style.display === 'none', 'display=' + $('ringi-panel').style.display);
+click($('preset-row').querySelector('[data-preset="consulting"]'));
+click($('ringi-btn'));
+check('事業選択後は稟議パネル表示', $('ringi-panel').style.display !== 'none', 'display=' + $('ringi-panel').style.display);
+const rt = $('ringi-text').value;
+check('稟議文に件名行', rt.includes('件名'), rt.slice(0, 24));
+check('稟議文に事業名（コンサルティング）', rt.includes('コンサルティング'));
+check('稟議文に ROAS と ROI', rt.includes('ROAS') && rt.includes('ROI'));
+check('稟議文に予算・総コスト', rt.includes('予算') && rt.includes('総コスト'));
+check('稟議文に承認/再検討の結論', rt.includes('ご承認') || rt.includes('再検討'));
+window.__copied = null;
+click($('ringi-copy'));
+check('稟議文をコピーできる', (window.__copied || '').includes('件名'), (window.__copied || '').slice(0, 16));
+click($('ringi-close'));
+check('稟議パネルを閉じられる', $('ringi-panel').style.display === 'none');
+click($('reset-btn'));
+
 check('全工程で script エラー無し', errs.length === 0, errs.join(' | '));
 console.log(`\n結果: ${pass} pass / ${fail} fail`);
 process.exit(fail ? 1 : 0);
