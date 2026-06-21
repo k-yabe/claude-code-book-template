@@ -325,7 +325,7 @@
     .req-must { background: var(--navy); color: #fff; }
     .req-opt { background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); }
     .field-label .lbl { display: inline-flex; align-items: center; gap: 6px; }
-    .preset-note { font-size: 0.72rem; color: var(--text-faint); line-height: 1.5; margin: calc(-1 * var(--sp-3)) 0 var(--sp-5); }
+    .preset-note { font-size: 0.72rem; color: var(--text-faint); line-height: 1.55; margin: var(--sp-3) 0 0; }
     .usecase-row { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-4); }
     .usecase-label { font-size: var(--text-xs); font-weight: 700; letter-spacing: 0.06em; color: var(--text-muted); text-transform: uppercase; }
     .usecase-toggle { flex: 1; max-width: 420px; }
@@ -1357,6 +1357,8 @@
       });
     }
     const ECON_FIELDS = [inputs.cvr, inputs.aov, inputs.margin, inputs.repeat, rangeCvr, rangeMargin, rangeRepeat];
+    // 経済性（成約率・客単価・粗利率・LTV・人件費）を触ったら、比較表の各プランにも反映する対象
+    const ECON_SYNC_FIELDS = ECON_FIELDS.concat([inputs.othercost]);
     function flashResult() {
       const rc = document.querySelector('.result-card');
       if (!rc) return;
@@ -1365,12 +1367,16 @@
     function markManualEdit(e) {
       formDirty = true;
       manualAdjusted = true;
+      const t = e && e.target;
       // 経済性（成約率・客単価・粗利率・LTV）を手で触ったら、判定を出してよい状態にする
-      if (e && e.target && ECON_FIELDS.includes(e.target)) econAnchored = true;
+      if (t && ECON_FIELDS.includes(t)) econAnchored = true;
       if (activeScenario !== -1) { activeScenario = -1; updateActiveHeader(); }
       updateBasis();
       render();
       flashResult(); // 「いま反映されたよ」の視覚フィードバック
+      // 客単価・粗利率などの経済性を変えたら、下のプラン比較の各プランにも同じ前提を反映
+      // （各プランの予算・流入は維持。プラン固有の予算/CPC/獲得数を触った時は同期しない）
+      if (t && ECON_SYNC_FIELDS.includes(t) && scenarios.length) syncScenarioEconomics();
     }
 
     function addScenario(params, label) {
@@ -1414,13 +1420,23 @@
       });
       head += '</tr></thead>';
 
-      // 行
+      // 行（用途に合わせてラベルを切替）
+      const W = UC[useCase];
+      const flowLabel = useCase === 'recruit' ? '応募・接触数' : '流入（クリック/リード）';
+      const cvLabel = useCase === 'recruit' ? '採用数' : '成約数(CV)';
+      const aovLabel = useCase === 'recruit' ? '月次粗利/人' : '客単価';
+      const repeatLabel = useCase === 'recruit' ? '稼働月数' : '購入回数(LTV)';
+      const cpaLabel = useCase === 'recruit' ? '採用単価' : 'CPA';
       const rows = [];
-      rows.push(['広告費', results.map(r => `<td class="num">${yen(r.budget)}</td>`)]);
+      rows.push(['予算', results.map(r => `<td class="num">${yen(r.budget)}</td>`)]);
+      rows.push([flowLabel, results.map(r => `<td class="num">${num(r.clicks)}</td>`)]);
+      rows.push([cvLabel, results.map(r => `<td class="num">${num(r.cv)} ${W.cvWord}</td>`)]);
+      rows.push([aovLabel, scenarios.map(s => `<td class="num">${yen(Math.max(s.aov || 0, 0))}</td>`)]);
+      if (anyRepeat) rows.push([repeatLabel, scenarios.map(s => `<td class="num">${pct(Math.max(s.repeat || 1, 1))}${W.repeatUnit}</td>`)]);
       if (anyOther) rows.push(['その他固定費', results.map(r => `<td class="num">${r.otherCost > 0 ? yen(r.otherCost) : '—'}</td>`)]);
-      rows.push(['客単価', scenarios.map(s => `<td class="num">${yen(Math.max(s.aov || 0, 0))}</td>`)]);
-      if (anyRepeat) rows.push(['購入回数(LTV)', scenarios.map(s => `<td class="num">${pct(Math.max(s.repeat || 1, 1))}回</td>`)]);
-      rows.push(['想定売上', results.map(r => `<td class="num">${yen(r.revenue)}</td>`)]);
+      rows.push([anyRepeat ? '想定売上(LTV込)' : '想定売上', results.map(r => `<td class="num">${yen(r.revenue)}</td>`)]);
+      rows.push(['想定粗利', results.map(r => `<td class="num">${yen(r.grossProfit)}</td>`)]);
+      rows.push([cpaLabel, results.map(r => `<td class="num">${r.cv > 0 ? yen(r.cpa) : '—'}</td>`)]);
       rows.push(['ROAS', results.map(r => `<td class="num">${num(r.roas)}%</td>`)]);
       rows.push(['ROI', results.map(r => `<td class="num">${r.roi >= 0 ? '+' : ''}${num(r.roi)}%</td>`)]);
       rows.push(['利益', results.map((r, i) => `<td class="num${i === bestIdx && scenarios.length > 1 ? ' best' : ''}">${signedYen(r.netProfit)}</td>`)]);
