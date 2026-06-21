@@ -216,6 +216,16 @@
     .funnel-row .f-val { font-weight: 700; color: var(--navy); font-family: var(--font-mono); }
 
     /* ── 詳しい指標（折りたたみ） ── */
+    /* 用語解説（ROAS・ROI・CPA を初心者向けに） */
+    .glossary { margin: var(--sp-4) 0 var(--sp-5); border: 1px solid var(--border-light); }
+    .glossary > summary { list-style: none; cursor: pointer; padding: 10px 14px; font-size: var(--text-sm); font-weight: 700; color: var(--navy); background: var(--surface-alt); user-select: none; }
+    .glossary > summary::-webkit-details-marker { display: none; }
+    .glossary > summary::before { content: '▸ '; color: var(--text-muted); }
+    .glossary[open] > summary::before { content: '▾ '; }
+    .glossary-body { padding: var(--sp-4); display: grid; gap: var(--sp-3); }
+    .glossary-body p { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.65; }
+    .glossary-body strong { color: var(--navy); font-weight: 700; }
+    .g-form { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); background: var(--surface-alt); padding: 1px 8px; }
     .more-metrics { margin-top: var(--sp-4); border: 1px solid var(--border-light); }
     .more-metrics > summary {
       list-style: none; cursor: pointer; padding: 10px 14px;
@@ -692,14 +702,24 @@
           <div class="kpi">
             <div class="kpi-label">ROI（投資利益率）</div>
             <div class="kpi-value"><span id="kpi-roi">—</span><span class="unit">%</span></div>
-            <div class="kpi-sub">（粗利−総コスト）÷ 総コスト</div>
+            <div class="kpi-sub">使った費用に対する利益率（＋で黒字）</div>
           </div>
           <div class="kpi">
             <div class="kpi-label" id="t-kpi-cpa">CPA（顧客獲得単価）</div>
             <div class="kpi-value"><span class="unit">¥</span><span id="kpi-cpa">—</span></div>
-            <div class="kpi-sub">広告費 ÷ CV数</div>
+            <div class="kpi-sub">獲得1件あたりにかかる費用（低いほど良い）</div>
           </div>
         </div>
+
+        <details class="glossary">
+          <summary>❓ ROAS・ROI・CPA ってなに？（はじめての方はこちら）</summary>
+          <div class="glossary-body">
+            <p><strong>ROAS（広告費用対効果）</strong>＝ 広告費1円でいくら<strong>売上</strong>が返ってくるか。<span class="g-form">売上 ÷ 広告費 × 100%</span><br>例：ROAS 400% なら、広告費の<strong>4倍</strong>の売上。高いほど良い。</p>
+            <p><strong>ROI（投資利益率）</strong>＝ 使ったお金（総コスト）に対して<strong>利益</strong>がどれだけ出るか。<span class="g-form">(粗利 − 総コスト) ÷ 総コスト × 100%</span><br><strong>＋なら黒字、−なら赤字。</strong>ROAS が売上ベースなのに対し、ROI は人件費なども引いた利益ベース。</p>
+            <p><strong>CPA（顧客獲得単価）</strong>＝ 1件の成約（顧客）を獲得するのにかかった費用。<span class="g-form">広告費 ÷ 成約数</span> 低いほど良い。</p>
+            <p><strong>損益分岐 ROAS</strong>＝ これを<strong>上回れば黒字</strong>・下回れば赤字、という分かれ目の ROAS。</p>
+          </div>
+        </details>
 
         <div class="breakeven">
           <div class="breakeven-head">

@@ -40,6 +40,7 @@ check('実CPA 許容内（120k<250k）', txt('m-cpa-pill') === '許容内', txt(
 console.log('# 1b. UI/UX・アクセシビリティ・折りたたみ');
 check('はじめ方ガイド3ステップ', doc.querySelectorAll('.guide .guide-path').length === 3, 'len=' + doc.querySelectorAll('.guide .guide-path').length);
 check('結果カード見出し', !!doc.querySelector('.result-card-head'));
+check('ROAS/ROI 用語解説あり', !!doc.querySelector('.glossary') && /ROAS/.test(doc.querySelector('.glossary').textContent) && /ROI/.test(doc.querySelector('.glossary').textContent));
 check('verdict aria-live=polite', $('verdict').getAttribute('aria-live') === 'polite');
 check('用途トグル role=group', $('usecase-toggle').getAttribute('role') === 'group');
 check('用途 aria-pressed 初期', $('usecase-toggle').querySelector('[data-uc="acquire"]').getAttribute('aria-pressed') === 'true');
