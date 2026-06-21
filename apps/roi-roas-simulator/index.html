@@ -58,9 +58,18 @@
     }
     .econ-note {
       font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.55;
-      margin: calc(-1 * var(--sp-2)) 0 var(--sp-4); padding: 9px 12px;
+      margin: 0 0 var(--sp-4); padding: 9px 12px;
       background: var(--surface-alt); border-left: 3px solid var(--navy);
     }
+    /* 事業の経済性（成約率・客単価・粗利率・LTV）は既定で畳む＝初心者は触らずに済む */
+    .econ-details { margin: var(--sp-4) 0; border: 1px solid var(--border-light); }
+    .econ-details > summary { list-style: none; cursor: pointer; padding: 11px 14px; background: var(--surface-alt); user-select: none; display: flex; flex-direction: column; gap: 2px; }
+    .econ-details > summary::-webkit-details-marker { display: none; }
+    .econ-sum-main { font-size: var(--text-sm); font-weight: 700; color: var(--navy); }
+    .econ-sum-main::before { content: '▸ '; color: var(--text-muted); }
+    .econ-details[open] > summary .econ-sum-main::before { content: '▾ '; }
+    .econ-sum-tag { font-size: 0.68rem; font-weight: 400; color: var(--text-muted); }
+    .econ-details-body { padding: var(--sp-4) var(--sp-4) var(--sp-2); }
     .field:last-child { margin-bottom: 0; }
     .field-label {
       display: flex;
@@ -254,8 +263,10 @@
     .mm-pill.warn { background: var(--gold-20); color: var(--navy); }
     .mm-pill.bad { background: var(--error-bg); color: var(--error-text); }
 
-    .result-actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-5); }
-    .result-actions button { flex: 1; min-width: 120px; white-space: nowrap; }
+    /* 4ボタンは2×2グリッドできれいに揃える（flex-wrap だと 3+1 でズレるため） */
+    .result-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-top: var(--sp-5); }
+    .result-actions button { width: 100%; white-space: nowrap; }
+    @media (max-width: 360px) { .result-actions { grid-template-columns: 1fr; } }
 
     /* 稟議・申請用テキスト */
     .ringi-panel { margin-top: var(--sp-4); border: 1px solid var(--border-light); border-top: 3px solid var(--navy); background: var(--surface); padding: var(--sp-4); }
@@ -555,7 +566,7 @@
       <!-- 入力 -->
       <div class="step">
         <div class="step-body" style="padding: var(--sp-5);">
-          <div class="section-title">① 予算・流入（資料 or 手入力）</div>
+          <div class="section-title">予算・流入（あなたが入れるのはここだけでOK）</div>
 
           <div class="field">
             <div class="field-label"><span class="lbl"><span id="t-budget">予算（広告費・出展費など／月額）</span><span class="req req-must">必須</span></span></div>
@@ -591,8 +602,10 @@
             <p class="field-help" id="t-clicks-help">展示会・カンファレンス・セミナーなどクリックが無い施策は、ここに獲得したリード数／名刺枚数／申込数を入力してください（CPC は不要）。</p>
           </div>
 
-          <div class="section-title" id="t-sec2">② コンバージョン</div>
-          <p class="econ-note">下の②③（成約率・客単価・粗利率など）は <strong>STEP 1 で選んだ事業の標準値が自動で入ります</strong>。<strong>✏️ そのまま直接書き換えてOK</strong>（資料アップ後でも、自社の実績に直せます）。書き換えると<strong>右の結果にその場で反映</strong>されます（反映ボタンは不要）。</p>
+          <details class="econ-details" id="econ-details">
+            <summary><span class="econ-sum-main">⚙️ 事業の経済性（成約率・客単価・粗利率・LTV）</span><span class="econ-sum-tag">STEP1で選んだ事業の標準値が入っています。マーケに不慣れな方は触らなくてOK</span></summary>
+            <div class="econ-details-body">
+              <p class="econ-note">これらは <strong>STEP 1 で選んだ事業の標準値</strong>です。<strong>よく分からなければ、このまま触らなくて大丈夫</strong>（事業の一般的な数値で試算します）。自社の実績がわかる方は直接書き換えると、<strong>右の結果に自動で反映</strong>されます。</p>
 
           <div class="field">
             <div class="field-label"><span class="lbl"><span id="t-cvr">CVR（成約率）</span><span class="req req-must">必須</span></span><span class="hint" id="cvr-hint">0.5%</span></div>
@@ -621,8 +634,6 @@
             <input type="range" id="range-repeat" aria-labelledby="t-repeat" min="1" max="10" step="0.1" value="1">
             <p class="field-help" id="t-repeat-help">1顧客が生涯に契約・購入する平均回数。継続研修・保守契約・リピートは2以上に。1なら単発（LTV考慮なし）。</p>
           </div>
-
-          <div class="section-title">③ 利益設定</div>
 
           <div class="field">
             <div class="field-label"><span class="lbl">粗利率<span class="req req-must">必須</span></span><span class="hint" id="margin-hint">50%</span></div>
@@ -670,9 +681,11 @@
               </div>
             </div>
           </details>
+            </div>
+          </details>
 
           <details class="advanced" id="adv-cost">
-            <summary id="adv-cost-sum"><span class="adv-title">④ その他コスト・人件費<span class="section-opt">任意</span></span><span class="adv-amount" id="adv-cost-amount"></span></summary>
+            <summary id="adv-cost-sum"><span class="adv-title">💰 その他コスト・人件費<span class="section-opt">任意</span></span><span class="adv-amount" id="adv-cost-amount"></span></summary>
 
             <div class="field">
               <div class="field-label"><span class="lbl">その他固定費（月額）<span class="req req-opt">任意</span></span><span class="hint">人件費・制作費・ツール費など</span></div>
@@ -921,7 +934,7 @@
     // ── 用途別ラベル（顧客獲得 / エンジニア採用） ──────────
     const UC = {
       acquire: {
-        note: 'AKKODiS の事業ライン（コンサルティング / ソリューション / アカデミー）の「一般的な目安」を初期値に用意。実数値が分かる項目は置き換えてください。展示会・カンファレンスなどクリックが無い施策は、流入を「獲得数を直接入力」に切り替えてリード/名刺数を入れてください。',
+        note: '選んだ事業の一般的な目安が初期値に入ります（あとで自社の数値に変更OK）。',
         repeatUnit: '回', cvWord: '件', cvrWord: 'CVR', flowWord: '獲得数',
         labels: {
           't-sec2': '② コンバージョン',
@@ -944,7 +957,7 @@
         },
       },
       recruit: {
-        note: 'エンジニア採用（候補者マーケ）モード。客単価＝「1人あたり月次粗利」、購入回数＝「平均稼働月数」、CVR＝「応募・接触→採用率」、CV＝「採用人数」として入力します。月次粗利を直接入れる前提なので粗利率は100%が目安。採用は1人の生涯価値が大きいため LTV/CAC は高く出ます（＝採用は基本的に投資対効果が高い）。',
+        note: 'エンジニア採用モード。客単価＝「1人あたり月次粗利」、購入回数＝「平均稼働月数」など、採用文脈に読み替えて試算します（標準値が入ります・変更OK）。',
         repeatUnit: 'ヶ月', cvWord: '人', cvrWord: '採用率', flowWord: '応募・接触数',
         labels: {
           't-sec2': '② 採用',
