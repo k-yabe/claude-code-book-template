@@ -22,10 +22,9 @@
     h1 { font-size: var(--text-xl); font-weight: 700; color: var(--navy); letter-spacing: -0.01em; margin-bottom: var(--sp-1); }
 
     /* このツールは「入力 + 結果」を横並びにするため、共有の 820px より広いキャンバスを使う。
-       820px のままだと Mac など広い画面で2カラムが押し潰れてレイアウトが崩れる。 */
-    .container { max-width: 1120px; }
-    /* イントロ系のテキストは広げすぎると読みにくいので、読みやすい幅に収める */
-    .page-header, .guide, .import-step, .usecase-row, .preset-row, .preset-note, .bench { max-width: 880px; }
+       全ブロック（ガイド・STEP・入力・結果）を同じ幅（コンテナ幅いっぱい）に揃えて
+       右端をきれいに通す。幅をバラバラに絞ると右端がガタついて崩れて見える。 */
+    .container { max-width: 1080px; }
     /* 縦の冗長さを抑える（上部の説明エリアを詰める） */
     .page-header { margin-bottom: var(--sp-5); }
     .upload-area { padding: var(--sp-5); }
@@ -52,11 +51,15 @@
 
     /* 各カード（入力パネル・資料インポート）を結果カードと対の「白地＋ネイビー上アクセント」に統一 */
     .sim-layout > .step, .import-step { background: var(--surface); border: 1px solid var(--border-light); border-top: 3px solid var(--navy); }
-    .import-step { max-width: 880px; }
     /* セクション見出しにネイビー＋区切り線で階層を明確に */
     .step .section-title {
       color: var(--navy); padding-bottom: var(--sp-2);
       border-bottom: 1px solid var(--border-light); margin-bottom: var(--sp-4);
+    }
+    .econ-note {
+      font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.55;
+      margin: calc(-1 * var(--sp-2)) 0 var(--sp-4); padding: 9px 12px;
+      background: var(--surface-alt); border-left: 3px solid var(--navy);
     }
     .field:last-child { margin-bottom: 0; }
     .field-label {
@@ -264,16 +267,16 @@
       cursor: pointer; padding: 0; font-size: inherit; text-decoration: underline;
     }
     /* STEP 構造（事業選択を起点にする導線） */
-    .svc-step { background: var(--surface); border: 1px solid var(--border-light); border-top: 3px solid var(--navy); padding: var(--sp-5); margin-bottom: var(--sp-5); max-width: 880px; }
+    .svc-step { background: var(--surface); border: 1px solid var(--border-light); border-top: 3px solid var(--navy); padding: var(--sp-5); margin-bottom: var(--sp-5); }
     .svc-step-head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-2); }
-    .svc-step-head--2 { max-width: 880px; margin-top: var(--sp-6); margin-bottom: var(--sp-3); }
+    .svc-step-head--2 { margin-top: var(--sp-6); margin-bottom: var(--sp-3); }
     .step-badge { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.06em; color: #fff; background: var(--navy); padding: 3px 9px; }
     .svc-step-title { font-size: var(--text-base); font-weight: 700; color: var(--navy); }
     .svc-step-desc { font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6; margin-bottom: var(--sp-4); }
     .preset-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: var(--sp-2); }
     .preset-chip {
-      padding: 6px 12px; font-size: var(--text-xs); font-weight: 600;
-      color: var(--navy); background: var(--surface); border: 1.5px solid var(--border);
+      padding: 11px 20px; font-size: var(--text-base); font-weight: 700;
+      color: var(--navy); background: var(--surface); border: 1.5px solid var(--navy);
       cursor: pointer; transition: all var(--ease);
     }
     .preset-chip:hover { border-color: var(--navy); background: var(--surface-alt); }
@@ -599,6 +602,7 @@
           </div>
 
           <div class="section-title" id="t-sec2">② コンバージョン</div>
+          <p class="econ-note">下の②③（成約率・客単価・粗利率など）は、<strong>STEP 1 で選んだ事業の標準値が自動で入ります</strong>。自社の実績がわかれば上書きしてください。</p>
 
           <div class="field">
             <div class="field-label"><span class="lbl"><span id="t-cvr">CVR（成約率）</span><span class="req req-must">必須</span></span><span class="hint" id="cvr-hint">0.5%</span></div>
