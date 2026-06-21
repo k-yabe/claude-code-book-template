@@ -308,7 +308,8 @@
     /* STEP 構造（事業選択を起点にする導線） */
     .svc-step { background: var(--surface); border: 1px solid var(--border-light); border-top: 3px solid var(--navy); padding: var(--sp-5); margin-bottom: var(--sp-5); }
     .svc-step-head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-2); }
-    .svc-step-head--2 { margin-top: var(--sp-6); margin-bottom: var(--sp-3); }
+    .svc-step-head--2 { margin-top: var(--sp-6); margin-bottom: var(--sp-2); }
+    .step2-desc { font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6; margin-bottom: var(--sp-3); }
     .step-badge { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.06em; color: #fff; background: var(--navy); padding: 3px 9px; }
     .svc-step-title { font-size: var(--text-base); font-weight: 700; color: var(--navy); }
     .svc-step-desc { font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6; margin-bottom: var(--sp-4); }
@@ -373,7 +374,8 @@
     .gp-num { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; background: var(--navy); color: #fff; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; }
 
     /* 結果カードの見出し */
-    .result-card-head { font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: var(--sp-3); }
+    .result-card-head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+    .rch-title { font-size: var(--text-base); font-weight: 700; color: var(--navy); }
     /* 「いま何を前提に試算しているか」を常時表示するバー */
     .basis-bar { font-size: var(--text-xs); font-weight: 700; color: var(--navy); background: var(--surface-alt); border-left: 3px solid var(--navy); padding: 8px 12px; margin-bottom: var(--sp-4); line-height: 1.45; }
     .basis-bar::before { content: '📌 '; }
@@ -540,7 +542,8 @@
     </div>
 
     <!-- STEP 2: 予算・流入を入れる（手入力 or 営業資料インポート） -->
-    <div class="svc-step-head svc-step-head--2"><span class="step-badge">STEP 2</span><span class="svc-step-title">予算・流入を入れる（手入力 or 資料から自動）</span></div>
+    <div class="svc-step-head svc-step-head--2"><span class="step-badge">STEP 2</span><span class="svc-step-title">予算・流入を入れる</span></div>
+    <p class="step2-desc">下の入力欄に直接入れるだけでOK。営業資料（PDF等）があれば、アップして自動入力もできます👇</p>
 
     <!-- 営業資料インポート（AI 自動入力：予算・流入を読み取る） -->
     <div class="import-step step">
@@ -715,7 +718,7 @@
           <div class="ph-brand">AKKODiS — ROI / ROAS Simulator</div>
           <div class="ph-date" id="print-date"></div>
         </div>
-        <div class="result-card-head">シミュレーション結果</div>
+        <div class="result-card-head"><span class="step-badge">STEP 3</span><span class="rch-title">結果（黒字になる？）</span></div>
         <div class="basis-bar" id="basis-bar" aria-live="polite">試算の前提：未選択 — STEP 1 で事業（サービス）を選んでください</div>
         <div class="verdict" id="verdict" role="status" aria-live="polite">
           <span class="verdict-icon" id="verdict-icon" aria-hidden="true">⏳</span>
