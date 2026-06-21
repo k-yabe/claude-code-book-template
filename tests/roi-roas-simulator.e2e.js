@@ -11,6 +11,7 @@ html = html.replace('</head>', `<script>
   window.matchMedia=window.matchMedia||function(){return{matches:false,addListener:function(){},removeListener:function(){}};};
   Element.prototype.scrollIntoView=function(){};
   if(!navigator.clipboard){navigator.clipboard={writeText:function(){return Promise.resolve();}};}
+  window.__printed=0; window.print=function(){window.__printed++;};
 </script></head>`);
 const vc = new VirtualConsole(); const errs = []; vc.on('jsdomError', e => errs.push(e.message || String(e)));
 const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, virtualConsole: vc, url: 'http://localhost/' });
@@ -182,6 +183,16 @@ uc('acquire'); click($('reset-btn'));
 window.fetch = async () => ({ ok: true, json: async () => ({ content: [{ text: 'すみません、解析できませんでした' }] }) });
 await window.analyzeDocument(new window.File(['x'.repeat(50)], 'd.txt', { type: 'text/plain' }));
 check('JSON不正でエラー表示・クラッシュなし', txt('import-error').length > 0, txt('import-error'));
+
+console.log('# 11. PDF / 印刷エクスポート');
+check('PDF/印刷ボタンあり', !!$('pdf-btn'), 'no pdf-btn');
+check('印刷ヘッダー要素あり', !!doc.querySelector('.print-header'), 'no print-header');
+check('印刷日付プレースホルダあり', !!$('print-date'), 'no print-date');
+check('印刷前は日付未設定', txt('print-date') === '(none)' || $('print-date').textContent.trim() === '', txt('print-date'));
+const printedBefore = window.__printed;
+click($('pdf-btn'));
+check('PDFボタンで window.print 呼出', window.__printed === printedBefore + 1, 'printed=' + window.__printed);
+check('印刷ヘッダーに日付スタンプ反映', /\d{4}-\d{2}-\d{2}.+出力/.test(txt('print-date')), txt('print-date'));
 
 check('全工程で script エラー無し', errs.length === 0, errs.join(' | '));
 console.log(`\n結果: ${pass} pass / ${fail} fail`);
