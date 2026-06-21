@@ -156,6 +156,17 @@ const aovRow = Array.from($('compare-table').querySelectorAll('tbody tr')).find(
 const aovCells = aovRow ? Array.from(aovRow.querySelectorAll('td.num')).map(td => td.textContent.replace(/[^0-9]/g, '')) : [];
 check('事業選択で比較表の客単価が全プラン コンサル(300万)に揃う', aovCells.length === 3 && aovCells.every(c => c === '3000000'), aovCells.join(','));
 check('事業選択後も比較プラン数は維持', $('compare-table').querySelectorAll('.sc-head').length === 3, 'len=' + $('compare-table').querySelectorAll('.sc-head').length);
+// 比較表に「流入（クリック/リード）」「成約数」「CPA」の行がある
+const rowLabels = Array.from($('compare-table').querySelectorAll('tbody tr .row-label')).map(e => e.textContent);
+check('比較表に流入（リード/クリック）行', rowLabels.some(l => l.includes('流入')), rowLabels.join('/'));
+check('比較表に成約数(CV)行', rowLabels.some(l => l.includes('成約数')), rowLabels.join('/'));
+check('比較表にCPA行', rowLabels.includes('CPA'), rowLabels.join('/'));
+check('比較表に予算行（広告費固定ラベルでない）', rowLabels.includes('予算'));
+// 客単価を手で変えると比較表の各プランの客単価も追従する
+setv('in-aov', 2000000);
+const aovRow2 = Array.from($('compare-table').querySelectorAll('tbody tr')).find(tr => { const l = tr.querySelector('.row-label'); return l && l.textContent === '客単価'; });
+const aovCells2 = aovRow2 ? Array.from(aovRow2.querySelectorAll('td.num')).map(td => td.textContent.replace(/[^0-9]/g, '')) : [];
+check('客単価を手入力で変えると比較表も全プラン追従', aovCells2.length === 3 && aovCells2.every(c => c === '2000000'), aovCells2.join(','));
 click($('reset-btn')); // 後続の「事業未選択での取込」検証のため状態を戻す
 
 console.log('# 8c. 多数の料金パターンを全部展開（4件上限で切り捨てない）');
