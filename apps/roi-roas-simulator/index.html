@@ -21,22 +21,33 @@
     /* ── App-specific styles (shared styles via app-styles.css) ── */
     h1 { font-size: var(--text-xl); font-weight: 700; color: var(--navy); letter-spacing: -0.01em; margin-bottom: var(--sp-1); }
 
+    /* このツールは「入力 + 結果」を横並びにするため、共有の 820px より広いキャンバスを使う。
+       820px のままだと Mac など広い画面で2カラムが押し潰れてレイアウトが崩れる。 */
+    .container { max-width: 1120px; }
+    /* イントロ系のテキストは広げすぎると読みにくいので、読みやすい幅に収める */
+    .page-header, .guide, .import-step, .usecase-row, .preset-row, .preset-note, .bench { max-width: 880px; }
+    /* 縦の冗長さを抑える（上部の説明エリアを詰める） */
+    .page-header { margin-bottom: var(--sp-5); }
+    .upload-area { padding: var(--sp-5); }
+
     .sim-layout {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
       gap: var(--sp-6);
       align-items: start;
     }
-    @media (max-width: 860px) {
+    @media (max-width: 920px) {
       .sim-layout { grid-template-columns: 1fr; }
     }
 
     /* ── 入力フィールド ── */
-    .field { margin-bottom: var(--sp-4); }
-    /* 広い画面では入力欄を2カラムにして縦の長さを抑える（見出し・詳細は全幅） */
-    @media (min-width: 1080px) {
-      .step-body.cols-2 { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--sp-5); align-items: start; }
+    .field { margin-bottom: var(--sp-3); }
+    /* 入力欄を2カラムにして縦の長さを抑える（見出し・トグル・詳細は全幅）。
+       コンテナを広げたので、横並びレイアウトが成立する 1000px から有効化する。 */
+    @media (min-width: 1000px) {
+      .step-body.cols-2 { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--sp-4); row-gap: 0; align-items: start; }
       .step-body.cols-2 > .section-title,
+      .step-body.cols-2 > .field.span-2,
       .step-body.cols-2 > details.advanced { grid-column: 1 / -1; }
     }
     .field:last-child { margin-bottom: 0; }
@@ -115,7 +126,7 @@
       border-top: 3px solid var(--navy);
       padding: var(--sp-6);
     }
-    @media (max-width: 860px) { .result-card { position: static; } }
+    @media (max-width: 920px) { .result-card { position: static; } }
 
     .verdict {
       display: flex;
@@ -443,7 +454,7 @@
 
     <!-- 営業資料インポート（AI 自動入力） -->
     <div class="import-step step">
-      <div class="step-body" style="padding: var(--sp-6);">
+      <div class="step-body" style="padding: var(--sp-5);">
         <div class="import-head">
           <span class="ic">📄</span>
           <span class="ti">営業資料から自動で読み取って試算</span>
@@ -513,7 +524,7 @@
     <div class="sim-layout">
       <!-- 入力 -->
       <div class="step">
-        <div class="step-body cols-2" style="padding: var(--sp-6);">
+        <div class="step-body cols-2" style="padding: var(--sp-5);">
           <div class="section-title">① 予算・流入</div>
 
           <div class="field">
@@ -1666,10 +1677,9 @@
       { icon: '🟢', text: 'ROAS/ROI/CPA に加え LTV/CAC・限界CPA・損益分岐CV など BtoB 指標も' }
     ],
     updates: [
-      { date: '06/21', text: '結果を「PDF / 印刷」ボタンでそのまま出力できるようにしました：上長への共有や提案書への添付に。印刷時は入力欄やガイドを自動で省き、判定・主要指標・プラン比較・AI所見だけをブランドヘッダー（出力日付つき）で1枚にまとめます' },
-      { date: '06/20', text: '展示会・カンファレンスの出展資料も AI が読み取り対応：出展費を予算として読み取り「獲得数を直接入力」モードに自動切替、複数ブース／協賛プランは比較に展開。来場者数を自社リードと取り違えないよう配慮し、成約率・客単価など自社側の数値は⚠目安＋「要検討（暫定）」で提示します' },
-      { date: '06/20', text: '誰でも迷わず使えるよう UI/UX を磨きました：冒頭に「はじめ方ガイド」（資料アップで自動 ／ 用途と事業を選んで手入力の2通り）、任意項目（その他コスト・人件費）は折りたたんで入力欄をスッキリ、結果カードに見出し、判定の読み上げ対応やキーボード操作のフォーカス表示などアクセシビリティも強化' },
-      { date: '06/20', text: 'AKKODiS 事業に合わせて拡張：用途トグル「顧客獲得／エンジニア採用」、事業ラインのプリセット、成約率・粗利率がわからなくても「業界平均の目安」をワンタップ（商談化率×受注率からCVRを出す任意計算も）、人件費を「人数×時給×月稼働時間」で概算' }
+      { date: '06/21', text: 'Mac など広い画面でレイアウトが崩れて縦に長く見える問題を修正しました：このツール専用に本文幅を広げ、入力と結果の横並びがきちんと成立するようにブレークポイントを整理。入力欄は広い画面で2列に並べ、上部の余白も詰めて全体をコンパクトにしました' },
+      { date: '06/21', text: '資料に複数の料金パターン（展示会のブースサイズ別・協賛グレード別など）が載っている場合に、これまで先頭4件までしか展開できなかったのを最大8プランまで拡大。SILVER/GOLD/DIAMOND/リストスポンサーのような料金表を1つ残らず横並びで試算（ROAS/ROI/利益/判定）できるようにしました' },
+      { date: '06/21', text: '結果を「PDF / 印刷」ボタンでそのまま出力できるようにしました：上長への共有や提案書への添付に。印刷時は入力欄やガイドを自動で省き、判定・主要指標・プラン比較・AI所見だけをブランドヘッダー（出力日付つき）で1枚にまとめます' }
     ]
   };
   initOnboarding(OB_CONFIG);
