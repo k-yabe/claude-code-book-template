@@ -1636,6 +1636,11 @@
               const content = await page.getTextContent();
               text += content.items.map(it => it.str).join(' ') + '\n';
             }
+            // PDF.js は和文を字ごとに分割しがちで「予 算」のように字間に空白が入る。
+            // 隣り合う CJK 文字の間の空白だけ詰める（英数字や語間の空白は保持）。
+            const cjk = '\\u3000-\\u30ff\\u3400-\\u4dbf\\u4e00-\\u9fff\\uff00-\\uff9f';
+            text = text.replace(new RegExp(`([${cjk}])[ \\t]+(?=[${cjk}])`, 'g'), '$1')
+                       .replace(new RegExp(`([${cjk}])[ \\t]+(?=[${cjk}])`, 'g'), '$1');
             resolve(text.trim());
           } catch (err) { reject(err); }
         };
@@ -1942,7 +1947,13 @@
         manualAdjusted = false;
         updateBasis();
         if (filled.length === 0) {
-          showImportError('資料から予算・流入の数値を読み取れませんでした（画像中心の PDF などで文字が取れない場合があります）。テキスト付きの PDF / PPTX / Word でお試しいただくか、予算・流入を手入力してください。');
+          // 文字は取れたか？で原因を切り分ける（取れていれば「金額が無い資料」、取れていなければ画像PDF）
+          const gotText = (text || '').replace(/\s/g, '').length;
+          if (gotText >= 80) {
+            showImportError(`資料は読み取れました（約${gotText.toLocaleString()}文字）が、予算・費用・料金などの「金額」や流入の件数が見つかりませんでした。議事録・案内・戦略資料など、具体的な金額が書かれていない資料の可能性があります。👉 予算・流入は手入力してください（事業を選べば成約率・客単価などは自動で入ります）。`);
+          } else {
+            showImportError('資料から文字をほとんど読み取れませんでした（画像中心の PDF など）。テキスト付きの PDF / PPTX / Word でお試しいただくか、予算・流入を手入力してください。');
+          }
         } else if (!activePresetKey) {
           showImportError(`予算・流入を${filled.length}項目読み取りました。👉 次は STEP 1 で事業（コンサル／ソリューション／アカデミー）を選んでください。事業ごとの成約率・客単価・粗利率・LTV で黒字/赤字を判定します（成約率などは事業で大きく変わるため、資料からは判定しません）。`);
         } else {
