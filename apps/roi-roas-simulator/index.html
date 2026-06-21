@@ -45,6 +45,18 @@
        各フィールドが全幅を使えてラベル（必須バッジ・補足つき）が1〜2行に収まる。
        以前は入力欄を更に2列化していたが、列が細くなりラベルが3〜4行に折り返して崩れていた。 */
     .field { margin-bottom: var(--sp-4); }
+    /* ラベルは全幅・1行で読める（長い和文ラベルでも折り返さない）。入力ボックスは
+       間延びしないよう適度な幅に収める。スライダーは全幅でレンジ感を保つ。 */
+    .field > .input-wrap { max-width: 280px; }
+    .field > input[type="range"] { width: 100%; }
+
+    /* 入力パネルも結果カードと対になるよう「白地＋ネイビーの上アクセント」に統一 */
+    .sim-layout > .step { background: var(--surface); border: 1px solid var(--border-light); border-top: 3px solid var(--navy); }
+    /* セクション見出しにネイビー＋区切り線で階層を明確に */
+    .step .section-title {
+      color: var(--navy); padding-bottom: var(--sp-2);
+      border-bottom: 1px solid var(--border-light); margin-bottom: var(--sp-4);
+    }
     .field:last-child { margin-bottom: 0; }
     .field-label {
       display: flex;
@@ -219,7 +231,7 @@
     .mm-pill.bad { background: var(--error-bg); color: var(--error-text); }
 
     .result-actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-5); }
-    .result-actions button { flex: 1; min-width: 120px; }
+    .result-actions button { flex: 1; min-width: 120px; white-space: nowrap; }
 
     /* 印刷ヘッダー（通常は非表示、印刷時のみ表示） */
     .print-header { display: none; }
