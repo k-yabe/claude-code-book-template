@@ -500,44 +500,6 @@
       <p class="preset-note" id="preset-note"></p>
     </div>
 
-    <details class="bench" id="bench">
-      <summary>📊 数値がわからない時は「業界平均の目安」から入れる</summary>
-      <div class="bench-body">
-        <p class="bench-intro">自社の成約率・粗利率・商談化率などが分からなくても大丈夫。下の一般的な目安を「使う」と入力欄に入り、<strong>⚠目安</strong>として表示されます（必須ではなく、勝手には入りません。後で実績値に置き換えられます）。</p>
-
-        <div class="bench-group">
-          <div class="bench-title">成約率（CVR）の目安 — 流入から受注に至る割合</div>
-          <div class="bench-chips">
-            <button class="bench-chip" data-set="cvr" data-val="0.5">広告クリック→受注 0.5%</button>
-            <button class="bench-chip" data-set="cvr" data-val="5">リード/名刺→受注 5%</button>
-            <button class="bench-chip" data-set="cvr" data-val="15">スカウト返信→採用 15%</button>
-          </div>
-        </div>
-
-        <div class="bench-group">
-          <div class="bench-title">商談化率 × 受注率 から成約率(CVR)を出す（任意・追わなくてもOK）</div>
-          <div class="bench-calc">
-            <label>商談化率 <input type="number" id="bench-mtg" placeholder="20" min="0" max="100" inputmode="decimal">%</label>
-            <span>×</span>
-            <label>受注率 <input type="number" id="bench-win" placeholder="30" min="0" max="100" inputmode="decimal">%</label>
-            <button class="bench-apply" id="bench-calc-apply">CVRに反映</button>
-          </div>
-          <p class="bench-note">目安：リード→商談（商談化率）10〜30% ／ 商談→受注（受注率）20〜40%。掛け合わせがリード→受注の成約率です（例 20%×30%＝6%）。分からなければ空欄のままでOK。</p>
-        </div>
-
-        <div class="bench-group">
-          <div class="bench-title">粗利率の目安（AKKODiS 事業ライン別）</div>
-          <div class="bench-chips">
-            <button class="bench-chip" data-set="margin" data-val="35">システム開発・受託 35%</button>
-            <button class="bench-chip" data-set="margin" data-val="45">ソリューション・受託 45%</button>
-            <button class="bench-chip" data-set="margin" data-val="65">コンサルティング 65%</button>
-            <button class="bench-chip" data-set="margin" data-val="60">アカデミー（研修）60%</button>
-          </div>
-          <p class="bench-note">サービス業の粗利率は概ね 30〜70%。派遣/SES は低め、コンサル・研修は高めが一般的です。</p>
-        </div>
-      </div>
-    </details>
-
     <!-- STEP 2: 予算・流入を入れる（手入力 or 営業資料インポート） -->
     <div class="svc-step-head svc-step-head--2"><span class="step-badge">STEP 2</span><span class="svc-step-title">予算・流入を入れる（手入力 or 資料から自動）</span></div>
 
@@ -642,6 +604,44 @@
             </div>
             <input type="range" id="range-margin" aria-label="粗利率（パーセント）" min="0" max="100" step="1" value="50">
           </div>
+
+          <details class="bench" id="bench">
+            <summary>📊 成約率・粗利率を手で調整する（業界平均の目安・商談化率から）— 任意</summary>
+            <div class="bench-body">
+              <p class="bench-intro">事業を選べば標準値が入りますが、自社の実績がわかればここで上書きできます。下の一般的な目安を「使う」と入力欄に入り、<strong>⚠目安</strong>として表示されます（勝手には入りません。後で実績値に置き換えられます）。</p>
+
+              <div class="bench-group">
+                <div class="bench-title">成約率（CVR）の目安 — 流入から受注に至る割合</div>
+                <div class="bench-chips">
+                  <button class="bench-chip" data-set="cvr" data-val="0.5">広告クリック→受注 0.5%</button>
+                  <button class="bench-chip" data-set="cvr" data-val="5">リード/名刺→受注 5%</button>
+                  <button class="bench-chip" data-set="cvr" data-val="15">スカウト返信→採用 15%</button>
+                </div>
+              </div>
+
+              <div class="bench-group">
+                <div class="bench-title">商談化率 × 受注率 から成約率(CVR)を出す（任意・追わなくてもOK）</div>
+                <div class="bench-calc">
+                  <label>商談化率 <input type="number" id="bench-mtg" placeholder="20" min="0" max="100" inputmode="decimal">%</label>
+                  <span>×</span>
+                  <label>受注率 <input type="number" id="bench-win" placeholder="30" min="0" max="100" inputmode="decimal">%</label>
+                  <button class="bench-apply" id="bench-calc-apply">CVRに反映</button>
+                </div>
+                <p class="bench-note">目安：リード→商談（商談化率）10〜30% ／ 商談→受注（受注率）20〜40%。掛け合わせがリード→受注の成約率です（例 20%×30%＝6%）。分からなければ空欄のままでOK。</p>
+              </div>
+
+              <div class="bench-group">
+                <div class="bench-title">粗利率の目安（AKKODiS 事業ライン別）</div>
+                <div class="bench-chips">
+                  <button class="bench-chip" data-set="margin" data-val="35">システム開発・受託 35%</button>
+                  <button class="bench-chip" data-set="margin" data-val="45">ソリューション・受託 45%</button>
+                  <button class="bench-chip" data-set="margin" data-val="65">コンサルティング 65%</button>
+                  <button class="bench-chip" data-set="margin" data-val="60">アカデミー（研修）60%</button>
+                </div>
+                <p class="bench-note">サービス業の粗利率は概ね 30〜70%。派遣/SES は低め、コンサル・研修は高めが一般的です。</p>
+              </div>
+            </div>
+          </details>
 
           <details class="advanced" id="adv-cost">
             <summary id="adv-cost-sum"><span class="adv-title">④ その他コスト・人件費<span class="section-opt">任意</span></span><span class="adv-amount" id="adv-cost-amount"></span></summary>
@@ -939,8 +939,14 @@
         // 状態を先に確定してから値を流し込む（applyValues 内 render が anchored を見られるように）
         activePresetKey = firstKey; importLabel = null; manualAdjusted = false; econAnchored = true;
         applyValues(PRESETS[firstKey]); clearMissingMarks(); clearImportError();
+      } else {
+        // 内容を保持する切替（インポート/手入力済み）。用途が変わると経済性モデルも変わるため、
+        // 別用途の事業選択は無効化し、新しい用途で事業を選び直してもらう（誤った前提のまま判定しない）。
+        if (activePresetKey && !USE_CASE_PRESETS[uc].includes(activePresetKey)) {
+          activePresetKey = null; econAnchored = false;
+        }
+        render();
       }
-      else render();
       if (typeof updateBasis === 'function') updateBasis();
     }
 
@@ -1168,13 +1174,18 @@
     // そのサービスの「経済性（成約率・客単価・粗利率・購入回数・人件費）」だけを目安として反映する。
     function applyServiceEconomics(key) {
       const p = PRESETS[key];
-      const flash = (inp) => { const f = inp.closest('.field'); if (f) { f.classList.remove('fill-flash'); void f.offsetWidth; f.classList.add('fill-flash'); } };
-      const mark = (inp) => { inp.closest('.field')?.classList.add('needs-input'); };
-      inputs.cvr.value = p.cvr; rangeCvr.value = p.cvr; flash(inputs.cvr); mark(inputs.cvr);
-      inputs.aov.value = p.aov; flash(inputs.aov); mark(inputs.aov);
-      inputs.margin.value = p.margin; rangeMargin.value = p.margin; flash(inputs.margin); mark(inputs.margin);
-      inputs.repeat.value = (p.repeat ?? 1); rangeRepeat.value = (p.repeat ?? 1); flash(inputs.repeat);
-      inputs.othercost.value = (p.othercost ?? 0); flash(inputs.othercost);
+      // 事業を「選んだ」結果なので ⚠目安 マークは付けない（自動補完ではなく意図的な選択）。
+      // フラッシュで“入ったこと”だけ知らせ、古い⚠マークは消す。econ-note と基準バーで「標準値・調整可」を案内。
+      const set = (inp, v, range) => {
+        inp.value = v; if (range) range.value = v;
+        const f = inp.closest('.field');
+        if (f) { f.classList.remove('needs-input', 'fill-flash'); void f.offsetWidth; f.classList.add('fill-flash'); }
+      };
+      set(inputs.cvr, p.cvr, rangeCvr);
+      set(inputs.aov, p.aov);
+      set(inputs.margin, p.margin, rangeMargin);
+      set(inputs.repeat, (p.repeat ?? 1), rangeRepeat);
+      set(inputs.othercost, (p.othercost ?? 0));
       const adv = el('adv-cost'); if (adv && (parseFloat(p.othercost) || 0) > 0) adv.open = true;
       formDirty = true; manualAdjusted = false;
       render();
@@ -1837,7 +1848,7 @@
     updates: [
       { date: '06/21', text: '構造を「事業（サービス）起点」に作り直しました。使い方は3ステップ（STEP1 事業を選ぶ → STEP2 予算・流入を手入力 or 資料インポート → STEP3 判定）。成約率・客単価・粗利率・LTV は事業で全く違うため、事業を選ぶまで黒字/赤字・ROAS/ROI は「—」で判定を保留します。営業資料は「予算・流入」の読み取りに専念し、事業を選ぶとその経済性で即試算。別事業に切り替えれば同じ予算でも結果がどう変わるか比較できます' },
       { date: '06/21', text: '「いま何を前提に試算しているか」を結果の先頭に📌バーで常時表示。資料インポート後に事業を選ぶと、資料の予算・流入は残しつつ事業の経済性だけが反映され、選択中の事業は✓でハイライト＋トーストで通知します' },
-      { date: '06/21', text: '資料に複数の料金パターン（展示会のブースサイズ別・協賛グレード別など）が載っている場合に最大8プランまで横並びで試算（ROAS/ROI/利益/判定）。Mac でのレイアウト崩れ／縦長も修正し、人件費「時給」欄が 5000→500 に見える不具合も直しました' }
+      { date: '06/21', text: '初心者向けに全体を仕上げ：カード幅をそろえて整列、事業選択ボタンを大きく、入力②③に「事業の標準値が自動で入る／自社実績に上書きOK」の注記を追加、目安ヘルパーは入力カード内に移動。用途切替時に前の事業選択が残る構造バグも修正。複数料金は最大8プラン横並び試算、Mac のレイアウト崩れ・人件費「時給」表示の不具合も解消済み' }
     ]
   };
   initOnboarding(OB_CONFIG);

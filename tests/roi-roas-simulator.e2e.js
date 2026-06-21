@@ -232,7 +232,7 @@ check('粗利率がソリューションの目安45に', $('in-margin').value ==
 check('CVRがソリューションの目安0.3に', $('in-cvr').value === '0.3', $('in-cvr').value);
 check('基準バーにサービス名（ソリューション）が出る', txt('basis-bar').includes('ソリューション'), txt('basis-bar'));
 check('選択中サービスのチップがアクティブ', (() => { const a = $('preset-row').querySelector('.preset-chip.active'); return a && a.dataset.preset === 'solution'; })(), 'active');
-check('サービスの経済性は⚠目安マーク（客単価）', $('in-aov').closest('.field').classList.contains('needs-input'));
+check('事業選択は意図的な選択なので⚠目安マークは付けない（客単価）', !$('in-aov').closest('.field').classList.contains('needs-input'));
 click($('reset-btn'));
 check('リセットで基準バー＝未選択（STEP1へ）', txt('basis-bar').includes('未選択') || txt('basis-bar').includes('STEP 1'), txt('basis-bar'));
 click($('preset-row').querySelector('[data-preset="consulting"]'));
