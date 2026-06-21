@@ -265,7 +265,7 @@ click($('reset-btn'));
 check('リセットで基準バー＝未選択（STEP1へ）', txt('basis-bar').includes('未選択') || txt('basis-bar').includes('STEP 1'), txt('basis-bar'));
 click($('preset-row').querySelector('[data-preset="consulting"]'));
 check('通常のサービス選択（インポートなし）で予算もプリセット値に', $('in-budget').value === '600000', $('in-budget').value);
-check('基準バー＝コンサルティングの経済性', txt('basis-bar').includes('コンサルティング') && txt('basis-bar').includes('経済性'), txt('basis-bar'));
+check('基準バー＝コンサルティングの前提値', txt('basis-bar').includes('コンサルティング') && txt('basis-bar').includes('前提値'), txt('basis-bar'));
 click($('reset-btn'));
 
 console.log('# 8f. 画像/スクショは vision（画像パート）で読む');
