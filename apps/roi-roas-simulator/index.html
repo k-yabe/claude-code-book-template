@@ -44,9 +44,9 @@
        各フィールドが全幅を使えてラベル（必須バッジ・補足つき）が1〜2行に収まる。
        以前は入力欄を更に2列化していたが、列が細くなりラベルが3〜4行に折り返して崩れていた。 */
     .field { margin-bottom: var(--sp-4); }
-    /* ラベルは全幅・1行で読める（長い和文ラベルでも折り返さない）。入力ボックスは
-       間延びしないよう適度な幅に収める。スライダーは全幅でレンジ感を保つ。 */
-    .field > .input-wrap { max-width: 280px; }
+    /* 入力ボックス・スライダー・トグルはすべて全幅にそろえて、左右の端を一直線に通す
+       （幅をバラバラにすると右端がガタついて崩れて見える）。 */
+    .field > .input-wrap { width: 100%; }
     .field > input[type="range"] { width: 100%; }
 
     /* 各カード（入力パネル・資料インポート）を結果カードと対の「白地＋ネイビー上アクセント」に統一 */
@@ -1162,8 +1162,8 @@
       inputs.cvr.value = v.cvr; inputs.aov.value = v.aov; inputs.margin.value = v.margin;
       inputs.repeat.value = (v.repeat ?? 1); inputs.othercost.value = (v.othercost ?? 0);
       rangeCvr.value = v.cvr; rangeMargin.value = v.margin; rangeRepeat.value = (v.repeat ?? 1);
-      // その他コストに値があるプリセットは詳細を自動で開く（無ければ畳んだまま＝初見はスッキリ）
-      const adv = el('adv-cost'); if (adv) adv.open = (parseFloat(v.othercost) || 0) > 0;
+      // ④その他コストは畳んだまま（見出しに「計上 ¥…」と金額を出すので開かなくても分かる）
+      const adv = el('adv-cost'); if (adv) adv.open = false;
       formDirty = false;  // プリセット/リセット等の既知ロード後はクリーン状態
       render();
     }
@@ -1206,7 +1206,6 @@
       set(inputs.margin, p.margin, rangeMargin);
       set(inputs.repeat, (p.repeat ?? 1), rangeRepeat);
       set(inputs.othercost, (p.othercost ?? 0));
-      const adv = el('adv-cost'); if (adv && (parseFloat(p.othercost) || 0) > 0) adv.open = true;
       formDirty = true; manualAdjusted = false;
       render();
     }

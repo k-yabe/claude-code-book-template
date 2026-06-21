@@ -63,7 +63,7 @@ for (const k in expect) {
   check(`${k} ROAS=${expect[k][0]}`, txt('kpi-roas') === expect[k][0], 'got=' + txt('kpi-roas'));
   check(`${k} ROI=${expect[k][1]}`, txt('kpi-roi') === expect[k][1], 'got=' + txt('kpi-roi'));
 }
-check('その他コストありプリセットで詳細自動オープン', $('adv-cost').open === true);
+check('その他コストありでも④は畳んだまま（見出しに金額表示）', $('adv-cost').open === false);
 check('折りたたみ見出しに金額', txt('adv-cost-amount').includes('計上'), txt('adv-cost-amount'));
 
 console.log('# 3. エッジケース');
