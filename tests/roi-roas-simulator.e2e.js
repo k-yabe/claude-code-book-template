@@ -208,6 +208,25 @@ check('展示会: 成約率が⚠目安', $('in-cvr').closest('.field').classLis
 check('展示会: CVR仮値はリード基準5%（クリック0.5%ではない）', $('in-cvr').value === '5', $('in-cvr').value);
 check('展示会: 来場者を見込客と取り違えない注意', txt('ai-risks').includes('来場者'), txt('ai-risks'));
 
+console.log('# 8e. インポート後にサービス選択：予算・流入は維持し経済性のみ反映＋基準バー');
+uc('acquire'); // 顧客獲得のサービス（コンサル/ソリューション/アカデミー）に切替（内容は保持）
+check('インポート直後の基準バー＝資料インポート中', txt('basis-bar').includes('資料') && txt('basis-bar').includes('expo'), txt('basis-bar'));
+click($('preset-row').querySelector('[data-preset="solution"]'));
+check('サービス選択後も予算は資料の80万を維持', $('in-budget').value === '800000', $('in-budget').value);
+check('サービス選択後も獲得数は資料の150を維持', $('in-clicks').value === '150', $('in-clicks').value);
+check('客単価がソリューションの目安1,200,000に', $('in-aov').value === '1200000', $('in-aov').value);
+check('粗利率がソリューションの目安45に', $('in-margin').value === '45', $('in-margin').value);
+check('CVRがソリューションの目安0.3に', $('in-cvr').value === '0.3', $('in-cvr').value);
+check('基準バーにサービス名（ソリューション）が出る', txt('basis-bar').includes('ソリューション'), txt('basis-bar'));
+check('選択中サービスのチップがアクティブ', (() => { const a = $('preset-row').querySelector('.preset-chip.active'); return a && a.dataset.preset === 'solution'; })(), 'active');
+check('サービスの経済性は⚠目安マーク（客単価）', $('in-aov').closest('.field').classList.contains('needs-input'));
+click($('reset-btn'));
+check('リセットで基準バー＝初期値', txt('basis-bar').includes('初期値'), txt('basis-bar'));
+click($('preset-row').querySelector('[data-preset="consulting"]'));
+check('通常のサービス選択（インポートなし）で予算もプリセット値に', $('in-budget').value === '600000', $('in-budget').value);
+check('基準バー＝コンサルティングの目安値', txt('basis-bar').includes('コンサルティング') && txt('basis-bar').includes('目安'), txt('basis-bar'));
+click($('reset-btn'));
+
 console.log('# 9. コピー内容（採用モードの単位追従）');
 uc('recruit');
 window.__copied = null;
