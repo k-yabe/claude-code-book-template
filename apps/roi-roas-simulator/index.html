@@ -263,6 +263,14 @@
     .mm-pill { font-family: var(--font-sans); font-size: 0.66rem; font-weight: 700; padding: 1px 7px; }
     .mm-pill.good { background: var(--success-bg); color: var(--success-text); }
     .mm-pill.warn { background: var(--gold-20); color: var(--navy); }
+    /* 計算の内訳（損益分岐バー＋ファネル）は既定で畳む＝初見は判定と3指標だけ見える */
+    .result-breakdown { margin: var(--sp-2) 0 var(--sp-5); border: 1px solid var(--border-light); }
+    .result-breakdown > summary { list-style: none; cursor: pointer; padding: 10px 14px; font-size: var(--text-sm); font-weight: 700; color: var(--navy); background: var(--surface-alt); user-select: none; }
+    .result-breakdown > summary::-webkit-details-marker { display: none; }
+    .result-breakdown > summary::before { content: '▸ '; color: var(--text-muted); }
+    .result-breakdown[open] > summary::before { content: '▾ '; }
+    .rb-body { padding: var(--sp-4); }
+    .rb-body .funnel { margin-bottom: 0; }
     .mm-pill.bad { background: var(--error-bg); color: var(--error-text); }
 
     /* 4ボタンは2×2グリッドできれいに揃える（flex-wrap だと 3+1 でズレるため） */
@@ -288,9 +296,12 @@
       @page { margin: 14mm; }
       body { background: #fff; }
       .navbar, .guide, .import-step, .usecase-row, .preset-row, .bench,
-      .sim-layout > .step, .result-actions, .compare-add-btn, .app-footer,
+      .sim-col-left, .result-actions, .compare-add-btn, .app-footer,
       .svc-step, .svc-step-head--2, .ringi-panel,
       .onboarding-overlay, .sample-hint { display: none !important; }
+      /* 内訳は印刷では常に展開して見せる（PDF に売上・粗利・利益の明細を残す） */
+      .result-breakdown > summary { display: none !important; }
+      .result-breakdown .rb-body { display: block !important; padding: 0 !important; }
       .container { max-width: 100%; padding: 0; margin: 0; }
       .page-header { margin-bottom: 8mm; }
       .sim-layout { display: block; gap: 0; }
@@ -613,7 +624,7 @@
           </div>
 
           <details class="econ-details" id="econ-details">
-            <summary><span class="econ-sum-main">⚙️ 事業の経済性（成約率・客単価・粗利率・LTV）</span><span class="econ-sum-tag">STEP1で選んだ事業の標準値が入っています。マーケに不慣れな方は触らなくてOK</span></summary>
+            <summary><span class="econ-sum-main">⚙️ 成約率・客単価・粗利率・LTV（事業の標準値）</span><span class="econ-sum-tag">STEP1で選んだ事業の標準値が入っています。マーケに不慣れな方は触らなくてOK</span></summary>
             <div class="econ-details-body">
               <p class="econ-note">これらは <strong>STEP 1 で選んだ事業の標準値</strong>です。<strong>よく分からなければ、このまま触らなくて大丈夫</strong>（事業の一般的な数値で試算します）。自社の実績がわかる方は直接書き換えると、<strong>右の結果に自動で反映</strong>されます。</p>
 
@@ -785,26 +796,31 @@
           </div>
         </details>
 
-        <div class="breakeven">
-          <div class="breakeven-head">
-            <span class="lbl">損益分岐 ROAS</span>
-            <span class="be" id="be-target">—</span>
-          </div>
-          <div class="bar-track">
-            <div class="bar-fill" id="bar-fill" style="width:0%"></div>
-            <div class="bar-marker" id="bar-marker" style="left:50%"></div>
-          </div>
-        </div>
+        <details class="result-breakdown">
+          <summary>📊 計算の内訳を見る（クリック → 成約 → 売上 → 利益）</summary>
+          <div class="rb-body">
+            <div class="breakeven">
+              <div class="breakeven-head">
+                <span class="lbl">損益分岐 ROAS</span>
+                <span class="be" id="be-target">—</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" id="bar-fill" style="width:0%"></div>
+                <div class="bar-marker" id="bar-marker" style="left:50%"></div>
+              </div>
+            </div>
 
-        <div class="funnel" id="funnel">
-          <div class="funnel-row"><span class="f-label" id="f-clicks-label">クリック数</span><span class="f-val" id="f-clicks">—</span></div>
-          <div class="funnel-row"><span class="f-label" id="t-f-cv">コンバージョン数</span><span class="f-val" id="f-cv">—</span></div>
-          <div class="funnel-row"><span class="f-label" id="f-revenue-label">売上（想定）</span><span class="f-val" id="f-revenue">—</span></div>
-          <div class="funnel-row"><span class="f-label">粗利（想定）</span><span class="f-val" id="f-profit">—</span></div>
-          <div class="funnel-row" id="f-othercost-row" style="display:none;"><span class="f-label">その他固定費</span><span class="f-val" id="f-othercost">—</span></div>
-          <div class="funnel-row"><span class="f-label">総コスト（広告費＋その他）</span><span class="f-val" id="f-totalcost">—</span></div>
-          <div class="funnel-row"><span class="f-label">全コスト差引後の利益</span><span class="f-val" id="f-net">—</span></div>
-        </div>
+            <div class="funnel" id="funnel">
+              <div class="funnel-row"><span class="f-label" id="f-clicks-label">クリック数</span><span class="f-val" id="f-clicks">—</span></div>
+              <div class="funnel-row"><span class="f-label" id="t-f-cv">コンバージョン数</span><span class="f-val" id="f-cv">—</span></div>
+              <div class="funnel-row"><span class="f-label" id="f-revenue-label">売上（想定）</span><span class="f-val" id="f-revenue">—</span></div>
+              <div class="funnel-row"><span class="f-label">粗利（想定）</span><span class="f-val" id="f-profit">—</span></div>
+              <div class="funnel-row" id="f-othercost-row" style="display:none;"><span class="f-label">その他固定費</span><span class="f-val" id="f-othercost">—</span></div>
+              <div class="funnel-row"><span class="f-label">総コスト（広告費＋その他）</span><span class="f-val" id="f-totalcost">—</span></div>
+              <div class="funnel-row"><span class="f-label">全コスト差引後の利益</span><span class="f-val" id="f-net">—</span></div>
+            </div>
+          </div>
+        </details>
 
         <details class="more-metrics">
           <summary>詳しい指標を見る（LTV / CAC・限界CPA・損益分岐CV数）</summary>
@@ -894,7 +910,7 @@
         <div class="ai-block-label">資料から読み取れなかった項目（現在値のまま）</div>
         <p class="ai-missing" id="ai-missing"></p>
       </div>
-      <p class="ai-note">※ 黒字/赤字・ROAS / ROI の判定は「STEP 1 で選んだ事業」の経済性とアプリの計算で行います。AI は資料からの読み取りと注意点の補足のみで、投資判断そのものは行いません。最終的な数値は必ず元資料でご確認ください。</p>
+      <p class="ai-note">※ 黒字/赤字・ROAS / ROI の判定は「STEP 1 で選んだ事業」の前提値（成約率・客単価など）とアプリの計算で行います。AI は資料からの読み取りと注意点の補足のみで、投資判断そのものは行いません。最終的な数値は必ず元資料でご確認ください。</p>
     </div>
 
     <p class="sample-hint">用語や計算式の意味は <button class="sample-btn" id="help-btn">使い方ガイドを開く →</button></p>
@@ -1265,10 +1281,10 @@
       const svcValid = activePresetKey && USE_CASE_PRESETS[useCase].includes(activePresetKey);
       const svc = svcValid ? PRESET_LABELS[activePresetKey] : null;
       let txt;
-      if (svc && importLabel) txt = `${svc}の経済性 × 資料「${importLabel}」の予算・流入`;
-      else if (svc) txt = `${svc} の経済性（成約率・客単価・粗利率・LTV）`;
+      if (svc && importLabel) txt = `${svc}の前提値（成約率・客単価など） × 資料「${importLabel}」の予算・流入`;
+      else if (svc) txt = `${svc} の前提値（成約率・客単価・粗利率・LTV）`;
       else if (importLabel) txt = `資料「${importLabel}」の予算・流入のみ。STEP 1 で事業を選ぶと黒字/赤字を判定します`;
-      else if (econAnchored) txt = '手入力（経済性も手入力）';
+      else if (econAnchored) txt = '手入力（成約率・客単価なども手入力）';
       else txt = '未選択 — STEP 1 で事業（サービス）を選んでください';
       if (manualAdjusted && (svc || importLabel)) txt += '（手で調整済み）';
       const bar = el('basis-bar'); if (bar) bar.textContent = '試算の前提：' + txt;
@@ -1316,11 +1332,11 @@
         // 資料インポート中：予算・流入を残してサービスの経済性だけ反映
         applyServiceEconomics(key);
         clearImportError(); // 「事業を選んで」の案内は役目を終えたので消す
-        showToast(`${svcName}の経済性で試算（資料の予算・流入は維持）`);
+        showToast(`${svcName}の前提値で試算（資料の予算・流入は維持）`);
       } else {
         // 通常：そのサービスの目安一式を読み込む
         applyValues(PRESETS[key]); clearMissingMarks(); clearImportError();
-        showToast(`${svcName}の経済性で試算します`);
+        showToast(`${svcName}の前提値で試算します`);
       }
       syncScenarioEconomics(); // 比較表があれば各プランの経済性も選んだ事業に揃える
       updateBasis();
@@ -1878,7 +1894,7 @@
       if (mode === 'cpc') setField(inputs.cpc, null, d.cpc, 'CPC', DEFAULTS.cpc);
       else setField(inputs.clicks, null, d.clicks, '獲得数', DEFAULTS.clicks);
 
-      // 経済性（成約率・客単価・粗利率・LTV）は「事業（サービス）」が持つ。
+      // 前提値（成約率・客単価・粗利率・LTV）は「事業（サービス）」が持つ。
       // すでに事業が選ばれていれば、その経済性を維持して上書きしない。
       // 事業未選択のときだけ一般目安を仮置きする（判定は事業選択まで保留される）。
       if (!activePresetKey) {
@@ -2086,7 +2102,7 @@
         } else if (!activePresetKey) {
           showImportError(`予算・流入を${filled.length}項目読み取りました。👉 次は STEP 1 で事業（コンサル／ソリューション／アカデミー）を選んでください。事業ごとの成約率・客単価・粗利率・LTV で黒字/赤字を判定します（成約率などは事業で大きく変わるため、資料からは判定しません）。`);
         } else {
-          showImportError(`予算・流入を${filled.length}項目読み取り、${PRESET_LABELS[activePresetKey]}の経済性で試算しました。⚠目安の欄は自社の実績値に置き換えると確定します。`);
+          showImportError(`予算・流入を${filled.length}項目読み取り、${PRESET_LABELS[activePresetKey]}の前提値で試算しました。⚠目安の欄は自社の実績値に置き換えると確定します。`);
         }
 
         // 複数プランがあれば比較表に展開（フォームは AI 推奨値のまま・比較表の先頭に「資料の推奨」を置く）
@@ -2163,9 +2179,9 @@
       { icon: '🟢', text: 'ROAS/ROI/CPA に加え LTV/CAC・限界CPA・損益分岐CV など BtoB 指標も' }
     ],
     updates: [
+      { date: '06/21', text: '初見でも迷わないよう情報を整理しました。分かりにくい言葉「経済性」を「前提値（成約率・客単価など）」に言い換え。結果欄はまず「判定・ひとこと説明・ROAS/ROI/CPA」だけを表示し、損益分岐バーや売上→粗利→利益の内訳は「📊 計算の内訳を見る」を開くと出る折りたたみにして、一画面の情報量を減らしました' },
       { date: '06/21', text: 'プラン比較表をその場で編集できるようにしました。AIの読み取りが違っても、枠付きの数字（予算・流入/リード数・客単価・購入回数・その他固定費）を直接書き換えれば、成約数・売上・ROAS・ROI・利益・判定が自動で再計算されます。灰色の数字＝計算結果（触れない）と区別が付くので、どこを直せるか一目で分かります' },
-      { date: '06/21', text: '画面の「ごちゃごちゃ・見にくい」を解消。手入力と資料アップロードを左カラムにまとめ、右カラムを結果に統一（左＝入力／右＝結果）。左下の大きな空白をなくし、長い説明文を削ってスッキリ読みやすくしました' },
-      { date: '06/21', text: '料金表のスクリーンショットや画像（PNG / JPG / WEBP / GIF）をそのままアップロードでき、AIが画像を“見て”予算・流入を読み取ります。テキストから数値が取れないPDF（料金表やスクショが画像で貼り込まれた資料など）も、自動でページを画像化して読み直すようにしました（「PDFの中に貼ってある数字が読めない」を解消）' }
+      { date: '06/21', text: '画面の「ごちゃごちゃ・見にくい」を解消。手入力と資料アップロードを左カラムにまとめ、右カラムを結果に統一（左＝入力／右＝結果）。左下の大きな空白をなくし、長い説明文を削ってスッキリ読みやすくしました' }
     ]
   };
   initOnboarding(OB_CONFIG);
