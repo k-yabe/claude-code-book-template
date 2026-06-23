@@ -39,9 +39,17 @@ html.light {
 }
 :root {
   --p0:#f85149; --p1:#fb8f44; --p2:#e3b341; --p3:#388bfd;
+  /* モデルカラー（ダークモードデフォルト） */
+  --c-haiku:  #34d399; --c-haiku-bg:  #05966922; --c-haiku-br:  #05966955;
+  --c-sonnet: #60a5fa; --c-sonnet-bg: #1d4ed822; --c-sonnet-br: #1d4ed855;
+  --c-opus:   #c084fc; --c-opus-bg:   #7c3aed22; --c-opus-br:   #7c3aed55;
 }
 html.light {
   --p0:#cf222e; --p1:#d15b00; --p2:#9a6700; --p3:#0969da;
+  /* モデルカラー（ライトモード：暗めで視認性確保） */
+  --c-haiku:  #16a34a; --c-haiku-bg:  #16a34a18; --c-haiku-br:  #16a34a55;
+  --c-sonnet: #2563eb; --c-sonnet-bg: #2563eb18; --c-sonnet-br: #2563eb55;
+  --c-opus:   #7c3aed; --c-opus-bg:   #7c3aed18; --c-opus-br:   #7c3aed55;
 }
 
 body {
@@ -310,9 +318,9 @@ html.light .org-team-col[data-team="cx"]            { --team-color: #2a5566; }
 
 /* エージェントカードのモデルバッジをカラーコード */
 .org-node-model { font-size: 8px; display: inline-block; padding: 1px 5px; margin-top: 3px; border: 1px solid transparent; }
-.org-node-model[data-model="Opus"]   { background: #7c3aed22; color: #a78bfa; border-color: #7c3aed44; }
-.org-node-model[data-model="Sonnet"] { background: #1d4ed822; color: #60a5fa; border-color: #1d4ed844; }
-.org-node-model[data-model="Haiku"]  { background: #05966922; color: #34d399; border-color: #05966944; }
+.org-node-model[data-model="Opus"]   { background: var(--c-opus-bg);   color: var(--c-opus);   border-color: var(--c-opus-br); }
+.org-node-model[data-model="Sonnet"] { background: var(--c-sonnet-bg); color: var(--c-sonnet); border-color: var(--c-sonnet-br); }
+.org-node-model[data-model="Haiku"]  { background: var(--c-haiku-bg);  color: var(--c-haiku);  border-color: var(--c-haiku-br); }
 .org-node-model[data-model="Local"]  { background: var(--bg3); color: var(--text3); }
 
 .report-list {
@@ -1610,9 +1618,9 @@ input:focus, select:focus { border-color: var(--accent); }
           <div style="padding:0 14px 12px;font-size:11px;color:var(--text2);display:none">
             <strong>結論：思ったより安いです。</strong>このシステムは「重い仕事は安いモデルに」という設計になっています。<br><br>
             <strong>タスク1件あたりのコスト目安：</strong><br>
-            <span style="color:#34d399;font-weight:600">Haiku（約80%のタスク）</span>：約 $0.001〜0.005（0.1〜0.8円）→ チェック・フォーマット・検索など定型処理<br>
-            <span style="color:#60a5fa;font-weight:600">Sonnet（約19%）</span>：約 $0.01〜0.03（1.5〜4.5円）→ COOレビュー・複雑な調整・コンテンツ生成<br>
-            <span style="color:#a78bfa;font-weight:600">Opus（月1〜3回程度）</span>：約 $0.05〜0.20（8〜30円）→ 重要な戦略判断のみ<br><br>
+            <span style="color:var(--c-haiku);font-weight:600">Haiku（約80%のタスク）</span>：約 $0.001〜0.005（0.1〜0.8円）→ チェック・フォーマット・検索など定型処理<br>
+            <span style="color:var(--c-sonnet);font-weight:600">Sonnet（約19%）</span>：約 $0.01〜0.03（1.5〜4.5円）→ COOレビュー・複雑な調整・コンテンツ生成<br>
+            <span style="color:var(--c-opus);font-weight:600">Opus（月1〜3回程度）</span>：約 $0.05〜0.20（8〜30円）→ 重要な戦略判断のみ<br><br>
             <strong>月間コスト試算（100タスク/月の場合）：</strong>$2〜5 程度（300〜750円）<br><br>
             <strong>コストを確認・管理する方法：</strong><br>
             ① このアプリ上部の「💰 コスト」タブ → 月次の利用額が確認できます<br>
@@ -1743,16 +1751,16 @@ input:focus, select:focus { border-color: var(--accent); }
           <div class="org-qa-body">
             Claudeには性能・コストが異なる3種類のモデルがあります。コスト差は最大15倍。<br><br>
             <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
-              <div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid #34d399">
-                <div style="font-weight:700;margin-bottom:2px;color:#34d399">Haiku — 速い・安い（約80%のタスク）</div>
+              <div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--c-haiku)">
+                <div style="font-weight:700;margin-bottom:2px;color:var(--c-haiku)">Haiku — 速い・安い（約80%のタスク）</div>
                 <div>定型処理向け。Frontend / Backend / DevOps / Finance / SEO など実行系エージェントが使用</div>
               </div>
-              <div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid #60a5fa">
-                <div style="font-weight:700;margin-bottom:2px;color:#60a5fa">Sonnet — バランス型（約19%）</div>
+              <div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--c-sonnet)">
+                <div style="font-weight:700;margin-bottom:2px;color:var(--c-sonnet)">Sonnet — バランス型（約19%）</div>
                 <div>複雑な判断・調整に対応。COO / Tech Lead / Content Director / QA Engineer など</div>
               </div>
-              <div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid #a78bfa">
-                <div style="font-weight:700;margin-bottom:2px;color:#a78bfa">Opus — 最高精度・高コスト（月数回のみ）</div>
+              <div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--c-opus)">
+                <div style="font-weight:700;margin-bottom:2px;color:var(--c-opus)">Opus — 最高精度・高コスト（月数回のみ）</div>
                 <div>Business Strategist のみ。重要な戦略判断に限定使用</div>
               </div>
             </div>
@@ -3142,9 +3150,9 @@ function renderCost() {
 
   var mBadge = function(m) {
     var colors = {
-      Opus:'background:#7c3aed22;color:#a78bfa;border:1px solid #7c3aed44',
-      Sonnet:'background:#1d4ed822;color:#60a5fa;border:1px solid #1d4ed844',
-      Haiku:'background:#05966922;color:#34d399;border:1px solid #05966944',
+      Opus:'background:var(--c-opus-bg);color:var(--c-opus);border:1px solid var(--c-opus-br)',
+      Sonnet:'background:var(--c-sonnet-bg);color:var(--c-sonnet);border:1px solid var(--c-sonnet-br)',
+      Haiku:'background:var(--c-haiku-bg);color:var(--c-haiku);border:1px solid var(--c-haiku-br)',
       Local:'background:var(--bg3);color:var(--text3);border:1px solid var(--border)'
     };
     return '<span style="font-size:9px;padding:1px 5px;'+( colors[m]||'')+';display:inline-block;margin-left:4px">'+h(m)+'</span>';
