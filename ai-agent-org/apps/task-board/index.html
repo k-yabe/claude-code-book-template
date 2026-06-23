@@ -167,19 +167,13 @@ html.light .org-node-coo {
 }
 
 /* チーム列 */
-.org-teams-scroll {
-  overflow-x: auto;
-  margin: 0 -32px;
-  padding: 0 32px 12px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+.org-teams-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 10px;
+  align-items: start;
 }
-.org-teams-scroll::-webkit-scrollbar { height: 4px; }
-.org-teams-scroll::-webkit-scrollbar-track { background: transparent; }
-.org-teams-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-.org-teams-row { display: flex; gap: 10px; align-items: flex-start; width: max-content; }
 .org-team-col {
-  flex: 0 0 162px; width: 162px;
   background: var(--bg2);
   border: 1px solid var(--border);
   border-top: 3px solid var(--team-color, var(--border));
@@ -379,7 +373,6 @@ html.light .org-node-coo {
 .column {
   background: var(--bg2);
   border: 1px solid var(--border);
-  border-radius: 8px;
   width: 248px;
   min-width: 248px;
   display: flex;
@@ -401,7 +394,6 @@ html.light .org-node-coo {
   font-size: 11px;
   color: var(--text2);
   padding: 1px 7px;
-  border-radius: 10px;
   font-weight: 500;
 }
 .card-list {
@@ -418,7 +410,6 @@ html.light .org-node-coo {
   outline: 2px dashed var(--accent);
   outline-offset: -4px;
   opacity: 0.7;
-  border-radius: 6px;
 }
 
 /* ── CARD ── */
@@ -426,7 +417,6 @@ html.light .org-node-coo {
   background: var(--bg3);
   border: 1px solid var(--border);
   border-left-width: 3px;
-  border-radius: 6px;
   padding: 10px 11px;
   cursor: pointer;
   transition: box-shadow 0.12s, border-color 0.12s, opacity 0.12s;
@@ -482,7 +472,6 @@ html.light .unread-dot { box-shadow: 0 0 0 2px var(--bg); }
 .prio-pill {
   font-size: 9px; font-weight: 700;
   padding: 1px 5px;
-  border-radius: 3px;
   letter-spacing: 0.3px;
 }
 .pp-P0 { background: var(--p0)20; color: var(--p0); }
@@ -555,7 +544,7 @@ html.light .unread-dot { box-shadow: 0 0 0 2px var(--bg); }
 .blocked-banner.hidden { display: none; }
 
 /* team chip */
-.team-chip { font-size: 10px; padding: 1px 6px; border-radius: 20px; font-weight: 500; flex-shrink: 0; }
+.team-chip { font-size: 10px; padding: 1px 6px; font-weight: 500; flex-shrink: 0; }
 .tc-leadership  { background:#5c35a018; color:#5c35a0; }
 .tc-research    { background:#00897b18; color:#00897b; }
 .tc-personal    { background:#c2185b18; color:#c2185b; }
@@ -576,7 +565,7 @@ html.dark .tc-finance     { color:#4db6ac; }
 html.dark .tc-cx          { color:#f48fb1; }
 
 /* org badge */
-.org-badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 600; flex-shrink: 0; letter-spacing: 0.2px; }
+.org-badge { font-size: 9px; padding: 1px 5px; font-weight: 600; flex-shrink: 0; letter-spacing: 0.2px; }
 .org-private     { background:#6e768118; color:#6e7681; }
 .org-shift-ai    { background:#388bfd18; color:#388bfd; }
 .org-otsunagi    { background:#3fb95018; color:#3fb950; }
@@ -693,7 +682,6 @@ html.dark .org-akkodis  { color:#ffa657; }
 .task-desc-box {
   background: var(--bg3);
   border: 1px solid var(--border);
-  border-radius: 6px;
   padding: 10px 12px;
   font-size: 12px;
   line-height: 1.7;
@@ -752,7 +740,6 @@ html.dark .org-akkodis  { color:#ffa657; }
   line-height: 1.7;
   white-space: pre-wrap;
   word-break: break-word;
-  border-radius: 3px 10px 10px 10px;
 }
 .bubble-ai a { color: var(--accent); text-decoration: none; }
 .bubble-ai a:hover { text-decoration: underline; }
@@ -768,7 +755,6 @@ html.dark .org-akkodis  { color:#ffa657; }
   max-width: 85%;
   white-space: pre-wrap;
   word-break: break-word;
-  border-radius: 10px 3px 10px 10px;
 }
 .bubble-human a { color: #b8d4ff; text-decoration: none; }
 .bubble-human a:hover { text-decoration: underline; }
@@ -789,7 +775,6 @@ html.dark .org-akkodis  { color:#ffa657; }
   background: var(--bg3);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 8px;
   padding: 8px 12px;
   font-size: 13px;
   font-family: inherit;
@@ -804,7 +789,6 @@ html.dark .org-akkodis  { color:#ffa657; }
 .chat-input textarea::placeholder { color: var(--text3); }
 .send-btn {
   width: 34px; height: 34px;
-  border-radius: 8px;
   background: var(--accent);
   color: #fff;
   border: none;
@@ -834,7 +818,6 @@ html.dark .org-akkodis  { color:#ffa657; }
   gap: 5px;
   background: var(--bg3);
   border: 1px solid var(--border);
-  border-radius: 12px;
   padding: 3px 10px;
   font-size: 11px;
   color: var(--text2);
@@ -849,7 +832,7 @@ html.dark .org-akkodis  { color:#ffa657; }
 .attach-chip-del:hover { color: var(--danger, #f85149); }
 .attach-btn {
   background: none; border: 1px solid var(--border);
-  color: var(--text2); border-radius: 6px;
+  color: var(--text2);
   padding: 3px 8px; font-size: 11px; cursor: pointer;
   display: flex; align-items: center; gap: 4px;
   transition: background 0.12s;
@@ -858,7 +841,7 @@ html.dark .org-akkodis  { color:#ffa657; }
 .attach-modal-chip {
   display: inline-flex; align-items: center; gap: 5px;
   background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 12px; padding: 4px 10px;
+  padding: 4px 10px;
   font-size: 11px; color: var(--text2); max-width: 260px;
 }
 .attach-modal-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -876,7 +859,6 @@ html.dark .org-akkodis  { color:#ffa657; }
   background: var(--bg3);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 6px;
   padding: 5px 11px;
   font-size: 12px;
   cursor: pointer;
@@ -890,12 +872,12 @@ html.dark .org-akkodis  { color:#ffa657; }
   background: none; border: none;
   color: var(--text2);
   cursor: pointer; font-size: 14px;
-  padding: 4px 6px; border-radius: 4px;
+  padding: 4px 6px;
   line-height: 1;
   transition: color 0.1s, background 0.1s;
 }
 .btn-icon:hover { color: var(--text); background: var(--bg3); }
-.btn-icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.btn-icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* 削除確認トースト */
 .delete-confirm {
   position: fixed;
@@ -903,7 +885,6 @@ html.dark .org-akkodis  { color:#ffa657; }
   transform: translateX(-50%);
   background: var(--bg3);
   border: 1px solid var(--p0);
-  border-radius: 8px;
   padding: 12px 18px;
   display: flex;
   align-items: center;
@@ -966,7 +947,6 @@ input, select {
   background: var(--bg3);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 6px;
   padding: 4px 8px;
   font-size: 12px;
   font-family: inherit;
@@ -982,7 +962,6 @@ input:focus, select:focus { border-color: var(--accent); }
   cursor: pointer;
   font-size: 14px;
   padding: 4px 7px;
-  border-radius: 6px;
   transition: background 0.1s;
   line-height: 1;
 }
@@ -993,7 +972,6 @@ input:focus, select:focus { border-color: var(--accent); }
   position: fixed;
   background: var(--bg3);
   border: 1px solid var(--border);
-  border-radius: 8px;
   z-index: 500;
   min-width: 150px;
   box-shadow: 0 8px 24px var(--shadow);
@@ -1021,7 +999,6 @@ input:focus, select:focus { border-color: var(--accent); }
 .modal {
   background: var(--bg2);
   border: 1px solid var(--border);
-  border-radius: 12px;
   width: 100%; max-width: 500px;
   max-height: 92vh;
   display: flex; flex-direction: column;
@@ -1639,102 +1616,70 @@ input:focus, select:focus { border-color: var(--accent); }
     <div class="org-coo-connector"><div class="org-coo-connector-v"></div></div>
 
     <!-- Teams -->
-    <div class="org-teams-scroll">
-      <div class="org-teams-row" id="orgTeamsRow"></div>
-    </div>
+    <div class="org-teams-row" id="orgTeamsRow"></div>
 
     <!-- 仕組み説明（下部） -->
-    <div class="org-legend" style="margin-top:40px">
-      <div class="org-legend-title">❓ 「全員同じClaudeじゃないの？」</div>
+    <div style="margin-top:40px;max-width:840px;margin-left:auto;margin-right:auto">
+      <div style="font-size:16px;font-weight:800;margin-bottom:4px">❓ 「全員同じClaudeじゃないの？」</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:20px">ベースは同じ「Claude」ですが、3つの要素の組み合わせで完全に別人の専門家として動きます</div>
 
-      <!-- ベースとなる答え -->
-      <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:16px">
-        ベースは同じ「Claude」ですが、<strong style="color:var(--text1)">別人として動きます</strong>。
-        人材派遣で同じ人を雇っても、渡す「仕事の指示書」が違えば別の専門家になるのと同じです。
-        具体的に何が違うかを見てみましょう。
-      </div>
-
-      <!-- 具体例：同じ質問、違う答え -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.5px;margin-bottom:8px">▶ 同じ「新製品の競合調査して」という依頼でも——</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px">
-          <div style="background:var(--bg3);border:1px solid var(--border);border-top:2px solid #3b82f6;padding:10px 12px">
-            <div style="font-size:10px;font-weight:700;color:#3b82f6;margin-bottom:6px">🔎 リサーチアナリスト</div>
-            <div style="font-size:10px;color:var(--text2);line-height:1.6">
-              競合A〜Cの特徴・市場ポジション・ユーザー評価を文章でまとめ、「推奨アクション」付きのレポートを出す
-            </div>
-          </div>
-          <div style="background:var(--bg3);border:1px solid var(--border);border-top:2px solid #6366f1;padding:10px 12px">
-            <div style="font-size:10px;font-weight:700;color:#6366f1;margin-bottom:6px">📊 データアナリスト</div>
-            <div style="font-size:10px;color:var(--text2);line-height:1.6">
-              価格・機能数・評価スコアを数値で比較する表を作り、KPI視点でどこが優位かを数字で示す
-            </div>
-          </div>
-          <div style="background:var(--bg3);border:1px solid var(--border);border-top:2px solid #ef4444;padding:10px 12px">
-            <div style="font-size:10px;font-weight:700;color:#ef4444;margin-bottom:6px">💼 ビジネスストラテジスト</div>
-            <div style="font-size:10px;color:var(--text2);line-height:1.6">
-              競合との差別化戦略・参入リスク・勝てるポジションを意思決定サポート文書として出す
-            </div>
-          </div>
-          <div style="background:var(--bg3);border:1px solid var(--border);border-top:2px solid #f59e0b;padding:10px 12px">
-            <div style="font-size:10px;font-weight:700;color:#f59e0b;margin-bottom:6px">📣 マーケティングディレクター</div>
-            <div style="font-size:10px;color:var(--text2);line-height:1.6">
-              「競合にない訴求軸はここ」というコピー案・広告戦略・SNS施策の形で出す
-            </div>
-          </div>
+      <!-- 具体例 -->
+      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:0.5px">同じ「競合調査して」という依頼でも、担当によってアウトプットが全然違います</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:8px">
+        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
+          <div style="font-size:11px;font-weight:700;margin-bottom:4px">🔎 リサーチアナリスト</div>
+          <div style="font-size:10px;color:var(--text2);line-height:1.6">競合A〜Cの特徴・市場ポジション・ユーザー評価をまとめ、推奨アクション付きのレポートを出す</div>
         </div>
-        <div style="margin-top:8px;padding:8px 12px;background:color-mix(in srgb,var(--accent) 8%,transparent);border-left:3px solid var(--accent);font-size:10px;color:var(--text2)">
-          💡 <strong style="color:var(--accent)">同じ「Claude」なのに答えが全然違う</strong>のは、各エージェントに「あなたはデータアナリストです。数値・KPI・グラフで答えてください」のような詳細な役割指示（システムプロンプト）が事前に設定されているからです。
+        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
+          <div style="font-size:11px;font-weight:700;margin-bottom:4px">📊 データアナリスト</div>
+          <div style="font-size:10px;color:var(--text2);line-height:1.6">価格・機能数・評価スコアを数値で比較する表を作り、KPI視点でどこが優位かを数字で示す</div>
+        </div>
+        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
+          <div style="font-size:11px;font-weight:700;margin-bottom:4px">💼 ビジネスストラテジスト</div>
+          <div style="font-size:10px;color:var(--text2);line-height:1.6">競合との差別化戦略・参入リスク・勝てるポジションを意思決定サポート文書として出す</div>
+        </div>
+        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
+          <div style="font-size:11px;font-weight:700;margin-bottom:4px">📣 マーケティングディレクター</div>
+          <div style="font-size:10px;color:var(--text2);line-height:1.6">「競合にない訴求軸はここ」というコピー案・広告戦略・SNS施策の形で出す</div>
         </div>
       </div>
+      <div style="padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-left:4px solid var(--accent);font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:24px">
+        同じ「Claude」なのに答えが全然違うのは、各エージェントに <strong style="color:var(--text1)">「あなたはデータアナリストです。数値・KPI・グラフで答えてください」</strong> のような詳細な役割指示（システムプロンプト）が事前に設定されているからです。
+      </div>
 
-      <!-- 3つの違いをシンプルに -->
-      <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.5px;margin-bottom:8px">▶ 何が違うのか——3つの要素</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:16px">
+      <!-- 3要素 -->
+      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:0.5px">何が違うのか——3つの要素</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
 
-        <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent);padding:12px 14px">
-          <div style="font-size:11px;font-weight:800;margin-bottom:4px">① 役割プロンプト <span style="font-size:9px;font-weight:400;color:var(--text3)">（最重要）</span></div>
-          <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-bottom:8px">
-            各エージェントには専用の「仕事の指示書」が設定されています。<br>
-            <em>「あなたはQAエンジニアです。コードの品質・テストカバレッジ・セキュリティリスクの観点でレビューしてください」</em><br>
-            同じモデルでも、この指示書の内容で専門性・判断基準・出力形式がまったく異なります。
-          </div>
-          <div style="font-size:9px;background:var(--bg2);padding:6px 8px;border:1px solid var(--border)">
-            📝 役割プロンプト ＝ AIの「人格・専門知識・仕事の進め方」を定義するもの
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
+          <div style="font-size:20px;font-weight:800;color:var(--accent);flex-shrink:0;line-height:1;min-width:20px">①</div>
+          <div>
+            <div style="font-weight:700;margin-bottom:4px">役割プロンプト <span style="font-size:10px;font-weight:400;color:var(--text2)">（最重要）</span></div>
+            <div style="font-size:11px;color:var(--text2);line-height:1.7">各エージェントには専用の「仕事の指示書」が設定されています。例：<em>「あなたはQAエンジニアです。コード品質・テストカバレッジ・セキュリティリスクの観点でレビューしてください」</em>。同じモデルでも、この指示書の内容で専門性・判断基準・出力形式がまったく異なります。役割プロンプト＝AIの「人格・専門知識・仕事の進め方」を定義するものです。</div>
           </div>
         </div>
 
-        <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid #818cf8;padding:12px 14px">
-          <div style="font-size:11px;font-weight:800;margin-bottom:4px">② 使うモデルが違う</div>
-          <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-bottom:8px">
-            Claudeには性能・コストの異なる3種類があります。<br>
-            <span style="color:#34d399;font-weight:700">Haiku</span>（速い・安い・定型向け）→ Frontend/Backend/DevOps など<br>
-            <span style="color:#60a5fa;font-weight:700">Sonnet</span>（複雑な判断・調整）→ COO/Tech Lead/Content Director など<br>
-            <span style="color:#a78bfa;font-weight:700">Opus</span>（高精度・高コスト）→ Business Strategist（月数回のみ）
-          </div>
-          <div style="font-size:9px;background:var(--bg2);padding:6px 8px;border:1px solid var(--border)">
-            💰 コスト差は最大15倍。重いタスクだけOpusを使いコストを最適化
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
+          <div style="font-size:20px;font-weight:800;color:var(--accent);flex-shrink:0;line-height:1;min-width:20px">②</div>
+          <div>
+            <div style="font-weight:700;margin-bottom:4px">使うClaudeのモデルが違う</div>
+            <div style="font-size:11px;color:var(--text2);line-height:1.7">Claudeには性能・コストの異なる3種類があります。<strong>Haiku</strong>（速い・安い・定型処理向け）→ Frontend/Backend/DevOps など定型タスク担当。<strong>Sonnet</strong>（複雑な判断・調整）→ COO/Tech Lead/Content Director など判断が必要な役割。<strong>Opus</strong>（最高精度・高コスト）→ Business Strategistのみ月数回の重要判断に限定使用。コスト差は最大15倍。</div>
           </div>
         </div>
 
-        <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid #34d399;padding:12px 14px">
-          <div style="font-size:11px;font-weight:800;margin-bottom:4px">③ 使えるツールが違う</div>
-          <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-bottom:8px">
-            Web検索・コード実行・GitHub操作など、エージェントごとに使えるツールが異なります。<br>
-            リサーチアナリストはWeb検索できる → 最新情報を自動取得<br>
-            Frontend Engineerはファイル操作できる → HTMLを直接編集・保存<br>
-            DevOpsはシェル実行できる → デプロイまで自動で走らせる
-          </div>
-          <div style="font-size:9px;background:var(--bg2);padding:6px 8px;border:1px solid var(--border)">
-            🔒 必要最小限のツールだけ渡すことで誤操作を防ぐ設計
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
+          <div style="font-size:20px;font-weight:800;color:var(--accent);flex-shrink:0;line-height:1;min-width:20px">③</div>
+          <div>
+            <div style="font-weight:700;margin-bottom:4px">使えるツールが違う</div>
+            <div style="font-size:11px;color:var(--text2);line-height:1.7">Web検索・コード実行・GitHub操作など、エージェントごとに使えるツールが異なります。リサーチアナリストはWeb検索で最新情報を自動取得。Frontend Engineerはファイルを直接編集・保存。DevOpsはシェル実行でデプロイまで自動化。必要最小限のツールだけ渡すことで誤操作を防ぐ設計です。</div>
           </div>
         </div>
 
       </div>
 
       <!-- まとめ -->
-      <div style="padding:10px 14px;background:var(--bg2);border:1px solid var(--border);font-size:11px;color:var(--text2);line-height:1.7">
-        <strong style="color:var(--text1)">まとめ：</strong>全員「Claude」ですが、<em>どのClaudeを使うか</em>（モデル）×<em>何の専門家として振る舞わせるか</em>（役割プロンプト）×<em>何ができるか</em>（ツール権限）の組み合わせで、完全に別人の専門家集団として動かしています。
+      <div style="padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--accent);font-size:11px;color:var(--text2);line-height:1.7">
+        <strong style="color:var(--text1)">まとめ：</strong>全員「Claude」ですが、<strong>①どんな専門家として振る舞わせるか</strong>（役割プロンプト）× <strong>②どのClaudeを使うか</strong>（モデル）× <strong>③何ができるか</strong>（ツール権限）の組み合わせで、完全に別人の専門家集団として動かしています。
       </div>
 
     </div>
