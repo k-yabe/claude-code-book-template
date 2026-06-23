@@ -1211,7 +1211,10 @@ input:focus, select:focus { border-color: var(--accent); }
 <!-- ══ REPORTS VIEW ══ -->
 <div class="reports-view hidden" id="view-reports">
   <div class="report-list" id="reportList">
-    <div style="padding:20px 14px;text-align:center;color:var(--text3);font-size:12px">読み込み中...</div>
+    <div id="reportMonthFilter" style="padding:10px 10px 6px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:4px"></div>
+    <div id="reportListItems">
+      <div style="padding:20px 14px;text-align:center;color:var(--text3);font-size:12px">読み込み中...</div>
+    </div>
   </div>
   <div class="report-content empty" id="reportContent">
     <div style="text-align:center;line-height:2.5;color:var(--text3)">📊<br>レポートを選択してください</div>
@@ -3595,20 +3598,23 @@ var REPORT_TYPES = [
   { prefix:'overnight-qa', icon:'🌙', label:'夜間QA' },
 ];
 var activeReport = null;
+var allFoundReports = [];
+var activeMonthFilter = null;
 
-function recentDates(n){
+function allDatesFrom(startDate){
   var dates=[], d=new Date();
-  for(var i=0;i<n;i++){
-    var c=new Date(d); c.setDate(d.getDate()-i);
-    dates.push(c.toISOString().split('T')[0]);
+  var s=new Date(startDate+'T00:00:00Z');
+  while(d>=s){
+    dates.push(d.toISOString().split('T')[0]);
+    d.setDate(d.getDate()-1);
   }
   return dates;
 }
 
 function loadReportList(){
-  var dates=recentDates(14);
-  var list=document.getElementById('reportList');
-  list.innerHTML='<div style="padding:16px 14px;color:var(--text3);font-size:11px">レポートを検索中...</div>';
+  var dates=allDatesFrom('2026-05-16');
+  var items=document.getElementById('reportListItems');
+  items.innerHTML='<div style="padding:16px 14px;color:var(--text3);font-size:11px">レポートを検索中...</div>';
 
   var candidates=[];
   dates.forEach(function(date){
@@ -3623,25 +3629,60 @@ function loadReportList(){
       if(r.ok) found.push(c);
     }).catch(function(){}).finally(function(){
       done++;
-      if(done===candidates.length) renderReportList(found);
+      if(done===candidates.length){
+        allFoundReports=found;
+        renderMonthFilter(found);
+        renderReportList(found, activeMonthFilter);
+      }
     });
   });
 }
 
-function renderReportList(found){
-  var list=document.getElementById('reportList');
-  if(!found.length){
-    list.innerHTML='<div style="padding:20px 14px;color:var(--text3);font-size:12px;text-align:center">レポートなし<br><span style="font-size:10px">朝会スクリプトを実行すると<br>ここに表示されます</span></div>';
+function renderMonthFilter(found){
+  var months={};
+  found.forEach(function(c){
+    var m=c.date.slice(0,7);
+    months[m]=(months[m]||0)+1;
+  });
+  var keys=Object.keys(months).sort().reverse();
+  var html='';
+  keys.forEach(function(m){
+    var parts=m.split('-');
+    var label=parseInt(parts[1])+'月';
+    var isActive=activeMonthFilter===m;
+    html+='<button onclick="setMonthFilter(\''+m+'\')" style="'
+      +'padding:3px 9px;border-radius:3px;border:1px solid var(--border);cursor:pointer;font-size:11px;'
+      +'background:'+(isActive?'var(--accent)':'var(--bg2)')+';'
+      +'color:'+(isActive?'#001f33':'var(--text1)')+';font-weight:'+(isActive?'700':'400')+'">'
+      +label+'</button>';
+  });
+  if(activeMonthFilter){
+    html+='<button onclick="setMonthFilter(null)" style="padding:3px 9px;border-radius:3px;border:1px solid var(--border);cursor:pointer;font-size:11px;background:var(--bg2);color:var(--text2)">全て</button>';
+  }
+  document.getElementById('reportMonthFilter').innerHTML=html;
+}
+
+function setMonthFilter(month){
+  activeMonthFilter=month;
+  renderMonthFilter(allFoundReports);
+  renderReportList(allFoundReports, month);
+}
+
+function renderReportList(found, monthFilter){
+  var filtered=monthFilter?found.filter(function(c){return c.date.startsWith(monthFilter);}):found;
+  var items=document.getElementById('reportListItems');
+  if(!filtered.length){
+    items.innerHTML='<div style="padding:20px 14px;color:var(--text3);font-size:12px;text-align:center">レポートなし</div>';
     return;
   }
 
-  found.sort(function(a,b){ return b.date.localeCompare(a.date)||REPORT_TYPES.findIndex(function(r){return r.prefix===a.type.prefix;})-REPORT_TYPES.findIndex(function(r){return r.prefix===b.type.prefix;}); });
+  filtered.sort(function(a,b){ return b.date.localeCompare(a.date)||REPORT_TYPES.findIndex(function(r){return r.prefix===a.type.prefix;})-REPORT_TYPES.findIndex(function(r){return r.prefix===b.type.prefix;}); });
 
   var today=new Date().toISOString().split('T')[0];
   var yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
   var html='', lastDate='';
 
-  found.forEach(function(c){
+  filtered.forEach(function(c){
     if(c.date!==lastDate){
       var d=new Date(c.date+'T00:00:00');
       var label=c.date===today?'今日':c.date===yesterday?'昨日':(d.getMonth()+1)+'月'+(d.getDate())+'日';
@@ -3654,10 +3695,10 @@ function renderReportList(found){
       +'<div class="report-item-info"><div class="report-item-title">'+c.type.label+'</div></div>'
       +'</div>';
   });
-  list.innerHTML=html;
+  items.innerHTML=html;
 
-  if(!activeReport && found.length>0){
-    var firstItem=list.querySelector('.report-item');
+  if(!activeReport && filtered.length>0){
+    var firstItem=items.querySelector('.report-item');
     if(firstItem) firstItem.click();
   }
 }
