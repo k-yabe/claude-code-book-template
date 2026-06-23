@@ -1085,28 +1085,48 @@ input:focus, select:focus { border-color: var(--accent); }
 .md-body hr { border:none; border-top:1px solid var(--border); margin:1em 0; }
 .md-body strong { font-weight:700; }
 
-/* FAQ アコーディオン */
-.org-faq-details {
-  margin-top: 40px; max-width: 840px; margin-left: auto; margin-right: auto;
-  background: var(--bg2); border: 1px solid var(--border);
-  border-left: 4px solid var(--accent);
+/* Q&A アコーディオン（組織図） */
+.org-qa-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.15s;
+  overflow: hidden;
 }
-.org-faq-details summary {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px; cursor: pointer; list-style: none; user-select: none;
-  gap: 12px;
+.org-qa-item:hover { box-shadow: 0 2px 10px var(--shadow); }
+.org-qa-header {
+  padding: 13px 16px;
+  font-weight: 700; font-size: 12px;
+  display: flex; gap: 10px; align-items: center;
+  cursor: pointer; user-select: none;
+  border-left: 3px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
 }
-.org-faq-details summary::-webkit-details-marker { display: none; }
-.org-faq-summary-title { font-size: 15px; font-weight: 800; }
-.org-faq-summary-sub  { font-size: 11px; color: var(--text2); margin-top: 2px; }
-.org-faq-chevron {
-  font-size: 12px; color: var(--text3); flex-shrink: 0;
+.org-qa-header:hover {
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  border-left-color: var(--accent);
+}
+.org-qa-item.open > .org-qa-header {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-left-color: var(--accent);
+}
+.org-qa-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent); font-size: 10px; font-weight: 800;
+  padding: 2px 8px; flex-shrink: 0; white-space: nowrap;
+}
+.org-qa-chevron {
+  margin-left: auto; flex-shrink: 0;
+  font-size: 9px; color: var(--text3);
   transition: transform 0.2s;
 }
-.org-faq-details[open] .org-faq-chevron { transform: rotate(180deg); }
-.org-faq-body {
-  padding: 0 18px 18px;
+.org-qa-item.open > .org-qa-header .org-qa-chevron { transform: rotate(180deg); }
+.org-qa-body {
+  display: none;
+  padding: 12px 16px 16px 19px;
+  font-size: 11px; color: var(--text2); line-height: 1.7;
   border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent) 3%, var(--bg2));
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -1663,14 +1683,16 @@ input:focus, select:focus { border-color: var(--accent); }
         <span style="background:var(--accent);color:var(--accent-fg);font-size:11px;padding:2px 8px;font-weight:700">Q&A</span>
         よくある疑問
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;flex-direction:column;gap:6px">
 
         <!-- Q1 -->
-        <div style="background:var(--bg2);border:1px solid var(--border)">
-          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
-            <span style="color:var(--accent)">Q.</span> 全員同じClaudeじゃないの？
+        <div class="org-qa-item">
+          <div class="org-qa-header" onclick="this.closest('.org-qa-item').classList.toggle('open')">
+            <span class="org-qa-badge">🤖 Q1</span>
+            全員同じClaudeじゃないの？
+            <span class="org-qa-chevron">▼</span>
           </div>
-          <div style="padding:0 14px 14px;font-size:11px;color:var(--text2);display:none">
+          <div class="org-qa-body">
             ベースは同じ「Claude」ですが、<strong>①役割プロンプト</strong>・<strong>②使うモデル</strong>・<strong>③ツール権限</strong>の3つの組み合わせで、完全に別人の専門家として動きます。<br><br>
             <strong>例：同じ「競合調査して」でも担当によってアウトプットが全然違います</strong>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0 10px">
@@ -1696,11 +1718,13 @@ input:focus, select:focus { border-color: var(--accent); }
         </div>
 
         <!-- Q2 -->
-        <div style="background:var(--bg2);border:1px solid var(--border)">
-          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
-            <span style="color:var(--accent)">Q.</span> 「役割プロンプト」って何？なぜそんなに重要なの？
+        <div class="org-qa-item">
+          <div class="org-qa-header" onclick="this.closest('.org-qa-item').classList.toggle('open')">
+            <span class="org-qa-badge">📋 Q2</span>
+            「役割プロンプト」って何？なぜそんなに重要なの？
+            <span class="org-qa-chevron">▼</span>
           </div>
-          <div style="padding:0 14px 14px;font-size:11px;color:var(--text2);display:none">
+          <div class="org-qa-body">
             <strong>役割プロンプト</strong>とは、各エージェントに最初から設定された「仕事の指示書」です。<br><br>
             例えば QA Engineerには <em>「あなたはQAエンジニアです。コード品質・テストカバレッジ・セキュリティリスクの観点でレビューしてください」</em> のような詳細な指示が入っています。<br><br>
             <strong>なぜ重要か：</strong>同じClaudeモデルでも、この指示書の内容で<span style="color:var(--accent);font-weight:600">専門性・判断基準・出力形式がまったく変わります</span>。役割プロンプト＝AIの「人格・専門知識・仕事の進め方」を定義するものです。<br><br>
@@ -1709,24 +1733,26 @@ input:focus, select:focus { border-color: var(--accent); }
         </div>
 
         <!-- Q3 -->
-        <div style="background:var(--bg2);border:1px solid var(--border)">
-          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
-            <span style="color:var(--accent)">Q.</span> Haiku・Sonnet・Opusって何が違うの？どのエージェントがどれを使う？
+        <div class="org-qa-item">
+          <div class="org-qa-header" onclick="this.closest('.org-qa-item').classList.toggle('open')">
+            <span class="org-qa-badge">🧠 Q3</span>
+            Haiku・Sonnet・Opusって何が違うの？どのエージェントがどれを使う？
+            <span class="org-qa-chevron">▼</span>
           </div>
-          <div style="padding:0 14px 14px;font-size:11px;color:var(--text2);display:none">
+          <div class="org-qa-body">
             Claudeには性能・コストが異なる3種類のモデルがあります。コスト差は最大15倍。<br><br>
             <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
               <div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid #34d399">
                 <div style="font-weight:700;margin-bottom:2px;color:#34d399">Haiku — 速い・安い（約80%のタスク）</div>
-                <div style="line-height:1.6">定型処理向け。Frontend / Backend / DevOps / Finance / SEO など実行系エージェントが使用</div>
+                <div>定型処理向け。Frontend / Backend / DevOps / Finance / SEO など実行系エージェントが使用</div>
               </div>
               <div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid #60a5fa">
                 <div style="font-weight:700;margin-bottom:2px;color:#60a5fa">Sonnet — バランス型（約19%）</div>
-                <div style="line-height:1.6">複雑な判断・調整に対応。COO / Tech Lead / Content Director / QA Engineer など</div>
+                <div>複雑な判断・調整に対応。COO / Tech Lead / Content Director / QA Engineer など</div>
               </div>
               <div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid #a78bfa">
                 <div style="font-weight:700;margin-bottom:2px;color:#a78bfa">Opus — 最高精度・高コスト（月数回のみ）</div>
-                <div style="line-height:1.6">Business Strategist のみ。重要な戦略判断に限定使用</div>
+                <div>Business Strategist のみ。重要な戦略判断に限定使用</div>
               </div>
             </div>
             <span style="color:var(--accent);font-weight:600">コスト確認：</span>「💰 コスト」タブで月次の利用額をいつでも確認できます。
@@ -1734,11 +1760,13 @@ input:focus, select:focus { border-color: var(--accent); }
         </div>
 
         <!-- Q4 -->
-        <div style="background:var(--bg2);border:1px solid var(--border)">
-          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
-            <span style="color:var(--accent)">Q.</span> エージェントごとに使えるツールが違うってどういうこと？
+        <div class="org-qa-item">
+          <div class="org-qa-header" onclick="this.closest('.org-qa-item').classList.toggle('open')">
+            <span class="org-qa-badge">🛠 Q4</span>
+            エージェントごとに使えるツールが違うってどういうこと？
+            <span class="org-qa-chevron">▼</span>
           </div>
-          <div style="padding:0 14px 14px;font-size:11px;color:var(--text2);display:none">
+          <div class="org-qa-body">
             Web検索・コード実行・GitHub操作など、エージェントごとに使えるツールが異なります。必要最小限のツールだけ渡すことで誤操作を防ぐ設計です。<br><br>
             <strong>担当ごとのツール例：</strong><br>
             🔎 <strong>リサーチアナリスト</strong> → Web検索で最新情報を自動取得<br>
@@ -1750,11 +1778,13 @@ input:focus, select:focus { border-color: var(--accent); }
         </div>
 
         <!-- Q5 -->
-        <div style="background:var(--bg2);border:1px solid var(--border)">
-          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
-            <span style="color:var(--accent)">Q.</span> COOレビューって何をしているの？なぜ全部確認するの？
+        <div class="org-qa-item">
+          <div class="org-qa-header" onclick="this.closest('.org-qa-item').classList.toggle('open')">
+            <span class="org-qa-badge">👔 Q5</span>
+            COOレビューって何をしているの？なぜ全部確認するの？
+            <span class="org-qa-chevron">▼</span>
           </div>
-          <div style="padding:0 14px 14px;font-size:11px;color:var(--text2);display:none">
+          <div class="org-qa-body">
             <strong>COO（Sonnet）の役割：</strong>すべてのエージェントのアウトプットを受け取り、品質・整合性・方針との一致を確認してから人間（CEO）に届けます。<br><br>
             <strong>なぜ必要か：</strong>AIエージェントは時として指示から外れた回答をしたり、不完全なアウトプットを出すことがあります。COOがフィルターとして機能することで、あなたが受け取るものの品質が担保されます。<br><br>
             <strong>フロー：</strong><br>
