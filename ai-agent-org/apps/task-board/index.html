@@ -1084,6 +1084,30 @@ input:focus, select:focus { border-color: var(--accent); }
 .md-body blockquote { border-left:3px solid var(--accent); margin:.8em 0; padding:.4em 1em; color:var(--text2); }
 .md-body hr { border:none; border-top:1px solid var(--border); margin:1em 0; }
 .md-body strong { font-weight:700; }
+
+/* FAQ アコーディオン */
+.org-faq-details {
+  margin-top: 40px; max-width: 840px; margin-left: auto; margin-right: auto;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+}
+.org-faq-details summary {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; cursor: pointer; list-style: none; user-select: none;
+  gap: 12px;
+}
+.org-faq-details summary::-webkit-details-marker { display: none; }
+.org-faq-summary-title { font-size: 15px; font-weight: 800; }
+.org-faq-summary-sub  { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.org-faq-chevron {
+  font-size: 12px; color: var(--text3); flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.org-faq-details[open] .org-faq-chevron { transform: rotate(180deg); }
+.org-faq-body {
+  padding: 0 18px 18px;
+  border-top: 1px solid var(--border);
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
@@ -1634,12 +1658,18 @@ input:focus, select:focus { border-color: var(--accent); }
     <div class="org-teams-row" id="orgTeamsRow"></div>
 
     <!-- 仕組み説明（下部） -->
-    <div style="margin-top:40px;max-width:840px;margin-left:auto;margin-right:auto">
-      <div style="font-size:16px;font-weight:800;margin-bottom:4px">❓ 「全員同じClaudeじゃないの？」</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:20px">ベースは同じ「Claude」ですが、3つの要素の組み合わせで完全に別人の専門家として動きます</div>
+    <details class="org-faq-details">
+      <summary>
+        <div>
+          <div class="org-faq-summary-title">❓ 「全員同じClaudeじゃないの？」</div>
+          <div class="org-faq-summary-sub">ベースは同じ「Claude」ですが、3つの要素の組み合わせで完全に別人の専門家として動きます</div>
+        </div>
+        <div class="org-faq-chevron">▼</div>
+      </summary>
+      <div class="org-faq-body">
 
       <!-- 具体例 -->
-      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:0.5px">同じ「競合調査して」という依頼でも、担当によってアウトプットが全然違います</div>
+      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;margin-top:16px;letter-spacing:0.5px">同じ「競合調査して」という依頼でも、担当によってアウトプットが全然違います</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:8px">
         <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
           <div style="font-size:11px;font-weight:700;margin-bottom:4px">🔎 リサーチアナリスト</div>
@@ -1693,11 +1723,12 @@ input:focus, select:focus { border-color: var(--accent); }
       </div>
 
       <!-- まとめ -->
-      <div style="padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--accent);font-size:11px;color:var(--text2);line-height:1.7">
-        <strong style="color:var(--text1)">まとめ：</strong>全員「Claude」ですが、<strong>①どんな専門家として振る舞わせるか</strong>（役割プロンプト）× <strong>②どのClaudeを使うか</strong>（モデル）× <strong>③何ができるか</strong>（ツール権限）の組み合わせで、完全に別人の専門家集団として動かしています。
+      <div style="padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent);font-size:11px;color:var(--text2);line-height:1.7;margin-top:8px">
+        <strong style="color:var(--text)">まとめ：</strong>全員「Claude」ですが、<strong>①どんな専門家として振る舞わせるか</strong>（役割プロンプト）× <strong>②どのClaudeを使うか</strong>（モデル）× <strong>③何ができるか</strong>（ツール権限）の組み合わせで、完全に別人の専門家集団として動かしています。
       </div>
 
-    </div>
+    </div><!-- /org-faq-body -->
+    </details>
   </div>
 </div>
 
