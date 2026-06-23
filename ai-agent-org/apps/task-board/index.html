@@ -167,9 +167,19 @@ html.light .org-node-coo {
 }
 
 /* チーム列 */
-.org-teams-row { display: flex; gap: 10px; justify-content: center; align-items: flex-start; }
+.org-teams-scroll {
+  overflow-x: auto;
+  margin: 0 -32px;
+  padding: 0 32px 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.org-teams-scroll::-webkit-scrollbar { height: 4px; }
+.org-teams-scroll::-webkit-scrollbar-track { background: transparent; }
+.org-teams-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.org-teams-row { display: flex; gap: 10px; align-items: flex-start; width: max-content; }
 .org-team-col {
-  flex: 1; min-width: 140px; max-width: 168px;
+  flex: 0 0 162px; width: 162px;
   background: var(--bg2);
   border: 1px solid var(--border);
   border-top: 3px solid var(--team-color, var(--border));
@@ -215,11 +225,13 @@ html.light .org-node-coo {
 .org-node-info { min-width: 0; }
 .org-node-name {
   font-size: 11px; font-weight: 700;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  white-space: normal; line-height: 1.35; min-height: 14px;
 }
 .org-node-role {
-  font-size: 9px; color: var(--text2); margin-top: 2px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: 9px; color: var(--text2); margin-top: 3px;
+  white-space: normal; line-height: 1.35;
 }
 .org-node-model {
   font-size: 8px; color: var(--text3); margin-top: 3px;
@@ -1627,121 +1639,104 @@ input:focus, select:focus { border-color: var(--accent); }
     <div class="org-coo-connector"><div class="org-coo-connector-v"></div></div>
 
     <!-- Teams -->
-    <div class="org-teams-row" id="orgTeamsRow"></div>
+    <div class="org-teams-scroll">
+      <div class="org-teams-row" id="orgTeamsRow"></div>
+    </div>
 
     <!-- 仕組み説明（下部） -->
     <div class="org-legend" style="margin-top:40px">
       <div class="org-legend-title">❓ 「全員同じClaudeじゃないの？」</div>
-      <div class="org-legend-desc">全員ベースは「Claude（Anthropic製のAI）」ですが、<strong>3つの要素</strong>がエージェントごとに異なるため、完全に別人として動きます。例えば<span style="color:#34d399;font-weight:700">Haiku</span>を使うフロントエンドエンジニアと<span style="color:#60a5fa;font-weight:700">Sonnet</span>を使うCOOでは、性能・コスト・役割・判断基準がすべて違います。<span style="font-size:10px;color:var(--text3)">（各項目をクリックで詳細表示）</span></div>
-      <div class="org-legend-models">
 
-        <!-- ① 役割プロンプト -->
-        <div class="org-legend-model" style="border-left:3px solid var(--accent)" onclick="toggleLegend(this)">
-          <span class="org-legend-badge" style="background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent)">① 役割プロンプト</span>
-          <div class="org-legend-model-info">
-            <div class="org-legend-model-name">専門性の核心（最重要）</div>
-            <div class="org-legend-model-desc">各エージェントは固有のシステムプロンプトを持ち、専門領域・判断基準・アウトプット形式が定義されています</div>
-          </div>
-        </div>
-        <div class="org-legend-detail">
-          <strong>同じ「競合調査して」という依頼でも担当によってアウトプットが変わります：</strong>
-          <table style="margin-top:10px">
-            <tr><th>エージェント</th><th>視点</th><th>アウトプット形式</th></tr>
-            <tr><td>📊 データアナリスト</td><td>数値・KPI・グラフ</td><td>比較表・数値サマリー</td></tr>
-            <tr><td>🔎 リサーチアナリスト</td><td>定性情報・トレンド</td><td>調査レポート・推奨アクション</td></tr>
-            <tr><td>💼 ビジネスストラテジスト</td><td>戦略的優位性・リスク</td><td>意思決定サポート文書</td></tr>
-            <tr><td>📣 マーケティングディレクター</td><td>訴求・差別化</td><td>マーケ施策・コピー案</td></tr>
-          </table>
-          <div style="margin-top:10px;padding:10px;background:var(--bg2);border-left:3px solid var(--accent)">
-            💡 役割プロンプト＝エージェントの「人格」。どんな専門家として振る舞うかを定義します
-          </div>
-        </div>
+      <!-- ベースとなる答え -->
+      <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:16px">
+        ベースは同じ「Claude」ですが、<strong style="color:var(--text1)">別人として動きます</strong>。
+        人材派遣で同じ人を雇っても、渡す「仕事の指示書」が違えば別の専門家になるのと同じです。
+        具体的に何が違うかを見てみましょう。
+      </div>
 
-        <!-- ② モデル選択 -->
-        <div class="org-legend-model" style="border-left:3px solid #818cf8" onclick="toggleLegend(this)">
-          <span class="org-legend-badge" style="background:#818cf815;color:#818cf8;border:1px solid #818cf840">② モデル選択</span>
-          <div class="org-legend-model-info">
-            <div class="org-legend-model-name">Haiku / Sonnet / Opus</div>
-            <div class="org-legend-model-desc">コストと性能のトレードオフ。定型タスクはHaiku、複雑な判断はSonnet、重要戦略のみOpus</div>
-          </div>
-        </div>
-        <div class="org-legend-detail">
-          <table>
-            <tr><th>モデル</th><th>コスト（1Mトークン）</th><th>向いているタスク</th><th>このシステムでの用途</th></tr>
-            <tr>
-              <td><span style="color:#34d399;font-weight:700">Haiku</span></td>
-              <td>入力 $1 / 出力 $5</td>
-              <td>定型処理・フォーマット・検索</td>
-              <td>Frontend/Backend/DevOps/Video Producer など</td>
-            </tr>
-            <tr>
-              <td><span style="color:#60a5fa;font-weight:700">Sonnet</span></td>
-              <td>入力 $3 / 出力 $15</td>
-              <td>判断・調整・中程度の推論</td>
-              <td>COO/Tech Lead/Content Director など</td>
-            </tr>
-            <tr>
-              <td><span style="color:#a78bfa;font-weight:700">Opus</span></td>
-              <td>入力 $15 / 出力 $75</td>
-              <td>戦略的意思決定・高難度推論</td>
-              <td>Business Strategist（最小限使用）</td>
-            </tr>
-          </table>
-          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-            <div style="flex:1;min-width:180px;padding:8px 10px;background:var(--bg2);border-top:2px solid #34d399;font-size:10px">
-              <div style="font-weight:700;color:#34d399;margin-bottom:4px">Haiku 戦略</div>
-              単純な処理をHaikuに任せることで月$1〜2程度に抑えられる。タスク数が増えても低コスト。
+      <!-- 具体例：同じ質問、違う答え -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.5px;margin-bottom:8px">▶ 同じ「新製品の競合調査して」という依頼でも——</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px">
+          <div style="background:var(--bg3);border:1px solid var(--border);border-top:2px solid #3b82f6;padding:10px 12px">
+            <div style="font-size:10px;font-weight:700;color:#3b82f6;margin-bottom:6px">🔎 リサーチアナリスト</div>
+            <div style="font-size:10px;color:var(--text2);line-height:1.6">
+              競合A〜Cの特徴・市場ポジション・ユーザー評価を文章でまとめ、「推奨アクション」付きのレポートを出す
             </div>
-            <div style="flex:1;min-width:180px;padding:8px 10px;background:var(--bg2);border-top:2px solid #a78bfa;font-size:10px">
-              <div style="font-weight:700;color:#a78bfa;margin-bottom:4px">Opus は切り札</div>
-              Business Strategist が月に数回使うだけ。重要な判断1回に集中投下する設計。
+          </div>
+          <div style="background:var(--bg3);border:1px solid var(--border);border-top:2px solid #6366f1;padding:10px 12px">
+            <div style="font-size:10px;font-weight:700;color:#6366f1;margin-bottom:6px">📊 データアナリスト</div>
+            <div style="font-size:10px;color:var(--text2);line-height:1.6">
+              価格・機能数・評価スコアを数値で比較する表を作り、KPI視点でどこが優位かを数字で示す
+            </div>
+          </div>
+          <div style="background:var(--bg3);border:1px solid var(--border);border-top:2px solid #ef4444;padding:10px 12px">
+            <div style="font-size:10px;font-weight:700;color:#ef4444;margin-bottom:6px">💼 ビジネスストラテジスト</div>
+            <div style="font-size:10px;color:var(--text2);line-height:1.6">
+              競合との差別化戦略・参入リスク・勝てるポジションを意思決定サポート文書として出す
+            </div>
+          </div>
+          <div style="background:var(--bg3);border:1px solid var(--border);border-top:2px solid #f59e0b;padding:10px 12px">
+            <div style="font-size:10px;font-weight:700;color:#f59e0b;margin-bottom:6px">📣 マーケティングディレクター</div>
+            <div style="font-size:10px;color:var(--text2);line-height:1.6">
+              「競合にない訴求軸はここ」というコピー案・広告戦略・SNS施策の形で出す
             </div>
           </div>
         </div>
+        <div style="margin-top:8px;padding:8px 12px;background:color-mix(in srgb,var(--accent) 8%,transparent);border-left:3px solid var(--accent);font-size:10px;color:var(--text2)">
+          💡 <strong style="color:var(--accent)">同じ「Claude」なのに答えが全然違う</strong>のは、各エージェントに「あなたはデータアナリストです。数値・KPI・グラフで答えてください」のような詳細な役割指示（システムプロンプト）が事前に設定されているからです。
+        </div>
+      </div>
 
-        <!-- ③ ツール権限 -->
-        <div class="org-legend-model" style="border-left:3px solid #34d399" onclick="toggleLegend(this)">
-          <span class="org-legend-badge" style="background:#34d39915;color:#34d399;border:1px solid #34d39940">③ ツール権限</span>
-          <div class="org-legend-model-info">
-            <div class="org-legend-model-name">Web検索・ファイル操作など</div>
-            <div class="org-legend-model-desc">アクセス権限が異なることで、できることの範囲も変わります</div>
+      <!-- 3つの違いをシンプルに -->
+      <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.5px;margin-bottom:8px">▶ 何が違うのか——3つの要素</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:16px">
+
+        <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent);padding:12px 14px">
+          <div style="font-size:11px;font-weight:800;margin-bottom:4px">① 役割プロンプト <span style="font-size:9px;font-weight:400;color:var(--text3)">（最重要）</span></div>
+          <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-bottom:8px">
+            各エージェントには専用の「仕事の指示書」が設定されています。<br>
+            <em>「あなたはQAエンジニアです。コードの品質・テストカバレッジ・セキュリティリスクの観点でレビューしてください」</em><br>
+            同じモデルでも、この指示書の内容で専門性・判断基準・出力形式がまったく異なります。
+          </div>
+          <div style="font-size:9px;background:var(--bg2);padding:6px 8px;border:1px solid var(--border)">
+            📝 役割プロンプト ＝ AIの「人格・専門知識・仕事の進め方」を定義するもの
           </div>
         </div>
-        <div class="org-legend-detail">
-          <table>
-            <tr><th>ツール</th><th>使えるエージェント</th><th>用途</th></tr>
-            <tr>
-              <td>🌐 Web検索</td>
-              <td>リサーチアナリスト、リーガルレビュー</td>
-              <td>最新情報・競合調査・法令確認</td>
-            </tr>
-            <tr>
-              <td>📁 ファイル読み書き</td>
-              <td>全エージェント（tasks.json 経由）</td>
-              <td>タスク管理・引き継ぎ書保存</td>
-            </tr>
-            <tr>
-              <td>💻 コード実行</td>
-              <td>Backend Engineer、DevOps</td>
-              <td>テスト実行・デプロイ・自動化</td>
-            </tr>
-            <tr>
-              <td>📬 Slack通知</td>
-              <td>COO、Task Dispatcher</td>
-              <td>タスク完了・ブロック報告</td>
-            </tr>
-            <tr>
-              <td>🗂️ GitHub操作</td>
-              <td>Tech Lead、DevOps</td>
-              <td>コード管理・PR作成</td>
-            </tr>
-          </table>
-          <div style="margin-top:10px;padding:8px 12px;background:var(--bg2);font-size:10px">
-            💡 同じHaikuモデルでも、Web検索ができるかどうかで「調べる」タスクへの対応力が大きく変わります
+
+        <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid #818cf8;padding:12px 14px">
+          <div style="font-size:11px;font-weight:800;margin-bottom:4px">② 使うモデルが違う</div>
+          <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-bottom:8px">
+            Claudeには性能・コストの異なる3種類があります。<br>
+            <span style="color:#34d399;font-weight:700">Haiku</span>（速い・安い・定型向け）→ Frontend/Backend/DevOps など<br>
+            <span style="color:#60a5fa;font-weight:700">Sonnet</span>（複雑な判断・調整）→ COO/Tech Lead/Content Director など<br>
+            <span style="color:#a78bfa;font-weight:700">Opus</span>（高精度・高コスト）→ Business Strategist（月数回のみ）
+          </div>
+          <div style="font-size:9px;background:var(--bg2);padding:6px 8px;border:1px solid var(--border)">
+            💰 コスト差は最大15倍。重いタスクだけOpusを使いコストを最適化
+          </div>
+        </div>
+
+        <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid #34d399;padding:12px 14px">
+          <div style="font-size:11px;font-weight:800;margin-bottom:4px">③ 使えるツールが違う</div>
+          <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-bottom:8px">
+            Web検索・コード実行・GitHub操作など、エージェントごとに使えるツールが異なります。<br>
+            リサーチアナリストはWeb検索できる → 最新情報を自動取得<br>
+            Frontend Engineerはファイル操作できる → HTMLを直接編集・保存<br>
+            DevOpsはシェル実行できる → デプロイまで自動で走らせる
+          </div>
+          <div style="font-size:9px;background:var(--bg2);padding:6px 8px;border:1px solid var(--border)">
+            🔒 必要最小限のツールだけ渡すことで誤操作を防ぐ設計
           </div>
         </div>
 
       </div>
+
+      <!-- まとめ -->
+      <div style="padding:10px 14px;background:var(--bg2);border:1px solid var(--border);font-size:11px;color:var(--text2);line-height:1.7">
+        <strong style="color:var(--text1)">まとめ：</strong>全員「Claude」ですが、<em>どのClaudeを使うか</em>（モデル）×<em>何の専門家として振る舞わせるか</em>（役割プロンプト）×<em>何ができるか</em>（ツール権限）の組み合わせで、完全に別人の専門家集団として動かしています。
+      </div>
+
     </div>
   </div>
 </div>
