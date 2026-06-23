@@ -1497,11 +1497,13 @@ input:focus, select:focus { border-color: var(--accent); }
             <span style="color:var(--accent)">Q.</span> タスクを置いたのに5分経っても動かない
           </div>
           <div style="padding:0 14px 12px;font-size:11px;color:var(--text2);display:none">
-            <strong>確認ポイント：</strong><br>
-            ① ファイルの拡張子が <code>.md</code> になっているか<br>
-            ② <code>ai-agent-org/context/inbox/</code> に置いているか（別フォルダはNG）<br>
-            ③ launchd が動いているか → ターミナルで <code>launchctl list | grep kyabe</code> で確認<br>
-            ④ ログを確認 → <code>tail -f ~/Library/Logs/ai-agent-executor.log</code>
+            <strong>このシステムの動き方：</strong>Macの「launchd」という仕組みが5分ごとに自動起動し、未着手タスクをClaudeに処理させています。タスクを置いてもすぐ動くのではなく、次の「5分スロット」まで待ちます。<br><br>
+            <strong>それでも動かない場合の確認手順：</strong><br>
+            ① <strong>タスクのステータスを確認</strong> → カンバンで「未着手」列にあるか？「ブロック中」になっていたらコメント欄に理由があります<br>
+            ② <strong>inboxに置いた場合</strong> → ファイルの拡張子が <code>.md</code> になっているか・<code>ai-agent-org/context/inbox/</code> フォルダに置いているか確認<br>
+            ③ <strong>自動実行エンジンの確認</strong> → ターミナルで <code>launchctl list | grep kyabe</code> を実行。何も表示されなければlaunchdが止まっています<br>
+            ④ <strong>ログを見る</strong> → <code>tail -50 ~/Library/Logs/ai-agent-executor.log</code> でエラーが出ていないか確認<br><br>
+            <span style="color:var(--accent);font-weight:600">よくある原因：</span> Macがスリープしていた・APIキーが切れていた・タスクのassigneeが空欄だった
           </div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border)">
@@ -1509,9 +1511,13 @@ input:focus, select:focus { border-color: var(--accent); }
             <span style="color:var(--accent)">Q.</span> 担当エージェントが自分のイメージと違うものになった
           </div>
           <div style="padding:0 14px 12px;font-size:11px;color:var(--text2);display:none">
-            カンバンボードのカードにある担当名をクリックすると変更できます。<br>
-            または inbox ファイルにより具体的なキーワードを書いてみてください。<br>
-            例：「リサーチしてほしい」より「購入を比較検討してほしい」の方が意図が伝わりやすくなります。
+            <strong>なぜこうなるか：</strong>inboxにファイルを置いた場合、タイトルや本文に含まれるキーワードでAIが自動的に担当エージェントを判断します。キーワードが曖昧だと意図と違うエージェントに振り分けられることがあります。<br><br>
+            <strong>すぐ直す方法：</strong>カンバンボードのタスクカードをクリック → 担当者名の横にある鉛筆アイコンで変更できます。変更後は次の5分スロットで正しいエージェントが処理します。<br><br>
+            <strong>次回から正しく振り分けてもらうコツ：</strong><br>
+            ❌「リサーチしてほしい」→「リサーチ」だけだと Research Analyst か Data Analyst か迷う<br>
+            ✅「〇〇を購入検討したい。メリット・デメリットを比較して」→ Research Analyst に確実に届く<br>
+            ✅「売上データを集計してKPIをまとめて」→ Data Analyst に届く<br><br>
+            <span style="color:var(--accent);font-weight:600">ヒント：</span>タスク作成時に「+」ボタンを使えば担当者を自分で選べます。inboxの自動振り分けより確実です。
           </div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border)">
@@ -1519,8 +1525,17 @@ input:focus, select:focus { border-color: var(--accent); }
             <span style="color:var(--accent)">Q.</span> ステータスが「ブロック中」になっている
           </div>
           <div style="padding:0 14px 12px;font-size:11px;color:var(--text2);display:none">
-            タスクカードをクリックしてコメント欄を確認してください。<br>
-            ブロック理由が書かれています。多くの場合「人間の判断が必要」というケースで、あなたが追加情報を書いてステータスを「進行中」に戻すと再開します。
+            <strong>「ブロック中」とは：</strong>エージェントが処理を進めようとしたが、<span style="color:var(--accent);font-weight:600">人間（あなた）の判断や追加情報がないと先に進めない</span>と判断した状態です。エラーではなく、意図的に止まっています。<br><br>
+            <strong>対処手順：</strong><br>
+            ① タスクカードをクリックして詳細を開く<br>
+            ② 「コメント」欄を見る → エージェントが「〇〇を確認してほしい」「〇〇の方針を教えてほしい」と書いているはず<br>
+            ③ あなたがコメント欄に回答・追加情報を書き込む<br>
+            ④ ステータスを「ブロック中」→「未着手」または「進行中」に変更する<br>
+            ⑤ 次の5分スロットでエージェントが再開します<br><br>
+            <strong>よくあるブロック理由の例：</strong><br>
+            ・「この件は法的判断が必要です。弁護士確認後に進めるべきでしょうか？」<br>
+            ・「予算の上限が不明です。いくらまで使用可能ですか？」<br>
+            ・「複数の方向性が考えられます。Aパターン・Bパターンのどちらを優先しますか？」
           </div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border)">
@@ -1528,8 +1543,15 @@ input:focus, select:focus { border-color: var(--accent); }
             <span style="color:var(--accent)">Q.</span> エージェントの成果物はどこで確認できる？
           </div>
           <div style="padding:0 14px 12px;font-size:11px;color:var(--text2);display:none">
-            成果物はタスクカードのコメント欄に書き込まれます。カードをクリックして「コメント」欄を確認してください。<br>
-            Obsidian 連携を有効にしている場合は、<code style="background:var(--bg3);padding:1px 4px;border-radius:3px">context/projects/</code> フォルダにも Markdown ファイルとして保存されます。
+            <strong>成果物の流れ：</strong>エージェントが作業を完了する → COOが品質チェック → 問題なければタスクのコメント欄に書き込まれます（ステータスが「完了」になります）。<br><br>
+            <strong>確認場所：</strong><br>
+            📋 <strong>タスクカード</strong>（メイン）→ カードをクリック → 「コメント」欄に成果物のテキストが書かれています<br>
+            📁 <strong>GitHubリポジトリ</strong> → <code style="background:var(--bg3);padding:1px 4px">context/projects/</code> フォルダに Markdown ファイルとして保存されることもあります<br>
+            📓 <strong>Obsidian</strong>（連携している場合）→ 同フォルダのファイルが自動的に Obsidian に表示されます<br><br>
+            <strong>成果物が見当たらない場合：</strong><br>
+            ・ステータスが「完了」ではなく「進行中」のままになっていないか確認<br>
+            ・COOレビューで差し戻しになり「ブロック中」になっている可能性があります<br>
+            ・タスク作成直後はまだ処理中です。5分〜数十分待ってから確認してください
           </div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border)">
@@ -1537,9 +1559,16 @@ input:focus, select:focus { border-color: var(--accent); }
             <span style="color:var(--accent)">Q.</span> コストが心配。いくらかかるの？
           </div>
           <div style="padding:0 14px 12px;font-size:11px;color:var(--text2);display:none">
-            「💰 コスト」タブで確認できます。<br>
-            タスク1件あたりの目安：Haiku で約$0.003（0.5円以下）、Sonnet で約$0.018（約3円）。<br>
-            月に100件のタスクをこなしても $1〜2 程度の設計になっています。Opus は戦略判断時のみ使用で月数回以内が目安。
+            <strong>結論：思ったより安いです。</strong>このシステムは「重い仕事は安いモデルに」という設計になっています。<br><br>
+            <strong>タスク1件あたりのコスト目安：</strong><br>
+            <span style="color:#34d399;font-weight:600">Haiku（約80%のタスク）</span>：約 $0.001〜0.005（0.1〜0.8円）→ チェック・フォーマット・検索など定型処理<br>
+            <span style="color:#60a5fa;font-weight:600">Sonnet（約19%）</span>：約 $0.01〜0.03（1.5〜4.5円）→ COOレビュー・複雑な調整・コンテンツ生成<br>
+            <span style="color:#a78bfa;font-weight:600">Opus（月1〜3回程度）</span>：約 $0.05〜0.20（8〜30円）→ 重要な戦略判断のみ<br><br>
+            <strong>月間コスト試算（100タスク/月の場合）：</strong>$2〜5 程度（300〜750円）<br><br>
+            <strong>コストを確認・管理する方法：</strong><br>
+            ① このアプリ上部の「💰 コスト」タブ → 月次の利用額が確認できます<br>
+            ② <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">Anthropic Console</a> → リアルタイムの利用状況・APIキーの上限設定が可能<br><br>
+            <span style="color:var(--accent);font-weight:600">コスト削減のヒント：</span>Opus を使う Business Strategist へのタスクは本当に重要な意思決定のみに絞ると大幅に節約できます。
           </div>
         </div>
       </div>
@@ -1603,7 +1632,7 @@ input:focus, select:focus { border-color: var(--accent); }
     <!-- 仕組み説明（下部） -->
     <div class="org-legend" style="margin-top:40px">
       <div class="org-legend-title">❓ 「全員同じClaudeじゃないの？」</div>
-      <div class="org-legend-desc">同じモデルを使っていても、<strong>3つの要素</strong>で各エージェントは別人として動きます。同じHaikuでも「フロントエンドエンジニア」と「リーガルレビュー」では、視点・優先事項・アウトプットの形式がまったく異なります。<span style="font-size:10px;color:var(--text3)">（各項目をクリックで詳細表示）</span></div>
+      <div class="org-legend-desc">全員ベースは「Claude（Anthropic製のAI）」ですが、<strong>3つの要素</strong>がエージェントごとに異なるため、完全に別人として動きます。例えば<span style="color:#34d399;font-weight:700">Haiku</span>を使うフロントエンドエンジニアと<span style="color:#60a5fa;font-weight:700">Sonnet</span>を使うCOOでは、性能・コスト・役割・判断基準がすべて違います。<span style="font-size:10px;color:var(--text3)">（各項目をクリックで詳細表示）</span></div>
       <div class="org-legend-models">
 
         <!-- ① 役割プロンプト -->
