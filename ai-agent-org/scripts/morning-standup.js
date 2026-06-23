@@ -49,11 +49,14 @@ function generateReport(data) {
   const blocked = tasks.filter(t => t.status === 'blocked');
   const newTasks = tasks.filter(t => t.status === 'new-assigned');
 
+  const hasActivity = completed.length > 0 || inProgress.length > 0 || blocked.length > 0 || newTasks.length > 0;
+  const statusPrefix = hasActivity ? '' : '【更新なし】';
+
   const byTeam = groupBy(tasks.filter(t => t.status !== 'done'), 'team');
   const teamNames = { engineering: 'エンジニアリング', content: 'コンテンツ', business: 'ビジネス', infrastructure: 'インフラ運用' };
 
   const lines = [
-    `# 朝会レポート — ${dateStr}`,
+    `# ${statusPrefix}朝会レポート — ${dateStr}`,
     '',
     '## サマリー',
     '',
