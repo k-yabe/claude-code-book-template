@@ -18,9 +18,10 @@ html.dark {
   --text2:  #8b949e;
   --text3:  #484f58;
   --shadow: rgba(0,0,0,0.4);
-  --accent: #2f81f7;
-  --human:  #1f6feb;
-  --col-new:#6e7681; --col-ip:#388bfd; --col-bl:#f85149; --col-done:#3fb950;
+  --accent: #ffb81c;
+  --accent-fg: #001f33;
+  --human:  #0a3050;
+  --col-new:#6e7681; --col-ip:#ffb81c; --col-bl:#f85149; --col-done:#3fb950;
 }
 html.light {
   --bg:     #ffffff;
@@ -31,9 +32,10 @@ html.light {
   --text2:  #636c76;
   --text3:  #9a9ea6;
   --shadow: rgba(0,0,0,0.12);
-  --accent: #0969da;
-  --human:  #0969da;
-  --col-new:#6e7681; --col-ip:#0969da; --col-bl:#cf222e; --col-done:#1a7f37;
+  --accent: #001f33;
+  --accent-fg: #ffffff;
+  --human:  #001f33;
+  --col-new:#6e7681; --col-ip:#001f33; --col-bl:#cf222e; --col-done:#1a7f37;
 }
 :root {
   --p0:#f85149; --p1:#fb8f44; --p2:#e3b341; --p3:#388bfd;
@@ -124,14 +126,14 @@ body {
 /* COO */
 .org-coo-row { display: flex; justify-content: center; margin-bottom: 0; }
 .org-node-coo {
-  background: linear-gradient(135deg, #001f3318 0%, #001f3308 100%);
-  border: 2px solid #001f33bb;
-  box-shadow: 0 0 0 3px #001f3318;
+  background: linear-gradient(135deg, #ffb81c12 0%, #ffb81c06 100%);
+  border: 2px solid #ffb81caa;
+  box-shadow: 0 0 0 3px #ffb81c18;
   padding: 14px 28px; text-align: center; width: 240px;
 }
 html.light .org-node-coo {
-  background: linear-gradient(135deg, #001f3312 0%, #001f3306 100%);
-  border-color: #001f3366;
+  background: linear-gradient(135deg, #001f3310 0%, #001f3305 100%);
+  border-color: #001f3388;
 }
 
 /* コネクター */
@@ -143,7 +145,7 @@ html.light .org-node-coo {
 .org-coo-connector { display: flex; justify-content: center; }
 .org-coo-connector-v {
   width: 2px; height: 32px;
-  background: linear-gradient(to bottom, #001f33bb, var(--border));
+  background: linear-gradient(to bottom, #ffb81caa, var(--border));
 }
 .org-connector-h-wrap { display: flex; justify-content: center; margin-bottom: 0; }
 .org-connector-h {
@@ -179,15 +181,25 @@ html.light .org-node-coo {
   border-top: 3px solid var(--team-color, var(--border));
   padding: 0 0 8px;
 }
-.org-team-col[data-team="leadership"]    { --team-color: var(--accent); }
-.org-team-col[data-team="research"]      { --team-color: #3b82f6; }
-.org-team-col[data-team="personal"]      { --team-color: #10b981; }
-.org-team-col[data-team="engineering"]   { --team-color: #8b5cf6; }
-.org-team-col[data-team="content"]       { --team-color: #f59e0b; }
-.org-team-col[data-team="business"]      { --team-color: #ef4444; }
-.org-team-col[data-team="infrastructure"]{ --team-color: #6b7280; }
-.org-team-col[data-team="finance"]       { --team-color: #00897b; }
-.org-team-col[data-team="cx"]            { --team-color: #d81b60; }
+/* Gold = 戦略/コンテンツ, Cyan = 技術/分析, Navy派生 = 運用/サポート */
+.org-team-col[data-team="leadership"]    { --team-color: #ffb81c; }
+.org-team-col[data-team="research"]      { --team-color: #00cccc; }
+.org-team-col[data-team="personal"]      { --team-color: #4d94b8; }
+.org-team-col[data-team="engineering"]   { --team-color: #00d4d4; }
+.org-team-col[data-team="content"]       { --team-color: #ffb81c; }
+.org-team-col[data-team="business"]      { --team-color: #5599bb; }
+.org-team-col[data-team="infrastructure"]{ --team-color: #7a8fa0; }
+.org-team-col[data-team="finance"]       { --team-color: #00a8a8; }
+.org-team-col[data-team="cx"]            { --team-color: #4d7a8a; }
+html.light .org-team-col[data-team="leadership"]    { --team-color: #cc9400; }
+html.light .org-team-col[data-team="research"]      { --team-color: #007777; }
+html.light .org-team-col[data-team="personal"]      { --team-color: #1a5f80; }
+html.light .org-team-col[data-team="engineering"]   { --team-color: #006b6b; }
+html.light .org-team-col[data-team="content"]       { --team-color: #cc9400; }
+html.light .org-team-col[data-team="business"]      { --team-color: #1a4d6e; }
+html.light .org-team-col[data-team="infrastructure"]{ --team-color: #3a5a6e; }
+html.light .org-team-col[data-team="finance"]       { --team-color: #006868; }
+html.light .org-team-col[data-team="cx"]            { --team-color: #2a5566; }
 .org-team-header {
   font-size: 10px; font-weight: 800; color: var(--team-color, var(--text2));
   text-align: center; padding: 8px 8px 6px;
@@ -543,37 +555,37 @@ html.light .unread-dot { box-shadow: 0 0 0 2px var(--bg); }
 .blocked-banner { background: #f851491a; border-left: 3px solid var(--col-bl); padding: 8px 14px; font-size: 11px; color: var(--col-bl); line-height: 1.5; }
 .blocked-banner.hidden { display: none; }
 
-/* team chip */
+/* team chip — Navy/Gold/Cyan 体系 */
 .team-chip { font-size: 10px; padding: 1px 6px; font-weight: 500; flex-shrink: 0; }
-.tc-leadership  { background:#5c35a018; color:#5c35a0; }
-.tc-research    { background:#00897b18; color:#00897b; }
-.tc-personal    { background:#c2185b18; color:#c2185b; }
-.tc-engineering { background:#1565c018; color:#1565c0; }
-.tc-content     { background:#6a1b9a18; color:#6a1b9a; }
-.tc-business    { background:#e6510018; color:#e65100; }
-.tc-infrastructure { background:#2e7d3218; color:#2e7d32; }
-.tc-finance        { background:#00695c18; color:#00695c; }
-.tc-cx             { background:#ad145718; color:#ad1457; }
-html.dark .tc-leadership  { color:#b39ddb; }
-html.dark .tc-research    { color:#4db6ac; }
-html.dark .tc-personal    { color:#f48fb1; }
-html.dark .tc-engineering { color:#64b5f6; }
-html.dark .tc-content     { color:#ce93d8; }
-html.dark .tc-business    { color:#ffb74d; }
-html.dark .tc-infrastructure { color:#81c784; }
-html.dark .tc-finance     { color:#4db6ac; }
-html.dark .tc-cx          { color:#f48fb1; }
+.tc-leadership  { background:#ffb81c18; color:#ffb81c; }
+.tc-research    { background:#00cccc18; color:#00cccc; }
+.tc-personal    { background:#4d94b818; color:#4d94b8; }
+.tc-engineering { background:#00d4d418; color:#00d4d4; }
+.tc-content     { background:#ffb81c18; color:#ffb81c; }
+.tc-business    { background:#5599bb18; color:#5599bb; }
+.tc-infrastructure { background:#7a8fa018; color:#7a8fa0; }
+.tc-finance        { background:#00a8a818; color:#00a8a8; }
+.tc-cx             { background:#4d7a8a18; color:#4d7a8a; }
+html.light .tc-leadership  { color:#cc9400; }
+html.light .tc-research    { color:#007777; }
+html.light .tc-personal    { color:#1a5f80; }
+html.light .tc-engineering { color:#006b6b; }
+html.light .tc-content     { color:#cc9400; }
+html.light .tc-business    { color:#1a4d6e; }
+html.light .tc-infrastructure { color:#3a5a6e; }
+html.light .tc-finance     { color:#006868; }
+html.light .tc-cx          { color:#2a5566; }
 
 /* org badge */
 .org-badge { font-size: 9px; padding: 1px 5px; font-weight: 600; flex-shrink: 0; letter-spacing: 0.2px; }
 .org-private     { background:#6e768118; color:#6e7681; }
-.org-shift-ai    { background:#388bfd18; color:#388bfd; }
-.org-otsunagi    { background:#3fb95018; color:#3fb950; }
-.org-akkodis     { background:#fb8f4418; color:#fb8f44; }
-html.dark .org-private  { color:#8b949e; }
-html.dark .org-shift-ai { color:#58a6ff; }
-html.dark .org-otsunagi { color:#56d364; }
-html.dark .org-akkodis  { color:#ffa657; }
+.org-shift-ai    { background:#ffb81c18; color:#ffb81c; }
+.org-otsunagi    { background:#00cccc18; color:#00cccc; }
+.org-akkodis     { background:#5599bb18; color:#5599bb; }
+html.light .org-private  { color:#636c76; }
+html.light .org-shift-ai { color:#cc9400; }
+html.light .org-otsunagi { color:#007777; }
+html.light .org-akkodis  { color:#1a4d6e; }
 
 /* ── DETAIL PANEL ── */
 .detail-panel {
@@ -790,7 +802,7 @@ html.dark .org-akkodis  { color:#ffa657; }
 .send-btn {
   width: 34px; height: 34px;
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-fg);
   border: none;
   cursor: pointer;
   font-size: 14px;
@@ -866,7 +878,7 @@ html.dark .org-akkodis  { color:#ffa657; }
   transition: border-color 0.12s;
 }
 .btn:hover { border-color: var(--accent); }
-.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 600; }
 .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .btn-icon {
   background: none; border: none;
@@ -1228,7 +1240,7 @@ input:focus, select:focus { border-color: var(--accent); }
     <!-- ① このシステムって何？ -->
     <div style="margin-bottom:32px">
       <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-        <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;font-weight:700">STEP 0</span>
+        <span style="background:var(--accent);color:var(--accent-fg);font-size:11px;padding:2px 8px;font-weight:700">STEP 0</span>
         このシステムって何？
       </div>
       <div style="background:var(--bg2);border:1px solid var(--border);padding:18px 20px;margin-bottom:12px">
@@ -1274,7 +1286,7 @@ input:focus, select:focus { border-color: var(--accent); }
     <!-- ② 基本的な使い方 -->
     <div style="margin-bottom:32px">
       <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-        <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;font-weight:700">STEP 1</span>
+        <span style="background:var(--accent);color:var(--accent-fg);font-size:11px;padding:2px 8px;font-weight:700">STEP 1</span>
         基本的な使い方（3ステップ）
       </div>
       <!-- タスクの追加方法：2通り -->
@@ -1283,7 +1295,7 @@ input:focus, select:focus { border-color: var(--accent); }
         <div style="padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--accent)">
           <div style="font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">
             <span style="font-size:16px">＋</span> ボタンから直接追加
-            <span style="font-size:9px;background:var(--accent);color:#fff;padding:1px 5px;margin-left:4px">かんたん</span>
+            <span style="font-size:9px;background:var(--accent);color:var(--accent-fg);padding:1px 5px;margin-left:4px">かんたん</span>
           </div>
           <div style="font-size:11px;color:var(--text2);line-height:1.7">
             カンバンタブ右上の「＋」をクリック。タイトル・担当・優先度を選んですぐ登録。<br>担当を自分で指定したいときはこちら。
@@ -1328,7 +1340,7 @@ input:focus, select:focus { border-color: var(--accent); }
     <!-- ③ どう書けばどのエージェントに行くか -->
     <div style="margin-bottom:32px">
       <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-        <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;font-weight:700">TIPS</span>
+        <span style="background:var(--accent);color:var(--accent-fg);font-size:11px;padding:2px 8px;font-weight:700">TIPS</span>
         inboxに書く場合：キーワードで担当が自動決まる
       </div>
       <div style="font-size:11px;color:var(--text2);margin-bottom:10px">「＋」ボタンで作る場合は担当を自分で選べます。inboxに書く場合はタイトル・本文に含まれるキーワードで自動振り分けされます。</div>
@@ -1393,7 +1405,7 @@ input:focus, select:focus { border-color: var(--accent); }
     <!-- ④ 自動スケジュール -->
     <div style="margin-bottom:32px">
       <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-        <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;font-weight:700">INFO</span>
+        <span style="background:var(--accent);color:var(--accent-fg);font-size:11px;padding:2px 8px;font-weight:700">INFO</span>
         毎日自動で動くスケジュール
       </div>
       <div style="background:var(--bg2);border:1px solid var(--border)">
@@ -1443,7 +1455,7 @@ input:focus, select:focus { border-color: var(--accent); }
     <!-- ⑤ タスクボードの各タブ -->
     <div style="margin-bottom:32px">
       <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-        <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;font-weight:700">INFO</span>
+        <span style="background:var(--accent);color:var(--accent-fg);font-size:11px;padding:2px 8px;font-weight:700">INFO</span>
         このタスクボードの使い方
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -1477,7 +1489,7 @@ input:focus, select:focus { border-color: var(--accent); }
     <!-- ⑥ よくある質問 -->
     <div style="margin-bottom:32px">
       <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-        <span style="background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;font-weight:700">Q&A</span>
+        <span style="background:var(--accent);color:var(--accent-fg);font-size:11px;padding:2px 8px;font-weight:700">Q&A</span>
         よくある疑問
       </div>
       <div style="display:flex;flex-direction:column;gap:8px">
@@ -3539,7 +3551,7 @@ function openTaskDetail(id) {
 
   // ボードで開くリンク
   body += '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);text-align:right">'
-    + '<button onclick="closeTaskDetail();showTab(\'board\');openPanel(\''+id+'\')" style="font-size:11px;padding:5px 12px;background:var(--accent);color:#fff;border:none;cursor:pointer">📋 ボードで開く</button>'
+    + '<button onclick="closeTaskDetail();showTab(\'board\');openPanel(\''+id+'\')" style="font-size:11px;padding:5px 12px;background:var(--accent);color:var(--accent-fg);border:none;cursor:pointer">📋 ボードで開く</button>'
     + '</div>';
 
   document.getElementById('tdBody').innerHTML = body;
