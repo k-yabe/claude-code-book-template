@@ -1,6 +1,15 @@
 {
-  "last_scraped": "2026-06-23T00:02:42Z",
+  "last_scraped": "2026-06-23T23:50:20Z",
   "articles": [
+    {
+      "id": "low-code-platforms-faster-digital-transformation",
+      "title": "Low Code Development: Accelerating Digital Transformation and Business Innovation",
+      "url": "https://www.akkodis.com/blog/articles/low-code-platforms-faster-digital-transformation",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-06-11T00:07:36Z",
+      "published_date": "2026-06-10T00:00:00Z"
+    },
     {
       "id": "fda-qmsr-inspections-quality-system-ready",
       "title": "FDA QMSR Inspections: Is Your Quality System Ready?",
@@ -36,15 +45,6 @@
       "source_id": "blog",
       "source_label": "Akkodis Blog",
       "first_seen": "2026-06-12T00:13:57Z",
-      "published_date": "2026-06-10T00:00:00Z"
-    },
-    {
-      "id": "low-code-platforms-faster-digital-transformation",
-      "title": "Low Code Development: Accelerating Digital Transformation and Business Innovation",
-      "url": "https://www.akkodis.com/blog/articles/low-code-platforms-faster-digital-transformation",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-06-11T00:07:36Z",
       "published_date": "2026-06-10T00:00:00Z"
     },
     {
