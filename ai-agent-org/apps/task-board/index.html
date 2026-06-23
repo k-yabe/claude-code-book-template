@@ -1657,78 +1657,114 @@ input:focus, select:focus { border-color: var(--accent); }
     <!-- Teams -->
     <div class="org-teams-row" id="orgTeamsRow"></div>
 
-    <!-- 仕組み説明（下部） -->
-    <details class="org-faq-details">
-      <summary>
-        <div>
-          <div class="org-faq-summary-title">❓ 「全員同じClaudeじゃないの？」</div>
-          <div class="org-faq-summary-sub">ベースは同じ「Claude」ですが、3つの要素の組み合わせで完全に別人の専門家として動きます</div>
-        </div>
-        <div class="org-faq-chevron">▼</div>
-      </summary>
-      <div class="org-faq-body">
-
-      <!-- 具体例 -->
-      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;margin-top:16px;letter-spacing:0.5px">同じ「競合調査して」という依頼でも、担当によってアウトプットが全然違います</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:8px">
-        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
-          <div style="font-size:11px;font-weight:700;margin-bottom:4px">🔎 リサーチアナリスト</div>
-          <div style="font-size:10px;color:var(--text2);line-height:1.6">競合A〜Cの特徴・市場ポジション・ユーザー評価をまとめ、推奨アクション付きのレポートを出す</div>
-        </div>
-        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
-          <div style="font-size:11px;font-weight:700;margin-bottom:4px">📊 データアナリスト</div>
-          <div style="font-size:10px;color:var(--text2);line-height:1.6">価格・機能数・評価スコアを数値で比較する表を作り、KPI視点でどこが優位かを数字で示す</div>
-        </div>
-        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
-          <div style="font-size:11px;font-weight:700;margin-bottom:4px">💼 ビジネスストラテジスト</div>
-          <div style="font-size:10px;color:var(--text2);line-height:1.6">競合との差別化戦略・参入リスク・勝てるポジションを意思決定サポート文書として出す</div>
-        </div>
-        <div style="padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
-          <div style="font-size:11px;font-weight:700;margin-bottom:4px">📣 マーケティングディレクター</div>
-          <div style="font-size:10px;color:var(--text2);line-height:1.6">「競合にない訴求軸はここ」というコピー案・広告戦略・SNS施策の形で出す</div>
-        </div>
+    <!-- FAQ セクション -->
+    <div style="margin-top:40px;max-width:840px;margin-left:auto;margin-right:auto;margin-bottom:24px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <span style="background:var(--accent);color:var(--accent-fg);font-size:11px;padding:2px 8px;font-weight:700">Q&A</span>
+        よくある疑問
       </div>
-      <div style="padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-left:4px solid var(--accent);font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:24px">
-        同じ「Claude」なのに答えが全然違うのは、各エージェントに <strong style="color:var(--text1)">「あなたはデータアナリストです。数値・KPI・グラフで答えてください」</strong> のような詳細な役割指示（システムプロンプト）が事前に設定されているからです。
-      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
 
-      <!-- 3要素 -->
-      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:0.5px">何が違うのか——3つの要素</div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-
-        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
-          <div style="font-size:20px;font-weight:800;color:var(--accent);flex-shrink:0;line-height:1;min-width:20px">①</div>
-          <div>
-            <div style="font-weight:700;margin-bottom:4px">役割プロンプト <span style="font-size:10px;font-weight:400;color:var(--text2)">（最重要）</span></div>
-            <div style="font-size:11px;color:var(--text2);line-height:1.7">各エージェントには専用の「仕事の指示書」が設定されています。例：<em>「あなたはQAエンジニアです。コード品質・テストカバレッジ・セキュリティリスクの観点でレビューしてください」</em>。同じモデルでも、この指示書の内容で専門性・判断基準・出力形式がまったく異なります。役割プロンプト＝AIの「人格・専門知識・仕事の進め方」を定義するものです。</div>
+        <!-- Q1 -->
+        <div style="background:var(--bg2);border:1px solid var(--border)">
+          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
+            <span style="color:var(--accent)">Q.</span> 全員同じClaudeじゃないの？
+          </div>
+          <div style="padding:0 14px 14px;font-size:11px;color:var(--text2);display:none">
+            ベースは同じ「Claude」ですが、<strong>①役割プロンプト</strong>・<strong>②使うモデル</strong>・<strong>③ツール権限</strong>の3つの組み合わせで、完全に別人の専門家として動きます。<br><br>
+            <strong>例：同じ「競合調査して」でも担当によってアウトプットが全然違います</strong>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0 10px">
+              <div style="padding:9px 11px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent)">
+                <div style="font-weight:700;margin-bottom:3px">🔎 リサーチアナリスト</div>
+                <div style="font-size:10px;line-height:1.6">競合A〜Cの特徴・市場ポジション・ユーザー評価をまとめ、推奨アクション付きレポートを出す</div>
+              </div>
+              <div style="padding:9px 11px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent)">
+                <div style="font-weight:700;margin-bottom:3px">📊 データアナリスト</div>
+                <div style="font-size:10px;line-height:1.6">価格・機能数・評価スコアを数値で比較する表を作り、KPI視点でどこが優位かを示す</div>
+              </div>
+              <div style="padding:9px 11px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent)">
+                <div style="font-weight:700;margin-bottom:3px">💼 ビジネスストラテジスト</div>
+                <div style="font-size:10px;line-height:1.6">差別化戦略・参入リスク・勝てるポジションを意思決定サポート文書として出す</div>
+              </div>
+              <div style="padding:9px 11px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent)">
+                <div style="font-weight:700;margin-bottom:3px">📣 マーケティングディレクター</div>
+                <div style="font-size:10px;line-height:1.6">「競合にない訴求軸はここ」というコピー案・広告戦略・SNS施策の形で出す</div>
+              </div>
+            </div>
+            同じ「Claude」なのに答えが全然違うのは、各エージェントに<strong>「あなたはデータアナリストです。数値・KPIで答えてください」</strong>のような詳細な役割指示が事前に設定されているからです。
           </div>
         </div>
 
-        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
-          <div style="font-size:20px;font-weight:800;color:var(--accent);flex-shrink:0;line-height:1;min-width:20px">②</div>
-          <div>
-            <div style="font-weight:700;margin-bottom:4px">使うClaudeのモデルが違う</div>
-            <div style="font-size:11px;color:var(--text2);line-height:1.7">Claudeには性能・コストの異なる3種類があります。<strong>Haiku</strong>（速い・安い・定型処理向け）→ Frontend/Backend/DevOps など定型タスク担当。<strong>Sonnet</strong>（複雑な判断・調整）→ COO/Tech Lead/Content Director など判断が必要な役割。<strong>Opus</strong>（最高精度・高コスト）→ Business Strategistのみ月数回の重要判断に限定使用。コスト差は最大15倍。</div>
+        <!-- Q2 -->
+        <div style="background:var(--bg2);border:1px solid var(--border)">
+          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
+            <span style="color:var(--accent)">Q.</span> 「役割プロンプト」って何？なぜそんなに重要なの？
+          </div>
+          <div style="padding:0 14px 14px;font-size:11px;color:var(--text2);display:none">
+            <strong>役割プロンプト</strong>とは、各エージェントに最初から設定された「仕事の指示書」です。<br><br>
+            例えば QA Engineerには <em>「あなたはQAエンジニアです。コード品質・テストカバレッジ・セキュリティリスクの観点でレビューしてください」</em> のような詳細な指示が入っています。<br><br>
+            <strong>なぜ重要か：</strong>同じClaudeモデルでも、この指示書の内容で<span style="color:var(--accent);font-weight:600">専門性・判断基準・出力形式がまったく変わります</span>。役割プロンプト＝AIの「人格・専門知識・仕事の進め方」を定義するものです。<br><br>
+            📁 各エージェントのプロンプトは <code style="background:var(--bg3);padding:1px 4px">ai-agent-org/agents/</code> 以下のファイルに書かれています。
           </div>
         </div>
 
-        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent)">
-          <div style="font-size:20px;font-weight:800;color:var(--accent);flex-shrink:0;line-height:1;min-width:20px">③</div>
-          <div>
-            <div style="font-weight:700;margin-bottom:4px">使えるツールが違う</div>
-            <div style="font-size:11px;color:var(--text2);line-height:1.7">Web検索・コード実行・GitHub操作など、エージェントごとに使えるツールが異なります。リサーチアナリストはWeb検索で最新情報を自動取得。Frontend Engineerはファイルを直接編集・保存。DevOpsはシェル実行でデプロイまで自動化。必要最小限のツールだけ渡すことで誤操作を防ぐ設計です。</div>
+        <!-- Q3 -->
+        <div style="background:var(--bg2);border:1px solid var(--border)">
+          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
+            <span style="color:var(--accent)">Q.</span> Haiku・Sonnet・Opusって何が違うの？どのエージェントがどれを使う？
+          </div>
+          <div style="padding:0 14px 14px;font-size:11px;color:var(--text2);display:none">
+            Claudeには性能・コストが異なる3種類のモデルがあります。コスト差は最大15倍。<br><br>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
+              <div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid #34d399">
+                <div style="font-weight:700;margin-bottom:2px;color:#34d399">Haiku — 速い・安い（約80%のタスク）</div>
+                <div style="line-height:1.6">定型処理向け。Frontend / Backend / DevOps / Finance / SEO など実行系エージェントが使用</div>
+              </div>
+              <div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid #60a5fa">
+                <div style="font-weight:700;margin-bottom:2px;color:#60a5fa">Sonnet — バランス型（約19%）</div>
+                <div style="line-height:1.6">複雑な判断・調整に対応。COO / Tech Lead / Content Director / QA Engineer など</div>
+              </div>
+              <div style="padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid #a78bfa">
+                <div style="font-weight:700;margin-bottom:2px;color:#a78bfa">Opus — 最高精度・高コスト（月数回のみ）</div>
+                <div style="line-height:1.6">Business Strategist のみ。重要な戦略判断に限定使用</div>
+              </div>
+            </div>
+            <span style="color:var(--accent);font-weight:600">コスト確認：</span>「💰 コスト」タブで月次の利用額をいつでも確認できます。
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div style="background:var(--bg2);border:1px solid var(--border)">
+          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
+            <span style="color:var(--accent)">Q.</span> エージェントごとに使えるツールが違うってどういうこと？
+          </div>
+          <div style="padding:0 14px 14px;font-size:11px;color:var(--text2);display:none">
+            Web検索・コード実行・GitHub操作など、エージェントごとに使えるツールが異なります。必要最小限のツールだけ渡すことで誤操作を防ぐ設計です。<br><br>
+            <strong>担当ごとのツール例：</strong><br>
+            🔎 <strong>リサーチアナリスト</strong> → Web検索で最新情報を自動取得<br>
+            💻 <strong>Frontend Engineer</strong> → ファイルを直接編集・保存<br>
+            🚀 <strong>DevOps Engineer</strong> → シェル実行でデプロイまで自動化<br>
+            🏢 <strong>COO</strong> → 全タスクの読み書き・品質チェック・差し戻し権限<br><br>
+            例えば Finance Manager には「GitHub への直接 push」権限は与えられておらず、予算管理に必要なツールのみに絞ることで、意図しない操作を防いでいます。
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div style="background:var(--bg2);border:1px solid var(--border)">
+          <div style="padding:12px 14px;font-weight:700;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
+            <span style="color:var(--accent)">Q.</span> COOレビューって何をしているの？なぜ全部確認するの？
+          </div>
+          <div style="padding:0 14px 14px;font-size:11px;color:var(--text2);display:none">
+            <strong>COO（Sonnet）の役割：</strong>すべてのエージェントのアウトプットを受け取り、品質・整合性・方針との一致を確認してから人間（CEO）に届けます。<br><br>
+            <strong>なぜ必要か：</strong>AIエージェントは時として指示から外れた回答をしたり、不完全なアウトプットを出すことがあります。COOがフィルターとして機能することで、あなたが受け取るものの品質が担保されます。<br><br>
+            <strong>フロー：</strong><br>
+            担当エージェント → 完成 → COOレビュー → 承認 → あなた（CEO）へ届く<br><br>
+            差し戻しになった場合は担当エージェントが修正し、COOが再レビューします。タスクが「ブロック中」になっていたらコメント欄に理由が書いてあります。
           </div>
         </div>
 
       </div>
-
-      <!-- まとめ -->
-      <div style="padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent);font-size:11px;color:var(--text2);line-height:1.7;margin-top:8px">
-        <strong style="color:var(--text)">まとめ：</strong>全員「Claude」ですが、<strong>①どんな専門家として振る舞わせるか</strong>（役割プロンプト）× <strong>②どのClaudeを使うか</strong>（モデル）× <strong>③何ができるか</strong>（ツール権限）の組み合わせで、完全に別人の専門家集団として動かしています。
-      </div>
-
-    </div><!-- /org-faq-body -->
-    </details>
+    </div>
   </div>
 </div>
 
