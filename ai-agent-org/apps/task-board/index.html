@@ -10,32 +10,32 @@
 
 /* ── DARK / LIGHT VARS ── */
 html.dark {
-  --bg:     #0d1117;
-  --bg2:    #161b22;
-  --bg3:    #21262d;
-  --border: #30363d;
-  --text:   #e6edf3;
-  --text2:  #8b949e;
-  --text3:  #484f58;
+  --bg:     #111827;
+  --bg2:    #1a2234;
+  --bg3:    #222d42;
+  --border: #2e3a52;
+  --text:   #e8edf5;
+  --text2:  #8fa0bc;
+  --text3:  #4f607a;
   --shadow: rgba(0,0,0,0.4);
-  --accent: #ffb81c;
-  --accent-fg: #001f33;
-  --human:  #0a3050;
-  --col-new:#6e7681; --col-ip:#ffb81c; --col-bl:#f85149; --col-done:#3fb950;
+  --accent: #4a9ede;
+  --accent-fg: #ffffff;
+  --human:  #0f2d54;
+  --col-new:#5a7090; --col-ip:#e8a020; --col-bl:#f85149; --col-done:#3fb950;
 }
 html.light {
-  --bg:     #ffffff;
-  --bg2:    #f6f8fa;
-  --bg3:    #eaeef2;
-  --border: #d0d7de;
-  --text:   #1f2328;
-  --text2:  #636c76;
-  --text3:  #9a9ea6;
-  --shadow: rgba(0,0,0,0.12);
-  --accent: #001f33;
+  --bg:     #f4f6fa;
+  --bg2:    #ffffff;
+  --bg3:    #eaecf2;
+  --border: #ced4e0;
+  --text:   #1a2035;
+  --text2:  #5a6880;
+  --text3:  #9aa4b8;
+  --shadow: rgba(0,0,0,0.10);
+  --accent: #1a6db5;
   --accent-fg: #ffffff;
   --human:  #001f33;
-  --col-new:#6e7681; --col-ip:#001f33; --col-bl:#cf222e; --col-done:#1a7f37;
+  --col-new:#7a8aa0; --col-ip:#0f5fa0; --col-bl:#cf222e; --col-done:#1a7f37;
 }
 :root {
   --p0:#f85149; --p1:#fb8f44; --p2:#e3b341; --p3:#388bfd;
@@ -132,8 +132,8 @@ body {
   padding: 14px 28px; text-align: center; width: 240px;
 }
 html.light .org-node-coo {
-  background: linear-gradient(135deg, #001f3310 0%, #001f3305 100%);
-  border-color: #001f3388;
+  background: linear-gradient(135deg, #ffb81c18 0%, #ffb81c08 100%);
+  border-color: #cc940088;
 }
 
 /* コネクター */
@@ -171,9 +171,12 @@ html.light .org-node-coo {
 /* チーム列 */
 .org-teams-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   align-items: start;
+}
+@media (max-width: 720px) {
+  .org-teams-row { grid-template-columns: repeat(2, 1fr); }
 }
 .org-team-col {
   background: var(--bg2);
