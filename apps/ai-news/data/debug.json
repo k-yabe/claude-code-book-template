@@ -1,22 +1,22 @@
 {
-  "ranAt": "2026-06-26T00:05:27.316434+00:00",
+  "ranAt": "2026-06-26T23:58:42.561194+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": true,
   "sources": 68,
   "phase": "start",
-  "fetched_items": 17,
+  "fetched_items": 13,
   "summarizer": "anthropic_haiku",
-  "final_items": 17,
+  "final_items": 13,
   "competitor_items": 0,
-  "x_highlights": 1,
+  "x_highlights": 0,
   "audio": {
     "googleKeySet": true,
     "azureKeySet": false,
     "elevenKeySet": false,
     "openaiKeySet": true,
-    "scriptChars": 1926,
+    "scriptChars": 1826,
     "scriptSource": "claude",
-    "mp3Bytes": 1247757
+    "mp3Bytes": 1161165
   },
-  "durationSec": 312.1
+  "durationSec": 271.5
 }
