@@ -1,6 +1,26 @@
 {
-  "last_scraped": "2026-06-29T00:01:55Z",
+  "last_scraped": "2026-06-29T23:55:53Z",
   "articles": [
+    {
+      "id": "beyond-clinical-trials-real-world-evidence-life-sciences",
+      "title": "Beyond Clinical Trials: Real-World Evidence in Life Sciences",
+      "url": "https://www.akkodis.com/blog/articles/beyond-clinical-trials-real-world-evidence-life-sciences",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-06-29T23:52:15Z",
+      "published_date": "2026-06-26T00:00:00Z",
+      "summary_ja": "医薬品の承認後、規制当局や保険者が治療薬の実際の使用現場での効果を求めるようになり、リアルワールドエビデンスが臨床試験だけに頼らない継続的な証拠生成能力として重要な役割を担うようになりました。この新しい要求に応えるためには、データの出所を明確に追跡できる体制を整えることや、統計分析と医学文献作成をスポット的ではなく継続的な業務として位置づけることなど、組織全体の運用方法を抜本的に変える必要があります。データ管理から規制対応まで複数の部門が連携し、信頼性のある証拠を安定して生み出し続けられる組織体制を構築することが、今後の競争力を左右する要素となっています。"
+    },
+    {
+      "id": "integrated-engineering-ecosystems-aerospace",
+      "title": "From Product to System of Systems: How Integrated Engineering Ecosystems Are Shaping the Future of Aerospace",
+      "url": "https://www.akkodis.com/blog/articles/integrated-engineering-ecosystems-aerospace",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-06-29T23:52:28Z",
+      "published_date": "2026-06-23T00:00:00Z",
+      "summary_ja": "航空宇宙産業はデジタルエンジニアリングと人工知能を統合したシステムで複雑化する課題に対応する必要があり、個別の製品開発からシステム間の連携を重視する設計へとシフトしています。モデルベースシステムエンジニアリングやデジタルツインなどの技術を導入することで、設計から運用まで全段階で透明性が高まり、開発効率が向上します。人工知能は航空機設計やシミュレーション、予知保全など様々な場面で活用され、膨大なデータから有用な情報を引き出して意思決定を高速化することで、業界の競争力強化を支援します。"
+    },
     {
       "id": "aiops-it-operations-separation-deadline",
       "title": "How AIOps Scaled Autonomous ITOps for a Global Manufacturer",
@@ -150,15 +170,6 @@
       "first_seen": "2026-06-20T00:02:27Z",
       "published_date": "2025-03-27T00:00:00Z",
       "summary_ja": "# 要約\n\n世界有数の保険グループが保険金請求管理システムの近代化に取り組む中で、複数国の異なる規制要件に対応しながら、既存システムと新しいプラットフォームを統合する必要がありました。Akkodisは、新しい請求管理プラットフォームと社内外の様々なビジネスシステムを接続し、グローバルな標準化と各国の規制要件のバランスを取りながら、データの一貫性と運用効率の向上を実現しました。この統合により、保険グループはスケーラビリティと敏捷性を備えた、将来の変化に対応できる請求管理環境を整備できました。"
-    },
-    {
-      "id": "airbus-field-service-middle-east",
-      "title": "Airbus Strengthens Middle East Field Service Operations with Akkodis",
-      "url": "https://www.akkodis.com/blog/client-success/airbus-field-service-middle-east",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-06-11T00:10:22Z",
-      "published_date": "2025-03-27T00:00:00Z"
     },
     {
       "id": "generative-ai-as400-modernization-trucking-operational-efficiency",
