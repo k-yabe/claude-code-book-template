@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-06-29T23:55:53Z",
+  "last_scraped": "2026-07-01T00:01:06Z",
   "articles": [
     {
       "id": "beyond-clinical-trials-real-world-evidence-life-sciences",
@@ -140,6 +140,46 @@
       "source_label": "Thinkers & Makers",
       "published_date": "2024",
       "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "railway-passenger-information-modernization",
+      "title": "National Railway Operator Modernizes Passenger Information Systems",
+      "url": "https://www.akkodis.com/blog/client-success/railway-passenger-information-modernization",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-07-01T00:00:21Z",
+      "published_date": "2025-03-27T00:00:00Z",
+      "summary_ja": "# 要約\n\nヨーロッパの大手国営鉄道事業者が駅の旅客情報表示システムを近代化する際、マイナス40°Cから風速50m/sといった極限環境下でも動作する32インチと46インチの頑丈なディスプレイを導入しました。既存のインフラに完全に適合する設計により、設置時間を60%削減し、パイロット運用で99.9%のハードウェア稼働率を達成しています。遠隔ソフトウェア更新、診断機能、保守サービスを含むライフサイクル管理により、5年間の運用コストを約40%削減する見通しが立ちました。"
+    },
+    {
+      "id": "rail-driver-training-immersive-simulation",
+      "title": "Global Rail Manufacturer Advances Driver Training with Immersive Simulation",
+      "url": "https://www.akkodis.com/blog/client-success/rail-driver-training-immersive-simulation",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-07-01T00:00:32Z",
+      "published_date": "2025-03-27T00:00:00Z",
+      "summary_ja": "世界的な鉄道車両メーカーが運転士の訓練を効率化するため、AKKODiSが最先端の3次元シミュレーションプラットform「SELENA」を開発し、40以上のシミュレーターを世界中に導入しました。このプラットフォームは、運転士が実際の業務と同じように車両の準備から駅での手順、緊急対応まで仮想空間で練習できる環境を提供しており、90パーセント程度の知識定着率を実現しています。さらに講師が特定のニーズに合わせてカスタマイズした訓練シナリオを簡単に作成・配置できる機能も備えており、スケーラブルで継続的な人材育成と安全性向上を支えています。"
+    },
+    {
+      "id": "automotive-identity-management-user-experience",
+      "title": "Global Automotive Manufacturer Enhances Identity Management and UX at Scale",
+      "url": "https://www.akkodis.com/blog/client-success/automotive-identity-management-user-experience",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-07-01T00:00:43Z",
+      "published_date": "2025-03-27T00:00:00Z",
+      "summary_ja": "大手保険グループの請求管理業務を現代化するプロジェクトで、AKKODISはユーザー中心設計の原則をプロジェクト全体に組み込み、ワークショップや研修を通じてチーム全体のUX成熟度を高めました。チケット構造をユーザーの目標とビジネス成果に基づいて再設計し、開発前に設計スプリントを実施することで、より堅牢な基盤を構築しました。結果として30万人以上のユーザーに対応できる統一されたID・アクセス管理プラットフォームが完成し、開発の手戻りを40%削減し、UX改善によって業務効率も25%向上させました。"
+    },
+    {
+      "id": "electric-popemobile-automotive-engineering",
+      "title": "First Fully Electric Popemobile Engineered with Akkodis Expertise",
+      "url": "https://www.akkodis.com/blog/client-success/electric-popemobile-automotive-engineering",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-07-01T00:00:54Z",
+      "published_date": "2025-03-27T00:00:00Z",
+      "summary_ja": "ドイツの大手自動車メーカーが電動式の高級SUVを教皇専用車に改造するプロジェクトで、AKKODiSは50人以上のエンジニアを投入して9ヶ月間で完成させました。チームは回転式の温熱シート、折り畳み式の座席、着脱式の屋根システムなど複数のカスタムパーツを設計・統合し、安全性や快適性を損なわないまま電動車のプラットフォームを儀式用の特殊車両に変えました。その結果、電動技術と特殊設計要件を両立させた世界初の電動教皇専用車が誕生し、バチカンの電動化目標と持続可能な移動手段の実現に貢献しました。"
     },
     {
       "id": "real-time-pathogen-detection-software-development",
