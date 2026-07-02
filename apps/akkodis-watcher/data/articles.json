@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-07-01T00:01:06Z",
+  "last_scraped": "2026-07-02T00:04:38Z",
   "articles": [
+    {
+      "id": "robotik-und-ki-in-der-luftfahrt-vom-use-case-zur-industriellen-realitaet",
+      "title": "From Product to System of Systems: How Integrated Engineering Ecosystems Are Shaping the Future of Aerospace",
+      "url": "https://www.akkodis.com/blog/articles/robotik-und-ki-in-der-luftfahrt-vom-use-case-zur-industriellen-realitaet",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-07-02T00:01:22Z",
+      "published_date": null,
+      "summary_ja": "Akkodisは40年以上の経験と40,000人以上のエンジニアを擁するデジタルエンジニアリング企業であり、AI・データ・自動化を活用して組織のデジタル変革を支援しています。製造業や航空、金融など様々な業界で、企業の戦略を測定可能な成果に変え、レガシーシステムの現代化から意思決定の高度化まで包括的なソリューションを提供しています。同社はテクノロジーと人間の可能性を組み合わせることで、顧客にとって本当の価値をもたらす「Akkodis Intelligence」というアプローチで事業を展開しており、ISGなどの評価機関からも業界の先導者として認められています。"
+    },
     {
       "id": "beyond-clinical-trials-real-world-evidence-life-sciences",
       "title": "Beyond Clinical Trials: Real-World Evidence in Life Sciences",
