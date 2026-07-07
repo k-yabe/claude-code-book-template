@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-07-06T23:59:44Z",
+  "last_scraped": "2026-07-07T23:47:42Z",
   "articles": [
+    {
+      "id": "aws-landing-zone-cloud-migration-guide",
+      "title": "Build your AWS Foundation Right- The Landing Zone Guide",
+      "url": "https://www.akkodis.com/blog/articles/aws-landing-zone-cloud-migration-guide",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-07-07T23:44:47Z",
+      "published_date": "2026-06-17T00:00:00Z",
+      "summary_ja": "AWSランディングゾーンの構築によって、企業は複数のアカウントを組織的に分離し、セキュリティやコスト管理の仕組みを移行前に整備できます。クラウド移行の際には、アカウント構造、ID管理、ネットワーク設計、セキュリティ制御といった基盤要素を事前に準備することで、後の運用が格段に効率化されます。IAM Identity Centerによる一元管理や、AWS Transit Gatewayを使ったハブ・スポーク型のネットワーク設計、さらにService Control Policiesによる統一的なセキュリティ制御といった仕組みを導入することで、安全で透明性の高いクラウド環境の実現が可能になります。"
+    },
     {
       "id": "robotics-ai-aerospace-industrial-reality",
       "title": "Robotics and AI in Aerospace: From Use Case to Industrial Reality",
