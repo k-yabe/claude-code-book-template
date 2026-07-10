@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-07-10T00:00:12Z",
+  "last_scraped": "2026-07-10T23:48:52Z",
   "articles": [
     {
       "id": "aws-landing-zone-cloud-migration-guide",
@@ -72,15 +72,6 @@
       "summary_ja": "コンテキストグラフは、ITオペレーションの意思決定プロセスや条件、結果を記録することで、単なる構成図では捉えられない運用上の学習を可能にします。既存のナレッジグラフが何がどう繋がっているかを示すのに対し、コンテキストグラフは過去の対応がなぜ機能したのか、どのような制約の中で実行されたのかという背景情報を蓄積するため、同じ問題が発生した際の対応精度が向上します。このアプローチにより、自動化されたIT運用システムは個別の事象を解決するたびに経験を積み、組織全体で意思決定の質を段階的に高めることができます。"
     },
     {
-      "id": "low-code-platforms-faster-digital-transformation",
-      "title": "Low Code Development: Accelerating Digital Transformation and Business Innovation",
-      "url": "https://www.akkodis.com/blog/articles/low-code-platforms-faster-digital-transformation",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-06-11T00:07:36Z",
-      "published_date": "2026-06-10T00:00:00Z"
-    },
-    {
       "id": "fda-qmsr-inspections-quality-system-ready",
       "title": "FDA QMSR Inspections: Is Your Quality System Ready?",
       "url": "https://www.akkodis.com/blog/articles/fda-qmsr-inspections-quality-system-ready",
@@ -91,15 +82,6 @@
       "summary_ja": "FDA検査の枠組みが品質管理システム規則（QMSR）へシフトしており、リスク思考を全体的に組み込んだ質の高いシステムが求められるようになりました。これまでの手続きや記録の確認から、リスク識別と継続的な監視がどのように機能しているかを説明できるかが評価の中心に変わります。2026年の短期検査の拡大に伴い、これまで検査を受けていなかった施設も対象になる可能性があるため、検査対応を一時的なプロジェクトではなく常態的な体制として整備しておくことが重要になります。"
     },
     {
-      "id": "decoding-tomorrow-ai-human-collaboration-business-innovation",
-      "title": "AI in Practice: It’s More Than Just a Tool",
-      "url": "https://www.akkodis.com/blog/articles/decoding-tomorrow-ai-human-collaboration-business-innovation",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-06-13T00:12:42Z",
-      "published_date": "2026-06-10T00:00:00Z"
-    },
-    {
       "id": "sap-accelerator-to-composable-storefront-migration",
       "title": "The Accelerator Era Is Over: Your SAP Commerce Cloud Migration Playbook",
       "url": "https://www.akkodis.com/blog/articles/sap-accelerator-to-composable-storefront-migration",
@@ -107,15 +89,6 @@
       "source_label": "Akkodis Blog",
       "first_seen": "2026-06-12T00:13:47Z",
       "published_date": "2026-06-11T00:00:00Z"
-    },
-    {
-      "id": "decoding-tomorrow-zero-trust-cybersecurity-ai-digital-trust",
-      "title": "In an AI-Driven World, Trust Is No Longer by Default. It’s a Trust by Design.",
-      "url": "https://www.akkodis.com/blog/articles/decoding-tomorrow-zero-trust-cybersecurity-ai-digital-trust",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-06-12T00:13:57Z",
-      "published_date": "2026-06-10T00:00:00Z"
     },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
