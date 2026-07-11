@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-07-10T23:48:52Z",
+  "last_scraped": "2026-07-11T23:45:08Z",
   "articles": [
     {
       "id": "aws-landing-zone-cloud-migration-guide",
@@ -80,15 +80,6 @@
       "first_seen": "2026-06-18T00:06:28Z",
       "published_date": "2026-06-17T00:00:00Z",
       "summary_ja": "FDA検査の枠組みが品質管理システム規則（QMSR）へシフトしており、リスク思考を全体的に組み込んだ質の高いシステムが求められるようになりました。これまでの手続きや記録の確認から、リスク識別と継続的な監視がどのように機能しているかを説明できるかが評価の中心に変わります。2026年の短期検査の拡大に伴い、これまで検査を受けていなかった施設も対象になる可能性があるため、検査対応を一時的なプロジェクトではなく常態的な体制として整備しておくことが重要になります。"
-    },
-    {
-      "id": "sap-accelerator-to-composable-storefront-migration",
-      "title": "The Accelerator Era Is Over: Your SAP Commerce Cloud Migration Playbook",
-      "url": "https://www.akkodis.com/blog/articles/sap-accelerator-to-composable-storefront-migration",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-06-12T00:13:47Z",
-      "published_date": "2026-06-11T00:00:00Z"
     },
     {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
