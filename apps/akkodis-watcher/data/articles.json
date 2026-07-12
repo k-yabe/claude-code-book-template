@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-07-11T23:45:08Z",
+  "last_scraped": "2026-07-12T23:44:58Z",
   "articles": [
+    {
+      "id": "sap-intelligent-selling-services-commerce-cloud-guide",
+      "title": "One AI Engine, 2–5x More Clicks — The SAP Intelligent Selling Services Playbook for SAP Commerce Cloud",
+      "url": "https://www.akkodis.com/blog/articles/sap-intelligent-selling-services-commerce-cloud-guide",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-07-12T23:41:35Z",
+      "published_date": "2026-07-02T00:00:00Z",
+      "summary_ja": "SAP Intelligent Selling Services（ISS）は、SAPコマースクラウドに組み込まれたAIサービスで、顧客の行動をリアルタイムで学習し、商品の推奨検索結果やカテゴリページの並び順を個別に最適化することで、クリック数を2～5倍増やし、検索から購入への移行率を10～20%改善します。Foundation、Merchandising、Recommendationという3つのモジュールが連携して、顧客データの分析、マーチャンダイザーによる細かい制御、リアルタイムな商品提案を実現し、全ての訪問者が同じ結果を見る従来型のEコマースプラットフォームの課題を解決しています。この機能はすでにSAPコマースクラウドの契約に含まれており、追加の待機時間なく導入できるため、現在34,000社以上がSAPのビジネスAIを利用している状況の中で、直接的にオンラインストアの売上向上に貢献する実装が可能になります。"
+    },
     {
       "id": "aws-landing-zone-cloud-migration-guide",
       "title": "Build your AWS Foundation Right- The Landing Zone Guide",
