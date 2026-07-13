@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-07-12T23:44:58Z",
+  "last_scraped": "2026-07-13T23:44:42Z",
   "articles": [
+    {
+      "id": "end-to-end-testing-aerospace-development",
+      "title": "End-to-End Testing: The Key to Efficient Aerospace Development Processes",
+      "url": "https://www.akkodis.com/blog/articles/end-to-end-testing-aerospace-development",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-07-13T23:41:40Z",
+      "published_date": "2026-07-13T00:00:00Z",
+      "summary_ja": "航空宇宙業界では従来の分断されたテスト手法から脱却し、要件定義から認証まで全工程を統合したエンドツーエンドテスティングへの転換が進んでいます。開発サイクルの早期段階で問題を検出することで、修正にかかるコストを削減し、認証を加速させることが可能になります。Akkodisは、AI技術やデジタルツインなどの先進テスト環境を組み合わせた包括的なテスティングサービスを提供し、メーカーが開発期間の短縮と品質向上を同時に実現するのを支援しています。"
+    },
     {
       "id": "sap-intelligent-selling-services-commerce-cloud-guide",
       "title": "One AI Engine, 2–5x More Clicks — The SAP Intelligent Selling Services Playbook for SAP Commerce Cloud",
@@ -92,6 +102,15 @@
       "summary_ja": "FDA検査の枠組みが品質管理システム規則（QMSR）へシフトしており、リスク思考を全体的に組み込んだ質の高いシステムが求められるようになりました。これまでの手続きや記録の確認から、リスク識別と継続的な監視がどのように機能しているかを説明できるかが評価の中心に変わります。2026年の短期検査の拡大に伴い、これまで検査を受けていなかった施設も対象になる可能性があるため、検査対応を一時的なプロジェクトではなく常態的な体制として整備しておくことが重要になります。"
     },
     {
+      "id": "thinkers-and-makers-vol1-2026",
+      "title": "Thinkers & Makers Vol.1 2026",
+      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol1_2026.pdf",
+      "source_id": "thinkers",
+      "source_label": "Thinkers & Makers",
+      "published_date": "2026",
+      "first_seen": "2026-07-13T23:44:24Z"
+    },
+    {
       "id": "akkodis-thinkers-and-makers-vol3-2025",
       "title": "Thinkers & Makers Vol.3 2025",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers_and_makers_vol3_2025.pdf",
@@ -131,15 +150,6 @@
       "id": "thinkers-and-makers-vol-2---2024",
       "title": "Thinkers And Makers Vol 2   2024",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers-and-makers-vol-2-_-2024.pdf",
-      "source_id": "thinkers",
-      "source_label": "Thinkers & Makers",
-      "published_date": "2024",
-      "first_seen": "2026-03-14T10:15:00Z"
-    },
-    {
-      "id": "akkodis-thinkers-and-makers-vol-01-2024new",
-      "title": "Thinkers & Makers Vol.1 2024",
-      "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/akkodis-thinkers-and-makers_vol_01_2024new.pdf",
       "source_id": "thinkers",
       "source_label": "Thinkers & Makers",
       "published_date": "2024",
