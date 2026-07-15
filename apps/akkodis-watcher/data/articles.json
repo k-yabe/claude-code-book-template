@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-07-14T23:43:56Z",
+  "last_scraped": "2026-07-15T23:52:11Z",
   "articles": [
     {
       "id": "end-to-end-testing-aerospace-development",
@@ -100,6 +100,16 @@
       "first_seen": "2026-06-18T00:06:28Z",
       "published_date": "2026-06-17T00:00:00Z",
       "summary_ja": "FDA検査の枠組みが品質管理システム規則（QMSR）へシフトしており、リスク思考を全体的に組み込んだ質の高いシステムが求められるようになりました。これまでの手続きや記録の確認から、リスク識別と継続的な監視がどのように機能しているかを説明できるかが評価の中心に変わります。2026年の短期検査の拡大に伴い、これまで検査を受けていなかった施設も対象になる可能性があるため、検査対応を一時的なプロジェクトではなく常態的な体制として整備しておくことが重要になります。"
+    },
+    {
+      "id": "why-patient-centricity-is-reshaping-life-sciences",
+      "title": "Why Patient Centricity Is Reshaping Life Sciences",
+      "url": "https://www.akkodis.com/blog/articles/why-patient-centricity-is-reshaping-life-sciences",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-07-15T23:49:55Z",
+      "published_date": null,
+      "summary_ja": "Akkodisは40年の業界経験と40,000人以上のエンジニアを活かし、AI駆動型イノベーションとデジタル変革を通じて企業の事業変革を支援するデジタルエンジニアリング企業です。同社は製造現場での異常検知、航空機システムの継続的アップグレード、レガシーシステムの最新化など、具体的なビジネス課題に対してテクノロジーとヒトの力を組み合わせたソリューションを提供しています。Akkodisは欧米を中心にデジタルエンジニアリング、インテリジェント運用、プラットフォーム最新化の分野で業界リーダーとして認識されており、自動車・防衛・金融・製造業などの主要産業で専門的な支援を行っています。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
