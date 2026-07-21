@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-07-20T23:49:52Z",
+  "last_scraped": "2026-07-21T23:49:13Z",
   "articles": [
     {
       "id": "jigs-tools-for-integrated-manufacturing-processes-aeronautics",
@@ -10,6 +10,16 @@
       "first_seen": "2026-07-20T23:45:46Z",
       "published_date": "2026-07-20T00:00:00Z",
       "summary_ja": "Akkodisは世界40か国以上で4万人以上のエンジニアと専門家を擁し、AIやデータ、自動化技術を組織全体に組み込むことで企業の事業運営を変革しています。同社は自動車・航空宇宙・エネルギー・金融・製造など多岐にわたる業界で、最新技術と人間の能力を融合させた課題解決を提供しており、最近はISG Provider Lensでデジタルエンジニアリングサービスのリーダー企業として認定されました。コンピュータビジョンによる製造業の品質検査や企業向けAI導入の支援など、実務レベルでの革新的なソリューションを展開しています。"
+    },
+    {
+      "id": "automating-mobile-app-regression-overnight-testing",
+      "title": "What If Your Next Release Tested Itself Overnight?",
+      "url": "https://www.akkodis.com/blog/articles/automating-mobile-app-regression-overnight-testing",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-07-21T23:46:39Z",
+      "published_date": "2026-07-21T00:00:00Z",
+      "summary_ja": "モバイルアプリのテストを手作業から自動化に切り替えることで、従来は1日かかっていた品質確認の作業を夜間に自動実行できるようになり、朝には結果レポートが完成している状態を実現しました。テストは実際のアプリを実機で動かし、ユーザーと同じ操作を繰り返すことで、隠れたバグを事前に発見し、本番環境での不具合を防ぐことができます。無料のオープンソースツールで構築したため新たな予算が不要であり、テスト精度は初回の改善サイクルで20ポイント以上向上し、リリース判定が「見送り」から「実施」へ変わりました。"
     },
     {
       "id": "physical-ai-explained-how-its-reshaping-every-industry",
