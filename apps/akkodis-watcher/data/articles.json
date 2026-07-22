@@ -1,6 +1,36 @@
 {
-  "last_scraped": "2026-07-21T23:49:13Z",
+  "last_scraped": "2026-07-22T23:56:27Z",
   "articles": [
+    {
+      "id": "smart-retrofit-new-potentital-efficiency-aeronautics",
+      "title": "Future-proofing existing fleets: how Smart Retrofits are unlocking new potential for efficiency in aeronautics",
+      "url": "https://www.akkodis.com/blog/articles/smart-retrofit-new-potentital-efficiency-aeronautics",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-07-22T23:53:26Z",
+      "published_date": "2026-07-20T00:00:00Z",
+      "summary_ja": "航空業界では新しい航空機の納期が長期化し、既存機材の最適化が急務となっており、デジタルエンジニアリングと最新の製造技術を活用した「スマートレトロフィット」が注目されています。Akkodisとパートナーは、A320型機の主翼端部品を3Dプリンティングと複合材料で再設計し、組立時間を40時間から6時間に短縮するとともに、従来の700個以上のリベットを接着技術に置き換える方案を開発しました。この取り組みは整備時間の削減や製造プロセスの簡素化だけでなく、必要に応じたスペアパーツの製造やメンテナンス拠点の在庫削減を可能にし、既存機材の経済効率を大きく改善します。"
+    },
+    {
+      "id": "europe-doesnt-lack-science-it-lacks-bridges",
+      "title": "Europe Doesn't Lack Science. It Lacks Bridges.",
+      "url": "https://www.akkodis.com/blog/articles/europe-doesnt-lack-science-it-lacks-bridges",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-07-22T23:53:40Z",
+      "published_date": null,
+      "summary_ja": "Akkodisは40年以上の業界横断的な経験を持つ40,000人以上のエンジニアとデジタル専門家を擁し、AIと自動化を活用した企業変革のサポートを行っています。同社は製造業からヘルスケアまで多様な業界で、デジタルエンジニアリング、インテリジェント・オペレーション、プラットフォーム最適化などの領域で業界トップクラスの専門知識を提供していると認識されています。Akkodisは「技術が人間の可能性を引き出すときに最も優れたソリューションが生まれる」という信念のもと、顧客のビジネス目標の達成に向けた実装支援を行っています。"
+    },
+    {
+      "id": "lead-the-charge-talent-formula-one",
+      "title": "Leading the Charge: How Akkodis and Mercedes-AMG PETRONAS Formula One Team turn Talent Into Performance",
+      "url": "https://www.akkodis.com/blog/articles/lead-the-charge-talent-formula-one",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-07-22T23:54:14Z",
+      "published_date": "2026-07-22T00:00:00Z",
+      "summary_ja": "AKKODiSはメルセデスAMG F1チームと2022年から共同で「Lead the Charge」という人材育成プログラムを運営しており、世界99か国から4000人以上の応募者を集めて持続可能性に関連した技術人材を育成しています。このプログラムでは通勤時の排出ガスを10%以上削減したり、食堂の食品廃棄物を35%削減するなど、現場の課題を分析して具体的な改善策を実行する人材を輩出しています。プログラム修了者は分析力と適応力を兼ね備え、高いパフォーマンスを求める環境で成果を上げる人材として、そのままチームに採用される実績も出ています。"
+    },
     {
       "id": "jigs-tools-for-integrated-manufacturing-processes-aeronautics",
       "title": "Digital Transformation in Aerospace: The Strategic Role of Jigs & Tools in Integrated Production Processes",
@@ -120,16 +150,6 @@
       "first_seen": "2026-07-20T23:48:01Z",
       "published_date": null,
       "summary_ja": "Akkodisは40年の業界経験と40,000人以上のエンジニアを有する世界的なデジタルエンジニアリング企業で、AI駆動のイノベーション、自動化、データ活用により組織の事業変革を支援しています。製造業の欠陥検出から航空機システムの継続的な改善まで、テクノロジーと人間の可能性を組み合わせた実践的なソリューションを複数の業界で展開しており、ISGから2026年のデジタルエンジニアリングサービスのリーダーとして認定されています。同社の取り組みは企業戦略を測定可能なビジネス成果に転換することで、組織全体の変革を加速させることに注力しています。"
-    },
-    {
-      "id": "why-patient-centricity-is-reshaping-life-sciences",
-      "title": "Why Patient Centricity Is Reshaping Life Sciences",
-      "url": "https://www.akkodis.com/blog/articles/why-patient-centricity-is-reshaping-life-sciences",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-07-15T23:49:55Z",
-      "published_date": null,
-      "summary_ja": "Akkodisは40年の業界経験と40,000人以上のエンジニアを活かし、AI駆動型イノベーションとデジタル変革を通じて企業の事業変革を支援するデジタルエンジニアリング企業です。同社は製造現場での異常検知、航空機システムの継続的アップグレード、レガシーシステムの最新化など、具体的なビジネス課題に対してテクノロジーとヒトの力を組み合わせたソリューションを提供しています。Akkodisは欧米を中心にデジタルエンジニアリング、インテリジェント運用、プラットフォーム最新化の分野で業界リーダーとして認識されており、自動車・防衛・金融・製造業などの主要産業で専門的な支援を行っています。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
