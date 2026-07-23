@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-07-22T23:56:27Z",
+  "last_scraped": "2026-07-23T23:50:25Z",
   "articles": [
+    {
+      "id": "jigs-tools-for-integrated-manufacturing-processes-aeronautics",
+      "title": "Digital Transformation in Aerospace: The Strategic Role of Jigs & Tools in Integrated Production Processes",
+      "url": "https://www.akkodis.com/blog/articles/jigs-tools-for-integrated-manufacturing-processes-aeronautics",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-07-20T23:45:46Z",
+      "published_date": "2026-07-20T00:00:00Z",
+      "summary_ja": "Akkodisは世界40か国以上で4万人以上のエンジニアと専門家を擁し、AIやデータ、自動化技術を組織全体に組み込むことで企業の事業運営を変革しています。同社は自動車・航空宇宙・エネルギー・金融・製造など多岐にわたる業界で、最新技術と人間の能力を融合させた課題解決を提供しており、最近はISG Provider Lensでデジタルエンジニアリングサービスのリーダー企業として認定されました。コンピュータビジョンによる製造業の品質検査や企業向けAI導入の支援など、実務レベルでの革新的なソリューションを展開しています。"
+    },
     {
       "id": "smart-retrofit-new-potentital-efficiency-aeronautics",
       "title": "Future-proofing existing fleets: how Smart Retrofits are unlocking new potential for efficiency in aeronautics",
@@ -30,16 +40,6 @@
       "first_seen": "2026-07-22T23:54:14Z",
       "published_date": "2026-07-22T00:00:00Z",
       "summary_ja": "AKKODiSはメルセデスAMG F1チームと2022年から共同で「Lead the Charge」という人材育成プログラムを運営しており、世界99か国から4000人以上の応募者を集めて持続可能性に関連した技術人材を育成しています。このプログラムでは通勤時の排出ガスを10%以上削減したり、食堂の食品廃棄物を35%削減するなど、現場の課題を分析して具体的な改善策を実行する人材を輩出しています。プログラム修了者は分析力と適応力を兼ね備え、高いパフォーマンスを求める環境で成果を上げる人材として、そのままチームに採用される実績も出ています。"
-    },
-    {
-      "id": "jigs-tools-for-integrated-manufacturing-processes-aeronautics",
-      "title": "Digital Transformation in Aerospace: The Strategic Role of Jigs & Tools in Integrated Production Processes",
-      "url": "https://www.akkodis.com/blog/articles/jigs-tools-for-integrated-manufacturing-processes-aeronautics",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-07-20T23:45:46Z",
-      "published_date": "2026-07-20T00:00:00Z",
-      "summary_ja": "Akkodisは世界40か国以上で4万人以上のエンジニアと専門家を擁し、AIやデータ、自動化技術を組織全体に組み込むことで企業の事業運営を変革しています。同社は自動車・航空宇宙・エネルギー・金融・製造など多岐にわたる業界で、最新技術と人間の能力を融合させた課題解決を提供しており、最近はISG Provider Lensでデジタルエンジニアリングサービスのリーダー企業として認定されました。コンピュータビジョンによる製造業の品質検査や企業向けAI導入の支援など、実務レベルでの革新的なソリューションを展開しています。"
     },
     {
       "id": "automating-mobile-app-regression-overnight-testing",
@@ -110,16 +110,6 @@
       "first_seen": "2026-06-29T23:52:15Z",
       "published_date": "2026-06-26T00:00:00Z",
       "summary_ja": "医薬品の承認後、規制当局や保険者が治療薬の実際の使用現場での効果を求めるようになり、リアルワールドエビデンスが臨床試験だけに頼らない継続的な証拠生成能力として重要な役割を担うようになりました。この新しい要求に応えるためには、データの出所を明確に追跡できる体制を整えることや、統計分析と医学文献作成をスポット的ではなく継続的な業務として位置づけることなど、組織全体の運用方法を抜本的に変える必要があります。データ管理から規制対応まで複数の部門が連携し、信頼性のある証拠を安定して生み出し続けられる組織体制を構築することが、今後の競争力を左右する要素となっています。"
-    },
-    {
-      "id": "integrated-engineering-ecosystems-aerospace",
-      "title": "From Product to System of Systems: How Integrated Engineering Ecosystems Are Shaping the Future of Aerospace",
-      "url": "https://www.akkodis.com/blog/articles/integrated-engineering-ecosystems-aerospace",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-06-29T23:52:28Z",
-      "published_date": "2026-06-23T00:00:00Z",
-      "summary_ja": "航空宇宙産業はデジタルエンジニアリングと人工知能を統合したシステムで複雑化する課題に対応する必要があり、個別の製品開発からシステム間の連携を重視する設計へとシフトしています。モデルベースシステムエンジニアリングやデジタルツインなどの技術を導入することで、設計から運用まで全段階で透明性が高まり、開発効率が向上します。人工知能は航空機設計やシミュレーション、予知保全など様々な場面で活用され、膨大なデータから有用な情報を引き出して意思決定を高速化することで、業界の競争力強化を支援します。"
     },
     {
       "id": "aiops-it-operations-separation-deadline",
