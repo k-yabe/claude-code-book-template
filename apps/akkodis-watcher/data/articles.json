@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-07-23T23:50:25Z",
+  "last_scraped": "2026-07-24T23:56:00Z",
   "articles": [
     {
       "id": "jigs-tools-for-integrated-manufacturing-processes-aeronautics",
@@ -120,26 +120,6 @@
       "first_seen": "2026-06-26T00:03:21Z",
       "published_date": "2026-06-25T00:00:00Z",
       "summary_ja": "グローバル製造企業が企業分離に伴い、AIを活用したIT運用基盤を最初から構築することで、知識管理と自動化を段階的に進めました。まず1,010件の知識記事をAIで自動生成し、その後6万件以上のチケットを分析して2,457件のインシデント解決を知識ベースから実現し、全インシデントにAIによるデータ補強が適用されるようになりました。現在は47%のマニュアルが自動化対応可能な状態となり、全チケットの52%がAIアシストで対応できるようになったことで、今後さらに自動化を拡大できる段階に進んでいます。"
-    },
-    {
-      "id": "context-graphs-future-of-agentic-it-operations",
-      "title": "Context Graphs: The Future of Agentic IT Operations",
-      "url": "https://www.akkodis.com/blog/articles/context-graphs-future-of-agentic-it-operations",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-06-26T00:03:35Z",
-      "published_date": "2026-06-24T00:00:00Z",
-      "summary_ja": "コンテキストグラフは、ITオペレーションの意思決定プロセスや条件、結果を記録することで、単なる構成図では捉えられない運用上の学習を可能にします。既存のナレッジグラフが何がどう繋がっているかを示すのに対し、コンテキストグラフは過去の対応がなぜ機能したのか、どのような制約の中で実行されたのかという背景情報を蓄積するため、同じ問題が発生した際の対応精度が向上します。このアプローチにより、自動化されたIT運用システムは個別の事象を解決するたびに経験を積み、組織全体で意思決定の質を段階的に高めることができます。"
-    },
-    {
-      "id": "ai-redefining-human-potential-workplace",
-      "title": "AI Isn’t Replacing People. It’s Redefining Human Potential at Work.",
-      "url": "https://www.akkodis.com/blog/articles/ai-redefining-human-potential-workplace",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-07-20T23:48:01Z",
-      "published_date": null,
-      "summary_ja": "Akkodisは40年の業界経験と40,000人以上のエンジニアを有する世界的なデジタルエンジニアリング企業で、AI駆動のイノベーション、自動化、データ活用により組織の事業変革を支援しています。製造業の欠陥検出から航空機システムの継続的な改善まで、テクノロジーと人間の可能性を組み合わせた実践的なソリューションを複数の業界で展開しており、ISGから2026年のデジタルエンジニアリングサービスのリーダーとして認定されています。同社の取り組みは企業戦略を測定可能なビジネス成果に転換することで、組織全体の変革を加速させることに注力しています。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
