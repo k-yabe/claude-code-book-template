@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-07-24T23:56:00Z",
+  "last_scraped": "2026-07-25T23:52:05Z",
   "articles": [
     {
       "id": "jigs-tools-for-integrated-manufacturing-processes-aeronautics",
@@ -110,16 +110,6 @@
       "first_seen": "2026-06-29T23:52:15Z",
       "published_date": "2026-06-26T00:00:00Z",
       "summary_ja": "医薬品の承認後、規制当局や保険者が治療薬の実際の使用現場での効果を求めるようになり、リアルワールドエビデンスが臨床試験だけに頼らない継続的な証拠生成能力として重要な役割を担うようになりました。この新しい要求に応えるためには、データの出所を明確に追跡できる体制を整えることや、統計分析と医学文献作成をスポット的ではなく継続的な業務として位置づけることなど、組織全体の運用方法を抜本的に変える必要があります。データ管理から規制対応まで複数の部門が連携し、信頼性のある証拠を安定して生み出し続けられる組織体制を構築することが、今後の競争力を左右する要素となっています。"
-    },
-    {
-      "id": "aiops-it-operations-separation-deadline",
-      "title": "How AIOps Scaled Autonomous ITOps for a Global Manufacturer",
-      "url": "https://www.akkodis.com/blog/articles/aiops-it-operations-separation-deadline",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-06-26T00:03:21Z",
-      "published_date": "2026-06-25T00:00:00Z",
-      "summary_ja": "グローバル製造企業が企業分離に伴い、AIを活用したIT運用基盤を最初から構築することで、知識管理と自動化を段階的に進めました。まず1,010件の知識記事をAIで自動生成し、その後6万件以上のチケットを分析して2,457件のインシデント解決を知識ベースから実現し、全インシデントにAIによるデータ補強が適用されるようになりました。現在は47%のマニュアルが自動化対応可能な状態となり、全チケットの52%がAIアシストで対応できるようになったことで、今後さらに自動化を拡大できる段階に進んでいます。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
