@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-07-28T23:52:10Z",
+  "last_scraped": "2026-07-29T23:55:11Z",
   "articles": [
     {
       "id": "sap-intelligent-selling-services-commerce-cloud-guide",
@@ -154,6 +154,16 @@
       "source_label": "Thinkers & Makers",
       "published_date": "2024",
       "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "akkodis-supports-legrands-eco-responsibility-commitments",
+      "title": "Akkodis Supports Legrand’s Eco-Responsibility Commitments",
+      "url": "https://www.akkodis.com/blog/client-success/akkodis-supports-legrands-eco-responsibility-commitments",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-07-29T23:55:00Z",
+      "published_date": "2025-03-27T00:00:00Z",
+      "summary_ja": "Legrandは環境配慮への対応強化の一環として、100を超える製品環境プロファイル（PEP）の作成と検証が必要でしたが、社内リソースに限界がありました。Akkodisは現地訪問で顧客のニーズを把握した上で、専門チームを編成し、ライフサイクル管理ツールを活用して28の環境基準に基づくPEP評価を統一的に実施しました。その結果、100以上のPEPを期限内に完成させ、Legrandの環境配慮の市場での信頼性向上とR&D部門のリソース確保を同時に実現しました。"
     },
     {
       "id": "railway-passenger-information-modernization",
