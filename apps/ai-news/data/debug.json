@@ -1,22 +1,7 @@
 {
-  "ranAt": "2026-07-29T23:56:15.675610+00:00",
+  "ranAt": "2026-07-30T23:56:50.104270+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": true,
   "sources": 68,
-  "phase": "start",
-  "fetched_items": 20,
-  "summarizer": "anthropic_haiku",
-  "final_items": 20,
-  "competitor_items": 0,
-  "x_highlights": 0,
-  "audio": {
-    "googleKeySet": true,
-    "azureKeySet": false,
-    "elevenKeySet": false,
-    "openaiKeySet": true,
-    "scriptChars": 1725,
-    "scriptSource": "claude",
-    "mp3Bytes": 1138797
-  },
-  "durationSec": 328.8
+  "phase": "start"
 }
