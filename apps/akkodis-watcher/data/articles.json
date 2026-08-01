@@ -1,16 +1,6 @@
 {
-  "last_scraped": "2026-07-31T23:55:08Z",
+  "last_scraped": "2026-08-01T23:49:37Z",
   "articles": [
-    {
-      "id": "sap-intelligent-selling-services-commerce-cloud-guide",
-      "title": "One AI Engine, 2–5x More Clicks — The SAP Intelligent Selling Services Playbook for SAP Commerce Cloud",
-      "url": "https://www.akkodis.com/blog/articles/sap-intelligent-selling-services-commerce-cloud-guide",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-07-12T23:41:35Z",
-      "published_date": "2026-07-02T00:00:00Z",
-      "summary_ja": "SAP Intelligent Selling Services（ISS）は、SAPコマースクラウドに組み込まれたAIサービスで、顧客の行動をリアルタイムで学習し、商品の推奨検索結果やカテゴリページの並び順を個別に最適化することで、クリック数を2～5倍増やし、検索から購入への移行率を10～20%改善します。Foundation、Merchandising、Recommendationという3つのモジュールが連携して、顧客データの分析、マーチャンダイザーによる細かい制御、リアルタイムな商品提案を実現し、全ての訪問者が同じ結果を見る従来型のEコマースプラットフォームの課題を解決しています。この機能はすでにSAPコマースクラウドの契約に含まれており、追加の待機時間なく導入できるため、現在34,000社以上がSAPのビジネスAIを利用している状況の中で、直接的にオンラインストアの売上向上に貢献する実装が可能になります。"
-    },
     {
       "id": "jigs-tools-for-integrated-manufacturing-processes-aeronautics",
       "title": "Digital Transformation in Aerospace: The Strategic Role of Jigs & Tools in Integrated Production Processes",
@@ -90,16 +80,6 @@
       "first_seen": "2026-07-03T23:55:14Z",
       "published_date": "2026-07-03T00:00:00Z",
       "summary_ja": "航空宇宙産業では、ロボットと人工知能を生産プロセスに直接組み込む動きが広がっており、従来の試験的な導入段階から実際の製造環境での活用へ移行しています。画像認識やAIを活用した検査システムにより、手作業による品質検査の負担を減らしながら一貫した品質管理が可能になり、同時に検査結果の記録も自動化されています。また、AIを用いた知識管理システムにより、複数の部門や資料に散在していた技術情報を一元化し、エンジニアがより効率的に情報へアクセスできる環境が整いつつあります。"
-    },
-    {
-      "id": "sap-cx-ai-toolkit-sap-commerce-cloud-complete-guide",
-      "title": "Your SAP Commerce Cloud Just Got an AI Brain — The Complete Guide to SAP CX AI Toolkit",
-      "url": "https://www.akkodis.com/blog/articles/sap-cx-ai-toolkit-sap-commerce-cloud-complete-guide",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-07-02T23:54:43Z",
-      "published_date": "2026-07-02T00:00:00Z",
-      "summary_ja": "SAP Commerce Cloudに組み込まれた新しいAIツールセットが、オンラインショップの顧客体験を大きく変えようとしています。このツールセットには、会話形式で商品を案内するショッピングエージェント、商品説明を自動生成するコンテンツジェネレーター、商品検索を画像で行える機能など6つのAI機能が含まれており、すべてSAPのシステムに直接統合されているため、外部の連携ツールを必要としません。従来の方法では実現困難だった、複雑な問い合わせへの即座の回答や、数千の商品説明の多言語対応が可能になることで、コンバージョン率の向上と顧客サービスチームの業務効率化につながるとされています。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
