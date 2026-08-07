@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-08-07T01:43:28Z",
+  "last_scraped": "2026-08-07T23:27:39Z",
   "articles": [
+    {
+      "id": "software-development-dotnet-developer-careers",
+      "title": "Why .NET Developers at Akkodis Are Driving the Future of Software Innovation",
+      "url": "https://www.akkodis.com/blog/articles/software-development-dotnet-developer-careers",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-08-07T23:23:36Z",
+      "published_date": "2026-07-30T00:00:00Z",
+      "summary_ja": "AKKODISのドット・ネット開発者は、クラウドやコンテナ技術を活用しながらエンタープライズ向けアプリケーションを構築し、クライアント企業のデジタル変革を実現しています。スケーラビリティと堅牢性を備えたクラウドネイティブなソリューション開発により、顧客企業の競争力強化に直結する価値を提供しており、セキュリティや運用効率の向上に貢献しています。社内アカデミーを通じた継続的な学習と技術コミュニティへの参加により、エンジニアは最新技術トレンドをキャッチアップしながら、キャリア成長と業界での専門性を深めることができます。"
+    },
     {
       "id": "jigs-tools-for-integrated-manufacturing-processes-aeronautics",
       "title": "Digital Transformation in Aerospace: The Strategic Role of Jigs & Tools in Integrated Production Processes",
