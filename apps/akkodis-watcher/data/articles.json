@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-08-09T23:22:32Z",
+  "last_scraped": "2026-08-10T23:28:19Z",
   "articles": [
+    {
+      "id": "capa-deviation-management-compliance-risk",
+      "title": "CAPA and Deviation Management: A Growing Compliance Risk",
+      "url": "https://www.akkodis.com/blog/articles/capa-deviation-management-compliance-risk",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-08-10T23:24:29Z",
+      "published_date": "2026-08-10T00:00:00Z",
+      "summary_ja": "医薬品やバイオテクノロジー企業では、未解決の品質問題や是正措置が蓄積すると、監査対応や製造スケジュール、規制当局との信頼関係に支障をきたすようになります。ある大手CDMOがFDAの指摘で2000件以上の未解決問題を抱えていた際、AkkodisのRaland事業部が統一的な管理体制と一貫した調査基準を導入し、4週間で40人以上の品質担当者を配置してバックログの解消を支援しました。この取り組みを通じて単なる問題数の削減にとどまらず、根本原因の分析方法や知識移転まで含めた持続的な品質改善モデルの構築が実現しています。"
+    },
     {
       "id": "software-development-dotnet-developer-careers",
       "title": "Why .NET Developers at Akkodis Are Driving the Future of Software Innovation",
