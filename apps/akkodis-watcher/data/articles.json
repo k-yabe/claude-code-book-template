@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-08-13T23:33:45Z",
+  "last_scraped": "2026-08-14T23:15:04Z",
   "articles": [
     {
       "id": "sap-engagement-cloud-features-tactics-proof",
@@ -80,16 +80,6 @@
       "first_seen": "2026-07-21T23:46:39Z",
       "published_date": "2026-07-21T00:00:00Z",
       "summary_ja": "モバイルアプリのテストを手作業から自動化に切り替えることで、従来は1日かかっていた品質確認の作業を夜間に自動実行できるようになり、朝には結果レポートが完成している状態を実現しました。テストは実際のアプリを実機で動かし、ユーザーと同じ操作を繰り返すことで、隠れたバグを事前に発見し、本番環境での不具合を防ぐことができます。無料のオープンソースツールで構築したため新たな予算が不要であり、テスト精度は初回の改善サイクルで20ポイント以上向上し、リリース判定が「見送り」から「実施」へ変わりました。"
-    },
-    {
-      "id": "physical-ai-explained-how-its-reshaping-every-industry",
-      "title": "Physical AI Explained: How It Works and Why It Matters",
-      "url": "https://www.akkodis.com/blog/articles/physical-ai-explained-how-its-reshaping-every-industry",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-07-20T23:46:07Z",
-      "published_date": "2026-07-15T00:00:00Z",
-      "summary_ja": "物理的な環境で自律的に動作するロボットや自動運転車などの技術であるPhysical AIは、従来の固定的なプログラムに従うだけの自動化を超えて、センサーで周囲を認識し自ら判断して行動できるようになりました。市場規模は2025年の約50億ドルから2034～2035年には680～840億ドルへ急速に拡大する見通しで、すでに製造業や物流、医療などの現場での導入が進んでいます。物理AIはシミュレーション環境での学習と強化学習を組み合わせることで、実際の複雑な環境への適応が可能になり、メルセデスベンツやAmazonなど大手企業が既に導入して効率や精度の大幅な改善を実現しています。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
