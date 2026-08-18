@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-08-17T23:15:35Z",
+  "last_scraped": "2026-08-18T23:15:50Z",
   "articles": [
+    {
+      "id": "how-clinical-evidence-moves-drug-development-forward",
+      "title": "How Clinical Evidence Moves Drug Development Forward",
+      "url": "https://www.akkodis.com/blog/articles/how-clinical-evidence-moves-drug-development-forward",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-08-18T23:11:58Z",
+      "published_date": "2026-08-13T00:00:00Z",
+      "summary_ja": "医薬品開発では、統計分析や医学文書作成、臨床データ分析といった見えにくい基盤となる業務が、複雑な研究結果を規制当局が判断できる証拠へと変える役割を担っています。実際の事例として、複数の治療領域で同時に試験を進めていたグローバル製薬企業では、医学文書作成の専門家が埋め込まれたアプローチで12年以上にわたり、毎年数百件のプロトコルや申請資料を承認まで導き、科学的な方向性を保ち続けました。また別のバイオ医薬企業では、統計専門家が多文化のチームに統合され、分析過程の自動化と検証を改善することで、規制申請と品質判断をより一貫性のある形で支えることができるようになりました。"
+    },
     {
       "id": "sap-engagement-cloud-features-tactics-proof",
       "title": "Your Customers Are Leaving. Here's the Engine That Brings Them Back.",
