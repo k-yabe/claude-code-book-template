@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-08-18T23:15:50Z",
+  "last_scraped": "2026-08-19T23:16:54Z",
   "articles": [
     {
       "id": "how-clinical-evidence-moves-drug-development-forward",
@@ -40,26 +40,6 @@
       "first_seen": "2026-08-07T23:23:36Z",
       "published_date": "2026-07-30T00:00:00Z",
       "summary_ja": "AKKODISのドット・ネット開発者は、クラウドやコンテナ技術を活用しながらエンタープライズ向けアプリケーションを構築し、クライアント企業のデジタル変革を実現しています。スケーラビリティと堅牢性を備えたクラウドネイティブなソリューション開発により、顧客企業の競争力強化に直結する価値を提供しており、セキュリティや運用効率の向上に貢献しています。社内アカデミーを通じた継続的な学習と技術コミュニティへの参加により、エンジニアは最新技術トレンドをキャッチアップしながら、キャリア成長と業界での専門性を深めることができます。"
-    },
-    {
-      "id": "jigs-tools-for-integrated-manufacturing-processes-aeronautics",
-      "title": "Digital Transformation in Aerospace: The Strategic Role of Jigs & Tools in Integrated Production Processes",
-      "url": "https://www.akkodis.com/blog/articles/jigs-tools-for-integrated-manufacturing-processes-aeronautics",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-07-20T23:45:46Z",
-      "published_date": "2026-07-20T00:00:00Z",
-      "summary_ja": "Akkodisは世界40か国以上で4万人以上のエンジニアと専門家を擁し、AIやデータ、自動化技術を組織全体に組み込むことで企業の事業運営を変革しています。同社は自動車・航空宇宙・エネルギー・金融・製造など多岐にわたる業界で、最新技術と人間の能力を融合させた課題解決を提供しており、最近はISG Provider Lensでデジタルエンジニアリングサービスのリーダー企業として認定されました。コンピュータビジョンによる製造業の品質検査や企業向けAI導入の支援など、実務レベルでの革新的なソリューションを展開しています。"
-    },
-    {
-      "id": "smart-retrofit-new-potentital-efficiency-aeronautics",
-      "title": "Future-proofing existing fleets: how Smart Retrofits are unlocking new potential for efficiency in aeronautics",
-      "url": "https://www.akkodis.com/blog/articles/smart-retrofit-new-potentital-efficiency-aeronautics",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-07-22T23:53:26Z",
-      "published_date": "2026-07-20T00:00:00Z",
-      "summary_ja": "航空業界では新しい航空機の納期が長期化し、既存機材の最適化が急務となっており、デジタルエンジニアリングと最新の製造技術を活用した「スマートレトロフィット」が注目されています。Akkodisとパートナーは、A320型機の主翼端部品を3Dプリンティングと複合材料で再設計し、組立時間を40時間から6時間に短縮するとともに、従来の700個以上のリベットを接着技術に置き換える方案を開発しました。この取り組みは整備時間の削減や製造プロセスの簡素化だけでなく、必要に応じたスペアパーツの製造やメンテナンス拠点の在庫削減を可能にし、既存機材の経済効率を大きく改善します。"
     },
     {
       "id": "europe-doesnt-lack-science-it-lacks-bridges",
