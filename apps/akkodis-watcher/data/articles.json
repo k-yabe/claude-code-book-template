@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-08-19T23:16:54Z",
+  "last_scraped": "2026-08-20T23:19:18Z",
   "articles": [
     {
       "id": "how-clinical-evidence-moves-drug-development-forward",
@@ -60,16 +60,6 @@
       "first_seen": "2026-07-22T23:54:14Z",
       "published_date": "2026-07-22T00:00:00Z",
       "summary_ja": "AKKODiSはメルセデスAMG F1チームと2022年から共同で「Lead the Charge」という人材育成プログラムを運営しており、世界99か国から4000人以上の応募者を集めて持続可能性に関連した技術人材を育成しています。このプログラムでは通勤時の排出ガスを10%以上削減したり、食堂の食品廃棄物を35%削減するなど、現場の課題を分析して具体的な改善策を実行する人材を輩出しています。プログラム修了者は分析力と適応力を兼ね備え、高いパフォーマンスを求める環境で成果を上げる人材として、そのままチームに採用される実績も出ています。"
-    },
-    {
-      "id": "automating-mobile-app-regression-overnight-testing",
-      "title": "What If Your Next Release Tested Itself Overnight?",
-      "url": "https://www.akkodis.com/blog/articles/automating-mobile-app-regression-overnight-testing",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-07-21T23:46:39Z",
-      "published_date": "2026-07-21T00:00:00Z",
-      "summary_ja": "モバイルアプリのテストを手作業から自動化に切り替えることで、従来は1日かかっていた品質確認の作業を夜間に自動実行できるようになり、朝には結果レポートが完成している状態を実現しました。テストは実際のアプリを実機で動かし、ユーザーと同じ操作を繰り返すことで、隠れたバグを事前に発見し、本番環境での不具合を防ぐことができます。無料のオープンソースツールで構築したため新たな予算が不要であり、テスト精度は初回の改善サイクルで20ポイント以上向上し、リリース判定が「見送り」から「実施」へ変わりました。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
