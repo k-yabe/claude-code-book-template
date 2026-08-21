@@ -1,15 +1,25 @@
 {
-  "last_scraped": "2026-08-20T23:19:18Z",
+  "last_scraped": "2026-08-21T23:17:45Z",
   "articles": [
     {
-      "id": "how-clinical-evidence-moves-drug-development-forward",
-      "title": "How Clinical Evidence Moves Drug Development Forward",
-      "url": "https://www.akkodis.com/blog/articles/how-clinical-evidence-moves-drug-development-forward",
+      "id": "thinkers-and-makers-quantum-computing-manufacturing",
+      "title": "Quantum Scale: Building the Manufacturing Foundations for a Computing Revolution",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-quantum-computing-manufacturing",
       "source_id": "blog",
       "source_label": "Akkodis Blog",
-      "first_seen": "2026-08-18T23:11:58Z",
-      "published_date": "2026-08-13T00:00:00Z",
-      "summary_ja": "医薬品開発では、統計分析や医学文書作成、臨床データ分析といった見えにくい基盤となる業務が、複雑な研究結果を規制当局が判断できる証拠へと変える役割を担っています。実際の事例として、複数の治療領域で同時に試験を進めていたグローバル製薬企業では、医学文書作成の専門家が埋め込まれたアプローチで12年以上にわたり、毎年数百件のプロトコルや申請資料を承認まで導き、科学的な方向性を保ち続けました。また別のバイオ医薬企業では、統計専門家が多文化のチームに統合され、分析過程の自動化と検証を改善することで、規制申請と品質判断をより一貫性のある形で支えることができるようになりました。"
+      "first_seen": "2026-08-21T23:13:03Z",
+      "published_date": "2026-08-21T00:00:00Z",
+      "summary_ja": "量子コンピュータの製造化には科学的な革新だけでなく、信頼できる生産体制、データ基盤、デジタル技術が不可欠であり、研究室のプロトタイプから実際に運用できるシステムへの移行が真の課題となります。量子ハードウェアメーカーのSparrow Quantumでは、個別の光子放出チップを極低温で冷やし正確に制御する必要があるため、各チップの特性を測定して個別に調整する仕組みが組み込まれたデジタル層が製造工程そのものに組み込まれています。実験から得られた大量の専門的なデータを研究者、エンジニア、経営チームで安全にやり取りするには、組織の成長に対応できるデータ基盤の設計が重要であり、同時に安定した製品提供と新しい実験への柔軟性を両立させる仕組みが求められています。"
+    },
+    {
+      "id": "thinkers-and-makers-legacy-maritime-system-modernization",
+      "title": "No Changes, Please: Recreating a Legacy Maritime System with Modern Technology",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-legacy-maritime-system-modernization",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-08-21T23:13:17Z",
+      "published_date": "2026-08-21T00:00:00Z",
+      "summary_ja": "航海システムの構築を手がけるアッコディスのエンジニアチームは、10年前に導入された船舶用ブリッジシステムを最新の機器とソフトウェアで再構築する案件に取り組んでいます。ユーザーから高い評価を受けていたこのシステムについて、顧客は「全く同じ状態での再構築」を指示しており、外見や操作感、動作性能をそのまま維持することが絶対条件となっています。古い部品の多くが市場から消滅しているうえ、システムの各部品は相互に依存しているため、一つの部品を交換すると他の部品にも影響が生じる複雑さがあり、同社は現在、全要素の詳細な分析を進めてオペレーターが気づかないレベルでの見えない現代化を目指しています。"
     },
     {
       "id": "sap-engagement-cloud-features-tactics-proof",
@@ -20,6 +30,16 @@
       "first_seen": "2026-08-13T23:29:52Z",
       "published_date": "2026-08-13T00:00:00Z",
       "summary_ja": "# 要約\n\nECサイトでは7割のショッピングカートが決済前に放棄されており、顧客獲得後のフォローアップが不足している問題が顔クッキー廃止、AI活用の標準化、顧客ロイヤルティの低下という三つの市場変化によって深刻化しています。SAPが提供するエンゲージメントプラットフォームは、顧客データを一元管理し、AIで最適なタイミングと内容のメッセージを複数チャネルから自動配信することで、一度の購入を繰り返し買いに変えていきます。RFM分析やAI予測といった機能により、顧客ごとに送信頻度やメッセージを最適化することで、実際に売上向上と顧客満足度の両立を実現しています。"
+    },
+    {
+      "id": "how-clinical-evidence-moves-drug-development-forward",
+      "title": "How Clinical Evidence Moves Drug Development Forward",
+      "url": "https://www.akkodis.com/blog/articles/how-clinical-evidence-moves-drug-development-forward",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-08-18T23:11:58Z",
+      "published_date": "2026-08-13T00:00:00Z",
+      "summary_ja": "医薬品開発では、統計分析や医学文書作成、臨床データ分析といった見えにくい基盤となる業務が、複雑な研究結果を規制当局が判断できる証拠へと変える役割を担っています。実際の事例として、複数の治療領域で同時に試験を進めていたグローバル製薬企業では、医学文書作成の専門家が埋め込まれたアプローチで12年以上にわたり、毎年数百件のプロトコルや申請資料を承認まで導き、科学的な方向性を保ち続けました。また別のバイオ医薬企業では、統計専門家が多文化のチームに統合され、分析過程の自動化と検証を改善することで、規制申請と品質判断をより一貫性のある形で支えることができるようになりました。"
     },
     {
       "id": "capa-deviation-management-compliance-risk",
@@ -50,16 +70,6 @@
       "first_seen": "2026-07-22T23:53:40Z",
       "published_date": null,
       "summary_ja": "Akkodisは40年以上の業界横断的な経験を持つ40,000人以上のエンジニアとデジタル専門家を擁し、AIと自動化を活用した企業変革のサポートを行っています。同社は製造業からヘルスケアまで多様な業界で、デジタルエンジニアリング、インテリジェント・オペレーション、プラットフォーム最適化などの領域で業界トップクラスの専門知識を提供していると認識されています。Akkodisは「技術が人間の可能性を引き出すときに最も優れたソリューションが生まれる」という信念のもと、顧客のビジネス目標の達成に向けた実装支援を行っています。"
-    },
-    {
-      "id": "lead-the-charge-talent-formula-one",
-      "title": "Leading the Charge: How Akkodis and Mercedes-AMG PETRONAS Formula One Team turn Talent Into Performance",
-      "url": "https://www.akkodis.com/blog/articles/lead-the-charge-talent-formula-one",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-07-22T23:54:14Z",
-      "published_date": "2026-07-22T00:00:00Z",
-      "summary_ja": "AKKODiSはメルセデスAMG F1チームと2022年から共同で「Lead the Charge」という人材育成プログラムを運営しており、世界99か国から4000人以上の応募者を集めて持続可能性に関連した技術人材を育成しています。このプログラムでは通勤時の排出ガスを10%以上削減したり、食堂の食品廃棄物を35%削減するなど、現場の課題を分析して具体的な改善策を実行する人材を輩出しています。プログラム修了者は分析力と適応力を兼ね備え、高いパフォーマンスを求める環境で成果を上げる人材として、そのままチームに採用される実績も出ています。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
