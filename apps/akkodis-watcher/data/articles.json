@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-08-23T23:14:34Z",
+  "last_scraped": "2026-08-24T23:17:35Z",
   "articles": [
+    {
+      "id": "thinkers-and-makers-defense-manufacturing-production-capacity",
+      "title": "Ramping Up Defense Industrial Capacity Without Rebuilding the Factory",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-defense-manufacturing-production-capacity",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-08-24T23:13:04Z",
+      "published_date": "2026-08-21T00:00:00Z",
+      "summary_ja": "防衛産業の生産能力を増強する必要があるため、新工場の建設（4～6年要する）ではなく、既存施設の最適化に注力するべきとされています。既存生産システムの性能を可視化・分析して隠れた非効率を見つけ出し、自動車業界の手法を防衛産業向けにアレンジして、同じ敷地面積で30%以上の産能増加を実現した事例があります。デジタルエンジニアリングやシミュレーション、AI、ロボティクスなどのデジタル技術を導入することで、工場改修のリスクを減らしながら生産速度を高め、急増する防衛需要への対応を加速できるようになります。"
+    },
     {
       "id": "thinkers-and-makers-quantum-computing-manufacturing",
       "title": "Quantum Scale: Building the Manufacturing Foundations for a Computing Revolution",
