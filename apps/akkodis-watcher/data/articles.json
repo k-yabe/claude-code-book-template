@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-08-28T06:30:04Z",
+  "last_scraped": "2026-08-29T04:01:33Z",
   "articles": [
     {
       "id": "thinkers-and-makers-defense-manufacturing-production-capacity",
@@ -60,16 +60,6 @@
       "first_seen": "2026-08-10T23:24:29Z",
       "published_date": "2026-08-10T00:00:00Z",
       "summary_ja": "医薬品やバイオテクノロジー企業では、未解決の品質問題や是正措置が蓄積すると、監査対応や製造スケジュール、規制当局との信頼関係に支障をきたすようになります。ある大手CDMOがFDAの指摘で2000件以上の未解決問題を抱えていた際、AkkodisのRaland事業部が統一的な管理体制と一貫した調査基準を導入し、4週間で40人以上の品質担当者を配置してバックログの解消を支援しました。この取り組みを通じて単なる問題数の削減にとどまらず、根本原因の分析方法や知識移転まで含めた持続的な品質改善モデルの構築が実現しています。"
-    },
-    {
-      "id": "software-development-dotnet-developer-careers",
-      "title": "Why .NET Developers at Akkodis Are Driving the Future of Software Innovation",
-      "url": "https://www.akkodis.com/blog/articles/software-development-dotnet-developer-careers",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-08-07T23:23:36Z",
-      "published_date": "2026-07-30T00:00:00Z",
-      "summary_ja": "AKKODISのドット・ネット開発者は、クラウドやコンテナ技術を活用しながらエンタープライズ向けアプリケーションを構築し、クライアント企業のデジタル変革を実現しています。スケーラビリティと堅牢性を備えたクラウドネイティブなソリューション開発により、顧客企業の競争力強化に直結する価値を提供しており、セキュリティや運用効率の向上に貢献しています。社内アカデミーを通じた継続的な学習と技術コミュニティへの参加により、エンジニアは最新技術トレンドをキャッチアップしながら、キャリア成長と業界での専門性を深めることができます。"
     },
     {
       "id": "europe-doesnt-lack-science-it-lacks-bridges",
