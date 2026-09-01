@@ -1,15 +1,115 @@
 {
-  "last_scraped": "2026-08-31T00:58:55Z",
+  "last_scraped": "2026-09-01T01:37:41Z",
   "articles": [
     {
-      "id": "what-is-iown-future-optical-networks",
+      "id": "akkodis-iown-journey",
       "title": "The Future of Photonics, Built Through People: The Akkodis Journey Toward IOWN®",
-      "url": "https://www.akkodis.com/blog/articles/what-is-iown-future-optical-networks",
+      "url": "https://www.akkodis.com/blog/articles/akkodis-iown-journey",
       "source_id": "blog",
       "source_label": "Akkodis Blog",
-      "first_seen": "2026-08-31T00:58:20Z",
-      "published_date": "2026-08-30T00:00:00Z",
-      "summary_ja": "NTT Groupが推進する次世代通信インフラ「IOWN」の実現に向けて、アッコディスは2024年1月にIOWN推進室を設立し、人材育成とコンサルティングの両面からこのプロジェクトを支援しています。同社は国際的な非営利組織「IOWN Global Forum」に参加する唯一のテック系コンサルティング企業として、エンジニアから経営層まで対象とした基礎教育プログラムを開発し、技術と事業の両面を理解できる人材の育成に注力しています。また2025年には東京・芝浦の本社にIOWN体験施設「IOWN FUSION BASE」をオープンさせ、最新技術を実際に体験できる環境を整備することで、開発と実装の現場に必要とされる人材の発掘と育成を加速させています。"
+      "first_seen": "2026-09-01T01:30:16Z",
+      "published_date": "2026-08-31T00:00:00Z",
+      "summary_ja": "NTTグループが提唱する次世代通信インフラ構想「IOWN」の実現に向けて、アッコディスは2024年1月にIOWN推進室を設立し、人材育成とコンサルティングの両面から支援を開始しました。同年中にはIOWN概念基礎研修を立ち上げ、エンジニアだけでなく全てのビジネスパーソンが学べるカリキュラムを提供しており、今後はネットワーク技術や活用事例創出に関する研修も拡大していく予定です。2025年には東京の本社にIOWN体験施設「IOWN FUSION BASE」をオープンし、実際にIOWN技術に触れながら学べる環境を整備することで、グローバル展開に向けた人材育成のハブとして機能させています。"
+    },
+    {
+      "id": "canada-net-zero-challenge",
+      "title": "Akkodis Canada commits to building a more sustainable future through the Net-Zero Challenge",
+      "url": "https://www.akkodis.com/blog/articles/canada-net-zero-challenge",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-01T01:30:32Z",
+      "published_date": "2026-08-31T00:00:00Z",
+      "summary_ja": "Akkodis Canadaはカナダ政府のネット・ゼロ・チャレンジに参加し、2050年までにカナダの事業全体でGHG排出量をネット・ゼロにすることを目指しています。同社は現在、事業全体の温室効果ガス排出量を測定・管理し、長期的なネット・ゼロ達成に向けたロードマップを策定するとともに、運用効率の改善や事業計画への持続可能性の組み込みを進めています。この取り組みを通じて、環境への負荷を減らしながら、クライアントやコミュニティに価値を提供していく姿勢を示しています。"
+    },
+    {
+      "id": "thinkers-and-makers-defense-manufacturing-production-capacity",
+      "title": "Ramping Up Defense Industrial Capacity Without Rebuilding the Factory",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-defense-manufacturing-production-capacity",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-01T01:30:44Z",
+      "published_date": "2026-08-21T00:00:00Z",
+      "summary_ja": "防衛産業では地政学的な不安定性により生産能力の急速な拡大が求められていますが、新工場の建設には4〜6年を要するため、既存施設の最適化が急務となっています。既存の生産システムの詳細な分析を行い、自動車業界の製造原理を防衛産業向けにカスタマイズすることで、施設面積を増やさずに30％の生産能力を実現できた事例があります。デジタルシミュレーションやAI、ロボティクスなどの技術を活用し、工場改造前に仮想環境でテストすることにより、長期的に運用される防衛システムの品質を保ちながら生産効率を高めることが可能になります。"
+    },
+    {
+      "id": "industry-4-0-aerospace-building-foundation-for-ai",
+      "title": "Industry 4.0 in Aerospace: Building the Foundation for AI",
+      "url": "https://www.akkodis.com/blog/articles/industry-4-0-aerospace-building-foundation-for-ai",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-01T01:30:59Z",
+      "published_date": "2026-08-28T00:00:00Z",
+      "summary_ja": "航空宇宙産業のメーカーの多くはまだ業界4.0の基礎となるデータ連携やデジタルシステムの構築途上にあり、将来のAI活用に向けてはこうした土台を整備することが急務です。品質検査の自動化や予測保全、熟練技術者の知識継承といったAIの実装は、すでに理解できている既存の課題から始めることで現実的な投資効果が期待できます。生産工程の標準化、データの一貫性確保、機械間の情報連携といった基本的な環境整備があってこそ、導入したAI技術が実際に機能し、スケーラブルな活用につながるのです。"
+    },
+    {
+      "id": "how-clinical-evidence-moves-drug-development-forward",
+      "title": "How Clinical Evidence Moves Drug Development Forward",
+      "url": "https://www.akkodis.com/blog/articles/how-clinical-evidence-moves-drug-development-forward",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-01T01:31:11Z",
+      "published_date": "2026-08-13T00:00:00Z",
+      "summary_ja": "医薬品開発において、臨床試験の結果を信頼できる証拠に変えるためには、生物統計学、医療文書作成、臨床データ分析が統合的に機能することが不可欠です。グローバル製薬企業の事例では、複数の治療領域で同時に進行する臨床試験の数百件の文書を管理し、利害関係者の意見調整や戦略変更に対応しながら、12年以上にわたって規制当局への提出を支援してきました。統計手法、データ解析、文書作成をつなぐことで、試験設計から最終報告までの一貫性を保ち、規制当局の判断に必要な信頼できる根拠を提供できるようになります。"
+    },
+    {
+      "id": "edge-ai-vs-cloud-ai-real-time-operations",
+      "title": "Edge AI vs. Cloud AI: Building for Real-Time Operations",
+      "url": "https://www.akkodis.com/blog/articles/edge-ai-vs-cloud-ai-real-time-operations",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-01T01:31:38Z",
+      "published_date": "2026-08-17T00:00:00Z",
+      "summary_ja": "# 要約\n\n製造業や物流、エネルギー業界では、ネットワーク接続に頼らず現場で即座に判断を下す必要があるため、クラウドAIだけでなくエッジAI（機械やセンサーの近くで動作するAI）を組み合わせた設計が重要になります。ネットワークが遮断された場合でも安全かつ予測可能な動作を保つには、時間に左右されない決定はクラウドで、ミリ秒の応答が必要な決定は現場で処理するというアーキテクチャが必須となります。IT/OT統合によって現場の基盤を整えた上で、画像認識やロボット制御といった瞬時の判断が必要な層、さらに広い視点での分析を行う層を組み合わせることで、真の意味で信頼性の高い運用が実現できます。"
+    },
+    {
+      "id": "capa-deviation-management-compliance-risk",
+      "title": "CAPA and Deviation Management: A Growing Compliance Risk",
+      "url": "https://www.akkodis.com/blog/articles/capa-deviation-management-compliance-risk",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-01T01:32:03Z",
+      "published_date": "2026-08-10T00:00:00Z",
+      "summary_ja": "医薬品・医療機器企業では未解決のデバイエーション（逸脱）や是正予防措置（CAPA）が蓄積すると、監査準備の長期化や生産スケジュールの遅延など、事業全体のボトルネックになることが分かりました。ある大手製造受託機関がFDA警告書で2000件以上の未解決デバイエーションを指摘されたケースでは、単なる人員増強では根本的な改善にならず、調査品質の向上と一貫性のある手法が必要でした。Akkodisの子会社Ralandは規制対応の専門知識を活かして、統一された統治体制のもと40名以上のQA専門家を4週間で配置し、リスクベースの仕分けと調査基準の統一化により、企業の長期的な品質管理体制の改善を支援しました。"
+    },
+    {
+      "id": "building-quality-into-pharmaceutical-manufacturing",
+      "title": "Building Quality Into Every Stage of Pharmaceutical Manufacturing",
+      "url": "https://www.akkodis.com/blog/articles/building-quality-into-pharmaceutical-manufacturing",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-01T01:33:01Z",
+      "published_date": "2026-08-27T00:00:00Z",
+      "summary_ja": "医薬品製造において生産速度は向上していますが、品質管理の基準は従来と変わらないため、企業は生産量の増加と品質管理の両立が求められています。信頼性の高い生産データを記録するシステムの導入と検証、そしてAIが学習パターンを分析することで、問題が大きくなる前に早期に兆候を把握することが可能になります。製造実行システムの適切な検証と信頼性の高いデータがあれば、AIによる予測モデルが生産途中で問題の発生兆候を検出し、完成後の batch 確認時ではなくより早い段階で対応できるようになります。"
+    },
+    {
+      "id": "thinkers-and-makers-legacy-maritime-system-modernization",
+      "title": "No Changes, Please: Recreating a Legacy Maritime System with Modern Technology",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-legacy-maritime-system-modernization",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-01T01:34:58Z",
+      "published_date": "2026-08-21T00:00:00Z",
+      "summary_ja": "海運業界向けの船舶操舵室システムの再構築に取り組むAkkodisのエンジニアチームは、10年前の既存システムを最新のハードウェアとソフトウェアで作り直しながら、ユーザーには全く同じ使い心地を提供することを目指しています。プロセッサーやディスプレイといった部品の多くが生産終了となっている中で、単なる部品交換ではなく、船員が依存する操舵室の信頼性と使いやすさを変えずに技術の進化に対応させることが最大の課題となっています。ソフトウェアやハードウェアの変更が他のシステム全体に波及する可能性があるため、Akkodisチームは全ての関連部品と機能の相互依存性を詳細に分析し、ユーザーが長年信頼してきた安定した操舵環境を守りながらプロジェクトを進めています。"
+    },
+    {
+      "id": "thinkers-and-makers-quantum-computing-manufacturing",
+      "title": "Quantum Scale: Building the Manufacturing Foundations for a Computing Revolution",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-quantum-computing-manufacturing",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-01T01:35:26Z",
+      "published_date": "2026-08-21T00:00:00Z",
+      "summary_ja": "量子コンピュータを本格的に製造・運用するには、科学的な発見だけでなく、安定した製造プロセスとデータ管理の仕組みが不可欠であることが分かりました。Akkodisは量子デバイス企業のSparrow Quantumと協力し、極低温で動作する光子源チップの製造において、個々のデバイスの特性を測定・調整しながら大量生産する方法を構築しています。同時に、物理学者からビジネスチームまで複数の部門が扱う膨大な実験データを安全かつ効率的に管理し、継続的な革新と安定した製品供給の両立を支える仕組みを整えることが成功の鍵となります。"
+    },
+    {
+      "id": "sap-engagement-cloud-features-tactics-proof",
+      "title": "Your Customers Are Leaving. Here's the Engine That Brings Them Back.",
+      "url": "https://www.akkodis.com/blog/articles/sap-engagement-cloud-features-tactics-proof",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-01T01:35:42Z",
+      "published_date": "2026-08-13T00:00:00Z",
+      "summary_ja": "# 要約\n\nオンラインショップでのカート放棄率が70%に達する中、顧客との購入後の関係構築が売上に直結する課題となっており、SAP Engagement Cloudは顧客データを活用したAI搭載プラットフォームで、メール、SMS、SNSなど複数チャネルを通じて適切なタイミングで個別化されたメッセージを顧客に届けることで、この問題を解決します。クッキー廃止によるファーストパーティデータの重要性の高まり、AIによるパーソナライゼーションが標準的な期待になったこと、そして顧客ロイヤルティが不安定になってきたことから、このプラットフォームは企業の成長に向けた最重要ツールとなっています。Smart Insightなどの機能により、企業は顧客の価値度を自動判定して接触頻度を最適化し、真に価値のある顧客との関係を効率的に深めることが可能になります。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
