@@ -1,16 +1,6 @@
 {
-  "last_scraped": "2026-09-02T00:43:58Z",
+  "last_scraped": "2026-09-03T00:53:46Z",
   "articles": [
-    {
-      "id": "thinkers-and-makers-ev-battery-adhesives-lightweight-engineering",
-      "title": "How Advanced Adhesives Are Powering Lighter, More Efficient EV Batteries",
-      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-ev-battery-adhesives-lightweight-engineering",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-02T00:39:16Z",
-      "published_date": "2026-09-01T00:00:00Z",
-      "summary_ja": "電動車のバッテリーは軽量化と効率性の向上が求められており、接着剤や充填材などの特殊な材料がセルの固定や放熱管理、異なる素材の接合に不可欠な役割を果たしています。従来のネジやボルトと異なり、接着剤ボンディングは荷重を広い面積に分散させることで構造を軽くし、アルミニウムやプラスチック、炭素繊維複合材など多様な材料を組み合わせることが可能になります。ドイツのシンデルフィンゲンにあるアッコディスの材料研究所では、顧客が抱えるバッテリーの接着課題に対して、熱伝導性や防湿性、耐熱性などを備えた最適なソリューションを開発し、製造現場で実装できるようサポートしています。"
-    },
     {
       "id": "industry-4-0-aerospace-building-foundation-for-ai",
       "title": "Industry 4.0 in Aerospace: Building the Foundation for AI",
@@ -20,6 +10,26 @@
       "first_seen": "2026-09-01T01:30:59Z",
       "published_date": "2026-08-28T00:00:00Z",
       "summary_ja": "航空宇宙産業のメーカーの多くはまだ業界4.0の基礎となるデータ連携やデジタルシステムの構築途上にあり、将来のAI活用に向けてはこうした土台を整備することが急務です。品質検査の自動化や予測保全、熟練技術者の知識継承といったAIの実装は、すでに理解できている既存の課題から始めることで現実的な投資効果が期待できます。生産工程の標準化、データの一貫性確保、機械間の情報連携といった基本的な環境整備があってこそ、導入したAI技術が実際に機能し、スケーラブルな活用につながるのです。"
+    },
+    {
+      "id": "thinkers-and-makers-defense-manufacturing-production-capacity",
+      "title": "Ramping Up Defense Industrial Capacity Without Rebuilding the Factory",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-defense-manufacturing-production-capacity",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-01T01:30:44Z",
+      "published_date": "2026-08-21T00:00:00Z",
+      "summary_ja": "防衛産業では地政学的な不安定性により生産能力の急速な拡大が求められていますが、新工場の建設には4〜6年を要するため、既存施設の最適化が急務となっています。既存の生産システムの詳細な分析を行い、自動車業界の製造原理を防衛産業向けにカスタマイズすることで、施設面積を増やさずに30％の生産能力を実現できた事例があります。デジタルシミュレーションやAI、ロボティクスなどの技術を活用し、工場改造前に仮想環境でテストすることにより、長期的に運用される防衛システムの品質を保ちながら生産効率を高めることが可能になります。"
+    },
+    {
+      "id": "thinkers-and-makers-ev-battery-adhesives-lightweight-engineering",
+      "title": "How Advanced Adhesives Are Powering Lighter, More Efficient EV Batteries",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-ev-battery-adhesives-lightweight-engineering",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-02T00:39:16Z",
+      "published_date": "2026-09-01T00:00:00Z",
+      "summary_ja": "電動車のバッテリーは軽量化と効率性の向上が求められており、接着剤や充填材などの特殊な材料がセルの固定や放熱管理、異なる素材の接合に不可欠な役割を果たしています。従来のネジやボルトと異なり、接着剤ボンディングは荷重を広い面積に分散させることで構造を軽くし、アルミニウムやプラスチック、炭素繊維複合材など多様な材料を組み合わせることが可能になります。ドイツのシンデルフィンゲンにあるアッコディスの材料研究所では、顧客が抱えるバッテリーの接着課題に対して、熱伝導性や防湿性、耐熱性などを備えた最適なソリューションを開発し、製造現場で実装できるようサポートしています。"
     },
     {
       "id": "akkodis-iown-journey",
@@ -40,16 +50,6 @@
       "first_seen": "2026-09-01T01:30:32Z",
       "published_date": "2026-08-31T00:00:00Z",
       "summary_ja": "Akkodis Canadaはカナダ政府のネット・ゼロ・チャレンジに参加し、2050年までにカナダの事業全体でGHG排出量をネット・ゼロにすることを目指しています。同社は現在、事業全体の温室効果ガス排出量を測定・管理し、長期的なネット・ゼロ達成に向けたロードマップを策定するとともに、運用効率の改善や事業計画への持続可能性の組み込みを進めています。この取り組みを通じて、環境への負荷を減らしながら、クライアントやコミュニティに価値を提供していく姿勢を示しています。"
-    },
-    {
-      "id": "thinkers-and-makers-defense-manufacturing-production-capacity",
-      "title": "Ramping Up Defense Industrial Capacity Without Rebuilding the Factory",
-      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-defense-manufacturing-production-capacity",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-01T01:30:44Z",
-      "published_date": "2026-08-21T00:00:00Z",
-      "summary_ja": "防衛産業では地政学的な不安定性により生産能力の急速な拡大が求められていますが、新工場の建設には4〜6年を要するため、既存施設の最適化が急務となっています。既存の生産システムの詳細な分析を行い、自動車業界の製造原理を防衛産業向けにカスタマイズすることで、施設面積を増やさずに30％の生産能力を実現できた事例があります。デジタルシミュレーションやAI、ロボティクスなどの技術を活用し、工場改造前に仮想環境でテストすることにより、長期的に運用される防衛システムの品質を保ちながら生産効率を高めることが可能になります。"
     },
     {
       "id": "how-clinical-evidence-moves-drug-development-forward",
