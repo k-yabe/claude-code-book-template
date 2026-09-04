@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-09-03T00:53:46Z",
+  "last_scraped": "2026-09-04T00:34:52Z",
   "articles": [
+    {
+      "id": "akkodis-iown-journey",
+      "title": "The Future of Photonics, Built Through People: The Akkodis Journey Toward IOWN®",
+      "url": "https://www.akkodis.com/blog/articles/akkodis-iown-journey",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-01T01:30:16Z",
+      "published_date": "2026-08-31T00:00:00Z",
+      "summary_ja": "NTTグループが提唱する次世代通信インフラ構想「IOWN」の実現に向けて、アッコディスは2024年1月にIOWN推進室を設立し、人材育成とコンサルティングの両面から支援を開始しました。同年中にはIOWN概念基礎研修を立ち上げ、エンジニアだけでなく全てのビジネスパーソンが学べるカリキュラムを提供しており、今後はネットワーク技術や活用事例創出に関する研修も拡大していく予定です。2025年には東京の本社にIOWN体験施設「IOWN FUSION BASE」をオープンし、実際にIOWN技術に触れながら学べる環境を整備することで、グローバル展開に向けた人材育成のハブとして機能させています。"
+    },
     {
       "id": "industry-4-0-aerospace-building-foundation-for-ai",
       "title": "Industry 4.0 in Aerospace: Building the Foundation for AI",
@@ -30,16 +40,6 @@
       "first_seen": "2026-09-02T00:39:16Z",
       "published_date": "2026-09-01T00:00:00Z",
       "summary_ja": "電動車のバッテリーは軽量化と効率性の向上が求められており、接着剤や充填材などの特殊な材料がセルの固定や放熱管理、異なる素材の接合に不可欠な役割を果たしています。従来のネジやボルトと異なり、接着剤ボンディングは荷重を広い面積に分散させることで構造を軽くし、アルミニウムやプラスチック、炭素繊維複合材など多様な材料を組み合わせることが可能になります。ドイツのシンデルフィンゲンにあるアッコディスの材料研究所では、顧客が抱えるバッテリーの接着課題に対して、熱伝導性や防湿性、耐熱性などを備えた最適なソリューションを開発し、製造現場で実装できるようサポートしています。"
-    },
-    {
-      "id": "akkodis-iown-journey",
-      "title": "The Future of Photonics, Built Through People: The Akkodis Journey Toward IOWN®",
-      "url": "https://www.akkodis.com/blog/articles/akkodis-iown-journey",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-01T01:30:16Z",
-      "published_date": "2026-08-31T00:00:00Z",
-      "summary_ja": "NTTグループが提唱する次世代通信インフラ構想「IOWN」の実現に向けて、アッコディスは2024年1月にIOWN推進室を設立し、人材育成とコンサルティングの両面から支援を開始しました。同年中にはIOWN概念基礎研修を立ち上げ、エンジニアだけでなく全てのビジネスパーソンが学べるカリキュラムを提供しており、今後はネットワーク技術や活用事例創出に関する研修も拡大していく予定です。2025年には東京の本社にIOWN体験施設「IOWN FUSION BASE」をオープンし、実際にIOWN技術に触れながら学べる環境を整備することで、グローバル展開に向けた人材育成のハブとして機能させています。"
     },
     {
       "id": "canada-net-zero-challenge",
