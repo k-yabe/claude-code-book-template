@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-09-04T00:34:52Z",
+  "last_scraped": "2026-09-05T00:34:14Z",
   "articles": [
     {
       "id": "akkodis-iown-journey",
@@ -72,6 +72,16 @@
       "summary_ja": "# 要約\n\n製造業や物流、エネルギー業界では、ネットワーク接続に頼らず現場で即座に判断を下す必要があるため、クラウドAIだけでなくエッジAI（機械やセンサーの近くで動作するAI）を組み合わせた設計が重要になります。ネットワークが遮断された場合でも安全かつ予測可能な動作を保つには、時間に左右されない決定はクラウドで、ミリ秒の応答が必要な決定は現場で処理するというアーキテクチャが必須となります。IT/OT統合によって現場の基盤を整えた上で、画像認識やロボット制御といった瞬時の判断が必要な層、さらに広い視点での分析を行う層を組み合わせることで、真の意味で信頼性の高い運用が実現できます。"
     },
     {
+      "id": "ai-digital-twins-risk-prediction-healthcare-aviation",
+      "title": "How AI-Powered Digital Twins Are Transforming Risk Prediction From Operating Rooms to Aircraft Cockpits",
+      "url": "https://www.akkodis.com/blog/articles/ai-digital-twins-risk-prediction-healthcare-aviation",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-05T00:28:47Z",
+      "published_date": null,
+      "summary_ja": "Akkodisが主導するPRIAプロジェクトは、人工知能とデジタルツイン技術を組み合わせて手術室の危機的な状況を事前に察知し、医療チームが問題が発生する前に対応できる仕組みを開発しました。システムは装置の故障から患者の異常な数値、感染リスクまで複数の変数を同時に監視し、潜在的な有害事象に関連するパターンを検出して、反応的な対応から予測的なリスク管理へのシフトを実現しています。このデジタルツイン技術は医療以外にも応用でき、航空業界でも複雑で安全が最優先とされる環境における同様のリスク予測に活用され始めています。"
+    },
+    {
       "id": "capa-deviation-management-compliance-risk",
       "title": "CAPA and Deviation Management: A Growing Compliance Risk",
       "url": "https://www.akkodis.com/blog/articles/capa-deviation-management-compliance-risk",
@@ -82,6 +92,16 @@
       "summary_ja": "医薬品・医療機器企業では未解決のデバイエーション（逸脱）や是正予防措置（CAPA）が蓄積すると、監査準備の長期化や生産スケジュールの遅延など、事業全体のボトルネックになることが分かりました。ある大手製造受託機関がFDA警告書で2000件以上の未解決デバイエーションを指摘されたケースでは、単なる人員増強では根本的な改善にならず、調査品質の向上と一貫性のある手法が必要でした。Akkodisの子会社Ralandは規制対応の専門知識を活かして、統一された統治体制のもと40名以上のQA専門家を4週間で配置し、リスクベースの仕分けと調査基準の統一化により、企業の長期的な品質管理体制の改善を支援しました。"
     },
     {
+      "id": "aiops-it-operations-separation-deadline",
+      "title": "How AIOps Scaled Autonomous ITOps for a Global Manufacturer",
+      "url": "https://www.akkodis.com/blog/articles/aiops-it-operations-separation-deadline",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-05T00:29:45Z",
+      "published_date": null,
+      "summary_ja": "グローバルな製造企業が企業分離に伴い、ゼロから大規模なIT運用体制を短期間で構築する必要があり、初日からAIを基盤に据えた設計を採用することで、知識管理と自動化を同時に進める戦略を取りました。運用開始当初は1万1千件以上のチケット処理と知識ベースの構築に注力し、1,010件の知識記事をAIが自動生成して、情報を体系化できる基盤を整備しました。その後、6万件以上のチケット分析を通じてシステムが学習から実際の問題解決へシフトし、2,457件のインシデント解決実績と100%のインシデント充実化により、対応時間の大幅な短縮と業務の安定化を実現させました。"
+    },
+    {
       "id": "building-quality-into-pharmaceutical-manufacturing",
       "title": "Building Quality Into Every Stage of Pharmaceutical Manufacturing",
       "url": "https://www.akkodis.com/blog/articles/building-quality-into-pharmaceutical-manufacturing",
@@ -90,6 +110,16 @@
       "first_seen": "2026-09-01T01:33:01Z",
       "published_date": "2026-08-27T00:00:00Z",
       "summary_ja": "医薬品製造において生産速度は向上していますが、品質管理の基準は従来と変わらないため、企業は生産量の増加と品質管理の両立が求められています。信頼性の高い生産データを記録するシステムの導入と検証、そしてAIが学習パターンを分析することで、問題が大きくなる前に早期に兆候を把握することが可能になります。製造実行システムの適切な検証と信頼性の高いデータがあれば、AIによる予測モデルが生産途中で問題の発生兆候を検出し、完成後の batch 確認時ではなくより早い段階で対応できるようになります。"
+    },
+    {
+      "id": "how-prebuilt-ai-agents-drive-enterprise-ai-roi",
+      "title": "How Prebuilt AI Agents Drive Enterprise AI ROI",
+      "url": "https://www.akkodis.com/blog/articles/how-prebuilt-ai-agents-drive-enterprise-ai-roi",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-05T00:30:34Z",
+      "published_date": null,
+      "summary_ja": "AkkodisではAI導入において個人の生産性向上から企業全体の業務効率化へと段階を進める必要があると指摘しており、汎用的なコパイロットではなく人事・財務・調達・営業などの部門ごとに特化した専用AIエージェントの活用が効果的であると述べています。これらの専用エージェントは既存の業務フローに組み込まれて繰り返し作業を自動化することで、従来メールやシステム間の承認で停滞していた業務プロセス全体のボトルネックを解消できます。Akkodis Japanの営業運用自動化の事例では年間15,000時間の業務時間削減を実現しており、このアプローチにより企業は測定可能な事業成果を生み出すことが可能になります。"
     },
     {
       "id": "thinkers-and-makers-legacy-maritime-system-modernization",
