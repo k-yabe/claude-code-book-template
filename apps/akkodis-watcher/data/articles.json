@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-09-05T00:34:14Z",
+  "last_scraped": "2026-09-06T00:25:02Z",
   "articles": [
     {
       "id": "akkodis-iown-journey",
@@ -120,6 +120,16 @@
       "first_seen": "2026-09-05T00:30:34Z",
       "published_date": null,
       "summary_ja": "AkkodisではAI導入において個人の生産性向上から企業全体の業務効率化へと段階を進める必要があると指摘しており、汎用的なコパイロットではなく人事・財務・調達・営業などの部門ごとに特化した専用AIエージェントの活用が効果的であると述べています。これらの専用エージェントは既存の業務フローに組み込まれて繰り返し作業を自動化することで、従来メールやシステム間の承認で停滞していた業務プロセス全体のボトルネックを解消できます。Akkodis Japanの営業運用自動化の事例では年間15,000時間の業務時間削減を実現しており、このアプローチにより企業は測定可能な事業成果を生み出すことが可能になります。"
+    },
+    {
+      "id": "beyond-clinical-trials-real-world-evidence-life-sciences",
+      "title": "Beyond Clinical Trials: Real-World Evidence in Life Sciences",
+      "url": "https://www.akkodis.com/blog/articles/beyond-clinical-trials-real-world-evidence-life-sciences",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-06T00:22:26Z",
+      "published_date": null,
+      "summary_ja": "医療分野では臨床試験後も継続的に実際の治療効果を示す証拠を集める必要性が高まっており、規制当局や保険者がこうした証拠を求めるようになっています。この変化に対応するには、データの出所管理、統計解析、医学文献作成、安全性監視といった複数の部門が協力して、信頼できる証拠を継続的に生成・管理できる体制を整備することが重要です。データの透明性と追跡可能性を確保し、統計チームと文章作成チームが単発ではなく継続的に働く環境を作ることで、初めて企業は競争力を保つことができます。"
     },
     {
       "id": "thinkers-and-makers-legacy-maritime-system-modernization",
