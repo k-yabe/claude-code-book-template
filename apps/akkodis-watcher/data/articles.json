@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-09-06T00:25:02Z",
+  "last_scraped": "2026-09-07T00:31:09Z",
   "articles": [
     {
       "id": "akkodis-iown-journey",
@@ -92,6 +92,16 @@
       "summary_ja": "医薬品・医療機器企業では未解決のデバイエーション（逸脱）や是正予防措置（CAPA）が蓄積すると、監査準備の長期化や生産スケジュールの遅延など、事業全体のボトルネックになることが分かりました。ある大手製造受託機関がFDA警告書で2000件以上の未解決デバイエーションを指摘されたケースでは、単なる人員増強では根本的な改善にならず、調査品質の向上と一貫性のある手法が必要でした。Akkodisの子会社Ralandは規制対応の専門知識を活かして、統一された統治体制のもと40名以上のQA専門家を4週間で配置し、リスクベースの仕分けと調査基準の統一化により、企業の長期的な品質管理体制の改善を支援しました。"
     },
     {
+      "id": "context-graphs-future-of-agentic-it-operations",
+      "title": "Context Graphs: The Future of Agentic IT Operations",
+      "url": "https://www.akkodis.com/blog/articles/context-graphs-future-of-agentic-it-operations",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-07T00:28:04Z",
+      "published_date": null,
+      "summary_ja": "エンタープライズのIT運用において、知識グラフだけでは過去の対応内容や判断理由が記録されないため、同じような問題が繰り返し発生し、組織全体で学習が蓄積されないという課題が生じています。コンテキストグラフは単なるシステム構成図ではなく、実際の対応プロセス、判断条件、制約条件、そして結果まで記録することで、AIシステムが経験から継続的に学習し、より安全で効果的な自動化運用を実現します。この仕組みにより、ガバナンスの自動化や監査が容易になり、同じインシデントが再発する際に以前の対応経験を活かせるようになります。"
+    },
+    {
       "id": "aiops-it-operations-separation-deadline",
       "title": "How AIOps Scaled Autonomous ITOps for a Global Manufacturer",
       "url": "https://www.akkodis.com/blog/articles/aiops-it-operations-separation-deadline",
@@ -130,6 +140,16 @@
       "first_seen": "2026-09-06T00:22:26Z",
       "published_date": null,
       "summary_ja": "医療分野では臨床試験後も継続的に実際の治療効果を示す証拠を集める必要性が高まっており、規制当局や保険者がこうした証拠を求めるようになっています。この変化に対応するには、データの出所管理、統計解析、医学文献作成、安全性監視といった複数の部門が協力して、信頼できる証拠を継続的に生成・管理できる体制を整備することが重要です。データの透明性と追跡可能性を確保し、統計チームと文章作成チームが単発ではなく継続的に働く環境を作ることで、初めて企業は競争力を保つことができます。"
+    },
+    {
+      "id": "emotional-intelligence-work-skills",
+      "title": "Emotional Intelligence at Work: Build the Skills That Shape Strong Careers",
+      "url": "https://www.akkodis.com/blog/articles/emotional-intelligence-work-skills",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-07T00:29:12Z",
+      "published_date": null,
+      "summary_ja": "申し訳ございませんが、提供いただいたテキストは「サーバーエラーが発生しました」というエラーメッセージのみで、記事の本文内容が含まれていないため、要約することができません。正常に表示されたWebページのテキストをご提供いただければ、ご指示の通り要約させていただきます。"
     },
     {
       "id": "thinkers-and-makers-legacy-maritime-system-modernization",
