@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-09-08T00:52:21Z",
+  "last_scraped": "2026-09-09T00:52:07Z",
   "articles": [
     {
       "id": "akkodis-iown-journey",
@@ -80,16 +80,6 @@
       "first_seen": "2026-09-05T00:28:47Z",
       "published_date": null,
       "summary_ja": "Akkodisが主導するPRIAプロジェクトは、人工知能とデジタルツイン技術を組み合わせて手術室の危機的な状況を事前に察知し、医療チームが問題が発生する前に対応できる仕組みを開発しました。システムは装置の故障から患者の異常な数値、感染リスクまで複数の変数を同時に監視し、潜在的な有害事象に関連するパターンを検出して、反応的な対応から予測的なリスク管理へのシフトを実現しています。このデジタルツイン技術は医療以外にも応用でき、航空業界でも複雑で安全が最優先とされる環境における同様のリスク予測に活用され始めています。"
-    },
-    {
-      "id": "capa-deviation-management-compliance-risk",
-      "title": "CAPA and Deviation Management: A Growing Compliance Risk",
-      "url": "https://www.akkodis.com/blog/articles/capa-deviation-management-compliance-risk",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-01T01:32:03Z",
-      "published_date": "2026-08-10T00:00:00Z",
-      "summary_ja": "医薬品・医療機器企業では未解決のデバイエーション（逸脱）や是正予防措置（CAPA）が蓄積すると、監査準備の長期化や生産スケジュールの遅延など、事業全体のボトルネックになることが分かりました。ある大手製造受託機関がFDA警告書で2000件以上の未解決デバイエーションを指摘されたケースでは、単なる人員増強では根本的な改善にならず、調査品質の向上と一貫性のある手法が必要でした。Akkodisの子会社Ralandは規制対応の専門知識を活かして、統一された統治体制のもと40名以上のQA専門家を4週間で配置し、リスクベースの仕分けと調査基準の統一化により、企業の長期的な品質管理体制の改善を支援しました。"
     },
     {
       "id": "context-graphs-future-of-agentic-it-operations",
