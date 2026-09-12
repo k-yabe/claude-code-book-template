@@ -1,6 +1,136 @@
 {
-  "last_scraped": "2026-09-11T00:48:47Z",
+  "last_scraped": "2026-09-12T00:54:48Z",
   "articles": [
+    {
+      "id": "industry-4-0-vs-5-0-aerospace-building-foundation-for-ai",
+      "title": "Industry 4.0 vs Industry 5.0 in Aerospace: Building the Foundation for AI",
+      "url": "https://www.akkodis.com/blog/articles/industry-4-0-vs-5-0-aerospace-building-foundation-for-ai",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:46:12Z",
+      "published_date": "2026-09-11T00:00:00Z",
+      "summary_ja": "航空宇宙産業の製造企業の多くはまだ産業4.0の基盤となるデータ連携やプロセス標準化に取り組んでいる段階にあり、その土台がなければ産業5.0やAIといった先進技術を活用することができません。品質検査の自動化や予測保全、熟練者の知識記録といった具体的なAI活用では、安定した検査基準や機械データといった信頼性の高いデータが前提条件になります。航空宇宙メーカーが本当に必要なのは新しい技術そのものではなく、プロセスを統一し、部門間でデータを共有でき、例外処理に対応できる運用体制であり、それを整えることで初めて先端技術が機能するようになります。"
+    },
+    {
+      "id": "ai-core-railway-brake-pad-inspection",
+      "title": "AI-Core Automates Railway Brake Pad Inspection with Computer Vision",
+      "url": "https://www.akkodis.com/blog/articles/ai-core-railway-brake-pad-inspection",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:46:25Z",
+      "published_date": "2026-09-10T00:00:00Z",
+      "summary_ja": "AI-Coreは、コンピュータビジョンと機械学習を使って鉄道の制動パッド検査を自動化し、パッドの厚さ測定と異常検出を行うことで、手作業による検査時間を最大90%削減できます。検査画像から摩耗パターンや損傷を自動で判定し、技術者は優先度の高い資産に注力できるようになります。検査結果をデジタル記録として保存することで、パッド摩耗の追跡や保守計画の最適化が可能になり、車両の運用効率を向上させます。"
+    },
+    {
+      "id": "building-quality-into-pharmaceutical-manufacturing",
+      "title": "Building Quality Into Every Stage of Pharmaceutical Manufacturing",
+      "url": "https://www.akkodis.com/blog/articles/building-quality-into-pharmaceutical-manufacturing",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:46:46Z",
+      "published_date": "2026-09-09T00:00:00Z",
+      "summary_ja": "医薬品製造では生産スピードの向上が求められる一方で、品質管理の基準は変わらないため、製造実行システムの適切な検証とデータの信頼性確保が重要になっています。信頼できる生産データと人工知能による予測モデルを組み合わせることで、問題が発生した直後に検知できるようになり、従来の事後的な品質レビューより早期のリスク検出が可能になります。実装から運用まで一貫した検証支援により、システムの完全性と製造プロセスの管理を強化し、継続的な品質向上のための基盤を整えることができます。"
+    },
+    {
+      "id": "ai-infrastructure-strategy-where-should-workloads-run",
+      "title": "AI Infrastructure Strategy: Where Should Workloads Run?",
+      "url": "https://www.akkodis.com/blog/articles/ai-infrastructure-strategy-where-should-workloads-run",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:47:01Z",
+      "published_date": "2026-09-09T00:00:00Z",
+      "summary_ja": "企業がAI投資を検討する際、モデル選択と同じくらい重要なのが、どのインフラ上でワークロードを実行するかという判断です。クラウド、コロケーション施設、自社データセンターのいずれかを選ぶことで、コスト、処理速度、安定性、そしてデータガバナンスが大きく変わります。AIのトレーニングと推論では必要な環境が異なるため、ワークロードごとに最適な場所を見極める必要があり、建設か購入かという選択は当初の決定で終わらず、需要や技術の変化に応じて柔軟に見直すべきです。優れたインフラパートナーは、自社施設が最適でない場合でもそれを説明でき、異なる利用率でのコスト試算や、ワークロード移行時の支障を最小限に抑える対応ができるかが大切です。"
+    },
+    {
+      "id": "akkodis-iown-journey",
+      "title": "The Future of Photonics, Built Through People: The Akkodis Journey Toward IOWN®",
+      "url": "https://www.akkodis.com/blog/articles/akkodis-iown-journey",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:47:16Z",
+      "published_date": "2026-08-31T00:00:00Z",
+      "summary_ja": "NTT Groupが推進する次世代通信インフラIOWN構想の実現に向けて、Akkodisは2024年1月にIOWN推進室を立ち上げ、人材育成とコンサルティングの両面からこのプロジェクトに取り組んでいます。IOWN Global Forumにおいて人材開発を軸とした唯一のテックコンサルティング企業として参画し、NTT DOCOMOと協力して2024年にIOWN Concept Basic Trainingをスタートさせるなど、エンジニアから経営層まで幅広い専門人材の育成に力を入れています。また2025年には東京芝浦の本社にIOWN FUSION BASEを開設し、最新の光通信技術を実際に体験できる施設として、業界を超えた企業や専門家が協力して新しいビジネスを生み出すプラットフォームになることを目指しています。"
+    },
+    {
+      "id": "thinkers-and-makers-defense-manufacturing-production-capacity",
+      "title": "Ramping Up Defense Industrial Capacity Without Rebuilding the Factory",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-defense-manufacturing-production-capacity",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:47:29Z",
+      "published_date": "2026-08-21T00:00:00Z",
+      "summary_ja": "防衛産業は現在の施設だけで生産能力を高める必要があり、新しい工場の建設には4～6年かかるため、既存の生産ラインの最適化が急務となっています。生産ラインの分析やオートメーション、デジタルシミュレーション、機械学習を活用することで、既存の敷地内で30%以上の生産能力向上を実現できることが実例で証明されています。防衛製品は数十年の長期運用が求められるため、新しいAI技術を導入する際にも安全性や信頼性の検証を徹底し、単なるアルゴリズムの選択ではなく、総合的な品質管理が不可欠であると指摘されています。"
+    },
+    {
+      "id": "thinkers-and-makers-ev-battery-adhesives-lightweight-engineering",
+      "title": "How Advanced Adhesives Are Powering Lighter, More Efficient EV Batteries",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-ev-battery-adhesives-lightweight-engineering",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:47:42Z",
+      "published_date": "2026-09-01T00:00:00Z",
+      "summary_ja": "電動車のバッテリー開発において、接着剤や充填材といった材料技術が軽量化と効率化を両立させるための重要な役割を担っています。従来の機械的な固定方法と異なり、接着剤は異なる素材を結合でき、熱伝導性を保ちながら電気絶縁性も提供するなど複数の機能を同時に果たすため、バッテリーパックの構造を軽くしながら耐久性と安全性を高めることができます。ドイツのシンデルフィンゲンにあるアッコディスの研究所では、電動車向けバッテリーの接着ソリューションを開発・検証する専門チームが顧客企業と協働し、複雑な課題を実際の製造工程で使える形に転換させています。"
+    },
+    {
+      "id": "canada-net-zero-challenge",
+      "title": "Akkodis Canada commits to building a more sustainable future through the Net-Zero Challenge",
+      "url": "https://www.akkodis.com/blog/articles/canada-net-zero-challenge",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:48:03Z",
+      "published_date": "2026-08-31T00:00:00Z",
+      "summary_ja": "Akkodis Canadaはカナダ政府のネット・ゼロ・チャレンジに参加し、2050年までに温室効果ガスの排出をゼロにすることを目指しています。同社は事業全体の排出量を測定・管理し、削減経路を確立するとともに、業務効率の改善や従業員の意識向上に取り組んでいます。長期的な経営成功と環境責任は一体であると考え、透明性のある報告を通じて持続可能な未来の実現に貢献していく構えです。"
+    },
+    {
+      "id": "ai-advances-herald-coding-changes",
+      "title": "AI Advances Herald Coding Changes",
+      "url": "https://www.akkodis.com/blog/articles/ai-advances-herald-coding-changes",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:48:35Z",
+      "published_date": null,
+      "summary_ja": "シリコンバレーのスタートアップが発表したAIソフトウェアエンジニア「Devin」は、従来のチャットボット型AIとは異なり、問題を小さなタスクに分割して段階的に解く推論能力を持つエージェント型システムとして注目されています。このような問題解決型のAIが急速に進化しており、数年以内に特定タスクでは人間を上回るレベルに達する可能性が高まっています。将来のプログラマーの仕事は大幅に変わり、AIが実装作業を担当する一方で、人間は全体設計や企画、利害関係者との調整といった高度な判断が求められるようになると予想されます。"
+    },
+    {
+      "id": "edge-ai-vs-cloud-ai-real-time-operations",
+      "title": "Edge AI vs. Cloud AI: Building for Real-Time Operations",
+      "url": "https://www.akkodis.com/blog/articles/edge-ai-vs-cloud-ai-real-time-operations",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:49:41Z",
+      "published_date": "2026-08-17T00:00:00Z",
+      "summary_ja": "製造業や物流・エネルギー分野では、AIが判断を下す場所によってシステムの信頼性が大きく変わるため、クラウドとエッジの役割分担が重要になります。クラウドはモデルの学習や複数拠点のデータ分析に適しており、エッジは通信遅延が許されない品質検査やリアルタイム制御など、現場で即座に判断する必要がある業務に向いています。ネットワークが途絶えた場合でも重要な機能を継続できるよう、システムは必要なモデルと判断ルールを現場に置きながら、通信復帰時にデータを同期する設計にする必要があります。"
+    },
+    {
+      "id": "salesforce-developer-growth-flexibility-inclusion",
+      "title": "Growing as a Salesforce Developer: Eliott’s Journey of Skills, Support, and Inclusion",
+      "url": "https://www.akkodis.com/blog/articles/salesforce-developer-growth-flexibility-inclusion",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:52:47Z",
+      "published_date": null,
+      "summary_ja": "Akkodis所属のSalesforce開発者エリオットは、シニア開発者による指導や毎週実施される技術研修といった継続的な学習環境により、スキルを段階的に磨きながらキャリアを形成してきました。神経多様性を持つ彼が活躍できるのは、個々のニーズに応じた配慮と、多様性を尊重する職場文化があるためであり、これがチームメンバー全員の成長を支えています。Akkodisはメンターシップと柔軟な勤務環境、そして自分らしくいられる職場を提供することで、Salesforce分野を目指す技術者が確実に専門性を高められる場所となっています。"
+    },
+    {
+      "id": "thinkers-and-makers-legacy-maritime-system-modernization",
+      "title": "No Changes, Please: Recreating a Legacy Maritime System with Modern Technology",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-legacy-maritime-system-modernization",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:53:04Z",
+      "published_date": "2026-08-21T00:00:00Z",
+      "summary_ja": "Akkodisのエンジニアリングチームが船舶の航海管理システムの再構築に取り組んでおり、古い設計から10年経って入手不可能になった部品を最新の技術で置き換える作業を進めています。オペレーターが長年使い慣れたシステムの操作感を変えないことが最優先となるため、見た目や動作は完全に同じままで、内部的な技術だけを更新する「見えない現代化」を目指しています。複雑に連動しているシステムの各部品を詳細に分析し、ハードウェアの互換性やソフトウェアの依存関係を慎重に確認しながら、信頼性と使いやすさを損なわないプラットフォームの開発を進めています。"
+    },
+    {
+      "id": "thinkers-and-makers-quantum-computing-manufacturing",
+      "title": "Quantum Scale: Building the Manufacturing Foundations for a Computing Revolution",
+      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-quantum-computing-manufacturing",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-12T00:53:42Z",
+      "published_date": "2026-08-21T00:00:00Z",
+      "summary_ja": "量子コンピュータを実用化するには、科学的な革新だけでなく、信頼性の高い製造技術とデータ管理の仕組みが不可欠であり、Akkodisは量子ハードウェア企業のSparrow Quantumと協力してこの課題に取り組んでいます。量子チップの製造では極めて高い精度が必要で、個々のデバイスが異なる振る舞いを示すため、デジタル技術がもはや製造を支えるツールではなく、製造プロセス自体の一部となっています。Sparrow Quantumでは、研究・エンジニアリング・ビジネスチーム間でデータを安全かつ構造的に流通させるための仕組みを整備することで、実験的な知見を実際の製品に転換でき、同時に新しい技術開発にも対応できる環境を作り上げようとしています。"
+    },
     {
       "id": "thinkers-and-makers-vol1-2026",
       "title": "Thinkers & Makers Vol.1 2026",
