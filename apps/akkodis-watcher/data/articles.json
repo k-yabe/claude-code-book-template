@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-09-12T00:54:48Z",
+  "last_scraped": "2026-09-13T00:35:17Z",
   "articles": [
     {
       "id": "industry-4-0-vs-5-0-aerospace-building-foundation-for-ai",
@@ -100,6 +100,26 @@
       "first_seen": "2026-09-12T00:49:41Z",
       "published_date": "2026-08-17T00:00:00Z",
       "summary_ja": "製造業や物流・エネルギー分野では、AIが判断を下す場所によってシステムの信頼性が大きく変わるため、クラウドとエッジの役割分担が重要になります。クラウドはモデルの学習や複数拠点のデータ分析に適しており、エッジは通信遅延が許されない品質検査やリアルタイム制御など、現場で即座に判断する必要がある業務に向いています。ネットワークが途絶えた場合でも重要な機能を継続できるよう、システムは必要なモデルと判断ルールを現場に置きながら、通信復帰時にデータを同期する設計にする必要があります。"
+    },
+    {
+      "id": "capa-deviation-management-compliance-risk",
+      "title": "CAPA and Deviation Management: A Growing Compliance Risk",
+      "url": "https://www.akkodis.com/blog/articles/capa-deviation-management-compliance-risk",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-13T00:30:43Z",
+      "published_date": null,
+      "summary_ja": "医薬品業界では品質管理の積み残し業務が経営課題となっており、未解決の逸脱報告やCAPA（是正予防措置）が組織の対応能力を上回ると、監査準備から生産スケジュールまで業務全体が圧迫されるようになります。ある大手CDMOはFDAの警告で2,000件超の未解決逸脱を指摘され、人員増強だけでは解決できない構造的な問題に直面しました。Akkodisの専門ブランドであるRalandは、4週間で40人以上のQA専門家を配置し、統一した運営体制と一貫した調査基準を導入することで、単なる積み残し削減ではなく、組織全体の品質管理プロセスを改善する持続可能な改革を実現しました。"
+    },
+    {
+      "id": "your-future-in-the-cloud",
+      "title": "Start Your High-Impact Career in Cloud Solutions Today",
+      "url": "https://www.akkodis.com/blog/articles/your-future-in-the-cloud",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-13T00:33:05Z",
+      "published_date": null,
+      "summary_ja": "AkkodisのクラウドチームではKey Account ManagerのTimのように、異なる業界背景を持つ人材がクラウド技術を活用して各業界のデジタル変革を牽引しています。同チームではメンバー同士の協働とメンタリングを通じて継続的なスキル向上と実務経験の獲得を促進し、グローバルに広がるクライアント案件に対応しながら個々のキャリア成長を支援しています。クラウドソリューションは今日のあらゆる産業の中核となっているため、Akkodisではこの領域で革新的なサービス提供と人材育成を同時に進める環境を整備しており、意欲的な専門人材の参画を募集しています。"
     },
     {
       "id": "salesforce-developer-growth-flexibility-inclusion",
