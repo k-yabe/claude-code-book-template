@@ -1,66 +1,6 @@
 {
-  "last_scraped": "2026-09-15T01:04:05Z",
+  "last_scraped": "2026-09-16T00:54:21Z",
   "articles": [
-    {
-      "id": "aerospace-digital-transformation-closing-execution-gap",
-      "title": "Aerospace Digital Transformation: Closing the Execution Gap",
-      "url": "https://www.akkodis.com/blog/articles/aerospace-digital-transformation-closing-execution-gap",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-15T01:03:15Z",
-      "published_date": "2026-09-09T00:00:00Z",
-      "summary_ja": "航空宇宙業界は受注が満杯になったことで、デジタル化の焦点が生産能力やサプライチェーンの強化、労働力の確保といった実行力の向上へシフトしており、生産ラインの可視化やAI、AR・VRなどの技術導入が急速に進んでいます。大手メーカーは既存システムとの融合を図りながらデジタルツインやAIを段階的に導入し、新興メーカーは初期段階から共通のデータプラットフォームを設計することで、より柔軟で効率的な生産モデルを構築しています。サイバーセキュリティやサプライチェーン全体の信頼性確保も同時に進める必要があり、業界全体で生産スピードを高めることが最大の競争課題になっています。"
-    },
-    {
-      "id": "edge-ai-vs-cloud-ai-real-time-operations",
-      "title": "Edge AI vs. Cloud AI: Building for Real-Time Operations",
-      "url": "https://www.akkodis.com/blog/articles/edge-ai-vs-cloud-ai-real-time-operations",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-12T00:49:41Z",
-      "published_date": "2026-08-17T00:00:00Z",
-      "summary_ja": "製造業や物流・エネルギー分野では、AIが判断を下す場所によってシステムの信頼性が大きく変わるため、クラウドとエッジの役割分担が重要になります。クラウドはモデルの学習や複数拠点のデータ分析に適しており、エッジは通信遅延が許されない品質検査やリアルタイム制御など、現場で即座に判断する必要がある業務に向いています。ネットワークが途絶えた場合でも重要な機能を継続できるよう、システムは必要なモデルと判断ルールを現場に置きながら、通信復帰時にデータを同期する設計にする必要があります。"
-    },
-    {
-      "id": "industry-4-0-vs-5-0-aerospace-building-foundation-for-ai",
-      "title": "Industry 4.0 vs Industry 5.0 in Aerospace: Building the Foundation for AI",
-      "url": "https://www.akkodis.com/blog/articles/industry-4-0-vs-5-0-aerospace-building-foundation-for-ai",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-12T00:46:12Z",
-      "published_date": "2026-09-11T00:00:00Z",
-      "summary_ja": "航空宇宙産業の製造企業の多くはまだ産業4.0の基盤となるデータ連携やプロセス標準化に取り組んでいる段階にあり、その土台がなければ産業5.0やAIといった先進技術を活用することができません。品質検査の自動化や予測保全、熟練者の知識記録といった具体的なAI活用では、安定した検査基準や機械データといった信頼性の高いデータが前提条件になります。航空宇宙メーカーが本当に必要なのは新しい技術そのものではなく、プロセスを統一し、部門間でデータを共有でき、例外処理に対応できる運用体制であり、それを整えることで初めて先端技術が機能するようになります。"
-    },
-    {
-      "id": "ai-core-railway-brake-pad-inspection",
-      "title": "AI-Core Automates Railway Brake Pad Inspection with Computer Vision",
-      "url": "https://www.akkodis.com/blog/articles/ai-core-railway-brake-pad-inspection",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-12T00:46:25Z",
-      "published_date": "2026-09-10T00:00:00Z",
-      "summary_ja": "AI-Coreは、コンピュータビジョンと機械学習を使って鉄道の制動パッド検査を自動化し、パッドの厚さ測定と異常検出を行うことで、手作業による検査時間を最大90%削減できます。検査画像から摩耗パターンや損傷を自動で判定し、技術者は優先度の高い資産に注力できるようになります。検査結果をデジタル記録として保存することで、パッド摩耗の追跡や保守計画の最適化が可能になり、車両の運用効率を向上させます。"
-    },
-    {
-      "id": "building-quality-into-pharmaceutical-manufacturing",
-      "title": "Building Quality Into Every Stage of Pharmaceutical Manufacturing",
-      "url": "https://www.akkodis.com/blog/articles/building-quality-into-pharmaceutical-manufacturing",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-12T00:46:46Z",
-      "published_date": "2026-09-09T00:00:00Z",
-      "summary_ja": "医薬品製造では生産スピードの向上が求められる一方で、品質管理の基準は変わらないため、製造実行システムの適切な検証とデータの信頼性確保が重要になっています。信頼できる生産データと人工知能による予測モデルを組み合わせることで、問題が発生した直後に検知できるようになり、従来の事後的な品質レビューより早期のリスク検出が可能になります。実装から運用まで一貫した検証支援により、システムの完全性と製造プロセスの管理を強化し、継続的な品質向上のための基盤を整えることができます。"
-    },
-    {
-      "id": "ai-infrastructure-strategy-where-should-workloads-run",
-      "title": "AI Infrastructure Strategy: Where Should Workloads Run?",
-      "url": "https://www.akkodis.com/blog/articles/ai-infrastructure-strategy-where-should-workloads-run",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-12T00:47:01Z",
-      "published_date": "2026-09-09T00:00:00Z",
-      "summary_ja": "企業がAI投資を検討する際、モデル選択と同じくらい重要なのが、どのインフラ上でワークロードを実行するかという判断です。クラウド、コロケーション施設、自社データセンターのいずれかを選ぶことで、コスト、処理速度、安定性、そしてデータガバナンスが大きく変わります。AIのトレーニングと推論では必要な環境が異なるため、ワークロードごとに最適な場所を見極める必要があり、建設か購入かという選択は当初の決定で終わらず、需要や技術の変化に応じて柔軟に見直すべきです。優れたインフラパートナーは、自社施設が最適でない場合でもそれを説明でき、異なる利用率でのコスト試算や、ワークロード移行時の支障を最小限に抑える対応ができるかが大切です。"
-    },
     {
       "id": "thinkers-and-makers-vol1-2026",
       "title": "Thinkers & Makers Vol.1 2026",
