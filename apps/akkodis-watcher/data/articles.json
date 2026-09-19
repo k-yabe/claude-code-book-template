@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-09-18T00:56:56Z",
+  "last_scraped": "2026-09-19T00:49:39Z",
   "articles": [
     {
       "id": "aerospace-digital-transformation-closing-execution-gap",
@@ -10,6 +10,16 @@
       "first_seen": "2026-09-17T00:57:24Z",
       "published_date": "2026-09-09T00:00:00Z",
       "summary_ja": "航空宇宙産業では受注が殺到している一方で、その注文をいかに確実に製造し、納期を守るかが企業の重要課題に変わりました。デジタル技術やAI、自動化などを日々の業務に組み込む段階に進んでおり、いかに迅速に実行できるかが競争力の分かれ目になっています。既存の大手メーカーと新興企業では出発点が異なり、大手は既存システムとの統合を進める一方で、新興企業は最初から効率的なシステム構築ができるという違いがあります。"
+    },
+    {
+      "id": "long-range-drones-aerospace-defense",
+      "title": "As Long-Range Drones Scale Up, Production and Integration Demand Follows",
+      "url": "https://www.akkodis.com/blog/articles/long-range-drones-aerospace-defense",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-19T00:45:12Z",
+      "published_date": "2026-09-17T00:00:00Z",
+      "summary_ja": "長時間飛行できるドローンが次々と実用化されることで、航空宇宙防衛業界の運用方法が大きく変わっています。従来は撮影後に基地に帰還して人間がデータを確認するのが主流でしたが、最新のドローンは数時間の飛行中にAIがリアルタイムで情報を処理し、複数のドローンやセンサーが連携して同時に異なるエリアで任務を遂行できるようになりました。こうした能力の向上に伴い、飛行機の検査や森林火災の監視、海域での危険物の探知など、従来は有人航空機や多くの人手が必要だった業務がドローンに置き換わりつつあります。"
     },
     {
       "id": "industry-4-0-vs-5-0-aerospace-building-foundation-for-ai",
@@ -130,6 +140,16 @@
       "first_seen": "2026-09-17T01:03:21Z",
       "published_date": null,
       "summary_ja": "Akkodisのクラウドチームでは、異なるキャリアバックグラウンドを持つ人材がクラウド技術を通じてデジタルインフラの未来を形作っており、チームメンバーが協働とメンタリングを通じて継続的にスキルを磨く環境が整っています。クラウドソリューションは現在のあらゆる業界の中核となっているため、Akkodisに参画することで世界規模のキャリアパスの中で実務経験を積み、クライアント企業への具体的な価値提供に携わることができます。同社は常にチーム体制を拡大・最適化することで、顧客への提供サービスをより充実させていく方針を掲げており、デジタル変革を推し進める意欲的な人材の参画を募集しています。"
+    },
+    {
+      "id": "salesforce-developer-growth-flexibility-inclusion",
+      "title": "Growing as a Salesforce Developer: Eliott’s Journey of Skills, Support, and Inclusion",
+      "url": "https://www.akkodis.com/blog/articles/salesforce-developer-growth-flexibility-inclusion",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-19T00:48:20Z",
+      "published_date": null,
+      "summary_ja": "申し訳ございません。申し訳ありませんが、提供していただいたテキストにはWebページの本文内容が含まれていないようです。記載されているのはシステムエラーメッセージのみで、要約する実質的な記事内容がありません。記事本文をご提供いただければ、マーケティング担当者の方がご活用いただける形で3文の要約をお作りすることができます。"
     },
     {
       "id": "thinkers-and-makers-legacy-maritime-system-modernization",
