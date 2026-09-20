@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-09-19T00:49:39Z",
+  "last_scraped": "2026-09-20T00:33:08Z",
   "articles": [
     {
       "id": "aerospace-digital-transformation-closing-execution-gap",
@@ -72,16 +72,6 @@
       "summary_ja": "NTT Groupが推進する次世代通信インフラIOWN構想に対し、Akkodisは人材育成とコンサルティングの両面からサポートする体制を2024年1月に整備しました。エネルギー消費や通信容量といった世界的課題を解決する同構想の実現には、技術を理解し事業価値を説明できる人材が不可欠であり、エンジニアから経営層まで幅広い層を対象にした研修プログラムを展開しています。2025年には東京の本社にIOWN FUSION BASEを開設し、実際にIOWN技術を体験できるスペースと業界横断的な協業ハブとして機能させることで、新たなビジネス創出につなげる取り組みを進めています。"
     },
     {
-      "id": "thinkers-and-makers-defense-manufacturing-production-capacity",
-      "title": "Ramping Up Defense Industrial Capacity Without Rebuilding the Factory",
-      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-defense-manufacturing-production-capacity",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T00:59:14Z",
-      "published_date": "2026-08-21T00:00:00Z",
-      "summary_ja": "防衛産業が新工場建設に要する4～6年という時間的制約に直面する中、既存施設のデジタル化と生産最適化により即座の生産能力拡大を実現できるという事例が報告されています。自動車業界の手法を防衛製造の特性に適応させることで、床面積を増やさずに30パーセント以上の産能拡大を達成した事例があり、生産ラインの再編成やシミュレーション技術の活用がその鍵となっています。デジタルツイン技術と人工知能を駆使した装置の予防保全や内部ロジスティクスの自動化により、既存の製造基盤を抜本的に改革することで、地政学的な不安定性に対応できる産業基盤の強化が可能になります。"
-    },
-    {
       "id": "thinkers-and-makers-ev-battery-adhesives-lightweight-engineering",
       "title": "How Advanced Adhesives Are Powering Lighter, More Efficient EV Batteries",
       "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-ev-battery-adhesives-lightweight-engineering",
@@ -150,26 +140,6 @@
       "first_seen": "2026-09-19T00:48:20Z",
       "published_date": null,
       "summary_ja": "申し訳ございません。申し訳ありませんが、提供していただいたテキストにはWebページの本文内容が含まれていないようです。記載されているのはシステムエラーメッセージのみで、要約する実質的な記事内容がありません。記事本文をご提供いただければ、マーケティング担当者の方がご活用いただける形で3文の要約をお作りすることができます。"
-    },
-    {
-      "id": "thinkers-and-makers-legacy-maritime-system-modernization",
-      "title": "No Changes, Please: Recreating a Legacy Maritime System with Modern Technology",
-      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-legacy-maritime-system-modernization",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T01:03:49Z",
-      "published_date": "2026-08-21T00:00:00Z",
-      "summary_ja": "AKKODiS Japanのマーケティング担当者向けの要約：\n\n船舶の運航システムを担当するAkkodisのエンジニアチームは、10年前に導入されたシステムを最新の部品で再構築するプロジェクトに取り組んでいます。元のシステムはユーザーから高い評価を受けていたため、見た目や使い心地を全く変えずに、老朽化した部品だけを新しいものに置き換えることが求められています。古い部品が市場から消滅していることと、複数の部品が相互に依存しているため、単純な部品交換では済まず、ハードウェアとソフトウェアの詳細な分析と調整が必要な複雑な作業となっています。"
-    },
-    {
-      "id": "thinkers-and-makers-quantum-computing-manufacturing",
-      "title": "Quantum Scale: Building the Manufacturing Foundations for a Computing Revolution",
-      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-quantum-computing-manufacturing",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T01:04:15Z",
-      "published_date": "2026-08-21T00:00:00Z",
-      "summary_ja": "量子コンピューターを実用化するには、科学的な突破口だけでなく、製造技術とデータ管理の仕組みが不可欠であり、Akkodisは量子ハードウェアメーカーのSparrow Quantumと協力して、単一の装置から数千台の同一性能な製品を安定的に生産する体制の構築を支援しています。量子チップのような精密機器は個体ごとに動作が異なるため、個別の計測と調整が必要であり、これを実現するにはデジタル技術が製造工程そのものに組み込まれることが絶対条件となります。研究チームの実験と製品チームの安定供給という二つのニーズを同時に満たすため、モジュール化された設計により新しい技術を既存システムに支障を与えずに導入できる基盤を整備することが重要な役割を担っています。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
