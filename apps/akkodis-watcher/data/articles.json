@@ -1,6 +1,15 @@
 {
-  "last_scraped": "2026-09-29T02:25:17Z",
+  "last_scraped": "2026-09-30T01:46:53Z",
   "articles": [
+    {
+      "id": "iown-global-forum-evolution",
+      "title": "Evolution of IOWN Global Forum: From Vision to Reality",
+      "url": "https://www.akkodis.com/blog/articles/iown-global-forum-evolution",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-30T01:43:59Z",
+      "published_date": "2026-09-28T00:00:00Z"
+    },
     {
       "id": "ai-in-life-sciences-practical-use-cases",
       "title": "AI in Life Sciences: Practical Use Cases in Key Workflows",
@@ -72,16 +81,6 @@
       "summary_ja": "AIワークロードの配置先を決める際には、モデル選択と同じくらい基盤となるインフラ戦略が重要であり、パブリッククラウド、コロケーション施設、オンプレミスのデータセンターのいずれが適切かを、コスト、レイテンシ、耐障害性、ガバナンスの観点から判断する必要があります。従来のシステムと異なり、AIのトレーニングは継続的で高密度な処理が必要であり、推論は分散型でレイテンシに敏感であるなど、ワークロードの特性に応じた柔軟な基盤設計が求められます。企業がパートナーを選ぶ際には、現在の設備だけでなく将来の拡張や要件の変化に対応できるか、複数の利用レベルで経済性を説明できるかといった、長期的な選択肢を保つことができるかどうかを見極めることが大切です。"
     },
     {
-      "id": "akkodis-iown-journey",
-      "title": "The Future of Photonics, Built Through People: The Akkodis Journey Toward IOWN®",
-      "url": "https://www.akkodis.com/blog/articles/akkodis-iown-journey",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T00:58:57Z",
-      "published_date": "2026-08-31T00:00:00Z",
-      "summary_ja": "NTT Groupが推進する次世代通信インフラIOWN構想に対し、Akkodisは人材育成とコンサルティングの両面からサポートする体制を2024年1月に整備しました。エネルギー消費や通信容量といった世界的課題を解決する同構想の実現には、技術を理解し事業価値を説明できる人材が不可欠であり、エンジニアから経営層まで幅広い層を対象にした研修プログラムを展開しています。2025年には東京の本社にIOWN FUSION BASEを開設し、実際にIOWN技術を体験できるスペースと業界横断的な協業ハブとして機能させることで、新たなビジネス創出につなげる取り組みを進めています。"
-    },
-    {
       "id": "thinkers-and-makers-ev-battery-adhesives-lightweight-engineering",
       "title": "How Advanced Adhesives Are Powering Lighter, More Efficient EV Batteries",
       "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-ev-battery-adhesives-lightweight-engineering",
@@ -90,16 +89,6 @@
       "first_seen": "2026-09-17T00:59:29Z",
       "published_date": "2026-09-01T00:00:00Z",
       "summary_ja": "電動車のバッテリーは高いエネルギー密度と急速充電を実現する一方で、熱管理と軽量化の課題を抱えており、接着剤や充填材などの材料技術がこれらの問題解決に不可欠な役割を果たしています。従来のボルトやネジといった機械的な固定方法と異なり、特殊な接着剤は熱を効率的に移動させながら異なる素材を接合でき、余分な部品を削減して軽量化に貢献します。アッコディスのドイツ研究所では、材料専門家がバッテリーメーカーとともに、各種接着ソリューションの検証から製造対応まで一貫してサポートしており、こうした材料技術がバッテリー性能と安全性の向上につながっています。"
-    },
-    {
-      "id": "canada-net-zero-challenge",
-      "title": "Akkodis Canada commits to building a more sustainable future through the Net-Zero Challenge",
-      "url": "https://www.akkodis.com/blog/articles/canada-net-zero-challenge",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T00:59:42Z",
-      "published_date": "2026-08-31T00:00:00Z",
-      "summary_ja": "Akkodis Canadaはカナダ政府のネット・ゼロ・チャレンジに参加し、2050年までに温室効果ガスの排出をゼロにする目標を掲げています。同社は現在の排出量を測定し、事業全体で削減の道筋を明確にするとともに、経営判断にサステナビリティを組み込む取り組みを進めています。従業員の意識向上や透明性のある報告を通じて、長期的なビジネス成功と環境責任の両立を目指しており、この目標達成には継続的な協力と行動が必要だと考えています。"
     },
     {
       "id": "ai-advances-herald-coding-changes",
