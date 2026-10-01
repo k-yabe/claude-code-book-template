@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-09-30T01:46:53Z",
+  "last_scraped": "2026-10-01T01:43:01Z",
   "articles": [
     {
       "id": "iown-global-forum-evolution",
@@ -79,16 +79,6 @@
       "first_seen": "2026-09-17T00:58:32Z",
       "published_date": null,
       "summary_ja": "AIワークロードの配置先を決める際には、モデル選択と同じくらい基盤となるインフラ戦略が重要であり、パブリッククラウド、コロケーション施設、オンプレミスのデータセンターのいずれが適切かを、コスト、レイテンシ、耐障害性、ガバナンスの観点から判断する必要があります。従来のシステムと異なり、AIのトレーニングは継続的で高密度な処理が必要であり、推論は分散型でレイテンシに敏感であるなど、ワークロードの特性に応じた柔軟な基盤設計が求められます。企業がパートナーを選ぶ際には、現在の設備だけでなく将来の拡張や要件の変化に対応できるか、複数の利用レベルで経済性を説明できるかといった、長期的な選択肢を保つことができるかどうかを見極めることが大切です。"
-    },
-    {
-      "id": "thinkers-and-makers-ev-battery-adhesives-lightweight-engineering",
-      "title": "How Advanced Adhesives Are Powering Lighter, More Efficient EV Batteries",
-      "url": "https://www.akkodis.com/blog/articles/thinkers-and-makers-ev-battery-adhesives-lightweight-engineering",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T00:59:29Z",
-      "published_date": "2026-09-01T00:00:00Z",
-      "summary_ja": "電動車のバッテリーは高いエネルギー密度と急速充電を実現する一方で、熱管理と軽量化の課題を抱えており、接着剤や充填材などの材料技術がこれらの問題解決に不可欠な役割を果たしています。従来のボルトやネジといった機械的な固定方法と異なり、特殊な接着剤は熱を効率的に移動させながら異なる素材を接合でき、余分な部品を削減して軽量化に貢献します。アッコディスのドイツ研究所では、材料専門家がバッテリーメーカーとともに、各種接着ソリューションの検証から製造対応まで一貫してサポートしており、こうした材料技術がバッテリー性能と安全性の向上につながっています。"
     },
     {
       "id": "ai-advances-herald-coding-changes",
