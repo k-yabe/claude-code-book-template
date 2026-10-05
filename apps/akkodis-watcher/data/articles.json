@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-10-04T02:16:44Z",
+  "last_scraped": "2026-10-05T01:28:30Z",
   "articles": [
     {
       "id": "iown-global-forum-evolution",
@@ -91,6 +91,15 @@
       "summary_ja": "申し訳ございませんが、提供していただいたテキストは「An error occurred A server-side 500 error occurred. Go to the Home page」というエラーメッセージのみで、要約できるような記事本文が含まれていません。\n\n記事の本文内容をお手数ですが改めてお送りいただければ、ご指示の条件に沿って日本語3文で要約させていただきます。"
     },
     {
+      "id": "how-prebuilt-ai-agents-drive-enterprise-ai-roi",
+      "title": "How Prebuilt AI Agents Drive Enterprise AI ROI",
+      "url": "https://www.akkodis.com/blog/articles/how-prebuilt-ai-agents-drive-enterprise-ai-roi",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-10-05T01:25:36Z",
+      "published_date": null
+    },
+    {
       "id": "beyond-clinical-trials-real-world-evidence-life-sciences",
       "title": "Beyond Clinical Trials: Real-World Evidence in Life Sciences",
       "url": "https://www.akkodis.com/blog/articles/beyond-clinical-trials-real-world-evidence-life-sciences",
@@ -99,6 +108,16 @@
       "first_seen": "2026-09-17T01:02:31Z",
       "published_date": null,
       "summary_ja": "医薬品の承認後、医療現場での実際の治療効果を示す証拠が規制当局や保険者から求められるようになり、臨床試験だけでは不十分となっています。電子カルテやレジストリなどから得られるデータを継続的に収集・分析して信頼できる証拠を生成することが、組織全体で必要な能力になってきました。データの出所を明確にして品質を保つ仕組みや、統計分析と文書作成を継続的に行える体制整備など、運用面での改革が成功の鍵を握っています。"
+    },
+    {
+      "id": "how-knowledge-graphs-power-agentic-it-operations",
+      "title": "How Knowledge Graphs Power Agentic IT Operations and Automation Infrastructure",
+      "url": "https://www.akkodis.com/blog/articles/how-knowledge-graphs-power-agentic-it-operations",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-10-05T01:26:36Z",
+      "published_date": null,
+      "summary_ja": "ITオペレーション現場では、アラートが発生した際に複数のシステムを行き来して情報を集める時間が対応を遅延させている根本的な課題があります。ナレッジグラフを導入することで、サービスの依存関係や過去の解決方法、担当チームなどの情報を相互に接続した1つのマップとして整備でき、自動化システムが迅速に状況を把握して適切な対応を判断できるようになります。従来のITオペレーションではデータベースやチケットシステムに情報が分散していて、人間が経験と勘で結びつけていましたが、ナレッジグラフによってこうした関係性を明示的に記録することで、エージェント（自動化システム）が信頼を持って行動できる基盤が整わります。"
     },
     {
       "id": "emotional-intelligence-work-skills",
