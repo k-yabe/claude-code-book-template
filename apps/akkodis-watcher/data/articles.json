@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-10-06T02:38:34Z",
+  "last_scraped": "2026-10-07T01:57:13Z",
   "articles": [
+    {
+      "id": "forward-deployed-engineering-ai-execution-gap",
+      "title": "How Forward Deployed Engineering Closes the AI Execution Gap",
+      "url": "https://www.akkodis.com/blog/articles/forward-deployed-engineering-ai-execution-gap",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-10-07T01:53:29Z",
+      "published_date": "2026-10-06T00:00:00Z",
+      "summary_ja": "多くの企業がAIモデルやツールへのアクセスを手に入れた今、パイロット段階から本番運用への移行が新たな課題になっています。本番環境では実データの扱いや既存システムとの連携、予期しない例外対応など、管理された実験環境とは異なる複雑な制約が生じるため、この「実行ギャップ」を埋めることが重要です。各プロジェクトで得た知見を次の導入に活かせる体制を整えることで、一度成功したAIの仕組みを繰り返し使える能力を組織内に作ることが競争力につながります。エンジニアを業務プロセスの現場に配置し、データがどこから来るのか、どこで遅延が生じるのか、どの判断に人間の責任が必要なのかといった具体的な問題を一緒に解決することで、AIが実際に機能する環境を整備できます。"
+    },
     {
       "id": "iown-global-forum-evolution",
       "title": "Evolution of IOWN Global Forum: From Vision to Reality",
@@ -128,26 +138,6 @@
       "first_seen": "2026-09-17T01:03:01Z",
       "published_date": null,
       "summary_ja": "職場では技術スキルと同じくらい、感情的知性（EQ）が重要な競争力となっており、コミュニケーションやチームワーク、リーダーシップの質を大きく左右します。感情的知性が高い人は、相手の気持ちを読み取って共感的に対応できるため、誤解を減らし、信頼関係を築き、紛争を成長の機会に変えることができます。変化の速い職場環境の中でストレスを管理し、レジリエンスを高めることで、組織全体のチームダイナミクスと成果の向上につながります。"
-    },
-    {
-      "id": "your-future-in-the-cloud",
-      "title": "Start Your High-Impact Career in Cloud Solutions Today",
-      "url": "https://www.akkodis.com/blog/articles/your-future-in-the-cloud",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T01:03:21Z",
-      "published_date": null,
-      "summary_ja": "Akkodisのクラウドチームでは、異なるキャリアバックグラウンドを持つ人材がクラウド技術を通じてデジタルインフラの未来を形作っており、チームメンバーが協働とメンタリングを通じて継続的にスキルを磨く環境が整っています。クラウドソリューションは現在のあらゆる業界の中核となっているため、Akkodisに参画することで世界規模のキャリアパスの中で実務経験を積み、クライアント企業への具体的な価値提供に携わることができます。同社は常にチーム体制を拡大・最適化することで、顧客への提供サービスをより充実させていく方針を掲げており、デジタル変革を推し進める意欲的な人材の参画を募集しています。"
-    },
-    {
-      "id": "salesforce-developer-growth-flexibility-inclusion",
-      "title": "Growing as a Salesforce Developer: Eliott’s Journey of Skills, Support, and Inclusion",
-      "url": "https://www.akkodis.com/blog/articles/salesforce-developer-growth-flexibility-inclusion",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-19T00:48:20Z",
-      "published_date": null,
-      "summary_ja": "申し訳ございません。申し訳ありませんが、提供していただいたテキストにはWebページの本文内容が含まれていないようです。記載されているのはシステムエラーメッセージのみで、要約する実質的な記事内容がありません。記事本文をご提供いただければ、マーケティング担当者の方がご活用いただける形で3文の要約をお作りすることができます。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
