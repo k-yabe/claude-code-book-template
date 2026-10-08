@@ -1,6 +1,26 @@
 {
-  "last_scraped": "2026-10-07T01:57:13Z",
+  "last_scraped": "2026-10-08T02:25:37Z",
   "articles": [
+    {
+      "id": "akkodis-futurepath-ai-partnership-enterprise-ai",
+      "title": "Akkodis and FuturePath AI partner to accelerate enterprise AI deployment across IT and business operations",
+      "url": "https://www.akkodis.com/blog/articles/akkodis-futurepath-ai-partnership-enterprise-ai",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-10-08T02:21:29Z",
+      "published_date": "2026-10-07T00:00:00Z",
+      "summary_ja": "AKKODiSがFuturePath AIと提携し、企業のAI導入を支援するサービスを開始しました。FuturePath AIが持つあらかじめ構築されたAIアプリケーションとAKKODiSのコンサルティングや業界知識を組み合わせることで、IT業務や人事、財務などの部門でAIを実運用レベルまで展開できるようになります。既にフォーチュン500の企業向けに2年間の運用実績があり、セキュリティや規制対応が必要な環境でも安全にAIを導入できることが実証されています。"
+    },
+    {
+      "id": "forward-deployed-engineering-enterprise-ai-operating-model",
+      "title": "Forward Deployed Engineering: An Enterprise AI Operating Model",
+      "url": "https://www.akkodis.com/blog/articles/forward-deployed-engineering-enterprise-ai-operating-model",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-10-08T02:21:42Z",
+      "published_date": "2026-10-07T00:00:00Z",
+      "summary_ja": "AI技術の導入後も継続的な改善が必要になるため、従来の「構築して運用に引き継ぐ」というやり方では対応できなくなっています。Forward Deployed Engineeringは、企業内に常設のエンジニアリング機能を置くことで、IT・運用・事業戦略が一緒に進化できる体制を作り、技術環境が変わるたびに組織を再構築する手間を減らします。この常設チームがクラウドからオペレーション層、事業判断まで複数領域を横断して調整することで、ある部署で成功した解決法が他の部署でも活かされやすくなり、企業全体での知見の活用が進みます。"
+    },
     {
       "id": "forward-deployed-engineering-ai-execution-gap",
       "title": "How Forward Deployed Engineering Closes the AI Execution Gap",
@@ -118,26 +138,6 @@
       "first_seen": "2026-09-17T01:02:31Z",
       "published_date": null,
       "summary_ja": "医薬品の承認後、医療現場での実際の治療効果を示す証拠が規制当局や保険者から求められるようになり、臨床試験だけでは不十分となっています。電子カルテやレジストリなどから得られるデータを継続的に収集・分析して信頼できる証拠を生成することが、組織全体で必要な能力になってきました。データの出所を明確にして品質を保つ仕組みや、統計分析と文書作成を継続的に行える体制整備など、運用面での改革が成功の鍵を握っています。"
-    },
-    {
-      "id": "how-knowledge-graphs-power-agentic-it-operations",
-      "title": "How Knowledge Graphs Power Agentic IT Operations and Automation Infrastructure",
-      "url": "https://www.akkodis.com/blog/articles/how-knowledge-graphs-power-agentic-it-operations",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-10-05T01:26:36Z",
-      "published_date": null,
-      "summary_ja": "ITオペレーション現場では、アラートが発生した際に複数のシステムを行き来して情報を集める時間が対応を遅延させている根本的な課題があります。ナレッジグラフを導入することで、サービスの依存関係や過去の解決方法、担当チームなどの情報を相互に接続した1つのマップとして整備でき、自動化システムが迅速に状況を把握して適切な対応を判断できるようになります。従来のITオペレーションではデータベースやチケットシステムに情報が分散していて、人間が経験と勘で結びつけていましたが、ナレッジグラフによってこうした関係性を明示的に記録することで、エージェント（自動化システム）が信頼を持って行動できる基盤が整わります。"
-    },
-    {
-      "id": "emotional-intelligence-work-skills",
-      "title": "Emotional Intelligence at Work: Build the Skills That Shape Strong Careers",
-      "url": "https://www.akkodis.com/blog/articles/emotional-intelligence-work-skills",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T01:03:01Z",
-      "published_date": null,
-      "summary_ja": "職場では技術スキルと同じくらい、感情的知性（EQ）が重要な競争力となっており、コミュニケーションやチームワーク、リーダーシップの質を大きく左右します。感情的知性が高い人は、相手の気持ちを読み取って共感的に対応できるため、誤解を減らし、信頼関係を築き、紛争を成長の機会に変えることができます。変化の速い職場環境の中でストレスを管理し、レジリエンスを高めることで、組織全体のチームダイナミクスと成果の向上につながります。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
