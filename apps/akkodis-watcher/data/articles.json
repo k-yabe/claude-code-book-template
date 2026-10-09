@@ -1,6 +1,16 @@
 {
-  "last_scraped": "2026-10-08T02:25:37Z",
+  "last_scraped": "2026-10-09T02:42:38Z",
   "articles": [
+    {
+      "id": "long-range-drones-aerospace-defense",
+      "title": "As Long-Range Drones Scale Up, Production and Integration Demand Follows",
+      "url": "https://www.akkodis.com/blog/articles/long-range-drones-aerospace-defense",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-09-19T00:45:12Z",
+      "published_date": "2026-09-17T00:00:00Z",
+      "summary_ja": "長時間飛行できるドローンが次々と実用化されることで、航空宇宙防衛業界の運用方法が大きく変わっています。従来は撮影後に基地に帰還して人間がデータを確認するのが主流でしたが、最新のドローンは数時間の飛行中にAIがリアルタイムで情報を処理し、複数のドローンやセンサーが連携して同時に異なるエリアで任務を遂行できるようになりました。こうした能力の向上に伴い、飛行機の検査や森林火災の監視、海域での危険物の探知など、従来は有人航空機や多くの人手が必要だった業務がドローンに置き換わりつつあります。"
+    },
     {
       "id": "akkodis-futurepath-ai-partnership-enterprise-ai",
       "title": "Akkodis and FuturePath AI partner to accelerate enterprise AI deployment across IT and business operations",
@@ -51,26 +61,6 @@
       "summary_ja": "生命科学業界では、臨床試験から製造、規制対応まで、仕事の流れに自然に組み込まれた形でAIが個別のタスクを効率化できるようになってきています。例えば臨床試験では遠隔データ収集とAIの組み合わせで患者の負担を減らしながらデータを充実させ、製造現場ではAIが異常パターンを早期に検知することで品質問題を未然に防げます。規制対応業務でも、AIが書類比較や情報分類といった事務作業を担当する一方で、安全に関わる最終判断は人間が責任を持つという使い分けにより、専門家の時間をより有効に使えるようになります。"
     },
     {
-      "id": "aerospace-digital-transformation-closing-execution-gap",
-      "title": "Aerospace Digital Transformation: Closing the Execution Gap",
-      "url": "https://www.akkodis.com/blog/articles/aerospace-digital-transformation-closing-execution-gap",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T00:57:24Z",
-      "published_date": "2026-09-09T00:00:00Z",
-      "summary_ja": "航空宇宙産業では受注が殺到している一方で、その注文をいかに確実に製造し、納期を守るかが企業の重要課題に変わりました。デジタル技術やAI、自動化などを日々の業務に組み込む段階に進んでおり、いかに迅速に実行できるかが競争力の分かれ目になっています。既存の大手メーカーと新興企業では出発点が異なり、大手は既存システムとの統合を進める一方で、新興企業は最初から効率的なシステム構築ができるという違いがあります。"
-    },
-    {
-      "id": "long-range-drones-aerospace-defense",
-      "title": "As Long-Range Drones Scale Up, Production and Integration Demand Follows",
-      "url": "https://www.akkodis.com/blog/articles/long-range-drones-aerospace-defense",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-19T00:45:12Z",
-      "published_date": "2026-09-17T00:00:00Z",
-      "summary_ja": "長時間飛行できるドローンが次々と実用化されることで、航空宇宙防衛業界の運用方法が大きく変わっています。従来は撮影後に基地に帰還して人間がデータを確認するのが主流でしたが、最新のドローンは数時間の飛行中にAIがリアルタイムで情報を処理し、複数のドローンやセンサーが連携して同時に異なるエリアで任務を遂行できるようになりました。こうした能力の向上に伴い、飛行機の検査や森林火災の監視、海域での危険物の探知など、従来は有人航空機や多くの人手が必要だった業務がドローンに置き換わりつつあります。"
-    },
-    {
       "id": "industry-4-0-vs-5-0-aerospace-building-foundation-for-ai",
       "title": "Industry 4.0 vs Industry 5.0 in Aerospace: Building the Foundation for AI",
       "url": "https://www.akkodis.com/blog/articles/industry-4-0-vs-5-0-aerospace-building-foundation-for-ai",
@@ -89,16 +79,6 @@
       "first_seen": "2026-09-17T00:58:03Z",
       "published_date": "2026-09-10T00:00:00Z",
       "summary_ja": "AI-Coreは、コンピュータビジョンと機械学習を使って鉄道のブレーキパッド検査を自動化し、厚さの測定と異常検知を行うことで、点検作業を最大90パーセント削減できます。従来は技術者による手作業で行われていた測定や異常検出を統一的なプロセスで処理することにより、検査結果の一貫性が保たれ、点検データをデジタル記録として保存できるようになります。この検査ワークフローは画像撮影からブレーキパッド特定、厚さ測定、異常検知、基準評価、対応優先順位の付与まで六段階で進み、ブレーキパッド以外の部品検査や資産監視といった他の保守業務への応用も可能です。"
-    },
-    {
-      "id": "building-quality-into-pharmaceutical-manufacturing",
-      "title": "Building Quality Into Every Stage of Pharmaceutical Manufacturing",
-      "url": "https://www.akkodis.com/blog/articles/building-quality-into-pharmaceutical-manufacturing",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T00:58:19Z",
-      "published_date": "2026-09-09T00:00:00Z",
-      "summary_ja": "医薬品製造において、生産速度の向上と品質管理の両立が求められる中、検証済みの製造実行システムにより信頼性の高いデータを確保し、そこから人工知能が生産の異常パターンを事前に検知できる体制の構築が進んでいます。従来の品質確認活動に加えて、システム設計の段階から品質を組み込み、AIが実運用データから問題の兆候を早期に発見することで、問題発生から対応までの時間を大幅に短縮できるようになります。このアプローチにより、製造企業は検査後に問題を発見するのではなく、生産途中での危険信号をいち早く捉え、より迅速で信頼性の高い運用判断が可能になります。"
     },
     {
       "id": "ai-infrastructure-strategy-where-should-workloads-run",
