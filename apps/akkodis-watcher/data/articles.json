@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-10-09T02:42:38Z",
+  "last_scraped": "2026-10-10T02:02:54Z",
   "articles": [
     {
       "id": "long-range-drones-aerospace-defense",
@@ -71,16 +71,6 @@
       "summary_ja": "航空宇宙産業のメーカーの多くはまだ業界4.0の基礎となる連携したデータシステムや統一されたプロセスを構築している段階であり、先進的なAIやロボット化よりも優先すべきだと言われています。そのため、製造現場の標準化、センサーデータの接続、品質管理システムの一元化などの基盤を整えることが、後々のAI導入を効果的にするために重要です。同社では品質検査の自動化、予防保全、ベテラン職人の知識記録など、既にある課題から着手できるAI活用を実例として挙げており、こうしたステップを踏むことで初めて大規模なデジタル変革につながると述べています。"
     },
     {
-      "id": "ai-core-railway-brake-pad-inspection",
-      "title": "AI-Core Automates Railway Brake Pad Inspection with Computer Vision",
-      "url": "https://www.akkodis.com/blog/articles/ai-core-railway-brake-pad-inspection",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T00:58:03Z",
-      "published_date": "2026-09-10T00:00:00Z",
-      "summary_ja": "AI-Coreは、コンピュータビジョンと機械学習を使って鉄道のブレーキパッド検査を自動化し、厚さの測定と異常検知を行うことで、点検作業を最大90パーセント削減できます。従来は技術者による手作業で行われていた測定や異常検出を統一的なプロセスで処理することにより、検査結果の一貫性が保たれ、点検データをデジタル記録として保存できるようになります。この検査ワークフローは画像撮影からブレーキパッド特定、厚さ測定、異常検知、基準評価、対応優先順位の付与まで六段階で進み、ブレーキパッド以外の部品検査や資産監視といった他の保守業務への応用も可能です。"
-    },
-    {
       "id": "ai-infrastructure-strategy-where-should-workloads-run",
       "title": "AI Infrastructure Strategy: Where Should Workloads Run?",
       "url": "https://www.akkodis.com/blog/articles/ai-infrastructure-strategy-where-should-workloads-run",
@@ -108,16 +98,6 @@
       "source_label": "Akkodis Blog",
       "first_seen": "2026-10-05T01:25:36Z",
       "published_date": null
-    },
-    {
-      "id": "beyond-clinical-trials-real-world-evidence-life-sciences",
-      "title": "Beyond Clinical Trials: Real-World Evidence in Life Sciences",
-      "url": "https://www.akkodis.com/blog/articles/beyond-clinical-trials-real-world-evidence-life-sciences",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T01:02:31Z",
-      "published_date": null,
-      "summary_ja": "医薬品の承認後、医療現場での実際の治療効果を示す証拠が規制当局や保険者から求められるようになり、臨床試験だけでは不十分となっています。電子カルテやレジストリなどから得られるデータを継続的に収集・分析して信頼できる証拠を生成することが、組織全体で必要な能力になってきました。データの出所を明確にして品質を保つ仕組みや、統計分析と文書作成を継続的に行える体制整備など、運用面での改革が成功の鍵を握っています。"
     },
     {
       "id": "thinkers-and-makers-vol1-2026",
