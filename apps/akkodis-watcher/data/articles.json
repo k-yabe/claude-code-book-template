@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-10-10T02:02:54Z",
+  "last_scraped": "2026-10-11T01:30:10Z",
   "articles": [
     {
       "id": "long-range-drones-aerospace-defense",
@@ -59,16 +59,6 @@
       "first_seen": "2026-09-22T01:21:00Z",
       "published_date": "2026-09-21T00:00:00Z",
       "summary_ja": "生命科学業界では、臨床試験から製造、規制対応まで、仕事の流れに自然に組み込まれた形でAIが個別のタスクを効率化できるようになってきています。例えば臨床試験では遠隔データ収集とAIの組み合わせで患者の負担を減らしながらデータを充実させ、製造現場ではAIが異常パターンを早期に検知することで品質問題を未然に防げます。規制対応業務でも、AIが書類比較や情報分類といった事務作業を担当する一方で、安全に関わる最終判断は人間が責任を持つという使い分けにより、専門家の時間をより有効に使えるようになります。"
-    },
-    {
-      "id": "industry-4-0-vs-5-0-aerospace-building-foundation-for-ai",
-      "title": "Industry 4.0 vs Industry 5.0 in Aerospace: Building the Foundation for AI",
-      "url": "https://www.akkodis.com/blog/articles/industry-4-0-vs-5-0-aerospace-building-foundation-for-ai",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T00:57:51Z",
-      "published_date": "2026-09-11T00:00:00Z",
-      "summary_ja": "航空宇宙産業のメーカーの多くはまだ業界4.0の基礎となる連携したデータシステムや統一されたプロセスを構築している段階であり、先進的なAIやロボット化よりも優先すべきだと言われています。そのため、製造現場の標準化、センサーデータの接続、品質管理システムの一元化などの基盤を整えることが、後々のAI導入を効果的にするために重要です。同社では品質検査の自動化、予防保全、ベテラン職人の知識記録など、既にある課題から着手できるAI活用を実例として挙げており、こうしたステップを踏むことで初めて大規模なデジタル変革につながると述べています。"
     },
     {
       "id": "ai-infrastructure-strategy-where-should-workloads-run",
