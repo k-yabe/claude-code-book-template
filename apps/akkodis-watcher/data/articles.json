@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-10-12T01:55:04Z",
+  "last_scraped": "2026-10-13T03:20:10Z",
   "articles": [
     {
       "id": "long-range-drones-aerospace-defense",
@@ -71,25 +71,6 @@
       "summary_ja": "AIワークロードの配置先を決める際には、モデル選択と同じくらい基盤となるインフラ戦略が重要であり、パブリッククラウド、コロケーション施設、オンプレミスのデータセンターのいずれが適切かを、コスト、レイテンシ、耐障害性、ガバナンスの観点から判断する必要があります。従来のシステムと異なり、AIのトレーニングは継続的で高密度な処理が必要であり、推論は分散型でレイテンシに敏感であるなど、ワークロードの特性に応じた柔軟な基盤設計が求められます。企業がパートナーを選ぶ際には、現在の設備だけでなく将来の拡張や要件の変化に対応できるか、複数の利用レベルで経済性を説明できるかといった、長期的な選択肢を保つことができるかどうかを見極めることが大切です。"
     },
     {
-      "id": "ai-advances-herald-coding-changes",
-      "title": "AI Advances Herald Coding Changes",
-      "url": "https://www.akkodis.com/blog/articles/ai-advances-herald-coding-changes",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-17T01:00:11Z",
-      "published_date": null,
-      "summary_ja": "申し訳ございませんが、提供していただいたテキストは「An error occurred A server-side 500 error occurred. Go to the Home page」というエラーメッセージのみで、要約できるような記事本文が含まれていません。\n\n記事の本文内容をお手数ですが改めてお送りいただければ、ご指示の条件に沿って日本語3文で要約させていただきます。"
-    },
-    {
-      "id": "how-prebuilt-ai-agents-drive-enterprise-ai-roi",
-      "title": "How Prebuilt AI Agents Drive Enterprise AI ROI",
-      "url": "https://www.akkodis.com/blog/articles/how-prebuilt-ai-agents-drive-enterprise-ai-roi",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-10-05T01:25:36Z",
-      "published_date": null
-    },
-    {
       "id": "thinkers-and-makers-vol1-2026",
       "title": "Thinkers & Makers Vol.1 2026",
       "url": "https://www.akkodis.com/-/media/project/akkodis/akkodis/documents/thinkers_and_makers_vol1_2026.pdf",
@@ -142,6 +123,26 @@
       "source_label": "Thinkers & Makers",
       "published_date": "2024",
       "first_seen": "2026-03-14T10:15:00Z"
+    },
+    {
+      "id": "retail-it-service-desk-modernization",
+      "title": "Modernizing IT Service Desk for Scalable Retail Growth",
+      "url": "https://www.akkodis.com/blog/client-success/retail-it-service-desk-modernization",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-09-11T00:48:11Z",
+      "published_date": "2026-02-19T00:00:00Z",
+      "summary_ja": "北米の大手食品小売企業は、店舗の拡大に伴い従業員からのIT問題の相談が急増し、既存のヘルプデスクが低い初回解決率と長い対応時間に苦しんでいました。Akkodisは人工知能を活用したITサービスデスクを導入し、Amazon Connectと顧客情報管理システムを組み合わせることで、スタッフが問題をより迅速に解決できる環境を整備しました。その結果、初回解決率が35パーセント向上し、電話の切断率が40パーセント低下し、平均対応時間が25パーセント短縮されるなど、サービス品質の大幅な改善につながりました。"
+    },
+    {
+      "id": "ai-powered-it-modernization",
+      "title": "AI-Powered IT Ops Boost Efficiency for Global Discrete Manufacturer",
+      "url": "https://www.akkodis.com/blog/client-success/ai-powered-it-modernization",
+      "source_id": "client_stories",
+      "source_label": "Client Stories",
+      "first_seen": "2026-09-11T00:48:24Z",
+      "published_date": "2025-04-25T00:00:00Z",
+      "summary_ja": "産業用電源システムメーカーの顧客が複数のベンダーの統合と自動化に取り組んでおり、Akkodisは米国・欧州のオンサイト拠点とメキシコ・インドのオフショア拠点を組み合わせたグローバル体制を構築して24時間対応を実現しました。AI技術を活用した統一プラットフォームにより、200以上のアプリケーションの問題解決時間を30～40%短縮し、開発業務を30%削減することに成功しています。ベンダー統合と自動化による年2時点での20%のコスト削減を見込みながら、AI対応のサポートと自動化ポータルにより顧客満足度が向上し、安定した基盤が整備されました。"
     },
     {
       "id": "akkodis-supports-legrands-eco-responsibility-commitments",
@@ -562,26 +563,6 @@
       "first_seen": "2026-09-11T00:48:00Z",
       "published_date": "2025-03-27T00:00:00Z",
       "summary_ja": "医療機器大手が買収した工場でFDA基準違反を指摘され、生産承認が一時停止されるという危機的な状況にあったため、Akkodisが一元的な統治体制と実行責任を備えた大規模な改善プログラムを主導しました。エンジニアリングから規制対応まで複数部門の1100名以上を統合し、稼働中の製品供給に支障なく全ての改善活動をやり遂げました。その結果、FDA基準への完全な適合を達成して生産承認を再開でき、1170万ドルのコスト削減も同時に実現し、今後の検査や買収にも対応できる体制が整いました。"
-    },
-    {
-      "id": "retail-it-service-desk-modernization",
-      "title": "Modernizing IT Service Desk for Scalable Retail Growth",
-      "url": "https://www.akkodis.com/blog/client-success/retail-it-service-desk-modernization",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-09-11T00:48:11Z",
-      "published_date": "2026-02-19T00:00:00Z",
-      "summary_ja": "北米の大手食品小売企業は、店舗の拡大に伴い従業員からのIT問題の相談が急増し、既存のヘルプデスクが低い初回解決率と長い対応時間に苦しんでいました。Akkodisは人工知能を活用したITサービスデスクを導入し、Amazon Connectと顧客情報管理システムを組み合わせることで、スタッフが問題をより迅速に解決できる環境を整備しました。その結果、初回解決率が35パーセント向上し、電話の切断率が40パーセント低下し、平均対応時間が25パーセント短縮されるなど、サービス品質の大幅な改善につながりました。"
-    },
-    {
-      "id": "ai-powered-it-modernization",
-      "title": "AI-Powered IT Ops Boost Efficiency for Global Discrete Manufacturer",
-      "url": "https://www.akkodis.com/blog/client-success/ai-powered-it-modernization",
-      "source_id": "client_stories",
-      "source_label": "Client Stories",
-      "first_seen": "2026-09-11T00:48:24Z",
-      "published_date": "2025-04-25T00:00:00Z",
-      "summary_ja": "産業用電源システムメーカーの顧客が複数のベンダーの統合と自動化に取り組んでおり、Akkodisは米国・欧州のオンサイト拠点とメキシコ・インドのオフショア拠点を組み合わせたグローバル体制を構築して24時間対応を実現しました。AI技術を活用した統一プラットフォームにより、200以上のアプリケーションの問題解決時間を30～40%短縮し、開発業務を30%削減することに成功しています。ベンダー統合と自動化による年2時点での20%のコスト削減を見込みながら、AI対応のサポートと自動化ポータルにより顧客満足度が向上し、安定した基盤が整備されました。"
     },
     {
       "id": "state-utility-regional-power-compliance",
