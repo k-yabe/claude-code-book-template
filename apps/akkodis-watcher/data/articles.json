@@ -1,15 +1,15 @@
 {
-  "last_scraped": "2026-10-16T00:56:13Z",
+  "last_scraped": "2026-10-17T00:57:39Z",
   "articles": [
     {
-      "id": "akkodis-landcros-integrated-engineering",
-      "title": "Akkodis & LANDCROS: Integrated Engineering Support",
-      "url": "https://www.akkodis.com/blog/articles/akkodis-landcros-integrated-engineering",
+      "id": "digital-twin-a400m-maintenance",
+      "title": "The Digital Twin Applied to A400M Aircraft Maintenance",
+      "url": "https://www.akkodis.com/blog/articles/digital-twin-a400m-maintenance",
       "source_id": "blog",
       "source_label": "Akkodis Blog",
-      "first_seen": "2026-10-15T01:03:09Z",
-      "published_date": "2026-10-14T00:00:00Z",
-      "summary_ja": "Hitachi Construction Machinery Europeがランドクロスブランドへ移行する中で、建設機械に求められるニーズが単なる信頼性から、デジタル接続やカスタマイズ対応へと広がっています。アッコディスはオランダとチェコの拠点で機械工学に加えてソフトウェアや電気工学などの複数の専門分野を統合し、より複雑な機械開発に対応できるエンジニアリング組織を構築しました。この五年間のパートナーシップを通じて、顧客ニーズに応じた機械開発のスピードが上がり、市場投入までの時間を短縮できるようになります。"
+      "first_seen": "2026-10-17T00:53:49Z",
+      "published_date": "2026-10-16T00:00:00Z",
+      "summary_ja": "Airbus Defence & Spaceは、A400M航空機の保守管理にデジタルツインを導入し、これまで数千ページのPDFに分散していた技術・保守データを一元管理できるようにしました。3D表示されたモデル上の部品をクリックするだけで、修理や保守に必要なすべての関連データにアクセスでき、検索の手間を大幅に削減しています。従来のCADツールとは異なり読み込み時間がほぼ不要で、チーム間でのデータ共有も数秒で完了するため、複数の国で運用される航空機の保守効率が大きく向上しました。"
     },
     {
       "id": "iown-human-resource-development",
@@ -22,16 +22,6 @@
       "summary_ja": "Akkodisは次世代通信技術IOWNの実用化に向けて、基礎知識の習得に加えて、技術を実際の提案や事業に結びつけられる人材育成に注力しており、光通信技術の深い理解や顧客への説明能力を養うAPN研修と、技術理解をビジネス創出に繋ぐIOWN活用事例創出ワークショップを新たに開発しています。APN研修では光ファイバーや波長分割多重などの基礎から最新の技術動向まで体系的に学び、顧客に対して技術的根拠を持って価値を説明できる人材を目指しており、ワークショップではIOWN技術と社会課題を組み合わせた自由な思考を通じて、既存の枠にとらわれない新しいサービスや社会の形を生み出すことを目的としています。これらの取り組みは地域活性化など社会課題の解決にも活かされ、次世代人材育成と地域課題解決を同時に推進する構想となっています。"
     },
     {
-      "id": "akkodis-iown-journey",
-      "title": "The Future of Photonics, Built Through People: The Akkodis Journey Toward IOWN®",
-      "url": "https://www.akkodis.com/blog/articles/akkodis-iown-journey",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-10-15T01:03:25Z",
-      "published_date": null,
-      "summary_ja": "NTTグループが推進する次世代通信基盤「IOWN」の実現に向けて、Akkodisは2024年1月にIOWN推進室を設立し、人材育成とコンサルティングの両面からサポートを開始しました。データセンターの電力消費が急増する中で、IOWNは従来の電気通信に光技術を統合することで、エネルギー効率を100倍、通信容量を125倍に高めることを目指しており、世界規模で取り組む価値のあるプロジェクトだと考えています。2025年には東京の本社にIOWN FUSION BASEを開設し、IOWNの技術を実際に体験できる施設を用意することで、技術を理解し現場で活躍できる人材の育成と、複数の業界を巻き込んだ新しいビジネスの創出を進めています。"
-    },
-    {
       "id": "iown-global-forum-evolution",
       "title": "Evolution of IOWN Global Forum: From Vision to Reality",
       "url": "https://www.akkodis.com/blog/articles/iown-global-forum-evolution",
@@ -41,14 +31,24 @@
       "published_date": "2026-09-28T00:00:00Z"
     },
     {
-      "id": "long-range-drones-aerospace-defense",
-      "title": "As Long-Range Drones Scale Up, Production and Integration Demand Follows",
-      "url": "https://www.akkodis.com/blog/articles/long-range-drones-aerospace-defense",
+      "id": "akkodis-landcros-integrated-engineering",
+      "title": "Akkodis & LANDCROS: Integrated Engineering Support",
+      "url": "https://www.akkodis.com/blog/articles/akkodis-landcros-integrated-engineering",
       "source_id": "blog",
       "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-19T00:45:12Z",
-      "published_date": "2026-09-17T00:00:00Z",
-      "summary_ja": "長時間飛行できるドローンが次々と実用化されることで、航空宇宙防衛業界の運用方法が大きく変わっています。従来は撮影後に基地に帰還して人間がデータを確認するのが主流でしたが、最新のドローンは数時間の飛行中にAIがリアルタイムで情報を処理し、複数のドローンやセンサーが連携して同時に異なるエリアで任務を遂行できるようになりました。こうした能力の向上に伴い、飛行機の検査や森林火災の監視、海域での危険物の探知など、従来は有人航空機や多くの人手が必要だった業務がドローンに置き換わりつつあります。"
+      "first_seen": "2026-10-15T01:03:09Z",
+      "published_date": "2026-10-14T00:00:00Z",
+      "summary_ja": "Hitachi Construction Machinery Europeがランドクロスブランドへ移行する中で、建設機械に求められるニーズが単なる信頼性から、デジタル接続やカスタマイズ対応へと広がっています。アッコディスはオランダとチェコの拠点で機械工学に加えてソフトウェアや電気工学などの複数の専門分野を統合し、より複雑な機械開発に対応できるエンジニアリング組織を構築しました。この五年間のパートナーシップを通じて、顧客ニーズに応じた機械開発のスピードが上がり、市場投入までの時間を短縮できるようになります。"
+    },
+    {
+      "id": "akkodis-iown-journey",
+      "title": "The Future of Photonics, Built Through People: The Akkodis Journey Toward IOWN®",
+      "url": "https://www.akkodis.com/blog/articles/akkodis-iown-journey",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-10-15T01:03:25Z",
+      "published_date": null,
+      "summary_ja": "NTTグループが推進する次世代通信基盤「IOWN」の実現に向けて、Akkodisは2024年1月にIOWN推進室を設立し、人材育成とコンサルティングの両面からサポートを開始しました。データセンターの電力消費が急増する中で、IOWNは従来の電気通信に光技術を統合することで、エネルギー効率を100倍、通信容量を125倍に高めることを目指しており、世界規模で取り組む価値のあるプロジェクトだと考えています。2025年には東京の本社にIOWN FUSION BASEを開設し、IOWNの技術を実際に体験できる施設を用意することで、技術を理解し現場で活躍できる人材の育成と、複数の業界を巻き込んだ新しいビジネスの創出を進めています。"
     },
     {
       "id": "akkodis-futurepath-ai-partnership-enterprise-ai",
