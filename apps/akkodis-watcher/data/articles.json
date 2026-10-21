@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-10-20T01:24:21Z",
+  "last_scraped": "2026-10-21T01:08:46Z",
   "articles": [
     {
       "id": "digital-twin-a400m-maintenance",
@@ -79,16 +79,6 @@
       "first_seen": "2026-10-07T01:53:29Z",
       "published_date": "2026-10-06T00:00:00Z",
       "summary_ja": "多くの企業がAIモデルやツールへのアクセスを手に入れた今、パイロット段階から本番運用への移行が新たな課題になっています。本番環境では実データの扱いや既存システムとの連携、予期しない例外対応など、管理された実験環境とは異なる複雑な制約が生じるため、この「実行ギャップ」を埋めることが重要です。各プロジェクトで得た知見を次の導入に活かせる体制を整えることで、一度成功したAIの仕組みを繰り返し使える能力を組織内に作ることが競争力につながります。エンジニアを業務プロセスの現場に配置し、データがどこから来るのか、どこで遅延が生じるのか、どの判断に人間の責任が必要なのかといった具体的な問題を一緒に解決することで、AIが実際に機能する環境を整備できます。"
-    },
-    {
-      "id": "ai-in-life-sciences-practical-use-cases",
-      "title": "AI in Life Sciences: Practical Use Cases in Key Workflows",
-      "url": "https://www.akkodis.com/blog/articles/ai-in-life-sciences-practical-use-cases",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-22T01:21:00Z",
-      "published_date": "2026-09-21T00:00:00Z",
-      "summary_ja": "生命科学業界では、臨床試験から製造、規制対応まで、仕事の流れに自然に組み込まれた形でAIが個別のタスクを効率化できるようになってきています。例えば臨床試験では遠隔データ収集とAIの組み合わせで患者の負担を減らしながらデータを充実させ、製造現場ではAIが異常パターンを早期に検知することで品質問題を未然に防げます。規制対応業務でも、AIが書類比較や情報分類といった事務作業を担当する一方で、安全に関わる最終判断は人間が責任を持つという使い分けにより、専門家の時間をより有効に使えるようになります。"
     },
     {
       "id": "ai-infrastructure-strategy-where-should-workloads-run",
