@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-10-27T01:44:07Z",
+  "last_scraped": "2026-10-28T01:57:29Z",
   "articles": [
     {
       "id": "digital-twin-a400m-maintenance",
@@ -20,15 +20,6 @@
       "first_seen": "2026-10-14T01:28:30Z",
       "published_date": "2026-10-13T00:00:00Z",
       "summary_ja": "Akkodisは次世代通信技術IOWNの実用化に向けて、基礎知識の習得に加えて、技術を実際の提案や事業に結びつけられる人材育成に注力しており、光通信技術の深い理解や顧客への説明能力を養うAPN研修と、技術理解をビジネス創出に繋ぐIOWN活用事例創出ワークショップを新たに開発しています。APN研修では光ファイバーや波長分割多重などの基礎から最新の技術動向まで体系的に学び、顧客に対して技術的根拠を持って価値を説明できる人材を目指しており、ワークショップではIOWN技術と社会課題を組み合わせた自由な思考を通じて、既存の枠にとらわれない新しいサービスや社会の形を生み出すことを目的としています。これらの取り組みは地域活性化など社会課題の解決にも活かされ、次世代人材育成と地域課題解決を同時に推進する構想となっています。"
-    },
-    {
-      "id": "iown-global-forum-evolution",
-      "title": "Evolution of IOWN Global Forum: From Vision to Reality",
-      "url": "https://www.akkodis.com/blog/articles/iown-global-forum-evolution",
-      "source_id": "blog",
-      "source_label": "Akkodis Blog",
-      "first_seen": "2026-09-30T01:43:59Z",
-      "published_date": "2026-09-28T00:00:00Z"
     },
     {
       "id": "akkodis-landcros-integrated-engineering",
@@ -79,6 +70,16 @@
       "first_seen": "2026-10-07T01:53:29Z",
       "published_date": "2026-10-06T00:00:00Z",
       "summary_ja": "多くの企業がAIモデルやツールへのアクセスを手に入れた今、パイロット段階から本番運用への移行が新たな課題になっています。本番環境では実データの扱いや既存システムとの連携、予期しない例外対応など、管理された実験環境とは異なる複雑な制約が生じるため、この「実行ギャップ」を埋めることが重要です。各プロジェクトで得た知見を次の導入に活かせる体制を整えることで、一度成功したAIの仕組みを繰り返し使える能力を組織内に作ることが競争力につながります。エンジニアを業務プロセスの現場に配置し、データがどこから来るのか、どこで遅延が生じるのか、どの判断に人間の責任が必要なのかといった具体的な問題を一緒に解決することで、AIが実際に機能する環境を整備できます。"
+    },
+    {
+      "id": "edge-ai-vs-cloud-ai-real-time-operations",
+      "title": "Edge AI vs. Cloud AI: Building for Real-Time Operations",
+      "url": "https://www.akkodis.com/blog/articles/edge-ai-vs-cloud-ai-real-time-operations",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-10-28T01:55:41Z",
+      "published_date": null,
+      "summary_ja": "製造業や物流、エネルギー業界では、AIがクラウドで動くか機器の近くで動くかで、システムの信頼性が大きく変わることが分かってきました。ネットワークが不安定になると、クラウド型は応答に遅延が生じますが、機器の近くにAIを配置すれば、ミリ秒単位の判断が必要な品質管理や安全管理を現場で独立して実行できるようになります。実際には、両方の方式を組み合わせて、訓練や長期分析はクラウドで行い、リアルタイム判断は現場のAIに任せるハイブリッド設計が最も強力な選択肢です。"
     },
     {
       "id": "ai-infrastructure-strategy-where-should-workloads-run",
