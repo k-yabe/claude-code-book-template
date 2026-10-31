@@ -1,5 +1,5 @@
 {
-  "last_scraped": "2026-10-30T02:17:40Z",
+  "last_scraped": "2026-10-31T01:59:36Z",
   "articles": [
     {
       "id": "digital-twin-a400m-maintenance",
@@ -40,6 +40,15 @@
       "first_seen": "2026-10-15T01:03:25Z",
       "published_date": null,
       "summary_ja": "NTTグループが推進する次世代通信基盤「IOWN」の実現に向けて、Akkodisは2024年1月にIOWN推進室を設立し、人材育成とコンサルティングの両面からサポートを開始しました。データセンターの電力消費が急増する中で、IOWNは従来の電気通信に光技術を統合することで、エネルギー効率を100倍、通信容量を125倍に高めることを目指しており、世界規模で取り組む価値のあるプロジェクトだと考えています。2025年には東京の本社にIOWN FUSION BASEを開設し、IOWNの技術を実際に体験できる施設を用意することで、技術を理解し現場で活躍できる人材の育成と、複数の業界を巻き込んだ新しいビジネスの創出を進めています。"
+    },
+    {
+      "id": "long-range-drones-aerospace-defense",
+      "title": "As Long-Range Drones Scale Up, Production and Integration Demand Follows",
+      "url": "https://www.akkodis.com/blog/articles/long-range-drones-aerospace-defense",
+      "source_id": "blog",
+      "source_label": "Akkodis Blog",
+      "first_seen": "2026-10-31T01:56:08Z",
+      "published_date": null
     },
     {
       "id": "akkodis-futurepath-ai-partnership-enterprise-ai",
