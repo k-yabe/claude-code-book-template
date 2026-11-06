@@ -1,5 +1,5 @@
 {
-  "ranAt": "2026-11-05T02:59:46.104736+00:00",
+  "ranAt": "2026-11-06T03:01:15.032951+00:00",
   "anthropicKeySet": true,
   "openaiKeySet": true,
   "sources": 68,
@@ -14,9 +14,9 @@
     "azureKeySet": false,
     "elevenKeySet": false,
     "openaiKeySet": true,
-    "scriptChars": 2043,
+    "scriptChars": 1621,
     "scriptSource": "claude",
-    "mp3Bytes": 1276940
+    "mp3Bytes": 1023692
   },
-  "durationSec": 306.4
+  "durationSec": 323.9
 }
